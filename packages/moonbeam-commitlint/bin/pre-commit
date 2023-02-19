@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# Check where the Husky executable lives depending on the type of package
+# ToDo: this should be enabled in case we use this outside of the main repository.
+#if [ -d "$(dirname "$0")/_/" ]; then
+#  . "$(dirname "$0")/_/husky.sh"
+#
+#elif [ -d "$(dirname "$1")/.husky/_/" ]; then
+#  . "$(dirname "$1")/.husky/_/husky.sh"
+#fi
+
+# For now we decided to skip the test and build command for pre-commit Hooks.
+# ToDo: this can be enabled in the future, depending on how long the test/build take.
+# npm test
+# npm run build
+
+. "$(dirname "$0")/_/husky.sh"
+echo 'defaulting to commit-msg hook...'

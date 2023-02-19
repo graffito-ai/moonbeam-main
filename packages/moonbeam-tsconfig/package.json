@@ -1,0 +1,13 @@
+{
+  "name": "@moonbeam/moonbeam-tsconfig",
+  "version": "1.0.0",
+  "description": "This sub-package represents the library used to expose Moonbeam's Typescript configuration.",
+  "main": "tsconfig.json",
+  "repository": "https://github.com/moonnbm/moonbeam-main/tree/main/packages/moonbeam-tsconfig",
+  "author": "Marius Acsinte <marius@moonbeam.vet>",
+  "license": "Moonbeam Inc. Proprietary Code License <https://github.com/moonnbm/moonbeam-main/blob/main/LICENSE>",
+  "scripts": {
+    "clean": "rm -rf build/ dist/ node_modules/"
+  },
+  "private": true
+}

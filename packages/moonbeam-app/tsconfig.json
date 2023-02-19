@@ -1,0 +1,6 @@
+{
+  "extends": "@moonbeam/moonbeam-tsconfig",
+  "compilerOptions": {
+    "strict": true
+  }
+}

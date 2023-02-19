@@ -1,0 +1,43 @@
+#!/bin/sh
+
+# Check where the Husky executable lives depending on the type of package
+# ToDo: this should be enabled in case we use this outside of the main repository.
+#if [ -d "$(dirname "$0")/_/" ]; then
+#  . "$(dirname "$0")/_/husky.sh"
+#
+#elif [ -d "$(dirname "$1")/.husky/_/" ]; then
+#  . "$(dirname "$1")/.husky/_/husky.sh"
+#fi
+#
+# ToDo: this should be enabled in case we want to use different commit formats for different branches.
+#branch="$(git rev-parse --abbrev-ref HEAD)"
+#if [ "$branch" = "mainline" ]; then fi
+
+. "$(dirname "$0")/_/husky.sh"
+npx --no -- commitlint --edit $1 || (echo "Commitlint failed, expected format is:
+#######################################################################################
+#######################################################################################
+<type>(scope): #<issue_number> - <subject - max length 72 characters>
+# Example:
+# feat(moonbeam-commitlint): this is a super cool commit message
+
+[body - max length 500 characters]
+# Example:
+# Very nicely written commit message body!
+
+<footer with ticket references>
+# Example:
+# MOONBM-123
+
+########################################################################################
+# types:             ['feat', 'fix', 'docs', 'style', 'refactor', 'test', 'revert']
+# scope:             ['name of mono repo', 'name of sub-package within /packages/ directory']
+# ticket references: ['MOONBM-']
+# '<>':              means REQUIRED, will always need to get replaced by some content
+# '[]':              means OPTIONAL, will sometimes need to get replaced by some content
+#
+# For more information on what committing standards we use, refer to: https://www.conventionalcommits.org/en/v1.0.0/#specification
+# For more information on how we enforce these rules, refer to: https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/paths/packages/moonbeam-commitlint/src/index.ts/browse
+#######################################################################################
+#######################################################################################
+" && (exit 1))

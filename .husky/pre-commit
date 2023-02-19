@@ -1,0 +1,2 @@
+#!/bin/sh
+. "$(dirname "$2")/packages/moonbeam-commitlint/bin/pre-commit"

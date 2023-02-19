@@ -1,0 +1,21 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-mooonbeamapp-dev-125305-authRole",
+      "UnauthRoleArn": "arn:aws:iam::963863720257:role/amplify-mooonbeamapp-dev-125305-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::963863720257:role/amplify-mooonbeamapp-dev-125305-authRole",
+      "Region": "us-west-2",
+      "DeploymentBucketName": "amplify-mooonbeamapp-dev-125305-deployment",
+      "UnauthRoleName": "amplify-mooonbeamapp-dev-125305-unauthRole",
+      "StackName": "amplify-mooonbeamapp-dev-125305",
+      "StackId": "arn:aws:cloudformation:us-west-2:963863720257:stack/amplify-mooonbeamapp-dev-125305/60b4c860-a3fc-11ed-b9d7-0abb6c086fe5",
+      "AmplifyAppId": "d15fjpicvpp6gw"
+    },
+    "categories": {
+      "auth": {
+        "mooonbeamapp997da008": {},
+        "mooonbeamapp": {}
+      }
+    }
+  }
+}
