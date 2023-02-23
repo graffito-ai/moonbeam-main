@@ -15,6 +15,9 @@
       "auth": {
         "mooonbeamapp997da008": {},
         "mooonbeamapp": {}
+      },
+      "api": {
+        "referralApi": {}
       }
     }
   }

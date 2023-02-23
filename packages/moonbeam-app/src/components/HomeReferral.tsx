@@ -19,6 +19,7 @@ export const HomeReferral = ({}: HomeReferralProps) => {
     // state driven key-value pairs for any specific data values
     const [currentUserName, setCurrentUserName] = useState<string>();
     const [currentUserEmail, setCurrentUserEmail] = useState<string>();
+    const [currentUserNameFormatted, setCurrentUserNameFormatted] = useState<string>();
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -29,8 +30,16 @@ export const HomeReferral = ({}: HomeReferralProps) => {
      */
     useEffect(() => {
         Auth.currentUserInfo().then((userInfo) => {
-            setCurrentUserEmail(userInfo.attributes["email"]);
-            setCurrentUserName(userInfo.attributes["name"]);
+            setCurrentUserEmail(userInfo.attributes["email"].toLowerCase());
+
+            // merge name parts (first, middle and last)
+            let fullName: string = '';
+            // @ts-ignore
+            userInfo.attributes["name"].match(/[A-Z][a-z]+/g).forEach((name) => {
+                fullName += `${name}`;
+            });
+            setCurrentUserName(fullName);
+            setCurrentUserNameFormatted(userInfo.attributes["name"]);
         });
     }, []);
 
@@ -41,9 +50,7 @@ export const HomeReferral = ({}: HomeReferralProps) => {
         try {
             const result = await Share.share({
                 message:
-                    `${currentUserName} is inviting you to join the Moonbeam Alpha card program,
-                     specifically tailored for veterans like you.\nA new member reward of 10,000 Points is waiting for you,
-                     once you get approved for the card.\nFollow the link below to continue:\n\n${Linking.createURL('/')}signup/${currentUserEmail}/${currentUserName}`,
+                    `${currentUserNameFormatted} is inviting you to join the Moonbeam Alpha card program, specifically tailored for veterans like you.\nA new member reward of 10,000 Points is waiting for you, once you get approved for the card.\nFollow the link below to continue:\n\n${Linking.createURL('/')}signup/${currentUserEmail}/${currentUserName}`,
             });
             if (result.action === Share.sharedAction) {
                 // shared
