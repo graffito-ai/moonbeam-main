@@ -1,4 +1,5 @@
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
+import React from "react";
 
 /**
  * The default list of params, to be used across all root stack props.
@@ -10,6 +11,10 @@ export type RootStackParamList = {
     },
     SignUp: {
         initialRender: boolean;
+        setSignUpBackButtonVisible?: React.Dispatch<React.SetStateAction<boolean>>;
+        onLayoutRootView?: () => Promise<void>;
+        referredBy?: string;
+        referredByName?: string;
     },
     EmailVerify: {
         username: string;

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Dimensions, ImageBackground, Keyboard, Platform, SafeAreaView, Text, View} from "react-native";
+import {Dimensions, Image, ImageBackground, Keyboard, Platform, SafeAreaView, Text, View} from "react-native";
 import {SignUpProps} from "../models/RootProps";
 import {commonStyles} from '../styles/common.module';
 import {styles} from '../styles/signUp.module';
@@ -14,6 +14,8 @@ import {useValidation} from 'react-native-form-validator';
 import moment from 'moment';
 import {Auth} from 'aws-amplify';
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
+// @ts-ignore
+import FriendReferral from '../../assets/refer-friend.png';
 
 /**
  * Sign Up component.
@@ -32,7 +34,8 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
     const [confirmPasswordFocus, setIsConfirmPasswordFocus] = useState<boolean>(false);
     const [registerButtonShown, setIsRegisterButtonShown] = useState<boolean>(false);
     const [isInitialRender, setIsInitialRender] = useState<boolean>(route.params.initialRender);
-    const [modalVisible, setModalVisible] = useState<boolean>(false);
+    const [signUpErrorModalVisible, setSignUpErrorModalVisible] = useState<boolean>(false);
+    const [referralSignUpModalVisible, setReferralSignUpModalVisible] = useState<boolean>(false);
     const [modalError, setModalError] = useState<string>("");
     const [androidScrollPadding, setAndroidScrollPadding] = useState<number>(1);
     // state driven key-value pairs for signup form values
@@ -228,7 +231,7 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
      *
      * @param username new user's username, synonymous with their email
      * @param name new user's name
-     * @param birthDate new user's birth date
+     * @param birthDate new user's birthdate
      * @param dutyStatus new user's duty status
      * @param militaryRank new user's military rank
      * @param dutyStation new user's duty station
@@ -258,7 +261,7 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
         } catch (error) {
             // @ts-ignore
             setModalError(error.message);
-            setModalVisible(true);
+            setSignUpErrorModalVisible(true);
             console.log(`Unexpected error while Signing Up: ${error}`);
         }
     }
@@ -333,6 +336,15 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
             }
             phoneNumber === "" && setPhoneNumberErrors([]);
         } else {
+            // check that if this is a deep link, with a referred by parameter
+            if (route.params.referredBy) {
+                // that the back button for the navigation is hidden
+                route.params.setSignUpBackButtonVisible && route.params.setSignUpBackButtonVisible(false);
+
+                // that the referral modal is shown
+                setReferralSignUpModalVisible(true);
+            }
+
             setIsInitialRender(false);
         }
 
@@ -341,13 +353,14 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
             keyboardDidHideListener.remove();
             keyboardDidShowListener.remove();
         };
-    }, [androidScrollPadding, email, name, birthDate, duty,
+    }, [route.params, androidScrollPadding, email, name, birthDate, duty,
         rank, dutyStation, password, confirmPassword,
         phoneNumber, emailFocus, nameFocus, birthDateFocus,
         dutyOpen, rankFocus, dutyStationFocus, passwordFocus,
         confirmPasswordFocus, phoneFocus]);
 
     // return the component for the SignUp page
+    // @ts-ignore
     return (
         <ImageBackground
             imageStyle={{
@@ -356,7 +369,38 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
             style={commonStyles.image}
             source={require('../../assets/signup-background.png')}>
             <Portal>
-                <Modal dismissable={false} visible={modalVisible} onDismiss={() => setModalVisible(false)}
+                <Modal dismissable={false} visible={referralSignUpModalVisible}
+                       onDismiss={() => setReferralSignUpModalVisible(false)}
+                       contentContainerStyle={styles.referralModalContainer}>
+                    <View style={styles.mainReferralView}>
+                                <View style={styles.referralMessageView}>
+                                    <Text style={styles.referralMessageTitle}>{route.params.referredByName!}</Text>
+                                    <Text style={styles.referralMessageSubtitle}>referred you to the Alpha Program</Text>
+                                </View>
+                                <View style={{marginTop: '-30%'}}>
+                                    <Image source={FriendReferral} style={styles.referralArt}></Image>
+                                </View>
+                                <View style={styles.referralMessageView}>
+                                    <Text style={styles.referralMessageTitle}>Earn 10,000 Points</Text>
+                                    <Text style={styles.referralMessageSubtitle}>Alpha card approval is required for redeeming Points.</Text>
+                                </View>
+                                <Button
+                                    onPress={() => {setReferralSignUpModalVisible(false)}}
+                                    uppercase={false}
+                                    style={styles.referSignUpButton}
+                                    textColor={"#f2f2f2"}
+                                    buttonColor={"#2A3779"}
+                                    mode="outlined"
+                                    labelStyle={{fontSize: 18}}
+                                    icon={"account-plus"}>
+                                    Sign Up
+                                </Button>
+                    </View>
+                </Modal>
+            </Portal>
+            <Portal>
+                <Modal dismissable={false} visible={signUpErrorModalVisible}
+                       onDismiss={() => setSignUpErrorModalVisible(false)}
                        contentContainerStyle={styles.modalContainer}>
                     <Text style={styles.modalParagraph}>{modalError}</Text>
                     <Button
@@ -368,7 +412,7 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
                         mode="outlined"
                         labelStyle={{fontSize: 15}}
                         onPress={() => {
-                            setModalVisible(false)
+                            setSignUpErrorModalVisible(false)
                         }}>
                         Try Again
                     </Button>
@@ -376,13 +420,15 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
             </Portal>
             <SafeAreaView style={commonStyles.rowContainer}>
                 <KeyboardAwareScrollView
+                    onLayout={route.params.onLayoutRootView}
                     enableOnAndroid={true}
                     scrollEnabled={true}
-                    contentContainerStyle={[commonStyles.keyboardScrollViewContainer, Platform.OS === 'android' ? {height: Dimensions.get("window").height + androidScrollPadding}: {flex : 1}]}
+                    contentContainerStyle={[commonStyles.keyboardScrollViewContainer, Platform.OS === 'android' ? {height: Dimensions.get("window").height + androidScrollPadding} : {flex: 1}]}
                     keyboardShouldPersistTaps={'handled'}
                 >
                     <View style={{flex: 1}}>
-                        <View style={[{alignSelf: 'center'}, Platform.OS === 'android' && {marginTop: '15%'}]}>
+                        <View
+                            style={[{alignSelf: 'center'}, Platform.OS === 'android' && {marginTop: '15%'}, route.params.referredBy !== undefined && {marginTop: '10%'}]}>
                             <Text style={styles.signupTitle}>Welcome</Text>
                             <Text style={styles.signupSubtitle}>Let's set up an account</Text>
                         </View>
@@ -538,7 +584,8 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
                                             style={styles.initialDropdownPicker}
                                             textStyle={{fontFamily: 'Raleway-Regular'}}
                                             open={dutyOpen}
-                                            onOpen={() => {}}
+                                            onOpen={() => {
+                                            }}
                                             onClose={() => setIsDutyOpen(false)}
                                             value={duty}
                                             items={dutyItems}

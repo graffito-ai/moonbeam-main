@@ -1,4 +1,4 @@
-import {Platform, StyleSheet} from "react-native";
+import {Dimensions, Platform, StyleSheet} from "react-native";
 
 // styles to be used within the SignUp component
 export const styles = StyleSheet.create({
@@ -172,11 +172,57 @@ export const styles = StyleSheet.create({
     modalContainer: {
         alignSelf: 'center',
         backgroundColor: 'white',
-        width: 400,
+        height: Dimensions.get('window').height/6,
         borderRadius: 15,
         padding: 20,
         borderWidth: 1,
         borderColor: 'red'
+    },
+    referralModalContainer: {
+        alignSelf: 'center',
+        backgroundColor: 'white',
+        width: Dimensions.get('window').width,
+        height: Dimensions.get('window').height/1.2,
+        borderRadius: 15,
+        padding: 20,
+    },
+    mainReferralView: {
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    referralMessageView: {
+        flex: 0.3,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    referralMessageTitle: {
+        marginTop: '10%',
+        fontSize: 25,
+        fontFamily: 'Raleway-Medium',
+        color: '#313030'
+    },
+    referralMessageSubtitle: {
+        fontSize: 15,
+        fontFamily: 'Raleway-Regular',
+        textAlign: 'center',
+        height: Dimensions.get('window').height/5,
+        width:  Dimensions.get('window').width/1.3,
+        color: '#313030'
+    },
+    referralArt: {
+        alignSelf: 'center',
+        width: Dimensions.get('window').width / 1.5,
+        height: Dimensions.get('window').height / 3.5,
+    },
+    referSignUpButton: {
+        borderRadius: 25,
+        borderColor: '#313030',
+        height: 50,
+        width: 350,
+        marginTop: '10%'
     },
     modalButton: {
         borderRadius: 25,

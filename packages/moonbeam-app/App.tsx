@@ -10,9 +10,9 @@ import {theme} from './src/utils/Theme';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {RootStackParamList} from './src/models/RootProps';
-import { EmailVerify } from './src/components/EmailVerify';
-import { ForgotPassword } from './src/components/ForgotPassword';
-import { Dashboard } from './src/components/Dashboard';
+import {EmailVerify} from './src/components/EmailVerify';
+import {ForgotPassword} from './src/components/ForgotPassword';
+import {Dashboard} from './src/components/Dashboard';
 import {Logs} from "expo";
 import * as Linking from 'expo-linking';
 
@@ -30,7 +30,10 @@ Logs.enableExpoCliLogging()
  */
 export default function App() {
     // state used to keep track of whether the application is ready to load or not
-    const [appIsReady, setAppIsReady] = useState(false);
+    const [appIsReady, setAppIsReady] = useState<boolean>(false);
+
+    // state used to keep track of whether a deep link is used for the SignUp component, in order to display the back button
+    const [isSignUpBackButtonVisible, setSignUpBackButtonVisible] = useState<boolean>(true);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -69,6 +72,7 @@ export default function App() {
             } finally {
                 // tell the application to render
                 setAppIsReady(true);
+                // remove Linking listener
             }
         }
         prepare();
@@ -92,10 +96,23 @@ export default function App() {
         const Stack = createNativeStackNavigator<RootStackParamList>();
 
         // enabling the linking configuration for creating links to the application screens, based on the navigator
-        const linkingConfig = {
+        const config = {
             screens: {
-                SignIn: 'singin',
-                SignUp: 'signup'
+                SignUp: {
+                    path: 'signup/:referredBy/:referredByName',
+                    parse: {
+                        referredBy: (referredBy: string) => referredBy,
+                        referredByName: (referredByName: string) => {
+                            let fullName: string = '';
+                            // @ts-ignore
+                            referredByName.match(/[A-Z][a-z]+/g).forEach((name) => {
+                                fullName += ` ${name}`;
+                            });
+                            return fullName.trimEnd().trimStart();
+                        }
+                    }
+                }
+
             },
         };
 
@@ -107,7 +124,7 @@ export default function App() {
          */
         const linking = {
             prefixes: [Linking.createURL('/')],
-            linkingConfig,
+            config,
         };
 
         // return the component for the application
@@ -128,9 +145,10 @@ export default function App() {
                                 headerTransparent: true,
                                 title: '',
                                 headerBackTitleVisible: false,
-                                headerTintColor: '#2A3779'
+                                headerTintColor: '#2A3779',
+                                headerShown: isSignUpBackButtonVisible
                             }}
-                            initialParams={{initialRender: true}}
+                            initialParams={{onLayoutRootView: onLayoutRootView, initialRender: true, setSignUpBackButtonVisible: setSignUpBackButtonVisible}}
                         />
                         <Stack.Screen
                             name="EmailVerify"
@@ -148,6 +166,7 @@ export default function App() {
                                 headerBackTitleVisible: false,
                                 headerTintColor: '#2A3779'
                             }}
+                            initialParams={{initialRender: true}}
                         />
                         <Stack.Screen
                             name="Dashboard"

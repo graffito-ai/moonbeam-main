@@ -52,6 +52,7 @@ export const styles = StyleSheet.create({
         borderColor: '#313030',
         height: 50,
         width: 350,
-        marginTop: '20%'
+        marginTop: '20%',
+        marginBottom: '20%'
     }
 });

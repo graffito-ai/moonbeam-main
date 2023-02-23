@@ -18,6 +18,7 @@ export const HomeReferral = ({}: HomeReferralProps) => {
 
     // state driven key-value pairs for any specific data values
     const [currentUserName, setCurrentUserName] = useState<string>();
+    const [currentUserEmail, setCurrentUserEmail] = useState<string>();
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -28,6 +29,7 @@ export const HomeReferral = ({}: HomeReferralProps) => {
      */
     useEffect(() => {
         Auth.currentUserInfo().then((userInfo) => {
+            setCurrentUserEmail(userInfo.attributes["email"]);
             setCurrentUserName(userInfo.attributes["name"]);
         });
     }, []);
@@ -39,14 +41,19 @@ export const HomeReferral = ({}: HomeReferralProps) => {
         try {
             const result = await Share.share({
                 message:
-                    `${currentUserName} is inviting you to join the Moonbeam Alpha card program, specifically tailored for veterans like you.\nA new member reward of 10,000 Points is waiting for you, once you get the card. ${Linking.createURL('/')}signup`,
+                    `${currentUserName} is inviting you to join the Moonbeam Alpha card program,
+                     specifically tailored for veterans like you.\nA new member reward of 10,000 Points is waiting for you,
+                     once you get approved for the card.\nFollow the link below to continue:\n\n${Linking.createURL('/')}signup/${currentUserEmail}/${currentUserName}`,
             });
             if (result.action === Share.sharedAction) {
-                if (result.activityType) {
-                    // shared with activity type of result.activityType
-                } else {
-                    // shared
-                }
+                // shared
+
+
+                // if (result.activityType) {
+                //     // shared with activity type of result.activityType
+                // } else {
+                //     // shared
+                // }
             } else if (result.action === Share.dismissedAction) {
                 // dismissed
             }
