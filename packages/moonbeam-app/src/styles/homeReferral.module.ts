@@ -54,5 +54,29 @@ export const styles = StyleSheet.create({
         width: 350,
         marginTop: '20%',
         marginBottom: '20%'
+    },
+    modalContainer: {
+        alignSelf: 'center',
+        backgroundColor: 'white',
+        height: Dimensions.get('window').height/6,
+        borderRadius: 15,
+        padding: 20,
+        borderWidth: 1,
+        borderColor: 'red'
+    },
+    modalParagraph: {
+        textAlign: 'center',
+        alignSelf: 'flex-start',
+        fontFamily: 'Raleway-Regular',
+        fontSize: 16,
+        width: 350,
+        color: '#313030'
+    },
+    modalButton: {
+        borderRadius: 25,
+        borderColor: 'red',
+        height: 40,
+        width: 350,
+        marginTop: '10%'
     }
 });

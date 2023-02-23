@@ -5,7 +5,8 @@
 enum ReferralStatus {
   REDEEMED,
   NOT_REDEEMED,
-  INITIATED
+  INITIATED,
+  INVALID
 }
 
 enum OfferType {
@@ -20,4 +21,7 @@ type Referral @model @auth(rules: [{ allow: owner }]) {
   offerType: OfferType!
   inviteeEmail: String!
   inviterEmail: String!
+  inviterName: String!
+  statusInviter: ReferralStatus!
+  statusInvitee: ReferralStatus!
 }

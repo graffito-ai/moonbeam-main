@@ -59,7 +59,7 @@ export const styles = StyleSheet.create({
     },
     congratulationsSplash: {},
     textInput: {
-        marginTop: 50,
+        marginTop: 20,
         width: 350,
         backgroundColor: '#f2f2f2',
         shadowColor: '#313030',

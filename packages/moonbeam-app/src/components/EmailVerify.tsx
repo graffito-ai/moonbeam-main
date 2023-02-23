@@ -1,15 +1,17 @@
 import React, {useEffect, useState} from "react";
 import {EmailVerifyProps} from "../models/RootProps";
-import {Dimensions, Image, ImageBackground, Text, View} from "react-native";
+import {Dimensions, Image, ImageBackground, NativeModules, Text, View} from "react-native";
 import {commonStyles} from "../styles/common.module";
 import {styles} from "../styles/emailVerify.module";
 // @ts-ignore
 import CongratulationsSplash from '../../assets/congratulations.png';
 import {Button, Modal, Portal, TextInput} from "react-native-paper";
-import {Auth} from "aws-amplify";
+import {API, Auth, graphqlOperation} from "aws-amplify";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 // @ts-ignore
 import {useValidation} from 'react-native-form-validator';
+import {updateReferral} from '../graphql/mutations';
+import {ReferralStatus} from "../models";
 
 /**
  * Email Verification component.
@@ -80,20 +82,44 @@ export const EmailVerify = ({navigation, route}: EmailVerifyProps) => {
      * @param code verification code inputted by the user
      */
     const onConfirmPressed = async (code: string) => {
-        try {
-            await Auth.confirmSignUp(route.params.username, code);
+        Auth.confirmSignUp(route.params.username, code).then(async () => {
+            // depending on whether the EmailVerify resulted from a referral or not, perform separate flows
+            if (route.params.referralId && route.params._version && route.params.status) {
+                // only update a referral when needed
+                if (route.params.status !== ReferralStatus.REDEEMED && route.params.status !== ReferralStatus.INVALID) {
+                    // create a timestamp to keep track of when the referral was last updated
+                    const updatedAt = new Date().toISOString();
+
+                    // update thre referral object in the list of referrals, accordingly
+                    await API.graphql(graphqlOperation(updateReferral, {
+                        input:
+                            {
+                                // @ts-ignore
+                                id: `${route.params.referralId}`,
+                                inviteeEmail: `${route.params.username.toLowerCase()}`,
+                                status: ReferralStatus.REDEEMED,
+                                updatedAt: updatedAt,
+                                _version: `${route.params._version}`
+                            }
+                    }));
+                    setModalMessage("Thanks for confirming the code! Your email address is now verified!");
+                    setModalVisible(true);
+                    setIsResendModal(false);
+                    setIsErrorModal(false);
+                }
+            }
             setModalMessage("Thanks for confirming the code! Your email address is now verified!");
             setModalVisible(true);
             setIsResendModal(false);
             setIsErrorModal(false);
-        } catch (error) {
+        }).catch((error) => {
             // @ts-ignore
-            setModalMessage(error.message);
+            setModalMessage(error.message ? error.message : 'Unexpected error while confirming sign up code');
             setModalVisible(true);
             setIsErrorModal(true);
             setIsResendModal(false);
-            console.log(`Unexpected error while confirming sign up code :, ${error}`);
-        }
+            console.log(`Unexpected error while confirming sign up code : ${JSON.stringify(error)}`);
+        });
     };
 
     /**
@@ -146,7 +172,15 @@ export const EmailVerify = ({navigation, route}: EmailVerifyProps) => {
                         mode="outlined"
                         labelStyle={{fontSize: 15}}
                         onPress={() => {
-                            (isErrorModal || isResendModal) ? setModalVisible(false) : navigation.navigate('SignIn', {initialRender: true})
+                            if (isErrorModal || isResendModal) {
+                                setModalVisible(false);
+                            } else {
+                                if (route.params.referralId && route.params._version && route.params.status) {
+                                    NativeModules.DevSettings.reload();
+                                } else {
+                                    navigation.navigate('SignIn', {initialRender: true})
+                                }
+                            }
                         }}>
                         {(isErrorModal || isResendModal) ? `Try Again` : `Sign In`}
                     </Button>
@@ -158,7 +192,11 @@ export const EmailVerify = ({navigation, route}: EmailVerifyProps) => {
             >
                 <View style={styles.mainView}>
                     <View style={styles.topView}>
-                        <Image source={CongratulationsSplash} style={[styles.congratulationsSplash, {height: Dimensions.get('window').height/4 ,width: Dimensions.get('window').width/2.5, alignSelf: 'center'}]}/>
+                        <Image source={CongratulationsSplash} style={[styles.congratulationsSplash, {
+                            height: Dimensions.get('window').height / 4,
+                            width: Dimensions.get('window').width / 2.5,
+                            alignSelf: 'center'
+                        }]}/>
                     </View>
                     <View>
                         <Text style={styles.emailVerifyTitle}>Congratulations</Text>
@@ -221,7 +259,9 @@ export const EmailVerify = ({navigation, route}: EmailVerifyProps) => {
                         <Text style={styles.backToSignInFooter}>Back to
                             <Text style={styles.backToSignInButton}
                                   onPress={() => {
-                                      navigation.navigate('SignIn', {initialRender: true})
+                                      (route.params.referralId && route.params._version && route.params.status)
+                                          ? NativeModules.DevSettings.reload()
+                                          : navigation.navigate('SignIn', {initialRender: true})
                                   }}> Sign in</Text>
                         </Text>
                     </View>
@@ -236,4 +276,3 @@ export const EmailVerify = ({navigation, route}: EmailVerifyProps) => {
         </ImageBackground>
     );
 };
-

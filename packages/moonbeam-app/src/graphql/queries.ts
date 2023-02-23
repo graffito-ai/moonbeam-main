@@ -12,6 +12,9 @@ export const getReferral = /* GraphQL */ `
       offerType
       inviteeEmail
       inviterEmail
+      inviterName
+      statusInviter
+      statusInvitee
       _version
       _deleted
       _lastChangedAt
@@ -34,6 +37,9 @@ export const listReferrals = /* GraphQL */ `
         offerType
         inviteeEmail
         inviterEmail
+        inviterName
+        statusInviter
+        statusInvitee
         _version
         _deleted
         _lastChangedAt
@@ -65,6 +71,9 @@ export const syncReferrals = /* GraphQL */ `
         offerType
         inviteeEmail
         inviterEmail
+        inviterName
+        statusInviter
+        statusInvitee
         _version
         _deleted
         _lastChangedAt

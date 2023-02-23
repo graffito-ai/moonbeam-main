@@ -5,7 +5,8 @@ import { schema } from './schema';
 const ReferralStatus = {
   "REDEEMED": "REDEEMED",
   "NOT_REDEEMED": "NOT_REDEEMED",
-  "INITIATED": "INITIATED"
+  "INITIATED": "INITIATED",
+  "INVALID": "INVALID"
 };
 
 const OfferType = {

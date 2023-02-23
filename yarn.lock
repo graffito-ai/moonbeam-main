@@ -41,12 +41,36 @@
     uuid "^3.2.1"
     zen-observable-ts "0.8.19"
 
+"@aws-amplify/api-graphql@3.1.3":
+  version "3.1.3"
+  resolved "https://registry.yarnpkg.com/@aws-amplify/api-graphql/-/api-graphql-3.1.3.tgz#4c780c90bbe748ca309ed3ade59348018de2b395"
+  integrity sha512-OHEU2XtvypSzeOPjvNZMlvD4p3lKM9pzBdLgsmxWgB3Qi6RLbYEuvTJGRTZRW1V3OHkGX4uMUUElLs8lTIbYgQ==
+  dependencies:
+    "@aws-amplify/api-rest" "3.0.15"
+    "@aws-amplify/auth" "5.1.9"
+    "@aws-amplify/cache" "5.0.15"
+    "@aws-amplify/core" "5.0.15"
+    "@aws-amplify/pubsub" "5.0.15"
+    graphql "15.8.0"
+    tslib "^1.8.0"
+    uuid "^3.2.1"
+    zen-observable-ts "0.8.19"
+
 "@aws-amplify/api-rest@3.0.12":
   version "3.0.12"
   resolved "https://registry.yarnpkg.com/@aws-amplify/api-rest/-/api-rest-3.0.12.tgz#0c16272990d1870c591f5dff01e182440b7a33b7"
   integrity sha512-cygc/YINx6XQ1yqBEnahrkAKF9t1J17aSC3/X60BvmaSKUZhyx36ZL+bHTXSAiJAHEFym/8ITTGXgCI1WJeE6w==
   dependencies:
     "@aws-amplify/core" "5.0.12"
+    axios "0.26.0"
+    tslib "^1.8.0"
+
+"@aws-amplify/api-rest@3.0.15":
+  version "3.0.15"
+  resolved "https://registry.yarnpkg.com/@aws-amplify/api-rest/-/api-rest-3.0.15.tgz#f01ae4f0970f8696eec6f26360acbc73d4b887e0"
+  integrity sha512-khn9PDLKhq+esxBLq5vM6K2Y3X2hSRrJuNQvA6MSsI2IQXT1eW9irSWYITDF323BrZAjF/QeaBB16xQ5XNKrNw==
+  dependencies:
+    "@aws-amplify/core" "5.0.15"
     axios "0.26.0"
     tslib "^1.8.0"
 
@@ -59,12 +83,30 @@
     "@aws-amplify/api-rest" "3.0.12"
     tslib "^1.8.0"
 
+"@aws-amplify/api@^5.0.15":
+  version "5.0.15"
+  resolved "https://registry.yarnpkg.com/@aws-amplify/api/-/api-5.0.15.tgz#06a9b1690fe7b445e87a22d61f5c3c7d8608f241"
+  integrity sha512-z4R45Rr03c6CTk2hMaSXU3Ka/C/EDWQR+G4miJSe54FGmvywAXAvJ4aewfKlCCLuNHlzsGNdHhjKf8ld9SY/fA==
+  dependencies:
+    "@aws-amplify/api-graphql" "3.1.3"
+    "@aws-amplify/api-rest" "3.0.15"
+    tslib "^1.8.0"
+
 "@aws-amplify/auth@5.1.6":
   version "5.1.6"
   resolved "https://registry.yarnpkg.com/@aws-amplify/auth/-/auth-5.1.6.tgz#b32cdfbd0f7acb8fb16ad8e1556b3a358b94ac30"
   integrity sha512-CtUrxqrhxP+Dr2blDYsNPgJup75ejT+yLIZJIOgLfRImCSlUfmGM1hUL4qAfn4vmDgblDDiOO8JDTxGUx0aQag==
   dependencies:
     "@aws-amplify/core" "5.0.12"
+    amazon-cognito-identity-js "6.1.2"
+    tslib "^1.8.0"
+
+"@aws-amplify/auth@5.1.9":
+  version "5.1.9"
+  resolved "https://registry.yarnpkg.com/@aws-amplify/auth/-/auth-5.1.9.tgz#c9b68dfbb4892e45506d2c16d67006a780911a08"
+  integrity sha512-PmPG3xA1HTU0OfVs+HokXie631xO8NgTokXLdBISVegg5ogDZBDRXKibf1h3MAPmqV5xTfywr+u3INKuwgawVQ==
+  dependencies:
+    "@aws-amplify/core" "5.0.15"
     amazon-cognito-identity-js "6.1.2"
     tslib "^1.8.0"
 
@@ -76,10 +118,33 @@
     "@aws-amplify/core" "5.0.12"
     tslib "^1.8.0"
 
+"@aws-amplify/cache@5.0.15":
+  version "5.0.15"
+  resolved "https://registry.yarnpkg.com/@aws-amplify/cache/-/cache-5.0.15.tgz#f5eb6258cd8d28c8750f5d23d2005b76eaf0c3d1"
+  integrity sha512-dP7pUIqATyVyKOIHxdDBNlwAnPU9TeU3Bujjy3OR7dAcSjCyCxnWiZGDG45a5BhYIwMd3iz/AoVh1cwkHphdKQ==
+  dependencies:
+    "@aws-amplify/core" "5.0.15"
+    tslib "^1.8.0"
+
 "@aws-amplify/core@5.0.12":
   version "5.0.12"
   resolved "https://registry.yarnpkg.com/@aws-amplify/core/-/core-5.0.12.tgz#82c35226a313ba84c001cb24e98f5b6e31f3cf2e"
   integrity sha512-kOJnd60ge3whfHWIqXMLOTGF3mE3FdE0BE/D8esUoREDdcmFtsyUS5hEo0BvHm1nPYQeKkb1zZbxoNKjgwqqUg==
+  dependencies:
+    "@aws-crypto/sha256-js" "1.2.2"
+    "@aws-sdk/client-cloudwatch-logs" "3.6.1"
+    "@aws-sdk/client-cognito-identity" "3.6.1"
+    "@aws-sdk/credential-provider-cognito-identity" "3.6.1"
+    "@aws-sdk/types" "3.6.1"
+    "@aws-sdk/util-hex-encoding" "3.6.1"
+    tslib "^1.8.0"
+    universal-cookie "^4.0.4"
+    zen-observable-ts "0.8.19"
+
+"@aws-amplify/core@5.0.15":
+  version "5.0.15"
+  resolved "https://registry.yarnpkg.com/@aws-amplify/core/-/core-5.0.15.tgz#4ec307ebba46877cffcae188794ad8453a39c508"
+  integrity sha512-BgskrlR/0oZSw8I1C8nuqiflzdbHcYr07+aSR0C7//mldtF594QzJaVE41R+s8lLsU4X7bLFTG1/oWUmswrkDg==
   dependencies:
     "@aws-crypto/sha256-js" "1.2.2"
     "@aws-sdk/client-cloudwatch-logs" "3.6.1"
@@ -174,6 +239,20 @@
     uuid "^3.2.1"
     zen-observable-ts "0.8.19"
 
+"@aws-amplify/pubsub@5.0.15":
+  version "5.0.15"
+  resolved "https://registry.yarnpkg.com/@aws-amplify/pubsub/-/pubsub-5.0.15.tgz#8769c9efd7d5a67efd43ccf55feb5cae355d99e0"
+  integrity sha512-MMd6bHhLZTYJ7DwXeia43zyWIJkKWkuqgKZxeo9quStNQjt+KP/a2Z8EXAc18J7BUSGhTWxHvvv2lbYVI5X2Xw==
+  dependencies:
+    "@aws-amplify/auth" "5.1.9"
+    "@aws-amplify/cache" "5.0.15"
+    "@aws-amplify/core" "5.0.15"
+    graphql "15.8.0"
+    paho-mqtt "^1.1.0"
+    tslib "^1.8.0"
+    uuid "^3.2.1"
+    zen-observable-ts "0.8.19"
+
 "@aws-amplify/storage@5.1.2":
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/@aws-amplify/storage/-/storage-5.1.2.tgz#c10438f9083eb20bf65c11a38615e00c8a9467b1"
@@ -223,6 +302,11 @@
   dependencies:
     "@aws-amplify/core" "5.0.12"
     tslib "^1.8.0"
+
+"@aws-appsync/utils@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@aws-appsync/utils/-/utils-1.1.0.tgz#40a20b03106b288411b72861a938fe0d87e368d5"
+  integrity sha512-tCAMRU5Oy+L7GNTmHfC0L5Cwk4xbtR0ssP19nMO8sG4MbcJwgoeyK/9A35Vrvix1XWNPxEEVG1ltBC6jBhtaPw==
 
 "@aws-crypto/crc32@2.0.0":
   version "2.0.0"
@@ -5572,6 +5656,11 @@
   version "0.16.2"
   resolved "https://registry.yarnpkg.com/@types/scheduler/-/scheduler-0.16.2.tgz#1a62f89525723dde24ba1b01b092bf5df8ad4d39"
   integrity sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==
+
+"@types/uuid@^9.0.1":
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-9.0.1.tgz#98586dc36aee8dacc98cc396dbca8d0429647aa6"
+  integrity sha512-rFT3ak0/2trgvp4yYZo5iKFEPsET7vKydKF+VRCxlQ9bpheehyAJH89dAkaLEq/j/RZXJIqcgsmPJKUP1Z28HA==
 
 "@types/yargs-parser@*":
   version "21.0.0"
@@ -12007,7 +12096,7 @@ react-native-gesture-handler@~2.8.0:
     lodash "^4.17.21"
     prop-types "^15.7.2"
 
-react-native-get-random-values@^1.4.0, react-native-get-random-values@~1.8.0:
+react-native-get-random-values@^1.4.0, react-native-get-random-values@^1.8.0:
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/react-native-get-random-values/-/react-native-get-random-values-1.8.0.tgz#1cb4bd4bd3966a356e59697b8f372999fe97cb16"
   integrity sha512-H/zghhun0T+UIJLmig3+ZuBCvF66rdbiWUfRSNS6kv5oDSpa1ZiVyvRWtuPesQpT8dXj+Bv7WJRQOUP+5TB1sA==
@@ -13846,6 +13935,11 @@ uuid@^8.0.0, uuid@^8.3.2:
   version "8.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
+
+uuid@^9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-9.0.0.tgz#592f550650024a38ceb0c562f2f6aa435761efb5"
+  integrity sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==
 
 v8-compile-cache-lib@^3.0.1:
   version "3.0.1"

@@ -55,6 +55,31 @@ export const schema = {
                     "type": "String",
                     "isRequired": true,
                     "attributes": []
+                },
+                "inviterName": {
+                    "name": "inviterName",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "statusInviter": {
+                    "name": "statusInviter",
+                    "isArray": false,
+                    "type": {
+                        "enum": "ReferralStatus"
+                    },
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "statusInvitee": {
+                    "name": "statusInvitee",
+                    "isArray": false,
+                    "type": {
+                        "enum": "ReferralStatus"
+                    },
+                    "isRequired": true,
+                    "attributes": []
                 }
             },
             "syncable": true,
@@ -92,7 +117,8 @@ export const schema = {
             "values": [
                 "REDEEMED",
                 "NOT_REDEEMED",
-                "INITIATED"
+                "INITIATED",
+                "INVALID"
             ]
         },
         "OfferType": {
@@ -104,5 +130,5 @@ export const schema = {
     },
     "nonModels": {},
     "codegenVersion": "3.3.5",
-    "version": "bf82756400a71db5c3466f41490d850b"
+    "version": "097573183fc235a937cb0ea3b8b0ea4d"
 };

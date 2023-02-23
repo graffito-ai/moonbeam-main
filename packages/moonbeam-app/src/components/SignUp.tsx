@@ -12,10 +12,12 @@ import dayjs from 'dayjs';
 // @ts-ignore
 import {useValidation} from 'react-native-form-validator';
 import moment from 'moment';
-import {Auth} from 'aws-amplify';
+import {API, Auth, graphqlOperation} from 'aws-amplify';
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 // @ts-ignore
 import FriendReferral from '../../assets/refer-friend.png';
+import {getReferral} from '../graphql/queries';
+import {ReferralStatus} from "../models";
 
 /**
  * Sign Up component.
@@ -36,7 +38,8 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
     const [isInitialRender, setIsInitialRender] = useState<boolean>(route.params.initialRender);
     const [signUpErrorModalVisible, setSignUpErrorModalVisible] = useState<boolean>(false);
     const [referralSignUpModalVisible, setReferralSignUpModalVisible] = useState<boolean>(false);
-    const [modalError, setModalError] = useState<string>("");
+    const [signUpModalError, setSignUpModalError] = useState<string>("");
+    const [referralModalError, setReferralModalError] = useState<string>("");
     const [androidScrollPadding, setAndroidScrollPadding] = useState<number>(1);
     // state driven key-value pairs for signup form values
     const [progressStepsContactError, setProgressStepsContactError] = useState<boolean>(false);
@@ -63,6 +66,7 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
     const [confirmPasswordErrors, setConfirmPasswordErrors] = useState<any[]>([]);
     const [phoneNumber, setPhoneNumber] = useState<string>("");
     const [phoneNumberErrors, setPhoneNumberErrors] = useState<any[]>([]);
+    const [referralData, setReferralData] = useState([]);
 
     // Constants used for easy field validation, to validate, check if field is invalid or get errors for invalid field
     const {validate, isFieldInError, getErrorsInField} =
@@ -254,15 +258,28 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
                     updated_at: Date.now().toString(),
                     'custom:duty_station': dutyStation,
                     'custom:duty_status': dutyStatus,
-                    'custom:military_rank': militaryRank
+                    'custom:military_rank': militaryRank,
+                    'custom:points': '-99'
                 },
             });
-            navigation.navigate('EmailVerify', {username: username});
+            // depending on whether the SignUp resulted from a referral or not, perform separate flows
+            navigation.navigate('EmailVerify', {
+                // @ts-ignore
+                username: username, ...(referralData.id && referralData._version && referralData.status) && {
+                    // @ts-ignore
+                    referralId: referralData.id,
+                    // @ts-ignore
+                    _version: referralData._version,
+                    // @ts-ignore
+                    status: referralModalError !== "" ? ReferralStatus.INVALID : referralData.status
+                }
+            });
         } catch (error) {
             // @ts-ignore
-            setModalError(error.message);
+            setSignUpModalError(error.message ? error.message : 'Unexpected error while Signing Up');
             setSignUpErrorModalVisible(true);
-            console.log(`Unexpected error while Signing Up: ${error}`);
+            // @ts-ignore
+            console.log(`Unexpected error while Signing Up: ${JSON.stringify(error)}`);
         }
     }
 
@@ -289,7 +306,7 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
             }
         );
 
-        // if it's an initial render, set all validation errors to empty
+        // if it's not an initial render, set all validation errors to empty
         if (!isInitialRender) {
             // perform field validations on every state change, for the specific field that is being validated
             if (emailFocus && email !== "") {
@@ -336,15 +353,32 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
             }
             phoneNumber === "" && setPhoneNumberErrors([]);
         } else {
-            // check that if this is a deep link, with a referred by parameter
-            if (route.params.referredBy) {
+            // check that if this is a deep link, with a referred id as parameter
+            if (route.params.referralId) {
                 // that the back button for the navigation is hidden
                 route.params.setSignUpBackButtonVisible && route.params.setSignUpBackButtonVisible(false);
 
-                // that the referral modal is shown
-                setReferralSignUpModalVisible(true);
-            }
+                // perform a query to get the referral data
+                API.graphql(graphqlOperation(getReferral, {
+                    id: route.params.referralId
+                    // @ts-ignore
+                })).then((result) => {
+                    // if the result is null, then we couldn't find a valid referral code, otherwise proceed with a full-blown referral modal
+                    setReferralData(result.data.getReferral);
+                    if (result.data.getReferral === null) {
+                        setReferralModalError("Unable to validate invite code! No offers or points will be redeemed at this time!");
+                    }
+                    if (result.data.getReferral.status === ReferralStatus.REDEEMED) {
+                        setReferralModalError("Invite code already redeemed! No offers or points will be redeemed at this time!");
+                    }
 
+                    // that the referral modal is shown
+                    setReferralSignUpModalVisible(true);
+                }).catch((error: any) => {
+                    console.log(error);
+                    setReferralModalError("Error while retrieving referral invitation! No offers or points will be redeemed at this time!");
+                });
+            }
             setIsInitialRender(false);
         }
 
@@ -357,35 +391,43 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
         rank, dutyStation, password, confirmPassword,
         phoneNumber, emailFocus, nameFocus, birthDateFocus,
         dutyOpen, rankFocus, dutyStationFocus, passwordFocus,
-        confirmPasswordFocus, phoneFocus]);
+        confirmPasswordFocus, phoneFocus, referralModalError, signUpModalError]);
 
     // return the component for the SignUp page
-    // @ts-ignore
     return (
-        <ImageBackground
-            imageStyle={{
-                resizeMode: 'stretch'
-            }}
-            style={commonStyles.image}
-            source={require('../../assets/signup-background.png')}>
-            <Portal>
-                <Modal dismissable={false} visible={referralSignUpModalVisible}
-                       onDismiss={() => setReferralSignUpModalVisible(false)}
-                       contentContainerStyle={styles.referralModalContainer}>
-                    <View style={styles.mainReferralView}>
+        <SafeAreaView style={[commonStyles.rowContainer, commonStyles.androidSafeArea]}>
+            <ImageBackground
+                imageStyle={{
+                    resizeMode: 'stretch'
+                }}
+                style={commonStyles.image}
+                source={require('../../assets/signup-background.png')}>
+                <Portal>
+                    {/*@ts-ignore*/}
+                    <Modal contentContainerStyle={referralData !== null && referralData.status !== ReferralStatus.REDEEMED ? styles.referralModalContainer : styles.modalContainer}
+                        dismissable={false} visible={referralSignUpModalVisible}
+                        onDismiss={() => setReferralSignUpModalVisible(false)}>
+                        {/*@ts-ignore*/}
+                        {referralData !== null && referralData.status !== ReferralStatus.REDEEMED ?
+                            <View style={styles.mainReferralView}>
                                 <View style={styles.referralMessageView}>
-                                    <Text style={styles.referralMessageTitle}>{route.params.referredByName!}</Text>
-                                    <Text style={styles.referralMessageSubtitle}>referred you to the Alpha Program</Text>
+                                    {/*@ts-ignore*/}
+                                    <Text style={styles.referralMessageTitle}>{referralData.inviterName}</Text>
+                                    <Text style={styles.referralMessageSubtitle}>referred you to the Alpha
+                                        Program</Text>
                                 </View>
                                 <View style={{marginTop: '-30%'}}>
                                     <Image source={FriendReferral} style={styles.referralArt}></Image>
                                 </View>
                                 <View style={styles.referralMessageView}>
                                     <Text style={styles.referralMessageTitle}>Earn 10,000 Points</Text>
-                                    <Text style={styles.referralMessageSubtitle}>Alpha card approval is required for redeeming Points.</Text>
+                                    <Text style={styles.referralMessageSubtitle}>Alpha card approval is required for
+                                        redeeming Points.</Text>
                                 </View>
                                 <Button
-                                    onPress={() => {setReferralSignUpModalVisible(false)}}
+                                    onPress={() => {
+                                        setReferralSignUpModalVisible(false)
+                                    }}
                                     uppercase={false}
                                     style={styles.referSignUpButton}
                                     textColor={"#f2f2f2"}
@@ -395,386 +437,407 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
                                     icon={"account-plus"}>
                                     Sign Up
                                 </Button>
-                    </View>
-                </Modal>
-            </Portal>
-            <Portal>
-                <Modal dismissable={false} visible={signUpErrorModalVisible}
-                       onDismiss={() => setSignUpErrorModalVisible(false)}
-                       contentContainerStyle={styles.modalContainer}>
-                    <Text style={styles.modalParagraph}>{modalError}</Text>
-                    <Button
-                        uppercase={false}
-                        style={styles.modalButton}
-                        icon={'redo-variant'}
-                        textColor={"red"}
-                        buttonColor={"#f2f2f2"}
-                        mode="outlined"
-                        labelStyle={{fontSize: 15}}
-                        onPress={() => {
-                            setSignUpErrorModalVisible(false)
-                        }}>
-                        Try Again
-                    </Button>
-                </Modal>
-            </Portal>
-            <SafeAreaView style={commonStyles.rowContainer}>
-                <KeyboardAwareScrollView
-                    onLayout={route.params.onLayoutRootView}
-                    enableOnAndroid={true}
-                    scrollEnabled={true}
-                    contentContainerStyle={[commonStyles.keyboardScrollViewContainer, Platform.OS === 'android' ? {height: Dimensions.get("window").height + androidScrollPadding} : {flex: 1}]}
-                    keyboardShouldPersistTaps={'handled'}
-                >
-                    <View style={{flex: 1}}>
-                        <View
-                            style={[{alignSelf: 'center'}, Platform.OS === 'android' && {marginTop: '15%'}, route.params.referredBy !== undefined && {marginTop: '10%'}]}>
-                            <Text style={styles.signupTitle}>Welcome</Text>
-                            <Text style={styles.signupSubtitle}>Let's set up an account</Text>
-                        </View>
+                            </View> :
+                            <View>
+                                <Text style={styles.modalParagraph}>{referralModalError}</Text>
+                                <Button
+                                    uppercase={false}
+                                    style={styles.modalButton}
+                                    icon={'account-plus'}
+                                    textColor={"red"}
+                                    buttonColor={"#f2f2f2"}
+                                    mode="outlined"
+                                    labelStyle={{fontSize: 15}}
+                                    onPress={() => {
+                                        setReferralSignUpModalVisible(false)
+                                    }}>
+                                    Continue Sign Up
+                                </Button>
+                            </View>
+                        }
+                    </Modal>
+                </Portal>
+                <Portal>
+                    <Modal dismissable={false} visible={signUpErrorModalVisible}
+                           onDismiss={() => setSignUpErrorModalVisible(false)}
+                           contentContainerStyle={styles.modalContainer}>
+                        <Text style={styles.modalParagraph}>{signUpModalError}</Text>
+                        <Button
+                            uppercase={false}
+                            style={styles.modalButton}
+                            icon={'redo-variant'}
+                            textColor={"red"}
+                            buttonColor={"#f2f2f2"}
+                            mode="outlined"
+                            labelStyle={{fontSize: 15}}
+                            onPress={() => {
+                                setSignUpErrorModalVisible(false)
+                            }}>
+                            Try Again
+                        </Button>
+                    </Modal>
+                </Portal>
+                <SafeAreaView style={commonStyles.rowContainer}>
+                    <KeyboardAwareScrollView
+                        onLayout={route.params.onLayoutRootView}
+                        enableOnAndroid={true}
+                        scrollEnabled={true}
+                        contentContainerStyle={[commonStyles.keyboardScrollViewContainer, Platform.OS === 'android' ? {height: Dimensions.get("window").height + androidScrollPadding} : {flex: 1}]}
+                        keyboardShouldPersistTaps={'handled'}
+                    >
                         <View style={{flex: 1}}>
-                            <ProgressSteps
-                                progressBarColor={"grey"}
-                                disabledStepIconColor={"grey"}
-                                labelColor={"#313030"}
-                                activeLabelColor={"#2A3779"}
-                                activeStepIconBorderColor={"#2A3779"}
-                                completedStepIconColor={"#2A3779"}
-                                completedProgressBarColor={"#2A3779"}
-                                completedLabelColor={"#2A3779"}
-                                labelFontSize={16}
-                                labelFontFamily={"Raleway-Medium"}>
-                                <ProgressStep
-                                    // note do not enable this unless we need more space for content
-                                    scrollable={false}
-                                    label="Contact"
-                                    nextBtnStyle={styles.initialNextBtnStyle}
-                                    nextBtnTextStyle={styles.btnStyleText}
-                                    onNext={() => {
-                                        if (email === "" || name === "" || birthDate === "") {
-                                            setProgressStepsContactError(true);
-                                            setProgressStepsErrors(true);
-                                        } else {
-                                            fieldValidation("email");
-                                            fieldValidation("name");
-                                            fieldValidation("birthDate");
-                                            if (emailErrors.length !== 0 || nameErrors.length !== 0 || dateErrors.length !== 0) {
-                                                setProgressStepsErrors(true);
-                                            } else if (emailErrors.length === 0 && nameErrors.length === 0 && dateErrors.length === 0) {
-                                                dutyOpen && setIsDutyOpen(false);
-                                                setProgressStepsContactError(false);
-                                                setProgressStepsErrors(false);
-                                            }
-                                        }
-                                    }}
-                                    errors={progressStepsErrors}>
-                                    <View style={styles.progressStepView}>
-                                        <Text style={styles.contactProgressTitle}>Contact Information</Text>
-                                        {progressStepsContactError &&
-                                            <Text style={styles.errorMessageMain}>Please fill out the information
-                                                below!</Text>}
-                                        {/* @ts-ignore */}
-                                        <TextInput
-                                            onChangeText={(value: React.SetStateAction<string>) => {
-                                                setIsEmailFocus(true);
-                                                setProgressStepsContactError(false);
-                                                setEmail(value);
-                                            }}
-                                            value={email}
-                                            style={emailFocus ? styles.initialTextInputFocus : styles.initialTextInput}
-                                            onFocus={() => {
-                                                setIsEmailFocus(true);
-                                            }}
-                                            label="Email"
-                                            textColor={"#313030"}
-                                            underlineColor={"#f2f2f2"}
-                                            activeUnderlineColor={"#313030"}
-                                            left={<TextInput.Icon icon="email" iconColor="#313030"/>}
-                                        />
-                                        {(emailErrors.length > 0 && !progressStepsContactError) ?
-                                            <Text style={styles.errorMessage}>{emailErrors[0]}</Text> : <></>}
-                                        {/* @ts-ignore */}
-                                        <TextInput
-                                            onChangeText={(value: React.SetStateAction<string>) => {
-                                                setIsNameFocus(true);
-                                                setProgressStepsContactError(false);
-                                                setName(value);
-                                            }}
-                                            value={name}
-                                            style={nameFocus ? styles.textInputFocus : styles.textInput}
-                                            onFocus={() => {
-                                                setIsNameFocus(true);
-                                            }}
-                                            label="Full Name (First | Middle | Last )"
-                                            textColor={"#313030"}
-                                            underlineColor={"#f2f2f2"}
-                                            activeUnderlineColor={"#313030"}
-                                            left={<TextInput.Icon icon="account" iconColor="#313030"/>}
-                                        />
-                                        {(nameErrors.length > 0 && !progressStepsContactError) ?
-                                            <Text style={styles.errorMessage}>{nameErrors[0]}</Text> : <></>}
-                                        {/* @ts-ignore */}
-                                        <TextInput
-                                            onChangeText={(value: React.SetStateAction<string>) => {
-                                                setIsBirthDateFocus(true);
-                                                setProgressStepsContactError(false);
-                                                setBirthDate(value);
-                                            }}
-                                            value={birthDate}
-                                            style={birthDateFocus ? styles.textInputFocus : styles.textInput}
-                                            onFocus={() => {
-                                                setIsBirthDateFocus(true);
-                                            }}
-                                            label="Birthday (YYYY-MM-DD)"
-                                            textColor={"#313030"}
-                                            underlineColor={"#f2f2f2"}
-                                            activeUnderlineColor={"#313030"}
-                                            left={<TextInput.Icon icon="calendar" iconColor="#313030"/>}
-                                        />
-                                        {(dateErrors.length > 0 && !progressStepsContactError) ?
-                                            <Text style={styles.errorMessage}>{dateErrors[0]}</Text> : <></>}
-                                    </View>
-                                </ProgressStep>
-
-                                <ProgressStep
-                                    // note do not enable this unless we need more space for content
-                                    scrollable={false}
-                                    label="Military"
-                                    nextBtnStyle={styles.nextBtnStyle}
-                                    nextBtnTextStyle={styles.btnStyleText}
-                                    nextBtnText={"Next"}
-                                    previousBtnText={"Back"}
-                                    previousBtnStyle={styles.prevBtnStyle}
-                                    previousBtnTextStyle={styles.btnStyleText}
-                                    onNext={() => {
-                                        if (duty === null || duty === "" || rank === "" || dutyStation === "") {
-                                            setProgressStepsMilitaryError(true);
-                                            setProgressStepsErrors(true);
-                                        } else {
-                                            fieldValidation("duty");
-                                            fieldValidation("rank");
-                                            fieldValidation("dutyStation");
-                                            if (dutyErrors.length !== 0 || rankErrors.length !== 0 || dutyStationErrors.length !== 0) {
+                            <View
+                                style={[{alignSelf: 'center'}, Platform.OS === 'android' && {marginTop: '15%'}, route.params.referralId !== undefined && {marginTop: '10%'}]}>
+                                <Text style={styles.signupTitle}>Welcome</Text>
+                                <Text style={styles.signupSubtitle}>Let's set up an account</Text>
+                            </View>
+                            <View style={{flex: 1}}>
+                                <ProgressSteps
+                                    progressBarColor={"grey"}
+                                    disabledStepIconColor={"grey"}
+                                    labelColor={"#313030"}
+                                    activeLabelColor={"#2A3779"}
+                                    activeStepIconBorderColor={"#2A3779"}
+                                    completedStepIconColor={"#2A3779"}
+                                    completedProgressBarColor={"#2A3779"}
+                                    completedLabelColor={"#2A3779"}
+                                    labelFontSize={16}
+                                    labelFontFamily={"Raleway-Medium"}>
+                                    <ProgressStep
+                                        // note do not enable this unless we need more space for content
+                                        scrollable={false}
+                                        label="Contact"
+                                        nextBtnStyle={styles.initialNextBtnStyle}
+                                        nextBtnTextStyle={styles.btnStyleText}
+                                        onNext={() => {
+                                            if (email === "" || name === "" || birthDate === "") {
+                                                setProgressStepsContactError(true);
                                                 setProgressStepsErrors(true);
                                             } else {
-                                                setIsRegisterButtonShown(true);
-                                                dutyOpen && setIsDutyOpen(false);
-                                                setProgressStepsMilitaryError(false);
+                                                fieldValidation("email");
+                                                fieldValidation("name");
+                                                fieldValidation("birthDate");
+                                                if (emailErrors.length !== 0 || nameErrors.length !== 0 || dateErrors.length !== 0) {
+                                                    setProgressStepsErrors(true);
+                                                } else if (emailErrors.length === 0 && nameErrors.length === 0 && dateErrors.length === 0) {
+                                                    dutyOpen && setIsDutyOpen(false);
+                                                    setProgressStepsContactError(false);
+                                                    setProgressStepsErrors(false);
+                                                }
+                                            }
+                                        }}
+                                        errors={progressStepsErrors}>
+                                        <View style={styles.progressStepView}>
+                                            <Text style={styles.contactProgressTitle}>Contact Information</Text>
+                                            {progressStepsContactError &&
+                                                <Text style={styles.errorMessageMain}>Please fill out the information
+                                                    below!</Text>}
+                                            {/* @ts-ignore */}
+                                            <TextInput
+                                                onChangeText={(value: React.SetStateAction<string>) => {
+                                                    setIsEmailFocus(true);
+                                                    setProgressStepsContactError(false);
+                                                    setEmail(value);
+                                                }}
+                                                value={email}
+                                                style={emailFocus ? styles.initialTextInputFocus : styles.initialTextInput}
+                                                onFocus={() => {
+                                                    setIsEmailFocus(true);
+                                                }}
+                                                label="Email"
+                                                textColor={"#313030"}
+                                                underlineColor={"#f2f2f2"}
+                                                activeUnderlineColor={"#313030"}
+                                                left={<TextInput.Icon icon="email" iconColor="#313030"/>}
+                                            />
+                                            {(emailErrors.length > 0 && !progressStepsContactError) ?
+                                                <Text style={styles.errorMessage}>{emailErrors[0]}</Text> : <></>}
+                                            {/* @ts-ignore */}
+                                            <TextInput
+                                                onChangeText={(value: React.SetStateAction<string>) => {
+                                                    setIsNameFocus(true);
+                                                    setProgressStepsContactError(false);
+                                                    setName(value);
+                                                }}
+                                                value={name}
+                                                style={nameFocus ? styles.textInputFocus : styles.textInput}
+                                                onFocus={() => {
+                                                    setIsNameFocus(true);
+                                                }}
+                                                label="Full Name (First | Middle | Last )"
+                                                textColor={"#313030"}
+                                                underlineColor={"#f2f2f2"}
+                                                activeUnderlineColor={"#313030"}
+                                                left={<TextInput.Icon icon="account" iconColor="#313030"/>}
+                                            />
+                                            {(nameErrors.length > 0 && !progressStepsContactError) ?
+                                                <Text style={styles.errorMessage}>{nameErrors[0]}</Text> : <></>}
+                                            {/* @ts-ignore */}
+                                            <TextInput
+                                                onChangeText={(value: React.SetStateAction<string>) => {
+                                                    setIsBirthDateFocus(true);
+                                                    setProgressStepsContactError(false);
+                                                    setBirthDate(value);
+                                                }}
+                                                value={birthDate}
+                                                style={birthDateFocus ? styles.textInputFocus : styles.textInput}
+                                                onFocus={() => {
+                                                    setIsBirthDateFocus(true);
+                                                }}
+                                                label="Birthday (YYYY-MM-DD)"
+                                                textColor={"#313030"}
+                                                underlineColor={"#f2f2f2"}
+                                                activeUnderlineColor={"#313030"}
+                                                left={<TextInput.Icon icon="calendar" iconColor="#313030"/>}
+                                            />
+                                            {(dateErrors.length > 0 && !progressStepsContactError) ?
+                                                <Text style={styles.errorMessage}>{dateErrors[0]}</Text> : <></>}
+                                        </View>
+                                    </ProgressStep>
+
+                                    <ProgressStep
+                                        // note do not enable this unless we need more space for content
+                                        scrollable={false}
+                                        label="Military"
+                                        nextBtnStyle={styles.nextBtnStyle}
+                                        nextBtnTextStyle={styles.btnStyleText}
+                                        nextBtnText={"Next"}
+                                        previousBtnText={"Back"}
+                                        previousBtnStyle={styles.prevBtnStyle}
+                                        previousBtnTextStyle={styles.btnStyleText}
+                                        onNext={() => {
+                                            if (duty === null || duty === "" || rank === "" || dutyStation === "") {
+                                                setProgressStepsMilitaryError(true);
+                                                setProgressStepsErrors(true);
+                                            } else {
+                                                fieldValidation("duty");
+                                                fieldValidation("rank");
+                                                fieldValidation("dutyStation");
+                                                if (dutyErrors.length !== 0 || rankErrors.length !== 0 || dutyStationErrors.length !== 0) {
+                                                    setProgressStepsErrors(true);
+                                                } else {
+                                                    setIsRegisterButtonShown(true);
+                                                    dutyOpen && setIsDutyOpen(false);
+                                                    setProgressStepsMilitaryError(false);
+                                                    setProgressStepsErrors(false);
+                                                }
+                                            }
+                                        }}
+                                        errors={progressStepsErrors}
+                                        onPrevious={() => {
+                                            setProgressStepsMilitaryError(false);
+                                            setIsRegisterButtonShown(false);
+                                            dutyOpen && setIsDutyOpen(false);
+                                        }}>
+                                        <View style={styles.progressStepView}>
+                                            <Text style={styles.militaryProgressTitle}>Military Information</Text>
+                                            {progressStepsMilitaryError &&
+                                                <Text style={styles.errorMessageMain}>Please fill out the information
+                                                    below!</Text>}
+                                            <DropDownPicker
+                                                zIndex={1000}
+                                                zIndexInverse={3000}
+                                                placeholder={"Duty Status"}
+                                                dropDownContainerStyle={styles.dropdownContainer}
+                                                dropDownDirection={"BOTTOM"}
+                                                style={styles.initialDropdownPicker}
+                                                textStyle={{fontFamily: 'Raleway-Regular'}}
+                                                open={dutyOpen}
+                                                onOpen={() => {
+                                                }}
+                                                onClose={() => setIsDutyOpen(false)}
+                                                value={duty}
+                                                items={dutyItems}
+                                                setOpen={setIsDutyOpen}
+                                                setValue={setDuty}
+                                                setItems={setDutyItems}
+                                                onSelectItem={(item) => {
+                                                    setProgressStepsMilitaryError(false);
+                                                    setDuty(item.value!);
+                                                }}
+                                            />
+                                            {(dutyErrors.length > 0 && !progressStepsMilitaryError) ?
+                                                <Text style={styles.errorMessage}>{dutyErrors[0]}</Text> : <></>}
+                                            {/* @ts-ignore */}
+                                            <TextInput
+                                                onChangeText={(value: React.SetStateAction<string>) => {
+                                                    setIsRankFocus(true);
+                                                    setProgressStepsMilitaryError(false);
+                                                    setRank(value);
+                                                }}
+                                                value={rank}
+                                                style={rankFocus ? styles.textInputFocus : styles.textInput}
+                                                onFocus={() => {
+                                                    setIsRankFocus(true);
+                                                }}
+                                                label="Rank"
+                                                textColor={"#313030"}
+                                                underlineColor={"#f2f2f2"}
+                                                activeUnderlineColor={"#313030"}
+                                                left={<TextInput.Icon icon="chevron-triple-up" iconColor="#313030"/>}
+                                            />
+                                            {(rankErrors.length > 0 && !progressStepsMilitaryError) ?
+                                                <Text style={styles.errorMessage}>{rankErrors[0]}</Text> : <></>}
+                                            {/* @ts-ignore */}
+                                            <TextInput
+                                                onChangeText={(value: React.SetStateAction<string>) => {
+                                                    setIsDutyStationFocus(true);
+                                                    setProgressStepsMilitaryError(false);
+                                                    setDutyStation(value);
+                                                }}
+                                                value={dutyStation}
+                                                style={dutyStationFocus ? styles.textInputFocus : styles.textInput}
+                                                onFocus={() => {
+                                                    setIsDutyStationFocus(true);
+                                                }}
+                                                label="Duty Station"
+                                                textColor={"#313030"}
+                                                underlineColor={"#f2f2f2"}
+                                                activeUnderlineColor={"#313030"}
+                                                left={<TextInput.Icon icon="office-building-marker"
+                                                                      iconColor="#313030"/>}
+                                            />
+                                            {(dutyStationErrors.length > 0 && !progressStepsMilitaryError) ?
+                                                <Text style={styles.errorMessage}>{dutyStationErrors[0]}</Text> : <></>}
+                                        </View>
+                                    </ProgressStep>
+
+                                    <ProgressStep
+                                        // note do not enable this unless we need more space for content - need to adjust for Android here
+                                        scrollable={false}
+                                        label="Security"
+                                        nextBtnText={"Next"}
+                                        previousBtnText={"Back"}
+                                        finishBtnText={""}
+                                        previousBtnStyle={styles.lastPrevBtnStyle}
+                                        previousBtnTextStyle={styles.btnStyleText}
+                                        errors={progressStepsErrors}
+                                        onPrevious={() => {
+                                            setProgressStepsSecurityError(false);
+                                            setIsRegisterButtonShown(false);
+                                            setIsConfirmPasswordShown(false);
+                                            setIsPasswordShown(false);
+                                        }}>
+                                        <View style={styles.progressStepView}>
+                                            <Text style={styles.securityProgressTitle}>Account Security</Text>
+                                            {progressStepsSecurityError &&
+                                                <Text style={styles.errorMessageMain}>Please fill out the information
+                                                    below!</Text>}
+                                            {/* @ts-ignore */}
+                                            <TextInput
+                                                onChangeText={(value: React.SetStateAction<string>) => {
+                                                    setIsPasswordFocus(true);
+                                                    setProgressStepsSecurityError(false);
+                                                    setPassword(value);
+                                                }}
+                                                value={password}
+                                                style={passwordFocus ? styles.initialTextInputFocus : styles.initialTextInput}
+                                                onFocus={() => {
+                                                    setIsPasswordFocus(true);
+                                                }}
+                                                label="Password"
+                                                secureTextEntry={!passwordShown}
+                                                textColor={"#313030"}
+                                                underlineColor={"#f2f2f2"}
+                                                activeUnderlineColor={"#313030"}
+                                                right={<TextInput.Icon icon="eye"
+                                                                       iconColor={passwordShown ? "#A2B000" : "#313030"}
+                                                                       onPress={() => setIsPasswordShown(!passwordShown)}/>}
+                                                left={<TextInput.Icon icon="lock" iconColor="#313030"/>}
+                                            />
+                                            {(passwordErrors.length > 0 && !progressStepsSecurityError) ?
+                                                <Text style={styles.errorMessage}>{passwordErrors[0]}</Text> : <></>}
+                                            {/* @ts-ignore */}
+                                            <TextInput
+                                                onChangeText={(value: React.SetStateAction<string>) => {
+                                                    setIsConfirmPasswordFocus(true);
+                                                    setProgressStepsSecurityError(false);
+                                                    setConfirmPassword(value);
+                                                }}
+                                                value={confirmPassword}
+                                                style={confirmPasswordFocus ? styles.textInputFocus : styles.textInput}
+                                                onFocus={() => {
+                                                    setIsConfirmPasswordFocus(true);
+                                                }}
+                                                label="Confirm Password"
+                                                secureTextEntry={!confirmPasswordShown}
+                                                textColor={"#313030"}
+                                                underlineColor={"#f2f2f2"}
+                                                activeUnderlineColor={"#313030"}
+                                                right={<TextInput.Icon icon="eye"
+                                                                       iconColor={confirmPasswordShown ? "#A2B000" : "#313030"}
+                                                                       onPress={() => setIsConfirmPasswordShown(!confirmPasswordShown)}/>}
+                                                left={<TextInput.Icon icon="lock" iconColor="#313030"/>}
+                                            />
+                                            {(confirmPasswordErrors.length > 0 && !progressStepsSecurityError) ?
+                                                <Text
+                                                    style={styles.errorMessage}>{confirmPasswordErrors[0]}</Text> : <></>}
+                                            {/* @ts-ignore */}
+                                            <TextInput
+                                                onChangeText={(value: React.SetStateAction<string>) => {
+                                                    setIsPhoneFocus(true);
+                                                    setProgressStepsSecurityError(false);
+                                                    setPhoneNumber(value);
+                                                }}
+                                                value={phoneNumber}
+                                                style={phoneFocus ? styles.textInputFocus : styles.textInput}
+                                                onFocus={() => {
+                                                    setIsPhoneFocus(true);
+                                                }}
+                                                label="Phone Number"
+                                                textColor={"#313030"}
+                                                underlineColor={"#f2f2f2"}
+                                                activeUnderlineColor={"#313030"}
+                                                left={<TextInput.Icon icon="phone" iconColor="#313030"/>}
+                                            />
+                                            {(phoneNumberErrors.length > 0 && !progressStepsSecurityError) ?
+                                                <Text style={styles.errorMessage}>{phoneNumberErrors[0]}</Text> : <></>}
+                                        </View>
+                                    </ProgressStep>
+                                </ProgressSteps>
+                            </View>
+                        </View>
+                        {
+                            (registerButtonShown) &&
+                            <View style={styles.signUpView}>
+                                <Button
+                                    uppercase={false}
+                                    style={styles.signUpFooterButton}
+                                    textColor={"#f2f2f2"}
+                                    buttonColor={"#2A3779"}
+                                    mode="outlined"
+                                    labelStyle={{fontSize: 18}}
+                                    onPress={() => {
+                                        if (password === "" || confirmPassword === "" || phoneNumber === "") {
+                                            setProgressStepsSecurityError(true);
+                                            setProgressStepsErrors(true);
+                                        } else {
+                                            fieldValidation("password");
+                                            fieldValidation("confirmPassword");
+                                            fieldValidation("phoneNumber");
+                                            if (passwordErrors.length !== 0 || confirmPasswordErrors.length !== 0 || phoneNumberErrors.length !== 0) {
+                                                setProgressStepsErrors(true);
+                                            } else {
+                                                setProgressStepsSecurityError(false);
+                                                setProgressStepsErrors(false);
+                                                signUp(email, name, birthDate, duty!, rank, dutyStation, password, phoneNumber);
                                                 setProgressStepsErrors(false);
                                             }
                                         }
-                                    }}
-                                    errors={progressStepsErrors}
-                                    onPrevious={() => {
-                                        setProgressStepsMilitaryError(false);
-                                        setIsRegisterButtonShown(false);
-                                        dutyOpen && setIsDutyOpen(false);
                                     }}>
-                                    <View style={styles.progressStepView}>
-                                        <Text style={styles.militaryProgressTitle}>Military Information</Text>
-                                        {progressStepsMilitaryError &&
-                                            <Text style={styles.errorMessageMain}>Please fill out the information
-                                                below!</Text>}
-                                        <DropDownPicker
-                                            zIndex={1000}
-                                            zIndexInverse={3000}
-                                            placeholder={"Duty Status"}
-                                            dropDownContainerStyle={styles.dropdownContainer}
-                                            dropDownDirection={"BOTTOM"}
-                                            style={styles.initialDropdownPicker}
-                                            textStyle={{fontFamily: 'Raleway-Regular'}}
-                                            open={dutyOpen}
-                                            onOpen={() => {
-                                            }}
-                                            onClose={() => setIsDutyOpen(false)}
-                                            value={duty}
-                                            items={dutyItems}
-                                            setOpen={setIsDutyOpen}
-                                            setValue={setDuty}
-                                            setItems={setDutyItems}
-                                            onSelectItem={(item) => {
-                                                setProgressStepsMilitaryError(false);
-                                                setDuty(item.value!);
-                                            }}
-                                        />
-                                        {(dutyErrors.length > 0 && !progressStepsMilitaryError) ?
-                                            <Text style={styles.errorMessage}>{dutyErrors[0]}</Text> : <></>}
-                                        {/* @ts-ignore */}
-                                        <TextInput
-                                            onChangeText={(value: React.SetStateAction<string>) => {
-                                                setIsRankFocus(true);
-                                                setProgressStepsMilitaryError(false);
-                                                setRank(value);
-                                            }}
-                                            value={rank}
-                                            style={rankFocus ? styles.textInputFocus : styles.textInput}
-                                            onFocus={() => {
-                                                setIsRankFocus(true);
-                                            }}
-                                            label="Rank"
-                                            textColor={"#313030"}
-                                            underlineColor={"#f2f2f2"}
-                                            activeUnderlineColor={"#313030"}
-                                            left={<TextInput.Icon icon="chevron-triple-up" iconColor="#313030"/>}
-                                        />
-                                        {(rankErrors.length > 0 && !progressStepsMilitaryError) ?
-                                            <Text style={styles.errorMessage}>{rankErrors[0]}</Text> : <></>}
-                                        {/* @ts-ignore */}
-                                        <TextInput
-                                            onChangeText={(value: React.SetStateAction<string>) => {
-                                                setIsDutyStationFocus(true);
-                                                setProgressStepsMilitaryError(false);
-                                                setDutyStation(value);
-                                            }}
-                                            value={dutyStation}
-                                            style={dutyStationFocus ? styles.textInputFocus : styles.textInput}
-                                            onFocus={() => {
-                                                setIsDutyStationFocus(true);
-                                            }}
-                                            label="Duty Station"
-                                            textColor={"#313030"}
-                                            underlineColor={"#f2f2f2"}
-                                            activeUnderlineColor={"#313030"}
-                                            left={<TextInput.Icon icon="office-building-marker" iconColor="#313030"/>}
-                                        />
-                                        {(dutyStationErrors.length > 0 && !progressStepsMilitaryError) ?
-                                            <Text style={styles.errorMessage}>{dutyStationErrors[0]}</Text> : <></>}
-                                    </View>
-                                </ProgressStep>
-
-                                <ProgressStep
-                                    // note do not enable this unless we need more space for content - need to adjust for Android here
-                                    scrollable={false}
-                                    label="Security"
-                                    nextBtnText={"Next"}
-                                    previousBtnText={"Back"}
-                                    finishBtnText={""}
-                                    previousBtnStyle={styles.lastPrevBtnStyle}
-                                    previousBtnTextStyle={styles.btnStyleText}
-                                    errors={progressStepsErrors}
-                                    onPrevious={() => {
-                                        setProgressStepsSecurityError(false);
-                                        setIsRegisterButtonShown(false);
-                                        setIsConfirmPasswordShown(false);
-                                        setIsPasswordShown(false);
-                                    }}>
-                                    <View style={styles.progressStepView}>
-                                        <Text style={styles.securityProgressTitle}>Account Security</Text>
-                                        {progressStepsSecurityError &&
-                                            <Text style={styles.errorMessageMain}>Please fill out the information
-                                                below!</Text>}
-                                        {/* @ts-ignore */}
-                                        <TextInput
-                                            onChangeText={(value: React.SetStateAction<string>) => {
-                                                setIsPasswordFocus(true);
-                                                setProgressStepsSecurityError(false);
-                                                setPassword(value);
-                                            }}
-                                            value={password}
-                                            style={passwordFocus ? styles.initialTextInputFocus : styles.initialTextInput}
-                                            onFocus={() => {
-                                                setIsPasswordFocus(true);
-                                            }}
-                                            label="Password"
-                                            secureTextEntry={!passwordShown}
-                                            textColor={"#313030"}
-                                            underlineColor={"#f2f2f2"}
-                                            activeUnderlineColor={"#313030"}
-                                            right={<TextInput.Icon icon="eye"
-                                                                   iconColor={passwordShown ? "#A2B000" : "#313030"}
-                                                                   onPress={() => setIsPasswordShown(!passwordShown)}/>}
-                                            left={<TextInput.Icon icon="lock" iconColor="#313030"/>}
-                                        />
-                                        {(passwordErrors.length > 0 && !progressStepsSecurityError) ?
-                                            <Text style={styles.errorMessage}>{passwordErrors[0]}</Text> : <></>}
-                                        {/* @ts-ignore */}
-                                        <TextInput
-                                            onChangeText={(value: React.SetStateAction<string>) => {
-                                                setIsConfirmPasswordFocus(true);
-                                                setProgressStepsSecurityError(false);
-                                                setConfirmPassword(value);
-                                            }}
-                                            value={confirmPassword}
-                                            style={confirmPasswordFocus ? styles.textInputFocus : styles.textInput}
-                                            onFocus={() => {
-                                                setIsConfirmPasswordFocus(true);
-                                            }}
-                                            label="Confirm Password"
-                                            secureTextEntry={!confirmPasswordShown}
-                                            textColor={"#313030"}
-                                            underlineColor={"#f2f2f2"}
-                                            activeUnderlineColor={"#313030"}
-                                            right={<TextInput.Icon icon="eye"
-                                                                   iconColor={confirmPasswordShown ? "#A2B000" : "#313030"}
-                                                                   onPress={() => setIsConfirmPasswordShown(!confirmPasswordShown)}/>}
-                                            left={<TextInput.Icon icon="lock" iconColor="#313030"/>}
-                                        />
-                                        {(confirmPasswordErrors.length > 0 && !progressStepsSecurityError) ?
-                                            <Text style={styles.errorMessage}>{confirmPasswordErrors[0]}</Text> : <></>}
-                                        {/* @ts-ignore */}
-                                        <TextInput
-                                            onChangeText={(value: React.SetStateAction<string>) => {
-                                                setIsPhoneFocus(true);
-                                                setProgressStepsSecurityError(false);
-                                                setPhoneNumber(value);
-                                            }}
-                                            value={phoneNumber}
-                                            style={phoneFocus ? styles.textInputFocus : styles.textInput}
-                                            onFocus={() => {
-                                                setIsPhoneFocus(true);
-                                            }}
-                                            label="Phone Number"
-                                            textColor={"#313030"}
-                                            underlineColor={"#f2f2f2"}
-                                            activeUnderlineColor={"#313030"}
-                                            left={<TextInput.Icon icon="phone" iconColor="#313030"/>}
-                                        />
-                                        {(phoneNumberErrors.length > 0 && !progressStepsSecurityError) ?
-                                            <Text style={styles.errorMessage}>{phoneNumberErrors[0]}</Text> : <></>}
-                                    </View>
-                                </ProgressStep>
-                            </ProgressSteps>
-                        </View>
-                    </View>
-                    {
-                        (registerButtonShown) &&
-                        <View style={styles.signUpView}>
-                            <Button
-                                uppercase={false}
-                                style={styles.signUpFooterButton}
-                                textColor={"#f2f2f2"}
-                                buttonColor={"#2A3779"}
-                                mode="outlined"
-                                labelStyle={{fontSize: 18}}
-                                onPress={() => {
-                                    if (password === "" || confirmPassword === "" || phoneNumber === "") {
-                                        setProgressStepsSecurityError(true);
-                                        setProgressStepsErrors(true);
-                                    } else {
-                                        fieldValidation("password");
-                                        fieldValidation("confirmPassword");
-                                        fieldValidation("phoneNumber");
-                                        if (passwordErrors.length !== 0 || confirmPasswordErrors.length !== 0 || phoneNumberErrors.length !== 0) {
-                                            setProgressStepsErrors(true);
-                                        } else {
-                                            setProgressStepsSecurityError(false);
-                                            setProgressStepsErrors(false);
-                                            signUp(email, name, birthDate, duty!, rank, dutyStation, password, phoneNumber);
-                                            setProgressStepsErrors(false);
-                                        }
-                                    }
-                                }}>
-                                Register
-                            </Button>
-                            <Text style={styles.disclaimerText}>
-                                By creating an account with us, you agree to our <Text style={styles.termsFooter}>Terms
-                                and Conditions</Text> and to our <Text style={styles.termsFooter}>Privacy Policy</Text>.
-                            </Text>
-                        </View>
-                    }
-                </KeyboardAwareScrollView>
-            </SafeAreaView>
-        </ImageBackground>
+                                    Register
+                                </Button>
+                                <Text style={styles.disclaimerText}>
+                                    By creating an account with us, you agree to our <Text style={styles.termsFooter}>Terms
+                                    and Conditions</Text> and to our <Text style={styles.termsFooter}>Privacy
+                                    Policy</Text>.
+                                </Text>
+                            </View>
+                        }
+                    </KeyboardAwareScrollView>
+                </SafeAreaView>
+            </ImageBackground>
+        </SafeAreaView>
     );
 };
 

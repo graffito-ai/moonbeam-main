@@ -99,17 +99,10 @@ export default function App() {
         const config = {
             screens: {
                 SignUp: {
-                    path: 'signup/:referredBy/:referredByName',
+                    path: 'signup/:referralId/:fromSignUpDeepLink',
                     parse: {
-                        referredBy: (referredBy: string) => referredBy,
-                        referredByName: (referredByName: string) => {
-                            let fullName: string = '';
-                            // @ts-ignore
-                            referredByName.match(/[A-Z][a-z]+/g).forEach((name) => {
-                                fullName += ` ${name}`;
-                            });
-                            return fullName.trimEnd().trimStart();
-                        }
+                        referralId: (referralId: string) => referralId,
+                        fromSignUpDeepLink: (fromSignUpDeepLink: string) => JSON.parse(fromSignUpDeepLink)
                     }
                 }
 

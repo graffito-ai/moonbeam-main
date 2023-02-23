@@ -5,7 +5,8 @@ import { LazyLoading, LazyLoadingDisabled } from "@aws-amplify/datastore";
 export enum ReferralStatus {
   REDEEMED = "REDEEMED",
   NOT_REDEEMED = "NOT_REDEEMED",
-  INITIATED = "INITIATED"
+  INITIATED = "INITIATED",
+  INVALID = "INVALID"
 }
 
 export enum OfferType {
@@ -25,6 +26,9 @@ type EagerReferral = {
   readonly offerType: OfferType | keyof typeof OfferType;
   readonly inviteeEmail: string;
   readonly inviterEmail: string;
+  readonly inviterName: string;
+  readonly statusInviter: ReferralStatus | keyof typeof ReferralStatus;
+  readonly statusInvitee: ReferralStatus | keyof typeof ReferralStatus;
 }
 
 type LazyReferral = {
@@ -38,6 +42,9 @@ type LazyReferral = {
   readonly offerType: OfferType | keyof typeof OfferType;
   readonly inviteeEmail: string;
   readonly inviterEmail: string;
+  readonly inviterName: string;
+  readonly statusInviter: ReferralStatus | keyof typeof ReferralStatus;
+  readonly statusInvitee: ReferralStatus | keyof typeof ReferralStatus;
 }
 
 export declare type Referral = LazyLoading extends LazyLoadingDisabled ? EagerReferral : LazyReferral

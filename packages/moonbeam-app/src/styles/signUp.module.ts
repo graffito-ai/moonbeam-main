@@ -216,13 +216,15 @@ export const styles = StyleSheet.create({
         alignSelf: 'center',
         width: Dimensions.get('window').width / 1.5,
         height: Dimensions.get('window').height / 3.5,
+        marginTop: '10%',
+        marginBottom: '5%'
     },
     referSignUpButton: {
         borderRadius: 25,
         borderColor: '#313030',
         height: 50,
         width: 350,
-        marginTop: '10%'
+        marginTop: '5%'
     },
     modalButton: {
         borderRadius: 25,

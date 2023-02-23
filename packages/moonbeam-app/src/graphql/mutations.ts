@@ -15,6 +15,9 @@ export const createReferral = /* GraphQL */ `
       offerType
       inviteeEmail
       inviterEmail
+      inviterName
+      statusInviter
+      statusInvitee
       _version
       _deleted
       _lastChangedAt
@@ -35,6 +38,9 @@ export const updateReferral = /* GraphQL */ `
       offerType
       inviteeEmail
       inviterEmail
+      inviterName
+      statusInviter
+      statusInvitee
       _version
       _deleted
       _lastChangedAt
@@ -55,6 +61,9 @@ export const deleteReferral = /* GraphQL */ `
       offerType
       inviteeEmail
       inviterEmail
+      inviterName
+      statusInviter
+      statusInvitee
       _version
       _deleted
       _lastChangedAt
