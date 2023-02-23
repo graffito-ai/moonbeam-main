@@ -109,7 +109,9 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
      * @return {@link Boolean} a flag representing whether the code retrieval was successful or not
      */
     const confirmSignIn = async (username: string, password: string): Promise<boolean> => {
-        return Auth.signIn(username, password).then((user) => {
+        try {
+            const user = await Auth.signIn(username, password);
+
             /**
              * The number of points on signup is 0, unless the SignUp is as a result of an offer,
              * in which case the number of points will be derived from the referral offer.
@@ -125,105 +127,108 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
              * First retrieve all unredeemed offers for the current user, and redeem them, by changing the referral status and timestamp,
              * as well as the user's point balance.
              */
-            // perform a query to get the referral data for use-cases when user is Inviter
-            return API.graphql(graphqlOperation(listReferralsForSignIn, {
-                filter:
-                    {inviterEmail: {eq: user.attributes["email"].toLowerCase()},
-                        and: {
-                            statusInviter: {eq: ReferralStatus.INITIATED},
-                            and: {status: {eq: ReferralStatus.REDEEMED}}
-                        }
-                    }
-                // @ts-ignore
-            })).then((inviterResult) => {
-                console.log(JSON.stringify(inviterResult));
 
-                return API.graphql(graphqlOperation(listReferralsForSignIn, {
+            // perform a query to get the referral data for use-cases when user is Inviter
+            if (user) {
+                const inviterResult = await API.graphql(graphqlOperation(listReferralsForSignIn, {
                     filter:
-                        {inviteeEmail: {eq: user.attributes["email"].toLowerCase()},
+                        {inviterEmail: {eq: user.attributes["email"].toLowerCase()},
                             and: {
-                                statusInvitee: {eq: ReferralStatus.INITIATED},
+                                statusInviter: {eq: ReferralStatus.INITIATED},
                                 and: {status: {eq: ReferralStatus.REDEEMED}}
                             }
                         }
-                    // @ts-ignore
-                })).then(async (inviteeResult) => {
-                    const inviterList = inviterResult.data.listReferrals.items;
-                    const inviteeList = inviteeResult.data.listReferrals.items;
-                    let redeemablePoints: number = 0;
-
-                    // update the list of referrals for the inviter, and the points
-                    for (const item in inviterList) {
-                        // create a timestamp to keep track of when the referral was last updated
-                        const updatedAt = new Date().toISOString();
-
-                        // update thre referral object in the list of referrals, accordingly
-                        const updatedReferral = await API.graphql(graphqlOperation(updateReferral, {
-                            input:
-                                {
-                                    // @ts-ignore
-                                    id: `${inviterList[item].id}`,
-                                    statusInviter: ReferralStatus.REDEEMED,
-                                    _version: `${inviterList[item]._version}`,
-                                    updatedAt: updatedAt
+                }));
+                if (inviterResult) {
+                    // perform a query to get the referral data for use-cases when user is Invitee
+                    const inviteeResult = API.graphql(graphqlOperation(listReferralsForSignIn, {
+                        filter:
+                            {inviteeEmail: {eq: user.attributes["email"].toLowerCase()},
+                                and: {
+                                    statusInvitee: {eq: ReferralStatus.INITIATED},
+                                    and: {status: {eq: ReferralStatus.REDEEMED}}
                                 }
-                        }));
-                        let existingPoints = updatedReferral && user.attributes["custom:points"] === '-99' ? 0 : Number(user.attributes["custom:points"]);
-                        redeemablePoints = updatedReferral && (existingPoints + 10000);
-                        // update the available points for the user
-                        updatedReferral && await Auth.updateUserAttributes(user, {
-                            'custom:points': `${redeemablePoints}`
-                        });
+                            }
+                    }));
+                    if (inviteeResult) {
+                        // @ts-ignore
+                        const inviterList = inviterResult.data.listReferrals.items;
+                        // @ts-ignore
+                        const inviteeList = inviteeResult.data.listReferrals.items;
+                        let redeemablePoints: number = 0;
+
+                        // update the list of referrals for the inviter, and the points
+                        for (const item in inviterList) {
+                            // create a timestamp to keep track of when the referral was last updated
+                            const updatedAt = new Date().toISOString();
+
+                            // update thre referral object in the list of referrals, accordingly
+                            const updatesReferral = await API.graphql(graphqlOperation(updateReferral, {
+                                input:
+                                    {
+                                        // @ts-ignore
+                                        id: `${inviterList[item].id}`,
+                                        statusInviter: ReferralStatus.REDEEMED,
+                                        _version: `${inviterList[item]._version}`,
+                                        updatedAt: updatedAt
+                                    }
+                            }));
+                            if (updatesReferral) {
+                                let existingPoints = user.attributes["custom:points"] === '-99' ? 0 : Number(user.attributes["custom:points"]);
+                                redeemablePoints = existingPoints + 10000;
+                                // update the available points for the user
+                                await Auth.updateUserAttributes(user, {
+                                    'custom:points': `${redeemablePoints}`
+                                });
+                            }
+                        }
+
+                        // update the list of referrals for the invitee, and the points
+                        for (const item in inviteeList) {
+                            // create a timestamp to keep track of when the referral was last updated
+                            const updatedAt = new Date().toISOString();
+
+                            // update thre referral object in the list of referrals, accordingly
+                            const updatesReferral = await API.graphql(graphqlOperation(updateReferral, {
+                                input:
+                                    {
+                                        // @ts-ignore
+                                        id: `${inviteeList[item].id}`,
+                                        statusInvitee: ReferralStatus.REDEEMED,
+                                        _version: `${inviteeList[item]._version}`,
+                                        updatedAt: updatedAt
+                                    }
+                            }));
+                            if (updatesReferral) {
+                                let existingPoints = user.attributes["custom:points"] === '-99' ? 0 : Number(user.attributes["custom:points"]);
+                                redeemablePoints = existingPoints + 10000;
+                                // update the available points for the user
+                                await Auth.updateUserAttributes(user, {
+                                    'custom:points': `${redeemablePoints}`
+                                });
+                            }
+                        }
+                        return true;
+                    } else {
+                        console.log(`Unexpected error while retrieving the list of Invitee-based referrals`);
+                        setPasswordErrors([`Unexpected error while retrieving the list of Invitee-based referrals`]);
+                        return false;
                     }
-
-
-                    // update the list of referrals for the invitee, and the points
-                    for (const item in inviteeList) {
-                        console.log('HEREEEEEE');
-                        console.log(inviteeList[item].id);
-
-                        // create a timestamp to keep track of when the referral was last updated
-                        const updatedAt = new Date().toISOString();
-
-                        // update thre referral object in the list of referrals, accordingly
-                        await API.graphql(graphqlOperation(updateReferral, {
-                            input:
-                                {
-                                    // @ts-ignore
-                                    id: `${inviteeList[item].id}`,
-                                    statusInvitee: ReferralStatus.REDEEMED,
-                                    _version: `${inviteeList[item]._version}`,
-                                    updatedAt: updatedAt
-                                }
-                        }));
-                        redeemablePoints += user.attributes["custom:points"] === '-99' ? 99 : user.attributes["custom:points"] + 10000;
-                        // update the available points for the user
-                        await Auth.updateUserAttributes(user, {
-                            'custom:points': `${redeemablePoints}`
-                        });
-                    }
-
+                } else {
+                    console.log(`Unexpected error while retrieving the list of Inviter-based referrals`);
+                    setPasswordErrors([`Unexpected error while retrieving the list of Inviter-based referrals`]);
                     return false;
-                    // @ts-ignore
-                }).catch((error) => {
-                    console.log(`Unexpected error while signing in: ${JSON.stringify(error)}`);
-                    // @ts-ignore
-                    setPasswordErrors([error.message ? error.message : 'Unexpected error while signing in']);
-                    return false;
-                });
-                // @ts-ignore
-            }).catch((error) => {
-                console.log(`Unexpected error while signing in: ${JSON.stringify(error)}`);
-                // @ts-ignore
-                setPasswordErrors([error.message ? error.message : 'Unexpected error while signing in']);
+                }
+            } else {
+                console.log(`Unexpected error while signing in`);
+                setPasswordErrors(['Unexpected error while signing in']);
                 return false;
-            });
-            // @ts-ignore
-        }).catch((error) => {
-            console.log(`Unexpected error while signing in: ${JSON.stringify(error)}`);
-            setPasswordErrors([error.message ? error.message : 'Unexpected error while signing in']);
+            }
+        } catch (error) {
+            console.log(`Unexpected error while signing in`);
+            setPasswordErrors(['Unexpected error while signing in']);
             return false;
-        });
+        }
     };
 
     // return the component for the SignIn page

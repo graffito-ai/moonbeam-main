@@ -8,7 +8,7 @@ import {Button, Modal, Portal, Text} from "react-native-paper";
 import {styles} from "../styles/homeReferral.module";
 // @ts-ignore
 import FriendReferral from '../../assets/refer-friend.png';
-import {Auth, API, graphqlOperation} from "aws-amplify";
+import {API, graphqlOperation} from "aws-amplify";
 import * as Linking from "expo-linking";
 import {createReferral} from '../graphql/mutations';
 import {OfferType, ReferralStatus} from "../models";
@@ -17,7 +17,7 @@ import {v4 as uuidv4} from 'uuid';
 /**
  * Home Referral component.
  */
-export const HomeReferral = ({navigation}: HomeReferralProps) => {
+export const HomeReferral = ({navigation, route}: HomeReferralProps) => {
     // state driven key-value pairs for UI related elements
     const [referralModalVisible, setReferralModalVisible] = useState<boolean>(false);
     const [isErrorModal, setIsErrorModal] = useState<boolean>(false);
@@ -35,10 +35,8 @@ export const HomeReferral = ({navigation}: HomeReferralProps) => {
      * included in here.
      */
     useEffect(() => {
-        Auth.currentUserInfo().then((userInfo) => {
-            setCurrentUserEmail(userInfo.attributes["email"].toLowerCase());
-            setCurrentUserName(userInfo.attributes["name"]);
-        });
+        setCurrentUserEmail(route.params.currentUserInformation.attributes["email"].toLowerCase());
+        setCurrentUserName(route.params.currentUserInformation.attributes["name"]);
     }, []);
 
     /**
@@ -58,7 +56,7 @@ export const HomeReferral = ({navigation}: HomeReferralProps) => {
                     const createdAt = new Date().toISOString();
 
                     // create a referral object in the list of referrals
-                    await API.graphql(graphqlOperation(createReferral, {
+                    const createsReferral = await API.graphql(graphqlOperation(createReferral, {
                         input:
                             {
                                 id: referralId,
@@ -73,14 +71,17 @@ export const HomeReferral = ({navigation}: HomeReferralProps) => {
                                 createdAt: createdAt
                             }
                     }));
-                    setReferralModalVisible(true);
-                    setIsErrorModal(false);
-                    setModalMessage("Successfully shared invite!");
+                    if (createsReferral) {
+                        setReferralModalVisible(true);
+                        setIsErrorModal(false);
+                        setModalMessage("Successfully shared invite!");
+                    }
                 } catch (error) {
-                    console.log(error);
                     setReferralModalVisible(true);
                     setIsErrorModal(true);
-                    setModalMessage("Unexpected error for referral!");
+                    // @ts-ignore
+                    setModalMessage(error.message ? error.message : `Unexpected error for referral!`);
+                    console.log(`Unexpected error while creating referral for invite: ${JSON.stringify(error)}`);
                 }
 
                 // if (result.activityType) {
@@ -92,10 +93,11 @@ export const HomeReferral = ({navigation}: HomeReferralProps) => {
                 // dismissed
             }
         } catch (error) {
-            console.log(error);
             setReferralModalVisible(true);
             setIsErrorModal(true);
-            setModalMessage("Unexpected error for invitation!");
+            // @ts-ignore
+            setModalMessage(error.message ? error.message : `Unexpected error while sharing invitation!`);
+            console.log(`Unexpected error while sharing invite: ${JSON.stringify(error)}`);
         }
     }
 

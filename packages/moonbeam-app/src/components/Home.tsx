@@ -9,6 +9,7 @@ import {HomeStackParamList} from "../models/HomeStackProps";
 import {HomeDash} from "./HomeDash";
 import {CommonActions} from "@react-navigation/native";
 import {HomeReferral} from "./HomeReferral";
+import { Auth } from 'aws-amplify';
 
 /**
  * Home component.
@@ -16,6 +17,7 @@ import {HomeReferral} from "./HomeReferral";
 export const Home = ({navigation, route}: HomeTabProps) => {
     // state driven key-value pairs for UI related elements
     const [currentHomeDashScreenKey, setCurrentHomeDashScreenKey] = useState<string>("");
+    const [currentUserInformation, setCurrentUserInformation] = useState<any>([]);
 
     // create a native stack navigator, to be used for our Home navigation
     const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -28,6 +30,7 @@ export const Home = ({navigation, route}: HomeTabProps) => {
      * included in here.
      */
     useEffect(() => {
+        setCurrentUserInformation(retrieveUserInformation());
         // if the redeemed points are greater than 0
         if (route.params.pointValueRedeemed !== 0) {
             // dispatch a navigation event, which will update the home dash props for the points value redeemed
@@ -37,6 +40,23 @@ export const Home = ({navigation, route}: HomeTabProps) => {
             });
         }
     }, [route.params.pointValueRedeemed]);
+
+    /**
+     * Function used to retrieve the current logged in user's information
+     *
+     * @returns {@link Promise} of {@link any}
+     */
+    const retrieveUserInformation = async (): Promise<any> => {
+        try {
+            const userInfo = await Auth.currentUserInfo();
+            if (userInfo) {
+                return userInfo;
+            }
+        } catch (error) {
+            console.log(`Unexpected error while retrieving user information: ${JSON.stringify(error)}`);
+            // in the future maybe capture this error, as a modal message or something similar
+        }
+    }
 
     // return the component for the Home page
     return (
@@ -49,6 +69,7 @@ export const Home = ({navigation, route}: HomeTabProps) => {
                         headerShown: false
                     }}
                     initialParams={{
+                        currentUserInformation: currentUserInformation,
                         pointValueRedeemed: route.params.pointValueRedeemed,
                         setCurrentScreenKey: setCurrentHomeDashScreenKey
                     }}
@@ -75,6 +96,9 @@ export const Home = ({navigation, route}: HomeTabProps) => {
                                 onPress={() => navigation.goBack()}
                             />
                         ),
+                    }}
+                    initialParams={{
+                        currentUserInformation: currentUserInformation
                     }}
                 />
             </Stack.Navigator>

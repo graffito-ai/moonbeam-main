@@ -245,7 +245,7 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
     const signUp = async (username: string, name: string, birthDate: string, dutyStatus: string,
                           militaryRank: string, dutyStation: string, password: string, phoneNumber: string) => {
         try {
-            await Auth.signUp({
+            const signUp = await Auth.signUp({
                 username,
                 password,
                 attributes: {
@@ -262,18 +262,20 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
                     'custom:points': '-99'
                 },
             });
-            // depending on whether the SignUp resulted from a referral or not, perform separate flows
-            navigation.navigate('EmailVerify', {
-                // @ts-ignore
-                username: username, ...(referralData.id && referralData._version && referralData.status) && {
+            if (signUp) {
+                // depending on whether the SignUp resulted from a referral or not, perform separate flows
+                navigation.navigate('EmailVerify', {
                     // @ts-ignore
-                    referralId: referralData.id,
-                    // @ts-ignore
-                    _version: referralData._version,
-                    // @ts-ignore
-                    status: referralModalError !== "" ? ReferralStatus.INVALID : referralData.status
-                }
-            });
+                    username: username, ...(referralData.id && referralData._version && referralData.status) && {
+                        // @ts-ignore
+                        referralId: referralData.id,
+                        // @ts-ignore
+                        _version: referralData._version,
+                        // @ts-ignore
+                        status: referralModalError !== "" ? ReferralStatus.INVALID : referralData.status
+                    }
+                });
+            }
         } catch (error) {
             // @ts-ignore
             setSignUpModalError(error.message ? error.message : 'Unexpected error while Signing Up');
@@ -358,26 +360,8 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
                 // that the back button for the navigation is hidden
                 route.params.setSignUpBackButtonVisible && route.params.setSignUpBackButtonVisible(false);
 
-                // perform a query to get the referral data
-                API.graphql(graphqlOperation(getReferral, {
-                    id: route.params.referralId
-                    // @ts-ignore
-                })).then((result) => {
-                    // if the result is null, then we couldn't find a valid referral code, otherwise proceed with a full-blown referral modal
-                    setReferralData(result.data.getReferral);
-                    if (result.data.getReferral === null) {
-                        setReferralModalError("Unable to validate invite code! No offers or points will be redeemed at this time!");
-                    }
-                    if (result.data.getReferral.status === ReferralStatus.REDEEMED) {
-                        setReferralModalError("Invite code already redeemed! No offers or points will be redeemed at this time!");
-                    }
-
-                    // that the referral modal is shown
-                    setReferralSignUpModalVisible(true);
-                }).catch((error: any) => {
-                    console.log(error);
-                    setReferralModalError("Error while retrieving referral invitation! No offers or points will be redeemed at this time!");
-                });
+                // retrieves the referral invite data, given the information provided in the deep link
+                getReferralInviteData();
             }
             setIsInitialRender(false);
         }
@@ -392,6 +376,43 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
         phoneNumber, emailFocus, nameFocus, birthDateFocus,
         dutyOpen, rankFocus, dutyStationFocus, passwordFocus,
         confirmPasswordFocus, phoneFocus, referralModalError, signUpModalError]);
+
+    /**
+     * Function used to retrieve the information for a referral invite, referenced through a SignUp deep link
+     */
+    const getReferralInviteData = async () => {
+        try {
+            // that the back button for the navigation is hidden
+            route.params.setSignUpBackButtonVisible && route.params.setSignUpBackButtonVisible(false);
+
+            // perform a query to get the referral data
+            const getsReferral = await API.graphql(graphqlOperation(getReferral, {
+                id: route.params.referralId
+            }));
+            if (getsReferral) {
+                // if the result is null, then we couldn't find a valid referral code, otherwise proceed with a full-blown referral modal
+
+                // @ts-ignore
+                setReferralData(getsReferral.data.getReferral);
+                // @ts-ignore
+                if (getsReferral.data.getReferral === null) {
+                    setReferralModalError("Unable to validate invite code! No offers or points will be redeemed at this time!");
+                }
+                // @ts-ignore
+                if (getsReferral.data.getReferral.status === ReferralStatus.REDEEMED) {
+                    setReferralModalError("Invite code already redeemed! No offers or points will be redeemed at this time!");
+                }
+
+                // that the referral modal is shown
+                setReferralSignUpModalVisible(true);
+            }
+        } catch (error) {
+            // @ts-ignore
+            setReferralModalError(error.message ? error.message : `Error while retrieving referral invitation! No offers or points will be redeemed at this time!`);
+            console.log(`Error while retrieving referral invitation! No offers or points will be redeemed at this time!: ${JSON.stringify(error)}`);
+        }
+    }
+
 
     // return the component for the SignUp page
     return (

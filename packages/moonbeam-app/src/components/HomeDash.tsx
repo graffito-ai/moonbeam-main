@@ -8,7 +8,6 @@ import {Divider, IconButton, List, SegmentedButtons} from 'react-native-paper';
 import * as Progress from 'react-native-progress';
 import {Avatar} from '@rneui/themed';
 import {commonStyles} from '../styles/common.module';
-import {Auth} from "aws-amplify";
 import {HomeDashProps} from "../models/HomeStackProps";
 
 /**
@@ -32,10 +31,10 @@ export const HomeDash = ({navigation, route}: HomeDashProps) => {
      * included in here.
      */
     useEffect(() => {
-        Auth.currentUserInfo().then((userInfo) => {
-            const secondInitial = userInfo.attributes["name"].split(" ").length > 2 ? 2 : 1;
-            setCurrentUserTitle(`${Array.from(userInfo.attributes["name"].split(" ")[0])[0] as string}${Array.from(userInfo.attributes["name"].split(" ")[secondInitial])[0] as string}`);
-        });
+        // set the title of the user's avatar in the dashboard, based on the user's information
+        const secondInitial = route.params.currentUserInformation.attributes["name"].split(" ").length > 2 ? 2 : 1;
+        setCurrentUserTitle(`${Array.from(route.params.currentUserInformation.attributes["name"].split(" ")[0])[0] as string}${Array.from(route.params.currentUserInformation.attributes["name"].split(" ")[secondInitial])[0] as string}`);
+
         route.params.setCurrentScreenKey(route.key);
     }, [route]);
 
@@ -44,7 +43,7 @@ export const HomeDash = ({navigation, route}: HomeDashProps) => {
      */
     const referAction = () => {
         // redirect to the referral page
-        navigation.navigate('HomeReferral', {});
+        navigation.navigate('HomeReferral', {currentUserInformation: route.params.currentUserInformation});
     }
 
     return (

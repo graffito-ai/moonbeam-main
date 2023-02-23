@@ -82,44 +82,50 @@ export const EmailVerify = ({navigation, route}: EmailVerifyProps) => {
      * @param code verification code inputted by the user
      */
     const onConfirmPressed = async (code: string) => {
-        Auth.confirmSignUp(route.params.username, code).then(async () => {
-            // depending on whether the EmailVerify resulted from a referral or not, perform separate flows
-            if (route.params.referralId && route.params._version && route.params.status) {
-                // only update a referral when needed
-                if (route.params.status !== ReferralStatus.REDEEMED && route.params.status !== ReferralStatus.INVALID) {
-                    // create a timestamp to keep track of when the referral was last updated
-                    const updatedAt = new Date().toISOString();
+        try {
+            // first sign confirm the signing up of the user
+            const signUp = await Auth.confirmSignUp(route.params.username, code);
+            if (signUp) {
+                // depending on whether the EmailVerify resulted from a referral or not, perform separate flows
+                if (route.params.referralId && route.params._version && route.params.status) {
+                    // only update a referral when needed
+                    if (route.params.status !== ReferralStatus.REDEEMED && route.params.status !== ReferralStatus.INVALID) {
+                        // create a timestamp to keep track of when the referral was last updated
+                        const updatedAt = new Date().toISOString();
 
-                    // update thre referral object in the list of referrals, accordingly
-                    await API.graphql(graphqlOperation(updateReferral, {
-                        input:
-                            {
-                                // @ts-ignore
-                                id: `${route.params.referralId}`,
-                                inviteeEmail: `${route.params.username.toLowerCase()}`,
-                                status: ReferralStatus.REDEEMED,
-                                updatedAt: updatedAt,
-                                _version: `${route.params._version}`
-                            }
-                    }));
-                    setModalMessage("Thanks for confirming the code! Your email address is now verified!");
-                    setModalVisible(true);
-                    setIsResendModal(false);
-                    setIsErrorModal(false);
+                        // update thre referral object in the list of referrals, accordingly
+                        const updatesReferral = await API.graphql(graphqlOperation(updateReferral, {
+                            input:
+                                {
+                                    // @ts-ignore
+                                    id: `${route.params.referralId}`,
+                                    inviteeEmail: `${route.params.username.toLowerCase()}`,
+                                    status: ReferralStatus.REDEEMED,
+                                    updatedAt: updatedAt,
+                                    _version: `${route.params._version}`
+                                }
+                        }));
+                        if (updatesReferral) {
+                            setModalMessage("Thanks for confirming the code! Your email address is now verified!");
+                            setModalVisible(true);
+                            setIsResendModal(false);
+                            setIsErrorModal(false);
+                        }
+                    }
                 }
+                setModalMessage("Thanks for confirming the code! Your email address is now verified!");
+                setModalVisible(true);
+                setIsResendModal(false);
+                setIsErrorModal(false);
             }
-            setModalMessage("Thanks for confirming the code! Your email address is now verified!");
-            setModalVisible(true);
-            setIsResendModal(false);
-            setIsErrorModal(false);
-        }).catch((error) => {
+        } catch (error) {
             // @ts-ignore
             setModalMessage(error.message ? error.message : 'Unexpected error while confirming sign up code');
             setModalVisible(true);
             setIsErrorModal(true);
             setIsResendModal(false);
             console.log(`Unexpected error while confirming sign up code : ${JSON.stringify(error)}`);
-        });
+        }
     };
 
     /**
@@ -127,18 +133,20 @@ export const EmailVerify = ({navigation, route}: EmailVerifyProps) => {
      */
     const onResendCodePressed = async () => {
         try {
-            await Auth.resendSignUp(route.params.username);
-            setModalMessage("Re-sending verification code! You should receive an email shortly");
-            setModalVisible(true);
-            setIsResendModal(true);
-            setIsErrorModal(false);
+            const resendSignUpCode = await Auth.resendSignUp(route.params.username);
+            if (resendSignUpCode) {
+                setModalMessage("Re-sending verification code! You should receive an email shortly");
+                setModalVisible(true);
+                setIsResendModal(true);
+                setIsErrorModal(false);
+            }
         } catch (error) {
             // @ts-ignore
-            setModalMessage(error.message);
+            setModalMessage(error.message ? error.message : `Unexpected error while resending verification code`);
             setModalVisible(true);
             setIsErrorModal(true);
             setIsResendModal(false);
-            console.log(`Unexpected error while resending verification code: ${error}`);
+            console.log(`Unexpected error while resending verification code: ${JSON.stringify(error)}`);
         }
     };
 

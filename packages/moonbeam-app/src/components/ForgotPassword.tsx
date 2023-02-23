@@ -185,12 +185,15 @@ export const ForgotPassword = ({navigation, route}: ForgotPasswordProps) => {
      */
     const passwordCodeRetrieval = async (username: string): Promise<boolean> => {
         try {
-            await Auth.forgotPassword(username);
-            return true;
+            const forgotPasswordRequest = await Auth.forgotPassword(username);
+            if (forgotPasswordRequest) {
+                return true;
+            }
+            return false;
         } catch (error) {
-            console.log(`Unexpected error while confirming identity: ${error}`);
             // @ts-ignore
-            setConfirmPasswordErrors([error.message]);
+            setConfirmPasswordErrors([error.message ? error.message : `Unexpected error while confirming identity for resetting password`]);
+            console.log(`Unexpected error while confirming identity for resetting password : ${JSON.stringify(error)}`);
             return false;
         }
     };
@@ -204,16 +207,18 @@ export const ForgotPassword = ({navigation, route}: ForgotPasswordProps) => {
      */
     const passwordReset = async (username: string, password: string, code: string) => {
         try {
-            await Auth.forgotPasswordSubmit(username, code, password);
-            setModalVisible(true);
-            setIsErrorModal(false);
-            setModalMessage("Thanks for confirming the code! Your password is now changed!");
+            const forgotPasswordReset = await Auth.forgotPasswordSubmit(username, code, password);
+            if (forgotPasswordReset) {
+                setModalVisible(true);
+                setIsErrorModal(false);
+                setModalMessage("Thanks for confirming the code! Your password is now changed!");
+            }
         } catch (error) {
-            console.log(`Unexpected error while resetting password: ${error}`);
             setModalVisible(true);
             setIsErrorModal(true);
             // @ts-ignore
-            setModalMessage(error.message);
+            setModalMessage(error.message ? error.message : `Unexpected error while resetting password`);
+            console.log(`Unexpected error while resetting password: ${JSON.stringify(error)}`);
         }
     };
 
@@ -300,7 +305,6 @@ export const ForgotPassword = ({navigation, route}: ForgotPasswordProps) => {
                                                     setProgressStepsErrors(true);
                                                 } else if (emailErrors.length === 0 || passwordErrors.length === 0 || confirmPasswordErrors.length === 0) {
                                                     const codeRetrievedFlag = await passwordCodeRetrieval(email);
-                                                    console.log('HERE' + codeRetrievedFlag);
                                                     if (!codeRetrievedFlag) {
                                                         setProgressStepsErrors(true);
                                                     } else {
