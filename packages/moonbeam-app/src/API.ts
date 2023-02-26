@@ -109,7 +109,6 @@ export type Referral = {
   _version: number,
   _deleted?: boolean | null,
   _lastChangedAt: number,
-  owner?: string | null,
 };
 
 export type UpdateReferralInput = {
@@ -236,7 +235,6 @@ export type CreateReferralMutation = {
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };
 
@@ -261,7 +259,6 @@ export type UpdateReferralMutation = {
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };
 
@@ -286,7 +283,6 @@ export type DeleteReferralMutation = {
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };
 
@@ -310,7 +306,6 @@ export type GetReferralQuery = {
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };
 
@@ -338,7 +333,6 @@ export type ListReferralsQuery = {
       _version: number,
       _deleted?: boolean | null,
       _lastChangedAt: number,
-      owner?: string | null,
     } | null >,
     nextToken?: string | null,
     startedAt?: number | null,
@@ -370,7 +364,6 @@ export type SyncReferralsQuery = {
       _version: number,
       _deleted?: boolean | null,
       _lastChangedAt: number,
-      owner?: string | null,
     } | null >,
     nextToken?: string | null,
     startedAt?: number | null,
@@ -379,7 +372,6 @@ export type SyncReferralsQuery = {
 
 export type OnCreateReferralSubscriptionVariables = {
   filter?: ModelSubscriptionReferralFilterInput | null,
-  owner?: string | null,
 };
 
 export type OnCreateReferralSubscription = {
@@ -398,13 +390,11 @@ export type OnCreateReferralSubscription = {
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };
 
 export type OnUpdateReferralSubscriptionVariables = {
   filter?: ModelSubscriptionReferralFilterInput | null,
-  owner?: string | null,
 };
 
 export type OnUpdateReferralSubscription = {
@@ -423,13 +413,11 @@ export type OnUpdateReferralSubscription = {
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };
 
 export type OnDeleteReferralSubscriptionVariables = {
   filter?: ModelSubscriptionReferralFilterInput | null,
-  owner?: string | null,
 };
 
 export type OnDeleteReferralSubscription = {
@@ -448,6 +436,5 @@ export type OnDeleteReferralSubscription = {
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };

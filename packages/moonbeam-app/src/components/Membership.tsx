@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useState} from 'react';
 import {Dimensions, Image, ImageBackground, SafeAreaView, ScrollView, View} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {MembershipTabProps} from '../models/BottomBarProps';
@@ -12,28 +12,55 @@ import WelcomeOffer from '../../assets/welcome-offer.png';
 import FriendReferral from '../../assets/refer-friend.png';
 import {Button, Card, Divider, Text} from 'react-native-paper';
 import {CommonActions} from "@react-navigation/native";
+import {Auth} from 'aws-amplify';
 
 /**
  * Membership component.
  */
-export const Membership = ({navigation}: MembershipTabProps) => {
+export const Membership = ({navigation, route}: MembershipTabProps) => {
     // state driven key-value pairs for UI related elements
-    const [pointsRedeemable, setPointsRedeemable] = useState<boolean>(true);
+    const retrievedPoints = Number(route.params.currentUserInformation.attributes["custom:points"]);
+    const [pointsRedeemable, setPointsRedeemable] = useState<boolean>(retrievedPoints === 0 ? false : true);
 
     // state driven key-value pairs for any specific data values
-    const [pointsEarned, setPointsEarned] =  useState<number>(useMemo(() => Math.floor(Math.random() * (50000 - 10000 + 1) + 10000), []));
+    const [pointsEarned, setPointsEarned] = useState<number>(retrievedPoints);
 
     /**
      * Function used to redeem points, as cashback balance for the prototype.
      */
-    const redeemPoints = () => {
-        // dispatch a navigation event, which will update the home props for the points value redeemed
-        navigation.dispatch({
-            ...CommonActions.setParams({ pointValueRedeemed: Math.round(pointsEarned * 0.005 * 10) / 10 }),
-            source: navigation.getState().routes[0].key
-        });
-        setPointsEarned(0);
-        setPointsRedeemable(false);
+    const redeemPoints = async () => {
+        // update the attributes (points) of the current authenticated user
+        try {
+            // first retrieve the current authenticated user
+            const user = await Auth.currentAuthenticatedUser();
+
+            if (user) {
+                // then update the available points, based on how many points were redeemed (for now we allow users to redeem all points only)
+               const updatesPointsAttributes = await Auth.updateUserAttributes(user, {
+                    'custom:points': '0'
+                });
+               if (updatesPointsAttributes) {
+                   // dispatch a navigation event, which will update the home props for the points value redeemed
+                   navigation.dispatch({
+                       ...CommonActions.setParams({pointValueRedeemed: Math.round(pointsEarned * 0.005 * 10) / 10}),
+                       source: navigation.getState().routes[0].key
+                   });
+
+                   setPointsEarned(0);
+                   setPointsRedeemable(false);
+               } else {
+                   console.log(`Unexpected error while updating available points`);
+                   // need to create a modal with errors
+               }
+            } else {
+                console.log(`Unexpected error while retrieving the current authenticated user`);
+                // need to create a modal with errors
+            }
+        } catch (error) {
+            // @ts-ignore
+            console.log(error.message ? `Unexpected error while signing in: ${JSON.stringify(error.message)}` : `Unexpected error while signing in`);
+            // need to create a modal with errors
+        }
     }
 
     return (
@@ -90,7 +117,9 @@ export const Membership = ({navigation}: MembershipTabProps) => {
                                 <Button
                                     uppercase={false}
                                     disabled={!pointsRedeemable}
-                                    onPress={() => {redeemPoints()}}
+                                    onPress={() => {
+                                        redeemPoints()
+                                    }}
                                     style={[styles.redeemButton, {
                                         height: Dimensions.get('window').height / 20,
                                         width: Dimensions.get('window').width / 3

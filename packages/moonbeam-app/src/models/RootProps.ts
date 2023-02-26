@@ -26,7 +26,7 @@ export type RootStackParamList = {
         initialRender: boolean;
     },
     Dashboard: {
-
+        currentUserInformation: any
     }
 };
 

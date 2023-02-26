@@ -18,7 +18,6 @@ export const getReferral = /* GraphQL */ `
       _version
       _deleted
       _lastChangedAt
-      owner
     }
   }
 `;
@@ -43,7 +42,6 @@ export const listReferrals = /* GraphQL */ `
         _version
         _deleted
         _lastChangedAt
-        owner
       }
       nextToken
       startedAt
@@ -77,7 +75,6 @@ export const syncReferrals = /* GraphQL */ `
         _version
         _deleted
         _lastChangedAt
-        owner
       }
       nextToken
       startedAt

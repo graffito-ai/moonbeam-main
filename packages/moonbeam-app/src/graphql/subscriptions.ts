@@ -3,11 +3,8 @@
 // this is an auto generated file. This will be overwritten
 
 export const onCreateReferral = /* GraphQL */ `
-  subscription OnCreateReferral(
-    $filter: ModelSubscriptionReferralFilterInput
-    $owner: String
-  ) {
-    onCreateReferral(filter: $filter, owner: $owner) {
+  subscription OnCreateReferral($filter: ModelSubscriptionReferralFilterInput) {
+    onCreateReferral(filter: $filter) {
       id
       createdAt
       updatedAt
@@ -21,16 +18,12 @@ export const onCreateReferral = /* GraphQL */ `
       _version
       _deleted
       _lastChangedAt
-      owner
     }
   }
 `;
 export const onUpdateReferral = /* GraphQL */ `
-  subscription OnUpdateReferral(
-    $filter: ModelSubscriptionReferralFilterInput
-    $owner: String
-  ) {
-    onUpdateReferral(filter: $filter, owner: $owner) {
+  subscription OnUpdateReferral($filter: ModelSubscriptionReferralFilterInput) {
+    onUpdateReferral(filter: $filter) {
       id
       createdAt
       updatedAt
@@ -44,16 +37,12 @@ export const onUpdateReferral = /* GraphQL */ `
       _version
       _deleted
       _lastChangedAt
-      owner
     }
   }
 `;
 export const onDeleteReferral = /* GraphQL */ `
-  subscription OnDeleteReferral(
-    $filter: ModelSubscriptionReferralFilterInput
-    $owner: String
-  ) {
-    onDeleteReferral(filter: $filter, owner: $owner) {
+  subscription OnDeleteReferral($filter: ModelSubscriptionReferralFilterInput) {
+    onDeleteReferral(filter: $filter) {
       id
       createdAt
       updatedAt
@@ -67,7 +56,6 @@ export const onDeleteReferral = /* GraphQL */ `
       _version
       _deleted
       _lastChangedAt
-      owner
     }
   }
 `;

@@ -5,9 +5,12 @@ import type {NativeStackScreenProps} from '@react-navigation/native-stack';
  */
 export type BottomBarStackParamList = {
     Home: {
-        pointValueRedeemed: number
+        currentUserInformation: any;
+        pointValueRedeemed: number;
     },
-    Membership: {}
+    Membership: {
+        currentUserInformation: any;
+    }
     Settings: {}
 };
 

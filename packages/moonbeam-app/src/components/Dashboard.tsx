@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {DashboardProps} from '../models/RootProps';
 import {BottomBarStackParamList} from '../models/BottomBarProps';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
@@ -11,9 +11,19 @@ import {Settings} from "./Settings";
 /**
  * Dashboard component.
  */
-export const Dashboard = ({}: DashboardProps) => {
+export const Dashboard = ({route}: DashboardProps) => {
     // create a native bottom navigator, to be used for our bottom bar navigation
     const DashboardTab = createMaterialBottomTabNavigator<BottomBarStackParamList>();
+
+    /**
+     * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
+     * auth-related functionality for example), as well as any afferent API calls.
+     *
+     * Generally speaking, any functionality imperative prior to the full page-load should be
+     * included in here.
+     */
+    useEffect(() => {
+    }, []);
 
     // return the component for the Dashboard page
     return (
@@ -40,9 +50,10 @@ export const Dashboard = ({}: DashboardProps) => {
             >
                 <DashboardTab.Screen name="Home"
                                      component={Home}
-                                     initialParams={{pointValueRedeemed: 0}}/>
+                                     initialParams={{pointValueRedeemed: 0, currentUserInformation: route.params.currentUserInformation}}/>
                 <DashboardTab.Screen name="Membership"
-                                     component={Membership}/>
+                                     component={Membership}
+                                     initialParams={{currentUserInformation: route.params.currentUserInformation}}/>
                 <DashboardTab.Screen name="Settings"
                                      component={Settings}/>
             </DashboardTab.Navigator>
