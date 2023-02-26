@@ -19,11 +19,11 @@ import {Auth} from 'aws-amplify';
  */
 export const Membership = ({navigation, route}: MembershipTabProps) => {
     // state driven key-value pairs for UI related elements
-    const retrievedPoints = Number(route.params.currentUserInformation.attributes["custom:points"]);
-    const [pointsRedeemable, setPointsRedeemable] = useState<boolean>(retrievedPoints === 0 ? false : true);
+    const retrievedPoints = Number(route.params.currentUserInformation["custom:points"]);
+    const [pointsRedeemable, setPointsRedeemable] = useState<boolean>((retrievedPoints === 0 || retrievedPoints === -99) ? false : true);
 
     // state driven key-value pairs for any specific data values
-    const [pointsEarned, setPointsEarned] = useState<number>(retrievedPoints);
+    const [pointsEarned, setPointsEarned] = useState<number>(retrievedPoints === -99 ? 0 : retrievedPoints);
 
     /**
      * Function used to redeem points, as cashback balance for the prototype.
@@ -40,6 +40,21 @@ export const Membership = ({navigation, route}: MembershipTabProps) => {
                     'custom:points': '0'
                 });
                if (updatesPointsAttributes) {
+                   // dispatch a navigation event, which will update the user information object accordingly
+                   route.params.currentUserInformation['custom:points'] =  0;
+                   navigation.dispatch({
+                       ...CommonActions.setParams({
+                           currentUserInformation: route.params.currentUserInformation,
+                           source: navigation.getState().routes[0].key
+                       })
+                   });
+                   navigation.dispatch({
+                       ...CommonActions.setParams({
+                           currentUserInformation: route.params.currentUserInformation,
+                           source: navigation.getState().routes[2].key
+                       })
+                   });
+
                    // dispatch a navigation event, which will update the home props for the points value redeemed
                    navigation.dispatch({
                        ...CommonActions.setParams({pointValueRedeemed: Math.round(pointsEarned * 0.005 * 10) / 10}),

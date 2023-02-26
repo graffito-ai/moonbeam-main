@@ -35,8 +35,8 @@ export const HomeReferral = ({navigation, route}: HomeReferralProps) => {
      * included in here.
      */
     useEffect(() => {
-        setCurrentUserEmail(route.params.currentUserInformation.attributes["email"].toLowerCase());
-        setCurrentUserName(route.params.currentUserInformation.attributes["name"]);
+        setCurrentUserEmail(route.params.currentUserInformation["email"].toLowerCase());
+        setCurrentUserName(route.params.currentUserInformation["name"]);
     }, []);
 
     /**
@@ -48,7 +48,7 @@ export const HomeReferral = ({navigation, route}: HomeReferralProps) => {
         try {
             const result = await Share.share({
                 message:
-                    `${currentUserName} is inviting you to join the Moonbeam Alpha card program, specifically tailored for veterans like you.\nA new member reward of 10,000 Points is waiting for you, once you get approved for the card.\nFollow the link below to continue:\n\n${Linking.createURL('/')}signup/${referralId}/true`,
+                    `${currentUserName} is inviting you to join the Moonbeam Alpha card program, specifically tailored for veterans like you.\nA new member reward of 10,000 Points is waiting for you, once you get approved for the card.\nFollow the link below to continue:\n\n${Linking.createURL('/')}signup/${referralId}`,
             });
             if (result.action === Share.sharedAction) {
                 try {

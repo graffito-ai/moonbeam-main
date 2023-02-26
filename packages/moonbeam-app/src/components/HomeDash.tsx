@@ -32,8 +32,8 @@ export const HomeDash = ({navigation, route}: HomeDashProps) => {
      */
     useEffect(() => {
         // set the title of the user's avatar in the dashboard, based on the user's information
-        const secondInitial = route.params.currentUserInformation.attributes["name"].split(" ").length > 2 ? 2 : 1;
-        setCurrentUserTitle(`${Array.from(route.params.currentUserInformation.attributes["name"].split(" ")[0])[0] as string}${Array.from(route.params.currentUserInformation.attributes["name"].split(" ")[secondInitial])[0] as string}`);
+        const secondInitial = route.params.currentUserInformation["name"].split(" ").length > 2 ? 2 : 1;
+        setCurrentUserTitle(`${Array.from(route.params.currentUserInformation["name"].split(" ")[0])[0] as string}${Array.from(route.params.currentUserInformation["name"].split(" ")[secondInitial])[0] as string}`);
 
         route.params.setCurrentScreenKey(route.key);
     }, [route]);

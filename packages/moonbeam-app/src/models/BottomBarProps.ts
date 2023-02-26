@@ -11,7 +11,9 @@ export type BottomBarStackParamList = {
     Membership: {
         currentUserInformation: any;
     }
-    Settings: {}
+    Settings: {
+        currentUserInformation: any;
+    }
 };
 
 // the Home component props, within the bottom bar stack

@@ -5,7 +5,7 @@ import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 import {styles} from "../styles/settings.module";
 import {Button, Card, Divider, List, Text} from "react-native-paper";
 import {Avatar} from "@rneui/base";
-import React from "react";
+import React, {useEffect} from "react";
 
 /**
  * Settings component.
@@ -14,6 +14,16 @@ export const Settings = ({}: SettingsTabProps) => {
     // state driven key-value pairs for UI related elements
 
     // state driven key-value pairs for any specific data values
+
+    /**
+     * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
+     * auth-related functionality for example), as well as any afferent API calls.
+     *
+     * Generally speaking, any functionality imperative prior to the full page-load should be
+     * included in here.
+     */
+    useEffect(() => {
+    }, []);
 
     return (
         <SafeAreaView style={[commonStyles.rowContainer, commonStyles.androidSafeArea]}>

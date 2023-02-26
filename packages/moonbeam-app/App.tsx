@@ -99,10 +99,9 @@ export default function App() {
         const config = {
             screens: {
                 SignUp: {
-                    path: 'signup/:referralId/:fromSignUpDeepLink',
+                    path: 'signup/:referralId',
                     parse: {
-                        referralId: (referralId: string) => referralId,
-                        fromSignUpDeepLink: (fromSignUpDeepLink: string) => JSON.parse(fromSignUpDeepLink)
+                        referralId: (referralId: string) => referralId
                     }
                 }
 

@@ -55,7 +55,8 @@ export const Dashboard = ({route}: DashboardProps) => {
                                      component={Membership}
                                      initialParams={{currentUserInformation: route.params.currentUserInformation}}/>
                 <DashboardTab.Screen name="Settings"
-                                     component={Settings}/>
+                                     component={Settings}
+                                     initialParams={{currentUserInformation: route.params.currentUserInformation}}/>
             </DashboardTab.Navigator>
         </NavigationContainer>
     );
