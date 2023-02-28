@@ -252,39 +252,39 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
                                     return [true, userInfo];
                                 } else {
                                     console.log(`Unexpected error while updating points for the list of Invitee-based referrals`);
-                                    setPasswordErrors([`Unexpected error while signing in`]);
+                                    setPasswordErrors([`Unexpected error while Signing In`]);
                                     return [false, null];
                                 }
                             } else {
                                 console.log(`Unexpected error while updating points for the list of Inviter-based referrals`);
-                                setPasswordErrors([`Unexpected error while signing in`]);
+                                setPasswordErrors([`Unexpected error while Signing In`]);
                                 return [false, null];
                             }
 
                         } else {
                             console.log(`Unexpected error while retrieving authenticated user's information`);
-                            setPasswordErrors([`Unexpected error while signing in`]);
+                            setPasswordErrors([`Unexpected error while Signing In`]);
                             return [false, null];
                         }
                     } else {
                         console.log(`Unexpected error while retrieving the list of Invitee-based referrals`);
-                        setPasswordErrors([`Unexpected error while signing in`]);
+                        setPasswordErrors([`Unexpected error while Signing In`]);
                         return [false, null];
                     }
                 } else {
                     console.log(`Unexpected error while retrieving the list of Inviter-based referrals`);
-                    setPasswordErrors([`Unexpected error while signing in`]);
+                    setPasswordErrors([`Unexpected error while Signing In`]);
                     return [false, null];
                 }
             } else {
                 console.log(`Unexpected error while signing user in`);
-                setPasswordErrors([`Unexpected error while signing in`]);
+                setPasswordErrors([`Unexpected error while Signing In`]);
                 return [false, null];
             }
         } catch (error) {
             // @ts-ignore
-            console.log(error.message ? `Unexpected error while signing in: ${JSON.stringify(error.message)}` : `Unexpected error while signing in ${JSON.stringify(error)}`);
-            setPasswordErrors([`Error while signing in: Check your username and/or password`]);
+            console.log(error.message ? `Unexpected error while Signing In: ${JSON.stringify(error.message)}` : `Unexpected error while Signing In: ${JSON.stringify(error)}`);
+            setPasswordErrors([`Error while Signing In: Check your username and/or password`]);
             return [false, null];
         }
     };

@@ -266,7 +266,7 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
                 // depending on whether the SignUp resulted from a referral or not, perform separate flows
                 navigation.navigate('EmailVerify', {
                     // @ts-ignore
-                    username: username, ...(referralData.id && referralData._version && referralData.status) && {
+                    username: username, ...(referralData !== null && referralData.id && referralData._version && referralData.status) && {
                         // @ts-ignore
                         referralId: referralData.id,
                         // @ts-ignore
@@ -278,10 +278,9 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
             }
         } catch (error) {
             // @ts-ignore
-            setSignUpModalError(error.message ? error.message : 'Unexpected error while Signing Up');
+            console.log(error.message ? `Unexpected error while Signing Up: ${JSON.stringify(error.message)}` : `Unexpected error while Signing Up: ${JSON.stringify(error)}`);
+            setSignUpModalError('Unexpected error while Signing Up');
             setSignUpErrorModalVisible(true);
-            // @ts-ignore
-            console.log(`Unexpected error while Signing Up: ${JSON.stringify(error)}`);
         }
     }
 
@@ -390,6 +389,7 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
                 id: route.params.referralId
             }));
             if (getsReferral) {
+                console.log(JSON.stringify(getsReferral));
                 // if the result is null, then we couldn't find a valid referral code, otherwise proceed with a full-blown referral modal
 
                 // @ts-ignore
@@ -397,19 +397,19 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
                 // @ts-ignore
                 if (getsReferral.data.getReferral === null) {
                     setReferralModalError("Unable to validate invite code! No offers or points will be redeemed at this time!");
+                } else {
+                    // @ts-ignore
+                    if (getsReferral.data.getReferral.status === ReferralStatus.REDEEMED) {
+                        setReferralModalError("Invite code already redeemed! No offers or points will be redeemed at this time!");
+                    }
                 }
-                // @ts-ignore
-                if (getsReferral.data.getReferral.status === ReferralStatus.REDEEMED) {
-                    setReferralModalError("Invite code already redeemed! No offers or points will be redeemed at this time!");
-                }
-
                 // that the referral modal is shown
                 setReferralSignUpModalVisible(true);
             }
         } catch (error) {
+            setReferralModalError(`Error while retrieving referral invitation! No offers or points will be redeemed at this time!`);
             // @ts-ignore
-            setReferralModalError(error.message ? error.message : `Error while retrieving referral invitation! No offers or points will be redeemed at this time!`);
-            console.log(`Error while retrieving referral invitation! No offers or points will be redeemed at this time!: ${JSON.stringify(error)}`);
+            console.log(error.message ? JSON.stringify(error.message) : `Error while retrieving referral invitation! No offers or points will be redeemed at this time! ${JSON.stringify(error)}`);
         }
     }
 
