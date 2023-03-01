@@ -41,6 +41,11 @@ export const setCommitLintConfig = (
                 'always',
                 [
                     ...(lernaFlag ? await getPackages(ctx) : []),
+                    // adding these manually because lerna scopes started failing
+                    'moonbeam-app',
+                    'moonbeam-cdk',
+                    'moonbeam-commitlint',
+                    'moonbeam-tsconfig',
                     directoryPath.split('/').pop()
                 ]
             ],

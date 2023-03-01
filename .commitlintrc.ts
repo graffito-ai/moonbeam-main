@@ -6,7 +6,7 @@ cannot reference it globally until it builds.
 The other modules will just use: '@moonbeam/moonbeam-commitlint' as the import source
 */
 import {setCommitLintConfig} from "./packages/moonbeam-commitlint/src/index";
-let commitLintConfig = setCommitLintConfig(__dirname,  true);
+let commitLintConfig = setCommitLintConfig(__dirname,  false);
 module.exports = {
     ...commitLintConfig
 };
