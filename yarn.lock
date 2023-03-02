@@ -254,6 +254,11 @@
   resolved "https://registry.yarnpkg.com/@aws-cdk/asset-node-proxy-agent-v5/-/asset-node-proxy-agent-v5-2.0.71.tgz#dd269f8aa160473e006633d2f0f5384f46747693"
   integrity sha512-vB/KF9naAYkELP6Hi5+Oib59B4ZAz6jjtrpsKNzsIZTmcTs0IIBb4nVdAuwMpMkPcwT0mzhMg2tlsiSyjrOFBA==
 
+"@aws-cdk/aws-cognito-identitypool-alpha@^2.66.1-alpha.0":
+  version "2.66.1-alpha.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-cognito-identitypool-alpha/-/aws-cognito-identitypool-alpha-2.66.1-alpha.0.tgz#23dc17c8cf694c15fb1d7079c21baddd011de315"
+  integrity sha512-dPUMJui55GV7qtKcmILYeJt+2O7AUsC2zIjOghIx73xG307BVi3sOTlEYxmjne34L+1YoxFKJM4hCb3ED+n+MA==
+
 "@aws-crypto/crc32@2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@aws-crypto/crc32/-/crc32-2.0.0.tgz#4ad432a3c03ec3087c5540ff6e41e6565d2dc153"
