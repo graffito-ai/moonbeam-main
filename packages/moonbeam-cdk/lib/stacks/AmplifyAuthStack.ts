@@ -115,7 +115,7 @@ export class AmplifyAuthStack extends NestedStack {
 
 
         // create a user pool identity from the user pool and the frontend client defined above
-        const userPoolIdentityFrontendPool = new IdentityPool(this,
+        new IdentityPool(this,
             `${props.amplifyConfig!.amplifyAuthConfig.userPoolIdentityFrontendPoolName}-${props.stage}`, {
                 identityPoolName: `${props.amplifyConfig!.amplifyAuthConfig.userPoolIdentityFrontendPoolName}-${props.stage}`,
                 allowUnauthenticatedIdentities: false,
@@ -127,47 +127,44 @@ export class AmplifyAuthStack extends NestedStack {
                         })
                     ]
                 },
+                // create an authenticated role to be used with any user pool identities
                 authenticatedRole: new Role(this, `${props.amplifyConfig!.amplifyAuthConfig.authenticatedRoleName}-${props.stage}`, {
                     roleName: `${props.amplifyConfig!.amplifyAuthConfig.authenticatedRoleName}-${props.stage}`,
                     description: 'IAM Role to be used as an Authenticated role for the Cognito user pool identities, used by Amplify',
                     assumedBy: new FederatedPrincipal(
-                        'cognito-identity.amazonaws.com'
+                        'cognito-identity.amazonaws.com',
+                        {
+                            "StringEquals": {
+                                // this identity pool id has to be hardcoded because it cannot be retrieved until after it's created
+                                "cognito-identity.amazonaws.com:aud": `us-west-2:5952e8ee-6645-46ac-b2db-0f3ebd3fc502`
+                            },
+                            "ForAnyValue:StringLike": {
+                                "cognito-identity.amazonaws.com:amr": "authenticated"
+                            }
+                        },
+                        'sts:AssumeRoleWithWebIdentity'
                     ),
                     maxSessionDuration: Duration.hours(1)
                 }),
+                // create an unauthenticated role to be used with any user pool identities
                 unauthenticatedRole: new Role(this, `${props.amplifyConfig!.amplifyAuthConfig.unauthenticatedRoleName}-${props.stage}`, {
                     roleName: `${props.amplifyConfig!.amplifyAuthConfig.unauthenticatedRoleName}-${props.stage}`,
                     description: 'IAM Role to be used as an Unauthenticated role for the Cognito user pool identities, used by Amplify',
                     assumedBy: new FederatedPrincipal(
-                        'cognito-identity.amazonaws.com'
+                        'cognito-identity.amazonaws.com',
+                        {
+                            "StringEquals": {
+                                // this identity pool id has to be hardcoded because it cannot be retrieved until after it's created
+                                "cognito-identity.amazonaws.com:aud": `us-west-2:5952e8ee-6645-46ac-b2db-0f3ebd3fc502`
+                            },
+                            "ForAnyValue:StringLike": {
+                                "cognito-identity.amazonaws.com:amr": "unauthenticated"
+                            }
+                        },
+                        'sts:AssumeRoleWithWebIdentity'
                     ),
                     maxSessionDuration: Duration.hours(1)
                 })
             });
-        // create an authenticated and an unauthenticated role to be used with any user pool identities
-        userPoolIdentityFrontendPool.authenticatedRole.grantAssumeRole(new FederatedPrincipal(
-            'cognito-identity.amazonaws.com',
-            {
-                "StringEquals": {
-                    "cognito-identity.amazonaws.com:aud": `${userPoolIdentityFrontendPool.identityPoolId}`
-                },
-                "ForAnyValue:StringLike": {
-                    "cognito-identity.amazonaws.com:amr": "authenticated"
-                }
-            },
-            'sts:AssumeRoleWithWebIdentity'
-        ));
-        userPoolIdentityFrontendPool.unauthenticatedRole.grantAssumeRole(new FederatedPrincipal(
-            'cognito-identity.amazonaws.com',
-            {
-                "StringEquals": {
-                    "cognito-identity.amazonaws.com:aud": `${userPoolIdentityFrontendPool.identityPoolId}`
-                },
-                "ForAnyValue:StringLike": {
-                    "cognito-identity.amazonaws.com:amr": "unauthenticated"
-                }
-            },
-            'sts:AssumeRoleWithWebIdentity'
-        ));
     }
 }
