@@ -78,16 +78,14 @@ export class ReferralApiStack extends NestedStack {
             typeName: "Query",
             fieldName: `${props.amplifyConfig!.referralConfig!.listResolverName}`
         });
-
-        // lambdaDs.createResolver({
-        //     typeName: "Mutation",
-        //     fieldName: "createPost"
-        // });
-        //
-        // lambdaDs.createResolver({
-        //     typeName: "Mutation",
-        //     fieldName: "updatePost"
-        // });
+        referralLambdaDataSource.createResolver(`${props.amplifyConfig!.referralConfig!.createResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Mutation",
+            fieldName: `${props.amplifyConfig!.referralConfig!.createResolverName}`
+        });
+        referralLambdaDataSource.createResolver(`${props.amplifyConfig!.referralConfig!.updateResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Mutation",
+            fieldName: `${props.amplifyConfig!.referralConfig!.updateResolverName}`
+        });
 
         // create a new table to be used for referrals
         const referralTable = new aws_dynamodb.Table(this, `${props.amplifyConfig!.referralConfig!.referralTableName}-${props.stage}-${props.env!.region}`, {

@@ -21,12 +21,41 @@ export type Scalars = {
   AWSURL: string;
 };
 
+export type CreateReferralInput = {
+  createdAt: Scalars['AWSDateTime'];
+  id: Scalars['ID'];
+  inviteeEmail: Scalars['String'];
+  inviterEmail: Scalars['String'];
+  inviterName: Scalars['String'];
+  offerType: OfferType;
+  status: ReferralStatus;
+  statusInvitee: ReferralStatus;
+  statusInviter: ReferralStatus;
+  updatedAt: Scalars['AWSDateTime'];
+};
+
 export type ListReferralInput = {
   inviteeEmail?: InputMaybe<Scalars['String']>;
   inviterEmail?: InputMaybe<Scalars['String']>;
   status: ReferralStatus;
   statusInvitee?: InputMaybe<ReferralStatus>;
   statusInviter?: InputMaybe<ReferralStatus>;
+};
+
+export type Mutation = {
+  __typename?: 'Mutation';
+  createReferral?: Maybe<ReferralResponse>;
+  updateReferral?: Maybe<ReferralResponse>;
+};
+
+
+export type MutationCreateReferralArgs = {
+  createInput: CreateReferralInput;
+};
+
+
+export type MutationUpdateReferralArgs = {
+  updateInput: UpdateReferralInput;
 };
 
 export enum OfferType {

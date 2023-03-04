@@ -44,6 +44,19 @@ input ListReferralInput {
     status: ReferralStatus!
 }
 
+input CreateReferralInput {
+    id: ID!
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+    status: ReferralStatus!
+    offerType: OfferType!
+    inviteeEmail: String!
+    inviterEmail: String!
+    inviterName: String!
+    statusInviter: ReferralStatus!
+    statusInvitee: ReferralStatus!
+}
+
 input UpdateReferralInput {
     id: ID!
     createdAt: AWSDateTime
@@ -60,4 +73,9 @@ input UpdateReferralInput {
 type Query {
     getReferral(id: String!): ReferralResponse @aws_cognito_user_pools
     listReferrals(filter: ListReferralInput!): ReferralResponse @aws_cognito_user_pools
+}
+
+type Mutation {
+    createReferral(createInput: CreateReferralInput!): ReferralResponse @aws_cognito_user_pools
+    updateReferral(updateInput: UpdateReferralInput!): ReferralResponse @aws_cognito_user_pools
 }

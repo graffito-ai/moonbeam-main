@@ -1,74 +1,65 @@
 import * as AWS from 'aws-sdk'
-import {ListReferralInput, ReferralErrorType, ReferralResponse} from "@moonbeam/moonbeam-models";
+import {ListReferralInput, Referral, ReferralErrorType, ReferralResponse} from "@moonbeam/moonbeam-models";
+import {ReferralFiltering} from "@moonbeam/moonbeam-models";
 
-// @ts-ignore
+/**
+ * ListReferrals resolver
+ *
+ * @param filter filters to be passed in, which will help filter through all referrals
+ * @returns {@link Promise} of {@link ReferralResponse}
+ */
 export const listReferrals = async (filter: ListReferralInput): Promise<ReferralResponse> => {
     // initializing the DynamoDB document client
-    // @ts-ignore
     const docClient = new AWS.DynamoDB.DocumentClient();
 
-    // @ts-ignore
     const params = {
         TableName: process.env.REFERRAL_TABLE!,
     };
 
     try {
-        // first check to see if the parameters are accurately passed in
-        /**
-         * first check to see if the incoming filter parameters are accurately passed in
-         * we need to have one of either:
-         * -
-         */
-        if (filter.inviteeEmail && filter.inviterEmail) {
-            const validationErrMessage = "Invalid filters: inviteeEmail AND inviterEmail. Choose one or the other!";
-            console.log(validationErrMessage);
-            return {
-                data: [],
-                errorMessage: validationErrMessage,
-                errorType: ReferralErrorType.UnexpectedError
-            };
-        }
-        if (filter.statusInvitee && filter.statusInviter) {
-            const validationErrMessage = "Invalid filters: statusInvitee AND statusInviter. Choose one or the other!";
-            console.log(validationErrMessage);
-            return {
-                data: [],
-                errorMessage: validationErrMessage,
-                errorType: ReferralErrorType.UnexpectedError
-            };
-        }
-        if ((filter.inviteeEmail && !filter.statusInvitee) || (!filter.inviteeEmail && filter.statusInvitee)) {
-            const validationErrMessage = "Invalid filters: inviteeEmail AND statusInvitee are to be used together!";
-            console.log(validationErrMessage);
-            return {
-                data: [],
-                errorMessage: validationErrMessage,
-                errorType: ReferralErrorType.UnexpectedError
-            };
-        }
-        if ((filter.inviterEmail && !filter.statusInviter) || (!filter.inviterEmail && filter.statusInviter)) {
-            const validationErrMessage = "Invalid filters: inviterEmail AND statusInviter are to be used together!";
-            console.log(validationErrMessage);
-            return {
-                data: [],
-                errorMessage: validationErrMessage,
-                errorType: ReferralErrorType.UnexpectedError
-            };
-        }
+        // constants to keep track of the type of filtering being done
+        let referralFilterType: ReferralFiltering | null = null;
 
-        // build a response to return
+        // set type of filtering depending on the parameters to be passed in
+        referralFilterType = (filter.inviterEmail && filter.statusInviter && filter.status)
+            ? ReferralFiltering.INVITER_FILTER
+            : ((filter.inviteeEmail && filter.statusInvitee && filter.status) ? ReferralFiltering.INVITEE_FILTER : referralFilterType)
+
+        const result = await docClient.scan(params).promise();
+        // build referral data response
+        const referrals: Referral[] = [];
+        result.Items!.forEach((item) => {
+            referrals.push(item as Referral)
+        });
+
+        // filter the results according to the passed in filters
+        const filteredReferrals: Referral[] = [];
+        switch (referralFilterType) {
+            case ReferralFiltering.INVITEE_FILTER:
+                referrals
+                    .filter((referral) => referral.inviteeEmail === filter.inviteeEmail! && referral.statusInvitee === filter.statusInvitee!)
+                    .map((referral) => filteredReferrals.push(referral));
+                break;
+            case ReferralFiltering.INVITER_FILTER:
+                referrals
+                    .filter((referral) => referral.inviterEmail === filter.inviterEmail! && referral.statusInviter === filter.statusInviter!)
+                    .map((referral) => filteredReferrals.push(referral));
+                break;
+            default:
+                console.log(`Invalid type of filtering to be executed {}`, JSON.stringify(filter));
+                return {
+                    errorMessage: `Invalid type of filtering to be executed ${JSON.stringify(filter)}`,
+                    errorType: ReferralErrorType.ValidationError
+                };
+        }
+        // returns the filtered referrals as data
         return {
-            data: [],
-            errorMessage: `Lala error mofo`,
-            errorType: ReferralErrorType.UnexpectedError
+            data: filteredReferrals
         };
-        // const referralData = await docClient.scan(params).promise();
-        // return Item;
     } catch (err) {
         console.log(`Unexpected error while executing listReferrals query {}`, err);
 
         return {
-            data: [],
             errorMessage: `Unexpected error while executing listReferrals query. ${err}`,
             errorType: ReferralErrorType.UnexpectedError
         };

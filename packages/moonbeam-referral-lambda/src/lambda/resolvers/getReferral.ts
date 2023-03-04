@@ -1,14 +1,17 @@
 import * as AWS from 'aws-sdk'
-import {Referral, ReferralErrorType, ReferralResponse} from "@moonbeam/moonbeam-models";
-import {unmarshall} from "@aws-sdk/util-dynamodb";
+import {ReferralErrorType, ReferralResponse} from "@moonbeam/moonbeam-models";
+import { Referral } from '@moonbeam/moonbeam-models';
 
-// @ts-ignore
+/**
+ * GetReferral resolver
+ *
+ * @param id referral id, for the referral to be retrieved
+ * @returns {@link Promise} of {@link ReferralResponse}
+ */
 export const getReferral = async (id: string): Promise<ReferralResponse> => {
     // initializing the DynamoDB document client
-    // @ts-ignore
     const docClient = new AWS.DynamoDB.DocumentClient();
 
-    // @ts-ignore
     const params = {
         TableName: process.env.REFERRAL_TABLE!,
         Key: {id: id}
@@ -16,15 +19,12 @@ export const getReferral = async (id: string): Promise<ReferralResponse> => {
 
     try {
         const {Item} = await docClient.get(params).promise();
-        const retrievedReferral = unmarshall(Item!) as Referral;
         return {
-            data: [retrievedReferral]
+            data: [Item as Referral]
         }
     } catch (err) {
         console.log(`Unexpected error while executing getReferral query {}`, err);
-
         return {
-            data: [],
             errorMessage: `Unexpected error while executing getReferral query. ${err}`,
             errorType: ReferralErrorType.UnexpectedError
         };
