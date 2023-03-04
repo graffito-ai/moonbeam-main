@@ -1,8 +1,8 @@
 {
   "amplify-dev-us-west-2": {
-    "awsuserpoolsid": "us-west-2_bfiBw2f2t",
+    "awsuserpoolsid": "us-west-2_kD1vpxR52",
     "awscognitoregion": "us-west-2",
-    "awsuserpoolswebclientid": "5j9kkfp7o39kfuie9bp51q2bqj",
-    "awscognitoidentitypoolid": "us-west-2:39731807-630d-46fb-bd7a-934e26456c95"
+    "awsuserpoolswebclientid": "6l2mqh8pr4a1ickuot6kkuv3e3",
+    "awscognitoidentitypoolid": "us-west-2:90fa8e39-8707-45c9-98cf-70735040fbf7"
   }
 }
