@@ -43,30 +43,13 @@ export class AmplifyStack extends Stack {
             environmentVariables: props.environmentVariables
         });
 
-        // creates the Cfn Outputs, to be added to the resulting file, which will be used by the Amplify frontend
-        new CfnOutput(this, Constants.AmplifyConstants.COGNITO_REGION, {
-            exportName: Constants.AmplifyConstants.COGNITO_REGION.replaceAll('_', '-'),
-            value: amplifyAuthStack.outputs[0]
-        });
-        new CfnOutput(this, Constants.AmplifyConstants.COGNITO_IDENTITY_POOL_ID, {
-            exportName: Constants.AmplifyConstants.COGNITO_IDENTITY_POOL_ID.replaceAll('_', '-'),
-            value: amplifyAuthStack.outputs[1]
-        });
-        new CfnOutput(this, Constants.AmplifyConstants.USER_POOLS_ID, {
-            exportName: Constants.AmplifyConstants.USER_POOLS_ID.replaceAll('_', '-'),
-            value: amplifyAuthStack.outputs[2]
-        });
-        new CfnOutput(this, Constants.AmplifyConstants.USER_POOLS_WEB_CLIENT_ID, {
-            exportName: Constants.AmplifyConstants.USER_POOLS_WEB_CLIENT_ID.replaceAll('_', '-'),
-            value: amplifyAuthStack.outputs[3]
-        });
-
         // add the resources meant to capture the referral program
         const referralApiStack = new ReferralApiStack(this, `amplify-referral-${props.stage}-${props.env!.region}`, {
             stackName: `amplify-referral-${props.stage}-${props.env!.region}`,
             description: 'This stack will contain all the referral program related resources for Amplify',
             env: props.env,
             stage: props.stage,
+            userPoolId: amplifyAuthStack.outputs[2],
             amplifyConfig: {
                 amplifyAuthConfig: {
                     userPoolName: props.amplifyConfig!.amplifyAuthConfig!.userPoolName,
@@ -88,5 +71,23 @@ export class AmplifyStack extends Stack {
             environmentVariables: props.environmentVariables
         });
         referralApiStack.addDependency(amplifyAuthStack);
+
+        // creates the Cfn Outputs, to be added to the resulting file, which will be used by the Amplify frontend
+        new CfnOutput(this, Constants.AmplifyConstants.COGNITO_REGION, {
+            exportName: Constants.AmplifyConstants.COGNITO_REGION.replaceAll('_', '-'),
+            value: amplifyAuthStack.outputs[0]
+        });
+        new CfnOutput(this, Constants.AmplifyConstants.COGNITO_IDENTITY_POOL_ID, {
+            exportName: Constants.AmplifyConstants.COGNITO_IDENTITY_POOL_ID.replaceAll('_', '-'),
+            value: amplifyAuthStack.outputs[1]
+        });
+        new CfnOutput(this, Constants.AmplifyConstants.USER_POOLS_ID, {
+            exportName: Constants.AmplifyConstants.USER_POOLS_ID.replaceAll('_', '-'),
+            value: amplifyAuthStack.outputs[2]
+        });
+        new CfnOutput(this, Constants.AmplifyConstants.USER_POOLS_WEB_CLIENT_ID, {
+            exportName: Constants.AmplifyConstants.USER_POOLS_WEB_CLIENT_ID.replaceAll('_', '-'),
+            value: amplifyAuthStack.outputs[3]
+        });
     }
 }

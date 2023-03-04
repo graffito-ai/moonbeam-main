@@ -1,4 +1,4 @@
-import {aws_dynamodb, aws_lambda, aws_lambda_nodejs, Fn, NestedStack, StackProps} from "aws-cdk-lib";
+import {aws_dynamodb, aws_lambda, aws_lambda_nodejs, NestedStack, StackProps} from "aws-cdk-lib";
 import {Construct} from "constructs";
 import {StageConfiguration} from "../models/StageConfiguration";
 import path from "path";
@@ -27,12 +27,12 @@ export class ReferralApiStack extends NestedStack {
      * @param id stack id to be passed in
      * @param props stack properties to be passed in
      */
-    constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'amplifyConfig'>) {
+    constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'amplifyConfig'> & {userPoolId: string}) {
         super(scope, id, props);
 
         // create the AppSync GraphQL API
         const referralGraphqlApi = new GraphqlApi(this, `${props.amplifyConfig!.referralConfig!.referralGraphqlApiName}-${props.stage}-${props.env!.region}`, {
-            name: `${props.amplifyConfig!.referralConfig!.referralGraphqlApiName}-${props.stage}-${props.env!.region}\``,
+            name: `${props.amplifyConfig!.referralConfig!.referralGraphqlApiName}-${props.stage}-${props.env!.region}`,
             schema: SchemaFile.fromAsset(path.join(__dirname, '../../../moonbeam-models/src/graphql/referralSchema.graphql')),
             authorizationConfig: {
                 defaultAuthorization: {
@@ -41,7 +41,7 @@ export class ReferralApiStack extends NestedStack {
                         userPool: UserPool.fromUserPoolId(
                             this,
                             `${props.amplifyConfig!.amplifyAuthConfig!.userPoolName}-${props.stage}-${props.env!.region}`,
-                            Fn.importValue(Constants.AmplifyConstants.USER_POOLS_ID.replaceAll('_', '-'))
+                            props.userPoolId
                         )
                     }
                 }
