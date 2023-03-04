@@ -1,5 +1,4 @@
-import {Regions} from "../models/enum/Regions";
-import {Stages} from "../models/enum/Stages";
+import {Regions, Stages } from "@moonbeam/moonbeam-models";
 import {InfrastructureConfiguration} from "../models/InfrastructureConfiguration";
 
 /**
@@ -20,12 +19,21 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     authenticatedRoleName: 'moonbeam-authenticated-role',
                     unauthenticatedRoleName: 'moonbeam-unauthenticated-role'
                 },
+                referralConfig: {
+                    referralGraphqlApiName: 'referralGraphqlApi',
+                    referralFunctionName: 'referralLambdaFunction',
+                    referralTableName: 'referralTable',
+                    getResolverName: 'getReferral',
+                    listResolverName: 'listReferrals',
+                    createResolverName: 'createReferral',
+                    updateResolverName: 'updateReferral'
+                }
             },
             sesConfig: {
                 emailAddress: `cloudservices-${Stages.DEV}@moonbeam.vet`,
                 /**
-                 * this flag will need to be updated once the email address has been verified,
-                 * and/or any time we want to verify another email address
+                 * this flag will need to be updated to true once the email address has been verified,
+                 * and/or to false, any time we want to re-verify, or verify another email address
                  */
                 created: true
             },

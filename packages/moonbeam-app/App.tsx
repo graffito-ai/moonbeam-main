@@ -19,7 +19,7 @@ import * as Linking from 'expo-linking';
 // keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 
-// set up Amplify
+// set up Amplify configuration
 Amplify.configure(awsconfig);
 
 // enable CLI logging with Expo

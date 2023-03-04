@@ -2,16 +2,15 @@
   "name": "moonbeam-main",
   "version": "1.0.0",
   "description": "This is the main repository for the Moonbeam mobile application.",
-  "main": "index.js",
   "repository": "https://github.com/moonnbm/moonbeam-main",
   "author": "Marius Acsinte <marius@moonbeam.vet>",
   "license": "Moonbeam Inc. Proprietary Code License <https://github.com/moonnbm/moonbeam-main/blob/main/LICENSE>",
-  "private": true,
   "scripts": {
-    "bootstrap": "lerna bootstrap",
-    "build": "lerna run build --stream",
-    "clean": "lerna run clean && rm -rf ./node_modules ./build",
-    "postinstall": "husky install"
+    "bootstrap": "lerna bootstrap --force-local && lerna link --force-local",
+    "build": "lerna run build --stream --include-dependencies",
+    "clean": "lerna run clean",
+    "postinstall": "husky install",
+    "release": "f() { if [ -d \"node_modules/@moonbeam\" ]; then yarn run clean && yarn run bootstrap && yarn run build; else yarn run bootstrap && yarn run build; fi; }; f"
   },
   "devDependencies": {
     "@nrwl/nx-cloud": "^15.1.1",
@@ -28,5 +27,6 @@
       "**/moonbeam-app",
       "**/moonbeam-app/**"
     ]
-  }
+  },
+  "private": true
 }

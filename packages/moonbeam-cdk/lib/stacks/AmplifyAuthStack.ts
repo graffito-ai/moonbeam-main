@@ -17,6 +17,14 @@ import {FederatedPrincipal, Role} from "aws-cdk-lib/aws-iam";
  * File used to define the Auth stack, used by Amplify.
  */
 export class AmplifyAuthStack extends NestedStack {
+
+    /**
+     * since this is a nested stack, the CfnOutputs do not accurately work. Thus, in order to take advantage of the CfnOutputs
+     * and display them from the parent stack, in order to eventually write them to a file, we will store them in a variable, accessible
+     * from the parent stack.
+     */
+    public outputs: string[];
+
     /**
      * Constructor for the Authentication stack.
      *
@@ -28,8 +36,8 @@ export class AmplifyAuthStack extends NestedStack {
         super(scope, id, props);
 
         // create a user pool
-        const cognitoUserPool = new UserPool(this, `${props.amplifyConfig!.amplifyAuthConfig.userPoolName}-${props.stage}`, {
-            userPoolName: `${props.amplifyConfig!.amplifyAuthConfig.userPoolName}-${props.stage}`,
+        const cognitoUserPool = new UserPool(this, `${props.amplifyConfig!.amplifyAuthConfig!.userPoolName}-${props.stage}-${props.env!.region}`, {
+            userPoolName: `${props.amplifyConfig!.amplifyAuthConfig!.userPoolName}-${props.stage}-${props.env!.region}`,
             selfSignUpEnabled: true,
             userVerification: {
                 emailStyle: VerificationEmailStyle.CODE,
@@ -109,15 +117,14 @@ export class AmplifyAuthStack extends NestedStack {
 
         // create a user pool client for the Amplify frontend
         const userPoolFrontendClient = new UserPoolClient(this,
-            `${props.amplifyConfig!.amplifyAuthConfig.userPoolFrontendClientName}-${props.stage}`, {
+            `${props.amplifyConfig!.amplifyAuthConfig!.userPoolFrontendClientName}-${props.stage}-${props.env!.region}`, {
                 userPool: cognitoUserPool
             });
 
-
         // create a user pool identity from the user pool and the frontend client defined above
-        new IdentityPool(this,
-            `${props.amplifyConfig!.amplifyAuthConfig.userPoolIdentityFrontendPoolName}-${props.stage}`, {
-                identityPoolName: `${props.amplifyConfig!.amplifyAuthConfig.userPoolIdentityFrontendPoolName}-${props.stage}`,
+        const userPoolFrontendIdentity = new IdentityPool(this,
+            `${props.amplifyConfig!.amplifyAuthConfig!.userPoolIdentityFrontendPoolName}-${props.stage}-${props.env!.region}`, {
+                identityPoolName: `${props.amplifyConfig!.amplifyAuthConfig!.userPoolIdentityFrontendPoolName}-${props.stage}-${props.env!.region}`,
                 allowUnauthenticatedIdentities: false,
                 authenticationProviders: {
                     userPools: [
@@ -128,8 +135,8 @@ export class AmplifyAuthStack extends NestedStack {
                     ]
                 },
                 // create an authenticated role to be used with any user pool identities
-                authenticatedRole: new Role(this, `${props.amplifyConfig!.amplifyAuthConfig.authenticatedRoleName}-${props.stage}`, {
-                    roleName: `${props.amplifyConfig!.amplifyAuthConfig.authenticatedRoleName}-${props.stage}`,
+                authenticatedRole: new Role(this, `${props.amplifyConfig!.amplifyAuthConfig!.authenticatedRoleName}-${props.stage}-${props.env!.region}`, {
+                    roleName: `${props.amplifyConfig!.amplifyAuthConfig!.authenticatedRoleName}-${props.stage}-${props.env!.region}`,
                     description: 'IAM Role to be used as an Authenticated role for the Cognito user pool identities, used by Amplify',
                     assumedBy: new FederatedPrincipal(
                         'cognito-identity.amazonaws.com',
@@ -147,8 +154,8 @@ export class AmplifyAuthStack extends NestedStack {
                     maxSessionDuration: Duration.hours(1)
                 }),
                 // create an unauthenticated role to be used with any user pool identities
-                unauthenticatedRole: new Role(this, `${props.amplifyConfig!.amplifyAuthConfig.unauthenticatedRoleName}-${props.stage}`, {
-                    roleName: `${props.amplifyConfig!.amplifyAuthConfig.unauthenticatedRoleName}-${props.stage}`,
+                unauthenticatedRole: new Role(this, `${props.amplifyConfig!.amplifyAuthConfig!.unauthenticatedRoleName}-${props.stage}-${props.env!.region}`, {
+                    roleName: `${props.amplifyConfig!.amplifyAuthConfig!.unauthenticatedRoleName}-${props.stage}-${props.env!.region}`,
                     description: 'IAM Role to be used as an Unauthenticated role for the Cognito user pool identities, used by Amplify',
                     assumedBy: new FederatedPrincipal(
                         'cognito-identity.amazonaws.com',
@@ -166,5 +173,9 @@ export class AmplifyAuthStack extends NestedStack {
                     maxSessionDuration: Duration.hours(1)
                 })
             });
+
+        // populates the outputs that the parent stack has access to (just so we don't output these twice from parent and child stacks)
+        this.outputs = [props.env!.region!, userPoolFrontendIdentity.identityPoolId,
+            cognitoUserPool.userPoolId, userPoolFrontendClient.userPoolClientId];
     }
 }

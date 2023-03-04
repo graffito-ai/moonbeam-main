@@ -6,7 +6,21 @@ import {RemovalPolicy} from "aws-cdk-lib";
 export interface AWSAmplifyConfiguration {
     readonly amplifyAppName?: string;
     readonly amplifyServiceRoleName?: string;
-    readonly amplifyAuthConfig: AmplifyAuthConfig;
+    readonly amplifyAuthConfig?: AmplifyAuthConfig;
+    readonly referralConfig?: ReferralConfiguration;
+}
+
+/**
+ * Interface used to define the configuration for the referral program stack
+ */
+export interface ReferralConfiguration {
+    readonly referralGraphqlApiName: string;
+    readonly referralFunctionName: string;
+    readonly referralTableName: string;
+    readonly getResolverName: string;
+    readonly listResolverName: string;
+    readonly createResolverName: string;
+    readonly updateResolverName: string;
 }
 
 /**

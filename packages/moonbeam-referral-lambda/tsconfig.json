@@ -6,7 +6,7 @@
         "rootDir": "./src/",
         "declarationDir": "lib/types",
         "baseUrl": "./",
-        "typeRoots": ["../../node_modules/@types"]
+        "typeRoots": [ "../../node_modules/@types"]
     },
     "exclude": [
         "build",

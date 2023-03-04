@@ -1,0 +1,25 @@
+{
+  "name": "@moonbeam/moonbeam-models",
+  "version": "1.0.0",
+  "description": "This sub-package represents the common models, to be used across Moonbeam.",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "repository": "https://github.com/moonnbm/moonbeam-main/tree/main/packages/moonbeam-models",
+  "author": "Marius Acsinte <marius@moonbeam.vet>",
+  "license": "Moonbeam Inc. Proprietary Code License <https://github.com/moonnbm/moonbeam-main/blob/main/LICENSE>",
+  "scripts": {
+    "build": "yarn run clean && npx graphql-codegen && cat appsync.d.ts > ./src/common/GraphqlExports.ts && tsc && rm appsync.d.ts",
+    "clean": "rm -rf build/ lib/ node_modules/"
+  },
+  "devDependencies": {
+    "@moonbeam/moonbeam-tsconfig": "*"
+  },
+  "private": true,
+  "dependencies": {
+    "@graphql-codegen/cli": "^3.2.1",
+    "@graphql-codegen/typescript": "^3.0.1",
+    "@types/aws-lambda": "^8.10.111",
+    "graphql": "^16.6.0",
+    "update": "^0.7.4"
+  }
+}

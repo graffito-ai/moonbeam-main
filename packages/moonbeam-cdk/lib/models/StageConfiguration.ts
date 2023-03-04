@@ -1,4 +1,4 @@
-import {Stages} from "./enum/Stages";
+import { Stages } from "@moonbeam/moonbeam-models";
 import {AWSAmplifyConfiguration, SESConfiguration} from "./ServiceConfiguration";
 
 /**

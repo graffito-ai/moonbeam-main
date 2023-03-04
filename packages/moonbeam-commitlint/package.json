@@ -2,8 +2,8 @@
   "name": "@moonbeam/moonbeam-commitlint",
   "version": "1.0.0",
   "description": "This sub-package represents the library used to expose Moonbeam's commit linting configuration.",
-  "main": "index.ts",
-  "types": "dist/types/index.d.ts",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
   "repository": "https://github.com/moonnbm/moonbeam-main/tree/main/packages/moonbeam-commitlint",
   "author": "Marius Acsinte <marius@moonbeam.vet>",
   "license": "Moonbeam Inc. Proprietary Code License <https://github.com/moonnbm/moonbeam-main/blob/main/LICENSE>",
@@ -12,8 +12,8 @@
     "pre-commit": "bin/pre-commit"
   },
   "scripts": {
-    "build": "tsc",
-    "clean": "rm -rf build/ dist/ node_modules/"
+    "build": "yarn run clean && tsc",
+    "clean": "rm -rf build/ lib/ node_modules/"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.4.3",

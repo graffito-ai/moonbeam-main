@@ -1,0 +1,63 @@
+# graphql/referralSchema.graphql
+# Amplify Referral Schema File
+enum ReferralStatus {
+    REDEEMED,
+    NOT_REDEEMED,
+    INITIATED,
+    INVALID
+}
+
+enum OfferType {
+    WELCOME_REFERRAL_BONUS
+}
+
+enum ReferralErrorType {
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+}
+
+type Referral @aws_cognito_user_pools {
+    id: ID!
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+    status: ReferralStatus!
+    offerType: OfferType!
+    inviteeEmail: String!
+    inviterEmail: String!
+    inviterName: String!
+    statusInviter: ReferralStatus!
+    statusInvitee: ReferralStatus!
+}
+
+type ReferralResponse @aws_cognito_user_pools {
+    data: [Referral]
+    errorType: ReferralErrorType
+    errorMessage: String
+}
+
+input ListReferralInput {
+    inviteeEmail: String,
+    inviterEmail: String,
+    statusInviter: ReferralStatus,
+    statusInvitee: ReferralStatus
+    status: ReferralStatus!
+}
+
+input UpdateReferralInput {
+    id: ID!
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime!
+    status: ReferralStatus
+    offerType: OfferType
+    inviteeEmail: String
+    inviterEmail: String
+    inviterName: String
+    statusInviter: ReferralStatus
+    statusInvitee: ReferralStatus
+}
+
+type Query {
+    getReferral(id: String!): ReferralResponse @aws_cognito_user_pools
+    listReferrals(filter: ListReferralInput!): ReferralResponse @aws_cognito_user_pools
+}

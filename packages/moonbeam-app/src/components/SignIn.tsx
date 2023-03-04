@@ -135,7 +135,7 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
                         {
                             inviterEmail: {eq: user.attributes["email"].toLowerCase()},
                             and: {
-                                statusInviter: {eq: ReferralStatus.INITIATED},
+                               f: {eq: ReferralStatus.INITIATED},
                                 and: {status: {eq: ReferralStatus.REDEEMED}}
                             }
                         }
