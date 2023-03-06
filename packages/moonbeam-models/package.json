@@ -14,12 +14,12 @@
   "devDependencies": {
     "@moonbeam/moonbeam-tsconfig": "*"
   },
-  "private": true,
   "dependencies": {
     "@graphql-codegen/cli": "^3.2.1",
     "@graphql-codegen/typescript": "^3.0.1",
     "@types/aws-lambda": "^8.10.111",
     "graphql": "^16.6.0",
     "update": "^0.7.4"
-  }
+  },
+  "private": true
 }

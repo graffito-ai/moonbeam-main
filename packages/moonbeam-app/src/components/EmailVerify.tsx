@@ -10,8 +10,7 @@ import {API, Auth, graphqlOperation} from "aws-amplify";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 // @ts-ignore
 import {useValidation} from 'react-native-form-validator';
-import {updateReferral} from '../graphql/mutations';
-import {ReferralStatus} from "../models";
+import { ReferralStatus } from "@moonbeam/moonbeam-models";
 
 /**
  * Email Verification component.
@@ -89,18 +88,18 @@ export const EmailVerify = ({navigation, route}: EmailVerifyProps) => {
                 // depending on whether the EmailVerify resulted from a referral or not, perform separate flows
                 if (route.params.referralId && route.params._version && route.params.status) {
                     // only update a referral when needed
-                    if (route.params.status !== ReferralStatus.REDEEMED && route.params.status !== ReferralStatus.INVALID) {
+                    if (route.params.status !== ReferralStatus.Redeemed && route.params.status !== ReferralStatus.Invalid) {
                         // create a timestamp to keep track of when the referral was last updated
                         const updatedAt = new Date().toISOString();
 
-                        // update thre referral object in the list of referrals, accordingly
-                        const updatesReferral = await API.graphql(graphqlOperation(updateReferral, {
+                        // update the referral object in the list of referrals, accordingly
+                        const updatesReferral = await API.graphql(graphqlOperation('replace this', {
                             input:
                                 {
                                     // @ts-ignore
                                     id: `${route.params.referralId}`,
                                     inviteeEmail: `${route.params.username.toLowerCase()}`,
-                                    status: ReferralStatus.REDEEMED,
+                                    status: ReferralStatus.Redeemed,
                                     updatedAt: updatedAt,
                                     _version: `${route.params._version}`
                                 }

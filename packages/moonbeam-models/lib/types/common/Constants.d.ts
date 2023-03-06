@@ -4,6 +4,7 @@
  */
 export declare namespace Constants {
     namespace AmplifyConstants {
+        const AMPLIFY_ID: string;
         const REGION: string;
         const ATTRIBUTE_EMAIL: string;
         const ATTRIBUTE_NAME: string;

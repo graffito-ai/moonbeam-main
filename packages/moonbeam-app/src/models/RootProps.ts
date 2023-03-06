@@ -1,6 +1,6 @@
+import { ReferralStatus } from '@moonbeam/moonbeam-models';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React from "react";
-import { ReferralStatus } from '.';
 
 /**
  * The default list of params, to be used across all root stack props.

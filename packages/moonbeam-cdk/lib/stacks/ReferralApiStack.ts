@@ -17,7 +17,6 @@ export class ReferralApiStack extends NestedStack {
      * and display them from the parent stack, in order to eventually write them to a file, we will store them in a variable, accessible
      * from the parent stack.
      */
-        // @ts-ignore
     public outputs: string[];
 
     /**
@@ -102,5 +101,8 @@ export class ReferralApiStack extends NestedStack {
 
         // Create an environment variable that we will use in the function code
         referralLambda.addEnvironment(`${Constants.MoonbeamConstants.REFERRAL_TABLE}`, referralTable.tableName);
+
+        // populates the outputs that the parent stack has access to (just so we don't output these twice from parent and child stacks)
+        this.outputs = [props.env!.region!, referralGraphqlApi.graphqlUrl];
     }
 }

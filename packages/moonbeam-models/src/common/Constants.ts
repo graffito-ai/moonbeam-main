@@ -6,6 +6,7 @@ export namespace Constants {
     // Amplify constants used in mapping the CDK outputs to the AWS exports Amplify file
     export namespace AmplifyConstants {
         // General related
+        export const AMPLIFY_ID:string = 'amplify_app_id';
         export const REGION: string = 'aws_project_region';
 
         // Attribute related
@@ -25,7 +26,7 @@ export namespace Constants {
         export const COGNITO_IDENTITY_POOL_ID: string = 'aws_cognito_identity_pool_id';
         export const COGNITO_REGION: string = 'aws_cognito_region';
         export const USER_POOLS_ID: string = 'aws_user_pools_id';
-        export const USER_POOLS_WEB_CLIENT_ID: string = 'aws-user_pools_web_client_id';
+        export const USER_POOLS_WEB_CLIENT_ID: string = 'aws_user_pools_web_client_id';
         export const OAUTH: string = 'oauth';
         export const COGNITO_USERNAME_ATTRIBUTES: string = 'aws_cognito_username_attributes';
         export const COGNITO_SOCIAL_PROVIDERS: string = 'aws_cognito_social_providers';

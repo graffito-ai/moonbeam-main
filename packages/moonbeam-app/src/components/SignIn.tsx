@@ -10,9 +10,7 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 // @ts-ignore
 import {useValidation} from 'react-native-form-validator';
 import {API, Auth, graphqlOperation} from 'aws-amplify';
-import {updateReferral} from '../graphql/mutations';
-import {listReferrals} from '../graphql/queries';
-import {ReferralStatus} from '../models';
+import { ReferralStatus } from '@moonbeam/moonbeam-models';
 
 /**
  * Sign In component.
@@ -130,26 +128,26 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
 
             // perform a query to get the referral data for use-cases when user is Inviter
             if (user) {
-                const inviterResult = await API.graphql(graphqlOperation(listReferrals, {
+                const inviterResult = await API.graphql(graphqlOperation('replace this', {
                     filter:
                         {
                             inviterEmail: {eq: user.attributes["email"].toLowerCase()},
                             and: {
-                               f: {eq: ReferralStatus.INITIATED},
-                                and: {status: {eq: ReferralStatus.REDEEMED}}
+                               f: {eq: ReferralStatus.Initiated},
+                                and: {status: {eq: ReferralStatus.Redeemed}}
                             }
                         }
                 }));
                 // @ts-ignore
                 if (inviterResult && inviterResult.data) {
                     // perform a query to get the referral data for use-cases when user is Invitee
-                    const inviteeResult = await API.graphql(graphqlOperation(listReferrals, {
+                    const inviteeResult = await API.graphql(graphqlOperation('replace this', {
                         filter:
                             {
                                 inviteeEmail: {eq: user.attributes["email"].toLowerCase()},
                                 and: {
-                                    statusInvitee: {eq: ReferralStatus.INITIATED},
-                                    and: {status: {eq: ReferralStatus.REDEEMED}}
+                                    statusInvitee: {eq: ReferralStatus.Initiated},
+                                    and: {status: {eq: ReferralStatus.Redeemed}}
                                 }
                             }
                     }));
@@ -182,12 +180,12 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
                                 const updatedAt = new Date().toISOString();
 
                                 // update thre referral object in the list of referrals, accordingly
-                                const updatesReferral = await API.graphql(graphqlOperation(updateReferral, {
+                                const updatesReferral = await API.graphql(graphqlOperation('replace this', {
                                     input:
                                         {
                                             // @ts-ignore
                                             id: `${inviterList[itemCount].id}`,
-                                            statusInviter: ReferralStatus.REDEEMED,
+                                            statusInviter: ReferralStatus.Redeemed,
                                             _version: `${inviterList[itemCount]._version}`,
                                             updatedAt: updatedAt
                                         }
@@ -219,12 +217,12 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
                                     const updatedAt = new Date().toISOString();
 
                                     // update thre referral object in the list of referrals, accordingly
-                                    const updatesReferral = await API.graphql(graphqlOperation(updateReferral, {
+                                    const updatesReferral = await API.graphql(graphqlOperation('replace this', {
                                         input:
                                             {
                                                 // @ts-ignore
                                                 id: `${inviteeList[itemCount].id}`,
-                                                statusInvitee: ReferralStatus.REDEEMED,
+                                                statusInvitee: ReferralStatus.Redeemed,
                                                 _version: `${inviteeList[itemCount]._version}`,
                                                 updatedAt: updatedAt
                                             }

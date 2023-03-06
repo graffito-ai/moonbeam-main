@@ -10,7 +10,7 @@
     "build": "lerna run build --stream --include-dependencies",
     "clean": "lerna run clean",
     "postinstall": "husky install",
-    "release": "f() { if [ -d \"node_modules/@moonbeam\" ]; then yarn run clean && yarn run bootstrap && yarn run build; else yarn run bootstrap && yarn run build; fi; }; f"
+    "release": "f() { if [ -d \"node_modules/.bin\" ]; then yarn run clean && yarn install && yarn run build; else yarn install && yarn run build; fi; }; f"
   },
   "devDependencies": {
     "@nrwl/nx-cloud": "^15.1.1",

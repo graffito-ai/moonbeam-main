@@ -10,9 +10,8 @@ import {styles} from "../styles/homeReferral.module";
 import FriendReferral from '../../assets/refer-friend.png';
 import {API, graphqlOperation} from "aws-amplify";
 import * as Linking from "expo-linking";
-import {createReferral} from '../graphql/mutations';
-import {OfferType, ReferralStatus} from "../models";
 import {v4 as uuidv4} from 'uuid';
+import { OfferType, ReferralStatus } from '@moonbeam/moonbeam-models';
 
 /**
  * Home Referral component.
@@ -56,17 +55,17 @@ export const HomeReferral = ({navigation, route}: HomeReferralProps) => {
                     const createdAt = new Date().toISOString();
 
                     // create a referral object in the list of referrals
-                    const createsReferral = await API.graphql(graphqlOperation(createReferral, {
+                    const createsReferral = await API.graphql(graphqlOperation('replace this', {
                         input:
                             {
                                 id: referralId,
                                 inviteeEmail: "",
                                 inviterEmail: currentUserEmail,
                                 inviterName: currentUserName,
-                                offerType: OfferType.WELCOME_REFERRAL_BONUS,
-                                statusInviter: ReferralStatus.INITIATED,
-                                statusInvitee: ReferralStatus.INITIATED,
-                                status: ReferralStatus.INITIATED,
+                                offerType: OfferType.WelcomeReferralBonus,
+                                statusInviter: ReferralStatus.Initiated,
+                                statusInvitee: ReferralStatus.Initiated,
+                                status: ReferralStatus.Initiated,
                                 updatedAt: createdAt,
                                 createdAt: createdAt
                             }

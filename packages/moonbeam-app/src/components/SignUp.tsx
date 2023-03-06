@@ -16,8 +16,6 @@ import {API, Auth, graphqlOperation} from 'aws-amplify';
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 // @ts-ignore
 import FriendReferral from '../../assets/refer-friend.png';
-import {getReferral} from '../graphql/queries';
-import {ReferralStatus} from "../models";
 
 /**
  * Sign Up component.
@@ -385,7 +383,7 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
             route.params.setSignUpBackButtonVisible && route.params.setSignUpBackButtonVisible(false);
 
             // perform a query to get the referral data
-            const getsReferral = await API.graphql(graphqlOperation(getReferral, {
+            const getsReferral = await API.graphql(graphqlOperation('repalce this', {
                 id: route.params.referralId
             }));
             if (getsReferral) {
