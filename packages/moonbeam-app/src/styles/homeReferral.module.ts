@@ -1,6 +1,6 @@
 import {Dimensions, StyleSheet} from "react-native";
 
-// styles to be used within the Home component
+// styles to be used within the HomeReferral component
 export const styles = StyleSheet.create({
     mainView: {
         flex: 1,

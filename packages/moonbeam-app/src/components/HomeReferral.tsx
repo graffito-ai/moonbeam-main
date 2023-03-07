@@ -107,6 +107,7 @@ export const HomeReferral = ({navigation, route}: HomeReferralProps) => {
         }
     }
 
+    // return the component for the Home Referral page
     return (
         <SafeAreaView style={[commonStyles.rowContainer, commonStyles.androidSafeArea]}>
             <KeyboardAwareScrollView

@@ -1,6 +1,6 @@
 import {StyleSheet} from "react-native";
 
-// styles to be used within the Membership component
+// styles to be used within the SettingsList component
 export const styles = StyleSheet.create({
     topBarView: {
         flex: 1,
@@ -87,6 +87,6 @@ export const styles = StyleSheet.create({
         fontFamily: 'Raleway-Medium'
     },
     settingsItemStyle: {
-        backgroundColor: '#e8e8e8'
+        backgroundColor: 'white'
     }
 });

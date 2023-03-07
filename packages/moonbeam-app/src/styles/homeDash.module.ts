@@ -1,6 +1,6 @@
 import {StyleSheet} from "react-native";
 
-// styles to be used within the Home component
+// styles to be used within the HomeDash component
 export const styles = StyleSheet.create({
     topBarView: {
         flex: 0.5,

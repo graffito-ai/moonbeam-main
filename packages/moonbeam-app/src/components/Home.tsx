@@ -3,8 +3,7 @@ import React, {useEffect, useState} from 'react';
 // @ts-ignore
 import HomeDashboardLogo from '../../assets/login-logo.png';
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
-import {IconButton, Provider as PaperProvider} from "react-native-paper";
-import {theme} from "../utils/Theme";
+import {IconButton} from "react-native-paper";
 import {HomeStackParamList} from "../models/HomeStackProps";
 import {HomeDash} from "./HomeDash";
 import {CommonActions} from "@react-navigation/native";
@@ -40,49 +39,47 @@ export const Home = ({navigation, route}: HomeTabProps) => {
 
     // return the component for the Home page once the state is not loading anymore
     return (
-        <PaperProvider theme={theme}>
-            <Stack.Navigator>
-                <Stack.Screen
-                    name="HomeDash"
-                    component={HomeDash}
-                    options={{
-                        headerShown: false
-                    }}
-                    initialParams={{
-                        currentUserInformation: route.params.currentUserInformation,
-                        pointValueRedeemed: route.params.pointValueRedeemed,
-                        setCurrentScreenKey: setCurrentHomeDashScreenKey
-                    }}
-                />
-                <Stack.Screen
-                    name="HomeReferral"
-                    component={HomeReferral}
-                    options={{
-                        headerTransparent: true,
-                        headerTitleStyle: {
-                            fontSize: 18,
-                            fontFamily: 'Raleway-Medium'
-                        },
-                        title: 'Alpha Program',
-                        headerBackTitleVisible: false,
-                        headerBackVisible: false,
-                        headerTintColor: '#2A3779',
-                        headerRight: () => (
-                            <IconButton
-                                icon="close"
-                                iconColor={"#313030"}
-                                size={30}
-                                style={{marginTop: '-1%'}}
-                                onPress={() => navigation.goBack()}
-                            />
-                        ),
-                    }}
-                    initialParams={{
-                        currentUserInformation: route.params.currentUserInformation
-                    }}
-                />
-            </Stack.Navigator>
-        </PaperProvider>
+        <Stack.Navigator>
+            <Stack.Screen
+                name="HomeDash"
+                component={HomeDash}
+                options={{
+                    headerShown: false
+                }}
+                initialParams={{
+                    currentUserInformation: route.params.currentUserInformation,
+                    pointValueRedeemed: route.params.pointValueRedeemed,
+                    setCurrentScreenKey: setCurrentHomeDashScreenKey
+                }}
+            />
+            <Stack.Screen
+                name="HomeReferral"
+                component={HomeReferral}
+                options={{
+                    headerTransparent: true,
+                    headerTitleStyle: {
+                        fontSize: 18,
+                        fontFamily: 'Raleway-Medium'
+                    },
+                    title: 'Alpha Program',
+                    headerBackTitleVisible: false,
+                    headerBackVisible: false,
+                    headerTintColor: '#2A3779',
+                    headerRight: () => (
+                        <IconButton
+                            icon="close"
+                            iconColor={"#313030"}
+                            size={30}
+                            style={{marginTop: '-1%'}}
+                            onPress={() => navigation.goBack()}
+                        />
+                    ),
+                }}
+                initialParams={{
+                    currentUserInformation: route.params.currentUserInformation
+                }}
+            />
+        </Stack.Navigator>
     );
 }
 
