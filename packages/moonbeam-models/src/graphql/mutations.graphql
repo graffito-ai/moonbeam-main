@@ -1,0 +1,21 @@
+# Mutation used to create a referral
+mutation CreateReferral($createInput: CreateReferralInput!) {
+    createReferral(createInput: $createInput) {
+        errorType
+        errorMessage
+        data {
+            id
+        }
+    }
+}
+
+# Mutation used to be update a referral
+mutation UpdateReferral($updateInput: UpdateReferralInput!) {
+    updateReferral(updateInput: $updateInput) {
+        errorType
+        errorMessage
+        data {
+            id
+        }
+    }
+}

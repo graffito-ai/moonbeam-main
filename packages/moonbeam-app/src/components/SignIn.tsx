@@ -10,7 +10,7 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 // @ts-ignore
 import {useValidation} from 'react-native-form-validator';
 import {API, Auth, graphqlOperation} from 'aws-amplify';
-import { ReferralStatus } from '@moonbeam/moonbeam-models';
+import {listReferrals, ReferralStatus, updateReferral} from '@moonbeam/moonbeam-models';
 
 /**
  * Sign In component.
@@ -128,38 +128,34 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
 
             // perform a query to get the referral data for use-cases when user is Inviter
             if (user) {
-                const inviterResult = await API.graphql(graphqlOperation('replace this', {
+                const inviterResult = await API.graphql(graphqlOperation(listReferrals, {
                     filter:
                         {
-                            inviterEmail: {eq: user.attributes["email"].toLowerCase()},
-                            and: {
-                               f: {eq: ReferralStatus.Initiated},
-                                and: {status: {eq: ReferralStatus.Redeemed}}
-                            }
+                            inviterEmail: user.attributes["email"].toLowerCase(),
+                            statusInviter: ReferralStatus.Initiated,
+                            status: ReferralStatus.Redeemed
                         }
-                }));
+                }))
                 // @ts-ignore
-                if (inviterResult && inviterResult.data) {
+                if (inviterResult && inviterResult.data.listReferrals.errorMessage === null) {
                     // perform a query to get the referral data for use-cases when user is Invitee
-                    const inviteeResult = await API.graphql(graphqlOperation('replace this', {
+                    const inviteeResult = await API.graphql(graphqlOperation(listReferrals, {
                         filter:
                             {
-                                inviteeEmail: {eq: user.attributes["email"].toLowerCase()},
-                                and: {
-                                    statusInvitee: {eq: ReferralStatus.Initiated},
-                                    and: {status: {eq: ReferralStatus.Redeemed}}
-                                }
+                                inviteeEmail: user.attributes["email"].toLowerCase(),
+                                statusInvitee: ReferralStatus.Initiated,
+                                status: ReferralStatus.Redeemed
                             }
                     }));
                     // @ts-ignore
-                    if (inviteeResult && inviteeResult.data) {
+                    if (inviteeResult && inviteeResult.data.listReferrals.errorMessage === null) {
                         // @ts-ignore
-                        const inviterList = inviterResult.data.listReferrals.items;
+                        const inviterList = inviterResult.data.listReferrals.data;
                         // @ts-ignore
-                        const inviteeList = inviteeResult.data.listReferrals.items;
+                        const inviteeList = inviteeResult.data.listReferrals.data;
 
                         /**
-                         * Retrieving the authenticate user's information.
+                         * Retrieving the authenticated user's information.
                          * Necessary upon logging in because the Auth.signIn Promise result is caching information.
                          */
                         const user = await Auth.currentAuthenticatedUser({
@@ -170,8 +166,8 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
                             let redeemablePoints: number = 0;
 
                             // keep track of the point updates
-                            const pointUpdatesInviter = [];
-                            const pointUpdatesInvitee = [];
+                            const pointUpdatesInviter: string[] = [];
+                            const pointUpdatesInvitee: string[] = [];
 
                             // update the list of referrals for the inviter, and the points
                             let itemCount = 0;
@@ -179,19 +175,19 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
                                 // create a timestamp to keep track of when the referral was last updated
                                 const updatedAt = new Date().toISOString();
 
-                                // update thre referral object in the list of referrals, accordingly
-                                const updatesReferral = await API.graphql(graphqlOperation('replace this', {
-                                    input:
+                                // update the referral object in the list of referrals, accordingly
+                                const updatesReferral = await API.graphql(graphqlOperation(updateReferral, {
+                                    updateInput:
                                         {
                                             // @ts-ignore
                                             id: `${inviterList[itemCount].id}`,
                                             statusInviter: ReferralStatus.Redeemed,
-                                            _version: `${inviterList[itemCount]._version}`,
                                             updatedAt: updatedAt
                                         }
                                 }));
-                                if (updatesReferral) {
-                                    let existingPoints = userInfo["custom:points"] === '-99' ? 0 : Number(userInfo["custom:points"]);
+                                // @ts-ignore
+                                if (updatesReferral && updatesReferral.data.updateReferral.errorMessage === null) {
+                                    let existingPoints = Number(userInfo["custom:points"]);
                                     redeemablePoints = existingPoints + 10000;
                                     // update the available points for the user
                                     const pointsUpdate = await Auth.updateUserAttributes(user, {
@@ -216,19 +212,19 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
                                     // create a timestamp to keep track of when the referral was last updated
                                     const updatedAt = new Date().toISOString();
 
-                                    // update thre referral object in the list of referrals, accordingly
-                                    const updatesReferral = await API.graphql(graphqlOperation('replace this', {
+                                    // update the referral object in the list of referrals, accordingly
+                                    const updatesReferral = await API.graphql(graphqlOperation(updateReferral, {
                                         input:
                                             {
                                                 // @ts-ignore
                                                 id: `${inviteeList[itemCount].id}`,
                                                 statusInvitee: ReferralStatus.Redeemed,
-                                                _version: `${inviteeList[itemCount]._version}`,
                                                 updatedAt: updatedAt
                                             }
                                     }));
-                                    if (updatesReferral) {
-                                        let existingPoints = userInfo["custom:points"] === '-99' ? 0 : Number(userInfo["custom:points"]);
+                                    // @ts-ignore
+                                    if (updatesReferral && updatesReferral.data.updateReferral.errorMessage === null) {
+                                        let existingPoints = Number(userInfo["custom:points"]);
                                         redeemablePoints = existingPoints + 10000;
                                         // update the available points for the user
                                         const pointsUpdate = await Auth.updateUserAttributes(user, {
@@ -265,12 +261,12 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
                             return [false, null];
                         }
                     } else {
-                        console.log(`Unexpected error while retrieving the list of Invitee-based referrals`);
+                        console.log(`Unexpected error while retrieving the list of Invitee-based referrals ${inviteeResult}`);
                         setPasswordErrors([`Unexpected error while Signing In`]);
                         return [false, null];
                     }
                 } else {
-                    console.log(`Unexpected error while retrieving the list of Inviter-based referrals`);
+                    console.log(`Unexpected error while retrieving the list of Inviter-based referrals ${inviterResult}`);
                     setPasswordErrors([`Unexpected error while Signing In`]);
                     return [false, null];
                 }
@@ -281,8 +277,16 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
             }
         } catch (error) {
             // @ts-ignore
-            console.log(error.message ? `Unexpected error while Signing In: ${JSON.stringify(error.message)}` : `Unexpected error while Signing In: ${JSON.stringify(error)}`);
-            setPasswordErrors([`Error while Signing In: Check your username and/or password`]);
+            if (error.message && error.message === "User does not exist." || error.message === "Incorrect username or password.") {
+                // @ts-ignore
+                console.log(error.message);
+                // @ts-ignore
+                setPasswordErrors(["Incorrect username or password."]);
+            } else {
+                // @ts-ignore
+                console.log(error.message ? `Unexpected error while Signing In: ${JSON.stringify(error.message)}` : `Unexpected error while Signing In: ${JSON.stringify(error)}`);
+                setPasswordErrors([`Error while Signing In`]);
+            }
             return [false, null];
         }
     };

@@ -8,6 +8,6 @@
     "awsappsyncauthenticationType": "AMAZON_COGNITO_USER_POOLS",
     "awsappsyncregion": "us-west-2",
     "awscognitoidentitypoolid": "us-west-2:90fa8e39-8707-45c9-98cf-70735040fbf7",
-    "awsappsyncgraphqlEndpoint": "https://umntzyfcsrf6thnxrd3oof6q3m.appsync-api.us-west-2.amazonaws.com/graphql"
+    "awsappsyncgraphqlEndpoint": "https://y5osgb3uizc2jejiqwo6h5lpn4.appsync-api.us-west-2.amazonaws.com/graphql"
   }
 }

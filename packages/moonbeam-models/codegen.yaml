@@ -2,7 +2,10 @@ overwrite: true
 schema:
   - ./src/graphql/referralSchema.graphql
   - ./src/graphql/appsync.graphql
-
+  - ./src/graphql/awsDirectives.graphql
+documents:
+  - ./src/graphql/queries.graphql
+  - ./src/graphql/mutations.graphql
 config:
   scalars:
     AWSJSON: string
@@ -19,3 +22,4 @@ generates:
   appsync.d.ts:
     plugins:
       - typescript
+      - typescript-operations

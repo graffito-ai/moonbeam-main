@@ -20,7 +20,6 @@ export type RootStackParamList = {
         username: string;
         referralId?: string;
         status?: ReferralStatus;
-        _version?: string;
     },
     ForgotPassword: {
         initialRender: boolean;

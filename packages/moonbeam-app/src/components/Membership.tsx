@@ -20,10 +20,10 @@ import {Auth} from 'aws-amplify';
 export const Membership = ({navigation, route}: MembershipTabProps) => {
     // state driven key-value pairs for UI related elements
     const retrievedPoints = Number(route.params.currentUserInformation["custom:points"]);
-    const [pointsRedeemable, setPointsRedeemable] = useState<boolean>((retrievedPoints === 0 || retrievedPoints === -99) ? false : true);
+    const [pointsRedeemable, setPointsRedeemable] = useState<boolean>(retrievedPoints !== 0);
 
     // state driven key-value pairs for any specific data values
-    const [pointsEarned, setPointsEarned] = useState<number>(retrievedPoints === -99 ? 0 : retrievedPoints);
+    const [pointsEarned, setPointsEarned] = useState<number>(retrievedPoints);
 
     /**
      * Function used to redeem points, as cashback balance for the prototype.

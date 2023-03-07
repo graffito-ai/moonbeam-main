@@ -8,18 +8,16 @@
   "author": "Marius Acsinte <marius@moonbeam.vet>",
   "license": "Moonbeam Inc. Proprietary Code License <https://github.com/moonnbm/moonbeam-main/blob/main/LICENSE>",
   "scripts": {
-    "build": "yarn run clean && npx graphql-codegen && cat appsync.d.ts > ./src/common/GraphqlExports.ts && tsc && rm appsync.d.ts",
+    "build": "rm -rf ./lib && ./node_modules/.bin/graphql-codegen && cat appsync.d.ts > ./src/common/GraphqlExports.ts && tsc && rm appsync.d.ts",
     "clean": "rm -rf build/ lib/ node_modules/"
   },
   "devDependencies": {
-    "@moonbeam/moonbeam-tsconfig": "*"
-  },
-  "dependencies": {
+    "@moonbeam/moonbeam-tsconfig": "*",
     "@graphql-codegen/cli": "^3.2.1",
     "@graphql-codegen/typescript": "^3.0.1",
+    "@graphql-codegen/typescript-operations": "^3.0.1",
     "@types/aws-lambda": "^8.10.111",
-    "graphql": "^16.6.0",
-    "update": "^0.7.4"
+    "graphql": "^16.6.0"
   },
   "private": true
 }

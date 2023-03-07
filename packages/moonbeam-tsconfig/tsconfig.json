@@ -5,7 +5,7 @@
     "lib": ["ESNext", "es2021", "es2021.intl", "es2017.object", "es2021.string"],
     "declaration": true,
     "strict": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "strictNullChecks": true,
     "noImplicitThis": true,
     "alwaysStrict": true,

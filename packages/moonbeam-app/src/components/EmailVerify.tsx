@@ -10,7 +10,7 @@ import {API, Auth, graphqlOperation} from "aws-amplify";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 // @ts-ignore
 import {useValidation} from 'react-native-form-validator';
-import { ReferralStatus } from "@moonbeam/moonbeam-models";
+import { ReferralStatus, updateReferral } from "@moonbeam/moonbeam-models";
 
 /**
  * Email Verification component.
@@ -86,29 +86,35 @@ export const EmailVerify = ({navigation, route}: EmailVerifyProps) => {
             const signUp = await Auth.confirmSignUp(route.params.username, code);
             if (signUp) {
                 // depending on whether the EmailVerify resulted from a referral or not, perform separate flows
-                if (route.params.referralId && route.params._version && route.params.status) {
+                if (route.params.referralId && route.params.status) {
                     // only update a referral when needed
                     if (route.params.status !== ReferralStatus.Redeemed && route.params.status !== ReferralStatus.Invalid) {
                         // create a timestamp to keep track of when the referral was last updated
                         const updatedAt = new Date().toISOString();
 
                         // update the referral object in the list of referrals, accordingly
-                        const updatesReferral = await API.graphql(graphqlOperation('replace this', {
-                            input:
+                        const updatesReferral = await API.graphql(graphqlOperation(updateReferral, {
+                            updateInput:
                                 {
                                     // @ts-ignore
                                     id: `${route.params.referralId}`,
                                     inviteeEmail: `${route.params.username.toLowerCase()}`,
                                     status: ReferralStatus.Redeemed,
-                                    updatedAt: updatedAt,
-                                    _version: `${route.params._version}`
+                                    updatedAt: updatedAt
                                 }
                         }));
-                        if (updatesReferral) {
+                        // @ts-ignore
+                        if (updatesReferral && updatesReferral.data.updateReferral.errorMessage === null) {
                             setModalMessage("Thanks for confirming the code! Your email address is now verified!");
                             setModalVisible(true);
                             setIsResendModal(false);
                             setIsErrorModal(false);
+                        } else {
+                            setModalMessage('Unexpected error while confirming sign up code');
+                            setModalVisible(true);
+                            setIsErrorModal(true);
+                            setIsResendModal(false);
+                            console.log(`Unexpected error while confirming sign up code: ${updatesReferral}`);
                         }
                     }
                 }
@@ -182,7 +188,7 @@ export const EmailVerify = ({navigation, route}: EmailVerifyProps) => {
                             if (isErrorModal || isResendModal) {
                                 setModalVisible(false);
                             } else {
-                                if (route.params.referralId && route.params._version && route.params.status) {
+                                if (route.params.referralId && route.params.status) {
                                     NativeModules.DevSettings.reload();
                                 } else {
                                     navigation.navigate('SignIn', {initialRender: true})
@@ -266,7 +272,7 @@ export const EmailVerify = ({navigation, route}: EmailVerifyProps) => {
                         <Text style={styles.backToSignInFooter}>Back to
                             <Text style={styles.backToSignInButton}
                                   onPress={() => {
-                                      (route.params.referralId && route.params._version && route.params.status)
+                                      (route.params.referralId && route.params.status)
                                           ? NativeModules.DevSettings.reload()
                                           : navigation.navigate('SignIn', {initialRender: true})
                                   }}> Sign in</Text>

@@ -16,6 +16,7 @@ import {API, Auth, graphqlOperation} from 'aws-amplify';
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 // @ts-ignore
 import FriendReferral from '../../assets/refer-friend.png';
+import { getReferral, ReferralResponse, ReferralStatus } from "@moonbeam/moonbeam-models";
 
 /**
  * Sign Up component.
@@ -64,7 +65,7 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
     const [confirmPasswordErrors, setConfirmPasswordErrors] = useState<any[]>([]);
     const [phoneNumber, setPhoneNumber] = useState<string>("");
     const [phoneNumberErrors, setPhoneNumberErrors] = useState<any[]>([]);
-    const [referralData, setReferralData] = useState([]);
+    const [referralData, setReferralData] = useState<[] | null>(null);
 
     // Constants used for easy field validation, to validate, check if field is invalid or get errors for invalid field
     const {validate, isFieldInError, getErrorsInField} =
@@ -257,20 +258,18 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
                     'custom:duty_station': dutyStation,
                     'custom:duty_status': dutyStatus,
                     'custom:military_rank': militaryRank,
-                    'custom:points': '-99'
+                    'custom:points': '0'
                 },
             });
             if (signUp) {
                 // depending on whether the SignUp resulted from a referral or not, perform separate flows
                 navigation.navigate('EmailVerify', {
                     // @ts-ignore
-                    username: username, ...(referralData !== null && referralData.id && referralData._version && referralData.status) && {
+                    username: username, ...(referralData !== null && referralData.id && referralData.status) && {
                         // @ts-ignore
                         referralId: referralData.id,
                         // @ts-ignore
-                        _version: referralData._version,
-                        // @ts-ignore
-                        status: referralModalError !== "" ? ReferralStatus.INVALID : referralData.status
+                        status: referralModalError !== "" ? ReferralStatus.Invalid : referralData.status
                     }
                 });
             }
@@ -358,7 +357,7 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
                 route.params.setSignUpBackButtonVisible && route.params.setSignUpBackButtonVisible(false);
 
                 // retrieves the referral invite data, given the information provided in the deep link
-                getReferralInviteData();
+                getReferralInviteData().then(() => {});
             }
             setIsInitialRender(false);
         }
@@ -383,26 +382,32 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
             route.params.setSignUpBackButtonVisible && route.params.setSignUpBackButtonVisible(false);
 
             // perform a query to get the referral data
-            const getsReferral = await API.graphql(graphqlOperation('repalce this', {
+            const getsReferral = await API.graphql(graphqlOperation(getReferral, {
                 id: route.params.referralId
-            }));
-            if (getsReferral) {
-                console.log(JSON.stringify(getsReferral));
+            })) as ReferralResponse;
+            // @ts-ignore
+            if (getsReferral && getsReferral.data.getReferral.errorMessage === null) {
                 // if the result is null, then we couldn't find a valid referral code, otherwise proceed with a full-blown referral modal
+                // @ts-ignore
+                const retrievedReferrals: [] = getsReferral.data.getReferral.data;
 
                 // @ts-ignore
-                setReferralData(getsReferral.data.getReferral);
+                setReferralData(retrievedReferrals[0]);
                 // @ts-ignore
-                if (getsReferral.data.getReferral === null) {
+                if (retrievedReferrals[0] === null) {
                     setReferralModalError("Unable to validate invite code! No offers or points will be redeemed at this time!");
                 } else {
                     // @ts-ignore
-                    if (getsReferral.data.getReferral.status === ReferralStatus.REDEEMED) {
+                    if (retrievedReferrals[0].status === ReferralStatus.Redeemed) {
                         setReferralModalError("Invite code already redeemed! No offers or points will be redeemed at this time!");
                     }
                 }
                 // that the referral modal is shown
                 setReferralSignUpModalVisible(true);
+            } else {
+                setReferralModalError(`Error while retrieving referral invitation! No offers or points will be redeemed at this time!`);
+                // @ts-ignore
+                console.log(`Error while retrieving referral invitation! No offers or points will be redeemed at this time! ${getsReferral}`);
             }
         } catch (error) {
             setReferralModalError(`Error while retrieving referral invitation! No offers or points will be redeemed at this time!`);
@@ -423,11 +428,11 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
                 source={require('../../assets/signup-background.png')}>
                 <Portal>
                     {/*@ts-ignore*/}
-                    <Modal contentContainerStyle={referralData !== null && referralData.status !== ReferralStatus.REDEEMED ? styles.referralModalContainer : styles.modalContainer}
+                    <Modal contentContainerStyle={referralData !== null && referralData.status !== ReferralStatus.Redeemed ? styles.referralModalContainer : styles.modalContainer}
                         dismissable={false} visible={referralSignUpModalVisible}
                         onDismiss={() => setReferralSignUpModalVisible(false)}>
                         {/*@ts-ignore*/}
-                        {referralData !== null && referralData.status !== ReferralStatus.REDEEMED ?
+                        {referralData !== null && referralData.status !== ReferralStatus.Redeemed ?
                             <View style={styles.mainReferralView}>
                                 <View style={styles.referralMessageView}>
                                     {/*@ts-ignore*/}

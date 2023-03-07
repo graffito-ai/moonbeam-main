@@ -11,7 +11,7 @@ import FriendReferral from '../../assets/refer-friend.png';
 import {API, graphqlOperation} from "aws-amplify";
 import * as Linking from "expo-linking";
 import {v4 as uuidv4} from 'uuid';
-import { OfferType, ReferralStatus } from '@moonbeam/moonbeam-models';
+import {createReferral, OfferType, ReferralStatus} from '@moonbeam/moonbeam-models';
 
 /**
  * Home Referral component.
@@ -55,8 +55,8 @@ export const HomeReferral = ({navigation, route}: HomeReferralProps) => {
                     const createdAt = new Date().toISOString();
 
                     // create a referral object in the list of referrals
-                    const createsReferral = await API.graphql(graphqlOperation('replace this', {
-                        input:
+                    const createsReferral = await API.graphql(graphqlOperation(createReferral, {
+                        createInput:
                             {
                                 id: referralId,
                                 inviteeEmail: "",
@@ -70,10 +70,17 @@ export const HomeReferral = ({navigation, route}: HomeReferralProps) => {
                                 createdAt: createdAt
                             }
                     }));
-                    if (createsReferral) {
+                    // @ts-ignore
+                    if (createsReferral && createsReferral.data.createReferral.errorMessage === null) {
                         setReferralModalVisible(true);
                         setIsErrorModal(false);
                         setModalMessage("Successfully shared invite!");
+                    } else {
+                        setReferralModalVisible(true);
+                        setIsErrorModal(true);
+                        // @ts-ignore
+                        setModalMessage(error.message ? error.message : `Unexpected error while creating referral!`);
+                        console.log(`Unexpected error while creating referral for invite: ${createsReferral}`);
                     }
                 } catch (error) {
                     setReferralModalVisible(true);

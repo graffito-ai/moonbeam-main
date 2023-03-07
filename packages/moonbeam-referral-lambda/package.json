@@ -8,7 +8,7 @@
   "author": "Marius Acsinte <marius@moonbeam.vet>",
   "license": "Moonbeam Inc. Proprietary Code License <https://github.com/moonnbm/moonbeam-main/blob/main/LICENSE>",
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf ./lib && tsc",
     "clean": "rm -rf build/ lib/ node_modules/"
   },
   "devDependencies": {

@@ -12,7 +12,7 @@
     "pre-commit": "bin/pre-commit"
   },
   "scripts": {
-    "build": "yarn run clean && tsc",
+    "build": "rm -rf ./lib && tsc",
     "clean": "rm -rf build/ lib/ node_modules/"
   },
   "devDependencies": {

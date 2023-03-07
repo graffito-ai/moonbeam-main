@@ -53,7 +53,7 @@ export class ReferralApiStack extends NestedStack {
             entry: path.resolve(path.join(__dirname, '../../../moonbeam-referral-lambda/src/lambda/main.ts')),
             handler: 'handler',
             runtime: aws_lambda.Runtime.NODEJS_18_X,
-            memorySize: 1024,
+            memorySize: 512,
             bundling: {
                 minify: true, // minify code, defaults to false
                 sourceMap: true, // include source map, defaults to false

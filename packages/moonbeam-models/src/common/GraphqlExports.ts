@@ -124,3 +124,31 @@ export type UpdateReferralInput = {
   statusInviter?: InputMaybe<ReferralStatus>;
   updatedAt: Scalars['AWSDateTime'];
 };
+
+export type CreateReferralMutationVariables = Exact<{
+  createInput: CreateReferralInput;
+}>;
+
+
+export type CreateReferralMutation = { __typename?: 'Mutation', createReferral?: { __typename?: 'ReferralResponse', errorType?: ReferralErrorType | null, errorMessage?: string | null, data?: Array<{ __typename?: 'Referral', id: string } | null> | null } | null };
+
+export type UpdateReferralMutationVariables = Exact<{
+  updateInput: UpdateReferralInput;
+}>;
+
+
+export type UpdateReferralMutation = { __typename?: 'Mutation', updateReferral?: { __typename?: 'ReferralResponse', errorType?: ReferralErrorType | null, errorMessage?: string | null, data?: Array<{ __typename?: 'Referral', id: string } | null> | null } | null };
+
+export type GetReferralQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type GetReferralQuery = { __typename?: 'Query', getReferral?: { __typename?: 'ReferralResponse', errorMessage?: string | null, errorType?: ReferralErrorType | null, data?: Array<{ __typename?: 'Referral', id: string, inviterName: string, status: ReferralStatus } | null> | null } | null };
+
+export type ListReferralsQueryVariables = Exact<{
+  filter: ListReferralInput;
+}>;
+
+
+export type ListReferralsQuery = { __typename?: 'Query', listReferrals?: { __typename?: 'ReferralResponse', errorMessage?: string | null, errorType?: ReferralErrorType | null, data?: Array<{ __typename?: 'Referral', id: string } | null> | null } | null };

@@ -19,3 +19,7 @@ cdk.out
 packages/moonbeam-cdk/*.js
 packages/moonbeam-cdk/!jest.config.js
 packages/moonbeam-cdk/*.d.ts
+./amplify
+./packages/moonbeam-models/lib/
+./packages/moonbeam-commitlint/lib/
+./packages/moonbeam-referral-lambda/lib/
