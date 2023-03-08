@@ -1,6 +1,6 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {MembershipTabProps} from '../models/BottomBarProps';
-import {NavigationContainer} from '@react-navigation/native';
+import {CommonActions, NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {Navbar} from "./Navbar";
 import {MembershipStackParamList} from "../models/MembershipStackProps";
@@ -9,9 +9,12 @@ import {MembershipProfile} from './MembershipProfile';
 /**
  * Membership component.
  */
-export const Membership = ({route}: MembershipTabProps) => {
+export const Membership = ({route, navigation}: MembershipTabProps) => {
     // create a native stack navigator, to be used for our Membership navigation
     const Stack = createNativeStackNavigator<MembershipStackParamList>();
+
+    // state to keep track of the value, for the number of points to be redeemed
+    const [pointValueRedeemed, setPointValueRedeemed] = useState<number>(0);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -21,7 +24,29 @@ export const Membership = ({route}: MembershipTabProps) => {
      * included in here.
      */
     useEffect(() => {
-    }, []);
+        if (pointValueRedeemed !== 0) {
+            // dispatch a navigation event, which will update the user information object accordingly (in Home and Settings)
+            route.params.currentUserInformation['custom:points'] = 0;
+            navigation.dispatch({
+                ...CommonActions.setParams({
+                    currentUserInformation: route.params.currentUserInformation,
+                    source: navigation.getState().routes[0].key
+                })
+            });
+            navigation.dispatch({
+                ...CommonActions.setParams({
+                    currentUserInformation: route.params.currentUserInformation,
+                    source: navigation.getState().routes[2].key
+                })
+            });
+
+            // dispatch a navigation event, which will update the membership for the points value redeemed (in Home)
+            navigation.dispatch({
+                ...CommonActions.setParams({pointValueRedeemed: pointValueRedeemed}),
+                source: navigation.getState().routes[0].key
+            });
+        }
+    }, [pointValueRedeemed]);
 
     // return the component for the Membership page
     return (
@@ -37,6 +62,7 @@ export const Membership = ({route}: MembershipTabProps) => {
                         headerTitle: 'Membership'
                     }}
                     initialParams={{
+                        setPointValueRedeemed: setPointValueRedeemed,
                         currentUserInformation: route.params.currentUserInformation
                     }}
                 />

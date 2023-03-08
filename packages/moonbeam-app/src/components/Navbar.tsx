@@ -39,7 +39,6 @@ export const Navbar = (props: NativeStackHeaderProps & (HomeStackParamList["Home
      * included in here.
      */
     useEffect(() => {
-        console.log('navbar' + props.pointValueRedeemed);
         if (props.currentUserInformation!) {
             // set the title of the user's avatar in the dashboard, based on the user's information
             const secondInitial = props.currentUserInformation["name"].split(" ").length > 2 ? 2 : 1;

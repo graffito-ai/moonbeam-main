@@ -20,8 +20,6 @@ export const Home = ({navigation, route}: HomeTabProps) => {
     // create a native stack navigator, to be used for our Home navigation
     const Stack = createNativeStackNavigator<HomeStackParamList>();
 
-    const [pointValueRedeemed, setPointValueRedeemed] = useState<number>(0);
-
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
      * auth-related functionality for example), as well as any afferent API calls.
@@ -32,18 +30,19 @@ export const Home = ({navigation, route}: HomeTabProps) => {
     useEffect(() => {
         // if the redeemed points are greater than 0
         if (route.params.pointValueRedeemed !== 0) {
-            setPointValueRedeemed(route.params.pointValueRedeemed!);
+            console.log('yes bitch');
             // dispatch a navigation event, which will update the home dash props for the points value redeemed
             navigation.dispatch({
                 ...CommonActions.setParams({pointValueRedeemed: route.params.pointValueRedeemed}),
                 source: currentHomeDashScreenKey
             });
         }
-    }, [route, pointValueRedeemed]);
+    }, [route.name]);
 
     // return the component for the Home page once the state is not loading anymore
     return (
         <Stack.Navigator
+            initialRouteName={"HomeDash"}
             screenOptions={{
                 headerTitle: '',
                 headerTransparent: true,
@@ -61,7 +60,7 @@ export const Home = ({navigation, route}: HomeTabProps) => {
                             navigation={props.navigation}
                             currentUserInformation={route.params.currentUserInformation}
                             setCurrentScreenKey={setCurrentHomeDashScreenKey}
-                            pointValueRedeemed={pointValueRedeemed}
+                            pointValueRedeemed={route.params.pointValueRedeemed}
                         />)
                     }
                 }}

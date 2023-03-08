@@ -10,14 +10,13 @@ import WelcomeOffer from '../../assets/welcome-offer.png';
 // @ts-ignore
 import FriendReferral from '../../assets/refer-friend.png';
 import {Button, Card, Divider, Text} from 'react-native-paper';
-import {CommonActions} from "@react-navigation/native";
 import {Auth} from 'aws-amplify';
 import {MembershipProfileProps} from "../models/MembershipStackProps";
 
 /**
  * MembershipProfile component.
  */
-export const MembershipProfile = ({navigation, route}: MembershipProfileProps) => {
+export const MembershipProfile = ({route}: MembershipProfileProps) => {
     // state driven key-value pairs for UI related elements
     const retrievedPoints = Number(route.params.currentUserInformation["custom:points"]);
     const [pointsRedeemable, setPointsRedeemable] = useState<boolean>(retrievedPoints !== 0);
@@ -40,26 +39,7 @@ export const MembershipProfile = ({navigation, route}: MembershipProfileProps) =
                     'custom:points': '0'
                 });
                 if (updatesPointsAttributes) {
-                    // dispatch a navigation event, which will update the user information object accordingly
-                    route.params.currentUserInformation['custom:points'] = 0;
-                    navigation.dispatch({
-                        ...CommonActions.setParams({
-                            currentUserInformation: route.params.currentUserInformation,
-                            source: navigation.getState().routes[0].key
-                        })
-                    });
-                    navigation.dispatch({
-                        ...CommonActions.setParams({
-                            currentUserInformation: route.params.currentUserInformation,
-                            source: navigation.getState().routes[2].key
-                        })
-                    });
-
-                    // dispatch a navigation event, which will update the home props for the points value redeemed
-                    navigation.dispatch({
-                        ...CommonActions.setParams({pointValueRedeemed: Math.round(pointsEarned * 0.005 * 10) / 10}),
-                        source: navigation.getState().routes[0].key
-                    });
+                    route.params.setPointValueRedeemed(Math.round(pointsEarned * 0.005 * 10) / 10);
 
                     setPointsEarned(0);
                     setPointsRedeemable(false);
@@ -73,7 +53,7 @@ export const MembershipProfile = ({navigation, route}: MembershipProfileProps) =
             }
         } catch (error) {
             // @ts-ignore
-            console.log(error.message ? `Unexpected error while signing in: ${JSON.stringify(error.message)}` : `Unexpected error while signing in`);
+            console.log(error.message ? `Unexpected error while redeeming points: ${JSON.stringify(error.message)}` : `Unexpected error while signing in`);
             // need to create a modal with errors
         }
     }
@@ -116,7 +96,7 @@ export const MembershipProfile = ({navigation, route}: MembershipProfileProps) =
                                     uppercase={false}
                                     disabled={!pointsRedeemable}
                                     onPress={() => {
-                                        redeemPoints()
+                                        redeemPoints().then(() => {})
                                     }}
                                     style={[styles.redeemButton, {
                                         height: Dimensions.get('window').height / 20,

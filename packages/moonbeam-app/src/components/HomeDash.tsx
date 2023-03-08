@@ -23,7 +23,7 @@ export const HomeDash = ({route}: HomeDashProps) => {
      */
     useEffect(() => {
         route.params.setCurrentScreenKey!(route.key);
-    }, [route]);
+    }, [route.name]);
 
     // return the component for the HomeDash component
     return (
