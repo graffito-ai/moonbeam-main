@@ -20,6 +20,9 @@ export const Home = ({navigation, route}: HomeTabProps) => {
     // create a native stack navigator, to be used for our Home navigation
     const Stack = createNativeStackNavigator<HomeStackParamList>();
 
+    // create a state to keep track of whether the bottom tab navigation is shown or not
+    const [bottomTabNavigationShown, setBottomTabNavigationShown] = useState<boolean>(true);
+
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
      * auth-related functionality for example), as well as any afferent API calls.
@@ -30,14 +33,14 @@ export const Home = ({navigation, route}: HomeTabProps) => {
     useEffect(() => {
         // if the redeemed points are greater than 0
         if (route.params.pointValueRedeemed !== 0) {
-            console.log('yes bitch');
             // dispatch a navigation event, which will update the home dash props for the points value redeemed
             navigation.dispatch({
                 ...CommonActions.setParams({pointValueRedeemed: route.params.pointValueRedeemed}),
                 source: currentHomeDashScreenKey
             });
         }
-    }, [route.name]);
+        route.params.setBottomTabNavigationShown(bottomTabNavigationShown);
+    }, [route.name, bottomTabNavigationShown]);
 
     // return the component for the Home page once the state is not loading anymore
     return (
@@ -54,7 +57,7 @@ export const Home = ({navigation, route}: HomeTabProps) => {
                 component={HomeDash}
                 options={{
                     header: (props) => {
-                        return(<Navbar
+                        return (<Navbar
                             options={props.options}
                             route={props.route}
                             navigation={props.navigation}
@@ -87,11 +90,15 @@ export const Home = ({navigation, route}: HomeTabProps) => {
                             iconColor={"#313030"}
                             size={30}
                             style={{marginTop: '-1%'}}
-                            onPress={() => navigation.goBack()}
+                            onPress={() => {
+                                setBottomTabNavigationShown(true);
+                                navigation.goBack();
+                            }}
                         />
                     ),
                 }}
                 initialParams={{
+                    setBottomTabNavigationShown: setBottomTabNavigationShown,
                     currentUserInformation: route.params.currentUserInformation
                 }}
             />

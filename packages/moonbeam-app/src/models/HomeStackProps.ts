@@ -11,6 +11,7 @@ export type HomeStackParamList = {
         setCurrentScreenKey?: React.Dispatch<React.SetStateAction<string>>
     },
     HomeReferral: {
+        setBottomTabNavigationShown: React.Dispatch<React.SetStateAction<boolean>>;
         currentUserInformation: any,
     }
 };

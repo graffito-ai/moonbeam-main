@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {DashboardProps} from '../models/RootProps';
 import {BottomBarStackParamList} from '../models/BottomBarProps';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
@@ -15,6 +15,9 @@ export const Dashboard = ({route}: DashboardProps) => {
     // create a native bottom navigator, to be used for our bottom bar navigation
     const DashboardTab = createMaterialBottomTabNavigator<BottomBarStackParamList>();
 
+    // create a state to keep track of whether the bottom tab navigation is shown or not
+    const [bottomTabNavigationShown, setBottomTabNavigationShown] = useState<boolean>(true);
+
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
      * auth-related functionality for example), as well as any afferent API calls.
@@ -30,7 +33,11 @@ export const Dashboard = ({route}: DashboardProps) => {
         <NavigationContainer independent={true}>
             <DashboardTab.Navigator
                 initialRouteName={"Home"}
-                barStyle={{backgroundColor: '#f2f2f2', height: 70}}
+                barStyle={{
+                    backgroundColor: '#f2f2f2',
+                    height: 70,
+                    ...(!bottomTabNavigationShown && {display: 'none'})
+                }}
                 screenOptions={({route}) => ({
                     tabBarIcon: ({focused}) => {
                         let iconName: any;
@@ -51,6 +58,7 @@ export const Dashboard = ({route}: DashboardProps) => {
                 <DashboardTab.Screen name="Home"
                                      component={Home}
                                      initialParams={{
+                                         setBottomTabNavigationShown: setBottomTabNavigationShown,
                                          pointValueRedeemed: 0,
                                          currentUserInformation: route.params.currentUserInformation
                                      }}
@@ -64,6 +72,7 @@ export const Dashboard = ({route}: DashboardProps) => {
                 <DashboardTab.Screen name="Settings"
                                      component={Settings}
                                      initialParams={{
+                                         setBottomTabNavigationShown: setBottomTabNavigationShown,
                                          currentUserInformation: route.params.currentUserInformation
                                      }}
                 />

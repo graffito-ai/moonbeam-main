@@ -5,6 +5,7 @@ import type {NativeStackScreenProps} from '@react-navigation/native-stack';
  */
 export type BottomBarStackParamList = {
     Home: {
+        setBottomTabNavigationShown: React.Dispatch<React.SetStateAction<boolean>>;
         currentUserInformation: any;
         pointValueRedeemed: number;
     },
@@ -12,6 +13,7 @@ export type BottomBarStackParamList = {
         currentUserInformation: any;
     }
     Settings: {
+        setBottomTabNavigationShown: React.Dispatch<React.SetStateAction<boolean>>;
         currentUserInformation: any;
     }
 };

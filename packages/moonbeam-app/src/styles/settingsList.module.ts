@@ -33,7 +33,7 @@ export const styles = StyleSheet.create({
     },
     cardStyleProfileSettings: {
         alignSelf: 'center',
-        marginTop: '10%',
+        marginTop: '15%',
         backgroundColor: '#f2f2f2',
         shadowColor: '#313030',
         shadowOffset: {width: -2, height: 2},

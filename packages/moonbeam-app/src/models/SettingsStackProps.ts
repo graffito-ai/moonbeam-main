@@ -7,7 +7,9 @@ export type SettingsStackParamList = {
     SettingsList: {
         currentUserInformation: any;
     },
-    BankAccounts: {}
+    BankAccounts: {
+        setBottomTabNavigationShown: React.Dispatch<React.SetStateAction<boolean>>;
+    }
 };
 
 // the HomeDash.tsx component props, within the Home stack

@@ -100,7 +100,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                 left={() => <List.Icon color={'#2A3779'} icon="credit-card-off-outline"/>}
                                 right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
                             />
-                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.2}]}/>
+                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
                             <List.Item
                                 style={styles.settingsItemStyle}
                                 titleStyle={styles.settingsItemTitle}

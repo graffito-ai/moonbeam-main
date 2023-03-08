@@ -3,7 +3,6 @@ import {HomeReferralProps} from "../models/HomeStackProps";
 import React, {useEffect, useState} from "react";
 import {Image, ImageBackground, SafeAreaView, Share, View} from "react-native";
 import {commonStyles} from "../styles/common.module";
-import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 import {Button, Modal, Portal, Text} from "react-native-paper";
 import {styles} from "../styles/homeReferral.module";
 // @ts-ignore
@@ -34,9 +33,10 @@ export const HomeReferral = ({navigation, route}: HomeReferralProps) => {
      * included in here.
      */
     useEffect(() => {
-        setCurrentUserEmail(route.params.currentUserInformation["email"].toLowerCase());
-        setCurrentUserName(route.params.currentUserInformation["name"]);
-    }, []);
+        currentUserName && setCurrentUserEmail(route.params.currentUserInformation["email"].toLowerCase());
+        currentUserEmail && setCurrentUserName(route.params.currentUserInformation["name"]);
+        route.params.setBottomTabNavigationShown(false);
+    }, [route.name]);
 
     /**
      * Function used to be trigger once a user presses on the `Share Invite` button.
@@ -110,73 +110,66 @@ export const HomeReferral = ({navigation, route}: HomeReferralProps) => {
     // return the component for the Home Referral page
     return (
         <SafeAreaView style={[commonStyles.rowContainer, commonStyles.androidSafeArea]}>
-            <KeyboardAwareScrollView
-                enableOnAndroid={true}
-                scrollEnabled={true}
-                persistentScrollbar={false}
-                showsVerticalScrollIndicator={false}
-                keyboardShouldPersistTaps={'handled'}>
-                <ImageBackground
-                    style={commonStyles.image}
-                    imageStyle={{
-                        resizeMode: 'stretch'
-                    }}
-                    source={require('../../assets/forgot-password-background.png')}>
-                    <Portal>
-                        <Modal dismissable={false} visible={referralModalVisible}
-                               onDismiss={() => setReferralModalVisible(false)}
-                               contentContainerStyle={[styles.modalContainer, isErrorModal ? {borderColor: 'red'} : {borderColor: 'green'}]}>
-                            <Text style={styles.modalParagraph}>{modalMessage}</Text>
-                            <Button
-                                uppercase={false}
-                                style={[styles.modalButton, isErrorModal ? {borderColor: 'red'} : {borderColor: 'green'}]}
-                                {...!isErrorModal && {
-                                    textColor: 'green',
-                                    buttonColor: '#f2f2f2'
-                                }}
-                                {...isErrorModal && {
-                                    icon: 'redo-variant',
-                                    textColor: 'red',
-                                    buttonColor: '#f2f2f2'
-                                }}
-                                mode="outlined"
-                                labelStyle={{fontSize: 15}}
-                                onPress={() => {
-                                    isErrorModal ? setReferralModalVisible(false) : navigation.goBack();
-                                }}>
-                                {isErrorModal ? `Try Again` : `Dismiss`}
-                            </Button>
-                        </Modal>
-                    </Portal>
-                    <View style={styles.mainView}>
-                        <View style={styles.messageView}>
-                            <Text style={styles.messageTitle}>Refer a Friend</Text>
-                            <Text style={styles.messageSubtitle}>in order to earn 10,000 Points</Text>
-                        </View>
-                        <View style={{marginTop: '-30%'}}>
-                            <Image source={FriendReferral} style={styles.referralArt}></Image>
-                        </View>
-                        <View style={styles.messageView}>
-                            <Text style={styles.messageFooterTitle}>You have unlimited invites</Text>
-                            <Text style={styles.messageFooterSubtitle}>Alpha card approval is required for each invite,
-                                in order for you to earn the Points.</Text>
-                        </View>
+            <ImageBackground
+                style={commonStyles.image}
+                imageStyle={{
+                    resizeMode: 'stretch'
+                }}
+                source={require('../../assets/forgot-password-background.png')}>
+                <Portal>
+                    <Modal dismissable={false} visible={referralModalVisible}
+                           onDismiss={() => setReferralModalVisible(false)}
+                           contentContainerStyle={[styles.modalContainer, isErrorModal ? {borderColor: 'red'} : {borderColor: 'green'}]}>
+                        <Text style={styles.modalParagraph}>{modalMessage}</Text>
                         <Button
-                            onPress={async () => {
-                                await shareInviteAction(uuidv4())
-                            }}
                             uppercase={false}
-                            style={styles.referButton}
-                            textColor={"#f2f2f2"}
-                            buttonColor={"#2A3779"}
+                            style={[styles.modalButton, isErrorModal ? {borderColor: 'red'} : {borderColor: 'green'}]}
+                            {...!isErrorModal && {
+                                textColor: 'green',
+                                buttonColor: '#f2f2f2'
+                            }}
+                            {...isErrorModal && {
+                                icon: 'redo-variant',
+                                textColor: 'red',
+                                buttonColor: '#f2f2f2'
+                            }}
                             mode="outlined"
-                            labelStyle={{fontSize: 18}}
-                            icon={"share"}>
-                            Share Invite
+                            labelStyle={{fontSize: 15}}
+                            onPress={() => {
+                                isErrorModal ? setReferralModalVisible(false) : navigation.goBack();
+                            }}>
+                            {isErrorModal ? `Try Again` : `Dismiss`}
                         </Button>
+                    </Modal>
+                </Portal>
+                <View style={styles.mainView}>
+                    <View style={styles.messageView}>
+                        <Text style={styles.messageTitle}>Refer a Friend</Text>
+                        <Text style={styles.messageSubtitle}>in order to earn 10,000 Points</Text>
                     </View>
-                </ImageBackground>
-            </KeyboardAwareScrollView>
+                    <View>
+                        <Image source={FriendReferral} style={styles.referralArt}></Image>
+                    </View>
+                    <View style={styles.messageView}>
+                        <Text style={styles.messageFooterTitle}>You have unlimited invites</Text>
+                        <Text style={styles.messageFooterSubtitle}>Alpha card approval is required for each invite,
+                            in order for you to earn the Points.</Text>
+                    </View>
+                    <Button
+                        onPress={async () => {
+                            await shareInviteAction(uuidv4())
+                        }}
+                        uppercase={false}
+                        style={styles.referButton}
+                        textColor={"#f2f2f2"}
+                        buttonColor={"#2A3779"}
+                        mode="outlined"
+                        labelStyle={{fontSize: 18}}
+                        icon={"share"}>
+                        Share Invite
+                    </Button>
+                </View>
+            </ImageBackground>
         </SafeAreaView>
     );
 }

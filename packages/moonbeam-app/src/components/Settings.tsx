@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {SettingsTabProps} from '../models/BottomBarProps';
 import {NavigationContainer} from '@react-navigation/native';
 import {SettingsStackParamList} from "../models/SettingsStackProps";
@@ -15,6 +15,9 @@ export const Settings = ({route}: SettingsTabProps) => {
     // create a native stack navigator, to be used for our Settings navigation
     const Stack = createNativeStackNavigator<SettingsStackParamList>();
 
+    // create a state to keep track of whether the bottom tab navigation is shown or not
+    const [bottomTabNavigationShown, setBottomTabNavigationShown] = useState<boolean>(true);
+
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
      * auth-related functionality for example), as well as any afferent API calls.
@@ -23,7 +26,8 @@ export const Settings = ({route}: SettingsTabProps) => {
      * included in here.
      */
     useEffect(() => {
-    }, []);
+        route.params.setBottomTabNavigationShown(bottomTabNavigationShown);
+    }, [bottomTabNavigationShown]);
 
     // return the component for the Settings page
     return (
@@ -38,7 +42,10 @@ export const Settings = ({route}: SettingsTabProps) => {
                                 iconColor={"#2A3779"}
                                 size={40}
                                 style={{marginTop: '-5%',  marginLeft: `-10%`}}
-                                onPress={() => navigation.goBack()}
+                                onPress={() => {
+                                    setBottomTabNavigationShown(true);
+                                    navigation.goBack();
+                                }}
                             />)
                         },
                         headerTitle: '',
@@ -63,7 +70,9 @@ export const Settings = ({route}: SettingsTabProps) => {
                 <Stack.Screen
                     name="BankAccounts"
                     component={BankAccounts}
-                    initialParams={{}}
+                    initialParams={{
+                        setBottomTabNavigationShown: setBottomTabNavigationShown
+                    }}
                 />
             </Stack.Navigator>
         </NavigationContainer>
