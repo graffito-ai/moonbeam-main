@@ -22,3 +22,4 @@ export type HomeTabProps = NativeStackScreenProps<BottomBarStackParamList, 'Home
 export type MembershipTabProps = NativeStackScreenProps<BottomBarStackParamList, 'Membership'>
 // the Settings component props, within the bottom bar stack
 export type SettingsTabProps = NativeStackScreenProps<BottomBarStackParamList, 'Settings'>
+

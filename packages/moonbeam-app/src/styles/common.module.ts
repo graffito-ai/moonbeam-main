@@ -1,4 +1,4 @@
-import {Platform, StyleSheet} from "react-native";
+import {Dimensions, Platform, StyleSheet} from "react-native";
 
 // styles to be used within all components
 export const commonStyles = StyleSheet.create({
@@ -33,4 +33,27 @@ export const commonStyles = StyleSheet.create({
         flex: 1,
         paddingTop: Platform.OS === 'android' ? 25 : 0
     },
+    topNavbarView: {
+        height: Dimensions.get("window").height/9,
+        backgroundColor: '#f2f2f2',
+        shadowColor: '#313030',
+        shadowOffset: {width: -2, height: 5},
+        shadowOpacity: 0.5,
+        shadowRadius: 5,
+        elevation: 15,
+        borderBottomLeftRadius: 45,
+        borderBottomRightRadius: 45
+    },
+    insideNavbarBarText: {
+        marginTop: '15%',
+        fontFamily: 'Raleway-Bold',
+        fontSize: 18,
+        color: '#313030',
+        textAlign: 'center'
+    },
+    insideNavbarBarView: {
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center'
+    }
 });

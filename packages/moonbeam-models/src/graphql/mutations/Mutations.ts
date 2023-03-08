@@ -13,7 +13,7 @@ export const createReferral = /* GraphQL */ `
     }
 `;
 
-// Mutation used to be update a referral
+// Mutation used to update a referral
 export const updateReferral = /* GraphQL */ `
     mutation UpdateReferral($updateInput: UpdateReferralInput!) {
         updateReferral(updateInput: $updateInput) {

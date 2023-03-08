@@ -35,26 +35,30 @@ export const BankAccounts = ({}: BankAccountsProps) => {
                 enableOnAndroid={true}
                 scrollEnabled={true}
                 persistentScrollbar={false}
-                showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps={'handled'}>
                 <View style={styles.mainView}>
                     <View style={styles.titleView}>
-                        <Text style={styles.mainTitle}>Refer a Friend</Text>
+                        <Text style={styles.mainTitle}>Bank Accounts</Text>
                     </View>
-                    <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width}]}/>
-                    <Button
-                        onPress={async () => {
+                    <View style={styles.content}>
+                    </View>
+                    <View style={styles.bottomView}>
+                        <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width}]}/>
+                        <Button
+                            onPress={async () => {
 
-                        }}
-                        uppercase={false}
-                        style={styles.connectButton}
-                        textColor={"#f2f2f2"}
-                        buttonColor={"#2A3779"}
-                        mode="outlined"
-                        labelStyle={{fontSize: 18}}
-                        icon={"plus"}>
-                        Add a new Account
-                    </Button>
+                            }}
+                            uppercase={false}
+                            style={styles.connectButton}
+                            textColor={"#f2f2f2"}
+                            buttonColor={"#2A3779"}
+                            mode="outlined"
+                            labelStyle={{fontSize: 18}}
+                            icon={"plus"}>
+                            Add a new Account
+                        </Button>
+                    </View>
                 </View>
             </KeyboardAwareScrollView>
         </SafeAreaView>

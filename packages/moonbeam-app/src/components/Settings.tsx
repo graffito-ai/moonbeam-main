@@ -5,6 +5,8 @@ import {SettingsStackParamList} from "../models/SettingsStackProps";
 import {SettingsList} from "./SettingsList";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {BankAccounts} from "./BankAccounts";
+import {Navbar} from "./Navbar";
+import {IconButton} from "react-native-paper";
 
 /**
  * Settings component.
@@ -26,12 +28,33 @@ export const Settings = ({route}: SettingsTabProps) => {
     // return the component for the Settings page
     return (
         <NavigationContainer independent={true}>
-            <Stack.Navigator>
+            <Stack.Navigator
+                initialRouteName={"SettingsList"}
+                screenOptions={({navigation}) => {
+                    return({
+                        headerLeft: () => {
+                            return(<IconButton
+                                icon="chevron-left"
+                                iconColor={"#2A3779"}
+                                size={40}
+                                style={{marginTop: '-5%',  marginLeft: `-10%`}}
+                                onPress={() => navigation.goBack()}
+                            />)
+                        },
+                        headerTitle: '',
+                        headerTransparent: true,
+                        headerTintColor: '#2A3779'
+                    })
+                }}
+            >
                 <Stack.Screen
                     name="SettingsList"
                     component={SettingsList}
                     options={{
-                        headerShown: false
+                        header: (props) => {
+                            return(<Navbar options={props.options} route={props.route} navigation={props.navigation}/>)
+                        },
+                        headerTitle: 'Settings'
                     }}
                     initialParams={{
                         currentUserInformation: route.params.currentUserInformation
@@ -40,12 +63,6 @@ export const Settings = ({route}: SettingsTabProps) => {
                 <Stack.Screen
                     name="BankAccounts"
                     component={BankAccounts}
-                    options={{
-                        headerTransparent: true,
-                        title: '',
-                        headerBackTitleVisible: true,
-                        headerTintColor: '#2A3779'
-                    }}
                     initialParams={{}}
                 />
             </Stack.Navigator>

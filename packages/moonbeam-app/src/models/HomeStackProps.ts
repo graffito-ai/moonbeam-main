@@ -6,16 +6,16 @@ import React from "react";
  */
 export type HomeStackParamList = {
     HomeDash: {
-        currentUserInformation: any,
-        pointValueRedeemed: number,
-        setCurrentScreenKey: React.Dispatch<React.SetStateAction<string>>
+        currentUserInformation?: any,
+        pointValueRedeemed?: number,
+        setCurrentScreenKey?: React.Dispatch<React.SetStateAction<string>>
     },
     HomeReferral: {
         currentUserInformation: any,
     }
 };
 
-// the HomeDash.tsx component props, within the Home stack
+// the HomeDash component props, within the Home stack
 export type HomeDashProps = NativeStackScreenProps<HomeStackParamList, 'HomeDash'>
 // the HomeReferral component props, within the Home stack
 export type HomeReferralProps = NativeStackScreenProps<HomeStackParamList, 'HomeReferral'>

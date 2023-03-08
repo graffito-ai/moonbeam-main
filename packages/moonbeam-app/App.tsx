@@ -2,23 +2,24 @@ import * as SplashScreen from 'expo-splash-screen';
 // @ts-ignore
 import * as envInfo from "./amplify/.config/local-env-info.json";
 import {Logs} from "expo";
-import { initialize } from './src/utils/Setup';
-import React, {useCallback, useEffect, useState } from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { RootStackParamList } from './src/models/RootProps';
+import {initialize} from './src/utils/Setup';
+import React, {useCallback, useEffect, useState} from 'react';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {RootStackParamList} from './src/models/RootProps';
 import {theme} from "./src/utils/Theme";
-import { NavigationContainer } from '@react-navigation/native';
-import { SignInComponent } from './src/components/SignIn';
-import { SignUpComponent } from './src/components/SignUp';
-import { EmailVerify } from './src/components/EmailVerify';
-import { ForgotPassword } from './src/components/ForgotPassword';
-import { Dashboard } from './src/components/Dashboard';
-import {Provider as PaperProvider, Text} from 'react-native-paper';
+import {NavigationContainer} from '@react-navigation/native';
+import {SignInComponent} from './src/components/SignIn';
+import {SignUpComponent} from './src/components/SignUp';
+import {EmailVerify} from './src/components/EmailVerify';
+import {ForgotPassword} from './src/components/ForgotPassword';
+import {Dashboard} from './src/components/Dashboard';
+import {IconButton, Provider as PaperProvider, Text} from 'react-native-paper';
 import * as Linking from 'expo-linking';
 import * as Font from 'expo-font';
 
 // keep the splash screen visible while we fetch resources
-SplashScreen.preventAutoHideAsync().then(() => {});
+SplashScreen.preventAutoHideAsync().then(() => {
+});
 
 // initialize the application according to the current Amplify environment
 initialize();
@@ -76,7 +77,8 @@ export default function App() {
                 // remove Linking listener
             }
         }
-        prepare();
+        prepare().then(() => {
+        });
     }, []);
 
     /**
@@ -124,21 +126,34 @@ export default function App() {
         return (
             <PaperProvider theme={theme}>
                 <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
-                    <Stack.Navigator>
+                    <Stack.Navigator
+                        initialRouteName={"SignIn"}
+                        screenOptions={({route, navigation}) => {
+                            return ({
+                                headerLeft: () => {
+                                    return (route.name !== 'SignIn' ? <IconButton
+                                        icon="chevron-left"
+                                        iconColor={"#2A3779"}
+                                        size={40}
+                                        style={{marginTop: '-5%',  marginLeft: `-10%`}}
+                                        onPress={() => navigation.goBack()}
+                                    />: <></>)
+                                },
+                                headerTitle: '',
+                                headerTransparent: true,
+                                headerTintColor: '#2A3779'
+                            })
+                        }}
+                    >
                         <Stack.Screen
                             name="SignIn"
                             component={SignInComponent}
-                            options={{headerShown: false}}
                             initialParams={{onLayoutRootView: onLayoutRootView, initialRender: true}}
                         />
                         <Stack.Screen
                             name="SignUp"
                             component={SignUpComponent}
                             options={{
-                                headerTransparent: true,
-                                title: '',
-                                headerBackTitleVisible: true,
-                                headerTintColor: '#2A3779',
                                 headerShown: isSignUpBackButtonVisible
                             }}
                             initialParams={{
@@ -157,12 +172,6 @@ export default function App() {
                         <Stack.Screen
                             name="ForgotPassword"
                             component={ForgotPassword}
-                            options={{
-                                headerTransparent: true,
-                                title: '',
-                                headerBackTitleVisible: false,
-                                headerTintColor: '#2A3779'
-                            }}
                             initialParams={{initialRender: true}}
                         />
                         <Stack.Screen
@@ -171,6 +180,7 @@ export default function App() {
                             options={{
                                 headerShown: false
                             }}
+                            initialParams={{currentUserInformation: {}}}
                         />
                     </Stack.Navigator>
                 </NavigationContainer>

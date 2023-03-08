@@ -4,22 +4,25 @@ import {Dimensions, StyleSheet} from "react-native";
 export const styles = StyleSheet.create({
     mainView: {
         flex: 1,
+        flexGrow: 1,
         flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center'
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     titleView: {
-        flex: 0.3,
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
         alignSelf: 'flex-start'
+    },
+    bottomView: {
+        alignItems: 'center',
+    },
+    content: {
+        alignItems: 'flex-start',
     },
     mainTitle: {
         marginLeft: '5%',
         marginTop: '5%',
         fontSize: 30,
-        fontFamily: 'Raleway-Medium',
+        fontFamily: 'Raleway-Bold',
         color: '#313030'
     },
     mainSubtitle: {

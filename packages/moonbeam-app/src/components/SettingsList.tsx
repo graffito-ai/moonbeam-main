@@ -1,4 +1,4 @@
-import {Dimensions, ImageBackground, SafeAreaView, ScrollView, View} from "react-native";
+import {Dimensions, SafeAreaView, ScrollView, View} from "react-native";
 import {commonStyles} from "../styles/common.module";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 import {styles} from "../styles/settingsList.module";
@@ -32,30 +32,12 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                 enableOnAndroid={true}
                 scrollEnabled={true}
                 keyboardShouldPersistTaps={'handled'}
+                showsVerticalScrollIndicator={false}
             >
-                <View style={styles.topBarView}>
-                    <ImageBackground
-                        imageStyle={{
-                            resizeMode: 'contain',
-                            opacity: 0.6,
-                            alignSelf: 'center'
-                        }}
-                        source={require('../../assets/top-bar-background.png')}>
-                        <View style={styles.insideBarView}>
-                            <View style={{width: Dimensions.get('window').width / 3}}></View>
-                            <View style={styles.dashboardColumnItemMiddle}>
-                                <Text style={styles.dashboardColumnItemMiddleText}>
-                                    Settings
-                                </Text>
-                            </View>
-                            <View style={styles.dashboardColumnItemLast}>
-                            </View>
-                        </View>
-                    </ImageBackground>
-                </View>
                 <View style={styles.settingsContentView}>
                     <ScrollView scrollEnabled={true}
-                                persistentScrollbar={false} showsHorizontalScrollIndicator={false}>
+                                persistentScrollbar={false}
+                                showsVerticalScrollIndicator={false}>
                         <Card style={[styles.cardStyleProfileSettings, {
                             width: Dimensions.get('window').width / 1.3
                         }]} mode={'elevated'} elevation={5}>
@@ -92,9 +74,9 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                             </Button>
                         </Card>
 
-                        <List.Section style={{width: Dimensions.get('window').width}}>
+                        <List.Section style={styles.listSectionView}>
                             <List.Subheader style={styles.subHeaderTitle}>Card Management</List.Subheader>
-                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width}]}/>
+                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
                             <List.Item
                                 style={styles.settingsItemStyle}
                                 titleStyle={styles.settingsItemTitle}
@@ -106,7 +88,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                 left={() => <List.Icon color={'#2A3779'} icon="card-plus"/>}
                                 right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
                             />
-                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width}]}/>
+                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
                             <List.Item
                                 style={styles.settingsItemStyle}
                                 titleStyle={styles.settingsItemTitle}
@@ -118,7 +100,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                 left={() => <List.Icon color={'#2A3779'} icon="credit-card-off-outline"/>}
                                 right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
                             />
-                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width}]}/>
+                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.2}]}/>
                             <List.Item
                                 style={styles.settingsItemStyle}
                                 titleStyle={styles.settingsItemTitle}
@@ -130,10 +112,10 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                 left={() => <List.Icon color={'#2A3779'} icon="credit-card-lock"/>}
                                 right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
                             />
-                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width}]}/>
-
+                        </List.Section>
+                        <List.Section style={styles.listSectionView}>
                             <List.Subheader style={styles.subHeaderTitle}>Payment Tools</List.Subheader>
-                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width}]}/>
+                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
                             <List.Item
                                 style={styles.settingsItemStyle}
                                 titleStyle={styles.settingsItemTitle}
@@ -148,7 +130,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                     navigation.navigate('BankAccounts', {})
                                 }}
                             />
-                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width}]}/>
+                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
                             <List.Item
                                 style={styles.settingsItemStyle}
                                 titleStyle={styles.settingsItemTitle}
@@ -160,7 +142,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                 left={() => <List.Icon color={'#2A3779'} icon="autorenew"/>}
                                 right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
                             />
-                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width}]}/>
+                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
                             <List.Item
                                 style={styles.settingsItemStyle}
                                 titleStyle={styles.settingsItemTitle}
@@ -172,10 +154,10 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                 left={() => <List.Icon color={'#2A3779'} icon="wallet"/>}
                                 right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
                             />
-                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width}]}/>
-
+                        </List.Section>
+                        <List.Section style={styles.listSectionView}>
                             <List.Subheader style={styles.subHeaderTitle}>Security & Privacy</List.Subheader>
-                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width}]}/>
+                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width/1.15}]}/>
                             <List.Item
                                 style={styles.settingsItemStyle}
                                 titleStyle={styles.settingsItemTitle}
@@ -187,7 +169,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                 left={() => <List.Icon color={'#2A3779'} icon="emoticon"/>}
                                 right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
                             />
-                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width}]}/>
+                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width/1.15}]}/>
                             <List.Item
                                 style={styles.settingsItemStyle}
                                 titleStyle={styles.settingsItemTitle}
@@ -199,7 +181,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                 left={() => <List.Icon color={'#2A3779'} icon="lock"/>}
                                 right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
                             />
-                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width}]}/>
+                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width/1.15}]}/>
                             <List.Item
                                 style={styles.settingsItemStyle}
                                 titleStyle={styles.settingsItemTitle}
@@ -211,7 +193,6 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                 left={() => <List.Icon color={'#2A3779'} icon="eye"/>}
                                 right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
                             />
-                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width}]}/>
                         </List.Section>
                     </ScrollView>
                 </View>

@@ -5,8 +5,8 @@ import {createMaterialBottomTabNavigator} from '@react-navigation/material-botto
 import {NavigationContainer} from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {Home} from './Home';
-import {Membership} from './Membership';
 import {Settings} from "./Settings";
+import {Membership} from "./Membership";
 
 /**
  * Dashboard component.
@@ -50,13 +50,23 @@ export const Dashboard = ({route}: DashboardProps) => {
             >
                 <DashboardTab.Screen name="Home"
                                      component={Home}
-                                     initialParams={{pointValueRedeemed: 0, currentUserInformation: route.params.currentUserInformation}}/>
+                                     initialParams={{
+                                         pointValueRedeemed: 0,
+                                         currentUserInformation: route.params.currentUserInformation
+                                     }}
+                />
                 <DashboardTab.Screen name="Membership"
                                      component={Membership}
-                                     initialParams={{currentUserInformation: route.params.currentUserInformation}}/>
+                                     initialParams={{
+                                         currentUserInformation: route.params.currentUserInformation
+                                     }}
+                />
                 <DashboardTab.Screen name="Settings"
                                      component={Settings}
-                                     initialParams={{currentUserInformation: route.params.currentUserInformation}}/>
+                                     initialParams={{
+                                         currentUserInformation: route.params.currentUserInformation
+                                     }}
+                />
             </DashboardTab.Navigator>
         </NavigationContainer>
     );

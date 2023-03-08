@@ -259,7 +259,7 @@ export const ForgotPassword = ({navigation, route}: ForgotPasswordProps) => {
                 <ScrollView style={{height: Dimensions.get('window').height}}
                             scrollEnabled={true}
                             persistentScrollbar={false}
-                            showsHorizontalScrollIndicator={false}>
+                            showsVerticalScrollIndicator={false}>
                     <KeyboardAwareScrollView
                         enableOnAndroid={true}
                         scrollEnabled={true}

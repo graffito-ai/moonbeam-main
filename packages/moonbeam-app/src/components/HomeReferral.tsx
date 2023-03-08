@@ -114,7 +114,7 @@ export const HomeReferral = ({navigation, route}: HomeReferralProps) => {
                 enableOnAndroid={true}
                 scrollEnabled={true}
                 persistentScrollbar={false}
-                showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps={'handled'}>
                 <ImageBackground
                     style={commonStyles.image}
