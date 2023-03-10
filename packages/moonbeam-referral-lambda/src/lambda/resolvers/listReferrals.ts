@@ -37,18 +37,18 @@ export const listReferrals = async (filter: ListReferralInput): Promise<Referral
         switch (referralFilterType) {
             case ReferralFiltering.INVITEE_FILTER:
                 referrals
-                    .filter((referral) => referral.inviteeEmail === filter.inviteeEmail! && referral.statusInvitee === filter.statusInvitee!)
+                    .filter((referral) => referral.inviteeEmail === filter.inviteeEmail! && referral.statusInvitee === filter.statusInvitee! && referral.status === filter.status)
                     .map((referral) => filteredReferrals.push(referral));
                 break;
             case ReferralFiltering.INVITER_FILTER:
                 referrals
-                    .filter((referral) => referral.inviterEmail === filter.inviterEmail! && referral.statusInviter === filter.statusInviter!)
+                    .filter((referral) => referral.inviterEmail === filter.inviterEmail! && referral.statusInviter === filter.statusInviter! && referral.status === filter.status)
                     .map((referral) => filteredReferrals.push(referral));
                 break;
             default:
                 console.log(`Invalid type of filtering to be executed {}`, JSON.stringify(filter));
                 return {
-                    errorMessage: `Invalid type of filtering to be executed ${JSON.stringify(filter)}`,
+                    errorMessage: `Invalid type of filtering to be executed`,
                     errorType: ReferralErrorType.ValidationError
                 };
         }

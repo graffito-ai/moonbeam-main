@@ -1,22 +1,29 @@
 import React, {useEffect, useState} from 'react';
-import {DashboardProps} from '../models/RootProps';
-import {BottomBarStackParamList} from '../models/BottomBarProps';
+import {DashboardProps} from '../../models/RootProps';
+import {BottomBarStackParamList} from '../../models/BottomBarProps';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
-import {NavigationContainer} from '@react-navigation/native';
+import {CommonActions, NavigationContainer} from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import {Home} from './Home';
-import {Settings} from "./Settings";
-import {Membership} from "./Membership";
+import {Home} from './home/Home';
+import {Settings} from "./settings/Settings";
+import {Membership} from "./rewards/Membership";
+import {isCacheTokenValid} from '../../utils/Setup';
+import {NativeModules} from 'react-native';
+import * as SecureStore from "expo-secure-store";
+import * as Linking from "expo-linking";
 
 /**
  * Dashboard component.
  */
-export const Dashboard = ({route}: DashboardProps) => {
+export const Dashboard = ({navigation, route}: DashboardProps) => {
     // create a native bottom navigator, to be used for our bottom bar navigation
     const DashboardTab = createMaterialBottomTabNavigator<BottomBarStackParamList>();
 
     // create a state to keep track of whether the bottom tab navigation is shown or not
     const [bottomTabNavigationShown, setBottomTabNavigationShown] = useState<boolean>(true);
+
+    // create a state to keep track of whether the dashboard is ready or not
+    const [isDashboardReady, setIsDashboardReady] = useState<boolean>(false);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -26,13 +33,56 @@ export const Dashboard = ({route}: DashboardProps) => {
      * included in here.
      */
     useEffect(() => {
-    }, []);
+        isOAuthRedirectAllowed().then(() => {setIsDashboardReady(true);});
+    }, [route.params.oauthStateId, isDashboardReady]);
+
+    /**
+     * Function used to check, in case an oauth token is present, if we could do the redirect,
+     * else reload the app (redirecting to login)
+     */
+    const isOAuthRedirectAllowed = async () => {
+        // check in case an oauth token is present, if we could do the redirect
+        if (route.params.oauthStateId) {
+            const validToken = await isCacheTokenValid();
+            if (!validToken) {
+                NativeModules.DevSettings.reload();
+            }
+
+            navigation.dispatch({
+                ...CommonActions.setParams({currentUserInformation: JSON.parse(await SecureStore.getItemAsync('currentUserInformation') as string)}),
+                source: route.key
+            });
+        }
+    }
+
+    // enabling the linking configuration for creating links to the application screens, based on the navigator
+    const config = {
+        screens: {
+            Settings: {
+                path: 'dashboard/:oauthStateId',
+                parse: {
+                    oauthStateId: (oauthStateId: string) => oauthStateId
+                }
+            }
+        },
+    };
+
+    /**
+     * configuring the navigation linking, based on the types of prefixes that the application supports, given
+     * the environment that we deployed the application in.
+     * @see https://docs.expo.dev/guides/linking/?redirected
+     * @see https://reactnavigation.org/docs/deep-linking/
+     */
+    const linking = {
+        prefixes: [Linking.createURL('/')],
+        config,
+    };
 
     // return the component for the Dashboard page
-    return (
-        <NavigationContainer independent={true}>
+    return (isDashboardReady &&
+        <NavigationContainer linking={linking} independent={true}>
             <DashboardTab.Navigator
-                initialRouteName={"Home"}
+                initialRouteName={route.params.oauthStateId ? "Settings" : "Home" }
                 barStyle={{
                     backgroundColor: '#f2f2f2',
                     height: 70,
@@ -72,6 +122,7 @@ export const Dashboard = ({route}: DashboardProps) => {
                 <DashboardTab.Screen name="Settings"
                                      component={Settings}
                                      initialParams={{
+                                         oauthStateId: route.params.oauthStateId,
                                          setBottomTabNavigationShown: setBottomTabNavigationShown,
                                          currentUserInformation: route.params.currentUserInformation
                                      }}

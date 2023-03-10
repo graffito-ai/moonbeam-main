@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from "react";
-import {EmailVerifyProps} from "../models/RootProps";
+import {EmailVerifyProps} from "../../models/RootProps";
 import {Dimensions, Image, ImageBackground, NativeModules, Text, View} from "react-native";
-import {commonStyles} from "../styles/common.module";
-import {styles} from "../styles/emailVerify.module";
+import {commonStyles} from "../../styles/common.module";
+import {styles} from "../../styles/emailVerify.module";
 // @ts-ignore
-import CongratulationsSplash from '../../assets/congratulations.png';
+import CongratulationsSplash from '../../../assets/congratulations.png';
 import {Button, Modal, Portal, TextInput} from "react-native-paper";
 import {API, Auth, graphqlOperation} from "aws-amplify";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
@@ -89,9 +89,6 @@ export const EmailVerify = ({navigation, route}: EmailVerifyProps) => {
                 if (route.params.referralId && route.params.status) {
                     // only update a referral when needed
                     if (route.params.status !== ReferralStatus.Redeemed && route.params.status !== ReferralStatus.Invalid) {
-                        // create a timestamp to keep track of when the referral was last updated
-                        const updatedAt = new Date().toISOString();
-
                         // update the referral object in the list of referrals, accordingly
                         const updatesReferral = await API.graphql(graphqlOperation(updateReferral, {
                             updateReferralInput:
@@ -99,8 +96,7 @@ export const EmailVerify = ({navigation, route}: EmailVerifyProps) => {
                                     // @ts-ignore
                                     id: `${route.params.referralId}`,
                                     inviteeEmail: `${route.params.username.toLowerCase()}`,
-                                    status: ReferralStatus.Redeemed,
-                                    updatedAt: updatedAt
+                                    status: ReferralStatus.Redeemed
                                 }
                         }));
                         // @ts-ignore
@@ -114,7 +110,7 @@ export const EmailVerify = ({navigation, route}: EmailVerifyProps) => {
                             setModalVisible(true);
                             setIsErrorModal(true);
                             setIsResendModal(false);
-                            console.log(`Unexpected error while confirming sign up code: ${updatesReferral}`);
+                            console.log(`Unexpected error while confirming sign up code: ${JSON.stringify(updatesReferral)}`);
                         }
                     }
                 }
@@ -162,7 +158,7 @@ export const EmailVerify = ({navigation, route}: EmailVerifyProps) => {
                 resizeMode: 'stretch'
             }}
             style={commonStyles.image}
-            source={require('../../assets/login-background.png')}>
+            source={require('../../../assets/login-background.png')}>
             <Portal>
                 <Modal dismissable={false} visible={modalVisible} onDismiss={() => setModalVisible(false)}
                        contentContainerStyle={[styles.modalContainer, isErrorModal ? {borderColor: 'red'} : {borderColor: 'green'}]}>

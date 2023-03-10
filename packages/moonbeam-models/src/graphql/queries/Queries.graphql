@@ -21,3 +21,25 @@ query ListReferrals($filter: ListReferralInput!) {
         }
     }
 }
+
+query GetAccountLink($id: String!) {
+    getAccountLink(id: $id) {
+        errorMessage
+        errorType
+        data {
+            id
+            links {
+                institution {
+                    name
+                    id
+                }
+                accounts {
+                    id
+                }
+                publicToken
+                accessToken
+                linkToken
+            }
+        }
+    }
+}

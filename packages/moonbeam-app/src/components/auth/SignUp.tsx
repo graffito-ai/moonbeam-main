@@ -1,13 +1,13 @@
 import React, {useEffect, useState} from "react";
 import {Dimensions, Image, ImageBackground, Keyboard, Platform, SafeAreaView, Text, View} from "react-native";
-import {SignUpProps} from "../models/RootProps";
-import {commonStyles} from '../styles/common.module';
-import {styles} from '../styles/signUp.module';
+import {SignUpProps} from "../../models/RootProps";
+import {commonStyles} from '../../styles/common.module';
+import {styles} from '../../styles/signUp.module';
 // @ts-ignore
 import {ProgressStep, ProgressSteps} from 'react-native-progress-steps';
 import {Button, Modal, Portal, TextInput} from "react-native-paper";
 import DropDownPicker from "react-native-dropdown-picker";
-import {dutyDropdownItems} from "../common/Common";
+import {dutyDropdownItems} from "../../common/Common";
 import dayjs from 'dayjs';
 // @ts-ignore
 import {useValidation} from 'react-native-form-validator';
@@ -15,7 +15,7 @@ import moment from 'moment';
 import {API, Auth, graphqlOperation} from 'aws-amplify';
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 // @ts-ignore
-import FriendReferral from '../../assets/refer-friend.png';
+import FriendReferral from '../../../assets/refer-friend.png';
 import { getReferral, ReferralResponse, ReferralStatus } from "@moonbeam/moonbeam-models";
 import {v4 as uuidv4} from 'uuid';
 
@@ -243,7 +243,7 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
      * @param phoneNumber new user's phone number
      */
     const signUp = async (username: string, name: string, birthDate: string, dutyStatus: string,
-                          militaryRank: string, dutyStation: string, password: string, phoneNumber: string) => {
+                          militaryRank: string, dutyStation: string, password: string, phoneNumber: string): Promise<void> => {
         try {
             const signUp = await Auth.signUp({
                 username,
@@ -385,7 +385,7 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
     /**
      * Function used to retrieve the information for a referral invite, referenced through a SignUp deep link
      */
-    const getReferralInviteData = async () => {
+    const getReferralInviteData = async (): Promise<void> => {
         try {
             // that the back button for the navigation is hidden
             route.params.setSignUpBackButtonVisible && route.params.setSignUpBackButtonVisible(false);
@@ -416,7 +416,7 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
             } else {
                 setReferralModalError(`Error while retrieving referral invitation! No offers or points will be redeemed at this time!`);
                 // @ts-ignore
-                console.log(`Error while retrieving referral invitation! No offers or points will be redeemed at this time! ${getsReferral}`);
+                console.log(`Error while retrieving referral invitation! No offers or points will be redeemed at this time! ${JSON.stringify(getsReferral)}`);
             }
         } catch (error) {
             setReferralModalError(`Error while retrieving referral invitation! No offers or points will be redeemed at this time!`);
@@ -424,7 +424,6 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
             console.log(error.message ? JSON.stringify(error.message) : `Error while retrieving referral invitation! No offers or points will be redeemed at this time! ${JSON.stringify(error)}`);
         }
     }
-
 
     // return the component for the SignUp page
     return (
@@ -434,7 +433,7 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
                     resizeMode: 'stretch'
                 }}
                 style={commonStyles.image}
-                source={require('../../assets/signup-background.png')}>
+                source={require('../../../assets/signup-background.png')}>
                 <Portal>
                     {/*@ts-ignore*/}
                     <Modal contentContainerStyle={referralData !== null && referralData.status !== ReferralStatus.Redeemed ? styles.referralModalContainer : styles.modalContainer}
@@ -840,7 +839,7 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
                                     buttonColor={"#2A3779"}
                                     mode="outlined"
                                     labelStyle={{fontSize: 18}}
-                                    onPress={() => {
+                                    onPress={async () => {
                                         if (password === "" || confirmPassword === "" || phoneNumber === "") {
                                             setProgressStepsSecurityError(true);
                                             setProgressStepsErrors(true);
@@ -853,8 +852,7 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
                                             } else {
                                                 setProgressStepsSecurityError(false);
                                                 setProgressStepsErrors(false);
-                                                signUp(email, name, birthDate, duty!, rank, dutyStation, password, phoneNumber);
-                                                setProgressStepsErrors(false);
+                                                await signUp(email, name, birthDate, duty!, rank, dutyStation, password, phoneNumber);
                                             }
                                         }
                                     }}>

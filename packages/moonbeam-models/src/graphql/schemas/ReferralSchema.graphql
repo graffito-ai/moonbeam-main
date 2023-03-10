@@ -46,8 +46,8 @@ input ListReferralInput {
 
 input CreateReferralInput {
     id: ID!
-    createdAt: AWSDateTime!
-    updatedAt: AWSDateTime!
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
     status: ReferralStatus!
     offerType: OfferType!
     inviteeEmail: String!
@@ -60,7 +60,7 @@ input CreateReferralInput {
 input UpdateReferralInput {
     id: ID!
     createdAt: AWSDateTime
-    updatedAt: AWSDateTime!
+    updatedAt: AWSDateTime
     status: ReferralStatus
     offerType: OfferType
     inviteeEmail: String

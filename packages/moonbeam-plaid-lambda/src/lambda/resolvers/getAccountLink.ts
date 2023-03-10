@@ -1,5 +1,5 @@
 import * as AWS from 'aws-sdk';
-import {AccountLinkDetails, AccountLinkResponse, LinkErrorType, ReferralResponse} from "@moonbeam/moonbeam-models";
+import {AccountLink, AccountLinkResponse, LinkErrorType, ReferralResponse} from "@moonbeam/moonbeam-models";
 
 /**
  * GetAccountLink resolver
@@ -12,7 +12,7 @@ export const getAccountLink = async (id: string): Promise<AccountLinkResponse> =
     const docClient = new AWS.DynamoDB.DocumentClient();
 
     try {
-        // retrieve the referral object given the account link id (user id)
+        // retrieve the account link object given the account link id (user id)
         const {Item} = await docClient.get({
             TableName: process.env.ACCOUNT_LINKS!,
             Key: {id: id}
@@ -20,7 +20,7 @@ export const getAccountLink = async (id: string): Promise<AccountLinkResponse> =
 
         // return the retrieved account link
         return {
-            data: Item as AccountLinkDetails
+            data: Item as AccountLink
         }
     } catch (err) {
         console.log(`Unexpected error while executing getAccountLink query {}`, err);

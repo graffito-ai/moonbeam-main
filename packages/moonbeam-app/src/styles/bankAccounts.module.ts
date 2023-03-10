@@ -82,5 +82,20 @@ export const styles = StyleSheet.create({
         fontFamily: 'Raleway-Bold',
         fontSize: 15,
         color: '#2A3779'
+    },
+    modalContainer: {
+        alignSelf: 'center',
+        backgroundColor: 'white',
+        width: 350,
+        borderRadius: 15,
+        padding: 20,
+        borderWidth: 1,
+        borderColor: 'grey'
+    },
+    modalButton: {
+        borderRadius: 25,
+        borderColor: 'grey',
+        height: 40,
+        width: 300
     }
 });

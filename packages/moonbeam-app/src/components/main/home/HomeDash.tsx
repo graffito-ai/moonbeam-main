@@ -1,9 +1,9 @@
 import {Dimensions, SafeAreaView, ScrollView, Text, View} from 'react-native';
-import {styles} from "../styles/homeDash.module";
+import {styles} from "../../../styles/homeDash.module";
 import React, {useEffect, useState} from 'react';
 import {Divider, List, SegmentedButtons} from 'react-native-paper';
-import {commonStyles} from '../styles/common.module';
-import {HomeDashProps} from "../models/HomeStackProps";
+import {commonStyles} from '../../../styles/common.module';
+import {HomeDashProps} from "../../../models/HomeStackProps";
 
 /**
  * HomeDash component.

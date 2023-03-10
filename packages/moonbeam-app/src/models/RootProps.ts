@@ -25,6 +25,7 @@ export type RootStackParamList = {
         initialRender: boolean;
     },
     Dashboard: {
+        oauthStateId?: string,
         currentUserInformation: any
     }
 };

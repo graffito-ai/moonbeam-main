@@ -19,3 +19,40 @@ mutation UpdateReferral($updateReferralInput: UpdateReferralInput!) {
         }
     }
 }
+
+mutation CreateAccountLink($createAccountLinkInput: CreateAccountLinkInput!) {
+    createAccountLink(createAccountLinkInput: $createAccountLinkInput) {
+        errorType
+        errorMessage
+        data {
+            id
+            links {
+                linkToken
+                accessToken
+            }
+        }
+    }
+}
+
+mutation UpdateAccountLink($updateAccountLinkInput: UpdateAccountLinkInput!) {
+    updateAccountLink(updateAccountLinkInput: $updateAccountLinkInput) {
+        errorType
+        errorMessage
+        data {
+            id
+            links {
+                accounts {
+                    id
+                    name
+                    mask
+                    type
+                    verificationStatus
+                }
+                institution {
+                    name
+                    id
+                }
+            }
+        }
+    }
+}

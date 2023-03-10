@@ -48,6 +48,8 @@ export namespace Constants {
         export const ENV_NAME: string = 'ENV_NAME';
         export const ACCOUNT_LINKS: string = 'ACCOUNT_LINKS';
         export const AWS_REGION: string = 'AWS_REGION';
+        // General related
+        export const NONE_OR_ABSENT: string = 'N/A';
     }
     // AWS Secrets Manager (pair-based constants)
     export namespace AWSPairConstants {

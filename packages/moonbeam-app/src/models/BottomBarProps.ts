@@ -13,6 +13,7 @@ export type BottomBarStackParamList = {
         currentUserInformation: any;
     }
     Settings: {
+        oauthStateId?: string,
         setBottomTabNavigationShown: React.Dispatch<React.SetStateAction<boolean>>;
         currentUserInformation: any;
     }

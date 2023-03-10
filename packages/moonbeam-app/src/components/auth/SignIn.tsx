@@ -1,16 +1,17 @@
 import React, {useEffect, useState} from 'react';
 import {Image, ImageBackground, Platform, Text, View} from 'react-native';
 import {Button, TextInput} from 'react-native-paper';
-import {styles} from '../styles/signIn.module';
+import {styles} from '../../styles/signIn.module';
 // @ts-ignore
-import LoginLogo from '../../assets/login-logo.png';
-import {SignInProps} from '../models/RootProps'
-import {commonStyles} from '../styles/common.module';
+import LoginLogo from '../../../assets/login-logo.png';
+import {SignInProps} from '../../models/RootProps'
+import {commonStyles} from '../../styles/common.module';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 // @ts-ignore
 import {useValidation} from 'react-native-form-validator';
 import {API, Auth, graphqlOperation} from 'aws-amplify';
-import {listReferrals, ReferralStatus, updateReferral} from '@moonbeam/moonbeam-models';
+import {listReferrals, ReferralStatus, updateReferral} from "@moonbeam/moonbeam-models";
+import * as SecureStore from "expo-secure-store";
 
 /**
  * Sign In component.
@@ -172,17 +173,13 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
                             // update the list of referrals for the inviter, and the points
                             let itemCount = 0;
                             while (itemCount < inviterList.length) {
-                                // create a timestamp to keep track of when the referral was last updated
-                                const updatedAt = new Date().toISOString();
-
                                 // update the referral object in the list of referrals, accordingly
                                 const updatesReferral = await API.graphql(graphqlOperation(updateReferral, {
                                     updateReferralInput:
                                         {
                                             // @ts-ignore
                                             id: `${inviterList[itemCount].id}`,
-                                            statusInviter: ReferralStatus.Redeemed,
-                                            updatedAt: updatedAt
+                                            statusInviter: ReferralStatus.Redeemed
                                         }
                                 }));
                                 // @ts-ignore
@@ -209,17 +206,13 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
                                 let itemCount = 0;
                                 // update the list of referrals for the invitee, and the points
                                 while (itemCount < inviteeList.length) {
-                                    // create a timestamp to keep track of when the referral was last updated
-                                    const updatedAt = new Date().toISOString();
-
                                     // update the referral object in the list of referrals, accordingly
                                     const updatesReferral = await API.graphql(graphqlOperation(updateReferral, {
                                         updateReferralInput:
                                             {
                                                 // @ts-ignore
                                                 id: `${inviteeList[itemCount].id}`,
-                                                statusInvitee: ReferralStatus.Redeemed,
-                                                updatedAt: updatedAt
+                                                statusInvitee: ReferralStatus.Redeemed
                                             }
                                     }));
                                     // @ts-ignore
@@ -261,12 +254,12 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
                             return [false, null];
                         }
                     } else {
-                        console.log(`Unexpected error while retrieving the list of Invitee-based referrals ${inviteeResult}`);
+                        console.log(`Unexpected error while retrieving the list of Invitee-based referrals ${JSON.stringify(inviteeResult)}`);
                         setPasswordErrors([`Unexpected error while Signing In`]);
                         return [false, null];
                     }
                 } else {
-                    console.log(`Unexpected error while retrieving the list of Inviter-based referrals ${inviterResult}`);
+                    console.log(`Unexpected error while retrieving the list of Inviter-based referrals ${JSON.stringify(inviterResult)}`);
                     setPasswordErrors([`Unexpected error while Signing In`]);
                     return [false, null];
                 }
@@ -298,7 +291,7 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
             imageStyle={{
                 resizeMode: 'stretch'
             }}
-            source={require('../../assets/login-background.png')}>
+            source={require('../../../assets/login-background.png')}>
             <KeyboardAwareScrollView
                 enableOnAndroid={true}
                 enableAutomaticScroll={(Platform.OS === 'ios')}
@@ -381,6 +374,11 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
                                 if (emailErrors.length === 0 || passwordErrors.length === 0) {
                                     const [signedInFlag, userInformation] = await confirmSignIn(email, password);
                                     if (signedInFlag) {
+                                        // clear the username and password
+                                        setPassword("");
+                                        setEmail("");
+                                        // store the user information in secure store, in order to handle deeplinks later on
+                                        await SecureStore.setItemAsync('currentUserInformation', JSON.stringify(userInformation));
                                         navigation.navigate('Dashboard', {currentUserInformation: userInformation});
                                     }
                                 }
@@ -398,6 +396,9 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
                         <Text style={styles.loginFooter}>Don't have an account ?
                             <Text style={styles.loginFooterButton}
                                   onPress={() => {
+                                      // clear the username and password
+                                      setPassword("");
+                                      setEmail("");
                                       navigation.navigate('SignUp', {initialRender: true})
                                   }}> Sign up</Text>
                         </Text>

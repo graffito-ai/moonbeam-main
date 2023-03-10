@@ -1,15 +1,15 @@
 import React, {useEffect, useState} from "react";
 import {Dimensions, Image, ImageBackground, Keyboard, Platform, SafeAreaView, ScrollView, View} from "react-native";
-import {ForgotPasswordProps} from "../models/RootProps";
-import {commonStyles} from "../styles/common.module";
+import {ForgotPasswordProps} from "../../models/RootProps";
+import {commonStyles} from "../../styles/common.module";
 // @ts-ignore
 import {ProgressStep, ProgressSteps} from 'react-native-progress-steps';
 import {Button, Modal, Portal, Text, TextInput} from "react-native-paper";
-import {styles} from "../styles/forgotPassword.module";
+import {styles} from "../../styles/forgotPassword.module";
 // @ts-ignore
 import {useValidation} from 'react-native-form-validator';
 // @ts-ignore
-import ForgotPasswordLogo from '../../assets/login-logo.png';
+import ForgotPasswordLogo from '../../../assets/login-logo.png';
 import {Auth} from 'aws-amplify';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view'
 
@@ -186,10 +186,7 @@ export const ForgotPassword = ({navigation, route}: ForgotPasswordProps) => {
     const passwordCodeRetrieval = async (username: string): Promise<boolean> => {
         try {
             const forgotPasswordRequest = await Auth.forgotPassword(username);
-            if (forgotPasswordRequest) {
-                return true;
-            }
-            return false;
+            return !!forgotPasswordRequest;
         } catch (error) {
             // @ts-ignore
             setConfirmPasswordErrors([error.message ? error.message : `Unexpected error while confirming identity for resetting password`]);
@@ -205,7 +202,7 @@ export const ForgotPassword = ({navigation, route}: ForgotPasswordProps) => {
      * @param password new password inputted by the user
      * @param code verification code inputted by the user
      */
-    const passwordReset = async (username: string, password: string, code: string) => {
+    const passwordReset = async (username: string, password: string, code: string): Promise<void> => {
         try {
             const forgotPasswordReset = await Auth.forgotPasswordSubmit(username, code, password);
             if (forgotPasswordReset) {
@@ -229,7 +226,7 @@ export const ForgotPassword = ({navigation, route}: ForgotPasswordProps) => {
                 resizeMode: 'stretch'
             }}
             style={commonStyles.image}
-            source={require('../../assets/forgot-password-background.png')}>
+            source={require('../../../assets/forgot-password-background.png')}>
             <Portal>
                 <Modal dismissable={false} visible={modalVisible} onDismiss={() => setModalVisible(false)}
                        contentContainerStyle={[styles.modalContainer, isErrorModal ? {borderColor: 'red'} : {borderColor: 'green'}]}>

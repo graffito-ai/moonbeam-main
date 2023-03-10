@@ -1,17 +1,17 @@
 import React, {useState} from 'react';
 import {Dimensions, Image, SafeAreaView, ScrollView, View} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {commonStyles} from '../styles/common.module';
-import {styles} from '../styles/membership.module';
+import {commonStyles} from '../../../styles/common.module';
+import {styles} from '../../../styles/membership.module';
 // @ts-ignore
-import PointsLogo from '../../assets/points.png';
+import PointsLogo from '../../../../assets/points.png';
 // @ts-ignore
-import WelcomeOffer from '../../assets/welcome-offer.png';
+import WelcomeOffer from '../../../../assets/welcome-offer.png';
 // @ts-ignore
-import FriendReferral from '../../assets/refer-friend.png';
+import FriendReferral from '../../../../assets/refer-friend.png';
 import {Button, Card, Divider, Text} from 'react-native-paper';
 import {Auth} from 'aws-amplify';
-import {MembershipProfileProps} from "../models/MembershipStackProps";
+import {MembershipProfileProps} from "../../../models/MembershipStackProps";
 
 /**
  * MembershipProfile component.
@@ -54,7 +54,7 @@ export const MembershipProfile = ({route}: MembershipProfileProps) => {
         } catch (error) {
             // @ts-ignore
             console.log(error.message ? `Unexpected error while redeeming points: ${JSON.stringify(error.message)}` : `Unexpected error while signing in`);
-            // need to create a modal with errors
+            // ToDo: need to create a modal with errors
         }
     }
 

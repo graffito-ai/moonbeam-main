@@ -8,6 +8,9 @@ export type SettingsStackParamList = {
         currentUserInformation: any;
     },
     BankAccounts: {
+        oauthStateId?: string,
+        currentUserInformation: any;
+        setIsHeaderShown?: React.Dispatch<React.SetStateAction<boolean>>;
         setBottomTabNavigationShown?: React.Dispatch<React.SetStateAction<boolean>>;
     }
 };

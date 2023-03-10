@@ -1,4 +1,4 @@
-// This is a file used to define the all GraphQL query examples
+// This is a file used to define the all GraphQL query constants
 
 // Query used to retrieve a referral based on its id
 export const getReferral = /* GraphQL */ `
@@ -23,6 +23,27 @@ export const listReferrals = /* GraphQL */ `
             errorType
             data {
                 id
+            }
+        }
+    }
+`;
+
+// Query used to retrieve a bank account link based on its id (user id)
+export const getAccountLink = /* GraphQL */ `
+    query GetAccountLink($id: String!) {
+        getAccountLink(id: $id) {
+            errorMessage
+            errorType
+            data {
+                id
+                links {
+                    accounts {
+                        id
+                    }
+                    publicToken
+                    accessToken
+                    linkToken
+                }
             }
         }
     }

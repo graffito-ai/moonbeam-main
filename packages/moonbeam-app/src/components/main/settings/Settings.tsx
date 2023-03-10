@@ -1,12 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {SettingsTabProps} from '../models/BottomBarProps';
+import {SettingsTabProps} from '../../../models/BottomBarProps';
 import {NavigationContainer} from '@react-navigation/native';
-import {SettingsStackParamList} from "../models/SettingsStackProps";
+import {SettingsStackParamList} from "../../../models/SettingsStackProps";
 import {SettingsList} from "./SettingsList";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
-import {BankAccounts} from "./BankAccounts";
-import {Navbar} from "./Navbar";
+import {BankAccounts} from "./accounts/BankAccounts";
+import {Navbar} from "../../common/Navbar";
 import {IconButton} from "react-native-paper";
+import * as Linking from "expo-linking";
 
 /**
  * Settings component.
@@ -18,6 +19,9 @@ export const Settings = ({route}: SettingsTabProps) => {
     // create a state to keep track of whether the bottom tab navigation is shown or not
     const [bottomTabNavigationShown, setBottomTabNavigationShown] = useState<boolean>(true);
 
+    // create a state to keep track of whether the top header is shown or not
+    const [headerIsShown, setIsHeaderShown] = useState<boolean>(true);
+
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
      * auth-related functionality for example), as well as any afferent API calls.
@@ -27,13 +31,36 @@ export const Settings = ({route}: SettingsTabProps) => {
      */
     useEffect(() => {
         route.params.setBottomTabNavigationShown(bottomTabNavigationShown);
-    }, [bottomTabNavigationShown]);
+    }, [route, bottomTabNavigationShown]);
+
+    // enabling the linking configuration for creating links to the application screens, based on the navigator
+    const config = {
+        screens: {
+            BankAccounts: {
+                path: 'dashboard/:oauthStateId',
+                parse: {
+                    oauthStateId: (oauthStateId: string) => oauthStateId
+                }
+            }
+        },
+    };
+
+    /**
+     * configuring the navigation linking, based on the types of prefixes that the application supports, given
+     * the environment that we deployed the application in.
+     * @see https://docs.expo.dev/guides/linking/?redirected
+     * @see https://reactnavigation.org/docs/deep-linking/
+     */
+    const linking = {
+        prefixes: [Linking.createURL('/')],
+        config,
+    };
 
     // return the component for the Settings page
     return (
-        <NavigationContainer independent={true}>
+        <NavigationContainer linking={linking} independent={true}>
             <Stack.Navigator
-                initialRouteName={"SettingsList"}
+                initialRouteName={route.params.oauthStateId ? "BankAccounts" : "SettingsList"}
                 screenOptions={({navigation}) => {
                     return({
                         headerLeft: () => {
@@ -71,7 +98,13 @@ export const Settings = ({route}: SettingsTabProps) => {
                     name="BankAccounts"
                     component={BankAccounts}
                     initialParams={{
+                        oauthStateId: route.params.oauthStateId,
+                        currentUserInformation: route.params.currentUserInformation,
+                        setIsHeaderShown: setIsHeaderShown,
                         setBottomTabNavigationShown: setBottomTabNavigationShown
+                    }}
+                    options={{
+                        headerShown: headerIsShown
                     }}
                 />
             </Stack.Navigator>

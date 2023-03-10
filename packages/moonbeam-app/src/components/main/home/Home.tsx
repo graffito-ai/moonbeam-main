@@ -1,14 +1,14 @@
-import {HomeTabProps} from '../models/BottomBarProps';
+import {HomeTabProps} from '../../../models/BottomBarProps';
 import React, {useEffect, useState} from 'react';
 // @ts-ignore
-import HomeDashboardLogo from '../../assets/login-logo.png';
+import HomeDashboardLogo from '../../../../assets/login-logo.png';
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {IconButton} from "react-native-paper";
-import {HomeStackParamList} from "../models/HomeStackProps";
+import {HomeStackParamList} from "../../../models/HomeStackProps";
 import {HomeDash} from "./HomeDash";
 import {CommonActions} from "@react-navigation/native";
 import {HomeReferral} from "./HomeReferral";
-import {Navbar} from "./Navbar";
+import {Navbar} from "../../common/Navbar";
 
 /**
  * Home component.

@@ -20,8 +20,8 @@ type AppSyncEvent = {
     arguments: {
         id: string,
         filter: ListReferralInput
-        createInput: CreateReferralInput
-        updateInput: UpdateReferralInput
+        createReferralInput: CreateReferralInput
+        updateReferralInput: UpdateReferralInput
     },
     identity: {
         sub : string;
@@ -43,9 +43,9 @@ exports.handler = async (event: AppSyncEvent): Promise<ReferralResponse> => {
         case "listReferrals":
             return await listReferrals(event.arguments.filter);
         case "createReferral":
-            return await createReferral(event.arguments.createInput);
+            return await createReferral(event.arguments.createReferralInput);
         case "updateReferral":
-            return await updateReferral(event.arguments.updateInput);
+            return await updateReferral(event.arguments.updateReferralInput);
         default:
             console.log(`Unexpected field name: {}`, event.info.fieldName);
             return {

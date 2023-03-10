@@ -23,25 +23,22 @@ enum LinkLogLevel {
 
 enum AccountType {
     CHECKING
-    SAVINGS
+    SAVINGS,
+    UNKNOWN
 }
 
 enum AccountVerificationStatus {
     PENDING,
     VERIFIED,
     EXPIRED,
-    FAILED
+    FAILED,
+    UNKNOWN
 }
 
 enum LinkErrorType {
     NONE_OR_ABSENT
     VALIDATION_ERROR
     UNEXPECTED_ERROR
-}
-
-type LinkTokenConfiguration @aws_cognito_user_pools {
-    token: String!
-    logLevel: LinkLogLevel!
 }
 
 type FinancialInstitution @aws_cognito_user_pools {
@@ -51,10 +48,10 @@ type FinancialInstitution @aws_cognito_user_pools {
 
 type Account @aws_cognito_user_pools {
     id: String!
-    name: String
-    mask: String
+    name: String!
+    mask: String!
     type: AccountType!
-    verificationStatus: AccountVerificationStatus
+    verificationStatus: AccountVerificationStatus!
 }
 
 type AccountLinkError @aws_cognito_user_pools {
@@ -63,42 +60,31 @@ type AccountLinkError @aws_cognito_user_pools {
 }
 
 type AccountLinkDetails @aws_cognito_user_pools {
-    id: ID!
-    userName: String!
-    userEmail: String!
     accounts: [Account]
-    institution: FinancialInstitution
-    linkToken: String
+    linkToken: String!
+    publicToken: String
     accessToken: String
+    itemId: String
     linkSessionId: String
     exitStatus: String
     accountLinkError: AccountLinkError
-    requestId: String
+    requestId: String!
+    institution: FinancialInstitution
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+}
+
+type AccountLink @aws_cognito_user_pools {
+    id: ID!
+    userName: String
+    userEmail: String
+    links: [AccountLinkDetails]!
 }
 
 type AccountLinkResponse @aws_cognito_user_pools {
-    data: AccountLinkDetails
+    data: AccountLink
     errorType: LinkErrorType
     errorMessage: String
-}
-
-input CreateAccountLinkInput {
-    id: ID!
-    userName: String!
-    userEmail: String!
-}
-
-input AccountInput {
-    id: String!
-    name: String
-    mask: String
-    type: AccountType!
-    verificationStatus: AccountVerificationStatus
-}
-
-input FinancialInstitutionInput {
-    name: String
-    id: String
 }
 
 input AccountLinkErrorInput {
@@ -106,14 +92,45 @@ input AccountLinkErrorInput {
     errorType: String!
 }
 
-input UpdateAccountLinkInput {
-    id: ID!
+input FinancialInstitutionInput {
+    name: String!
+    id: String!
+}
+
+input AccountInput {
+    id: String!
+    name: String!
+    mask: String!
+    type: AccountType!
+    verificationStatus: AccountVerificationStatus!
+}
+
+input AccountLinkDetailsInput {
     accounts: [AccountInput]
-    institution: FinancialInstitutionInput
+    linkToken: String!
+    publicToken: String
     accessToken: String
+    itemId: String
+    linkSessionId: String
     exitStatus: String
     accountLinkError: AccountLinkErrorInput
     requestId: String
+    institution: FinancialInstitutionInput
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+}
+
+input CreateAccountLinkInput {
+    id: ID!
+    userName: String!
+    userEmail: String!
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+}
+
+input UpdateAccountLinkInput {
+    id: ID!
+    accountLinkDetails: AccountLinkDetailsInput!
 }
 # graphql/ReferralSchema.graphql
 # Amplify Referral Schema File
@@ -163,8 +180,8 @@ input ListReferralInput {
 
 input CreateReferralInput {
     id: ID!
-    createdAt: AWSDateTime!
-    updatedAt: AWSDateTime!
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
     status: ReferralStatus!
     offerType: OfferType!
     inviteeEmail: String!
@@ -177,7 +194,7 @@ input CreateReferralInput {
 input UpdateReferralInput {
     id: ID!
     createdAt: AWSDateTime
-    updatedAt: AWSDateTime!
+    updatedAt: AWSDateTime
     status: ReferralStatus
     offerType: OfferType
     inviteeEmail: String

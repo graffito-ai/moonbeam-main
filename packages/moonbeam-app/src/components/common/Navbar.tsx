@@ -1,15 +1,15 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {NativeStackHeaderProps} from "@react-navigation/native-stack";
-import {commonStyles} from "../styles/common.module";
-import {styles} from '../styles/navBar.module';
+import {commonStyles} from "../../styles/common.module";
+import {styles} from '../../styles/navBar.module';
 import {Dimensions, Image, ImageBackground, View} from "react-native";
 import {Text} from "react-native-paper";
 import {Avatar} from "@rneui/themed";
 import * as Progress from 'react-native-progress';
 // @ts-ignore
-import HomeDashboardLogo from "../../assets/login-logo.png";
+import HomeDashboardLogo from "../../../assets/login-logo.png";
 import {IconButton} from "react-native-paper/";
-import {HomeStackParamList} from "../models/HomeStackProps";
+import {HomeStackParamList} from "../../models/HomeStackProps";
 
 /**
  * NavBar component.
@@ -39,7 +39,7 @@ export const Navbar = (props: NativeStackHeaderProps & (HomeStackParamList["Home
      * included in here.
      */
     useEffect(() => {
-        if (props.currentUserInformation!) {
+        if (props.currentUserInformation) {
             // set the title of the user's avatar in the dashboard, based on the user's information
             const secondInitial = props.currentUserInformation["name"].split(" ").length > 2 ? 2 : 1;
             setCurrentUserTitle(`${Array.from(props.currentUserInformation["name"].split(" ")[0])[0] as string}${Array.from(props.currentUserInformation["name"].split(" ")[secondInitial])[0] as string}`);
@@ -57,7 +57,7 @@ export const Navbar = (props: NativeStackHeaderProps & (HomeStackParamList["Home
                             opacity: 0.6,
                             alignSelf: 'center'
                         }}
-                        source={require('../../assets/top-bar-background.png')}>
+                        source={require('../../../assets/top-bar-background.png')}>
                         <View style={commonStyles.insideNavbarBarView}>
                             <Text style={commonStyles.insideNavbarBarText}>
                                 {props.options.headerTitle}
@@ -72,58 +72,58 @@ export const Navbar = (props: NativeStackHeaderProps & (HomeStackParamList["Home
                             opacity: 0.6,
                             alignSelf: 'center'
                         }}
-                        source={require('../../assets/home-top-bar-background.png')}>
-                    <View style={styles.insideDashboardView}>
-                        <View style={styles.dashboardColumnItemFirst}>
-                            <Avatar
-                                size={38}
-                                rounded
-                                title={currentUserTitle}
-                                containerStyle={{backgroundColor: 'grey'}}
-                            >
-                                <Avatar.Accessory onPress={() => console.log("PRESSSEd")} size={12}/>
-                            </Avatar>
-                        </View>
-                        <View style={styles.dashboardColumnItemMiddle}>
-                            <Progress.Circle
-                                direction={"counter-clockwise"}
-                                size={Dimensions.get('window').width / 1.75}
-                                strokeCap={"butt"}
-                                thickness={Dimensions.get('window').width / 40}
-                                progress={dashboardCircleProgress}
-                                color={"#2A3779"}
-                                showsText={true}
-                                formatText={() => {
-                                    return (
-                                        <View>
-                                            <View style={styles.dashboardBalanceTopView}>
-                                                <Text style={styles.balanceDashboardTitle}>Credit</Text>
-                                                <Text
-                                                    style={styles.balanceDashboardBalanceTotal}>${creditBalance}</Text>
-                                            </View>
+                        source={require('../../../assets/home-top-bar-background.png')}>
+                        <View style={styles.insideDashboardView}>
+                            <View style={styles.dashboardColumnItemFirst}>
+                                <Avatar
+                                    size={38}
+                                    rounded
+                                    title={currentUserTitle}
+                                    containerStyle={{backgroundColor: 'grey'}}
+                                >
+                                    <Avatar.Accessory onPress={() => console.log("PRESSSEd")} size={12}/>
+                                </Avatar>
+                            </View>
+                            <View style={styles.dashboardColumnItemMiddle}>
+                                <Progress.Circle
+                                    direction={"counter-clockwise"}
+                                    size={Dimensions.get('window').width / 1.75}
+                                    strokeCap={"butt"}
+                                    thickness={Dimensions.get('window').width / 40}
+                                    progress={dashboardCircleProgress}
+                                    color={"#2A3779"}
+                                    showsText={true}
+                                    formatText={() => {
+                                        return (
                                             <View>
-                                                <Image source={HomeDashboardLogo} style={styles.homeDashboardLogo}/>
-                                            </View>
-                                            <View>
-                                                <Text
-                                                    style={styles.balanceDashboardBalanceAvailable}>${availableBalance + props.pointValueRedeemed!}
+                                                <View style={styles.dashboardBalanceTopView}>
+                                                    <Text style={styles.balanceDashboardTitle}>Credit</Text>
                                                     <Text
-                                                        style={styles.balanceDashboardBalanceAvailableText}> Available</Text></Text>
+                                                        style={styles.balanceDashboardBalanceTotal}>${creditBalance}</Text>
+                                                </View>
+                                                <View>
+                                                    <Image source={HomeDashboardLogo} style={styles.homeDashboardLogo}/>
+                                                </View>
+                                                <View>
+                                                    <Text
+                                                        style={styles.balanceDashboardBalanceAvailable}>${availableBalance + props.pointValueRedeemed!}
+                                                        <Text
+                                                            style={styles.balanceDashboardBalanceAvailableText}> Available</Text></Text>
+                                                </View>
                                             </View>
-                                        </View>
-                                    )
-                                }}
-                            />
+                                        )
+                                    }}
+                                />
+                            </View>
+                            <View style={styles.dashboardColumnItemLast}>
+                                <IconButton
+                                    icon="bell"
+                                    iconColor={"#A2B000"}
+                                    size={30}
+                                    onPress={() => console.log('Notifications Pressed')}
+                                />
+                            </View>
                         </View>
-                        <View style={styles.dashboardColumnItemLast}>
-                            <IconButton
-                                icon="bell"
-                                iconColor={"#A2B000"}
-                                size={30}
-                                onPress={() => console.log('Notifications Pressed')}
-                            />
-                        </View>
-                    </View>
                     </ImageBackground>
                     <View style={[styles.dashboardButtonView, {marginTop: Dimensions.get('window').width / 6.75}]}>
                         <View style={styles.dashboardButtonLeft}>

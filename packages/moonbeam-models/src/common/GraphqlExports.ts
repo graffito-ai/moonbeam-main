@@ -24,18 +24,26 @@ export type Scalars = {
 export type Account = {
   __typename?: 'Account';
   id: Scalars['String'];
-  mask?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['String']>;
+  mask: Scalars['String'];
+  name: Scalars['String'];
   type: AccountType;
-  verificationStatus?: Maybe<AccountVerificationStatus>;
+  verificationStatus: AccountVerificationStatus;
 };
 
 export type AccountInput = {
   id: Scalars['String'];
-  mask?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
+  mask: Scalars['String'];
+  name: Scalars['String'];
   type: AccountType;
-  verificationStatus?: InputMaybe<AccountVerificationStatus>;
+  verificationStatus: AccountVerificationStatus;
+};
+
+export type AccountLink = {
+  __typename?: 'AccountLink';
+  id: Scalars['ID'];
+  links: Array<Maybe<AccountLinkDetails>>;
+  userEmail?: Maybe<Scalars['String']>;
+  userName?: Maybe<Scalars['String']>;
 };
 
 export type AccountLinkDetails = {
@@ -43,14 +51,30 @@ export type AccountLinkDetails = {
   accessToken?: Maybe<Scalars['String']>;
   accountLinkError?: Maybe<AccountLinkError>;
   accounts?: Maybe<Array<Maybe<Account>>>;
+  createdAt: Scalars['AWSDateTime'];
   exitStatus?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
   institution?: Maybe<FinancialInstitution>;
+  itemId?: Maybe<Scalars['String']>;
   linkSessionId?: Maybe<Scalars['String']>;
-  linkToken?: Maybe<Scalars['String']>;
-  requestId?: Maybe<Scalars['String']>;
-  userEmail: Scalars['String'];
-  userName: Scalars['String'];
+  linkToken: Scalars['String'];
+  publicToken?: Maybe<Scalars['String']>;
+  requestId: Scalars['String'];
+  updatedAt: Scalars['AWSDateTime'];
+};
+
+export type AccountLinkDetailsInput = {
+  accessToken?: InputMaybe<Scalars['String']>;
+  accountLinkError?: InputMaybe<AccountLinkErrorInput>;
+  accounts?: InputMaybe<Array<InputMaybe<AccountInput>>>;
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+  exitStatus?: InputMaybe<Scalars['String']>;
+  institution?: InputMaybe<FinancialInstitutionInput>;
+  itemId?: InputMaybe<Scalars['String']>;
+  linkSessionId?: InputMaybe<Scalars['String']>;
+  linkToken: Scalars['String'];
+  publicToken?: InputMaybe<Scalars['String']>;
+  requestId?: InputMaybe<Scalars['String']>;
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
 export type AccountLinkError = {
@@ -66,31 +90,35 @@ export type AccountLinkErrorInput = {
 
 export type AccountLinkResponse = {
   __typename?: 'AccountLinkResponse';
-  data?: Maybe<AccountLinkDetails>;
+  data?: Maybe<AccountLink>;
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<LinkErrorType>;
 };
 
 export enum AccountType {
   Checking = 'CHECKING',
-  Savings = 'SAVINGS'
+  Savings = 'SAVINGS',
+  Unknown = 'UNKNOWN'
 }
 
 export enum AccountVerificationStatus {
   Expired = 'EXPIRED',
   Failed = 'FAILED',
   Pending = 'PENDING',
+  Unknown = 'UNKNOWN',
   Verified = 'VERIFIED'
 }
 
 export type CreateAccountLinkInput = {
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
   id: Scalars['ID'];
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
   userEmail: Scalars['String'];
   userName: Scalars['String'];
 };
 
 export type CreateReferralInput = {
-  createdAt: Scalars['AWSDateTime'];
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
   id: Scalars['ID'];
   inviteeEmail: Scalars['String'];
   inviterEmail: Scalars['String'];
@@ -99,7 +127,7 @@ export type CreateReferralInput = {
   status: ReferralStatus;
   statusInvitee: ReferralStatus;
   statusInviter: ReferralStatus;
-  updatedAt: Scalars['AWSDateTime'];
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
 export type FinancialInstitution = {
@@ -109,8 +137,8 @@ export type FinancialInstitution = {
 };
 
 export type FinancialInstitutionInput = {
-  id?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
+  id: Scalars['String'];
+  name: Scalars['String'];
 };
 
 export enum LinkErrorType {
@@ -125,12 +153,6 @@ export enum LinkLogLevel {
   Info = 'INFO',
   Warn = 'WARN'
 }
-
-export type LinkTokenConfiguration = {
-  __typename?: 'LinkTokenConfiguration';
-  logLevel: LinkLogLevel;
-  token: Scalars['String'];
-};
 
 export type ListReferralInput = {
   inviteeEmail?: InputMaybe<Scalars['String']>;
@@ -229,13 +251,8 @@ export enum ReferralStatus {
 }
 
 export type UpdateAccountLinkInput = {
-  accessToken?: InputMaybe<Scalars['String']>;
-  accountLinkError?: InputMaybe<AccountLinkErrorInput>;
-  accounts?: InputMaybe<Array<InputMaybe<AccountInput>>>;
-  exitStatus?: InputMaybe<Scalars['String']>;
+  accountLinkDetails: AccountLinkDetailsInput;
   id: Scalars['ID'];
-  institution?: InputMaybe<FinancialInstitutionInput>;
-  requestId?: InputMaybe<Scalars['String']>;
 };
 
 export type UpdateReferralInput = {
@@ -248,7 +265,7 @@ export type UpdateReferralInput = {
   status?: InputMaybe<ReferralStatus>;
   statusInvitee?: InputMaybe<ReferralStatus>;
   statusInviter?: InputMaybe<ReferralStatus>;
-  updatedAt: Scalars['AWSDateTime'];
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
 export type GetReferralQueryVariables = Exact<{
@@ -264,3 +281,10 @@ export type ListReferralsQueryVariables = Exact<{
 
 
 export type ListReferralsQuery = { __typename?: 'Query', listReferrals?: { __typename?: 'ReferralResponse', errorMessage?: string | null, errorType?: ReferralErrorType | null, data?: Array<{ __typename?: 'Referral', id: string } | null> | null } | null };
+
+export type GetAccountLinkQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type GetAccountLinkQuery = { __typename?: 'Query', getAccountLink?: { __typename?: 'AccountLinkResponse', errorMessage?: string | null, errorType?: LinkErrorType | null, data?: { __typename?: 'AccountLink', id: string, links: Array<{ __typename?: 'AccountLinkDetails', publicToken?: string | null, accessToken?: string | null, linkToken: string, institution?: { __typename?: 'FinancialInstitution', name: string, id: string } | null, accounts?: Array<{ __typename?: 'Account', id: string } | null> | null } | null> } | null } | null };

@@ -1,12 +1,12 @@
 import 'react-native-get-random-values';
-import {HomeReferralProps} from "../models/HomeStackProps";
+import {HomeReferralProps} from "../../../models/HomeStackProps";
 import React, {useEffect, useState} from "react";
 import {Image, ImageBackground, SafeAreaView, Share, View} from "react-native";
-import {commonStyles} from "../styles/common.module";
+import {commonStyles} from "../../../styles/common.module";
 import {Button, Modal, Portal, Text} from "react-native-paper";
-import {styles} from "../styles/homeReferral.module";
+import {styles} from "../../../styles/homeReferral.module";
 // @ts-ignore
-import FriendReferral from '../../assets/refer-friend.png';
+import FriendReferral from '../../../../assets/refer-friend.png';
 import {API, graphqlOperation} from "aws-amplify";
 import * as Linking from "expo-linking";
 import {v4 as uuidv4} from 'uuid';
@@ -33,8 +33,11 @@ export const HomeReferral = ({navigation, route}: HomeReferralProps) => {
      * included in here.
      */
     useEffect(() => {
+        // set the user information
         !currentUserName && setCurrentUserEmail(route.params.currentUserInformation["email"].toLowerCase());
         !currentUserEmail && setCurrentUserName(route.params.currentUserInformation["name"]);
+
+        // hide the bottom tab navigation
         route.params.setBottomTabNavigationShown(false);
     }, [route.name]);
 
@@ -50,73 +53,41 @@ export const HomeReferral = ({navigation, route}: HomeReferralProps) => {
                     `${currentUserName} is inviting you to join the Moonbeam Alpha card program, specifically tailored for veterans like you.\nA new member reward of 10,000 Points is waiting for you, once you get approved for the card.\nFollow the link below to continue:\n\n${Linking.createURL('/')}signup/${referralId}`,
             });
             if (result.action === Share.sharedAction) {
-                try {
-                    // create a timestamp to keep track of when the referral was created and last updated
-                    const createdAt = new Date().toISOString();
-
-                    console.log({
-                        id: referralId,
-                        inviteeEmail: "",
-                        inviterEmail: currentUserEmail,
-                        inviterName: currentUserName,
-                        offerType: OfferType.WelcomeReferralBonus,
-                        statusInviter: ReferralStatus.Initiated,
-                        statusInvitee: ReferralStatus.Initiated,
-                        status: ReferralStatus.Initiated,
-                        updatedAt: createdAt,
-                        createdAt: createdAt
-                    });
-
-                    // create a referral object in the list of referrals
-                    const createsReferral = await API.graphql(graphqlOperation(createReferral, {
-                        createReferralInput:
-                            {
-                                id: referralId,
-                                inviteeEmail: "",
-                                inviterEmail: currentUserEmail,
-                                inviterName: currentUserName,
-                                offerType: OfferType.WelcomeReferralBonus,
-                                statusInviter: ReferralStatus.Initiated,
-                                statusInvitee: ReferralStatus.Initiated,
-                                status: ReferralStatus.Initiated,
-                                updatedAt: createdAt,
-                                createdAt: createdAt
-                            }
-                    }));
-                    // @ts-ignore
-                    if (createsReferral && createsReferral.data.createReferral.errorMessage === null) {
-                        setReferralModalVisible(true);
-                        setIsErrorModal(false);
-                        setModalMessage("Successfully shared invite!");
-                    } else {
-                        setReferralModalVisible(true);
-                        setIsErrorModal(true);
-                        // @ts-ignore
-                        setModalMessage(error.message ? error.message : `Unexpected error while creating referral!`);
-                        console.log(`Unexpected error while creating referral for invite: ${createsReferral}`);
-                    }
-                } catch (error) {
+                // create a referral object in the list of referrals
+                const createsReferral = await API.graphql(graphqlOperation(createReferral, {
+                    createReferralInput:
+                        {
+                            id: referralId,
+                            inviteeEmail: "",
+                            inviterEmail: currentUserEmail,
+                            inviterName: currentUserName,
+                            offerType: OfferType.WelcomeReferralBonus,
+                            statusInviter: ReferralStatus.Initiated,
+                            statusInvitee: ReferralStatus.Initiated,
+                            status: ReferralStatus.Initiated
+                        }
+                }));
+                // @ts-ignore
+                if (createsReferral && createsReferral.data.createReferral.errorMessage === null) {
+                    setReferralModalVisible(true);
+                    setIsErrorModal(false);
+                    setModalMessage("Successfully shared invite!");
+                } else {
+                    console.log(`Unexpected error while creating referral for invite: ${JSON.stringify(createsReferral)}`);
                     setReferralModalVisible(true);
                     setIsErrorModal(true);
                     // @ts-ignore
-                    setModalMessage(error.message ? error.message : `Unexpected error for referral!`);
-                    console.log(`Unexpected error while creating referral for invite: ${JSON.stringify(error)}`);
+                    setModalMessage(`Unexpected error while creating referral!`);
                 }
-
-                // if (result.activityType) {
-                //     // shared with activity type of result.activityType
-                // } else {
-                //     // shared
-                // }
             } else if (result.action === Share.dismissedAction) {
                 // dismissed
             }
         } catch (error) {
+            console.log(`Unexpected error while sharing invite: ${JSON.stringify(error)}`);
             setReferralModalVisible(true);
             setIsErrorModal(true);
             // @ts-ignore
-            setModalMessage(error.message ? error.message : `Unexpected error while sharing invitation!`);
-            console.log(`Unexpected error while sharing invite: ${JSON.stringify(error)}`);
+            setModalMessage(`Unexpected error while sharing invitation!`);
         }
     }
 
@@ -128,7 +99,7 @@ export const HomeReferral = ({navigation, route}: HomeReferralProps) => {
                 imageStyle={{
                     resizeMode: 'stretch'
                 }}
-                source={require('../../assets/forgot-password-background.png')}>
+                source={require('../../../../assets/forgot-password-background.png')}>
                 <Portal>
                     <Modal dismissable={false} visible={referralModalVisible}
                            onDismiss={() => setReferralModalVisible(false)}
@@ -149,7 +120,12 @@ export const HomeReferral = ({navigation, route}: HomeReferralProps) => {
                             mode="outlined"
                             labelStyle={{fontSize: 15}}
                             onPress={() => {
-                                isErrorModal ? setReferralModalVisible(false) : navigation.goBack();
+                                if (isErrorModal) {
+                                    setReferralModalVisible(false)
+                                } else {
+                                    route.params.setBottomTabNavigationShown(true)
+                                    navigation.goBack();
+                                }
                             }}>
                             {isErrorModal ? `Try Again` : `Dismiss`}
                         </Button>

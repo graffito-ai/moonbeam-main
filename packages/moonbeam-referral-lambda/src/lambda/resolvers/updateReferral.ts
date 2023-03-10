@@ -17,19 +17,22 @@ type UpdateParams = {
 /**
  * UpdateReferral resolver
  *
- * @param updateInput input to update a referral to
+ * @param updateReferralInput input to update a referral to
  * @returns {@link Promise} of {@link ReferralResponse}
  */
-export const updateReferral = async (updateInput: UpdateReferralInput): Promise<ReferralResponse> => {
+export const updateReferral = async (updateReferralInput: UpdateReferralInput): Promise<ReferralResponse> => {
     // initializing the DynamoDB document client
     const docClient = new AWS.DynamoDB.DocumentClient();
 
     try {
+        // update the timestamps accordingly
+        updateReferralInput.updatedAt = new Date().toISOString();
+
         // build the parameters to passed in, in order to update the referral object
         let params: UpdateParams = {
             TableName: process.env.REFERRAL_TABLE!,
             Key: {
-                id: updateInput.id
+                id: updateReferralInput.id
             },
             ExpressionAttributeValues: {},
             ExpressionAttributeNames: {},
@@ -37,13 +40,13 @@ export const updateReferral = async (updateInput: UpdateReferralInput): Promise<
             ReturnValues: "UPDATED_NEW"
         };
         let prefix = "set ";
-        let attributes = Object.keys(updateInput);
+        let attributes = Object.keys(updateReferralInput);
         for (let i=0; i < attributes.length; i++) {
             let attribute = attributes[i];
             if (attribute !== "id") {
                 params["UpdateExpression"] += prefix + "#" + attribute + " = :" + attribute;
                 // @ts-ignore
-                params["ExpressionAttributeValues"][":" + attribute] = updateInput[attribute];
+                params["ExpressionAttributeValues"][":" + attribute] = updateReferralInput[attribute];
                 params["ExpressionAttributeNames"]["#" + attribute] = attribute;
                 prefix = ", ";
             }
@@ -54,7 +57,7 @@ export const updateReferral = async (updateInput: UpdateReferralInput): Promise<
 
         // return the updated referral object
         return {
-            data: [updateInput as Referral]
+            data: [updateReferralInput as Referral]
         }
     } catch (err) {
         console.log(`Unexpected error while executing updateReferral mutation {}`, err);

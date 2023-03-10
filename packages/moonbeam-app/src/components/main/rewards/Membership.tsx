@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {MembershipTabProps} from '../models/BottomBarProps';
+import {MembershipTabProps} from '../../../models/BottomBarProps';
 import {CommonActions, NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
-import {Navbar} from "./Navbar";
-import {MembershipStackParamList} from "../models/MembershipStackProps";
+import {Navbar} from "../../common/Navbar";
+import {MembershipStackParamList} from "../../../models/MembershipStackProps";
 import {MembershipProfile} from './MembershipProfile';
 
 /**

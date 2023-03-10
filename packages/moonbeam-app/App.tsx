@@ -8,11 +8,11 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {RootStackParamList} from './src/models/RootProps';
 import {theme} from "./src/utils/Theme";
 import {NavigationContainer} from '@react-navigation/native';
-import {SignInComponent} from './src/components/SignIn';
-import {SignUpComponent} from './src/components/SignUp';
-import {EmailVerify} from './src/components/EmailVerify';
-import {ForgotPassword} from './src/components/ForgotPassword';
-import {Dashboard} from './src/components/Dashboard';
+import {SignInComponent} from './src/components/auth/SignIn';
+import {SignUpComponent} from './src/components/auth/SignUp';
+import {EmailVerify} from './src/components/auth/EmailVerify';
+import {ForgotPassword} from './src/components/auth/ForgotPassword';
+import {Dashboard} from './src/components/main/Dashboard';
 import {IconButton, Provider as PaperProvider, Text} from 'react-native-paper';
 import * as Linking from 'expo-linking';
 import * as Font from 'expo-font';
@@ -74,11 +74,9 @@ export default function App() {
             } finally {
                 // tell the application to render
                 setAppIsReady(true);
-                // remove Linking listener
             }
         }
-        prepare().then(() => {
-        });
+        prepare().then(async () => {});
     }, []);
 
     /**
@@ -101,13 +99,21 @@ export default function App() {
         // enabling the linking configuration for creating links to the application screens, based on the navigator
         const config = {
             screens: {
+                SignIn: {
+                    path: '*'
+                },
                 SignUp: {
                     path: 'signup/:referralId',
                     parse: {
                         referralId: (referralId: string) => referralId
                     }
+                },
+                Dashboard: {
+                    path: 'dashboard/:oauthStateId',
+                    parse: {
+                        oauthStateId: (oauthStateId: string) => oauthStateId
+                    }
                 }
-
             },
         };
 
@@ -122,7 +128,7 @@ export default function App() {
             config,
         };
 
-        // return the component for the application
+        // return the main component for the application
         return (
             <PaperProvider theme={theme}>
                 <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
@@ -135,9 +141,9 @@ export default function App() {
                                         icon="chevron-left"
                                         iconColor={"#2A3779"}
                                         size={40}
-                                        style={{marginTop: '-5%',  marginLeft: `-10%`}}
+                                        style={{marginTop: '-5%', marginLeft: `-10%`}}
                                         onPress={() => navigation.goBack()}
-                                    />: <></>)
+                                    /> : <></>)
                                 },
                                 headerTitle: '',
                                 headerTransparent: true,
@@ -176,6 +182,7 @@ export default function App() {
                         />
                         <Stack.Screen
                             name="Dashboard"
+                            // @ts-ignore
                             component={Dashboard}
                             options={{
                                 headerShown: false
