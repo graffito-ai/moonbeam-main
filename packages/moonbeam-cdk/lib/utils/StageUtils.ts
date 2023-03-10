@@ -2,7 +2,7 @@ import {InfrastructureConfiguration} from "../models/InfrastructureConfiguration
 import {App, Environment} from "aws-cdk-lib";
 import {AmplifyStack} from "../stacks/AmplifyStack";
 import {SESStack} from "../stacks/SESStack";
-import { Stages } from "@moonbeam/moonbeam-models";
+import {Stages} from "@moonbeam/moonbeam-models";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -81,14 +81,24 @@ export class StageUtils {
                             authenticatedRoleName: stageConfiguration.amplifyConfig!.amplifyAuthConfig!.authenticatedRoleName,
                             unauthenticatedRoleName: stageConfiguration.amplifyConfig!.amplifyAuthConfig!.unauthenticatedRoleName,
                         },
+                        appSyncConfig: {
+                            graphqlApiName: stageConfiguration.amplifyConfig!.appSyncConfig!.graphqlApiName
+                        },
                         referralConfig: {
-                            referralGraphqlApiName: stageConfiguration.amplifyConfig!.referralConfig!.referralGraphqlApiName,
                             referralFunctionName: stageConfiguration.amplifyConfig!.referralConfig!.referralFunctionName,
                             referralTableName: stageConfiguration.amplifyConfig!.referralConfig!.referralTableName,
                             getResolverName: stageConfiguration.amplifyConfig!.referralConfig!.getResolverName,
                             listResolverName: stageConfiguration.amplifyConfig!.referralConfig!.listResolverName,
                             createResolverName: stageConfiguration.amplifyConfig!.referralConfig!.createResolverName,
                             updateResolverName: stageConfiguration.amplifyConfig!.referralConfig!.updateResolverName
+                        },
+                        accountLinkingConfig: {
+                            accountLinkingFunctionName: stageConfiguration.amplifyConfig!.accountLinkingConfig!.accountLinkingFunctionName,
+                            accountLinkingTableName: stageConfiguration.amplifyConfig!.accountLinkingConfig!.accountLinkingTableName,
+                            getAccountLink: stageConfiguration.amplifyConfig!.accountLinkingConfig!.getAccountLink,
+                            listAccountLinks: stageConfiguration.amplifyConfig!.accountLinkingConfig!.listAccountLinks,
+                            createAccountLink: stageConfiguration.amplifyConfig!.accountLinkingConfig!.createAccountLink,
+                            updateAccountLink: stageConfiguration.amplifyConfig!.accountLinkingConfig!.updateAccountLink
                         }
                     },
                     environmentVariables: stageConfiguration.environmentVariables

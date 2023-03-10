@@ -1,4 +1,4 @@
-// This is a file used to define the all GraphQL queries
+// This is a file used to define the all GraphQL query examples
 
 // Query used to retrieve a referral based on its id
 export const getReferral = /* GraphQL */ `

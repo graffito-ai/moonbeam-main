@@ -1,11 +1,12 @@
 overwrite: true
 schema:
-  - ./src/graphql/referralSchema.graphql
-  - ./src/graphql/appsync.graphql
-  - ./src/graphql/awsDirectives.graphql
+  - ./src/graphql/schemas/Root.graphql
+  - ./src/graphql/schemas/RootTypes.graphql
+  - ./src/graphql/schemas/ReferralSchema.graphql
+  - ./src/graphql/schemas/AccountLinkSchema.graphql
 documents:
-  - ./src/graphql/queries.graphql
-  - ./src/graphql/mutations.graphql
+  - ./src/graphql/queries/Queries.graphql
+  - ./src/graphql/queries/Mutations.graphql
 config:
   scalars:
     AWSJSON: string

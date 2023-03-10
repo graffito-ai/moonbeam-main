@@ -17,6 +17,7 @@ import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 // @ts-ignore
 import FriendReferral from '../../assets/refer-friend.png';
 import { getReferral, ReferralResponse, ReferralStatus } from "@moonbeam/moonbeam-models";
+import {v4 as uuidv4} from 'uuid';
 
 /**
  * Sign Up component.
@@ -258,7 +259,8 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
                     'custom:duty_station': dutyStation,
                     'custom:duty_status': dutyStatus,
                     'custom:military_rank': militaryRank,
-                    'custom:points': '0'
+                    'custom:points': '0',
+                    'custom:userId': uuidv4()
                 },
             });
             if (signUp) {
@@ -275,8 +277,15 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
             }
         } catch (error) {
             // @ts-ignore
+            if (error.message && error.message === "An account with the given email already exists.") {
+                // @ts-ignore
+                setSignUpModalError(error.message);
+            } else {
+                setSignUpModalError('Unexpected error while Signing Up');
+            }
+
+            // @ts-ignore
             console.log(error.message ? `Unexpected error while Signing Up: ${JSON.stringify(error.message)}` : `Unexpected error while Signing Up: ${JSON.stringify(error)}`);
-            setSignUpModalError('Unexpected error while Signing Up');
             setSignUpErrorModalVisible(true);
         }
     }

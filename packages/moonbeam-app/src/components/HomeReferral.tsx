@@ -33,8 +33,8 @@ export const HomeReferral = ({navigation, route}: HomeReferralProps) => {
      * included in here.
      */
     useEffect(() => {
-        currentUserName && setCurrentUserEmail(route.params.currentUserInformation["email"].toLowerCase());
-        currentUserEmail && setCurrentUserName(route.params.currentUserInformation["name"]);
+        !currentUserName && setCurrentUserEmail(route.params.currentUserInformation["email"].toLowerCase());
+        !currentUserEmail && setCurrentUserName(route.params.currentUserInformation["name"]);
         route.params.setBottomTabNavigationShown(false);
     }, [route.name]);
 
@@ -54,9 +54,22 @@ export const HomeReferral = ({navigation, route}: HomeReferralProps) => {
                     // create a timestamp to keep track of when the referral was created and last updated
                     const createdAt = new Date().toISOString();
 
+                    console.log({
+                        id: referralId,
+                        inviteeEmail: "",
+                        inviterEmail: currentUserEmail,
+                        inviterName: currentUserName,
+                        offerType: OfferType.WelcomeReferralBonus,
+                        statusInviter: ReferralStatus.Initiated,
+                        statusInvitee: ReferralStatus.Initiated,
+                        status: ReferralStatus.Initiated,
+                        updatedAt: createdAt,
+                        createdAt: createdAt
+                    });
+
                     // create a referral object in the list of referrals
                     const createsReferral = await API.graphql(graphqlOperation(createReferral, {
-                        createInput:
+                        createReferralInput:
                             {
                                 id: referralId,
                                 inviteeEmail: "",

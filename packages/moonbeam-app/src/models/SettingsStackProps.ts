@@ -8,7 +8,7 @@ export type SettingsStackParamList = {
         currentUserInformation: any;
     },
     BankAccounts: {
-        setBottomTabNavigationShown: React.Dispatch<React.SetStateAction<boolean>>;
+        setBottomTabNavigationShown?: React.Dispatch<React.SetStateAction<boolean>>;
     }
 };
 

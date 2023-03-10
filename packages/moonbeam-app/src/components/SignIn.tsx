@@ -177,7 +177,7 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
 
                                 // update the referral object in the list of referrals, accordingly
                                 const updatesReferral = await API.graphql(graphqlOperation(updateReferral, {
-                                    updateInput:
+                                    updateReferralInput:
                                         {
                                             // @ts-ignore
                                             id: `${inviterList[itemCount].id}`,
@@ -214,7 +214,7 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
 
                                     // update the referral object in the list of referrals, accordingly
                                     const updatesReferral = await API.graphql(graphqlOperation(updateReferral, {
-                                        input:
+                                        updateReferralInput:
                                             {
                                                 // @ts-ignore
                                                 id: `${inviteeList[itemCount].id}`,

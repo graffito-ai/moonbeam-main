@@ -94,7 +94,7 @@ export const EmailVerify = ({navigation, route}: EmailVerifyProps) => {
 
                         // update the referral object in the list of referrals, accordingly
                         const updatesReferral = await API.graphql(graphqlOperation(updateReferral, {
-                            updateInput:
+                            updateReferralInput:
                                 {
                                     // @ts-ignore
                                     id: `${route.params.referralId}`,

@@ -21,6 +21,74 @@ export type Scalars = {
   AWSURL: string;
 };
 
+export type Account = {
+  __typename?: 'Account';
+  id: Scalars['String'];
+  mask?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  type: AccountType;
+  verificationStatus?: Maybe<AccountVerificationStatus>;
+};
+
+export type AccountInput = {
+  id: Scalars['String'];
+  mask?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+  type: AccountType;
+  verificationStatus?: InputMaybe<AccountVerificationStatus>;
+};
+
+export type AccountLinkDetails = {
+  __typename?: 'AccountLinkDetails';
+  accessToken?: Maybe<Scalars['String']>;
+  accountLinkError?: Maybe<AccountLinkError>;
+  accounts?: Maybe<Array<Maybe<Account>>>;
+  exitStatus?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  institution?: Maybe<FinancialInstitution>;
+  linkSessionId?: Maybe<Scalars['String']>;
+  linkToken?: Maybe<Scalars['String']>;
+  requestId?: Maybe<Scalars['String']>;
+  userEmail: Scalars['String'];
+  userName: Scalars['String'];
+};
+
+export type AccountLinkError = {
+  __typename?: 'AccountLinkError';
+  errorMessage: Scalars['String'];
+  errorType: Scalars['String'];
+};
+
+export type AccountLinkErrorInput = {
+  errorMessage: Scalars['String'];
+  errorType: Scalars['String'];
+};
+
+export type AccountLinkResponse = {
+  __typename?: 'AccountLinkResponse';
+  data?: Maybe<AccountLinkDetails>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<LinkErrorType>;
+};
+
+export enum AccountType {
+  Checking = 'CHECKING',
+  Savings = 'SAVINGS'
+}
+
+export enum AccountVerificationStatus {
+  Expired = 'EXPIRED',
+  Failed = 'FAILED',
+  Pending = 'PENDING',
+  Verified = 'VERIFIED'
+}
+
+export type CreateAccountLinkInput = {
+  id: Scalars['ID'];
+  userEmail: Scalars['String'];
+  userName: Scalars['String'];
+};
+
 export type CreateReferralInput = {
   createdAt: Scalars['AWSDateTime'];
   id: Scalars['ID'];
@@ -34,6 +102,36 @@ export type CreateReferralInput = {
   updatedAt: Scalars['AWSDateTime'];
 };
 
+export type FinancialInstitution = {
+  __typename?: 'FinancialInstitution';
+  id: Scalars['String'];
+  name: Scalars['String'];
+};
+
+export type FinancialInstitutionInput = {
+  id?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+};
+
+export enum LinkErrorType {
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  ValidationError = 'VALIDATION_ERROR'
+}
+
+export enum LinkLogLevel {
+  Debug = 'DEBUG',
+  Error = 'ERROR',
+  Info = 'INFO',
+  Warn = 'WARN'
+}
+
+export type LinkTokenConfiguration = {
+  __typename?: 'LinkTokenConfiguration';
+  logLevel: LinkLogLevel;
+  token: Scalars['String'];
+};
+
 export type ListReferralInput = {
   inviteeEmail?: InputMaybe<Scalars['String']>;
   inviterEmail?: InputMaybe<Scalars['String']>;
@@ -44,18 +142,30 @@ export type ListReferralInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  createAccountLink?: Maybe<AccountLinkResponse>;
   createReferral?: Maybe<ReferralResponse>;
+  updateAccountLink?: Maybe<AccountLinkResponse>;
   updateReferral?: Maybe<ReferralResponse>;
 };
 
 
+export type MutationCreateAccountLinkArgs = {
+  createAccountLinkInput: CreateAccountLinkInput;
+};
+
+
 export type MutationCreateReferralArgs = {
-  createInput: CreateReferralInput;
+  createReferralInput: CreateReferralInput;
+};
+
+
+export type MutationUpdateAccountLinkArgs = {
+  updateAccountLinkInput: UpdateAccountLinkInput;
 };
 
 
 export type MutationUpdateReferralArgs = {
-  updateInput: UpdateReferralInput;
+  updateReferralInput: UpdateReferralInput;
 };
 
 export enum OfferType {
@@ -64,8 +174,14 @@ export enum OfferType {
 
 export type Query = {
   __typename?: 'Query';
+  getAccountLink?: Maybe<AccountLinkResponse>;
   getReferral?: Maybe<ReferralResponse>;
   listReferrals?: Maybe<ReferralResponse>;
+};
+
+
+export type QueryGetAccountLinkArgs = {
+  id: Scalars['String'];
 };
 
 
@@ -112,6 +228,16 @@ export enum ReferralStatus {
   Redeemed = 'REDEEMED'
 }
 
+export type UpdateAccountLinkInput = {
+  accessToken?: InputMaybe<Scalars['String']>;
+  accountLinkError?: InputMaybe<AccountLinkErrorInput>;
+  accounts?: InputMaybe<Array<InputMaybe<AccountInput>>>;
+  exitStatus?: InputMaybe<Scalars['String']>;
+  id: Scalars['ID'];
+  institution?: InputMaybe<FinancialInstitutionInput>;
+  requestId?: InputMaybe<Scalars['String']>;
+};
+
 export type UpdateReferralInput = {
   createdAt?: InputMaybe<Scalars['AWSDateTime']>;
   id: Scalars['ID'];
@@ -124,20 +250,6 @@ export type UpdateReferralInput = {
   statusInviter?: InputMaybe<ReferralStatus>;
   updatedAt: Scalars['AWSDateTime'];
 };
-
-export type CreateReferralMutationVariables = Exact<{
-  createInput: CreateReferralInput;
-}>;
-
-
-export type CreateReferralMutation = { __typename?: 'Mutation', createReferral?: { __typename?: 'ReferralResponse', errorType?: ReferralErrorType | null, errorMessage?: string | null, data?: Array<{ __typename?: 'Referral', id: string } | null> | null } | null };
-
-export type UpdateReferralMutationVariables = Exact<{
-  updateInput: UpdateReferralInput;
-}>;
-
-
-export type UpdateReferralMutation = { __typename?: 'Mutation', updateReferral?: { __typename?: 'ReferralResponse', errorType?: ReferralErrorType | null, errorMessage?: string | null, data?: Array<{ __typename?: 'Referral', id: string } | null> | null } | null };
 
 export type GetReferralQueryVariables = Exact<{
   id: Scalars['String'];

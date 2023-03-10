@@ -1,4 +1,4 @@
-import * as AWS from 'aws-sdk'
+import * as AWS from 'aws-sdk';
 import {ReferralErrorType, ReferralResponse} from "@moonbeam/moonbeam-models";
 import { Referral } from '@moonbeam/moonbeam-models';
 
@@ -12,13 +12,14 @@ export const getReferral = async (id: string): Promise<ReferralResponse> => {
     // initializing the DynamoDB document client
     const docClient = new AWS.DynamoDB.DocumentClient();
 
-    const params = {
-        TableName: process.env.REFERRAL_TABLE!,
-        Key: {id: id}
-    };
-
     try {
-        const {Item} = await docClient.get(params).promise();
+        // retrieve the referral object given the referral id
+        const {Item} = await docClient.get({
+            TableName: process.env.REFERRAL_TABLE!,
+            Key: {id: id}
+        }).promise();
+
+        // return the retrieved referral
         return {
             data: [Item as Referral]
         }

@@ -7,14 +7,34 @@ export interface AWSAmplifyConfiguration {
     readonly amplifyAppName?: string;
     readonly amplifyServiceRoleName?: string;
     readonly amplifyAuthConfig?: AmplifyAuthConfig;
+    readonly appSyncConfig?: AppSyncConfiguration;
     readonly referralConfig?: ReferralConfiguration;
+    readonly accountLinkingConfig?: AccountLinkingConfiguration;
+}
+
+/**
+ * Interface used to define the configuration for AppSync
+ */
+export interface AppSyncConfiguration {
+    readonly graphqlApiName: string;
+}
+
+/**
+ * Interface used to define the configuration for the account linking stack
+ */
+export interface AccountLinkingConfiguration {
+    readonly accountLinkingFunctionName: string;
+    readonly accountLinkingTableName: string;
+    readonly getAccountLink: string;
+    readonly listAccountLinks: string;
+    readonly createAccountLink: string;
+    readonly updateAccountLink: string;
 }
 
 /**
  * Interface used to define the configuration for the referral program stack
  */
 export interface ReferralConfiguration {
-    readonly referralGraphqlApiName: string;
     readonly referralFunctionName: string;
     readonly referralTableName: string;
     readonly getResolverName: string;

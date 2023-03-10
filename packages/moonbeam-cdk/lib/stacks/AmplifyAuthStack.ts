@@ -92,6 +92,11 @@ export class AmplifyAuthStack extends NestedStack {
                     min: 0,
                     max: Number.MAX_SAFE_INTEGER,
                     mutable: true
+                }),
+                userId: new StringAttribute({
+                    minLen: 36,
+                    maxLen: 36,
+                    mutable: false
                 })
             },
             passwordPolicy: {

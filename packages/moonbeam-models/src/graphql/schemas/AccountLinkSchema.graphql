@@ -1,0 +1,103 @@
+# graphql/AccountLinkSchema.graphql
+# Account Linking Schema File
+enum LinkLogLevel {
+    DEBUG
+    INFO
+    WARN
+    ERROR
+}
+
+enum AccountType {
+    CHECKING
+    SAVINGS
+}
+
+enum AccountVerificationStatus {
+    PENDING,
+    VERIFIED,
+    EXPIRED,
+    FAILED
+}
+
+enum LinkErrorType {
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+}
+
+type LinkTokenConfiguration @aws_cognito_user_pools {
+    token: String!
+    logLevel: LinkLogLevel!
+}
+
+type FinancialInstitution @aws_cognito_user_pools {
+    name: String!
+    id: String!
+}
+
+type Account @aws_cognito_user_pools {
+    id: String!
+    name: String
+    mask: String
+    type: AccountType!
+    verificationStatus: AccountVerificationStatus
+}
+
+type AccountLinkError @aws_cognito_user_pools {
+    errorMessage: String!
+    errorType: String!
+}
+
+type AccountLinkDetails @aws_cognito_user_pools {
+    id: ID!
+    userName: String!
+    userEmail: String!
+    accounts: [Account]
+    institution: FinancialInstitution
+    linkToken: String
+    accessToken: String
+    linkSessionId: String
+    exitStatus: String
+    accountLinkError: AccountLinkError
+    requestId: String
+}
+
+type AccountLinkResponse @aws_cognito_user_pools {
+    data: AccountLinkDetails
+    errorType: LinkErrorType
+    errorMessage: String
+}
+
+input AccountInput {
+    id: String!
+    name: String
+    mask: String
+    type: AccountType!
+    verificationStatus: AccountVerificationStatus
+}
+
+input FinancialInstitutionInput {
+    name: String
+    id: String
+}
+
+input AccountLinkErrorInput {
+    errorMessage: String!
+    errorType: String!
+}
+
+input CreateAccountLinkInput {
+    id: ID!
+    userName: String!
+    userEmail: String!
+}
+
+input UpdateAccountLinkInput {
+    id: ID!
+    accounts: [AccountInput]
+    institution: FinancialInstitutionInput
+    accessToken: String
+    exitStatus: String
+    accountLinkError: AccountLinkErrorInput
+    requestId: String
+}

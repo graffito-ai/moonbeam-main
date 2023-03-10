@@ -1,0 +1,188 @@
+# graphql/Root.graphql
+# Main Schema File
+type Query {
+    getAccountLink(id: String!): AccountLinkResponse @aws_cognito_user_pools
+    getReferral(id: String!): ReferralResponse @aws_cognito_user_pools
+    listReferrals(filter: ListReferralInput!): ReferralResponse @aws_cognito_user_pools
+}
+
+type Mutation {
+    createAccountLink(createAccountLinkInput: CreateAccountLinkInput!): AccountLinkResponse @aws_cognito_user_pools
+    updateAccountLink(updateAccountLinkInput: UpdateAccountLinkInput!): AccountLinkResponse @aws_cognito_user_pools
+    createReferral(createReferralInput: CreateReferralInput!): ReferralResponse @aws_cognito_user_pools
+    updateReferral(updateReferralInput: UpdateReferralInput!): ReferralResponse @aws_cognito_user_pools
+}
+# graphql/AccountLinkSchema.graphql
+# Account Linking Schema File
+enum LinkLogLevel {
+    DEBUG
+    INFO
+    WARN
+    ERROR
+}
+
+enum AccountType {
+    CHECKING
+    SAVINGS
+}
+
+enum AccountVerificationStatus {
+    PENDING,
+    VERIFIED,
+    EXPIRED,
+    FAILED
+}
+
+enum LinkErrorType {
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+}
+
+type LinkTokenConfiguration @aws_cognito_user_pools {
+    token: String!
+    logLevel: LinkLogLevel!
+}
+
+type FinancialInstitution @aws_cognito_user_pools {
+    name: String!
+    id: String!
+}
+
+type Account @aws_cognito_user_pools {
+    id: String!
+    name: String
+    mask: String
+    type: AccountType!
+    verificationStatus: AccountVerificationStatus
+}
+
+type AccountLinkError @aws_cognito_user_pools {
+    errorMessage: String!
+    errorType: String!
+}
+
+type AccountLinkDetails @aws_cognito_user_pools {
+    id: ID!
+    userName: String!
+    userEmail: String!
+    accounts: [Account]
+    institution: FinancialInstitution
+    linkToken: String
+    accessToken: String
+    linkSessionId: String
+    exitStatus: String
+    accountLinkError: AccountLinkError
+    requestId: String
+}
+
+type AccountLinkResponse @aws_cognito_user_pools {
+    data: AccountLinkDetails
+    errorType: LinkErrorType
+    errorMessage: String
+}
+
+input CreateAccountLinkInput {
+    id: ID!
+    userName: String!
+    userEmail: String!
+}
+
+input AccountInput {
+    id: String!
+    name: String
+    mask: String
+    type: AccountType!
+    verificationStatus: AccountVerificationStatus
+}
+
+input FinancialInstitutionInput {
+    name: String
+    id: String
+}
+
+input AccountLinkErrorInput {
+    errorMessage: String!
+    errorType: String!
+}
+
+input UpdateAccountLinkInput {
+    id: ID!
+    accounts: [AccountInput]
+    institution: FinancialInstitutionInput
+    accessToken: String
+    exitStatus: String
+    accountLinkError: AccountLinkErrorInput
+    requestId: String
+}
+# graphql/ReferralSchema.graphql
+# Amplify Referral Schema File
+enum ReferralStatus {
+    REDEEMED,
+    NOT_REDEEMED,
+    INITIATED,
+    INVALID
+}
+
+enum OfferType {
+    WELCOME_REFERRAL_BONUS
+}
+
+enum ReferralErrorType {
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+}
+
+type Referral @aws_cognito_user_pools {
+    id: ID!
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+    status: ReferralStatus!
+    offerType: OfferType!
+    inviteeEmail: String!
+    inviterEmail: String!
+    inviterName: String!
+    statusInviter: ReferralStatus!
+    statusInvitee: ReferralStatus!
+}
+
+type ReferralResponse @aws_cognito_user_pools {
+    data: [Referral]
+    errorType: ReferralErrorType
+    errorMessage: String
+}
+
+input ListReferralInput {
+    inviteeEmail: String,
+    inviterEmail: String,
+    statusInviter: ReferralStatus,
+    statusInvitee: ReferralStatus
+    status: ReferralStatus!
+}
+
+input CreateReferralInput {
+    id: ID!
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+    status: ReferralStatus!
+    offerType: OfferType!
+    inviteeEmail: String!
+    inviterEmail: String!
+    inviterName: String!
+    statusInviter: ReferralStatus!
+    statusInvitee: ReferralStatus!
+}
+
+input UpdateReferralInput {
+    id: ID!
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime!
+    status: ReferralStatus
+    offerType: OfferType
+    inviteeEmail: String
+    inviterEmail: String
+    inviterName: String
+    statusInviter: ReferralStatus
+    statusInvitee: ReferralStatus
+}

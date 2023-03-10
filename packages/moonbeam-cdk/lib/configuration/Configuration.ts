@@ -1,4 +1,4 @@
-import {Regions, Stages } from "@moonbeam/moonbeam-models";
+import {Regions, Stages} from "@moonbeam/moonbeam-models";
 import {InfrastructureConfiguration} from "../models/InfrastructureConfiguration";
 
 /**
@@ -19,14 +19,24 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     authenticatedRoleName: 'moonbeam-authenticated-role',
                     unauthenticatedRoleName: 'moonbeam-unauthenticated-role'
                 },
+                appSyncConfig: {
+                    graphqlApiName: 'moonbeamGraphqlApi'
+                },
                 referralConfig: {
-                    referralGraphqlApiName: 'referralGraphqlApi',
                     referralFunctionName: 'referralLambdaFunction',
                     referralTableName: 'referralTable',
                     getResolverName: 'getReferral',
                     listResolverName: 'listReferrals',
                     createResolverName: 'createReferral',
                     updateResolverName: 'updateReferral'
+                },
+                accountLinkingConfig: {
+                    accountLinkingFunctionName: 'accountLinkingLambdaFunction',
+                    accountLinkingTableName: 'accountLinks',
+                    getAccountLink: 'getAccountLink',
+                    listAccountLinks: 'listAccountLinks',
+                    createAccountLink: 'createAccountLink',
+                    updateAccountLink: 'updateAccountLink'
                 }
             },
             sesConfig: {

@@ -24,7 +24,7 @@ export const BankAccounts = ({route}: BankAccountsProps) => {
      * included in here.
      */
     useEffect(() => {
-        route.params.setBottomTabNavigationShown(false);
+        route.params.setBottomTabNavigationShown && route.params.setBottomTabNavigationShown(false);
     }, []);
 
     // return the component for the Bank Accounts page

@@ -2,8 +2,10 @@ import {aws_amplify, CfnOutput, Stack, StackProps} from "aws-cdk-lib";
 import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
 import {AmplifyAuthStack} from "./AmplifyAuthStack";
-import {ReferralApiStack} from "./ReferralApiStack";
+import {AmplifyAppSyncStack} from "./AmplifyAppSyncStack";
 import {Constants, Stages} from "@moonbeam/moonbeam-models";
+import {AmplifyReferralStack} from "./AmplifyReferralStack";
+import {AmplifyAccountLinkingStack} from "./AmplifyAccountLinkingStack";
 
 /**
  * File used to define the Amplify stack, used to deploy all Amplify related functionality.
@@ -46,10 +48,10 @@ export class AmplifyStack extends Stack {
             environmentVariables: props.environmentVariables
         });
 
-        // add the resources meant to capture the referral program
-        const referralApiStack = new ReferralApiStack(this, `amplify-referral-${props.stage}-${props.env!.region}`, {
-            stackName: `amplify-referral-${props.stage}-${props.env!.region}`,
-            description: 'This stack will contain all the referral program related resources for Amplify',
+        // add the necessary resources for the Amplify App Sync Stack
+        const appSyncStack = new AmplifyAppSyncStack(this, `amplify-appsync-${props.stage}-${props.env!.region}`, {
+            stackName: `amplify-appsync-${props.stage}-${props.env!.region}`,
+            description: 'This stack will contain all the AppSync related resources for Amplify',
             env: props.env,
             stage: props.stage,
             userPoolId: amplifyAuthStack.outputs[2],
@@ -61,8 +63,27 @@ export class AmplifyStack extends Stack {
                     authenticatedRoleName: props.amplifyConfig!.amplifyAuthConfig!.authenticatedRoleName,
                     unauthenticatedRoleName: props.amplifyConfig!.amplifyAuthConfig!.unauthenticatedRoleName,
                 },
+                appSyncConfig: {
+                    graphqlApiName: props.amplifyConfig!.appSyncConfig!.graphqlApiName
+                },
+            },
+            environmentVariables: props.environmentVariables
+        });
+        appSyncStack.addDependency(amplifyAuthStack);
+
+        // add the resources meant to capture the referral program
+        const referralStack = new AmplifyReferralStack(this, `amplify-referral-${props.stage}-${props.env!.region}`, {
+            stackName: `amplify-referral-${props.stage}-${props.env!.region}`,
+            description: 'This stack will contain all the referral program related resources for Amplify',
+            env: props.env,
+            stage: props.stage,
+            graphqlApiId: appSyncStack.graphqlApiId,
+            userPoolId: amplifyAuthStack.outputs[2],
+            amplifyConfig: {
+                appSyncConfig: {
+                    graphqlApiName: props.amplifyConfig!.appSyncConfig!.graphqlApiName
+                },
                 referralConfig: {
-                    referralGraphqlApiName: props.amplifyConfig!.referralConfig!.referralGraphqlApiName,
                     referralFunctionName: props.amplifyConfig!.referralConfig!.referralFunctionName,
                     referralTableName: props.amplifyConfig!.referralConfig!.referralTableName,
                     getResolverName: props.amplifyConfig!.referralConfig!.getResolverName,
@@ -73,7 +94,32 @@ export class AmplifyStack extends Stack {
             },
             environmentVariables: props.environmentVariables
         });
-        referralApiStack.addDependency(amplifyAuthStack);
+        referralStack.addDependency(appSyncStack);
+
+        // add the resources meant to capture the referral program
+        const accountLinkingStack = new AmplifyAccountLinkingStack(this, `amplify-account-linking-${props.stage}-${props.env!.region}`, {
+            stackName: `amplify-account-linking-${props.stage}-${props.env!.region}`,
+            description: 'This stack will contain all the Account Linking related resources for Amplify',
+            env: props.env,
+            stage: props.stage,
+            graphqlApiId: appSyncStack.graphqlApiId,
+            userPoolId: amplifyAuthStack.outputs[2],
+            amplifyConfig: {
+                appSyncConfig: {
+                    graphqlApiName: props.amplifyConfig!.appSyncConfig!.graphqlApiName
+                },
+                accountLinkingConfig: {
+                    accountLinkingFunctionName: props.amplifyConfig!.accountLinkingConfig!.accountLinkingFunctionName,
+                    accountLinkingTableName: props.amplifyConfig!.accountLinkingConfig!.accountLinkingTableName,
+                    getAccountLink: props.amplifyConfig!.accountLinkingConfig!.getAccountLink,
+                    listAccountLinks: props.amplifyConfig!.accountLinkingConfig!.listAccountLinks,
+                    createAccountLink: props.amplifyConfig!.accountLinkingConfig!.createAccountLink,
+                    updateAccountLink: props.amplifyConfig!.accountLinkingConfig!.updateAccountLink
+                }
+            },
+            environmentVariables: props.environmentVariables
+        });
+        accountLinkingStack.addDependency(appSyncStack);
 
         // creates the Cfn Outputs, to be added to the resulting file, which will be used by the Amplify frontend
         amplifyApp && new CfnOutput(this, Constants.AmplifyConstants.AMPLIFY_ID, {
@@ -102,7 +148,7 @@ export class AmplifyStack extends Stack {
         });
         new CfnOutput(this, Constants.AmplifyConstants.APPSYNC_REGION, {
             exportName: Constants.AmplifyConstants.APPSYNC_REGION.replaceAll('_', '-'),
-            value: referralApiStack.outputs[0]
+            value: appSyncStack.outputs[0]
         });
         new CfnOutput(this, Constants.AmplifyConstants.APPSYNC_AUTH_TYPE, {
             exportName: Constants.AmplifyConstants.APPSYNC_AUTH_TYPE.replaceAll('_', '-'),
@@ -110,7 +156,7 @@ export class AmplifyStack extends Stack {
         });
         new CfnOutput(this, Constants.AmplifyConstants.APPSYNC_ENDPOINT, {
             exportName: Constants.AmplifyConstants.APPSYNC_ENDPOINT.replaceAll('_', '-'),
-            value: referralApiStack.outputs[1]
+            value: appSyncStack.outputs[1]
         });
     }
 }

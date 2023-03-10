@@ -7,14 +7,14 @@ export const styles = StyleSheet.create({
         flexGrow: 1,
         flexDirection: 'column',
         justifyContent: 'space-between',
-        alignItems: 'center',
+        alignItems: 'center'
     },
     titleView: {
         left: '1.5%',
         alignSelf: 'flex-start'
     },
     bottomView: {
-        marginTop: Dimensions.get('window').height/4,
+        marginTop: Dimensions.get('window').height/3.5,
         alignItems: 'center',
     },
     content: {

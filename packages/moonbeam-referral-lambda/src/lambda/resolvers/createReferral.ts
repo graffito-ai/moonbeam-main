@@ -1,4 +1,4 @@
-import * as AWS from 'aws-sdk'
+import * as AWS from 'aws-sdk';
 import {CreateReferralInput, ReferralErrorType, ReferralResponse} from "@moonbeam/moonbeam-models";
 
 /**
@@ -11,20 +11,21 @@ export const createReferral = async (createInput: CreateReferralInput): Promise<
     // initializing the DynamoDB document client
     const docClient = new AWS.DynamoDB.DocumentClient();
 
-    const params = {
-        TableName: process.env.REFERRAL_TABLE!,
-        Item: createInput
-    };
-
     try {
-        await docClient.put(params).promise();
+        // store the referral object
+        await docClient.put({
+            TableName: process.env.REFERRAL_TABLE!,
+            Item: createInput
+        }).promise();
+
+        // return the referral object
         return {
             data: [createInput]
         }
     } catch (err) {
-        console.log(`Unexpected error while executing createReferral query {}`, err);
+        console.log(`Unexpected error while executing createReferral mutation {}`, err);
         return {
-            errorMessage: `Unexpected error while executing createReferral query. ${err}`,
+            errorMessage: `Unexpected error while executing createReferral mutation. ${err}`,
             errorType: ReferralErrorType.UnexpectedError
         };
     }

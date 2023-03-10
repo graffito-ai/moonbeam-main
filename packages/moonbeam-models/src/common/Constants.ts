@@ -45,5 +45,14 @@ export namespace Constants {
     export namespace MoonbeamConstants {
         // Infrastructure related
         export const REFERRAL_TABLE: string = 'REFERRAL_TABLE';
+        export const ENV_NAME: string = 'ENV_NAME';
+        export const ACCOUNT_LINKS: string = 'ACCOUNT_LINKS';
+        export const AWS_REGION: string = 'AWS_REGION';
+    }
+    // AWS Secrets Manager (pair-based constants)
+    export namespace AWSPairConstants {
+        export const PLAID_SECRET_NAME = 'plaid-pair';
+        export const PLAID_CLIENT_ID = 'PLAID-CLIENT-ID';
+        export const PLAID_SECRET = 'PLAID-SECRET';
     }
 }

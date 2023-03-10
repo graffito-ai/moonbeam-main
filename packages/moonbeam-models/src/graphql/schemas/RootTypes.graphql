@@ -1,3 +1,16 @@
+# graphql/RootTypes.graphql
+# Main Types Schema File
+# see: https://docs.aws.amazon.com/appsync/latest/devguide/scalars.html
+scalar AWSDate
+scalar AWSTime
+scalar AWSDateTime
+scalar AWSTimestamp
+scalar AWSEmail
+scalar AWSJSON
+scalar AWSURL
+scalar AWSPhone
+scalar AWSIPAddress
+
 """This directive allows results to be deferred during execution"""
 directive @defer on FIELD
 

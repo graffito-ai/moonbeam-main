@@ -1,4 +1,4 @@
-import * as AWS from 'aws-sdk'
+import * as AWS from 'aws-sdk';
 import {ListReferralInput, Referral, ReferralErrorType, ReferralResponse} from "@moonbeam/moonbeam-models";
 import {ReferralFiltering} from "@moonbeam/moonbeam-models";
 
@@ -12,10 +12,6 @@ export const listReferrals = async (filter: ListReferralInput): Promise<Referral
     // initializing the DynamoDB document client
     const docClient = new AWS.DynamoDB.DocumentClient();
 
-    const params = {
-        TableName: process.env.REFERRAL_TABLE!,
-    };
-
     try {
         // constants to keep track of the type of filtering being done
         let referralFilterType: ReferralFiltering | null = null;
@@ -25,7 +21,11 @@ export const listReferrals = async (filter: ListReferralInput): Promise<Referral
             ? ReferralFiltering.INVITER_FILTER
             : ((filter.inviteeEmail && filter.statusInvitee && filter.status) ? ReferralFiltering.INVITEE_FILTER : referralFilterType)
 
-        const result = await docClient.scan(params).promise();
+        // retrieve referrals based on the passed in filters
+        const result = await docClient.scan({
+            TableName: process.env.REFERRAL_TABLE!,
+        }).promise();
+
         // build referral data response
         const referrals: Referral[] = [];
         result.Items!.forEach((item) => {
