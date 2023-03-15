@@ -3,6 +3,6 @@ import { AccountLinkResponse, CreateAccountLinkInput } from "@moonbeam/moonbeam-
  * CreateAccountLink resolver
  *
  * @param createAccountLinkInput object to be used for linking a user with Plaid
- * @returns {@link Promise} of {@link ReferralResponse}
+ * @returns {@link Promise} of {@link AccountLinkResponse}
  */
 export declare const createAccountLink: (createAccountLinkInput: CreateAccountLinkInput) => Promise<AccountLinkResponse>;

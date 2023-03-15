@@ -48,3 +48,24 @@ export const getAccountLink = /* GraphQL */ `
         }
     }
 `;
+
+// Query used to retrieve a list of accounts, based on some filters
+export const listAccounts = /* GraphQL */ `
+    query ListAccounts($filter: ListAccountsInput!) {
+        listAccounts(filter: $filter) {
+            errorMessage
+            errorType
+            data {
+                id
+                name
+                mask
+                type
+                verificationStatus
+                institution {
+                    id
+                    name
+                }
+            }
+        }
+    }
+`;

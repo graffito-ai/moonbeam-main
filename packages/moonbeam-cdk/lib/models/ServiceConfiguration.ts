@@ -26,7 +26,7 @@ export interface AccountLinkingConfiguration {
     readonly accountLinkingFunctionName: string;
     readonly accountLinkingTableName: string;
     readonly getAccountLink: string;
-    readonly listAccountLinks: string;
+    readonly listAccounts: string;
     readonly createAccountLink: string;
     readonly updateAccountLink: string;
 }

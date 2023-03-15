@@ -44,6 +44,8 @@ export namespace Constants {
     // Moonbeam specific constants used in mapping various resources
     export namespace MoonbeamConstants {
         // Infrastructure related
+        export const MOONBEAM_PLAID_OAUTH_FILE_NAME: string = 'moonbeam-plaid-oauth';
+        export const MOONBEAM_DEPLOYMENT_BUCKET_NAME: string = 'moonbeam-deployment-bucket';
         export const REFERRAL_TABLE: string = 'REFERRAL_TABLE';
         export const ENV_NAME: string = 'ENV_NAME';
         export const ACCOUNT_LINKS: string = 'ACCOUNT_LINKS';

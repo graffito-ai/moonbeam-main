@@ -50,6 +50,10 @@ export class AmplifyAccountLinkingStack extends NestedStack {
             typeName: "Query",
             fieldName: `${props.amplifyConfig!.accountLinkingConfig!.getAccountLink}`
         });
+        accountLinkingLambdaSource.createResolver(`${props.amplifyConfig!.accountLinkingConfig!.listAccounts}-${props.stage}-${props.env!.region}`, {
+            typeName: "Query",
+            fieldName: `${props.amplifyConfig!.accountLinkingConfig!.listAccounts}`
+        });
         accountLinkingLambdaSource.createResolver(`${props.amplifyConfig!.accountLinkingConfig!.createAccountLink}-${props.stage}-${props.env!.region}`, {
             typeName: "Mutation",
             fieldName: `${props.amplifyConfig!.accountLinkingConfig!.createAccountLink}`

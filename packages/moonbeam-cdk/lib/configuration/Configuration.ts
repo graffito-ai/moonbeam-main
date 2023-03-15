@@ -34,7 +34,7 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     accountLinkingFunctionName: 'accountLinkingLambdaFunction',
                     accountLinkingTableName: 'accountLinks',
                     getAccountLink: 'getAccountLink',
-                    listAccountLinks: 'listAccountLinks',
+                    listAccounts: 'listAccounts',
                     createAccountLink: 'createAccountLink',
                     updateAccountLink: 'updateAccountLink'
                 }

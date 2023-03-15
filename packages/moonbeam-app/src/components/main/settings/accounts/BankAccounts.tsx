@@ -12,7 +12,7 @@ import {
     AccountInput,
     AccountLinkDetails,
     AccountType,
-    AccountVerificationStatus,
+    AccountVerificationStatus, Constants,
     createAccountLink,
     CreateAccountLinkInput,
     FinancialInstitutionInput,
@@ -24,6 +24,10 @@ import {LinkAccountSubtypeDepository, LinkAccountVerificationStatus} from "react
 import PlaidLink from '../../../integrations/plaid/PlaidLink';
 import {CommonActions} from "@react-navigation/native";
 import {refreshUserToken} from "../../../../utils/Setup";
+import * as envInfo from "../../../../../amplify/.config/local-env-info.json";
+import * as provider from "../../../../../amplify/team-provider-info.json";
+import MOONBEAM_DEPLOYMENT_BUCKET_NAME = Constants.MoonbeamConstants.MOONBEAM_DEPLOYMENT_BUCKET_NAME;
+import MOONBEAM_PLAID_OAUTH_FILE_NAME = Constants.MoonbeamConstants.MOONBEAM_PLAID_OAUTH_FILE_NAME;
 
 /**
  * BankAccounts component.
@@ -48,7 +52,9 @@ export const BankAccounts = ({navigation, route}: BankAccountsProps) => {
      */
     useEffect(() => {
         if (route.params.oauthStateId) {
-            setRedirectURL(`https://moonbeam-application-deployment-bucket.s3.us-west-2.amazonaws.com/moonbeam-plaid-oauth-dev.html?oauth_state_id=${route.params.oauthStateId}`);
+            const region = provider[envInfo.envName]["awscloudformation"]["Region"];
+            const redirectURLFile = `https://${MOONBEAM_DEPLOYMENT_BUCKET_NAME}-${envInfo.envName}-${region}.s3.${region}.amazonaws.com/${MOONBEAM_PLAID_OAUTH_FILE_NAME}-${envInfo.envName}.html`;
+            setRedirectURL(`${redirectURLFile}?oauth_state_id=${route.params.oauthStateId}`);
         }
 
         // hide the header, depending on whether the Plaid link flow is initialized or not
@@ -103,118 +109,140 @@ export const BankAccounts = ({navigation, route}: BankAccountsProps) => {
     };
 
     /**
-     * Function used to perform an update for the account link
+     * Function used to perform an update for the account link, on a Success event
      *
      * @param success success object obtained from a user successful action
+     *
+     * @return a {@link Promise} or {@link void}
+     */
+    const accountLinkOnSuccess = async (success: LinkSuccess): Promise<void> => {
+        try {
+            /**
+             * loop through all retrieved accounts, and map them accordingly
+             */
+            const accounts: AccountInput[] = [];
+            success.metadata.accounts.forEach(account => {
+                // if the account was not a duplicate, then and only then add it in the list of accounts to update
+                accounts.push({
+                    id: account["_id"], // account.id not working - ToDo: need to discuss this with Plaid
+                    mask: account.mask ? account.mask : '',
+                    name: account.name ? account.name : '',
+                    type: (account.type === LinkAccountSubtypeDepository.CHECKING.type && account.subtype === LinkAccountSubtypeDepository.CHECKING.subtype)
+                        ? AccountType.Checking
+                        : (((account.type === LinkAccountSubtypeDepository.SAVINGS.type && account.subtype === LinkAccountSubtypeDepository.SAVINGS.subtype)) ? AccountType.Savings : AccountType.Unknown),
+                    verificationStatus: account.verificationStatus
+                        ? ((account.verificationStatus === LinkAccountVerificationStatus.PENDING_AUTOMATIC_VERIFICATION || account.verificationStatus === LinkAccountVerificationStatus.PENDING_MANUAL_VERIFICATION)
+                            ? AccountVerificationStatus.Pending : AccountVerificationStatus.Verified) : AccountVerificationStatus.Verified
+                });
+            });
+            // perform a mutation to exchange the link token and update the account link with the appropriate account info
+            const updateAccountLinkInput: UpdateAccountLinkInput = {
+                id: route.params.currentUserInformation["custom:userId"],
+                accountLinkDetails: {
+                    linkToken: accountLinkDetails!.linkToken!,
+                    linkSessionId: success.metadata.linkSessionId,
+                    accounts: accounts,
+                    // only exchange access for public token if access token does not exist
+                    ...((!accountLinkDetails!.accessToken || accountLinkDetails!.accessToken!.length === 0)) && {
+                        publicToken: success.publicToken
+                    },
+                    ...(success.metadata.institution && {
+                        institution: success.metadata.institution as FinancialInstitutionInput
+                    })
+                }
+            }
+            const accountLinkUpdateResult = await API.graphql(graphqlOperation(updateAccountLink, {
+                updateAccountLinkInput: updateAccountLinkInput
+            }));
+
+            // @ts-ignore
+            if (accountLinkUpdateResult && accountLinkUpdateResult.data.updateAccountLink.errorMessage === null) {
+                setIsPlaidInitialized(false);
+                setIsHeaderOffset(true);
+
+                // clean the oauth redirect state throughout
+                if (route.params.oauthStateId) {
+                    navigation.dispatch({
+                        ...CommonActions.setParams({oauthStateId: undefined}),
+                        source: route.key
+                    });
+                    setRedirectURL("");
+                }
+            } else {
+                console.log(`Unexpected error while updating link token on exit ${JSON.stringify(accountLinkUpdateResult)}`);
+                // ToDo: need to create a modal with errors
+                // setPasswordErrors([`Unexpected error while updating link token ${linkTokenResult}`]);
+            }
+        } catch (error) {
+            // @ts-ignore
+            console.log(error.message
+                // @ts-ignore
+                ? `Unexpected error while updating link account on success: ${JSON.stringify(error.message)}`
+                : `Unexpected error while updating link account on success: ${JSON.stringify(error)}`);
+            // ToDo: need to create a modal with errors
+            // setPasswordErrors([`Error while linking Bank Account`]);
+        }
+    };
+
+    /**
+     * Function used to perform an update for the account link, on an Exit event
+     *
      * @param exit exit object obtained from a user Link exit and/or error
      *
      * @return a {@link Promise} or {@link void}
      */
-    const accountLinkUpdate = async (success?: LinkSuccess, exit?: LinkExit): Promise<void> => {
+    const accountLinkOnExit = async (exit: LinkExit): Promise<void> => {
         try {
-            // in case of a Link exit
-            if (exit) {
-                // perform a mutation to update the account link with the appropriate error info
-                const updateAccountLinkInput: UpdateAccountLinkInput = {
-                    id: route.params.currentUserInformation["custom:userId"],
-                    accountLinkDetails: {
-                        ...(exit.error && {
-                            accountLinkError: {
-                                errorMessage: exit.error.errorMessage ? exit.error.errorMessage : 'N/A',
-                                errorType: exit.error.errorCode ? exit.error.errorCode.toString() : 'N/A'
-                            }
-                        }),
-                        linkToken: accountLinkDetails!.linkToken!,
-                        linkSessionId: exit.metadata.linkSessionId,
-                        requestId: exit.metadata.requestId
-                    }
+            // perform a mutation to update the account link with the appropriate error info
+            const updateAccountLinkInput: UpdateAccountLinkInput = {
+                id: route.params.currentUserInformation["custom:userId"],
+                accountLinkDetails: {
+                    ...(exit.error && {
+                        accountLinkError: {
+                            errorMessage: exit.error.errorMessage ? exit.error.errorMessage : 'N/A',
+                            errorType: exit.error.errorCode ? exit.error.errorCode.toString() : 'N/A'
+                        }
+                    }),
+                    linkToken: accountLinkDetails!.linkToken!,
+                    linkSessionId: exit.metadata.linkSessionId,
+                    requestId: exit.metadata.requestId
                 }
-                JSON.stringify(updateAccountLinkInput);
+            }
+            JSON.stringify(updateAccountLinkInput);
 
-                const accountLinkExchangeResult = await API.graphql(graphqlOperation(updateAccountLink, {
-                    updateAccountLinkInput: updateAccountLinkInput
-                }));
+            const accountLinkExchangeResult = await API.graphql(graphqlOperation(updateAccountLink, {
+                updateAccountLinkInput: updateAccountLinkInput
+            }));
 
-                // @ts-ignore
-                if (accountLinkExchangeResult && accountLinkExchangeResult.data.updateAccountLink.errorMessage === null) {
-                    setIsPlaidInitialized(false);
-                    setIsHeaderOffset(true);
+            // @ts-ignore
+            if (accountLinkExchangeResult && accountLinkExchangeResult.data.updateAccountLink.errorMessage === null) {
+                setIsPlaidInitialized(false);
+                setIsHeaderOffset(true);
 
-                    // clean the oauth redirect state throughout
-                    if(route.params.oauthStateId) {
-                        navigation.dispatch({
-                            ...CommonActions.setParams({oauthStateId: undefined}),
-                            source: route.key
-                        });
-                        setRedirectURL("");
-                    }
-                } else {
-                    console.log(`Unexpected error while creating exchanging link token ${JSON.stringify(accountLinkExchangeResult)}`);
-                    // ToDo: need to create a modal with errors
-                    // setPasswordErrors([`Unexpected error while creating a link token ${linkTokenResult}`]);
-                }
-            } else if (success) {
-                // loop through all retrieved accounts, and map them accordingly
-                const accounts: AccountInput[] = [];
-                success.metadata.accounts.forEach(account => {
-                    accounts.push({
-                        id: account["_id"], // account.id not working - ToDo: need to discuss this with Plaid
-                        mask: account.mask ? account.mask : '••••',
-                        name: account.name ? account.name : 'Account',
-                        type: (account.type === LinkAccountSubtypeDepository.CHECKING.type && account.subtype === LinkAccountSubtypeDepository.CHECKING.subtype)
-                            ? AccountType.Checking
-                            : (((account.type === LinkAccountSubtypeDepository.SAVINGS.type && account.subtype === LinkAccountSubtypeDepository.SAVINGS.subtype)) ? AccountType.Savings : AccountType.Unknown),
-                        verificationStatus: account.verificationStatus
-                            ? ((account.verificationStatus === LinkAccountVerificationStatus.PENDING_AUTOMATIC_VERIFICATION || account.verificationStatus === LinkAccountVerificationStatus.PENDING_MANUAL_VERIFICATION)
-                                ? AccountVerificationStatus.Pending : AccountVerificationStatus.Verified) : AccountVerificationStatus.Verified
+                // clean the oauth redirect state throughout
+                if (route.params.oauthStateId) {
+                    navigation.dispatch({
+                        ...CommonActions.setParams({oauthStateId: undefined}),
+                        source: route.key
                     });
-                });
-                // perform a mutation to exchange the link token and update the account link with the appropriate account info
-                const updateAccountLinkInput: UpdateAccountLinkInput = {
-                    id: route.params.currentUserInformation["custom:userId"],
-                    accountLinkDetails: {
-                        linkToken: accountLinkDetails!.linkToken!,
-                        linkSessionId: success.metadata.linkSessionId,
-                        accounts: accounts,
-                        // only exchange access for public token if access token does not exist
-                        ...((!accountLinkDetails!.accessToken || accountLinkDetails!.accessToken!.length === 0)) && {
-                            publicToken: success.publicToken
-                        },
-                        ...(success.metadata.institution && {
-                            institution: success.metadata.institution as FinancialInstitutionInput
-                        })
-                    }
+                    setRedirectURL("");
                 }
-                const accountLinkUpdateResult = await API.graphql(graphqlOperation(updateAccountLink, {
-                    updateAccountLinkInput: updateAccountLinkInput
-                }));
-
-                // @ts-ignore
-                if (accountLinkUpdateResult && accountLinkUpdateResult.data.updateAccountLink.errorMessage === null) {
-                    setIsPlaidInitialized(false);
-                    setIsHeaderOffset(true);
-
-                    // clean the oauth redirect state throughout
-                    if(route.params.oauthStateId) {
-                        navigation.dispatch({
-                            ...CommonActions.setParams({oauthStateId: undefined}),
-                            source: route.key
-                        });
-                        setRedirectURL("");
-                    }
-                } else {
-                    console.log(`Unexpected error while updating link token ${JSON.stringify(accountLinkUpdateResult)}`);
-                    // ToDo: need to create a modal with errors
-                    // setPasswordErrors([`Unexpected error while updating link token ${linkTokenResult}`]);
-                }
+            } else {
+                console.log(`Unexpected error while creating exchanging link token on exit ${JSON.stringify(accountLinkExchangeResult)}`);
+                // ToDo: need to create a modal with errors
+                // setPasswordErrors([`Unexpected error while creating a link token ${linkTokenResult}`]);
             }
         } catch (error) {
             // @ts-ignore
-            console.log(error.message ? `Unexpected error while updating link account: ${JSON.stringify(error.message)}` : `Unexpected error while updating link account: ${JSON.stringify(error)}`);
+            console.log(error.message
+                // @ts-ignore
+                ? `Unexpected error while updating link account on exit: ${JSON.stringify(error.message)}`
+                : `Unexpected error while updating link account on exit: ${JSON.stringify(error)}`);
             // ToDo: need to create a modal with errors
             // setPasswordErrors([`Error while linking Bank Account`]);
         }
     }
+
 
     // return the component for the Bank Accounts page
     return (
@@ -223,12 +251,12 @@ export const BankAccounts = ({navigation, route}: BankAccountsProps) => {
                 oAuthUri={redirectURL}
                 linkToken={route.params.oauthStateId ? `${accountLinkDetails!.linkToken!}` : accountLinkDetails!.linkToken!}
                 onExit={async (exit: LinkExit) => {
-                    // perform a token exchange accordingly
-                    await accountLinkUpdate(undefined, exit);
+                    // perform an account link update accordingly
+                    await accountLinkOnExit(exit);
                 }}
                 onSuccess={async (success: LinkSuccess) => {
-                    // perform a token exchange accordingly
-                    await accountLinkUpdate(success, undefined);
+                    // perform an account link update accordingly
+                    await accountLinkOnSuccess(success);
                 }}
                 onEvent={undefined}
             />

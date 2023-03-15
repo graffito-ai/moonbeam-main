@@ -73,6 +73,21 @@ type AccountLinkResponse @aws_cognito_user_pools {
     errorMessage: String
 }
 
+type AccountDetails @aws_cognito_user_pools {
+    id: String!
+    name: String!
+    mask: String!
+    type: AccountType!
+    verificationStatus: AccountVerificationStatus!
+    institution: FinancialInstitution!
+}
+
+type AccountResponse @aws_cognito_user_pools {
+    data: [AccountDetails]
+    errorType: LinkErrorType
+    errorMessage: String
+}
+
 input AccountLinkErrorInput {
     errorMessage: String!
     errorType: String!
@@ -117,4 +132,9 @@ input CreateAccountLinkInput {
 input UpdateAccountLinkInput {
     id: ID!
     accountLinkDetails: AccountLinkDetailsInput!
+}
+
+input ListAccountsInput {
+    id: ID!
+    status: AccountVerificationStatus
 }

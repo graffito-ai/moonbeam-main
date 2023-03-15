@@ -1,4 +1,4 @@
-import {aws_amplify, CfnOutput, Stack, StackProps} from "aws-cdk-lib";
+import {aws_amplify, aws_s3_deployment, CfnOutput, Stack, StackProps} from "aws-cdk-lib";
 import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
 import {AmplifyAuthStack} from "./AmplifyAuthStack";
@@ -6,6 +6,8 @@ import {AmplifyAppSyncStack} from "./AmplifyAppSyncStack";
 import {Constants, Stages} from "@moonbeam/moonbeam-models";
 import {AmplifyReferralStack} from "./AmplifyReferralStack";
 import {AmplifyAccountLinkingStack} from "./AmplifyAccountLinkingStack";
+import {Bucket, BucketAccessControl} from "aws-cdk-lib/aws-s3";
+import path from "path";
 
 /**
  * File used to define the Amplify stack, used to deploy all Amplify related functionality.
@@ -24,11 +26,27 @@ export class AmplifyStack extends Stack {
         /**
          * we check against the DEV stage so that we only create
          * the Amplify app (as well as the deployment) once.
+         *
+         * ToDo: need to check if we do one App with different backend env, or different apps
          */
         const amplifyApp = props.stage === Stages.DEV && new aws_amplify.CfnApp(this, `${props.amplifyConfig!.amplifyAppName!}`, {
             name: `${props.amplifyConfig!.amplifyAppName!}`,
             iamServiceRole: `${props.amplifyConfig!.amplifyServiceRoleName!}`
         });
+
+        // add a deployment bucket, to be used for storing various/miscellaneous, public readable files (like Plaid related ones)
+        const deploymentBucket = new Bucket(this, `${Constants.MoonbeamConstants.MOONBEAM_DEPLOYMENT_BUCKET_NAME}-${props.stage}-${props.env!.region}`, {
+            bucketName: `${Constants.MoonbeamConstants.MOONBEAM_DEPLOYMENT_BUCKET_NAME}-${props.stage}-${props.env!.region}`,
+            versioned: false,
+            accessControl: BucketAccessControl.PRIVATE // only owner has access besides certain files
+        });
+        // write the Oauth Plaid file to the bucket
+        new aws_s3_deployment.BucketDeployment(this, 'DeployFiles', {
+            sources: [aws_s3_deployment.Source.asset(path.join(__dirname,
+                `../../files/plaid/${props.stage}`))],
+            destinationBucket: deploymentBucket,
+            accessControl: BucketAccessControl.PUBLIC_READ // public readable object
+        })
 
         // add the authentication resources through a nested auth stack
         const amplifyAuthStack = new AmplifyAuthStack(this, `amplify-auth-${props.stage}-${props.env!.region}`, {
@@ -112,7 +130,7 @@ export class AmplifyStack extends Stack {
                     accountLinkingFunctionName: props.amplifyConfig!.accountLinkingConfig!.accountLinkingFunctionName,
                     accountLinkingTableName: props.amplifyConfig!.accountLinkingConfig!.accountLinkingTableName,
                     getAccountLink: props.amplifyConfig!.accountLinkingConfig!.getAccountLink,
-                    listAccountLinks: props.amplifyConfig!.accountLinkingConfig!.listAccountLinks,
+                    listAccounts: props.amplifyConfig!.accountLinkingConfig!.listAccounts,
                     createAccountLink: props.amplifyConfig!.accountLinkingConfig!.createAccountLink,
                     updateAccountLink: props.amplifyConfig!.accountLinkingConfig!.updateAccountLink
                 }

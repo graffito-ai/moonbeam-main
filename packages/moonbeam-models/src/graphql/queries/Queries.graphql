@@ -43,3 +43,21 @@ query GetAccountLink($id: String!) {
         }
     }
 }
+
+query ListAccounts($filter: ListAccountsInput!) {
+    listAccounts(filter: $filter) {
+        errorMessage
+        errorType
+        data {
+            id
+            name
+            mask
+            type
+            verificationStatus
+            institution {
+                id
+                name
+            }
+        }
+    }
+}

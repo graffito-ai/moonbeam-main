@@ -1,12 +1,13 @@
 import {
-    AccountLinkResponse,
+    AccountLinkResponse, AccountResponse,
     CreateAccountLinkInput,
-    LinkErrorType,
+    LinkErrorType, ListAccountsInput,
     UpdateAccountLinkInput
 } from "@moonbeam/moonbeam-models";
 import {createAccountLink} from "./resolvers/createAccountLink";
 import {updateAccountLink} from "./resolvers/updateAccountLink";
 import {getAccountLink} from "./resolvers/getAccountLink";
+import {listAccounts} from "./resolvers/listAccounts";
 
 /**
  * Mapping out the App Sync event type, so we can use it as a type in the Lambda Handler
@@ -17,6 +18,7 @@ type AppSyncEvent = {
     },
     arguments: {
         id: string,
+        filter: ListAccountsInput,
         createAccountLinkInput: CreateAccountLinkInput,
         updateAccountLinkInput: UpdateAccountLinkInput
     },
@@ -32,11 +34,13 @@ type AppSyncEvent = {
  *
  * @param event AppSync even to be passed in the handler
  */
-exports.handler = async (event: AppSyncEvent): Promise<AccountLinkResponse> => {
+exports.handler = async (event: AppSyncEvent): Promise<AccountLinkResponse | AccountResponse> => {
     console.log(`Received new referral event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
         case "getAccountLink":
             return await getAccountLink(event.arguments.id);
+        case "listAccounts":
+            return await listAccounts(event.arguments.filter);
         case "createAccountLink":
             return await createAccountLink(event.arguments.createAccountLinkInput);
         case "updateAccountLink":

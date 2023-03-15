@@ -6,7 +6,7 @@ import {PlaidUtils} from "../utils/plaidUtils";
  * UpdateAccountLink resolver
  *
  * @param updateAccountLinkInput input to update an account link to
- * @returns {@link Promise} of {@link ReferralResponse}
+ * @returns {@link Promise} of {@link AccountLinkResponse}
  */
 export const updateAccountLink = async (updateAccountLinkInput: UpdateAccountLinkInput): Promise<AccountLinkResponse> => {
     // initializing the DynamoDB document client
@@ -64,13 +64,17 @@ export const updateAccountLink = async (updateAccountLinkInput: UpdateAccountLin
             // otherwise get the existing account and add a new link in it
             retrievedAccountLink = Item! as AccountLink;
 
+            // check against duplicate accounts, by checking if the same account number was added before, for the same institution
+            checkAccountDuplicates(updateAccountLinkInput, retrievedAccountLink);
+
             // retrieve the specific link which we are running updates for
             for (const link of retrievedAccountLink.links) {
                 if (link!.linkToken === updateAccountLinkInput.accountLinkDetails.linkToken) {
                     link!.updatedAt = new Date().toISOString();
 
-                    // identity whether this is an update for which a token exchange is needed
-                    if (updateAccountLinkInput.accountLinkDetails.publicToken) {
+                    // identity whether this is an update for which a token exchange is needed (do not exchange for duplicate accounts)
+                    if (updateAccountLinkInput.accountLinkDetails.publicToken && updateAccountLinkInput.accountLinkDetails.accounts
+                        && updateAccountLinkInput.accountLinkDetails.accounts.length !== 0 && updateAccountLinkInput.accountLinkDetails.institution) {
                         console.log('Performing a token exchange for {}', updateAccountLinkInput.id);
 
                         // initialize the Plaid Utils
@@ -93,7 +97,7 @@ export const updateAccountLink = async (updateAccountLinkInput: UpdateAccountLin
                     if (updateAccountLinkInput.accountLinkDetails.accountLinkError) {
                         link!.accountLinkError = updateAccountLinkInput.accountLinkDetails.accountLinkError;
                     }
-                    if (updateAccountLinkInput.accountLinkDetails.accounts) {
+                    if (updateAccountLinkInput.accountLinkDetails.accounts && updateAccountLinkInput.accountLinkDetails.accounts.length !== 0) {
                         link!.accounts = updateAccountLinkInput.accountLinkDetails!.accounts;
                     }
                     if (updateAccountLinkInput.accountLinkDetails.institution) {
@@ -131,5 +135,39 @@ export const updateAccountLink = async (updateAccountLinkInput: UpdateAccountLin
             errorMessage: `Unexpected error while executing updateAccountLink mutation. ${err}`,
             errorType: LinkErrorType.UnexpectedError
         };
+    }
+}
+
+/**
+ * Function used to check for account duplicates and update them accordingly
+ *
+ * @param updateAccountLinkInput the account link to update
+ * @param retrievedAccountLink the account link object retrieved
+ */
+const checkAccountDuplicates = (updateAccountLinkInput: UpdateAccountLinkInput, retrievedAccountLink: AccountLink): void => {
+    const updatedAccounts = updateAccountLinkInput.accountLinkDetails.accounts;
+    const updatedInstitution = updateAccountLinkInput.accountLinkDetails.institution;
+
+    if (updatedAccounts && updatedAccounts.length !== 0 && updatedInstitution) {
+        for (const link of retrievedAccountLink.links) {
+            const comparableAccounts = link!.accounts;
+            const comparableInstitution = link!.institution;
+
+            // perform comparison and remove from the list ofr updatedAccounts if it exists already in the same link or in another one
+            if (comparableInstitution && comparableAccounts && comparableAccounts.length !== 0) {
+                if ((updatedInstitution.name === comparableInstitution.name) && (updatedInstitution.id === comparableInstitution.id)) {
+                    updatedAccounts.forEach(updateAccount => {
+                        let checkedIndex: number = 0;
+                        comparableAccounts.forEach(comparableAccount => {
+                            if (comparableAccount!.mask === updateAccount!.mask && comparableAccount!.name === updateAccount!.name) {
+                                // delete the element from the list of accounts
+                                updatedAccounts.splice(checkedIndex, 1);
+                            }
+                        })
+                        checkedIndex++;
+                    })
+                }
+            }
+        }
     }
 }

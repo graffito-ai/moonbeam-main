@@ -96,7 +96,7 @@ export class StageUtils {
                             accountLinkingFunctionName: stageConfiguration.amplifyConfig!.accountLinkingConfig!.accountLinkingFunctionName,
                             accountLinkingTableName: stageConfiguration.amplifyConfig!.accountLinkingConfig!.accountLinkingTableName,
                             getAccountLink: stageConfiguration.amplifyConfig!.accountLinkingConfig!.getAccountLink,
-                            listAccountLinks: stageConfiguration.amplifyConfig!.accountLinkingConfig!.listAccountLinks,
+                            listAccounts: stageConfiguration.amplifyConfig!.accountLinkingConfig!.listAccounts,
                             createAccountLink: stageConfiguration.amplifyConfig!.accountLinkingConfig!.createAccountLink,
                             updateAccountLink: stageConfiguration.amplifyConfig!.accountLinkingConfig!.updateAccountLink
                         }

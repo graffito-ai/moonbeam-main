@@ -1,11 +1,11 @@
 import * as AWS from 'aws-sdk';
-import {AccountLink, AccountLinkResponse, LinkErrorType, ReferralResponse} from "@moonbeam/moonbeam-models";
+import {AccountLink, AccountLinkResponse, LinkErrorType} from "@moonbeam/moonbeam-models";
 
 /**
  * GetAccountLink resolver
  *
  * @param id account link id (user id), for the account link to be retrieved
- * @returns {@link Promise} of {@link ReferralResponse}
+ * @returns {@link Promise} of {@link AccountLinkResponse}
  */
 export const getAccountLink = async (id: string): Promise<AccountLinkResponse> => {
     // initializing the DynamoDB document client

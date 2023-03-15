@@ -2,19 +2,21 @@ import * as AWS from 'aws-sdk';
 import {
     AccountLink,
     AccountLinkResponse,
+    Constants,
     CreateAccountLinkInput,
-    LinkErrorType,
-    ReferralResponse
+    LinkErrorType
 } from "@moonbeam/moonbeam-models";
 import {CountryCode, Products} from 'plaid';
 import {DepositoryAccountSubtype} from "plaid/api";
 import {PlaidUtils} from "../utils/plaidUtils";
+import MOONBEAM_DEPLOYMENT_BUCKET_NAME = Constants.MoonbeamConstants.MOONBEAM_DEPLOYMENT_BUCKET_NAME;
+import MOONBEAM_PLAID_OAUTH_FILE_NAME = Constants.MoonbeamConstants.MOONBEAM_PLAID_OAUTH_FILE_NAME;
 
 /**
  * CreateAccountLink resolver
  *
  * @param createAccountLinkInput object to be used for linking a user with Plaid
- * @returns {@link Promise} of {@link ReferralResponse}
+ * @returns {@link Promise} of {@link AccountLinkResponse}
  */
 export const createAccountLink = async (createAccountLinkInput: CreateAccountLinkInput): Promise<AccountLinkResponse> => {
     // initializing the DynamoDB document client
@@ -38,7 +40,7 @@ export const createAccountLink = async (createAccountLinkInput: CreateAccountLin
                     account_subtypes: [DepositoryAccountSubtype.Checking, DepositoryAccountSubtype.Savings]
                 }
             },
-            redirect_uri: `https://moonbeam-application-deployment-bucket.s3.us-west-2.amazonaws.com/moonbeam-plaid-oauth-${process.env.ENV_NAME!}.html`
+            redirect_uri: `https://${MOONBEAM_DEPLOYMENT_BUCKET_NAME}-${process.env.ENV_NAME!}-${process.env.AWS_REGION!}.s3.${process.env.AWS_REGION!}.amazonaws.com/${MOONBEAM_PLAID_OAUTH_FILE_NAME}-${process.env.ENV_NAME!}.html`
         });
 
         // retrieve the account link object given the account link id (user id)

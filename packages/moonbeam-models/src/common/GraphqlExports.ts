@@ -30,6 +30,16 @@ export type Account = {
   verificationStatus: AccountVerificationStatus;
 };
 
+export type AccountDetails = {
+  __typename?: 'AccountDetails';
+  id: Scalars['String'];
+  institution: FinancialInstitution;
+  mask: Scalars['String'];
+  name: Scalars['String'];
+  type: AccountType;
+  verificationStatus: AccountVerificationStatus;
+};
+
 export type AccountInput = {
   id: Scalars['String'];
   mask: Scalars['String'];
@@ -95,6 +105,13 @@ export type AccountLinkResponse = {
   errorType?: Maybe<LinkErrorType>;
 };
 
+export type AccountResponse = {
+  __typename?: 'AccountResponse';
+  data?: Maybe<Array<Maybe<AccountDetails>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<LinkErrorType>;
+};
+
 export enum AccountType {
   Checking = 'CHECKING',
   Savings = 'SAVINGS',
@@ -154,6 +171,11 @@ export enum LinkLogLevel {
   Warn = 'WARN'
 }
 
+export type ListAccountsInput = {
+  id: Scalars['ID'];
+  status?: InputMaybe<AccountVerificationStatus>;
+};
+
 export type ListReferralInput = {
   inviteeEmail?: InputMaybe<Scalars['String']>;
   inviterEmail?: InputMaybe<Scalars['String']>;
@@ -198,6 +220,7 @@ export type Query = {
   __typename?: 'Query';
   getAccountLink?: Maybe<AccountLinkResponse>;
   getReferral?: Maybe<ReferralResponse>;
+  listAccounts?: Maybe<AccountResponse>;
   listReferrals?: Maybe<ReferralResponse>;
 };
 
@@ -209,6 +232,11 @@ export type QueryGetAccountLinkArgs = {
 
 export type QueryGetReferralArgs = {
   id: Scalars['String'];
+};
+
+
+export type QueryListAccountsArgs = {
+  filter: ListAccountsInput;
 };
 
 
@@ -288,3 +316,10 @@ export type GetAccountLinkQueryVariables = Exact<{
 
 
 export type GetAccountLinkQuery = { __typename?: 'Query', getAccountLink?: { __typename?: 'AccountLinkResponse', errorMessage?: string | null, errorType?: LinkErrorType | null, data?: { __typename?: 'AccountLink', id: string, links: Array<{ __typename?: 'AccountLinkDetails', publicToken?: string | null, accessToken?: string | null, linkToken: string, institution?: { __typename?: 'FinancialInstitution', name: string, id: string } | null, accounts?: Array<{ __typename?: 'Account', id: string } | null> | null } | null> } | null } | null };
+
+export type ListAccountsQueryVariables = Exact<{
+  filter: ListAccountsInput;
+}>;
+
+
+export type ListAccountsQuery = { __typename?: 'Query', listAccounts?: { __typename?: 'AccountResponse', errorMessage?: string | null, errorType?: LinkErrorType | null, data?: Array<{ __typename?: 'AccountDetails', id: string, name: string, mask: string, type: AccountType, verificationStatus: AccountVerificationStatus, institution: { __typename?: 'FinancialInstitution', id: string, name: string } } | null> | null } | null };
