@@ -6,7 +6,6 @@ export const styles = StyleSheet.create({
         flex: 1,
         flexGrow: 1,
         flexDirection: 'column',
-        justifyContent: 'space-between',
         alignItems: 'center'
     },
     titleView: {
@@ -14,7 +13,6 @@ export const styles = StyleSheet.create({
         alignSelf: 'flex-start'
     },
     bottomView: {
-        marginTop: Dimensions.get('window').height/3.5,
         alignItems: 'center',
     },
     content: {

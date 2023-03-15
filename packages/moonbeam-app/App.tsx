@@ -16,6 +16,7 @@ import {Dashboard} from './src/components/main/Dashboard';
 import {IconButton, Provider as PaperProvider, Text} from 'react-native-paper';
 import * as Linking from 'expo-linking';
 import * as Font from 'expo-font';
+import * as SecureStore from "expo-secure-store";
 
 // keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync().then(() => {
@@ -69,6 +70,9 @@ export default function App() {
                     'Raleway-Thin': require('assets/fonts/static/Raleway-Thin.ttf'),
                     'Raleway-ThinItalic': require('assets/fonts/static/Raleway-ThinItalic.ttf')
                 });
+
+                // clear any cached items from the SecureStore
+                await SecureStore.deleteItemAsync('bankAccounts');
             } catch (e) {
                 console.warn(e);
             } finally {

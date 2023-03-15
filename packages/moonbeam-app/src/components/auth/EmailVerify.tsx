@@ -197,7 +197,10 @@ export const EmailVerify = ({navigation, route}: EmailVerifyProps) => {
             </Portal>
             <KeyboardAwareScrollView
                 contentContainerStyle={commonStyles.container}
+                enableOnAndroid={true}
+                scrollEnabled={true}
                 keyboardShouldPersistTaps={'handled'}
+                showsVerticalScrollIndicator={false}
             >
                 <View style={styles.mainView}>
                     <View style={styles.topView}>

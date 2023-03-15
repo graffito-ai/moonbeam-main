@@ -127,7 +127,10 @@ export const SettingsList = ({route, navigation}: SettingsListProps) => {
                                 left={() => <List.Icon color={'#2A3779'} icon="bank"/>}
                                 right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
                                 onPress={() => {
-                                    navigation.navigate('BankAccounts', {currentUserInformation: route.params.currentUserInformation, oauthStateId: undefined})
+                                    navigation.navigate('BankAccounts', {
+                                        currentUserInformation: route.params.currentUserInformation,
+                                        oauthStateId: undefined
+                                    })
                                 }}
                             />
                             <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
