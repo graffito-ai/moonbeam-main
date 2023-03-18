@@ -98,7 +98,8 @@ export class StageUtils {
                             getAccountLink: stageConfiguration.amplifyConfig!.accountLinkingConfig!.getAccountLink,
                             listAccounts: stageConfiguration.amplifyConfig!.accountLinkingConfig!.listAccounts,
                             createAccountLink: stageConfiguration.amplifyConfig!.accountLinkingConfig!.createAccountLink,
-                            updateAccountLink: stageConfiguration.amplifyConfig!.accountLinkingConfig!.updateAccountLink
+                            updateAccountLink: stageConfiguration.amplifyConfig!.accountLinkingConfig!.updateAccountLink,
+                            deleteAccount: stageConfiguration.amplifyConfig!.accountLinkingConfig!.deleteAccount
                         }
                     },
                     environmentVariables: stageConfiguration.environmentVariables

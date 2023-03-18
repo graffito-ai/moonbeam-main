@@ -67,6 +67,10 @@ export const styles = StyleSheet.create({
         color: 'grey',
         fontFamily: 'Raleway-Medium'
     },
+    bankItemRightIcon: {
+        alignItems: 'flex-end',
+        top: '1.5%'
+    },
     bottomTextView: {
         marginTop: '5%'
     },

@@ -8,10 +8,10 @@ import {AccountLink, AccountLinkResponse, LinkErrorType} from "@moonbeam/moonbea
  * @returns {@link Promise} of {@link AccountLinkResponse}
  */
 export const getAccountLink = async (id: string): Promise<AccountLinkResponse> => {
-    // initializing the DynamoDB document client
-    const docClient = new AWS.DynamoDB.DocumentClient();
-
     try {
+        // initializing the DynamoDB document client
+        const docClient = new AWS.DynamoDB.DocumentClient();
+
         // retrieve the account link object given the account link id (user id)
         const {Item} = await docClient.get({
             TableName: process.env.ACCOUNT_LINKS!,
@@ -25,7 +25,7 @@ export const getAccountLink = async (id: string): Promise<AccountLinkResponse> =
     } catch (err) {
         console.log(`Unexpected error while executing getAccountLink query {}`, err);
         return {
-            errorMessage: `Unexpected error while executing getAccountLink query. ${err}`,
+            errorMessage: `Unexpected error while executing getAccountLink query ${err}`,
             errorType: LinkErrorType.UnexpectedError
         };
     }

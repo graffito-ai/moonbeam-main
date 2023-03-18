@@ -19,10 +19,10 @@ import MOONBEAM_PLAID_OAUTH_FILE_NAME = Constants.MoonbeamConstants.MOONBEAM_PLA
  * @returns {@link Promise} of {@link AccountLinkResponse}
  */
 export const createAccountLink = async (createAccountLinkInput: CreateAccountLinkInput): Promise<AccountLinkResponse> => {
-    // initializing the DynamoDB document client
-    const docClient = new AWS.DynamoDB.DocumentClient();
-
     try {
+        // initializing the DynamoDB document client
+        const docClient = new AWS.DynamoDB.DocumentClient();
+
         // initialize the Plaid Utils
         const plaidUtils = await PlaidUtils.setup();
 
@@ -50,7 +50,8 @@ export const createAccountLink = async (createAccountLinkInput: CreateAccountLin
         }).promise();
 
         // create the account link object to return and store
-        const createdAt = new Date().toISOString();
+        const createdAt = createAccountLinkInput.createdAt && new Date().toISOString();
+        const updatedAt = createAccountLinkInput.updatedAt && createdAt;
         const accountLink: AccountLink = {
             id: createAccountLinkInput.id,
             userEmail: createAccountLinkInput.userEmail,
@@ -63,8 +64,8 @@ export const createAccountLink = async (createAccountLinkInput: CreateAccountLin
             accountLink.links.push({
                 linkToken: createTokenResponse.data.link_token,
                 requestId: createTokenResponse.data.request_id,
-                createdAt: createdAt,
-                updatedAt: createdAt
+                createdAt: createdAt!,
+                updatedAt: updatedAt!
             });
         } else {
             // otherwise get the existing account and add a new link in it
@@ -74,8 +75,8 @@ export const createAccountLink = async (createAccountLinkInput: CreateAccountLin
                 {
                     linkToken: createTokenResponse.data.link_token,
                     requestId: createTokenResponse.data.request_id,
-                    createdAt: createdAt,
-                    updatedAt: createdAt
+                    createdAt: createdAt!,
+                    updatedAt: updatedAt!
                 }
             ]
         }
@@ -94,7 +95,7 @@ export const createAccountLink = async (createAccountLinkInput: CreateAccountLin
         (err) {
         console.log(`Unexpected error while executing createAccountLink mutation {}`, err);
         return {
-            errorMessage: `Unexpected error while executing createAccountLink mutation. ${err}`,
+            errorMessage: `Unexpected error while executing createAccountLink mutation ${err}`,
             errorType: LinkErrorType.UnexpectedError
         };
     }

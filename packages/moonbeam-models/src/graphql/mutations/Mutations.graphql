@@ -56,3 +56,23 @@ mutation UpdateAccountLink($updateAccountLinkInput: UpdateAccountLinkInput!) {
         }
     }
 }
+
+
+mutation DeleteAccount($deleteAccountInput: DeleteAccountInput!) {
+    deleteAccount(deleteAccountInput: $deleteAccountInput) {
+        errorType
+        errorMessage
+        data {
+            id
+            name
+            mask
+            type
+            verificationStatus
+            institution {
+                id
+                name
+            }
+            linkToken
+        }
+    }
+}

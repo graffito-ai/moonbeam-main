@@ -21,10 +21,10 @@ type UpdateParams = {
  * @returns {@link Promise} of {@link ReferralResponse}
  */
 export const updateReferral = async (updateReferralInput: UpdateReferralInput): Promise<ReferralResponse> => {
-    // initializing the DynamoDB document client
-    const docClient = new AWS.DynamoDB.DocumentClient();
-
     try {
+        // initializing the DynamoDB document client
+        const docClient = new AWS.DynamoDB.DocumentClient();
+
         // update the timestamps accordingly
         updateReferralInput.updatedAt = new Date().toISOString();
 
@@ -62,7 +62,7 @@ export const updateReferral = async (updateReferralInput: UpdateReferralInput): 
     } catch (err) {
         console.log(`Unexpected error while executing updateReferral mutation {}`, err);
         return {
-            errorMessage: `Unexpected error while executing updateReferral mutation. ${err}`,
+            errorMessage: `Unexpected error while executing updateReferral mutation ${err}`,
             errorType: ReferralErrorType.UnexpectedError
         };
     }

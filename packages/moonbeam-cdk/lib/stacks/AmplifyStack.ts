@@ -132,7 +132,8 @@ export class AmplifyStack extends Stack {
                     getAccountLink: props.amplifyConfig!.accountLinkingConfig!.getAccountLink,
                     listAccounts: props.amplifyConfig!.accountLinkingConfig!.listAccounts,
                     createAccountLink: props.amplifyConfig!.accountLinkingConfig!.createAccountLink,
-                    updateAccountLink: props.amplifyConfig!.accountLinkingConfig!.updateAccountLink
+                    updateAccountLink: props.amplifyConfig!.accountLinkingConfig!.updateAccountLink,
+                    deleteAccount: props.amplifyConfig!.accountLinkingConfig!.deleteAccount
                 }
             },
             environmentVariables: props.environmentVariables

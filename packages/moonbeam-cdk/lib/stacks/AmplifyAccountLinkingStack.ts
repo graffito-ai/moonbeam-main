@@ -62,6 +62,10 @@ export class AmplifyAccountLinkingStack extends NestedStack {
             typeName: "Mutation",
             fieldName: `${props.amplifyConfig!.accountLinkingConfig!.updateAccountLink}`
         });
+        accountLinkingLambdaSource.createResolver(`${props.amplifyConfig!.accountLinkingConfig!.deleteAccount}-${props.stage}-${props.env!.region}`, {
+            typeName: "Mutation",
+            fieldName: `${props.amplifyConfig!.accountLinkingConfig!.deleteAccount}`
+        });
 
         // create a new table to be used for Account Links
         const accountLinksTable = new aws_dynamodb.Table(this, `${props.amplifyConfig!.accountLinkingConfig!.accountLinkingTableName}-${props.stage}-${props.env!.region}`, {

@@ -29,6 +29,7 @@ export interface AccountLinkingConfiguration {
     readonly listAccounts: string;
     readonly createAccountLink: string;
     readonly updateAccountLink: string;
+    readonly deleteAccount: string;
 }
 
 /**

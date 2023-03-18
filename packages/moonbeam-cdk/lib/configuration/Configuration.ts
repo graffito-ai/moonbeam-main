@@ -36,7 +36,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     getAccountLink: 'getAccountLink',
                     listAccounts: 'listAccounts',
                     createAccountLink: 'createAccountLink',
-                    updateAccountLink: 'updateAccountLink'
+                    updateAccountLink: 'updateAccountLink',
+                    deleteAccount: 'deleteAccount'
                 }
             },
             sesConfig: {

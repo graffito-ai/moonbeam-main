@@ -68,3 +68,26 @@ export const updateAccountLink = /* GraphQL */ `
         }
     }
 `;
+
+
+// Mutation used to delete one or more accounts from an account link
+export const deleteAccount = /* GraphQL */ `
+    mutation DeleteAccount($deleteAccountInput: DeleteAccountInput!) {
+        deleteAccount(deleteAccountInput: $deleteAccountInput) {
+            errorType
+            errorMessage
+            data {
+                id
+                name
+                mask
+                type
+                verificationStatus
+                institution {
+                    id
+                    name
+                }
+                linkToken
+            }
+        }
+    }
+`;

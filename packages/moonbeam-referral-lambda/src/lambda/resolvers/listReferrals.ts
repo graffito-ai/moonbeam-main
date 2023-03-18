@@ -9,10 +9,10 @@ import {ReferralFiltering} from "@moonbeam/moonbeam-models";
  * @returns {@link Promise} of {@link ReferralResponse}
  */
 export const listReferrals = async (filter: ListReferralInput): Promise<ReferralResponse> => {
-    // initializing the DynamoDB document client
-    const docClient = new AWS.DynamoDB.DocumentClient();
-
     try {
+        // initializing the DynamoDB document client
+        const docClient = new AWS.DynamoDB.DocumentClient();
+
         // constants to keep track of the type of filtering being done
         let referralFilterType: ReferralFiltering | null = null;
 
@@ -60,7 +60,7 @@ export const listReferrals = async (filter: ListReferralInput): Promise<Referral
         console.log(`Unexpected error while executing listReferrals query {}`, err);
 
         return {
-            errorMessage: `Unexpected error while executing listReferrals query. ${err}`,
+            errorMessage: `Unexpected error while executing listReferrals query ${err}`,
             errorType: ReferralErrorType.UnexpectedError
         };
     }

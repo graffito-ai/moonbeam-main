@@ -58,6 +58,7 @@ query ListAccounts($filter: ListAccountsInput!) {
                 id
                 name
             }
+            linkToken
         }
     }
 }

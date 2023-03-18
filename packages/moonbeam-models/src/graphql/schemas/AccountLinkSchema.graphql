@@ -80,12 +80,23 @@ type AccountDetails @aws_cognito_user_pools {
     type: AccountType!
     verificationStatus: AccountVerificationStatus!
     institution: FinancialInstitution!
+    linkToken: String!
 }
 
 type AccountResponse @aws_cognito_user_pools {
     data: [AccountDetails]
     errorType: LinkErrorType
     errorMessage: String
+}
+
+input AccountDetailsInput {
+    id: String!
+    name: String!
+    mask: String!
+    type: AccountType!
+    verificationStatus: AccountVerificationStatus!
+    institution: FinancialInstitutionInput!
+    linkToken: String!
 }
 
 input AccountLinkErrorInput {
@@ -132,9 +143,17 @@ input CreateAccountLinkInput {
 input UpdateAccountLinkInput {
     id: ID!
     accountLinkDetails: AccountLinkDetailsInput!
+    updatedAt: AWSDateTime
 }
 
 input ListAccountsInput {
     id: ID!
     status: AccountVerificationStatus
+}
+
+input DeleteAccountInput {
+    id: ID!
+    linkToken: String!
+    accounts: [AccountDetailsInput]!
+    updatedAt: AWSDateTime
 }

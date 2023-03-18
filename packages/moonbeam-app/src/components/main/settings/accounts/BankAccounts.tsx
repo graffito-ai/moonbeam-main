@@ -2,7 +2,7 @@ import 'react-native-get-random-values';
 import React, {useEffect, useState} from "react";
 import {Dimensions, SafeAreaView, ScrollView, View} from "react-native";
 import {commonStyles} from "../../../../styles/common.module";
-import {Button, Divider, List, Text} from "react-native-paper";
+import {Button, Divider, List, Text, IconButton} from "react-native-paper";
 import {styles} from "../../../../styles/bankAccounts.module";
 // @ts-ignore
 import FriendReferral from '../../../../../assets/refer-friend.png';
@@ -16,7 +16,7 @@ import {
     AccountVerificationStatus,
     Constants,
     createAccountLink,
-    CreateAccountLinkInput,
+    CreateAccountLinkInput, deleteAccount, DeleteAccountInput,
     FinancialInstitutionInput,
     listAccounts,
     updateAccountLink,
@@ -206,7 +206,8 @@ export const BankAccounts = ({navigation, route}: BankAccountsProps) => {
                                 name: 'Bank',
                                 id: ''
                             }
-                        })
+                        }),
+                    linkToken: accountLinkDetails!.linkToken!
                 });
             });
             // perform a mutation to exchange the link token and update the account link with the appropriate account info
@@ -247,13 +248,14 @@ export const BankAccounts = ({navigation, route}: BankAccountsProps) => {
 
                 // merge the two lists between retrieved and existing accounts, besides duplicates
                 const accountsToMerge = accountsToUpdate;
+                let checkedIndex: number = 0;
                 accountsToUpdate.forEach(accountToUpdate => {
-                    let checkedIndex: number = 0;
                     bankAccounts.forEach(retrievedAccount => {
                         if ((retrievedAccount.institution.name === accountToUpdate.institution.name)
                             && (retrievedAccount.institution.id === accountToUpdate.institution.id)
                             && (retrievedAccount.name === accountToUpdate.name)
-                            && (retrievedAccount.mask === accountToUpdate.mask)) {
+                            && (retrievedAccount.mask === accountToUpdate.mask)
+                            && (retrievedAccount.type === accountToUpdate.type)) {
                             // remove the duplicates
                             accountsToMerge.splice(checkedIndex, 1);
                         }
@@ -302,7 +304,6 @@ export const BankAccounts = ({navigation, route}: BankAccountsProps) => {
                     requestId: exit.metadata.requestId
                 }
             }
-
             const accountLinkExchangeResult = await API.graphql(graphqlOperation(updateAccountLink, {
                 updateAccountLinkInput: updateAccountLinkInput
             }));
@@ -337,6 +338,52 @@ export const BankAccounts = ({navigation, route}: BankAccountsProps) => {
     }
 
     /**
+     * Function used to remove a bank account, from the list of accounts for the user account link
+     *
+     * @param accountId id for the account to remove
+     */
+    const deleteAccountFromLink = async (accountId: string): Promise<void> => {
+        try {
+            // retrieve the account details from the list of accounts, based on the provided id
+            bankAccounts.filter(account => account!.id === accountId).map(async retrievedAccount => {
+                // perform a mutation to delete the account from the list of accounts for the link
+                const deleteAccountInput: DeleteAccountInput = {
+                    id: route.params.currentUserInformation["custom:userId"],
+                    linkToken: retrievedAccount.linkToken,
+                    accounts: [{
+                        ...retrievedAccount
+                    }]
+                }
+                const deleteAccountResult = await API.graphql(graphqlOperation(deleteAccount, {
+                    deleteAccountInput: deleteAccountInput
+                }));
+
+                // @ts-ignore
+                if (deleteAccountResult && deleteAccountResult.data.deleteAccount.errorMessage === null) {
+                    // set the bank accounts array, to the array returned after deletion
+                    // @ts-ignore
+                    setBankAccounts(deleteAccountResult.data.deleteAccount.data as AccountDetails[]);
+
+                    // store the retrieved accounts in the store
+                    // @ts-ignore
+                    await SecureStore.setItemAsync('bankAccounts', JSON.stringify(deleteAccountResult.data.deleteAccount.data));
+                } else {
+                    console.log(`Unexpected error while deleting account ${accountId} ${JSON.stringify(deleteAccountResult)}`);
+                    // ToDo: need to create a modal with errors
+                }
+            });
+        } catch (error) {
+            // @ts-ignore
+            console.log(error.message
+                // @ts-ignore
+                ? `Unexpected error while deleting account: ${JSON.stringify(error.message)}`
+                : `Unexpected error while deleting account: ${JSON.stringify(error)}`);
+            // ToDo: need to create a modal with errors
+        }
+    }
+
+
+    /**
      * Function used to filter and return accounts, as a list items, depending on the
      * status passed in.
      *
@@ -363,8 +410,18 @@ export const BankAccounts = ({navigation, route}: BankAccountsProps) => {
                         descriptionNumberOfLines={2}
                         title={filteredAccount.institution.name}
                         description={`${filteredAccount.type} ${filteredAccount.mask !== '' ? filteredAccount.mask : '••••'}`}
-                        left={() => <List.Icon color={'#2A3779'} icon="bank"/>}
-                        right={() => <List.Icon color={'red'} icon="trash-can"/>}/>
+                        left={() =>
+                            <List.Icon color={'#2A3779'} icon="bank" key={`${filteredAccount.id}_bankIconKey`}/>}
+                        right={() =>
+                            <IconButton
+                                key={`${filteredAccount.id}_deleteKey`}
+                                style={styles.bankItemRightIcon}
+                                icon="trash-can"
+                                iconColor={'red'}
+                                size={25}
+                                onPress={async () => await deleteAccountFromLink(filteredAccount.id)}
+                            />}
+                    />
                     {filteredAccountsIndex !== filteredAccounts.length - 1 &&
                         <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>}
                 </>)
@@ -375,6 +432,7 @@ export const BankAccounts = ({navigation, route}: BankAccountsProps) => {
             switch (status) {
                 case AccountVerificationStatus.Verified:
                     return (<List.Item
+                        key={`${AccountVerificationStatus.Verified}_Key`}
                         style={styles.bankItemStyle}
                         titleStyle={styles.bankItemTitle}
                         descriptionStyle={styles.bankItemDetails}
@@ -382,10 +440,13 @@ export const BankAccounts = ({navigation, route}: BankAccountsProps) => {
                         descriptionNumberOfLines={2}
                         title="Hurry!"
                         description='Connect your first account below'
-                        right={() => <List.Icon color={'red'} icon="exclamation"/>}
+                        right={() =>
+                            <List.Icon color={'red'} icon="exclamation"
+                                       key={`${AccountVerificationStatus.Verified}_exclamationKey`}/>}
                     />);
                 case AccountVerificationStatus.Pending:
                     return (<List.Item
+                        key={`${AccountVerificationStatus.Pending}_Key`}
                         style={styles.bankItemStyle}
                         titleStyle={styles.bankItemTitle}
                         descriptionStyle={styles.bankItemDetails}
@@ -393,7 +454,9 @@ export const BankAccounts = ({navigation, route}: BankAccountsProps) => {
                         descriptionNumberOfLines={2}
                         title="Great job!"
                         description='No accounts pending verification'
-                        right={() => <List.Icon color={'green'} icon="check"/>}
+                        right={() =>
+                            <List.Icon color={'green'} icon="check"
+                                       key={`${AccountVerificationStatus.Pending}_checkKey`}/>}
                     />);
                 default:
                     return (<></>);

@@ -8,10 +8,10 @@ import {CreateReferralInput, Referral, ReferralErrorType, ReferralResponse} from
  * @returns {@link Promise} of {@link ReferralResponse}
  */
 export const createReferral = async (createReferralInput: CreateReferralInput): Promise<ReferralResponse> => {
-    // initializing the DynamoDB document client
-    const docClient = new AWS.DynamoDB.DocumentClient();
-
     try {
+        // initializing the DynamoDB document client
+        const docClient = new AWS.DynamoDB.DocumentClient();
+
         // update the timestamps accordingly
         const createdAt = new Date().toISOString();
         createReferralInput.createdAt = createdAt;
@@ -30,7 +30,7 @@ export const createReferral = async (createReferralInput: CreateReferralInput): 
     } catch (err) {
         console.log(`Unexpected error while executing createReferral mutation {}`, err);
         return {
-            errorMessage: `Unexpected error while executing createReferral mutation. ${err}`,
+            errorMessage: `Unexpected error while executing createReferral mutation ${err}`,
             errorType: ReferralErrorType.UnexpectedError
         };
     }

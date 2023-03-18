@@ -1,6 +1,6 @@
 import {
     AccountLinkResponse, AccountResponse,
-    CreateAccountLinkInput,
+    CreateAccountLinkInput, DeleteAccountInput,
     LinkErrorType, ListAccountsInput,
     UpdateAccountLinkInput
 } from "@moonbeam/moonbeam-models";
@@ -8,6 +8,7 @@ import {createAccountLink} from "./resolvers/createAccountLink";
 import {updateAccountLink} from "./resolvers/updateAccountLink";
 import {getAccountLink} from "./resolvers/getAccountLink";
 import {listAccounts} from "./resolvers/listAccounts";
+import {deleteAccount} from "./resolvers/deleteAccount";
 
 /**
  * Mapping out the App Sync event type, so we can use it as a type in the Lambda Handler
@@ -20,7 +21,8 @@ type AppSyncEvent = {
         id: string,
         filter: ListAccountsInput,
         createAccountLinkInput: CreateAccountLinkInput,
-        updateAccountLinkInput: UpdateAccountLinkInput
+        updateAccountLinkInput: UpdateAccountLinkInput,
+        deleteAccountInput: DeleteAccountInput
     },
     identity: {
         sub : string;
@@ -45,6 +47,8 @@ exports.handler = async (event: AppSyncEvent): Promise<AccountLinkResponse | Acc
             return await createAccountLink(event.arguments.createAccountLinkInput);
         case "updateAccountLink":
             return await updateAccountLink(event.arguments.updateAccountLinkInput);
+        case "deleteAccount":
+            return await deleteAccount(event.arguments.deleteAccountInput);
         default:
             console.log(`Unexpected field name: {}`, event.info.fieldName);
             return {

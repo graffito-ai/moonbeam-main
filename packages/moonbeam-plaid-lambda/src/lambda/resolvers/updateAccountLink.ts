@@ -9,10 +9,10 @@ import {PlaidUtils} from "../utils/plaidUtils";
  * @returns {@link Promise} of {@link AccountLinkResponse}
  */
 export const updateAccountLink = async (updateAccountLinkInput: UpdateAccountLinkInput): Promise<AccountLinkResponse> => {
-    // initializing the DynamoDB document client
-    const docClient = new AWS.DynamoDB.DocumentClient();
-
     try {
+        // initializing the DynamoDB document client
+        const docClient = new AWS.DynamoDB.DocumentClient();
+
         // validating that the appropriate update link parameters are passed in
         if (!updateAccountLinkInput.accountLinkDetails.accountLinkError &&
             (
@@ -70,7 +70,7 @@ export const updateAccountLink = async (updateAccountLinkInput: UpdateAccountLin
             // retrieve the specific link which we are running updates for
             for (const link of retrievedAccountLink.links) {
                 if (link!.linkToken === updateAccountLinkInput.accountLinkDetails.linkToken) {
-                    link!.updatedAt = new Date().toISOString();
+                    link!.updatedAt = updateAccountLinkInput.updatedAt ? updateAccountLinkInput.updatedAt : new Date().toISOString();
 
                     // identity whether this is an update for which a token exchange is needed (do not exchange for duplicate accounts)
                     if (updateAccountLinkInput.accountLinkDetails.publicToken && updateAccountLinkInput.accountLinkDetails.accounts
@@ -132,7 +132,7 @@ export const updateAccountLink = async (updateAccountLinkInput: UpdateAccountLin
     } catch (err) {
         console.log(`Unexpected error while executing updateAccountLink mutation {}`, err);
         return {
-            errorMessage: `Unexpected error while executing updateAccountLink mutation. ${err}`,
+            errorMessage: `Unexpected error while executing updateAccountLink mutation ${err}`,
             errorType: LinkErrorType.UnexpectedError
         };
     }
@@ -156,16 +156,18 @@ const checkAccountDuplicates = (updateAccountLinkInput: UpdateAccountLinkInput, 
             // perform comparison and remove from the list ofr updatedAccounts if it exists already in the same link or in another one
             if (comparableInstitution && comparableAccounts && comparableAccounts.length !== 0) {
                 if ((updatedInstitution.name === comparableInstitution.name) && (updatedInstitution.id === comparableInstitution.id)) {
-                    updatedAccounts.forEach(updateAccount => {
-                        let checkedIndex: number = 0;
-                        comparableAccounts.forEach(comparableAccount => {
-                            if (comparableAccount!.mask === updateAccount!.mask && comparableAccount!.name === updateAccount!.name) {
+                    let checkedIndex: number = 0;
+                    for (const updateAccount of updateAccountLinkInput.accountLinkDetails!.accounts!) {
+                        for (const comparableAccount of comparableAccounts) {
+                            if (comparableAccount!.mask === updateAccount!.mask
+                                && comparableAccount!.name === updateAccount!.name
+                                && comparableAccount!.type === updateAccount!.type) {
                                 // delete the element from the list of accounts
                                 updatedAccounts.splice(checkedIndex, 1);
                             }
-                        })
+                        }
                         checkedIndex++;
-                    })
+                    }
                 }
             }
         }

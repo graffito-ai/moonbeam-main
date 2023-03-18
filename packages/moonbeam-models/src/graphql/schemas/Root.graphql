@@ -10,6 +10,7 @@ type Query {
 type Mutation {
     createAccountLink(createAccountLinkInput: CreateAccountLinkInput!): AccountLinkResponse @aws_cognito_user_pools
     updateAccountLink(updateAccountLinkInput: UpdateAccountLinkInput!): AccountLinkResponse @aws_cognito_user_pools
+    deleteAccount(deleteAccountInput: DeleteAccountInput!): AccountResponse @aws_cognito_user_pools
     createReferral(createReferralInput: CreateReferralInput!): ReferralResponse @aws_cognito_user_pools
     updateReferral(updateReferralInput: UpdateReferralInput!): ReferralResponse @aws_cognito_user_pools
 }

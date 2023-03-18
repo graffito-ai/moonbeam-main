@@ -34,6 +34,17 @@ export type AccountDetails = {
   __typename?: 'AccountDetails';
   id: Scalars['String'];
   institution: FinancialInstitution;
+  linkToken: Scalars['String'];
+  mask: Scalars['String'];
+  name: Scalars['String'];
+  type: AccountType;
+  verificationStatus: AccountVerificationStatus;
+};
+
+export type AccountDetailsInput = {
+  id: Scalars['String'];
+  institution: FinancialInstitutionInput;
+  linkToken: Scalars['String'];
   mask: Scalars['String'];
   name: Scalars['String'];
   type: AccountType;
@@ -147,6 +158,13 @@ export type CreateReferralInput = {
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
+export type DeleteAccountInput = {
+  accounts: Array<InputMaybe<AccountDetailsInput>>;
+  id: Scalars['ID'];
+  linkToken: Scalars['String'];
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
 export type FinancialInstitution = {
   __typename?: 'FinancialInstitution';
   id: Scalars['String'];
@@ -188,6 +206,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   createAccountLink?: Maybe<AccountLinkResponse>;
   createReferral?: Maybe<ReferralResponse>;
+  deleteAccount?: Maybe<AccountResponse>;
   updateAccountLink?: Maybe<AccountLinkResponse>;
   updateReferral?: Maybe<ReferralResponse>;
 };
@@ -200,6 +219,11 @@ export type MutationCreateAccountLinkArgs = {
 
 export type MutationCreateReferralArgs = {
   createReferralInput: CreateReferralInput;
+};
+
+
+export type MutationDeleteAccountArgs = {
+  deleteAccountInput: DeleteAccountInput;
 };
 
 
@@ -281,6 +305,7 @@ export enum ReferralStatus {
 export type UpdateAccountLinkInput = {
   accountLinkDetails: AccountLinkDetailsInput;
   id: Scalars['ID'];
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
 export type UpdateReferralInput = {
@@ -322,4 +347,4 @@ export type ListAccountsQueryVariables = Exact<{
 }>;
 
 
-export type ListAccountsQuery = { __typename?: 'Query', listAccounts?: { __typename?: 'AccountResponse', errorMessage?: string | null, errorType?: LinkErrorType | null, data?: Array<{ __typename?: 'AccountDetails', id: string, name: string, mask: string, type: AccountType, verificationStatus: AccountVerificationStatus, institution: { __typename?: 'FinancialInstitution', id: string, name: string } } | null> | null } | null };
+export type ListAccountsQuery = { __typename?: 'Query', listAccounts?: { __typename?: 'AccountResponse', errorMessage?: string | null, errorType?: LinkErrorType | null, data?: Array<{ __typename?: 'AccountDetails', id: string, name: string, mask: string, type: AccountType, verificationStatus: AccountVerificationStatus, linkToken: string, institution: { __typename?: 'FinancialInstitution', id: string, name: string } } | null> | null } | null };
