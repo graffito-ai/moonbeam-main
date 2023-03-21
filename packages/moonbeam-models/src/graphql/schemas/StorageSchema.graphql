@@ -1,0 +1,44 @@
+# graphql/AccountLinkSchema.graphql
+# Storage Schema File
+enum StorageErrorType {
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+    RESTRICTED_ACCESS
+}
+
+# Defines the types of file access levels available, implemented in line with what
+# Amplify storage does.
+#
+# For more information, refer to:
+# https://docs.amplify.aws/lib/storage/configureaccess/q/platform/js/
+#
+# For now just considering the public and private access levels, not protected.
+enum FileAccessLevel {
+    PUBLIC
+    PRIVATE
+    PROTECTED
+}
+
+# Defines the type of file to retrieve, which then, in turn determines the bucket that we
+# read from, and implicitly, the CloudFront distribution that we read from.
+enum FileType {
+    MAIN
+    # TBD on more file types, depending on whether we want to have additional buckets or not
+}
+
+type File @aws_cognito_user_pools {
+    url: String!
+}
+
+type StorageResponse @aws_cognito_user_pools {
+    data: File
+    errorType: StorageErrorType
+    errorMessage: String
+}
+
+input GetStorageInput {
+    level: FileAccessLevel!,
+    type: FileType!,
+    name: String!
+}

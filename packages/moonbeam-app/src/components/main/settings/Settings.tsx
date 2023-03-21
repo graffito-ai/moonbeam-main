@@ -71,7 +71,7 @@ export const Settings = ({route}: SettingsTabProps) => {
                                 style={{marginTop: '-5%',  marginLeft: `-10%`}}
                                 onPress={() => {
                                     setBottomTabNavigationShown(true);
-                                    navigation.goBack();
+                                    navigation.navigate('SettingsList', {currentUserInformation: route.params.currentUserInformation});
                                 }}
                             />)
                         },

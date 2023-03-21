@@ -8,7 +8,6 @@ import {Home} from './home/Home';
 import {Settings} from "./settings/Settings";
 import {Membership} from "./rewards/Membership";
 import {isCacheTokenValid} from '../../utils/Setup';
-import {NativeModules} from 'react-native';
 import * as SecureStore from "expo-secure-store";
 import * as Linking from "expo-linking";
 
@@ -45,13 +44,13 @@ export const Dashboard = ({navigation, route}: DashboardProps) => {
         if (route.params.oauthStateId) {
             const validToken = await isCacheTokenValid();
             if (!validToken) {
-                NativeModules.DevSettings.reload();
+                navigation.navigate("SignIn", {initialRender: true});
+            } else {
+                navigation.dispatch({
+                    ...CommonActions.setParams({currentUserInformation: JSON.parse(await SecureStore.getItemAsync('currentUserInformation') as string)}),
+                    source: route.key
+                });
             }
-
-            navigation.dispatch({
-                ...CommonActions.setParams({currentUserInformation: JSON.parse(await SecureStore.getItemAsync('currentUserInformation') as string)}),
-                source: route.key
-            });
         }
     }
 

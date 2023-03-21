@@ -79,6 +79,7 @@ export class PlaidUtils {
             const plaidPair = await secretsClient
                 .getSecretValue({SecretId: `${Constants.AWSPairConstants.PLAID_SECRET_NAME}-${process.env.ENV_NAME!}-${region}`}).promise();
 
+            // check if the secrets for Plaid exist
             if (plaidPair.SecretString) {
                 // convert the retrieved secrets pair value, as a JSON object
                 const plaidPairAsJson = JSON.parse(plaidPair.SecretString!);

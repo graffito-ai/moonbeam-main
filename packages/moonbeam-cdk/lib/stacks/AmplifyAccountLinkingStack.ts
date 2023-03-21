@@ -3,6 +3,7 @@ import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
 import path from "path";
 import {Constants} from "@moonbeam/moonbeam-models";
+import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
 
 /**
  * File used to define the stack responsible for creating the resources
@@ -19,7 +20,7 @@ export class AmplifyAccountLinkingStack extends NestedStack {
      */
     constructor(scope: Construct,
                 id: string,
-                props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'amplifyConfig'> & { userPoolId: string, graphqlApiId: string }) {
+                props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'amplifyConfig'> & { graphqlApiId: string }) {
         super(scope, id, props);
 
         // create a new Lambda function to be used with the AppSync API for the resolvers
@@ -35,7 +36,18 @@ export class AmplifyAccountLinkingStack extends NestedStack {
                 sourceMapMode: aws_lambda_nodejs.SourceMapMode.BOTH, // defaults to SourceMapMode.DEFAULT
                 sourcesContent: false, // do not include original source into source map, defaults to true
                 target: 'esnext', // target environment for the generated JavaScript code
-            }
+            },
+            initialPolicy: [
+                new PolicyStatement({
+                    effect: Effect.ALLOW,
+                    actions: [
+                        "secretsmanager:GetSecretValue"
+                    ],
+                    resources: [
+                        "arn:aws:secretsmanager:us-west-2:963863720257:secret:plaid-pair-dev-us-west-2-0CCBup" // this ARN is retrieved post secret creation
+                    ]
+                })
+            ]
         });
 
         // retrieve the GraphQL API created by the other stack

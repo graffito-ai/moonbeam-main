@@ -1,0 +1,24 @@
+{
+  "name": "@moonbeam/moonbeam-storage-lambda",
+  "version": "1.0.0",
+  "description": "This sub-package represents the Lambda function, used for file storage related purposes.",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "repository": "https://github.com/moonnbm/moonbeam-main/tree/main/packages/moonbeam-storage-lambda",
+  "author": "Marius Acsinte <marius@moonbeam.vet>",
+  "license": "Moonbeam Inc. Proprietary Code License <https://github.com/moonnbm/moonbeam-main/blob/main/LICENSE>",
+  "scripts": {
+    "build": "rm -rf ./lib && tsc",
+    "clean": "rm -rf build/ lib/ node_modules/"
+  },
+  "devDependencies": {
+    "@aws-sdk/types": "^3.272.0",
+    "@aws-sdk/util-dynamodb": "^3.284.0",
+    "@moonbeam/moonbeam-models": "*",
+    "@moonbeam/moonbeam-tsconfig": "*",
+    "@types/aws-lambda": "^8.10.111",
+    "aws-sdk": "^2.1327.0",
+    "plaid": "^12.5.0"
+  },
+  "private": true
+}

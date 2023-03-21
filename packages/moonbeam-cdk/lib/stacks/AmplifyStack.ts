@@ -1,4 +1,4 @@
-import {aws_amplify, aws_s3_deployment, CfnOutput, Stack, StackProps} from "aws-cdk-lib";
+import {aws_amplify, CfnOutput, Stack, StackProps} from "aws-cdk-lib";
 import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
 import {AmplifyAuthStack} from "./AmplifyAuthStack";
@@ -6,8 +6,7 @@ import {AmplifyAppSyncStack} from "./AmplifyAppSyncStack";
 import {Constants, Stages} from "@moonbeam/moonbeam-models";
 import {AmplifyReferralStack} from "./AmplifyReferralStack";
 import {AmplifyAccountLinkingStack} from "./AmplifyAccountLinkingStack";
-import {Bucket, BucketAccessControl} from "aws-cdk-lib/aws-s3";
-import path from "path";
+import {AmplifyStorageStack} from "./AmplifyStorageStack";
 
 /**
  * File used to define the Amplify stack, used to deploy all Amplify related functionality.
@@ -33,20 +32,6 @@ export class AmplifyStack extends Stack {
             name: `${props.amplifyConfig!.amplifyAppName!}`,
             iamServiceRole: `${props.amplifyConfig!.amplifyServiceRoleName!}`
         });
-
-        // add a deployment bucket, to be used for storing various/miscellaneous, public readable files (like Plaid related ones)
-        const deploymentBucket = new Bucket(this, `${Constants.MoonbeamConstants.MOONBEAM_DEPLOYMENT_BUCKET_NAME}-${props.stage}-${props.env!.region}`, {
-            bucketName: `${Constants.MoonbeamConstants.MOONBEAM_DEPLOYMENT_BUCKET_NAME}-${props.stage}-${props.env!.region}`,
-            versioned: false,
-            accessControl: BucketAccessControl.PRIVATE // only owner has access besides certain files
-        });
-        // write the Oauth Plaid file to the bucket
-        new aws_s3_deployment.BucketDeployment(this, 'DeployFiles', {
-            sources: [aws_s3_deployment.Source.asset(path.join(__dirname,
-                `../../files/plaid/${props.stage}`))],
-            destinationBucket: deploymentBucket,
-            accessControl: BucketAccessControl.PUBLIC_READ // public readable object
-        })
 
         // add the authentication resources through a nested auth stack
         const amplifyAuthStack = new AmplifyAuthStack(this, `amplify-auth-${props.stage}-${props.env!.region}`, {
@@ -83,20 +68,47 @@ export class AmplifyStack extends Stack {
                 },
                 appSyncConfig: {
                     graphqlApiName: props.amplifyConfig!.appSyncConfig!.graphqlApiName
-                },
+                }
             },
             environmentVariables: props.environmentVariables
         });
         appSyncStack.addDependency(amplifyAuthStack);
 
-        // add the resources meant to capture the referral program
-        const referralStack = new AmplifyReferralStack(this, `amplify-referral-${props.stage}-${props.env!.region}`, {
-            stackName: `amplify-referral-${props.stage}-${props.env!.region}`,
-            description: 'This stack will contain all the referral program related resources for Amplify',
+        // add the storage resources through a nested storage stack
+        const storageStack = new AmplifyStorageStack(this, `amplify-storage-${props.stage}-${props.env!.region}`, {
+            stackName: `amplify-auth-${props.stage}-${props.env!.region}`,
+            description: 'This stack will contain all the Amplify Storage related resources',
             env: props.env,
             stage: props.stage,
             graphqlApiId: appSyncStack.graphqlApiId,
-            userPoolId: amplifyAuthStack.outputs[2],
+            amplifyConfig: {
+                storageConfig: {
+                    deploymentBucketName: props.amplifyConfig!.storageConfig!.deploymentBucketName,
+                    mainFilesBucketName: props.amplifyConfig!.storageConfig!.mainFilesBucketName,
+                    mainFilesCloudFrontDistributionName: props.amplifyConfig!.storageConfig!.mainFilesCloudFrontDistributionName,
+                    mainFilesCloudFrontTrustedPublicKeyName: props.amplifyConfig!.storageConfig!.mainFilesCloudFrontTrustedPublicKeyName,
+                    mainFilesCloudFrontTrustedKeyGroupName: props.amplifyConfig!.storageConfig!.mainFilesCloudFrontTrustedKeyGroupName,
+                    mainFilesCloudFrontAccessIdentityName: props.amplifyConfig!.storageConfig!.mainFilesCloudFrontAccessIdentityName,
+                    mainFilesCloudFrontCachePolicyName: props.amplifyConfig!.storageConfig!.mainFilesCloudFrontCachePolicyName,
+                    storageFunctionName: props.amplifyConfig!.storageConfig!.storageFunctionName,
+                    getStorage: props.amplifyConfig!.storageConfig!.getStorage,
+                    putStorage: props.amplifyConfig!.storageConfig!.putStorage
+                },
+                appSyncConfig: {
+                    graphqlApiName: props.amplifyConfig!.appSyncConfig!.graphqlApiName
+                }
+            },
+            environmentVariables: props.environmentVariables
+        });
+        storageStack.addDependency(appSyncStack);
+
+        // add the resources meant to capture the referral program
+        const referralStack = new AmplifyReferralStack(this, `amplify-referral-${props.stage}-${props.env!.region}`, {
+            stackName: `amplify-referral-${props.stage}-${props.env!.region}`,
+            description: 'This stack will contain all the Referral Program related resources for Amplify',
+            env: props.env,
+            stage: props.stage,
+            graphqlApiId: appSyncStack.graphqlApiId,
             amplifyConfig: {
                 appSyncConfig: {
                     graphqlApiName: props.amplifyConfig!.appSyncConfig!.graphqlApiName
@@ -121,7 +133,6 @@ export class AmplifyStack extends Stack {
             env: props.env,
             stage: props.stage,
             graphqlApiId: appSyncStack.graphqlApiId,
-            userPoolId: amplifyAuthStack.outputs[2],
             amplifyConfig: {
                 appSyncConfig: {
                     graphqlApiName: props.amplifyConfig!.appSyncConfig!.graphqlApiName

@@ -165,6 +165,21 @@ export type DeleteAccountInput = {
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
+export type File = {
+  __typename?: 'File';
+  url: Scalars['String'];
+};
+
+export enum FileAccessLevel {
+  Private = 'PRIVATE',
+  Protected = 'PROTECTED',
+  Public = 'PUBLIC'
+}
+
+export enum FileType {
+  Main = 'MAIN'
+}
+
 export type FinancialInstitution = {
   __typename?: 'FinancialInstitution';
   id: Scalars['String'];
@@ -174,6 +189,12 @@ export type FinancialInstitution = {
 export type FinancialInstitutionInput = {
   id: Scalars['String'];
   name: Scalars['String'];
+};
+
+export type GetStorageInput = {
+  level: FileAccessLevel;
+  name: Scalars['String'];
+  type: FileType;
 };
 
 export enum LinkErrorType {
@@ -244,6 +265,7 @@ export type Query = {
   __typename?: 'Query';
   getAccountLink?: Maybe<AccountLinkResponse>;
   getReferral?: Maybe<ReferralResponse>;
+  getStorage?: Maybe<StorageResponse>;
   listAccounts?: Maybe<AccountResponse>;
   listReferrals?: Maybe<ReferralResponse>;
 };
@@ -256,6 +278,11 @@ export type QueryGetAccountLinkArgs = {
 
 export type QueryGetReferralArgs = {
   id: Scalars['String'];
+};
+
+
+export type QueryGetStorageArgs = {
+  getStorageInput: GetStorageInput;
 };
 
 
@@ -301,6 +328,20 @@ export enum ReferralStatus {
   NotRedeemed = 'NOT_REDEEMED',
   Redeemed = 'REDEEMED'
 }
+
+export enum StorageErrorType {
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  RestrictedAccess = 'RESTRICTED_ACCESS',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  ValidationError = 'VALIDATION_ERROR'
+}
+
+export type StorageResponse = {
+  __typename?: 'StorageResponse';
+  data?: Maybe<File>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<StorageErrorType>;
+};
 
 export type UpdateAccountLinkInput = {
   accountLinkDetails: AccountLinkDetailsInput;

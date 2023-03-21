@@ -19,7 +19,7 @@ export class AmplifyReferralStack extends NestedStack {
      */
     constructor(scope: Construct,
                 id: string,
-                props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'amplifyConfig'> & { userPoolId: string, graphqlApiId: string }) {
+                props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'amplifyConfig'> & { graphqlApiId: string }) {
         super(scope, id, props);
 
         // create a new Lambda function to be used with the AppSync API for the resolvers

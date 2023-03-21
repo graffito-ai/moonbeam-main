@@ -37,7 +37,7 @@ type AppSyncEvent = {
  * @param event AppSync even to be passed in the handler
  */
 exports.handler = async (event: AppSyncEvent): Promise<AccountLinkResponse | AccountResponse> => {
-    console.log(`Received new referral event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
+    console.log(`Received new Plaid link event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
         case "getAccountLink":
             return await getAccountLink(event.arguments.id);

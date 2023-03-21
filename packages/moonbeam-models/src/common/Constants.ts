@@ -46,6 +46,9 @@ export namespace Constants {
         // Infrastructure related
         export const MOONBEAM_PLAID_OAUTH_FILE_NAME: string = 'moonbeam-plaid-oauth';
         export const MOONBEAM_DEPLOYMENT_BUCKET_NAME: string = 'moonbeam-deployment-bucket';
+        export const MOONBEAM_MAIN_FILES_BUCKET_NAME: string = 'moonbeam-files-bucket';
+        export const MOONBEAM_MAIN_FILES_KEY_PAIR_ID: string = 'MOONBEAM_MAIN_FILES_KEY_PAIR_ID';
+        export const MOONBEAM_MAIN_FILES_CLOUDFRONT_DISTRIBUTION: string = 'MOONBEAM_MAIN_FILES_CLOUDFRONT_DISTRIBUTION';
         export const REFERRAL_TABLE: string = 'REFERRAL_TABLE';
         export const ENV_NAME: string = 'ENV_NAME';
         export const ACCOUNT_LINKS: string = 'ACCOUNT_LINKS';
@@ -55,6 +58,8 @@ export namespace Constants {
     }
     // AWS Secrets Manager (pair-based constants)
     export namespace AWSPairConstants {
+        export const MAIN_FILES_CLOUDFRONT_DISTRIBUTION_SECRET_NAME = `main-files-cloudfront-pair`;
+        export const MAIN_FILES_CLOUDFRONT_PRIVATE_KEY = 'MAIN_FILES_CLOUDFRONT_PRIVATE_KEY';
         export const PLAID_SECRET_NAME = 'plaid-pair';
         export const PLAID_CLIENT_ID = 'PLAID-CLIENT-ID';
         export const PLAID_SECRET = 'PLAID-SECRET';

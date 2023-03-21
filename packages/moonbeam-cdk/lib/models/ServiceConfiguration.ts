@@ -10,6 +10,7 @@ export interface AWSAmplifyConfiguration {
     readonly appSyncConfig?: AppSyncConfiguration;
     readonly referralConfig?: ReferralConfiguration;
     readonly accountLinkingConfig?: AccountLinkingConfiguration;
+    readonly storageConfig?: StorageConfiguration;
 }
 
 /**
@@ -17,6 +18,19 @@ export interface AWSAmplifyConfiguration {
  */
 export interface AppSyncConfiguration {
     readonly graphqlApiName: string;
+}
+
+export interface StorageConfiguration {
+    readonly deploymentBucketName: string;
+    readonly mainFilesBucketName: string;
+    readonly mainFilesCloudFrontDistributionName: string;
+    readonly mainFilesCloudFrontTrustedPublicKeyName: string;
+    readonly mainFilesCloudFrontTrustedKeyGroupName: string;
+    readonly mainFilesCloudFrontAccessIdentityName: string;
+    readonly mainFilesCloudFrontCachePolicyName: string;
+    readonly storageFunctionName: string;
+    readonly getStorage: string;
+    readonly putStorage: string;
 }
 
 /**

@@ -141,14 +141,14 @@ export class AmplifyAuthStack extends NestedStack {
                 },
                 // create an authenticated role to be used with any user pool identities
                 authenticatedRole: new Role(this, `${props.amplifyConfig!.amplifyAuthConfig!.authenticatedRoleName}-${props.stage}-${props.env!.region}`, {
-                    roleName: `${props.amplifyConfig!.amplifyAuthConfig!.authenticatedRoleName}-${props.stage}-${props.env!.region}`,
+                    roleName: `${props.amplifyConfig!.amplifyAuthConfig!.authenticatedRoleName}`,
                     description: 'IAM Role to be used as an Authenticated role for the Cognito user pool identities, used by Amplify',
                     assumedBy: new FederatedPrincipal(
                         'cognito-identity.amazonaws.com',
                         {
                             "StringEquals": {
                                 // this identity pool id has to be hardcoded because it cannot be retrieved until after it's created
-                                "cognito-identity.amazonaws.com:aud": `us-west-2:5952e8ee-6645-46ac-b2db-0f3ebd3fc502`
+                                "cognito-identity.amazonaws.com:aud": `us-west-2:90fa8e39-8707-45c9-98cf-70735040fbf7`
                             },
                             "ForAnyValue:StringLike": {
                                 "cognito-identity.amazonaws.com:amr": "authenticated"
@@ -160,14 +160,14 @@ export class AmplifyAuthStack extends NestedStack {
                 }),
                 // create an unauthenticated role to be used with any user pool identities
                 unauthenticatedRole: new Role(this, `${props.amplifyConfig!.amplifyAuthConfig!.unauthenticatedRoleName}-${props.stage}-${props.env!.region}`, {
-                    roleName: `${props.amplifyConfig!.amplifyAuthConfig!.unauthenticatedRoleName}-${props.stage}-${props.env!.region}`,
+                    roleName: `${props.amplifyConfig!.amplifyAuthConfig!.unauthenticatedRoleName}`,
                     description: 'IAM Role to be used as an Unauthenticated role for the Cognito user pool identities, used by Amplify',
                     assumedBy: new FederatedPrincipal(
                         'cognito-identity.amazonaws.com',
                         {
                             "StringEquals": {
                                 // this identity pool id has to be hardcoded because it cannot be retrieved until after it's created
-                                "cognito-identity.amazonaws.com:aud": `us-west-2:5952e8ee-6645-46ac-b2db-0f3ebd3fc502`
+                                "cognito-identity.amazonaws.com:aud": `us-west-2:90fa8e39-8707-45c9-98cf-70735040fbf7`
                             },
                             "ForAnyValue:StringLike": {
                                 "cognito-identity.amazonaws.com:amr": "unauthenticated"

@@ -100,6 +100,18 @@ export class StageUtils {
                             createAccountLink: stageConfiguration.amplifyConfig!.accountLinkingConfig!.createAccountLink,
                             updateAccountLink: stageConfiguration.amplifyConfig!.accountLinkingConfig!.updateAccountLink,
                             deleteAccount: stageConfiguration.amplifyConfig!.accountLinkingConfig!.deleteAccount
+                        },
+                        storageConfig: {
+                            deploymentBucketName: stageConfiguration.amplifyConfig!.storageConfig!.deploymentBucketName,
+                            mainFilesBucketName: stageConfiguration.amplifyConfig!.storageConfig!.mainFilesBucketName,
+                            mainFilesCloudFrontDistributionName: stageConfiguration.amplifyConfig!.storageConfig!.mainFilesCloudFrontDistributionName,
+                            mainFilesCloudFrontTrustedPublicKeyName: stageConfiguration.amplifyConfig!.storageConfig!.mainFilesCloudFrontTrustedPublicKeyName,
+                            mainFilesCloudFrontTrustedKeyGroupName: stageConfiguration.amplifyConfig!.storageConfig!.mainFilesCloudFrontTrustedKeyGroupName,
+                            mainFilesCloudFrontAccessIdentityName: stageConfiguration.amplifyConfig!.storageConfig!.mainFilesCloudFrontAccessIdentityName,
+                            mainFilesCloudFrontCachePolicyName: stageConfiguration.amplifyConfig!.storageConfig!.mainFilesCloudFrontCachePolicyName,
+                            storageFunctionName: stageConfiguration.amplifyConfig!.storageConfig!.storageFunctionName,
+                            getStorage: stageConfiguration.amplifyConfig!.storageConfig!.getStorage,
+                            putStorage: stageConfiguration.amplifyConfig!.storageConfig!.putStorage
                         }
                     },
                     environmentVariables: stageConfiguration.environmentVariables
