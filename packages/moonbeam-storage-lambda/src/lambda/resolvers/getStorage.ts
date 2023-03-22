@@ -55,7 +55,7 @@ export const getStorage = async (getStorageInput: GetStorageInput, sub: string):
                             data: {
                                 url: new URL(cloudFrontURLSigner.getSignedUrl({
                                     url: `https://${cloudFrontDistributionDomain}/${objectKey}`,
-                                    expires: new Date(Date.now() + 1000 * 60 * 60).getTime() // expires in 1 hour, to coincide with the Cognito session expiry
+                                    expires: parseInt(String((new Date().getTime() + 60000 * 60) / 1000)) // expires in 1 hour, to coincide with the Cognito session expiry
                                 })).href
                             }
                         }

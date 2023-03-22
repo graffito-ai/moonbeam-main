@@ -11,7 +11,7 @@ import * as Sharing from "expo-sharing";
  * @param name name of the document to fetch
  * @param privateFlag privacy level flag
  */
-export const fetchDocument = async (name: string, privateFlag: boolean) => {
+export const fetchDocument = async (name: string, privateFlag: boolean): Promise<boolean> => {
     // perform the query to fetch a file
     const fetchFileResult = await API.graphql(graphqlOperation(getStorage, {
         getStorageInput: {
@@ -30,7 +30,10 @@ export const fetchDocument = async (name: string, privateFlag: boolean) => {
             encoding: FileSystem.EncodingType.Base64,
         });
         await Sharing.shareAsync(fileUri);
+
+        return true;
     } else {
-        // error out here
+        console.log(`Unexpected error while fetching file ${name} ${JSON.stringify(fetchFileResult)}`);
+        return false;
     }
 }
