@@ -26,7 +26,7 @@ import {LinkExit, LinkSuccess} from "react-native-plaid-link-sdk";
 import {LinkAccountSubtypeDepository, LinkAccountVerificationStatus} from "react-native-plaid-link-sdk/dist/Types";
 import PlaidLink from '../../../integrations/plaid/PlaidLink';
 import {CommonActions} from "@react-navigation/native";
-import {refreshUserToken} from "../../../../utils/Setup";
+import {refreshUserToken} from "../../../../utils/Identity";
 import * as envInfo from "../../../../../amplify/.config/local-env-info.json";
 import * as provider from "../../../../../amplify/team-provider-info.json";
 import * as SecureStore from "expo-secure-store";

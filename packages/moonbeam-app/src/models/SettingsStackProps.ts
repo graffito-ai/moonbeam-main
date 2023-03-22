@@ -15,8 +15,8 @@ export type SettingsStackParamList = {
     }
 };
 
-// the HomeDash.tsx component props, within the Home stack
+// the SettingsList component props, within the Home stack
 export type SettingsListProps = NativeStackScreenProps<SettingsStackParamList, 'SettingsList'>
-// the HomeReferral component props, within the Home stack
+// the BankAccounts component props, within the Home stack
 export type BankAccountsProps = NativeStackScreenProps<SettingsStackParamList, 'BankAccounts'>
 

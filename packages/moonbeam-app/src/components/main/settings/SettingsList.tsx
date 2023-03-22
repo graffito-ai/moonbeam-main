@@ -6,6 +6,7 @@ import {Button, Card, Divider, List, Text} from "react-native-paper";
 import {Avatar} from "@rneui/base";
 import React, {useEffect} from "react";
 import {SettingsListProps} from "../../../models/SettingsStackProps";
+import { fetchDocument } from "../../../utils/Files";
 
 /**
  * Settings List component.
@@ -24,6 +25,7 @@ export const SettingsList = ({route, navigation}: SettingsListProps) => {
      */
     useEffect(() => {
     }, []);
+
 
     // return the component for the Settings List page
     return (
@@ -194,6 +196,54 @@ export const SettingsList = ({route, navigation}: SettingsListProps) => {
                                 title="Privacy Preferences"
                                 description='Manage your privacy and marketing settings.'
                                 left={() => <List.Icon color={'#2A3779'} icon="eye"/>}
+                                right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
+                            />
+                        </List.Section>
+                        <List.Section style={styles.listSectionView}>
+                            <List.Subheader style={styles.subHeaderTitle}>Documents</List.Subheader>
+                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
+                            <List.Item
+                                style={styles.settingsItemStyle}
+                                titleStyle={styles.settingsItemTitle}
+                                descriptionStyle={styles.settingsItemDescription}
+                                titleNumberOfLines={2}
+                                descriptionNumberOfLines={2}
+                                title="Card member agreement"
+                                description='View your Alpha card details, including your member terms.'
+                                onPress={async () => {
+                                    await fetchDocument('cardAgreement.pdf', true);
+                                }}
+                                left={() => <List.Icon color={'#2A3779'} icon="signature"/>}
+                                right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
+                            />
+                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
+                            <List.Item
+                                style={styles.settingsItemStyle}
+                                titleStyle={styles.settingsItemTitle}
+                                descriptionStyle={styles.settingsItemDescription}
+                                titleNumberOfLines={2}
+                                descriptionNumberOfLines={2}
+                                title="Terms and Conditions"
+                                description='Review what was agreed upon your sign up process.'
+                                onPress={async () => {
+                                    await fetchDocument('termsAndConditions.pdf', false);
+                                }}
+                                left={() => <List.Icon color={'#2A3779'} icon="text"/>}
+                                right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
+                            />
+                            <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
+                            <List.Item
+                                style={styles.settingsItemStyle}
+                                titleStyle={styles.settingsItemTitle}
+                                descriptionStyle={styles.settingsItemDescription}
+                                titleNumberOfLines={2}
+                                descriptionNumberOfLines={2}
+                                title="Privacy Policy"
+                                description='Get details about how we store, share and use your information.'
+                                onPress={async () => {
+                                    await fetchDocument('privacyPolicy.pdf', false);
+                                }}
+                                left={() => <List.Icon color={'#2A3779'} icon="eye-off"/>}
                                 right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
                             />
                         </List.Section>

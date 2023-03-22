@@ -28,6 +28,19 @@ export const listReferrals = /* GraphQL */ `
     }
 `;
 
+// Query used to retrieve a file from storage
+export const getStorage = /* GraphQL */ `
+    query GetStorage($getStorageInput: GetStorageInput!) {
+        getStorage(getStorageInput: $getStorageInput) {
+            errorMessage
+            errorType
+            data {
+                url
+            }
+        }
+    }
+`;
+
 // Query used to retrieve a bank account link based on its id (user id)
 export const getAccountLink = /* GraphQL */ `
     query GetAccountLink($id: String!) {

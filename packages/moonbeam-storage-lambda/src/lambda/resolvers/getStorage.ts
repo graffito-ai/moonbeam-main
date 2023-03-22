@@ -1,4 +1,4 @@
-import {Constants, FileType, GetStorageInput, StorageErrorType, StorageResponse} from "@moonbeam/moonbeam-models";
+import {Constants, FileAccessLevel, FileType, GetStorageInput, StorageErrorType, StorageResponse} from "@moonbeam/moonbeam-models";
 import * as AWS from "aws-sdk";
 
 /**
@@ -6,10 +6,11 @@ import * as AWS from "aws-sdk";
  *
  * @param getStorageInput input, based on which the appropriate file is retrieved from storage, through
  * a CloudFront distribution
+ * @param sub representing the Cognito identity of the user making this call
  *
  * @returns {@link Promise} of {@link StorageResponse}
  */
-export const getStorage = async (getStorageInput: GetStorageInput): Promise<StorageResponse> => {
+export const getStorage = async (getStorageInput: GetStorageInput, sub: string): Promise<StorageResponse> => {
     try {
         // retrieving the current function region
         const region = process.env.AWS_REGION!;
@@ -21,7 +22,10 @@ export const getStorage = async (getStorageInput: GetStorageInput): Promise<Stor
                 const cloudFrontDistributionDomain = process.env.MOONBEAM_MAIN_FILES_CLOUDFRONT_DISTRIBUTION!;
 
                 // check if the object exists in the bucket, without actually retrieving it first.
-                const objectKey = `${getStorageInput.level.toLowerCase()}/${getStorageInput.name}`;
+                const objectKey = getStorageInput.level === FileAccessLevel.Public
+                    ? `${getStorageInput.level.toLowerCase()}/${getStorageInput.name}`
+                    : `${getStorageInput.level.toLowerCase()}/${sub}/${getStorageInput.name}`;
+                console.log(`Object key is ${objectKey}`);
                 const metadata = await new AWS.S3().headObject({
                     Bucket: bucketName,
                     Key: objectKey

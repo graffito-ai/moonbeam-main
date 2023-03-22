@@ -22,6 +22,16 @@ query ListReferrals($filter: ListReferralInput!) {
     }
 }
 
+query GetStorage($getStorageInput: GetStorageInput!) {
+    getStorage(getStorageInput: $getStorageInput) {
+        errorMessage
+        errorType
+        data {
+            url
+        }
+    }
+}
+
 query GetAccountLink($id: String!) {
     getAccountLink(id: $id) {
         errorMessage

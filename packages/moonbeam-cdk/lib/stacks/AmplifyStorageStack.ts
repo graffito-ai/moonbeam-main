@@ -141,7 +141,7 @@ export class AmplifyStorageStack extends NestedStack {
                     ],
                     resources: [
                         `arn:aws:s3:::${mainFilesBucketName}/public/*`,
-                        `arn:aws:s3:::${mainFilesBucketName}/private/` + "${cognito-identity.amazonaws.com:sub}/*",
+                        `arn:aws:s3:::${mainFilesBucketName}/private/*`,
                     ]
                 }),
                 new PolicyStatement({
@@ -157,8 +157,8 @@ export class AmplifyStorageStack extends NestedStack {
                             "s3:prefix": [
                                 "public/",
                                 "public/*",
-                                "private/${cognito-identity.amazonaws.com:sub}/",
-                                "private/${cognito-identity.amazonaws.com:sub}/*"
+                                "private/",
+                                "private/*"
                             ]
                         }
                     }

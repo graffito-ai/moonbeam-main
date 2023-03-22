@@ -7,7 +7,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import {Home} from './home/Home';
 import {Settings} from "./settings/Settings";
 import {Membership} from "./rewards/Membership";
-import {isCacheTokenValid} from '../../utils/Setup';
+import {isCacheTokenValid} from '../../utils/Identity';
 import * as SecureStore from "expo-secure-store";
 import * as Linking from "expo-linking";
 

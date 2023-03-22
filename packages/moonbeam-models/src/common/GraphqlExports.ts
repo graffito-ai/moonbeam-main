@@ -376,6 +376,13 @@ export type ListReferralsQueryVariables = Exact<{
 
 export type ListReferralsQuery = { __typename?: 'Query', listReferrals?: { __typename?: 'ReferralResponse', errorMessage?: string | null, errorType?: ReferralErrorType | null, data?: Array<{ __typename?: 'Referral', id: string } | null> | null } | null };
 
+export type GetStorageQueryVariables = Exact<{
+  getStorageInput: GetStorageInput;
+}>;
+
+
+export type GetStorageQuery = { __typename?: 'Query', getStorage?: { __typename?: 'StorageResponse', errorMessage?: string | null, errorType?: StorageErrorType | null, data?: { __typename?: 'File', url: string } | null } | null };
+
 export type GetAccountLinkQueryVariables = Exact<{
   id: Scalars['String'];
 }>;

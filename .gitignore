@@ -22,6 +22,8 @@ packages/moonbeam-cdk/*.d.ts
 ./amplify
 packages/moonbeam-models/lib/**/*
 packages/moonbeam-commitlint/lib/**/*
+packages/moonbeam-plaid-lambda/lib/**/*
+packages/moonbeam-storage-lambda/lib/**/*
 packages/moonbeam-referral-lambda/lib/**/*
 packages/moonbeam-app/amplify/**/*
 .yarn
