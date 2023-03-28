@@ -4,6 +4,7 @@ import {StyleSheet} from "react-native";
 export const styles = StyleSheet.create({
     avatarStyle: {
         alignSelf: 'flex-start',
+        right: '10%',
         backgroundColor: 'grey',
         top: '-20%'
     },
@@ -14,8 +15,9 @@ export const styles = StyleSheet.create({
     userNameStyle: {
         alignSelf: 'flex-start',
         top: '-5%',
+        right: '8%',
         fontFamily: 'Raleway-Medium',
-        fontSize: 20
+        fontSize: 22
     },
     drawerItemListView: {
         flex: 1,

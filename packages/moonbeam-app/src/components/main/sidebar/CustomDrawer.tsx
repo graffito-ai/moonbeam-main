@@ -40,10 +40,10 @@ export const CustomDrawer = (props: DrawerContentComponentProps & (RootStackPara
                     imageStyle={{
                         resizeMode: 'cover'
                     }}
-                    style={{padding: `${Dimensions.get('window').width/50}%`}}
+                    style={{padding: `${Dimensions.get('window').width/25}%`}}
                     source={require('../../../../assets/sidebar.png')}>
                     <Avatar
-                        size={70}
+                        size={Dimensions.get('window').width/4.5}
                         rounded
                         title={currentUserTitle}
                         containerStyle={styles.avatarStyle}
@@ -60,7 +60,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps & (RootStackPara
                         />
                     </Avatar>
                     {/*@ts-ignore*/}
-                    <Text style={styles.userNameStyle}>{props.currentUserInformation['name']}</Text>
+                    <Text numberOfLines={2} style={styles.userNameStyle}>{props.currentUserInformation['name']}</Text>
                 </ImageBackground>
                 <View style={styles.drawerItemListView}>
                     <DrawerItemList {...props}/>
