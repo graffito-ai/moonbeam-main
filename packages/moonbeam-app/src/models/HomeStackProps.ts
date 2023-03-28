@@ -6,13 +6,14 @@ import React from "react";
  */
 export type HomeStackParamList = {
     HomeDash: {
-        currentUserInformation?: any,
-        pointValueRedeemed?: number,
-        setCurrentScreenKey?: React.Dispatch<React.SetStateAction<string>>
+        currentUserInformation?: any;
+        pointValueRedeemed?: number;
+        setCurrentScreenKey?: React.Dispatch<React.SetStateAction<string>>;
+        setIsDrawerOpen?: React.Dispatch<React.SetStateAction<boolean>>;
     },
     HomeReferral: {
         setBottomTabNavigationShown: React.Dispatch<React.SetStateAction<boolean>>;
-        currentUserInformation: any,
+        currentUserInformation: any;
     }
 };
 

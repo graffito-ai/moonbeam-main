@@ -60,29 +60,5 @@ export const styles = StyleSheet.create({
         color: '#313030',
         fontFamily: 'Raleway-Light'
     },
-    settingsItemStyle: {},
-    modalParagraph: {
-        textAlign: 'center',
-        alignSelf: 'flex-start',
-        fontFamily: 'Raleway-Regular',
-        fontSize: 16,
-        width: 350,
-        color: '#313030'
-    },
-    modalContainer: {
-        alignSelf: 'center',
-        backgroundColor: 'white',
-        height: Dimensions.get('window').height/6,
-        borderRadius: 15,
-        padding: 20,
-        borderWidth: 1,
-        borderColor: 'red'
-    },
-    modalButton: {
-        borderRadius: 25,
-        borderColor: 'red',
-        height: 40,
-        width: 350,
-        marginTop: '10%'
-    }
+    settingsItemStyle: {}
 });

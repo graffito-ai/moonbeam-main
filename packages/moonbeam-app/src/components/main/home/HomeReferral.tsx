@@ -3,7 +3,7 @@ import {HomeReferralProps} from "../../../models/HomeStackProps";
 import React, {useEffect, useState} from "react";
 import {Image, ImageBackground, SafeAreaView, Share, View} from "react-native";
 import {commonStyles} from "../../../styles/common.module";
-import {Button, Modal, Portal, Text} from "react-native-paper";
+import {Button, Modal, Portal, Text, IconButton} from "react-native-paper";
 import {styles} from "../../../styles/homeReferral.module";
 // @ts-ignore
 import FriendReferral from '../../../../assets/refer-friend.png';
@@ -132,6 +132,16 @@ export const HomeReferral = ({navigation, route}: HomeReferralProps) => {
                     </Modal>
                 </Portal>
                 <View style={styles.mainView}>
+                    <IconButton
+                        icon="close"
+                        iconColor={"#313030"}
+                        size={30}
+                        style={styles.dismissIcon}
+                        onPress={() => {
+                            route.params.setBottomTabNavigationShown(true);
+                            navigation.goBack();
+                        }}
+                    />
                     <View style={styles.messageView}>
                         <Text style={styles.messageTitle}>Refer a Friend</Text>
                         <Text style={styles.messageSubtitle}>in order to earn 10,000 Points</Text>

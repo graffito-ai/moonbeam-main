@@ -859,8 +859,18 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
                                     Register
                                 </Button>
                                 <Text style={styles.disclaimerText}>
-                                    By creating an account with us, you agree to our <Text style={styles.termsFooter}>Terms
-                                    and Conditions</Text> and to our <Text style={styles.termsFooter}>Privacy
+                                    By creating an account with us, you agree to our <Text style={styles.termsFooter} onPress={() => {
+                                    navigation.navigate('DocumentViewer', {
+                                        name: 'termsAndConditions.pdf',
+                                        privacyFlag: false
+                                    });
+                                }}>Terms
+                                    and Conditions</Text> and to our <Text onPress={() => {
+                                    navigation.navigate('DocumentViewer', {
+                                        name: 'privacyPolicy.pdf',
+                                        privacyFlag: false
+                                    });
+                                }} style={styles.termsFooter}>Privacy
                                     Policy</Text>.
                                 </Text>
                             </View>

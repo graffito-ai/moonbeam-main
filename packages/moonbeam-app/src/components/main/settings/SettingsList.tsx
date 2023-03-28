@@ -2,19 +2,18 @@ import {Dimensions, SafeAreaView, ScrollView, View} from "react-native";
 import {commonStyles} from "../../../styles/common.module";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 import {styles} from "../../../styles/settingsList.module";
-import {Button, Card, Divider, List, Text, Modal, Portal} from "react-native-paper";
+import {Button, Card, Divider, List, Text} from "react-native-paper";
 import {Avatar} from "@rneui/base";
 import React, {useEffect, useState} from "react";
 import {SettingsListProps} from "../../../models/SettingsStackProps";
-import {fetchDocument} from "../../../utils/Files";
 
 /**
  * Settings List component.
  */
 export const SettingsList = ({route, navigation}: SettingsListProps) => {
     // state driven key-value pairs for UI related elements
-    const [settingsListErrorModalVisible, setSettingsListErrorModalVisible] = useState<boolean>(false);
-    const [settingsListErrorModalMessage, setSettingsListErrorModalMessage] = useState<string>('');
+    const [currentUserTitle, setCurrentUserTitle] = useState<string>("N/A");
+    const [currentUserFirstName, setCurrentUserFirstName] = useState<string>("N/A");
 
     // state driven key-value pairs for any specific data values
 
@@ -26,6 +25,10 @@ export const SettingsList = ({route, navigation}: SettingsListProps) => {
      * included in here.
      */
     useEffect(() => {
+        // set the title of the user's avatar in the dashboard, based on the user's information
+        const secondInitial = route.params.currentUserInformation["name"].split(" ").length > 2 ? 2 : 1;
+        setCurrentUserTitle(`${Array.from(route.params.currentUserInformation["name"].split(" ")[0])[0] as string}${Array.from(route.params.currentUserInformation["name"].split(" ")[secondInitial])[0] as string}`);
+        setCurrentUserFirstName(`${route.params.currentUserInformation["name"].split(" ")[0]}`);
     }, []);
 
 
@@ -38,26 +41,6 @@ export const SettingsList = ({route, navigation}: SettingsListProps) => {
                 keyboardShouldPersistTaps={'handled'}
                 showsVerticalScrollIndicator={false}
             >
-                <Portal>
-                    <Modal dismissable={false} visible={settingsListErrorModalVisible}
-                           onDismiss={() => setSettingsListErrorModalVisible(false)}
-                           contentContainerStyle={styles.modalContainer}>
-                        <Text style={styles.modalParagraph}>Unable to retrieve {settingsListErrorModalMessage} document!</Text>
-                        <Button
-                            uppercase={false}
-                            style={styles.modalButton}
-                            icon={'redo-variant'}
-                            textColor={"red"}
-                            buttonColor={"#f2f2f2"}
-                            mode="outlined"
-                            labelStyle={{fontSize: 15}}
-                            onPress={() => {
-                                setSettingsListErrorModalVisible(false)
-                            }}>
-                            Dismiss
-                        </Button>
-                    </Modal>
-                </Portal>
                 <View style={styles.settingsContentView}>
                     <ScrollView scrollEnabled={true}
                                 persistentScrollbar={false}
@@ -65,7 +48,7 @@ export const SettingsList = ({route, navigation}: SettingsListProps) => {
                         <Card style={[styles.cardStyleProfileSettings, {
                             width: Dimensions.get('window').width / 1.3
                         }]} mode={'elevated'} elevation={5}>
-                            <Card.Title title="Marius" subtitle="Member since '23."
+                            <Card.Title title={currentUserFirstName} subtitle="Member since '23."
                                         titleStyle={styles.cardTitleStyle} subtitleStyle={styles.cardSubtitleStyle}
                                         subtitleNumberOfLines={2}/>
                             <Card.Content>
@@ -75,7 +58,7 @@ export const SettingsList = ({route, navigation}: SettingsListProps) => {
                                     <Avatar
                                         size={100}
                                         rounded
-                                        title="MA"
+                                        title={currentUserTitle}
                                         containerStyle={{backgroundColor: 'grey'}}
                                     ></Avatar>
                                 </View>
@@ -233,10 +216,10 @@ export const SettingsList = ({route, navigation}: SettingsListProps) => {
                                 title="Card member agreement"
                                 description='View your Alpha card details, including your member terms.'
                                 onPress={async () => {
-                                    if (!await fetchDocument('cardAgreement.pdf', true)) {
-                                        setSettingsListErrorModalMessage('Cardholder Agreement');
-                                        setSettingsListErrorModalVisible(true);
-                                    }
+                                    navigation.navigate('DocumentViewer', {
+                                        name: 'cardAgreement.pdf',
+                                        privacyFlag: true
+                                    });
                                 }}
                                 left={() => <List.Icon color={'#2A3779'} icon="signature"/>}
                                 right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
@@ -251,10 +234,10 @@ export const SettingsList = ({route, navigation}: SettingsListProps) => {
                                 title="Terms and Conditions"
                                 description='Review what was agreed upon your sign up process.'
                                 onPress={async () => {
-                                    if (!await fetchDocument('termsAndConditions.pdf', false)) {
-                                        setSettingsListErrorModalMessage('Terms and Conditions');
-                                        setSettingsListErrorModalVisible(true);
-                                    }
+                                    navigation.navigate('DocumentViewer', {
+                                        name: 'termsAndConditions.pdf',
+                                        privacyFlag: false
+                                    });
                                 }}
                                 left={() => <List.Icon color={'#2A3779'} icon="text"/>}
                                 right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
@@ -269,10 +252,10 @@ export const SettingsList = ({route, navigation}: SettingsListProps) => {
                                 title="Privacy Policy"
                                 description='Get details about how we store, share and use your information.'
                                 onPress={async () => {
-                                    if (!await fetchDocument('privacyPolicy.pdf', false)) {
-                                        setSettingsListErrorModalMessage('Privacy Policy');
-                                        setSettingsListErrorModalVisible(true);
-                                    }
+                                    navigation.navigate('DocumentViewer', {
+                                        name: 'privacyPolicy.pdf',
+                                        privacyFlag: false
+                                    });
                                 }}
                                 left={() => <List.Icon color={'#2A3779'} icon="eye-off"/>}
                                 right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}

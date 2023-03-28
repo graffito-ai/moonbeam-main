@@ -3,12 +3,12 @@ import React, {useEffect, useState} from 'react';
 // @ts-ignore
 import HomeDashboardLogo from '../../../../assets/login-logo.png';
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
-import {IconButton} from "react-native-paper";
 import {HomeStackParamList} from "../../../models/HomeStackProps";
 import {HomeDash} from "./HomeDash";
-import {CommonActions} from "@react-navigation/native";
+import {CommonActions, DrawerStatus} from "@react-navigation/native";
 import {HomeReferral} from "./HomeReferral";
 import {Navbar} from "../../common/Navbar";
+import {useDrawerStatus} from "@react-navigation/drawer";
 
 /**
  * Home component.
@@ -22,6 +22,12 @@ export const Home = ({navigation, route}: HomeTabProps) => {
 
     // create a state to keep track of whether the bottom tab navigation is shown or not
     const [bottomTabNavigationShown, setBottomTabNavigationShown] = useState<boolean>(true);
+
+    // create a state to keep track of whether the sidebar is open or not
+    const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
+
+    // constant to keep track of the actual state of the drawer (not the application managed one)
+    const isOpen: DrawerStatus = useDrawerStatus();
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -39,63 +45,48 @@ export const Home = ({navigation, route}: HomeTabProps) => {
                 source: currentHomeDashScreenKey
             });
         }
+        if (isDrawerOpen && isOpen === 'closed') {
+            route.params.setIsDrawerOpen(true);
+        }
+        if (isOpen) {
+            setIsDrawerOpen(false);
+        }
         route.params.setBottomTabNavigationShown(bottomTabNavigationShown);
-    }, [route.name, bottomTabNavigationShown]);
+    }, [route.name, bottomTabNavigationShown, isDrawerOpen, isOpen]);
 
     // return the component for the Home page once the state is not loading anymore
     return (
         <Stack.Navigator
             initialRouteName={"HomeDash"}
             screenOptions={{
-                headerTitle: '',
-                headerTransparent: true,
-                headerTintColor: '#2A3779'
+                header: (props) => {
+                    return (<Navbar
+                        options={props.options}
+                        route={props.route}
+                        navigation={props.navigation}
+                        currentUserInformation={route.params.currentUserInformation}
+                        setCurrentScreenKey={setCurrentHomeDashScreenKey}
+                        pointValueRedeemed={route.params.pointValueRedeemed}
+                        setIsDrawerOpen={setIsDrawerOpen}
+                    />)
+                }
             }}
         >
             <Stack.Screen
                 name="HomeDash"
                 component={HomeDash}
-                options={{
-                    header: (props) => {
-                        return (<Navbar
-                            options={props.options}
-                            route={props.route}
-                            navigation={props.navigation}
-                            currentUserInformation={route.params.currentUserInformation}
-                            setCurrentScreenKey={setCurrentHomeDashScreenKey}
-                            pointValueRedeemed={route.params.pointValueRedeemed}
-                        />)
-                    }
-                }}
                 initialParams={{
                     currentUserInformation: route.params.currentUserInformation,
                     pointValueRedeemed: route.params.pointValueRedeemed,
-                    setCurrentScreenKey: setCurrentHomeDashScreenKey
+                    setCurrentScreenKey: setCurrentHomeDashScreenKey,
+                    setIsDrawerOpen: setIsDrawerOpen
                 }}
             />
             <Stack.Screen
                 name="HomeReferral"
                 component={HomeReferral}
                 options={{
-                    headerTitleStyle: {
-                        fontSize: 18,
-                        fontFamily: 'Raleway-Medium'
-                    },
-                    title: 'Alpha Program',
-                    headerBackTitleVisible: false,
-                    headerBackVisible: false,
-                    headerRight: () => (
-                        <IconButton
-                            icon="close"
-                            iconColor={"#313030"}
-                            size={30}
-                            style={{marginTop: '-1%'}}
-                            onPress={() => {
-                                setBottomTabNavigationShown(true);
-                                navigation.goBack();
-                            }}
-                        />
-                    ),
+                    headerShown: false,
                 }}
                 initialParams={{
                     setBottomTabNavigationShown: setBottomTabNavigationShown,

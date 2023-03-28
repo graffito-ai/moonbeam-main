@@ -1,23 +1,20 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo} from 'react';
 import {NativeStackHeaderProps} from "@react-navigation/native-stack";
 import {commonStyles} from "../../styles/common.module";
 import {styles} from '../../styles/navBar.module';
 import {Dimensions, Image, ImageBackground, View} from "react-native";
 import {Text} from "react-native-paper";
-import {Avatar} from "@rneui/themed";
 import * as Progress from 'react-native-progress';
 // @ts-ignore
 import HomeDashboardLogo from "../../../assets/login-logo.png";
 import {IconButton} from "react-native-paper/";
 import {HomeStackParamList} from "../../models/HomeStackProps";
+import Icon from "react-native-vector-icons/Ionicons";
 
 /**
  * NavBar component.
  */
 export const Navbar = (props: NativeStackHeaderProps & (HomeStackParamList["HomeDash"])) => {
-    // state driven key-value pairs for UI related elements
-    const [currentUserTitle, setCurrentUserTitle] = useState<string>("N/A");
-
     // state driven key-value pairs for any specific data values
     const creditBalance = useMemo(() => Math.floor(Math.random() * (5000 - 2500 + 1) + 2500), []);
     const availableBalance = useMemo(() => Math.floor(Math.random() * creditBalance), [creditBalance]);
@@ -39,11 +36,6 @@ export const Navbar = (props: NativeStackHeaderProps & (HomeStackParamList["Home
      * included in here.
      */
     useEffect(() => {
-        if (props.currentUserInformation) {
-            // set the title of the user's avatar in the dashboard, based on the user's information
-            const secondInitial = props.currentUserInformation["name"].split(" ").length > 2 ? 2 : 1;
-            setCurrentUserTitle(`${Array.from(props.currentUserInformation["name"].split(" ")[0])[0] as string}${Array.from(props.currentUserInformation["name"].split(" ")[secondInitial])[0] as string}`);
-        }
     }, []);
 
     // return the component for the NavBar component
@@ -75,14 +67,9 @@ export const Navbar = (props: NativeStackHeaderProps & (HomeStackParamList["Home
                         source={require('../../../assets/home-top-bar-background.png')}>
                         <View style={styles.insideDashboardView}>
                             <View style={styles.dashboardColumnItemFirst}>
-                                <Avatar
-                                    size={38}
-                                    rounded
-                                    title={currentUserTitle}
-                                    containerStyle={{backgroundColor: 'grey'}}
-                                >
-                                    <Avatar.Accessory onPress={() => console.log("PRESSSEd")} size={12}/>
-                                </Avatar>
+                                <Icon size={28} name={'menu'} color={'#2A3779'} onPress={() => {
+                                    props.setIsDrawerOpen !== undefined && props.setIsDrawerOpen(true);
+                                }}/>
                             </View>
                             <View style={styles.dashboardColumnItemMiddle}>
                                 <Progress.Circle

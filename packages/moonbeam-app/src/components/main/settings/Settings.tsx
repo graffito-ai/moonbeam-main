@@ -8,6 +8,7 @@ import {BankAccounts} from "./accounts/BankAccounts";
 import {Navbar} from "../../common/Navbar";
 import {IconButton} from "react-native-paper";
 import * as Linking from "expo-linking";
+import {DocumentViewer} from "../../common/DocumentViewer";
 
 /**
  * Settings component.
@@ -100,6 +101,19 @@ export const Settings = ({route}: SettingsTabProps) => {
                     initialParams={{
                         oauthStateId: route.params.oauthStateId,
                         currentUserInformation: route.params.currentUserInformation,
+                        setIsHeaderShown: setIsHeaderShown,
+                        setBottomTabNavigationShown: setBottomTabNavigationShown
+                    }}
+                    options={{
+                        headerShown: headerIsShown
+                    }}
+                />
+                <Stack.Screen
+                    name="DocumentViewer"
+                    component={DocumentViewer}
+                    initialParams={{
+                        name: '',
+                        privacyFlag: false,
                         setIsHeaderShown: setIsHeaderShown,
                         setBottomTabNavigationShown: setBottomTabNavigationShown
                     }}

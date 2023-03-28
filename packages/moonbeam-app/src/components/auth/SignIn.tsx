@@ -12,7 +12,6 @@ import {useValidation} from 'react-native-form-validator';
 import {API, Auth, graphqlOperation} from 'aws-amplify';
 import {listReferrals, ReferralStatus, updateReferral} from "@moonbeam/moonbeam-models";
 import * as SecureStore from "expo-secure-store";
-import * as FileSystem from "expo-file-system";
 
 /**
  * Sign In component.
@@ -237,11 +236,6 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
                                 }
 
                                 if (itemCount === pointUpdatesInvitee.length && pointUpdatesInvitee.length === inviteeList.length) {
-                                    // clean the file system cache
-                                    await FileSystem.deleteAsync(`${FileSystem.documentDirectory!}` + `files`, {
-                                        idempotent: true
-                                    });
-
                                     return [true, userInfo];
                                 } else {
                                     console.log(`Unexpected error while updating points for the list of Invitee-based referrals`);
@@ -385,7 +379,7 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
                                         setEmail("");
                                         // store the user information in secure store, in order to handle deeplinks later on
                                         await SecureStore.setItemAsync('currentUserInformation', JSON.stringify(userInformation));
-                                        navigation.navigate('Dashboard', {currentUserInformation: userInformation});
+                                        navigation.navigate('MainDash', {currentUserInformation: userInformation});
                                     }
                                 }
                             }

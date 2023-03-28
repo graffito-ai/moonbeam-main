@@ -36,7 +36,7 @@ import MOONBEAM_PLAID_OAUTH_FILE_NAME = Constants.MoonbeamConstants.MOONBEAM_PLA
 /**
  * BankAccounts component.
  */
-export const BankAccounts = ({navigation, route}: BankAccountsProps) => {
+export const BankAccounts = ({route, navigation}: BankAccountsProps) => {
     // state driven key-value pairs for UI related elements
     const [isPlaidInitialized, setIsPlaidInitialized] = useState<boolean>(false);
 

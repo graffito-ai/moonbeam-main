@@ -12,11 +12,13 @@ import {SignInComponent} from './src/components/auth/SignIn';
 import {SignUpComponent} from './src/components/auth/SignUp';
 import {EmailVerify} from './src/components/auth/EmailVerify';
 import {ForgotPassword} from './src/components/auth/ForgotPassword';
-import {Dashboard} from './src/components/main/Dashboard';
 import {IconButton, Provider as PaperProvider, Text} from 'react-native-paper';
 import * as Linking from 'expo-linking';
 import * as Font from 'expo-font';
 import * as SecureStore from "expo-secure-store";
+import {DocumentViewer} from "./src/components/common/DocumentViewer";
+import * as FileSystem from "expo-file-system";
+import {MainDash} from "./src/components/main/MainDash";
 
 // keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync().then(() => {
@@ -76,6 +78,11 @@ export default function App() {
             } catch (e) {
                 console.warn(e);
             } finally {
+                // clean the file system cache
+                await FileSystem.deleteAsync(`${FileSystem.documentDirectory!}` + `files`, {
+                    idempotent: true
+                });
+
                 // tell the application to render
                 setAppIsReady(true);
             }
@@ -185,13 +192,23 @@ export default function App() {
                             initialParams={{initialRender: true}}
                         />
                         <Stack.Screen
-                            name="Dashboard"
-                            // @ts-ignore
-                            component={Dashboard}
+                            name="MainDash"
+                            component={MainDash}
                             options={{
                                 headerShown: false
                             }}
                             initialParams={{currentUserInformation: {}}}
+                        />
+                        <Stack.Screen
+                            name="DocumentViewer"
+                            component={DocumentViewer}
+                            options={{
+                                headerShown: true
+                            }}
+                            initialParams={{
+                                name: '',
+                                privacyFlag: true
+                            }}
                         />
                     </Stack.Navigator>
                 </NavigationContainer>

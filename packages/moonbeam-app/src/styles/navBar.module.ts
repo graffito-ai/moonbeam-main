@@ -11,7 +11,7 @@ export const styles = StyleSheet.create({
         shadowRadius: 5,
         elevation: 15,
         borderBottomLeftRadius: 45,
-        borderBottomRightRadius: 45
+        borderBottomRightRadius: 45,
     },
     insideDashboardView: {
         flexDirection: 'column',

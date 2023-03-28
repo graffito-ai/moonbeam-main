@@ -9,13 +9,11 @@ export const styles = StyleSheet.create({
         alignItems: 'center'
     },
     messageView: {
-        flex: 0.3,
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
     },
     messageTitle: {
-        marginTop: '10%',
         fontSize: 25,
         fontFamily: 'Raleway-Medium',
         color: '#313030'
@@ -24,9 +22,10 @@ export const styles = StyleSheet.create({
         fontSize: 15,
         fontFamily: 'Raleway-Regular',
         textAlign: 'center',
-        height: Dimensions.get('window').height/5,
-        width:  Dimensions.get('window').width/1.3,
-        color: '#313030'
+        height: Dimensions.get('window').height / 5,
+        width: Dimensions.get('window').width / 1.3,
+        color: '#313030',
+        marginBottom: '-15%'
     },
     referralArt: {
         alignSelf: 'center',
@@ -58,7 +57,7 @@ export const styles = StyleSheet.create({
     modalContainer: {
         alignSelf: 'center',
         backgroundColor: 'white',
-        height: Dimensions.get('window').height/6,
+        height: Dimensions.get('window').height / 6,
         borderRadius: 15,
         padding: 20,
         borderWidth: 1,
@@ -78,5 +77,10 @@ export const styles = StyleSheet.create({
         height: 40,
         width: 350,
         marginTop: '10%'
+    },
+    dismissIcon: {
+        marginTop: '5%',
+        marginBottom: '10%',
+        alignSelf: 'flex-end'
     }
 });

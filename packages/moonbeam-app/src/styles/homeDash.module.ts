@@ -56,11 +56,9 @@ export const styles = StyleSheet.create({
         alignItems: 'flex-end',
         justifyContent: 'center'
     },
-    listItemView: {
-        marginTop: '-10%'
-    },
+    listItemView: {},
     segmentedButtons: {
-        marginTop: Dimensions.get('window').height / 2.3,
+        marginTop: `${Dimensions.get('window').height/45}%`,
         width: 350,
         alignSelf: 'center'
     }

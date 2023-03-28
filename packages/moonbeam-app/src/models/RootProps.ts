@@ -24,9 +24,15 @@ export type RootStackParamList = {
     ForgotPassword: {
         initialRender: boolean;
     },
-    Dashboard: {
-        oauthStateId?: string,
-        currentUserInformation: any
+    MainDash: {
+        oauthStateId?: string;
+        currentUserInformation: any;
+    },
+    DocumentViewer: {
+        name: string;
+        privacyFlag: boolean;
+        setIsHeaderShown?: React.Dispatch<React.SetStateAction<boolean>>;
+        setBottomTabNavigationShown?: React.Dispatch<React.SetStateAction<boolean>>;
     }
 };
 
@@ -39,5 +45,6 @@ export type EmailVerifyProps = NativeStackScreenProps<RootStackParamList, 'Email
 // the ForgotPassword component props, within the root stack
 export type ForgotPasswordProps = NativeStackScreenProps<RootStackParamList, 'ForgotPassword'>
 // the Dashboard component props, within the root stack
-export type DashboardProps = NativeStackScreenProps<RootStackParamList, 'Dashboard'>
-
+export type MainDashProps = NativeStackScreenProps<RootStackParamList, 'MainDash'>
+// the Dashboard component props, within the root stack
+export type DocumentViewerRootProps = NativeStackScreenProps<RootStackParamList, 'DocumentViewer'>
