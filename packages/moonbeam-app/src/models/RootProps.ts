@@ -26,7 +26,7 @@ export type RootStackParamList = {
     },
     MainDash: {
         oauthStateId?: string;
-        currentUserInformation: any;
+        currentUserInformation?: any;
     },
     DocumentViewer: {
         name: string;

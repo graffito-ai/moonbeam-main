@@ -5,8 +5,9 @@ import {createDrawerNavigator} from "@react-navigation/drawer";
 import {DrawerPropsParamList} from "../../models/DrawerProps";
 import {NavigationContainer} from "@react-navigation/native";
 import {Dashboard} from "./Dashboard";
-import { CustomDrawer } from './sidebar/CustomDrawer';
+import {CustomDrawer} from '../common/CustomDrawer';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import {Navbar} from '../common/Navbar';
 
 /**
  * MainDash component.
@@ -53,19 +54,25 @@ export const MainDash = ({route}: MainDashProps) => {
         <>
             <NavigationContainer linking={linking} independent={true}>
                 <Drawer.Navigator
-                    drawerContent={props => <CustomDrawer currentUserInformation={route.params.currentUserInformation} {...props} />}
-                    initialRouteName={"Dashboard"}>
+                    drawerContent={props => <CustomDrawer
+                        currentUserInformation={route.params.currentUserInformation} {...props} />}
+                    initialRouteName={"Dashboard"}
+                    screenOptions={{
+                        drawerLabelStyle: {fontFamily: 'Raleway-Medium', fontSize: 16},
+                        drawerActiveBackgroundColor: 'transparent',
+                        drawerActiveTintColor: 'black',
+                        drawerInactiveTintColor: 'black',
+                        swipeEnabled: false
+
+                    }}
+                >
                     <Drawer.Screen
                         name={"Dashboard"}
                         component={Dashboard}
                         options={{
-                            drawerLabelStyle: {fontFamily: 'Raleway-Medium', fontSize: 16},
-                            drawerActiveBackgroundColor: 'transparent',
-                            drawerActiveTintColor: '#A2B000',
                             drawerIcon: () => (
                                 <Icon size={25} name={'dots-circle'}/>
                             ),
-                            swipeEnabled: false,
                             headerShown: false
                         }}
                         initialParams={{
@@ -74,72 +81,67 @@ export const MainDash = ({route}: MainDashProps) => {
                     />
                     <Drawer.Screen
                         name={"Bank Accounts"}
-                        component={() => {return(<></>)}}
+                        component={() => {
+                            return (<></>)
+                        }}
                         options={{
-                            drawerLabelStyle: {fontFamily: 'Raleway-Medium', fontSize: 16},
-                            drawerActiveBackgroundColor: 'transparent',
-                            drawerActiveTintColor: '#A2B000',
                             drawerIcon: () => (
                                 <Icon size={25} name={'bank-plus'}/>
                             ),
-                            swipeEnabled: false,
                             headerShown: false
                         }}
                     />
                     <Drawer.Screen
                         name={"Card Services"}
-                        component={() => {return(<></>)}}
+                        component={() => {
+                            return (<></>)
+                        }}
                         options={{
-                            drawerLabelStyle: {fontFamily: 'Raleway-Medium', fontSize: 16},
-                            drawerActiveBackgroundColor: 'transparent',
-                            drawerActiveTintColor: '#A2B000',
                             drawerIcon: () => (
                                 <Icon size={25} name={'credit-card-settings-outline'}/>
                             ),
-                            swipeEnabled: false,
                             headerShown: false
                         }}
                     />
                     <Drawer.Screen
                         name={"Documents"}
-                        component={() => {return(<></>)}}
+                        component={() => {
+                            return (<></>)
+                        }}
                         options={{
-                            drawerLabelStyle: {fontFamily: 'Raleway-Medium', fontSize: 16},
-                            drawerActiveBackgroundColor: 'transparent',
-                            drawerActiveTintColor: '#A2B000',
                             drawerIcon: () => (
                                 <Icon size={25} name={'file-settings-outline'}/>
                             ),
-                            swipeEnabled: false,
                             headerShown: false
                         }}
                     />
                     <Drawer.Screen
                         name={"Settings"}
-                        component={() => {return(<></>)}}
+                        component={() => {
+                            return (<></>)
+                        }}
                         options={{
-                            drawerLabelStyle: {fontFamily: 'Raleway-Medium', fontSize: 16},
-                            drawerActiveBackgroundColor: 'transparent',
-                            drawerActiveTintColor: '#A2B000',
                             drawerIcon: () => (
                                 <Icon size={25} name={'cellphone-settings'}/>
                             ),
-                            swipeEnabled: false,
                             headerShown: false
                         }}
                     />
                     <Drawer.Screen
                         name={"Support"}
-                        component={() => {return(<></>)}}
+                        component={() => {
+                            return (<></>)
+                        }}
                         options={{
-                            drawerLabelStyle: {fontFamily: 'Raleway-Medium', fontSize: 16},
-                            drawerActiveBackgroundColor: 'transparent',
-                            drawerActiveTintColor: '#A2B000',
                             drawerIcon: () => (
                                 <Icon size={25} name={'help-circle-outline'}/>
                             ),
-                            swipeEnabled: false,
-                            headerShown: false
+                            header: (props) => {
+                                return (
+                                    <Navbar options={props.options} route={props.route} navigation={props.navigation}
+                                            layout={props.layout}/>)
+                            },
+                            headerTitle: 'Support Center'
                         }}
                     />
                 </Drawer.Navigator>

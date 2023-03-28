@@ -7,10 +7,10 @@ import {
 import {Dimensions, ImageBackground, Text, View} from 'react-native';
 import {Avatar, Divider} from "@rneui/base";
 import React, {useEffect, useState} from "react";
-import {RootStackParamList} from "../../../models/RootProps";
-import {commonStyles} from "../../../styles/common.module";
+import {RootStackParamList} from "../../models/RootProps";
+import {commonStyles} from "../../styles/common.module";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import {styles} from '../../../styles/customDrawer.module';
+import {styles} from '../../styles/customDrawer.module';
 
 export const CustomDrawer = (props: DrawerContentComponentProps & (RootStackParamList["MainDash"])) => {
     // state driven key-value pairs for UI related elements
@@ -41,7 +41,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps & (RootStackPara
                         resizeMode: 'cover'
                     }}
                     style={{padding: `${Dimensions.get('window').width/25}%`}}
-                    source={require('../../../../assets/sidebar.png')}>
+                    source={require('../../../assets/sidebar.png')}>
                     <Avatar
                         size={Dimensions.get('window').width/4.5}
                         rounded

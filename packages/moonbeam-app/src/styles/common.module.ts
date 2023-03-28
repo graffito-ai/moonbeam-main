@@ -44,6 +44,13 @@ export const commonStyles = StyleSheet.create({
         borderBottomLeftRadius: 45,
         borderBottomRightRadius: 45
     },
+    insideNavbarBarTextDrawer: {
+        marginTop: '-15%',
+        fontFamily: 'Raleway-Bold',
+        fontSize: 18,
+        color: 'black',
+        textAlign: 'center'
+    },
     insideNavbarBarText: {
         marginTop: '15%',
         fontFamily: 'Raleway-Bold',

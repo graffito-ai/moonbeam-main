@@ -1,6 +1,5 @@
 import React, {useEffect, useMemo} from 'react';
 import {NativeStackHeaderProps} from "@react-navigation/native-stack";
-import {commonStyles} from "../../styles/common.module";
 import {styles} from '../../styles/navBar.module';
 import {Dimensions, Image, ImageBackground, View} from "react-native";
 import {Text} from "react-native-paper";
@@ -10,11 +9,15 @@ import HomeDashboardLogo from "../../../assets/login-logo.png";
 import {IconButton} from "react-native-paper/";
 import {HomeStackParamList} from "../../models/HomeStackProps";
 import Icon from "react-native-vector-icons/Ionicons";
+import {DrawerHeaderProps} from "@react-navigation/drawer";
+import {RootStackParamList} from "../../models/RootProps";
+import {commonStyles} from '../../styles/common.module';
+import {DrawerActions} from "@react-navigation/native";
 
 /**
- * NavBar component.
+ * Navbar component.
  */
-export const Navbar = (props: NativeStackHeaderProps & (HomeStackParamList["HomeDash"])) => {
+export const Navbar = (props: (NativeStackHeaderProps | DrawerHeaderProps) & (HomeStackParamList["HomeDash"]) & RootStackParamList["MainDash"]) => {
     // state driven key-value pairs for any specific data values
     const creditBalance = useMemo(() => Math.floor(Math.random() * (5000 - 2500 + 1) + 2500), []);
     const availableBalance = useMemo(() => Math.floor(Math.random() * creditBalance), [creditBalance]);
@@ -38,7 +41,7 @@ export const Navbar = (props: NativeStackHeaderProps & (HomeStackParamList["Home
     useEffect(() => {
     }, []);
 
-    // return the component for the NavBar component
+    // return the component for the Navbar component
     return (
         <View>
             {props.route.name !== 'HomeDash' ?
@@ -50,8 +53,22 @@ export const Navbar = (props: NativeStackHeaderProps & (HomeStackParamList["Home
                             alignSelf: 'center'
                         }}
                         source={require('../../../assets/top-bar-background.png')}>
+                        {
+                            props.route.name === 'Support' &&
+                            <IconButton
+                                icon="chevron-left"
+                                iconColor={"#2A3779"}
+                                size={40}
+                                style={{marginTop: '10%'}}
+                                onPress={() => {
+                                    props.navigation.goBack();
+                                    props.navigation.dispatch(DrawerActions.openDrawer());
+                                }}
+                            />
+                        }
                         <View style={commonStyles.insideNavbarBarView}>
-                            <Text style={commonStyles.insideNavbarBarText}>
+                            <Text
+                                style={[commonStyles.insideNavbarBarText, props.route.name === 'Support' && commonStyles.insideNavbarBarTextDrawer]}>
                                 {props.options.headerTitle}
                             </Text>
                         </View>
