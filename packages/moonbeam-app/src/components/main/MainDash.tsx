@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {MainDashProps} from '../../models/RootProps';
 import * as Linking from "expo-linking";
 import {createDrawerNavigator} from "@react-navigation/drawer";
@@ -8,11 +8,16 @@ import {Dashboard} from "./Dashboard";
 import {CustomDrawer} from '../common/CustomDrawer';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import {Navbar} from '../common/Navbar';
+import { Dimensions } from 'react-native';
+import { Support } from './support/Support';
 
 /**
  * MainDash component.
  */
 export const MainDash = ({route}: MainDashProps) => {
+    // create a state to keep track of whether the drawer header is shown or not
+    const [isDrawerHeaderShown, setIsDrawerHeaderShown] = useState<boolean>(true);
+
     // create a drawer navigator, to be used for our sidebar navigation
     const Drawer = createDrawerNavigator<DrawerPropsParamList>();
 
@@ -24,7 +29,7 @@ export const MainDash = ({route}: MainDashProps) => {
      * included in here.
      */
     useEffect(() => {
-    });
+    }, []);
 
     // enabling the linking configuration for creating links to the application screens, based on the navigator
     const config = {
@@ -62,8 +67,8 @@ export const MainDash = ({route}: MainDashProps) => {
                         drawerActiveBackgroundColor: 'transparent',
                         drawerActiveTintColor: 'black',
                         drawerInactiveTintColor: 'black',
-                        swipeEnabled: false
-
+                        swipeEnabled: false,
+                        drawerStyle: {width: Dimensions.get('window').width/1.5}
                     }}
                 >
                     <Drawer.Screen
@@ -100,7 +105,11 @@ export const MainDash = ({route}: MainDashProps) => {
                             drawerIcon: () => (
                                 <Icon size={25} name={'credit-card-settings-outline'}/>
                             ),
-                            headerShown: false
+                            header: (props) => {
+                                return (
+                                    <Navbar options={props.options} route={props.route} navigation={props.navigation}
+                                            layout={props.layout}/>)
+                            }
                         }}
                     />
                     <Drawer.Screen
@@ -112,7 +121,11 @@ export const MainDash = ({route}: MainDashProps) => {
                             drawerIcon: () => (
                                 <Icon size={25} name={'file-settings-outline'}/>
                             ),
-                            headerShown: false
+                            header: (props) => {
+                                return (
+                                    <Navbar options={props.options} route={props.route} navigation={props.navigation}
+                                            layout={props.layout}/>)
+                            }
                         }}
                     />
                     <Drawer.Screen
@@ -129,8 +142,9 @@ export const MainDash = ({route}: MainDashProps) => {
                     />
                     <Drawer.Screen
                         name={"Support"}
-                        component={() => {
-                            return (<></>)
+                        component={Support}
+                        initialParams={{
+                            setIsDrawerHeaderShown: setIsDrawerHeaderShown
                         }}
                         options={{
                             drawerIcon: () => (
@@ -141,7 +155,7 @@ export const MainDash = ({route}: MainDashProps) => {
                                     <Navbar options={props.options} route={props.route} navigation={props.navigation}
                                             layout={props.layout}/>)
                             },
-                            headerTitle: 'Support Center'
+                            headerShown: isDrawerHeaderShown
                         }}
                     />
                 </Drawer.Navigator>

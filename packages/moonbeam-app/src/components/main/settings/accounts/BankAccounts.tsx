@@ -4,8 +4,6 @@ import {Dimensions, SafeAreaView, ScrollView, View} from "react-native";
 import {commonStyles} from "../../../../styles/common.module";
 import {Button, Divider, List, Text, IconButton} from "react-native-paper";
 import {styles} from "../../../../styles/bankAccounts.module";
-// @ts-ignore
-import FriendReferral from '../../../../../assets/refer-friend.png';
 import {BankAccountsProps} from "../../../../models/SettingsStackProps";
 import {API, graphqlOperation} from "aws-amplify";
 import {
@@ -411,7 +409,7 @@ export const BankAccounts = ({route, navigation}: BankAccountsProps) => {
                         title={filteredAccount.institution.name}
                         description={`${filteredAccount.type} ${filteredAccount.mask !== '' ? filteredAccount.mask : '••••'}`}
                         left={() =>
-                            <List.Icon color={'#2A3779'} icon="bank" key={`${filteredAccount.id}_bankIconKey`}/>}
+                            <List.Icon color={'#2A3779'} icon="bank-check" key={`${filteredAccount.id}_bankIconKey`}/>}
                         right={() =>
                             <IconButton
                                 key={`${filteredAccount.id}_deleteKey`}
@@ -538,6 +536,5 @@ export const BankAccounts = ({route, navigation}: BankAccountsProps) => {
                     </View>
                 </View>
             </SafeAreaView>
-
     );
 }

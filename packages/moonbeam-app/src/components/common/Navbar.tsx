@@ -45,35 +45,37 @@ export const Navbar = (props: (NativeStackHeaderProps | DrawerHeaderProps) & (Ho
     return (
         <View>
             {props.route.name !== 'HomeDash' ?
-                <View style={commonStyles.topNavbarView}>
-                    <ImageBackground
-                        imageStyle={{
-                            resizeMode: 'stretch',
-                            opacity: 0.6,
-                            alignSelf: 'center'
+                props.route.name === 'Support'
+                || props.route.name === 'Card Services'
+                || props.route.name === 'Documents' ?
+                    <IconButton
+                        icon="chevron-left"
+                        iconColor={"#2A3779"}
+                        size={40}
+                        style={{marginTop: '10%'}}
+                        onPress={() => {
+                            props.navigation.goBack();
+                            props.navigation.dispatch(DrawerActions.openDrawer());
                         }}
-                        source={require('../../../assets/top-bar-background.png')}>
-                        {
-                            props.route.name === 'Support' &&
-                            <IconButton
-                                icon="chevron-left"
-                                iconColor={"#2A3779"}
-                                size={40}
-                                style={{marginTop: '10%'}}
-                                onPress={() => {
-                                    props.navigation.goBack();
-                                    props.navigation.dispatch(DrawerActions.openDrawer());
-                                }}
-                            />
-                        }
-                        <View style={commonStyles.insideNavbarBarView}>
-                            <Text
-                                style={[commonStyles.insideNavbarBarText, props.route.name === 'Support' && commonStyles.insideNavbarBarTextDrawer]}>
-                                {props.options.headerTitle}
-                            </Text>
-                        </View>
-                    </ImageBackground>
-                </View> :
+                    />
+                    :
+                    <View style={commonStyles.topNavbarView}>
+                        <ImageBackground
+                            imageStyle={{
+                                resizeMode: 'stretch',
+                                opacity: 0.6,
+                                alignSelf: 'center'
+                            }}
+                            source={require('../../../assets/top-bar-background.png')}>
+                            <View style={commonStyles.insideNavbarBarView}>
+                                <Text
+                                    style={[commonStyles.insideNavbarBarText]}>
+                                    {props.options.headerTitle}
+                                </Text>
+                            </View>
+                        </ImageBackground>
+                    </View>
+                :
                 <View style={styles.topDashboardView}>
                     <ImageBackground
                         imageStyle={{
