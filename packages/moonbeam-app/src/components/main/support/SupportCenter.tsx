@@ -1,9 +1,9 @@
 import 'react-native-get-random-values';
 import React, {useEffect} from "react";
-import {Dimensions, SafeAreaView, ScrollView, Text, TouchableHighlight, View} from "react-native";
+import {Dimensions, SafeAreaView, Text, TouchableHighlight, View} from "react-native";
 import {commonStyles} from "../../../styles/common.module";
 import {Button, Divider, IconButton, List} from "react-native-paper";
-import {styles} from "../../../styles/support.module";
+import {styles} from "../../../styles/supportCenter.module";
 import {SupportCenterProps} from '../../../models/SupportStackProps';
 
 /**
@@ -29,86 +29,78 @@ export const SupportCenter = ({route, navigation}: SupportCenterProps) => {
     return (
         <SafeAreaView style={[commonStyles.rowContainer, commonStyles.androidSafeArea]}>
             <View>
-                <ScrollView
-                    scrollEnabled={false}
-                    keyboardShouldPersistTaps={'handled'}
-                    showsVerticalScrollIndicator={false}
-                >
-                    <View style={[styles.mainView]}>
-                        <View style={styles.titleView}>
-                            <Text style={styles.mainTitle}>Support Center</Text>
-                        </View>
-                        <View style={styles.content}>
-                            <List.Section style={styles.listSectionView}>
-                                <List.Subheader style={styles.subHeaderTitle}>Help</List.Subheader>
-                                <Divider
-                                    style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
-                                <TouchableHighlight
-                                    onPress={() => {
-
-                                    }}
-                                    underlayColor="transparent">
-                                    <List.Item
-                                        style={styles.bankItemStyle}
-                                        titleStyle={styles.bankItemTitle}
-                                        descriptionStyle={styles.bankItemDetails}
-                                        titleNumberOfLines={2}
-                                        descriptionNumberOfLines={3}
-                                        title={'Contact'}
-                                        description={`You will be redirected to a live agent whom will be able to answer your questions.`}
-                                        left={() =>
-                                            <List.Icon color={'#2A3779'} icon="message"/>}
-                                        right={() =>
-                                            <IconButton
-                                                style={styles.bankItemRightIcon}
-                                                icon="chevron-right"
-                                                iconColor={'black'}
-                                                size={25}
-                                                onPress={() => {
-                                                }}
-                                            />}
-                                    />
-                                </TouchableHighlight>
-                            </List.Section>
-                            <List.Section style={styles.listSectionView}>
-                                <List.Subheader style={styles.subHeaderTitle}>Knowledge Base</List.Subheader>
-                                <Divider
-                                    style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
-                                <TouchableHighlight
-                                    onPress={() => {
-                                        navigation.navigate('FAQ', {
-                                            setIsDrawerHeaderShown: route.params.setIsDrawerHeaderShown
-                                        });
-                                    }}
-                                    underlayColor="transparent">
-                                    <List.Item
-                                        style={styles.bankItemStyle}
-                                        titleStyle={styles.bankItemTitle}
-                                        descriptionStyle={styles.bankItemDetails}
-                                        titleNumberOfLines={2}
-                                        descriptionNumberOfLines={3}
-                                        title={'FAQ'}
-                                        description={`Access our most frequently asked questions and answers.`}
-                                        left={() =>
-                                            <List.Icon color={'#2A3779'} icon="frequently-asked-questions"/>}
-                                        right={() =>
-                                            <IconButton
-                                                style={styles.bankItemRightIcon}
-                                                icon="chevron-right"
-                                                iconColor={'black'}
-                                                size={25}
-                                                onPress={() => {
-                                                    navigation.navigate('FAQ', {
-                                                        setIsDrawerHeaderShown: route.params.setIsDrawerHeaderShown
-                                                    });
-                                                }}
-                                            />}
-                                    />
-                                </TouchableHighlight>
-                            </List.Section>
-                        </View>
+                <View style={[styles.mainView]}>
+                    <View style={styles.titleView}>
+                        <Text style={styles.mainTitle}>Support Center</Text>
                     </View>
-                </ScrollView>
+                    <View style={styles.content}>
+                        <List.Section style={styles.listSectionView}>
+                            <List.Subheader style={styles.subHeaderTitle}>Help</List.Subheader>
+                            <Divider
+                                style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
+                            <TouchableHighlight
+                                onPress={() => {}}
+                                underlayColor="transparent">
+                                <List.Item
+                                    style={styles.supportItemStyle}
+                                    titleStyle={styles.supportItemTitle}
+                                    descriptionStyle={styles.supportItemDetails}
+                                    titleNumberOfLines={2}
+                                    descriptionNumberOfLines={3}
+                                    title={'Contact'}
+                                    description={`You will be redirected to a live agent whom will be able to answer your questions.`}
+                                    left={() =>
+                                        <List.Icon color={'#2A3779'} icon="message"/>}
+                                    right={() =>
+                                        <IconButton
+                                            style={styles.supportItemRightIcon}
+                                            icon="chevron-right"
+                                            iconColor={'black'}
+                                            size={25}
+                                            onPress={() => {
+                                            }}
+                                        />}
+                                />
+                            </TouchableHighlight>
+                        </List.Section>
+                        <List.Section style={styles.listSectionView}>
+                            <List.Subheader style={styles.subHeaderTitle}>Knowledge Base</List.Subheader>
+                            <Divider
+                                style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
+                            <TouchableHighlight
+                                onPress={() => {
+                                    navigation.navigate('FAQ', {
+                                        setIsDrawerHeaderShown: route.params.setIsDrawerHeaderShown
+                                    });
+                                }}
+                                underlayColor="transparent">
+                                <List.Item
+                                    style={styles.supportItemStyle}
+                                    titleStyle={styles.supportItemTitle}
+                                    descriptionStyle={styles.supportItemDetails}
+                                    titleNumberOfLines={2}
+                                    descriptionNumberOfLines={3}
+                                    title={'FAQ'}
+                                    description={`Access our most frequently asked questions and answers.`}
+                                    left={() =>
+                                        <List.Icon color={'#2A3779'} icon="frequently-asked-questions"/>}
+                                    right={() =>
+                                        <IconButton
+                                            style={styles.supportItemRightIcon}
+                                            icon="chevron-right"
+                                            iconColor={'black'}
+                                            size={25}
+                                            onPress={() => {
+                                                navigation.navigate('FAQ', {
+                                                    setIsDrawerHeaderShown: route.params.setIsDrawerHeaderShown
+                                                });
+                                            }}
+                                        />}
+                                />
+                            </TouchableHighlight>
+                        </List.Section>
+                    </View>
+                </View>
                 <View style={styles.bottomView}>
                     <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width}]}/>
                     <Button

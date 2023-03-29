@@ -1,7 +1,16 @@
-import {Dimensions, StyleSheet} from "react-native";
+import {Dimensions, Platform, StyleSheet} from "react-native";
 
-// styles to be used within the Support component
+// styles to be used within the FAQ component
 export const styles = StyleSheet.create({
+    rowContainer: {
+        flex: 1,
+        width: '100%',
+        height: '100%'
+    },
+    androidSafeArea: {
+        flex: 1,
+        paddingTop: Platform.OS === 'android' ? 25 : 0
+    },
     mainView: {
         flex: 1,
         flexGrow: 1,
@@ -58,18 +67,46 @@ export const styles = StyleSheet.create({
         fontSize: 15,
         fontFamily: 'Raleway-Medium'
     },
-    bankItemStyle: {},
-    bankItemTitle: {
+    faqItemStyle: {
+        backgroundColor: '#f2f2f2',
+        marginTop: '-2%'
+    },
+    faqAccordionStyle: {
+        backgroundColor: '#f2f2f2',
+        height: Dimensions.get('window').height/16
+    },
+    faqAccordionTitle: {
         color: '#313030',
         fontFamily: 'Raleway-Bold'
     },
-    bankItemDetails: {
-        color: 'grey',
+    faqItemTitle: {
+        color: '#313030',
         fontFamily: 'Raleway-Medium'
     },
-    bankItemRightIcon: {
-        alignItems: 'flex-end',
-        top: '1.5%'
+    faqItemTitleFaceID: {
+        color: '#313030',
+        fontFamily: 'Raleway-Bold',
+        bottom: '19%'
+    },
+    faqItemDetails: {
+        color: 'grey',
+        fontFamily: 'Raleway-Medium',
+        textAlign: 'justify',
+        width: Dimensions.get("window").width/1.65,
+        marginTop: '1.5%'
+    },
+    faqItemRightView: {
+        flexDirection: 'row',
+        left: '30%',
+        bottom: '12%'
+    },
+    faqItemRightFaceID: {
+        marginTop: '15%',
+        left: '15%'
+    },
+    faqItemRightIcon: {
+        top: '3.5%',
+        marginRight: '2%'
     },
     bottomTextView: {
         marginTop: '5%'
