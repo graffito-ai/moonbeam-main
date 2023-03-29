@@ -5,6 +5,7 @@ schema:
   - ./src/graphql/schemas/ReferralSchema.graphql
   - ./src/graphql/schemas/AccountLinkSchema.graphql
   - ./src/graphql/schemas/StorageSchema.graphql
+  - ./src/graphql/schemas/FAQSchema.graphql
 documents:
   - ./src/graphql/queries/Queries.graphql
   - ./src/graphql/queries/Mutations.graphql

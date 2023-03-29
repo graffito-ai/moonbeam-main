@@ -145,6 +145,16 @@ export type CreateAccountLinkInput = {
   userName: Scalars['String'];
 };
 
+export type CreateFaqInput = {
+  applicationLink?: InputMaybe<Scalars['String']>;
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+  facts?: InputMaybe<Array<InputMaybe<FactInput>>>;
+  id: Scalars['ID'];
+  title: Scalars['String'];
+  type: FaqType;
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
 export type CreateReferralInput = {
   createdAt?: InputMaybe<Scalars['AWSDateTime']>;
   id: Scalars['ID'];
@@ -163,6 +173,49 @@ export type DeleteAccountInput = {
   id: Scalars['ID'];
   linkToken: Scalars['String'];
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
+export type Faq = {
+  __typename?: 'FAQ';
+  applicationLink?: Maybe<Scalars['String']>;
+  createdAt: Scalars['AWSDateTime'];
+  facts?: Maybe<Array<Maybe<Fact>>>;
+  id: Scalars['ID'];
+  title: Scalars['String'];
+  type: FaqType;
+  updatedAt: Scalars['AWSDateTime'];
+};
+
+export enum FaqErrorType {
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  ValidationError = 'VALIDATION_ERROR'
+}
+
+export type FaqResponse = {
+  __typename?: 'FAQResponse';
+  data?: Maybe<Array<Maybe<Faq>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<FaqErrorType>;
+};
+
+export enum FaqType {
+  Linkable = 'LINKABLE',
+  NonLinkable = 'NON_LINKABLE'
+}
+
+export type Fact = {
+  __typename?: 'Fact';
+  description: Scalars['String'];
+  link?: Maybe<Scalars['String']>;
+  linkTitle?: Maybe<Scalars['String']>;
+  title: Scalars['String'];
+};
+
+export type FactInput = {
+  description: Scalars['String'];
+  link?: InputMaybe<Scalars['String']>;
+  linkTitle?: InputMaybe<Scalars['String']>;
+  title: Scalars['String'];
 };
 
 export type File = {
@@ -215,6 +268,10 @@ export type ListAccountsInput = {
   status?: InputMaybe<AccountVerificationStatus>;
 };
 
+export type ListFaqInput = {
+  type?: InputMaybe<FaqType>;
+};
+
 export type ListReferralInput = {
   inviteeEmail?: InputMaybe<Scalars['String']>;
   inviterEmail?: InputMaybe<Scalars['String']>;
@@ -226,6 +283,7 @@ export type ListReferralInput = {
 export type Mutation = {
   __typename?: 'Mutation';
   createAccountLink?: Maybe<AccountLinkResponse>;
+  createFAQ?: Maybe<FaqResponse>;
   createReferral?: Maybe<ReferralResponse>;
   deleteAccount?: Maybe<AccountResponse>;
   updateAccountLink?: Maybe<AccountLinkResponse>;
@@ -235,6 +293,11 @@ export type Mutation = {
 
 export type MutationCreateAccountLinkArgs = {
   createAccountLinkInput: CreateAccountLinkInput;
+};
+
+
+export type MutationCreateFaqArgs = {
+  createFAQInput: CreateFaqInput;
 };
 
 
@@ -267,6 +330,7 @@ export type Query = {
   getReferral?: Maybe<ReferralResponse>;
   getStorage?: Maybe<StorageResponse>;
   listAccounts?: Maybe<AccountResponse>;
+  listFAQs?: Maybe<FaqResponse>;
   listReferrals?: Maybe<ReferralResponse>;
 };
 
@@ -288,6 +352,11 @@ export type QueryGetStorageArgs = {
 
 export type QueryListAccountsArgs = {
   filter: ListAccountsInput;
+};
+
+
+export type QueryListFaQsArgs = {
+  listFAQInput: ListFaqInput;
 };
 
 
@@ -396,3 +465,10 @@ export type ListAccountsQueryVariables = Exact<{
 
 
 export type ListAccountsQuery = { __typename?: 'Query', listAccounts?: { __typename?: 'AccountResponse', errorMessage?: string | null, errorType?: LinkErrorType | null, data?: Array<{ __typename?: 'AccountDetails', id: string, name: string, mask: string, type: AccountType, verificationStatus: AccountVerificationStatus, linkToken: string, institution: { __typename?: 'FinancialInstitution', id: string, name: string } } | null> | null } | null };
+
+export type ListFaQsQueryVariables = Exact<{
+  listFAQInput: ListFaqInput;
+}>;
+
+
+export type ListFaQsQuery = { __typename?: 'Query', listFAQs?: { __typename?: 'FAQResponse', errorMessage?: string | null, errorType?: FaqErrorType | null, data?: Array<{ __typename?: 'FAQ', id: string, createdAt: string, updatedAt: string, title: string, type: FaqType, applicationLink?: string | null, facts?: Array<{ __typename?: 'Fact', title: string, description: string, link?: string | null, linkTitle?: string | null } | null> | null } | null> | null } | null };

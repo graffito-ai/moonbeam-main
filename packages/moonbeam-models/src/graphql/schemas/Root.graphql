@@ -1,6 +1,7 @@
 # graphql/Root.graphql
 # Main Schema File
-type Query @aws_cognito_user_pools {
+type Query {
+    listFAQs(listFAQInput: ListFAQInput!): FAQResponse @aws_cognito_user_pools
     getStorage(getStorageInput: GetStorageInput!): StorageResponse @aws_cognito_user_pools
     getAccountLink(id: String!): AccountLinkResponse @aws_cognito_user_pools
     listAccounts(filter: ListAccountsInput!): AccountResponse @aws_cognito_user_pools
@@ -8,7 +9,8 @@ type Query @aws_cognito_user_pools {
     listReferrals(filter: ListReferralInput!): ReferralResponse @aws_cognito_user_pools
 }
 
-type Mutation @aws_cognito_user_pools {
+type Mutation {
+    createFAQ(createFAQInput: CreateFAQInput!): FAQResponse @aws_cognito_user_pools
     createAccountLink(createAccountLinkInput: CreateAccountLinkInput!): AccountLinkResponse @aws_cognito_user_pools
     updateAccountLink(updateAccountLinkInput: UpdateAccountLinkInput!): AccountLinkResponse @aws_cognito_user_pools
     deleteAccount(deleteAccountInput: DeleteAccountInput!): AccountResponse @aws_cognito_user_pools

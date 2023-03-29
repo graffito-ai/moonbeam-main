@@ -91,3 +91,27 @@ export const deleteAccount = /* GraphQL */ `
         }
     }
 `;
+
+// Mutation used to create an FAQ
+export const createFAQ = /* GraphQL */ `
+    mutation CreateFAQ($createFAQInput: CreateFAQInput!) {
+        createFAQ(createFAQInput: $createFAQInput) {
+            errorType
+            errorMessage
+            data {
+                id
+                createdAt
+                updatedAt
+                title
+                type
+                facts {
+                    title
+                    description
+                    link
+                    linkTitle
+                }
+                applicationLink
+            }
+        }
+    }
+`;

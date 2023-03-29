@@ -83,3 +83,27 @@ export const listAccounts = /* GraphQL */ `
         }
     }
 `;
+
+// Query used to retrieve a list of FAQs, based on their type
+export const listFAQs = /* GraphQL */ `
+    query ListFAQs($listFAQInput: ListFAQInput!) {
+        listFAQs(listFAQInput: $listFAQInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                createdAt
+                updatedAt
+                title
+                type
+                facts {
+                    title
+                    description
+                    link
+                    linkTitle
+                }
+                applicationLink
+            }
+        }
+    }
+`;

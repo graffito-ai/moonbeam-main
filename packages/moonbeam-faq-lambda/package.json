@@ -1,10 +1,10 @@
 {
-  "name": "@moonbeam/moonbeam-storage-lambda",
+  "name": "@moonbeam/moonbeam-faq-lambda",
   "version": "1.0.0",
-  "description": "This sub-package represents the Lambda function, used for file storage related purposes.",
+  "description": "This sub-package represents the Lambda function, used for FAQs related purposes.",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
-  "repository": "https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/packages/moonbeam-storage-lambda/package.json/browse",
+  "repository": "https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/packages/moonbeam-faq-lambda/package.json/browse",
   "author": "Marius Acsinte <marius@moonbeam.vet>",
   "license": "Moonbeam Inc. Proprietary Code License <https://github.com/moonnbm/moonbeam-main/blob/main/LICENSE>",
   "scripts": {

@@ -57,7 +57,6 @@ mutation UpdateAccountLink($updateAccountLinkInput: UpdateAccountLinkInput!) {
     }
 }
 
-
 mutation DeleteAccount($deleteAccountInput: DeleteAccountInput!) {
     deleteAccount(deleteAccountInput: $deleteAccountInput) {
         errorType
@@ -73,6 +72,27 @@ mutation DeleteAccount($deleteAccountInput: DeleteAccountInput!) {
                 name
             }
             linkToken
+        }
+    }
+}
+
+mutation CreateFAQ($createFAQInput: CreateFAQInput!) {
+    createFAQ(createFAQInput: $createFAQInput) {
+        errorType
+        errorMessage
+        data {
+            id
+            createdAt
+            updatedAt
+            title
+            type
+            facts {
+                title
+                description
+                link
+                linkTitle
+            }
+            applicationLink
         }
     }
 }

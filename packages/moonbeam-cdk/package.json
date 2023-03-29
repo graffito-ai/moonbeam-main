@@ -2,7 +2,7 @@
   "name": "@moonbeam/moonbeam-cdk",
   "version": "1.0.0",
   "description": "This sub-package represents the infrastructure package, used to define and synthesize all AWS-based infrastructure resources.",
-  "repository": "https://github.com/moonnbm/moonbeam-main/tree/main/packages/moonbeam-cdk",
+  "repository": "https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/packages/moonbeam-cdk/package.json/browse",
   "author": "Marius Acsinte <marius@moonbeam.vet>",
   "license": "Moonbeam Inc. Proprietary Code License <https://github.com/moonnbm/moonbeam-main/blob/main/LICENSE>",
   "bin": {},

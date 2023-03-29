@@ -2,7 +2,7 @@
   "name": "moonbeam-main",
   "version": "1.0.0",
   "description": "This is the main repository for the Moonbeam mobile application.",
-  "repository": "https://github.com/moonnbm/moonbeam-main",
+  "repository": "https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/",
   "author": "Marius Acsinte <marius@moonbeam.vet>",
   "license": "Moonbeam Inc. Proprietary Code License <https://github.com/moonnbm/moonbeam-main/blob/main/LICENSE>",
   "scripts": {

@@ -4,7 +4,7 @@
   "description": "This sub-package represents the Lambda function, used by Amplify, to connect to Plaid, through an AppSync API.",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
-  "repository": "https://github.com/moonnbm/moonbeam-main/tree/main/packages/moonbeam-plaid-lambda",
+  "repository": "https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/packages/moonbeam-plaid-lambda/package.json/browse",
   "author": "Marius Acsinte <marius@moonbeam.vet>",
   "license": "Moonbeam Inc. Proprietary Code License <https://github.com/moonnbm/moonbeam-main/blob/main/LICENSE>",
   "scripts": {

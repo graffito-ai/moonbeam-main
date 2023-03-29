@@ -2,7 +2,7 @@
   "name": "@moonbeam/moonbeam-app",
   "version": "1.0.0",
   "description": "This sub-package represents the library used to expose Moonbeam's Typescript configuration.",
-  "repository": "https://github.com/moonnbm/moonbeam-main/tree/main/packages/moonbeam-app",
+  "repository": "https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/packages/moonbeam-app/package.json/browse",
   "author": "Marius Acsinte <marius@moonbeam.vet>",
   "license": "Moonbeam Inc. Proprietary Code License <https://github.com/moonnbm/moonbeam-main/blob/main/LICENSE>",
   "main": "node_modules/expo/AppEntry.js",

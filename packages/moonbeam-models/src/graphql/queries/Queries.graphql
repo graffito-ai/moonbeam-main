@@ -72,3 +72,24 @@ query ListAccounts($filter: ListAccountsInput!) {
         }
     }
 }
+
+query ListFAQs($listFAQInput: ListFAQInput!) {
+    listFAQs(listFAQInput: $listFAQInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            createdAt
+            updatedAt
+            title
+            type
+            facts {
+                title
+                description
+                link
+                linkTitle
+            }
+            applicationLink
+        }
+    }
+}

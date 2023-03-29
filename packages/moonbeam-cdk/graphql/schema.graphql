@@ -1,6 +1,7 @@
 # graphql/Root.graphql
 # Main Schema File
-type Query @aws_cognito_user_pools {
+type Query {
+    listFAQs(listFAQInput: ListFAQInput!): FAQResponse @aws_cognito_user_pools
     getStorage(getStorageInput: GetStorageInput!): StorageResponse @aws_cognito_user_pools
     getAccountLink(id: String!): AccountLinkResponse @aws_cognito_user_pools
     listAccounts(filter: ListAccountsInput!): AccountResponse @aws_cognito_user_pools
@@ -8,7 +9,8 @@ type Query @aws_cognito_user_pools {
     listReferrals(filter: ListReferralInput!): ReferralResponse @aws_cognito_user_pools
 }
 
-type Mutation @aws_cognito_user_pools {
+type Mutation {
+    createFAQ(createFAQInput: CreateFAQInput!): FAQResponse @aws_cognito_user_pools
     createAccountLink(createAccountLinkInput: CreateAccountLinkInput!): AccountLinkResponse @aws_cognito_user_pools
     updateAccountLink(updateAccountLinkInput: UpdateAccountLinkInput!): AccountLinkResponse @aws_cognito_user_pools
     deleteAccount(deleteAccountInput: DeleteAccountInput!): AccountResponse @aws_cognito_user_pools
@@ -288,4 +290,59 @@ input GetStorageInput {
     level: FileAccessLevel!,
     type: FileType!,
     name: String!
+}
+# graphql/FAQSchema.graphql
+# FAQ Schema File
+enum FAQErrorType {
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+}
+
+enum FAQType {
+    LINKABLE
+    NON_LINKABLE
+}
+
+type Fact @aws_cognito_user_pools {
+    title: String!
+    description: String!
+    linkTitle: String
+    link: String
+}
+
+type FAQ @aws_cognito_user_pools {
+    id: ID!
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+    title: String!
+    type: FAQType!
+    facts: [Fact]
+    applicationLink: String
+}
+
+type FAQResponse @aws_cognito_user_pools {
+    data:  [FAQ]
+    errorType: FAQErrorType
+    errorMessage: String
+}
+
+input FactInput {
+    title: String!
+    description: String!
+    linkTitle: String
+    link: String
+}
+
+input CreateFAQInput {
+    id: ID!
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+    title: String!
+    type: FAQType!
+    facts: [FactInput]
+    applicationLink: String
+}
+
+input ListFAQInput {
+    type: FAQType
 }
