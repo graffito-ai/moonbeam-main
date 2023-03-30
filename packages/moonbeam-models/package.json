@@ -6,7 +6,7 @@
   "types": "lib/types/index.d.ts",
   "repository": "https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/packages/moonbeam-models/package.json/browse",
   "author": "Marius Acsinte <marius@moonbeam.vet>",
-  "license": "Moonbeam Inc. Proprietary Code License <https://github.com/moonnbm/moonbeam-main/blob/main/LICENSE>",
+  "license": "Moonbeam Inc. Proprietary Code License <https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/LICENSE/browse>",
   "scripts": {
     "build": "rm ../moonbeam-cdk/graphql/schema.graphql && rm -rf ./lib && ./node_modules/.bin/graphql-codegen && cat appsync.d.ts > ./src/common/GraphqlExports.ts && tsc && rm appsync.d.ts && cat ./src/graphql/schemas/Root.graphql >> ../moonbeam-cdk/graphql/schema.graphql && cat ./src/graphql/schemas/AccountLinkSchema.graphql >> ../moonbeam-cdk/graphql/schema.graphql && cat ./src/graphql/schemas/ReferralSchema.graphql >> ../moonbeam-cdk/graphql/schema.graphql && cat ./src/graphql/schemas/StorageSchema.graphql >> ../moonbeam-cdk/graphql/schema.graphql && cat ./src/graphql/schemas/FAQSchema.graphql >> ../moonbeam-cdk/graphql/schema.graphql",
     "clean": "rm -rf build/ lib/ node_modules/"

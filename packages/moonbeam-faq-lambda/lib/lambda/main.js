@@ -1,0 +1,27 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const moonbeam_models_1 = require("@moonbeam/moonbeam-models");
+const createFAQ_1 = require("./resolvers/createFAQ");
+const listFAQs_1 = require("./resolvers/listFAQs");
+/**
+ * Lambda Function handler, handling incoming events,
+ * depending on the AppSync field name.
+ *
+ * @param event AppSync even to be passed in the handler
+ */
+exports.handler = async (event) => {
+    console.log(`Received new FAQ event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
+    switch (event.info.fieldName) {
+        case "listFAQs":
+            return await (0, listFAQs_1.listFAQs)(event.arguments.listFAQInput);
+        case "createFAQ":
+            return await (0, createFAQ_1.createFAQ)(event.arguments.createFAQInput);
+        default:
+            console.log(`Unexpected field name: {}`, event.info.fieldName);
+            return {
+                errorMessage: `Unexpected field name: ${event.info.fieldName}`,
+                errorType: moonbeam_models_1.FaqErrorType.UnexpectedError
+            };
+    }
+};
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoibWFpbi5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uLy4uL3NyYy9sYW1iZGEvbWFpbi50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOztBQUFBLCtEQUFrRztBQUNsRyxxREFBZ0Q7QUFDaEQsbURBQThDO0FBbUI5Qzs7Ozs7R0FLRztBQUNILE9BQU8sQ0FBQyxPQUFPLEdBQUcsS0FBSyxFQUFFLEtBQW1CLEVBQXdCLEVBQUU7SUFDbEUsT0FBTyxDQUFDLEdBQUcsQ0FBQyx5Q0FBeUMsS0FBSyxDQUFDLElBQUksQ0FBQyxTQUFTLHFCQUFxQixJQUFJLENBQUMsU0FBUyxDQUFDLEtBQUssQ0FBQyxTQUFTLENBQUMsRUFBRSxDQUFDLENBQUM7SUFDakksUUFBUSxLQUFLLENBQUMsSUFBSSxDQUFDLFNBQVMsRUFBRTtRQUMxQixLQUFLLFVBQVU7WUFDWCxPQUFPLE1BQU0sSUFBQSxtQkFBUSxFQUFDLEtBQUssQ0FBQyxTQUFTLENBQUMsWUFBWSxDQUFDLENBQUM7UUFDeEQsS0FBSyxXQUFXO1lBQ1osT0FBTyxNQUFNLElBQUEscUJBQVMsRUFBQyxLQUFLLENBQUMsU0FBUyxDQUFDLGNBQWMsQ0FBQyxDQUFDO1FBQzNEO1lBQ0ksT0FBTyxDQUFDLEdBQUcsQ0FBQywyQkFBMkIsRUFBRSxLQUFLLENBQUMsSUFBSSxDQUFDLFNBQVMsQ0FBQyxDQUFDO1lBQy9ELE9BQU87Z0JBQ0gsWUFBWSxFQUFFLDBCQUEwQixLQUFLLENBQUMsSUFBSSxDQUFDLFNBQVMsRUFBRTtnQkFDOUQsU0FBUyxFQUFFLDhCQUFZLENBQUMsZUFBZTthQUMxQyxDQUFDO0tBQ1Q7QUFDTCxDQUFDLENBQUEiLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQge0NyZWF0ZUZhcUlucHV0LCBGYXFFcnJvclR5cGUsIEZhcVJlc3BvbnNlLCBMaXN0RmFxSW5wdXR9IGZyb20gXCJAbW9vbmJlYW0vbW9vbmJlYW0tbW9kZWxzXCI7XG5pbXBvcnQge2NyZWF0ZUZBUX0gZnJvbSBcIi4vcmVzb2x2ZXJzL2NyZWF0ZUZBUVwiO1xuaW1wb3J0IHtsaXN0RkFRc30gZnJvbSBcIi4vcmVzb2x2ZXJzL2xpc3RGQVFzXCI7XG5cbi8qKlxuICogTWFwcGluZyBvdXQgdGhlIEFwcCBTeW5jIGV2ZW50IHR5cGUsIHNvIHdlIGNhbiB1c2UgaXQgYXMgYSB0eXBlIGluIHRoZSBMYW1iZGEgSGFuZGxlclxuICovXG50eXBlIEFwcFN5bmNFdmVudCA9IHtcbiAgICBpbmZvOiB7XG4gICAgICAgIGZpZWxkTmFtZTogc3RyaW5nXG4gICAgfSxcbiAgICBhcmd1bWVudHM6IHtcbiAgICAgICAgbGlzdEZBUUlucHV0OiBMaXN0RmFxSW5wdXRcbiAgICAgICAgY3JlYXRlRkFRSW5wdXQ6IENyZWF0ZUZhcUlucHV0XG4gICAgfSxcbiAgICBpZGVudGl0eToge1xuICAgICAgICBzdWI6IHN0cmluZztcbiAgICAgICAgdXNlcm5hbWU6IHN0cmluZztcbiAgICB9XG59XG5cbi8qKlxuICogTGFtYmRhIEZ1bmN0aW9uIGhhbmRsZXIsIGhhbmRsaW5nIGluY29taW5nIGV2ZW50cyxcbiAqIGRlcGVuZGluZyBvbiB0aGUgQXBwU3luYyBmaWVsZCBuYW1lLlxuICpcbiAqIEBwYXJhbSBldmVudCBBcHBTeW5jIGV2ZW4gdG8gYmUgcGFzc2VkIGluIHRoZSBoYW5kbGVyXG4gKi9cbmV4cG9ydHMuaGFuZGxlciA9IGFzeW5jIChldmVudDogQXBwU3luY0V2ZW50KTogUHJvbWlzZTxGYXFSZXNwb25zZT4gPT4ge1xuICAgIGNvbnNvbGUubG9nKGBSZWNlaXZlZCBuZXcgRkFRIGV2ZW50IGZvciBvcGVyYXRpb24gWyR7ZXZlbnQuaW5mby5maWVsZE5hbWV9XSwgd2l0aCBhcmd1bWVudHMgJHtKU09OLnN0cmluZ2lmeShldmVudC5hcmd1bWVudHMpfWApO1xuICAgIHN3aXRjaCAoZXZlbnQuaW5mby5maWVsZE5hbWUpIHtcbiAgICAgICAgY2FzZSBcImxpc3RGQVFzXCI6XG4gICAgICAgICAgICByZXR1cm4gYXdhaXQgbGlzdEZBUXMoZXZlbnQuYXJndW1lbnRzLmxpc3RGQVFJbnB1dCk7XG4gICAgICAgIGNhc2UgXCJjcmVhdGVGQVFcIjpcbiAgICAgICAgICAgIHJldHVybiBhd2FpdCBjcmVhdGVGQVEoZXZlbnQuYXJndW1lbnRzLmNyZWF0ZUZBUUlucHV0KTtcbiAgICAgICAgZGVmYXVsdDpcbiAgICAgICAgICAgIGNvbnNvbGUubG9nKGBVbmV4cGVjdGVkIGZpZWxkIG5hbWU6IHt9YCwgZXZlbnQuaW5mby5maWVsZE5hbWUpO1xuICAgICAgICAgICAgcmV0dXJuIHtcbiAgICAgICAgICAgICAgICBlcnJvck1lc3NhZ2U6IGBVbmV4cGVjdGVkIGZpZWxkIG5hbWU6ICR7ZXZlbnQuaW5mby5maWVsZE5hbWV9YCxcbiAgICAgICAgICAgICAgICBlcnJvclR5cGU6IEZhcUVycm9yVHlwZS5VbmV4cGVjdGVkRXJyb3JcbiAgICAgICAgICAgIH07XG4gICAgfVxufVxuXG4iXX0=

@@ -107,36 +107,5 @@ export const styles = StyleSheet.create({
     faqItemRightIcon: {
         top: '3.5%',
         marginRight: '2%'
-    },
-    bottomTextView: {
-        marginTop: '5%'
-    },
-    bottomText: {
-        textAlign: 'center',
-        alignSelf: 'center',
-        color: 'grey',
-        fontSize: 15,
-        fontFamily: 'Raleway-Medium'
-    },
-    bottomTextButton: {
-        textAlign: 'center',
-        fontFamily: 'Raleway-Bold',
-        fontSize: 15,
-        color: '#2A3779'
-    },
-    modalContainer: {
-        alignSelf: 'center',
-        backgroundColor: 'white',
-        width: 350,
-        borderRadius: 15,
-        padding: 20,
-        borderWidth: 1,
-        borderColor: 'grey'
-    },
-    modalButton: {
-        borderRadius: 25,
-        borderColor: 'grey',
-        height: 40,
-        width: 300
     }
 });

@@ -10,7 +10,10 @@ import {API, Auth, graphqlOperation} from "aws-amplify";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 // @ts-ignore
 import {useValidation} from 'react-native-form-validator';
-import { ReferralStatus, updateReferral } from "@moonbeam/moonbeam-models";
+import {ReferralStatus, updateReferral} from "@moonbeam/moonbeam-models";
+import * as Contacts from 'expo-contacts';
+import {ContactTypes} from 'expo-contacts';
+import {fetchFile} from "../../utils/File";
 
 /**
  * Email Verification component.
@@ -76,6 +79,65 @@ export const EmailVerify = ({navigation, route}: EmailVerifyProps) => {
     };
 
     /**
+     * Function used to add the support number to the user's contacts,
+     * in order to ensure a better experience when they message support.
+     *
+     * Note: Right now, this does not check for duplicate contacts. We
+     * can do that later.
+     */
+    const addSupportToContacts = async () => {
+        const {status} = await Contacts.requestPermissionsAsync();
+        if (status === 'granted') {
+            // fetch the URI for the image to be retrieved from CloudFront
+            // retrieving the document link from either local cache, or from storage
+            const [returnFlag, shareURI ] = await fetchFile('contact-logo.png', false);
+            if (!returnFlag) {
+                // ToDo: need to return an error modal
+            } else {
+                // create a new contact for Moonbeam Support chat
+                const contact = {
+                    [Contacts.Fields.Name]: 'Moonbeam 🪖',
+                    [Contacts.Fields.FirstName]: 'Moonbeam 🪖',
+                    [Contacts.Fields.ContactType]: ContactTypes.Company,
+                    [Contacts.Fields.Birthday]: {
+                        day: 4,
+                        month: 6,
+                        year: 1776
+                    },
+                    [Contacts.Fields.ImageAvailable]: true,
+                    [Contacts.Fields.Image]: {
+                        uri: shareURI
+                    },
+                    [Contacts.Fields.Emails]: [
+                        {
+                            label: 'Moonbeam Support Email',
+                            email: 'support@moonbeam.vet',
+                            isPrimary: true
+                        }
+                    ],
+                    [Contacts.Fields.PhoneNumbers]: [
+                        {
+                            label: 'Moonbeam Support Phone Number',
+                            countryCode: '+1',
+                            number: '2107446222',
+                            isPrimary: true
+                        }
+                    ],
+                    [Contacts.Fields.UrlAddresses]: [
+                        {
+                            label: 'Moonbeam Website',
+                            url: 'https://www.moonbeam.vet'
+                        }
+                    ]
+                }
+                // add a new contact for our Support chat
+                // @ts-ignore
+                await Contacts.addContactAsync(contact);
+            }
+        }
+    }
+
+    /**
      * Function used to capture the confirmation button press
      *
      * @param code verification code inputted by the user
@@ -101,6 +163,7 @@ export const EmailVerify = ({navigation, route}: EmailVerifyProps) => {
                         }));
                         // @ts-ignore
                         if (updatesReferral && updatesReferral.data.updateReferral.errorMessage === null) {
+                            await addSupportToContacts();
                             setModalMessage("Thanks for confirming the code! Your email address is now verified!");
                             setModalVisible(true);
                             setIsResendModal(false);
@@ -114,6 +177,7 @@ export const EmailVerify = ({navigation, route}: EmailVerifyProps) => {
                         }
                     }
                 }
+                await addSupportToContacts();
                 setModalMessage("Thanks for confirming the code! Your email address is now verified!");
                 setModalVisible(true);
                 setIsResendModal(false);

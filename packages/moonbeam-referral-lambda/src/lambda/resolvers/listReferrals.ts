@@ -21,7 +21,7 @@ export const listReferrals = async (filter: ListReferralInput): Promise<Referral
             ? ReferralFiltering.INVITER_FILTER
             : ((filter.inviteeEmail && filter.statusInvitee && filter.status) ? ReferralFiltering.INVITEE_FILTER : referralFilterType)
 
-        // retrieve referrals based on the passed in filters
+        // retrieve all referrals in the database
         const result = await docClient.scan({
             TableName: process.env.REFERRAL_TABLE!,
         }).promise();

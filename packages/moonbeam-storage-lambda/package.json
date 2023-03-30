@@ -6,7 +6,7 @@
   "types": "lib/types/index.d.ts",
   "repository": "https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/packages/moonbeam-storage-lambda/package.json/browse",
   "author": "Marius Acsinte <marius@moonbeam.vet>",
-  "license": "Moonbeam Inc. Proprietary Code License <https://github.com/moonnbm/moonbeam-main/blob/main/LICENSE>",
+  "license": "Moonbeam Inc. Proprietary Code License <https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/LICENSE/browse>",
   "scripts": {
     "build": "rm -rf ./lib && tsc",
     "clean": "rm -rf build/ lib/ node_modules/"

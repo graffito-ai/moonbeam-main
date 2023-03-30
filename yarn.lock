@@ -8375,6 +8375,13 @@ expo-constants@~14.2.0, expo-constants@~14.2.1:
     "@expo/config" "~8.0.0"
     uuid "^3.3.2"
 
+expo-contacts@^12.0.1:
+  version "12.0.1"
+  resolved "https://registry.yarnpkg.com/expo-contacts/-/expo-contacts-12.0.1.tgz#8bcffc4a23f468b9643e9d4c6234e2cab1a7d8a8"
+  integrity sha512-WebEpgGr/vLZy940kKmx4dTbJWpN62WspW2u+7hX3ODCT/pQTl/XsnzMt0v+b3Zqkczho0+WGuAkKDPAZ7TFVQ==
+  dependencies:
+    uuid "^3.4.0"
+
 expo-eas-client@~0.5.0:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/expo-eas-client/-/expo-eas-client-0.5.1.tgz#3ef80dbbde13abe35be4e2a2e29b73d2f7fdf27a"
@@ -8450,6 +8457,11 @@ expo-sharing@^11.2.2:
   version "11.2.2"
   resolved "https://registry.yarnpkg.com/expo-sharing/-/expo-sharing-11.2.2.tgz#7d9e387f1a902e6dd6838c22d9599dae9e7432cf"
   integrity sha512-4Lhm1eS/CFIzX+JPuxMUTWBt9rv/WdvJvpQ9y+71bL/9w9dhvsdt9tv0SsNZATz4hk0tbrYD8ZEUsgiHiT1KkQ==
+
+expo-sms@^11.2.1:
+  version "11.2.1"
+  resolved "https://registry.yarnpkg.com/expo-sms/-/expo-sms-11.2.1.tgz#05719f30c6fc2bd827058c1219258fbbe6ecd991"
+  integrity sha512-ZvPSMsbDYlTK+35B4L/hl239xpKYasLo4+0D5cNSUUssv90x2dEOXeInqCPvvJHejNOYfj3ZDrRbf9LsdDVa5A==
 
 expo-splash-screen@~0.18.1:
   version "0.18.1"

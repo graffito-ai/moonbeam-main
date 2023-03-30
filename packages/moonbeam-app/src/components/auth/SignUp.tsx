@@ -245,6 +245,7 @@ export const SignUpComponent = ({navigation, route}: SignUpProps) => {
     const signUp = async (username: string, name: string, birthDate: string, dutyStatus: string,
                           militaryRank: string, dutyStation: string, password: string, phoneNumber: string): Promise<void> => {
         try {
+            // sign up the user
             const signUp = await Auth.signUp({
                 username,
                 password,

@@ -4,7 +4,7 @@
   "description": "This is the main repository for the Moonbeam mobile application.",
   "repository": "https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/",
   "author": "Marius Acsinte <marius@moonbeam.vet>",
-  "license": "Moonbeam Inc. Proprietary Code License <https://github.com/moonnbm/moonbeam-main/blob/main/LICENSE>",
+  "license": "Moonbeam Inc. Proprietary Code License <https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/LICENSE/browse>",
   "scripts": {
     "bootstrap": "lerna bootstrap --force-local && lerna link --force-local",
     "build": "lerna run build --stream --include-dependencies",

@@ -4,7 +4,7 @@
   "description": "This sub-package represents the infrastructure package, used to define and synthesize all AWS-based infrastructure resources.",
   "repository": "https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/packages/moonbeam-cdk/package.json/browse",
   "author": "Marius Acsinte <marius@moonbeam.vet>",
-  "license": "Moonbeam Inc. Proprietary Code License <https://github.com/moonnbm/moonbeam-main/blob/main/LICENSE>",
+  "license": "Moonbeam Inc. Proprietary Code License <https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/LICENSE/browse>",
   "bin": {},
   "scripts": {
     "build": "tsc",

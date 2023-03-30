@@ -1,16 +1,21 @@
 import 'react-native-get-random-values';
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {Dimensions, SafeAreaView, Text, TouchableHighlight, View} from "react-native";
 import {commonStyles} from "../../../styles/common.module";
-import {Button, Divider, IconButton, List} from "react-native-paper";
+import {Button, Divider, IconButton, List, Modal, Portal} from "react-native-paper";
 import {styles} from "../../../styles/supportCenter.module";
 import {SupportCenterProps} from '../../../models/SupportStackProps';
+import * as SMS from 'expo-sms';
 
 /**
  * SupportCenter component.
  */
 export const SupportCenter = ({route, navigation}: SupportCenterProps) => {
     // state driven key-value pairs for UI related elements
+    const [supportModalVisible, setSupportModalVisible] = useState<boolean>(false);
+    const [supportModalMessage, setSupportModalMessage] = useState<string>('');
+    const [supportModalButtonMessage, setSupportModalButtonMessage] = useState<string>('');
+    const [isSupportModalError, setIsSupportModalError] = useState<boolean>(false);
 
     // state driven key-value pairs for any specific data values
 
@@ -25,9 +30,82 @@ export const SupportCenter = ({route, navigation}: SupportCenterProps) => {
         route.params.setIsDrawerHeaderShown(true);
     }, [route]);
 
+    /**
+     * Function used to contact support, via the native messaging application.
+     * It will also add the Moonbeam customer service number in the list of Contacts.
+     */
+    const contactSupport = async () => {
+        const isAvailable = await SMS.isAvailableAsync();
+        if (isAvailable) {
+            // do your SMS stuff here
+            const result = await SMS.sendSMSAsync(
+                ['210-744-6222'],
+                'Hello I would like some help with: ',
+                {}
+            );
+            switch (result.result) {
+                case 'sent':
+                    console.log('Message sent!');
+                    setSupportModalMessage('Thank you for your inquiry! One of our team members will get back to you shortly!');
+                    setSupportModalButtonMessage('Dismiss');
+                    setIsSupportModalError(false);
+                    setSupportModalVisible(true);
+                    break;
+                case 'unknown':
+                    console.log('Unknown error has occurred while attempting to send a message!');
+                    setSupportModalMessage('An unexpected error occurred while attempting to contact our team');
+                    setSupportModalButtonMessage('Retry');
+                    setIsSupportModalError(true);
+                    setSupportModalVisible(true);
+                    break;
+                case 'cancelled':
+                    console.log('Message was cancelled!');
+                    setSupportModalMessage('It looks like you cancelled your inquiry to our team! If you do need help, please ensure that you send your message beforehand!');
+                    setSupportModalButtonMessage('Dismiss');
+                    setIsSupportModalError(false);
+                    setSupportModalVisible(true);
+                    break;
+            }
+        } else {
+            // there's no SMS available on this device
+            console.log('no SMS available');
+            setSupportModalMessage('Messaging not available on this platform!');
+            setSupportModalButtonMessage('Dismiss');
+            setIsSupportModalError(true);
+            setSupportModalVisible(true);
+        }
+    }
+
     // return the component for the SupportCenter page
     return (
         <SafeAreaView style={[commonStyles.rowContainer, commonStyles.androidSafeArea]}>
+            <Portal>
+                <Modal dismissable={false} visible={supportModalVisible}
+                       onDismiss={() => setSupportModalVisible(false)}
+                       contentContainerStyle={styles.modalContainer}>
+                    <Text style={styles.modalParagraph}>{supportModalMessage}</Text>
+                    <Button
+                        uppercase={false}
+                        style={[styles.modalButton, isSupportModalError ? {borderColor: 'red'} : {borderColor: 'grey'}]}
+                        {...!isSupportModalError && {
+                            icon: 'redo-variant',
+                            textColor: 'grey',
+                            buttonColor: '#f2f2f2'
+                        }}
+                        {...isSupportModalError && {
+                            icon: 'close-box',
+                            textColor: 'red',
+                            buttonColor: '#f2f2f2'
+                        }}
+                        mode="outlined"
+                        labelStyle={{fontSize: 15}}
+                        onPress={async () => {
+                            setSupportModalVisible(false);
+                        }}>
+                        {supportModalButtonMessage}
+                    </Button>
+                </Modal>
+            </Portal>
             <View>
                 <View style={[styles.mainView]}>
                     <View style={styles.titleView}>
@@ -39,7 +117,9 @@ export const SupportCenter = ({route, navigation}: SupportCenterProps) => {
                             <Divider
                                 style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
                             <TouchableHighlight
-                                onPress={() => {}}
+                                onPress={async () => {
+                                    await contactSupport();
+                                }}
                                 underlayColor="transparent">
                                 <List.Item
                                     style={styles.supportItemStyle}
@@ -57,7 +137,8 @@ export const SupportCenter = ({route, navigation}: SupportCenterProps) => {
                                             icon="chevron-right"
                                             iconColor={'black'}
                                             size={25}
-                                            onPress={() => {
+                                            onPress={async () => {
+                                                await contactSupport();
                                             }}
                                         />}
                                 />
