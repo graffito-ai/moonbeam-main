@@ -66,17 +66,17 @@ export class AmplifyAccountLinkingStack extends NestedStack {
             typeName: "Query",
             fieldName: `${props.amplifyConfig!.accountLinkingConfig!.listAccounts}`
         });
-        accountLinkingLambdaSource.createResolver(`${props.amplifyConfig!.accountLinkingConfig!.createAccountLink}-${props.stage}-${props.env!.region}`, {
+        accountLinkingLambdaSource.createResolver(`${props.amplifyConfig!.accountLinkingConfig!.createResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Mutation",
-            fieldName: `${props.amplifyConfig!.accountLinkingConfig!.createAccountLink}`
+            fieldName: `${props.amplifyConfig!.accountLinkingConfig!.createResolverName}`
         });
-        accountLinkingLambdaSource.createResolver(`${props.amplifyConfig!.accountLinkingConfig!.updateAccountLink}-${props.stage}-${props.env!.region}`, {
+        accountLinkingLambdaSource.createResolver(`${props.amplifyConfig!.accountLinkingConfig!.updateResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Mutation",
-            fieldName: `${props.amplifyConfig!.accountLinkingConfig!.updateAccountLink}`
+            fieldName: `${props.amplifyConfig!.accountLinkingConfig!.updateResolverName}`
         });
-        accountLinkingLambdaSource.createResolver(`${props.amplifyConfig!.accountLinkingConfig!.deleteAccount}-${props.stage}-${props.env!.region}`, {
+        accountLinkingLambdaSource.createResolver(`${props.amplifyConfig!.accountLinkingConfig!.deleteResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Mutation",
-            fieldName: `${props.amplifyConfig!.accountLinkingConfig!.deleteAccount}`
+            fieldName: `${props.amplifyConfig!.accountLinkingConfig!.deleteResolverName}`
         });
 
         // create a new table to be used for Account Links

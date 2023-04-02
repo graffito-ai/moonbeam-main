@@ -97,9 +97,9 @@ export class StageUtils {
                             accountLinkingTableName: stageConfiguration.amplifyConfig!.accountLinkingConfig!.accountLinkingTableName,
                             getAccountLink: stageConfiguration.amplifyConfig!.accountLinkingConfig!.getAccountLink,
                             listAccounts: stageConfiguration.amplifyConfig!.accountLinkingConfig!.listAccounts,
-                            createAccountLink: stageConfiguration.amplifyConfig!.accountLinkingConfig!.createAccountLink,
-                            updateAccountLink: stageConfiguration.amplifyConfig!.accountLinkingConfig!.updateAccountLink,
-                            deleteAccount: stageConfiguration.amplifyConfig!.accountLinkingConfig!.deleteAccount
+                            createResolverName: stageConfiguration.amplifyConfig!.accountLinkingConfig!.createResolverName,
+                            updateResolverName: stageConfiguration.amplifyConfig!.accountLinkingConfig!.updateResolverName,
+                            deleteResolverName: stageConfiguration.amplifyConfig!.accountLinkingConfig!.deleteResolverName
                         },
                         storageConfig: {
                             deploymentBucketName: stageConfiguration.amplifyConfig!.storageConfig!.deploymentBucketName,
@@ -110,8 +110,14 @@ export class StageUtils {
                             mainFilesCloudFrontAccessIdentityName: stageConfiguration.amplifyConfig!.storageConfig!.mainFilesCloudFrontAccessIdentityName,
                             mainFilesCloudFrontCachePolicyName: stageConfiguration.amplifyConfig!.storageConfig!.mainFilesCloudFrontCachePolicyName,
                             storageFunctionName: stageConfiguration.amplifyConfig!.storageConfig!.storageFunctionName,
-                            getStorage: stageConfiguration.amplifyConfig!.storageConfig!.getStorage,
-                            putStorage: stageConfiguration.amplifyConfig!.storageConfig!.putStorage
+                            getResolverName: stageConfiguration.amplifyConfig!.storageConfig!.getResolverName,
+                            putResolverName: stageConfiguration.amplifyConfig!.storageConfig!.putResolverName
+                        },
+                        faqConfig: {
+                            faqFunctionName: stageConfiguration.amplifyConfig!.faqConfig!.faqFunctionName,
+                            faqTableName: stageConfiguration.amplifyConfig!.faqConfig!.faqTableName,
+                            createResolverName: stageConfiguration.amplifyConfig!.faqConfig!.createResolverName,
+                            listResolverName: stageConfiguration.amplifyConfig!.faqConfig!.listResolverName
                         }
                     },
                     environmentVariables: stageConfiguration.environmentVariables

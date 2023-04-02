@@ -1,6 +1,6 @@
 import {Dimensions, StyleSheet} from "react-native";
 
-// styles to be used within the Support Center component
+// styles to be used within the Documents Center component
 export const styles = StyleSheet.create({
     mainView: {
         flex: 1,
@@ -9,11 +9,8 @@ export const styles = StyleSheet.create({
         alignItems: 'center'
     },
     titleView: {
-        left: '1.5%',
+        right: '5%',
         alignSelf: 'flex-start'
-    },
-    bottomView: {
-        alignItems: 'center',
     },
     content: {
         alignItems: 'flex-start',
@@ -33,13 +30,6 @@ export const styles = StyleSheet.create({
         width:  Dimensions.get('window').width/1.3,
         color: '#313030'
     },
-    helpButton: {
-        borderRadius: 25,
-        borderColor: '#313030',
-        height: 50,
-        width: 350,
-        marginTop: '5%'
-    },
     listSectionView: {
         marginTop: '10%',
         alignSelf: 'center',
@@ -58,53 +48,13 @@ export const styles = StyleSheet.create({
         fontSize: 15,
         fontFamily: 'Raleway-Medium'
     },
-    supportItemStyle: {},
-    supportItemTitle: {
+    documentItemStyle: {},
+    documentItemTitle: {
         color: '#313030',
         fontFamily: 'Raleway-Bold'
     },
-    supportItemDetails: {
+    documentItemDetails: {
         color: 'grey',
         fontFamily: 'Raleway-Medium'
-    },
-    bottomTextView: {
-        marginTop: '5%'
-    },
-    bottomText: {
-        textAlign: 'center',
-        alignSelf: 'center',
-        color: 'grey',
-        fontSize: 15,
-        fontFamily: 'Raleway-Medium'
-    },
-    bottomTextButton: {
-        textAlign: 'center',
-        fontFamily: 'Raleway-Bold',
-        fontSize: 15,
-        color: '#2A3779'
-    },
-    modalParagraph: {
-        textAlign: 'center',
-        alignSelf: 'flex-start',
-        fontFamily: 'Raleway-Regular',
-        fontSize: 16,
-        width: 350,
-        color: '#313030'
-    },
-    modalContainer: {
-        alignSelf: 'center',
-        backgroundColor: 'white',
-        height: Dimensions.get('window').height/6,
-        borderRadius: 15,
-        padding: 20,
-        borderWidth: 1,
-        borderColor: 'grey'
-    },
-    modalButton: {
-        borderRadius: 25,
-        height: 40,
-        width: 300,
-        top: '15%',
-        alignSelf: 'center'
     }
 });

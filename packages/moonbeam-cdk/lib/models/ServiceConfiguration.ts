@@ -11,6 +11,7 @@ export interface AWSAmplifyConfiguration {
     readonly referralConfig?: ReferralConfiguration;
     readonly accountLinkingConfig?: AccountLinkingConfiguration;
     readonly storageConfig?: StorageConfiguration;
+    readonly faqConfig?: FAQConfiguration;
 }
 
 /**
@@ -20,6 +21,10 @@ export interface AppSyncConfiguration {
     readonly graphqlApiName: string;
 }
 
+/**
+ * Interface used to define the configuration for the Storage service
+ * (used to retrieve and store from S3)
+ */
 export interface StorageConfiguration {
     readonly deploymentBucketName: string;
     readonly mainFilesBucketName: string;
@@ -29,8 +34,18 @@ export interface StorageConfiguration {
     readonly mainFilesCloudFrontAccessIdentityName: string;
     readonly mainFilesCloudFrontCachePolicyName: string;
     readonly storageFunctionName: string;
-    readonly getStorage: string;
-    readonly putStorage: string;
+    readonly getResolverName: string;
+    readonly putResolverName: string;
+}
+
+/**
+ * Interface used to define the configuration for the FAQ stack
+ */
+export interface FAQConfiguration {
+    readonly faqFunctionName: string;
+    readonly faqTableName: string;
+    readonly createResolverName: string;
+    readonly listResolverName: string;
 }
 
 /**
@@ -41,9 +56,9 @@ export interface AccountLinkingConfiguration {
     readonly accountLinkingTableName: string;
     readonly getAccountLink: string;
     readonly listAccounts: string;
-    readonly createAccountLink: string;
-    readonly updateAccountLink: string;
-    readonly deleteAccount: string;
+    readonly createResolverName: string;
+    readonly updateResolverName: string;
+    readonly deleteResolverName: string;
 }
 
 /**

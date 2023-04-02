@@ -185,7 +185,7 @@ export class AmplifyStorageStack extends NestedStack {
         // add resolvers for which Query or Mutation type from the GraphQL schema listed above
         storageLambdaDataSource.createResolver(`${props.amplifyConfig!.storageConfig!.storageFunctionName}-${props.stage}-${props.env!.region}`, {
             typeName: "Query",
-            fieldName: `${props.amplifyConfig!.storageConfig!.getStorage}`
+            fieldName: `${props.amplifyConfig!.storageConfig!.getResolverName}`
         });
 
         // Create an environment variable that we will use in the function code

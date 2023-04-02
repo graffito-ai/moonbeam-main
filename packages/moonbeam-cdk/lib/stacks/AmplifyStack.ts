@@ -7,6 +7,7 @@ import {Constants, Stages} from "@moonbeam/moonbeam-models";
 import {AmplifyReferralStack} from "./AmplifyReferralStack";
 import {AmplifyAccountLinkingStack} from "./AmplifyAccountLinkingStack";
 import {AmplifyStorageStack} from "./AmplifyStorageStack";
+import {AmplifyFAQStack} from "./AmplifyFAQStack";
 
 /**
  * File used to define the Amplify stack, used to deploy all Amplify related functionality.
@@ -74,9 +75,31 @@ export class AmplifyStack extends Stack {
         });
         appSyncStack.addDependency(amplifyAuthStack);
 
+        // add the resources meant to capture the FAQs
+        const faqStack = new AmplifyFAQStack(this, `amplify-faq-${props.stage}=${props.env!.region}`, {
+            stackName: `amplify-faq-${props.stage}-${props.env!.region}`,
+            description: 'This stack will contain all the Amplify Storage related resources',
+            env: props.env,
+            stage: props.stage,
+            graphqlApiId: appSyncStack.graphqlApiId,
+            amplifyConfig: {
+                appSyncConfig: {
+                    graphqlApiName: props.amplifyConfig!.appSyncConfig!.graphqlApiName
+                },
+                faqConfig: {
+                    faqFunctionName: props.amplifyConfig!.faqConfig!.faqFunctionName,
+                    faqTableName: props.amplifyConfig!.faqConfig!.faqTableName,
+                    listResolverName: props.amplifyConfig!.faqConfig!.listResolverName,
+                    createResolverName: props.amplifyConfig!.faqConfig!.createResolverName
+                }
+            },
+            environmentVariables: props.environmentVariables
+        });
+        faqStack.addDependency(appSyncStack);
+
         // add the storage resources through a nested storage stack
         const storageStack = new AmplifyStorageStack(this, `amplify-storage-${props.stage}-${props.env!.region}`, {
-            stackName: `amplify-auth-${props.stage}-${props.env!.region}`,
+            stackName: `amplify-storage-${props.stage}-${props.env!.region}`,
             description: 'This stack will contain all the Amplify Storage related resources',
             env: props.env,
             stage: props.stage,
@@ -91,8 +114,8 @@ export class AmplifyStack extends Stack {
                     mainFilesCloudFrontAccessIdentityName: props.amplifyConfig!.storageConfig!.mainFilesCloudFrontAccessIdentityName,
                     mainFilesCloudFrontCachePolicyName: props.amplifyConfig!.storageConfig!.mainFilesCloudFrontCachePolicyName,
                     storageFunctionName: props.amplifyConfig!.storageConfig!.storageFunctionName,
-                    getStorage: props.amplifyConfig!.storageConfig!.getStorage,
-                    putStorage: props.amplifyConfig!.storageConfig!.putStorage
+                    getResolverName: props.amplifyConfig!.storageConfig!.getResolverName,
+                    putResolverName: props.amplifyConfig!.storageConfig!.putResolverName
                 },
                 appSyncConfig: {
                     graphqlApiName: props.amplifyConfig!.appSyncConfig!.graphqlApiName
@@ -126,7 +149,7 @@ export class AmplifyStack extends Stack {
         });
         referralStack.addDependency(appSyncStack);
 
-        // add the resources meant to capture the referral program
+        // add the resources meant to capture the account linking
         const accountLinkingStack = new AmplifyAccountLinkingStack(this, `amplify-account-linking-${props.stage}-${props.env!.region}`, {
             stackName: `amplify-account-linking-${props.stage}-${props.env!.region}`,
             description: 'This stack will contain all the Account Linking related resources for Amplify',
@@ -142,9 +165,9 @@ export class AmplifyStack extends Stack {
                     accountLinkingTableName: props.amplifyConfig!.accountLinkingConfig!.accountLinkingTableName,
                     getAccountLink: props.amplifyConfig!.accountLinkingConfig!.getAccountLink,
                     listAccounts: props.amplifyConfig!.accountLinkingConfig!.listAccounts,
-                    createAccountLink: props.amplifyConfig!.accountLinkingConfig!.createAccountLink,
-                    updateAccountLink: props.amplifyConfig!.accountLinkingConfig!.updateAccountLink,
-                    deleteAccount: props.amplifyConfig!.accountLinkingConfig!.deleteAccount
+                    createResolverName: props.amplifyConfig!.accountLinkingConfig!.createResolverName,
+                    updateResolverName: props.amplifyConfig!.accountLinkingConfig!.updateResolverName,
+                    deleteResolverName: props.amplifyConfig!.accountLinkingConfig!.deleteResolverName
                 }
             },
             environmentVariables: props.environmentVariables

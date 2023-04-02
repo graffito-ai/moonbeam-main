@@ -1,10 +1,9 @@
 import 'react-native-get-random-values';
 import React, {useEffect, useState} from "react";
 import {Dimensions, SafeAreaView, ScrollView, View} from "react-native";
-import {commonStyles} from "../../../../styles/common.module";
-import {Button, Divider, List, Text, IconButton} from "react-native-paper";
-import {styles} from "../../../../styles/bankAccounts.module";
-import {BankAccountsProps} from "../../../../models/SettingsStackProps";
+import {commonStyles} from "../../../styles/common.module";
+import {Button, Divider, IconButton, List, Text} from "react-native-paper";
+import {styles} from "../../../styles/bankAccounts.module";
 import {API, graphqlOperation} from "aws-amplify";
 import {
     AccountDetails,
@@ -14,7 +13,9 @@ import {
     AccountVerificationStatus,
     Constants,
     createAccountLink,
-    CreateAccountLinkInput, deleteAccount, DeleteAccountInput,
+    CreateAccountLinkInput,
+    deleteAccount,
+    DeleteAccountInput,
     FinancialInstitutionInput,
     listAccounts,
     updateAccountLink,
@@ -22,12 +23,13 @@ import {
 } from "@moonbeam/moonbeam-models";
 import {LinkExit, LinkSuccess} from "react-native-plaid-link-sdk";
 import {LinkAccountSubtypeDepository, LinkAccountVerificationStatus} from "react-native-plaid-link-sdk/dist/Types";
-import PlaidLink from '../../../integrations/plaid/PlaidLink';
+import PlaidLink from '../../integrations/plaid/PlaidLink';
 import {CommonActions} from "@react-navigation/native";
-import {refreshUserToken} from "../../../../utils/Identity";
-import * as envInfo from "../../../../../amplify/.config/local-env-info.json";
-import * as provider from "../../../../../amplify/team-provider-info.json";
+import {refreshUserToken} from "../../../utils/Identity";
+import * as envInfo from "../../../../amplify/.config/local-env-info.json";
+import * as provider from "../../../../amplify/team-provider-info.json";
 import * as SecureStore from "expo-secure-store";
+import {BankAccountsProps} from "../../../models/DrawerProps";
 import MOONBEAM_DEPLOYMENT_BUCKET_NAME = Constants.MoonbeamConstants.MOONBEAM_DEPLOYMENT_BUCKET_NAME;
 import MOONBEAM_PLAID_OAUTH_FILE_NAME = Constants.MoonbeamConstants.MOONBEAM_PLAID_OAUTH_FILE_NAME;
 
@@ -60,15 +62,12 @@ export const BankAccounts = ({route, navigation}: BankAccountsProps) => {
             }
 
             // hide the header, depending on whether the Plaid link flow is initialized or not
-            if (isPlaidInitialized && route.params.setIsHeaderShown) {
-                route.params.setIsHeaderShown(false);
-            } else if (!isPlaidInitialized && route.params.setIsHeaderShown) {
-                route.params.setIsHeaderShown(true);
+            if (isPlaidInitialized) {
+                route.params.setIsDrawerHeaderShown(false);
+            } else if (!isPlaidInitialized) {
+                route.params.setIsDrawerHeaderShown(true);
             }
         });
-
-        // hide the bottom tab navigation
-        route.params.setBottomTabNavigationShown && route.params.setBottomTabNavigationShown(false);
     }, [route, route.params.oauthStateId, redirectURL, isPlaidInitialized, bankAccounts]);
 
     /**
@@ -76,6 +75,12 @@ export const BankAccounts = ({route, navigation}: BankAccountsProps) => {
      */
     const retrieveBankAccounts = async (): Promise<void> => {
         try {
+            // check to see if after the redirect, the user information needs to be retrieved from cache
+            const userInformation = route.params.currentUserInformation === '{}'
+            || Object.keys(route.params.currentUserInformation).length === 0
+                ? JSON.parse(await SecureStore.getItemAsync('currentUserInformation') as string)
+                : route.params.currentUserInformation;
+
             if (bankAccounts.length === 0) {
                 // first check if there are accounts already loaded
                 let retrievedAccounts = await SecureStore.getItemAsync('bankAccounts');
@@ -85,7 +90,7 @@ export const BankAccounts = ({route, navigation}: BankAccountsProps) => {
                     // perform the query to retrieve accounts
                     const retrievedAccountsResult = await API.graphql(graphqlOperation(listAccounts, {
                         filter: {
-                            id: route.params.currentUserInformation["custom:userId"]
+                            id: userInformation["custom:userId"]
                         }
                     }));
                     // @ts-ignore
@@ -119,11 +124,17 @@ export const BankAccounts = ({route, navigation}: BankAccountsProps) => {
      */
     const addLinkToken = async (): Promise<void> => {
         try {
+            // check to see if after the redirect, the user information needs to be retrieved from cache
+            const userInformation = route.params.currentUserInformation === '{}'
+            || Object.keys(route.params.currentUserInformation).length === 0
+                ? JSON.parse(await SecureStore.getItemAsync('currentUserInformation') as string)
+                : route.params.currentUserInformation;
+
             // perform a mutation to create a link token
             const createAccountLinkInput: CreateAccountLinkInput = {
-                id: route.params.currentUserInformation["custom:userId"],
-                userName: route.params.currentUserInformation["name"],
-                userEmail: route.params.currentUserInformation["email"].toLowerCase()
+                id: userInformation["custom:userId"],
+                userName: userInformation["name"],
+                userEmail: userInformation["email"].toLowerCase()
             }
             const linkTokenResult = await API.graphql(graphqlOperation(createAccountLink, {
                 createAccountLinkInput: createAccountLinkInput
@@ -165,6 +176,12 @@ export const BankAccounts = ({route, navigation}: BankAccountsProps) => {
      */
     const accountLinkOnSuccess = async (success: LinkSuccess): Promise<void> => {
         try {
+            // check to see if after the redirect, the user information needs to be retrieved from cache
+            const userInformation = route.params.currentUserInformation === '{}'
+            || Object.keys(route.params.currentUserInformation).length === 0
+                ? JSON.parse(await SecureStore.getItemAsync('currentUserInformation') as string)
+                : route.params.currentUserInformation;
+
             /**
              * loop through all retrieved accounts, and map them accordingly
              */
@@ -210,7 +227,7 @@ export const BankAccounts = ({route, navigation}: BankAccountsProps) => {
             });
             // perform a mutation to exchange the link token and update the account link with the appropriate account info
             const updateAccountLinkInput: UpdateAccountLinkInput = {
-                id: route.params.currentUserInformation["custom:userId"],
+                id: userInformation["custom:userId"],
                 accountLinkDetails: {
                     linkToken: accountLinkDetails!.linkToken!,
                     linkSessionId: success.metadata.linkSessionId,
@@ -287,9 +304,15 @@ export const BankAccounts = ({route, navigation}: BankAccountsProps) => {
      */
     const accountLinkOnExit = async (exit: LinkExit): Promise<void> => {
         try {
+            // check to see if after the redirect, the user information needs to be retrieved from cache
+            const userInformation = route.params.currentUserInformation === '{}'
+            || Object.keys(route.params.currentUserInformation).length === 0
+                ? JSON.parse(await SecureStore.getItemAsync('currentUserInformation') as string)
+                : route.params.currentUserInformation;
+
             // perform a mutation to update the account link with the appropriate error info
             const updateAccountLinkInput: UpdateAccountLinkInput = {
-                id: route.params.currentUserInformation["custom:userId"],
+                id: userInformation["custom:userId"],
                 accountLinkDetails: {
                     ...(exit.error && {
                         accountLinkError: {
@@ -342,11 +365,17 @@ export const BankAccounts = ({route, navigation}: BankAccountsProps) => {
      */
     const deleteAccountFromLink = async (accountId: string): Promise<void> => {
         try {
+            // check to see if after the redirect, the user information needs to be retrieved from cache
+            const userInformation = route.params.currentUserInformation === '{}'
+            || Object.keys(route.params.currentUserInformation).length === 0
+                ? JSON.parse(await SecureStore.getItemAsync('currentUserInformation') as string)
+                : route.params.currentUserInformation;
+
             // retrieve the account details from the list of accounts, based on the provided id
             bankAccounts.filter(account => account!.id === accountId).map(async retrievedAccount => {
                 // perform a mutation to delete the account from the list of accounts for the link
                 const deleteAccountInput: DeleteAccountInput = {
-                    id: route.params.currentUserInformation["custom:userId"],
+                    id: userInformation["custom:userId"],
                     linkToken: retrievedAccount.linkToken,
                     accounts: [{
                         ...retrievedAccount

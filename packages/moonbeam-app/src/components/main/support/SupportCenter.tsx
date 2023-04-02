@@ -2,7 +2,7 @@ import 'react-native-get-random-values';
 import React, {useEffect, useState} from "react";
 import {Dimensions, SafeAreaView, Text, TouchableHighlight, View} from "react-native";
 import {commonStyles} from "../../../styles/common.module";
-import {Button, Divider, IconButton, List, Modal, Portal} from "react-native-paper";
+import {Button, Divider, List, Modal, Portal} from "react-native-paper";
 import {styles} from "../../../styles/supportCenter.module";
 import {SupportCenterProps} from '../../../models/SupportStackProps';
 import * as SMS from 'expo-sms';
@@ -132,15 +132,7 @@ export const SupportCenter = ({route, navigation}: SupportCenterProps) => {
                                     left={() =>
                                         <List.Icon color={'#2A3779'} icon="message"/>}
                                     right={() =>
-                                        <IconButton
-                                            style={styles.supportItemRightIcon}
-                                            icon="chevron-right"
-                                            iconColor={'black'}
-                                            size={25}
-                                            onPress={async () => {
-                                                await contactSupport();
-                                            }}
-                                        />}
+                                        <List.Icon color={'#2A3779'} icon="chevron-right"/>}
                                 />
                             </TouchableHighlight>
                         </List.Section>
@@ -166,17 +158,7 @@ export const SupportCenter = ({route, navigation}: SupportCenterProps) => {
                                     left={() =>
                                         <List.Icon color={'#2A3779'} icon="frequently-asked-questions"/>}
                                     right={() =>
-                                        <IconButton
-                                            style={styles.supportItemRightIcon}
-                                            icon="chevron-right"
-                                            iconColor={'black'}
-                                            size={25}
-                                            onPress={() => {
-                                                navigation.navigate('FAQ', {
-                                                    setIsDrawerHeaderShown: route.params.setIsDrawerHeaderShown
-                                                });
-                                            }}
-                                        />}
+                                        <List.Icon color={'#2A3779'} icon="chevron-right"/>}
                                 />
                             </TouchableHighlight>
                         </List.Section>
@@ -188,7 +170,7 @@ export const SupportCenter = ({route, navigation}: SupportCenterProps) => {
                         onPress={async () => {
                         }}
                         uppercase={false}
-                        style={styles.connectButton}
+                        style={styles.helpButton}
                         textColor={"#f2f2f2"}
                         buttonColor={"#2A3779"}
                         mode="outlined"

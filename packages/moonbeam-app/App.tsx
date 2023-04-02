@@ -87,7 +87,8 @@ export default function App() {
                 setAppIsReady(true);
             }
         }
-        prepare().then(async () => {});
+        prepare().then(async () => {
+        });
     }, []);
 
     /**
@@ -119,10 +120,18 @@ export default function App() {
                         referralId: (referralId: string) => referralId
                     }
                 },
-                Dashboard: {
-                    path: 'dashboard/:oauthStateId',
-                    parse: {
-                        oauthStateId: (oauthStateId: string) => oauthStateId
+                MainDash: {
+                    path: 'dashboard',
+                    screens: {
+                        Support: {
+                            path: 'support',
+                        },
+                        ["Bank Accounts"]: {
+                            path: 'accounts/:oauthStateId',
+                            parse: {
+                                oauthStateId: (oauthStateId: string) => oauthStateId
+                            }
+                        }
                     }
                 }
             },

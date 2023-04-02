@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import WebView from 'react-native-webview';
 // @ts-ignore
 import HomeDashboardLogo from "../../../assets/login-logo.png";
-import {DocumentViewerSettingsProps} from "../../models/SettingsStackProps";
 import {Dimensions, SafeAreaView, View} from "react-native";
 import {styles} from "../../styles/documentViewer.module";
 import {Button, Divider, Modal, Portal, Text} from "react-native-paper";
@@ -10,11 +9,12 @@ import {commonStyles} from "../../styles/common.module";
 import * as Sharing from "expo-sharing";
 import {DocumentViewerRootProps} from "../../models/RootProps";
 import {fetchFile} from '../../utils/File';
+import {DocumentViewerDocumentCenterProps} from "../../models/DocumentsStackProps";
 
 /**
  * DocumentViewer component.
  */
-export const DocumentViewer = ({route, navigation}: DocumentViewerSettingsProps | DocumentViewerRootProps) => {
+export const DocumentViewer = ({route, navigation}: DocumentViewerDocumentCenterProps | DocumentViewerRootProps) => {
     // state driven key-value pairs for UI related elements
     const [documentViewerErrorModalVisible, setDocumentViewerErrorModalVisible] = useState<boolean>(false);
     const [documentViewerErrorModalMessage, setDocumentViewerErrorModalMessage] = useState<string>('');
@@ -30,8 +30,7 @@ export const DocumentViewer = ({route, navigation}: DocumentViewerSettingsProps 
      * included in here.
      */
     useEffect(() => {
-        route.params.setBottomTabNavigationShown && route.params.setBottomTabNavigationShown(false);
-        route.params.setIsHeaderShown && route.params.setIsHeaderShown(true);
+        route.params.setIsDrawerHeaderShown && route.params.setIsDrawerHeaderShown(false);
 
         // retrieving the document link from either local cache, or from storage
         fetchFile(route.params.name, route.params.privacyFlag).then(([returnFlag, shareURI]) => {
@@ -43,7 +42,7 @@ export const DocumentViewer = ({route, navigation}: DocumentViewerSettingsProps 
             // setting the URI to be used in sharing the document.
             setDocumentShareURI(shareURI!);
         })
-    }, [documentShareURI]);
+    }, [route, documentShareURI]);
 
     // return the component for the DocumentViewer component
     return (

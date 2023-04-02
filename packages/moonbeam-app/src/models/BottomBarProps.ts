@@ -13,17 +13,10 @@ export type BottomBarStackParamList = {
     Membership: {
         currentUserInformation: any;
     }
-    Settings: {
-        oauthStateId?: string;
-        setBottomTabNavigationShown: React.Dispatch<React.SetStateAction<boolean>>;
-        currentUserInformation: any;
-    }
 };
 
 // the Home component props, within the bottom bar stack
 export type HomeTabProps = NativeStackScreenProps<BottomBarStackParamList, 'Home'>
 // the Membership component props, within the bottom bar stack
 export type MembershipTabProps = NativeStackScreenProps<BottomBarStackParamList, 'Membership'>
-// the Settings component props, within the bottom bar stack
-export type SettingsTabProps = NativeStackScreenProps<BottomBarStackParamList, 'Settings'>
 

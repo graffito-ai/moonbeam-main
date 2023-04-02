@@ -6,15 +6,23 @@ import React from "react";
  */
 export type DrawerPropsParamList = {
     Dashboard: {
+        currentUserInformation: any;
+    },
+    ["Bank Accounts"]: {
+        oauthStateId?: string;
+        currentUserInformation: any;
+        setIsDrawerHeaderShown: React.Dispatch<React.SetStateAction<boolean>>;
+    },
+    ["Card Services"]: {},
+    Documents: {
+        setIsDrawerHeaderShown: React.Dispatch<React.SetStateAction<boolean>>;
+    },
+    Settings: {
         oauthStateId?: string;
         currentUserInformation: any;
     },
-    ["Bank Accounts"]: {},
-    ["Card Services"]: {},
-    Documents: {},
-    Settings: {},
     Support: {
-        setIsDrawerHeaderShown: React.Dispatch<React.SetStateAction<boolean>>
+        setIsDrawerHeaderShown: React.Dispatch<React.SetStateAction<boolean>>;
     }
 };
 
@@ -22,3 +30,9 @@ export type DrawerPropsParamList = {
 export type DashboardProps = NativeStackScreenProps<DrawerPropsParamList, 'Dashboard'>
 // the Support component props, within the sidebar stack
 export type SupportProps = NativeStackScreenProps<DrawerPropsParamList, 'Support'>
+// the Settings component props, within the sidebar stack
+export type SettingsProps = NativeStackScreenProps<DrawerPropsParamList, 'Settings'>
+// the Bank Accounts component props, within the sidebar stack
+export type BankAccountsProps = NativeStackScreenProps<DrawerPropsParamList, 'Bank Accounts'>
+// the Documents component props, within the sidebar stack
+export type DocumentsProps = NativeStackScreenProps<DrawerPropsParamList, 'Documents'>

@@ -25,14 +25,12 @@ export type RootStackParamList = {
         initialRender: boolean;
     },
     MainDash: {
-        oauthStateId?: string;
         currentUserInformation?: any;
     },
     DocumentViewer: {
         name: string;
         privacyFlag: boolean;
-        setIsHeaderShown?: React.Dispatch<React.SetStateAction<boolean>>;
-        setBottomTabNavigationShown?: React.Dispatch<React.SetStateAction<boolean>>;
+        setIsDrawerHeaderShown?: React.Dispatch<React.SetStateAction<boolean>>
     }
 };
 

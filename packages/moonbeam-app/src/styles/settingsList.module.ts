@@ -15,8 +15,8 @@ export const styles = StyleSheet.create({
         borderRadius: 10
     },
     settingsContentView: {
-        marginTop: '5%',
         flex: 1,
+        flexGrow: 1,
         flexDirection: 'column'
     },
     cardTitleStyle: {
@@ -33,7 +33,7 @@ export const styles = StyleSheet.create({
     },
     cardStyleProfileSettings: {
         alignSelf: 'center',
-        marginTop: '15%',
+        marginTop: '5%',
         backgroundColor: '#f2f2f2',
         shadowColor: '#313030',
         shadowOffset: {width: -2, height: 2},

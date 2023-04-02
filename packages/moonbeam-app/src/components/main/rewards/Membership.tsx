@@ -25,18 +25,19 @@ export const Membership = ({route, navigation}: MembershipTabProps) => {
      */
     useEffect(() => {
         if (pointValueRedeemed !== 0) {
-            // dispatch a navigation event, which will update the user information object accordingly (in Home and Settings)
-            route.params.currentUserInformation['custom:points'] = 0;
+            // dispatch a navigation event, which will update the user information object accordingly (in Home and Membership)
+            const updatedUserInformation = route.params.currentUserInformation;
+            updatedUserInformation['custom:points'] = 0;
             navigation.dispatch({
                 ...CommonActions.setParams({
-                    currentUserInformation: route.params.currentUserInformation,
+                    currentUserInformation: updatedUserInformation,
                     source: navigation.getState().routes[0].key
                 })
             });
             navigation.dispatch({
                 ...CommonActions.setParams({
-                    currentUserInformation: route.params.currentUserInformation,
-                    source: navigation.getState().routes[2].key
+                    currentUserInformation: updatedUserInformation,
+                    source: route.key
                 })
             });
 

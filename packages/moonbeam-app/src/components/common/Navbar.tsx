@@ -45,7 +45,9 @@ export const Navbar = (props: (NativeStackHeaderProps | DrawerHeaderProps) & (Ho
     return (
         <View>
             {props.route.name !== 'HomeDash' ?
-                props.route.name === 'Support'
+                props.route.name === 'Bank Accounts'
+                || props.route.name === 'Settings'
+                || props.route.name === 'Support'
                 || props.route.name === 'Card Services'
                 || props.route.name === 'Documents' ?
                     <IconButton

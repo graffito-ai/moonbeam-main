@@ -1,6 +1,6 @@
 import * as FileSystem from "expo-file-system";
 import {API, graphqlOperation} from "aws-amplify";
-import {FileAccessLevel, FileType, getStorage} from "../../../moonbeam-models";
+import {FileAccessLevel, FileType, getStorage} from "@moonbeam/moonbeam-models";
 
 /**
  * Function used to fetch a file from CloudFront, given its name, and privacy level,

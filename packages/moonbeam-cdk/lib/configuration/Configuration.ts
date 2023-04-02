@@ -35,9 +35,9 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     accountLinkingTableName: 'accountLinks',
                     getAccountLink: 'getAccountLink',
                     listAccounts: 'listAccounts',
-                    createAccountLink: 'createAccountLink',
-                    updateAccountLink: 'updateAccountLink',
-                    deleteAccount: 'deleteAccount'
+                    createResolverName: 'createAccountLink',
+                    updateResolverName: 'updateAccountLink',
+                    deleteResolverName: 'deleteAccount'
                 },
                 storageConfig: {
                     deploymentBucketName: Constants.MoonbeamConstants.MOONBEAM_DEPLOYMENT_BUCKET_NAME,
@@ -48,8 +48,14 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     mainFilesCloudFrontAccessIdentityName: `cloudfront-access-identity-${Constants.MoonbeamConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
                     mainFilesCloudFrontCachePolicyName: `cloudfront-cache-policy-${Constants.MoonbeamConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
                     storageFunctionName: 'storageLambdaFunction',
-                    getStorage: 'getStorage',
-                    putStorage: 'putStorage'
+                    getResolverName: 'getStorage',
+                    putResolverName: 'putStorage'
+                },
+                faqConfig: {
+                    faqFunctionName: 'faqLambdaFunction',
+                    faqTableName: 'faqs',
+                    createResolverName: 'createFAQ',
+                    listResolverName: 'listFAQs'
                 }
             },
             sesConfig: {
