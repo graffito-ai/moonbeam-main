@@ -123,6 +123,12 @@ export default function App() {
                 MainDash: {
                     path: 'dashboard',
                     screens: {
+                        Dashboard: {
+                            path: ''
+                        },
+                        Documents: {
+                            path: 'documents',
+                        },
                         Support: {
                             path: 'support',
                         },

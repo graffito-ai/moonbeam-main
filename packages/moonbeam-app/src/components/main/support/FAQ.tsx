@@ -1,18 +1,23 @@
 import 'react-native-get-random-values';
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {Dimensions, Image, SafeAreaView, ScrollView, Text, View} from "react-native";
 import {commonStyles} from "../../../styles/common.module";
 import {FAQProps} from '../../../models/SupportStackProps';
 import {Divider, List} from "react-native-paper";
 import {styles} from "../../../styles/faq.module";
+import {AccountVerificationStatus, Faq, FaqType, listFAQs} from "@moonbeam/moonbeam-models";
+import * as SecureStore from "expo-secure-store";
+import {API, graphqlOperation} from "aws-amplify";
+import * as Linking from "expo-linking";
 
 /**
  * FAQ component.
  */
-export const FAQ = ({route}: FAQProps) => {
+export const FAQ = ({route, navigation}: FAQProps) => {
     // state driven key-value pairs for UI related elements
 
     // state driven key-value pairs for any specific data values
+    const [faqList, setFAQList] = useState<Faq[]>([]);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -23,7 +28,197 @@ export const FAQ = ({route}: FAQProps) => {
      */
     useEffect(() => {
         route.params.setIsDrawerHeaderShown(false);
-    }, [route]);
+        retrieveFAQs().then(() => {
+        });
+    }, [route, faqList]);
+
+    /**
+     * Function used to retrieve the FAQs
+     */
+    const retrieveFAQs = async (): Promise<void> => {
+        try {
+            if (faqList.length === 0) {
+                // first check if there are FAQs already loaded
+                let retrievedFAQs = await SecureStore.getItemAsync('FAQs');
+                if (retrievedFAQs) {
+                    setFAQList(JSON.parse(retrievedFAQs) as Faq[]);
+                } else {
+                    // perform the query to retrieve FAQs
+                    const retrievedFAQsResult = await API.graphql(graphqlOperation(listFAQs, {
+                        listFAQInput: {}
+                    }));
+                    // @ts-ignore
+                    if (retrievedFAQsResult && retrievedFAQsResult.data.listFAQs.errorMessage === null) {
+                        // @ts-ignore
+                        setFAQList(retrievedFAQsResult.data.listFAQs.data);
+
+                        // store the retrieved FAQs in the store
+                        // @ts-ignore
+                        await SecureStore.setItemAsync('FAQs', JSON.stringify(retrievedFAQsResult.data.listFAQs.data));
+                    } else {
+                        console.log(`Unexpected error while attempting to retrieve FAQs ${JSON.stringify(retrievedFAQsResult)}`);
+                        // ToDo: need to create a modal with errors
+                    }
+                }
+            }
+        } catch (error) {
+            // @ts-ignore
+            console.log(error.message
+                // @ts-ignore
+                ? `Unexpected error while retrieving FAQs: ${JSON.stringify(error.message)}`
+                : `Unexpected error while retrieving FAQS: ${JSON.stringify(error)}`);
+            // ToDo: need to create a modal with errors
+        }
+    }
+
+    /**
+     * Function used to redirect to a particular link in the application.
+     *
+     * @param link application link to redirect to
+     */
+    const goToLink = async (link: string): Promise<void> => {
+        // go back and do the linking from the parent stack (Support Center)
+        route.params.setIsDrawerHeaderShown(true);
+        navigation.goBack();
+
+        // navigate to the appropriate location
+        await Linking.openURL(Linking.createURL(`${link}`));
+    }
+
+    /**
+     * Function used to filter and return FAQs, as a list of items.
+     */
+    const filterFAQs = (): React.ReactNode | React.ReactNode[] => {
+        if (faqList.length !== 0) {
+            let results: React.ReactNode[] = [];
+            let filteredFAQIndex = 0;
+            for (const filteredFAQ of faqList) {
+                // facts to add to a NonLinkable FAQ
+                let facts: React.ReactNode[] = [];
+                switch (filteredFAQ.type) {
+                    case FaqType.NonLinkable:
+                        // build the facts array for each FAQ
+                        if (filteredFAQ.facts && filteredFAQ.facts.length > 0) {
+                            for (const filteredFact of filteredFAQ.facts) {
+                                let factDescription: React.ReactNode;
+                                // build the description with a built-in link for each fact, where applicable
+                                if (filteredFact!.link && filteredFact!.linkTitle) {
+                                    let descriptionContent: React.ReactNode[] = [];
+                                    let descriptionIndex = 0;
+                                    filteredFact!.description.split(" ").forEach((word) => {
+                                        if (word.includes(filteredFact!.linkTitle!)) {
+                                            descriptionContent.push(
+                                                <>
+                                                    {descriptionIndex !== 0 && ' '}
+                                                    <Text
+                                                        style={{color: '#2A3779', fontFamily: 'Raleway-Bold', textDecorationLine: 'underline'}}
+                                                        onPress={async () => {
+                                                            console.log(filteredFact!.link!);
+                                                            await goToLink(filteredFact!.link!);
+                                                        }}
+                                                    >
+                                                        {word}
+                                                    </Text>
+                                                </>
+                                            );
+                                        } else {
+                                            descriptionContent.push(descriptionIndex !== 0 ? ' ' + word : word);
+                                        }
+                                        descriptionIndex++;
+                                    })
+                                    factDescription = <Text>{descriptionContent}</Text>;
+                                } else {
+                                    factDescription = <Text>{filteredFact!.description}</Text>
+                                }
+                                facts.push(
+                                    <>
+                                        <List.Item
+                                            key={`${filteredFAQ.id}-${filteredFact!.title}`}
+                                            style={styles.faqItemStyle}
+                                            titleStyle={styles.faqItemTitle}
+                                            descriptionStyle={styles.faqItemDetails}
+                                            titleNumberOfLines={2}
+                                            descriptionNumberOfLines={10}
+                                            title={filteredFact!.title}
+                                            description={factDescription}/>
+                                    </>
+                                )
+                            }
+                        }
+                        results.push(
+                            <>
+                                <List.Accordion
+                                    key={filteredFAQ.id}
+                                    style={styles.faqAccordionStyle}
+                                    titleStyle={styles.faqAccordionTitle}
+                                    titleNumberOfLines={2}
+                                    descriptionNumberOfLines={5}
+                                    title={filteredFAQ.title}
+                                    left={() =>
+                                        <List.Icon color={'#2A3779'} icon="information-outline"
+                                                   key={`${filteredFAQ.id}-leftIcon`}/>}>
+                                    {facts}
+                                </List.Accordion>
+                                {filteredFAQIndex !== faqList.length - 1 &&
+                                    <Divider
+                                        key={`${filteredFAQ.id}-divider`}
+                                        style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>}
+                            </>
+                        );
+                        break;
+                    case FaqType.Linkable:
+                        results.push(
+                            <>
+                                <List.Accordion
+                                    onPress={async () => {
+                                        await goToLink(filteredFAQ.applicationLink!);
+                                    }}
+                                    style={styles.faqAccordionStyle}
+                                    titleStyle={styles.faqItemTitleFaceID}
+                                    titleNumberOfLines={2}
+                                    descriptionNumberOfLines={5}
+                                    title={filteredFAQ.title}
+                                    left={() =>
+                                        <List.Icon style={{bottom: '3%'}} color={'#2A3779'}
+                                                   icon="information-outline"/>}
+                                    right={() =>
+                                        <View style={styles.faqItemRightView}>
+                                            <Image style={styles.faqItemRightFaceID}
+                                                   source={require('../../../../assets/face-id.png')}/>
+                                            <List.Icon icon="chevron-right"/>
+                                        </View>
+                                    }>
+                                </List.Accordion>
+                                {filteredFAQIndex !== faqList.length &&
+                                    <Divider
+                                        style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>}
+                            </>
+                        )
+                        break;
+                    default:
+                        break;
+                }
+                filteredFAQIndex++;
+            }
+            return results;
+        } else {
+            return (<>
+                <List.Item
+                    key={`${AccountVerificationStatus.Pending}_Key`}
+                    style={styles.faqItemStyle}
+                    titleStyle={styles.faqItemTitle}
+                    descriptionStyle={styles.faqItemDetails}
+                    titleNumberOfLines={1}
+                    descriptionNumberOfLines={2}
+                    title="Oh no :("
+                    description='No FAQs available at the moment'
+                    right={() =>
+                        <List.Icon color={'red'} icon="question-answer"
+                                   key={`${AccountVerificationStatus.Pending}_faqNotAvailableKey`}/>}
+                />
+            </>);
+        }
+    }
 
     // return the component for the FAQ page
     return (
@@ -39,204 +234,9 @@ export const FAQ = ({route}: FAQProps) => {
                     </View>
                     <View style={styles.content}>
                         <List.Section style={styles.listSectionView}>
-                            <List.Accordion
-                                style={styles.faqAccordionStyle}
-                                titleStyle={styles.faqAccordionTitle}
-                                titleNumberOfLines={2}
-                                descriptionNumberOfLines={5}
-                                title="Benefits and Perks"
-                                left={() =>
-                                    <List.Icon color={'#2A3779'} icon="information-outline"/>}>
-                                <List.Item
-                                    style={styles.faqItemStyle}
-                                    titleStyle={styles.faqItemTitle}
-                                    descriptionStyle={styles.faqItemDetails}
-                                    titleNumberOfLines={2}
-                                    descriptionNumberOfLines={10}
-                                    title="• Discounts"
-                                    description={"The Alpha card currently accounts for discounts at the point of sale. The amount for each discount applied, depends on what our merchant partners offer." +
-                                        " For more information on our partners, visit our Shopping Center."}/>
-                                <List.Item
-                                    style={styles.faqItemStyle}
-                                    titleStyle={styles.faqItemTitle}
-                                    descriptionStyle={styles.faqItemDetails}
-                                    titleNumberOfLines={2}
-                                    descriptionNumberOfLines={10}
-                                    title="• Rewards"
-                                    description={'You earn different rewards, based on the shopping categories that your card purchases fit into, as follows:\n\n- 7x on subscriptions\n- 5x Travel & Dining\n- 3.5x Uniforms & Commissary\n- 3x Grocery & Clothing\n- 1x Everything Else'}/>
-                                <List.Item
-                                    style={styles.faqItemStyle}
-                                    titleStyle={styles.faqItemTitle}
-                                    descriptionStyle={styles.faqItemDetails}
-                                    titleNumberOfLines={2}
-                                    descriptionNumberOfLines={10}
-                                    title="• Rewards Redemption"
-                                    description={'You can redeem your rewards as cash back.'}/>
-                            </List.Accordion>
-                            <Divider
-                                style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
-                            <List.Accordion
-                                style={styles.faqAccordionStyle}
-                                titleStyle={styles.faqAccordionTitle}
-                                titleNumberOfLines={2}
-                                descriptionNumberOfLines={5}
-                                title="Contact Information"
-                                left={() =>
-                                    <List.Icon color={'#2A3779'} icon="information-outline"/>}>
-                                <List.Item
-                                    style={styles.faqItemStyle}
-                                    titleStyle={styles.faqItemTitle}
-                                    descriptionStyle={styles.faqItemDetails}
-                                    titleNumberOfLines={2}
-                                    descriptionNumberOfLines={10}
-                                    title="• Support"
-                                    description={"You can get in contact with one of our team members by messaging us."}/>
-                            </List.Accordion>
-                            <Divider
-                                style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
-                            <List.Accordion
-                                style={styles.faqAccordionStyle}
-                                titleStyle={styles.faqAccordionTitle}
-                                titleNumberOfLines={2}
-                                descriptionNumberOfLines={5}
-                                title="Credit Limits"
-                                left={() =>
-                                    <List.Icon color={'#2A3779'} icon="information-outline"/>}>
-                                <List.Item
-                                    style={styles.faqItemStyle}
-                                    titleStyle={styles.faqItemTitle}
-                                    descriptionStyle={styles.faqItemDetails}
-                                    titleNumberOfLines={2}
-                                    descriptionNumberOfLines={10}
-                                    title="• Credit Limit Increases"
-                                    description={"Your account will reviewed for limit increases periodically based on your payment history and income. Upon an increase, you will get a notification and be prompted to the new terms of your Alpha card."}/>
-                            </List.Accordion>
-                            <Divider
-                                style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
-                            <List.Accordion
-                                style={styles.faqAccordionStyle}
-                                titleStyle={styles.faqAccordionTitle}
-                                titleNumberOfLines={2}
-                                descriptionNumberOfLines={5}
-                                title="Credit Score"
-                                left={() =>
-                                    <List.Icon color={'#2A3779'} icon="information-outline"/>}>
-                                <List.Item
-                                    style={styles.faqItemStyle}
-                                    titleStyle={styles.faqItemTitle}
-                                    descriptionStyle={styles.faqItemDetails}
-                                    titleNumberOfLines={2}
-                                    descriptionNumberOfLines={10}
-                                    title="• Credit Reporting"
-                                    description={"Moonbeam will report to all three major bureaus:\n\n- TransUnion\n- Equifax\n- Experian"}/>
-                            </List.Accordion>
-                            <Divider
-                                style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
-                            <List.Accordion
-                                onPress={() => {
-
-                                }}
-                                style={styles.faqAccordionStyle}
-                                titleStyle={styles.faqItemTitleFaceID}
-                                titleNumberOfLines={2}
-                                descriptionNumberOfLines={5}
-                                title="Lost or Stolen Card"
-                                left={() =>
-                                    <List.Icon style={{bottom: '3%'}} color={'#2A3779'} icon="information-outline"/>}
-                                right={() =>
-                                    <View style={styles.faqItemRightView}>
-                                        <Image style={styles.faqItemRightFaceID}
-                                               source={require('../../../../assets/face-id.png')}/>
-                                        <List.Icon icon="chevron-right"/>
-                                    </View>
-                                }>
-                            </List.Accordion>
-                            <Divider
-                                style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
-                            <List.Accordion
-                                style={styles.faqAccordionStyle}
-                                titleStyle={styles.faqAccordionTitle}
-                                titleNumberOfLines={2}
-                                descriptionNumberOfLines={5}
-                                title="Payments"
-                                left={() =>
-                                    <List.Icon color={'#2A3779'} icon="information-outline"/>}>
-                                <List.Item
-                                    style={styles.faqItemStyle}
-                                    titleStyle={styles.faqItemTitle}
-                                    descriptionStyle={styles.faqItemDetails}
-                                    titleNumberOfLines={2}
-                                    descriptionNumberOfLines={10}
-                                    title="• Bank Accounts"
-                                    description={"You can set up the bank accounts, via which you can set-up automatic, and/or one-time payments towards your Alpha card."}/>
-                                <List.Item
-                                    style={styles.faqItemStyle}
-                                    titleStyle={styles.faqItemTitle}
-                                    descriptionStyle={styles.faqItemDetails}
-                                    titleNumberOfLines={2}
-                                    descriptionNumberOfLines={10}
-                                    title="• Payment Frequency"
-                                    description={"At the moment, you can make one-time payments at any time, however, your automatic payments can be set up either on a daily and/or bi-monthly cadence."}/>
-                            </List.Accordion>
-                            <Divider
-                                style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
-                            <List.Accordion
-                                style={styles.faqAccordionStyle}
-                                titleStyle={styles.faqAccordionTitle}
-                                titleNumberOfLines={2}
-                                descriptionNumberOfLines={5}
-                                title="Refunds"
-                                left={() =>
-                                    <List.Icon color={'#2A3779'} icon="information-outline"/>}>
-                                <List.Item
-                                    style={styles.faqItemStyle}
-                                    titleStyle={styles.faqItemTitle}
-                                    descriptionStyle={styles.faqItemDetails}
-                                    titleNumberOfLines={2}
-                                    descriptionNumberOfLines={10}
-                                    title="• Transaction Refunds"
-                                    description={"Refunds on disputed transactions can take up to 7-15 days, to be applied to your accounts, and reflected towards your balance."}/>
-                            </List.Accordion>
-                            <Divider
-                                style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
-                            <List.Accordion
-                                style={styles.faqAccordionStyle}
-                                titleStyle={styles.faqAccordionTitle}
-                                titleNumberOfLines={2}
-                                descriptionNumberOfLines={5}
-                                title="Spending"
-                                left={() =>
-                                    <List.Icon color={'#2A3779'} icon="information-outline"/>}>
-                                <List.Item
-                                    style={styles.faqItemStyle}
-                                    titleStyle={styles.faqItemTitle}
-                                    descriptionStyle={styles.faqItemDetails}
-                                    titleNumberOfLines={2}
-                                    descriptionNumberOfLines={10}
-                                    title="• Spending Limits"
-                                    description={"There are no spending limits on your Moonbeam account, provided you have the available balance."}/>
-                            </List.Accordion>
-                            <Divider
-                                style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
-                            <List.Accordion
-                                onPress={() => {
-
-                                }}
-                                style={styles.faqAccordionStyle}
-                                titleStyle={styles.faqItemTitleFaceID}
-                                titleNumberOfLines={2}
-                                descriptionNumberOfLines={5}
-                                title="Statements"
-                                left={() =>
-                                    <List.Icon style={{bottom: '3%'}} color={'#2A3779'} icon="information-outline"/>}
-                                right={() =>
-                                    <View style={styles.faqItemRightView}>
-                                        <Image style={styles.faqItemRightFaceID}
-                                               source={require('../../../../assets/face-id.png')}/>
-                                        <List.Icon icon="chevron-right"/>
-                                    </View>
-                                }>
-                            </List.Accordion>
+                            {
+                                filterFAQs()
+                            }
                         </List.Section>
                     </View>
                 </View>

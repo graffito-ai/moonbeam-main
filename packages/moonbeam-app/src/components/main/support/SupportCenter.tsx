@@ -180,7 +180,7 @@ export const SupportCenter = ({route, navigation}: SupportCenterProps) => {
                     </Button>
                     <View style={styles.bottomTextView}>
                         <Text numberOfLines={3} style={styles.bottomText}>Get more help by
-                            <Text numberOfLines={3} style={styles.bottomTextButton}
+                            <Text numberOfLines={2} style={styles.bottomTextButton}
                                   onPress={() => {
                                   }}> leaving feedback or engaging with our team</Text>
                         </Text>

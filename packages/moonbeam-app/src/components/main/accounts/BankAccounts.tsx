@@ -411,17 +411,17 @@ export const BankAccounts = ({route, navigation}: BankAccountsProps) => {
 
 
     /**
-     * Function used to filter and return accounts, as a list items, depending on the
+     * Function used to filter and return accounts, as a list of items, depending on the
      * status passed in.
      *
      * @param status status to filter accounts by
      */
     const filterAccounts = (status: AccountVerificationStatus): React.ReactNode | React.ReactNode[] => {
-        let filteredAccounts: AccountDetails[] = []
+        let filteredAccounts: AccountDetails[] = [];
         if (bankAccounts.length !== 0) {
             bankAccounts
                 .filter((account) => account!.verificationStatus === status)
-                .map((account) => filteredAccounts.push(account))
+                .map((account) => filteredAccounts.push(account));
         }
         if (filteredAccounts.length !== 0) {
             let results: React.ReactNode[] = [];
@@ -429,7 +429,7 @@ export const BankAccounts = ({route, navigation}: BankAccountsProps) => {
             for (const filteredAccount of filteredAccounts) {
                 results.push(<>
                     <List.Item
-                        key={filteredAccount.id}
+                        key={`${filteredAccount.id}`}
                         style={styles.bankItemStyle}
                         titleStyle={styles.bankItemTitle}
                         descriptionStyle={styles.bankItemDetails}
@@ -450,7 +450,8 @@ export const BankAccounts = ({route, navigation}: BankAccountsProps) => {
                             />}
                     />
                     {filteredAccountsIndex !== filteredAccounts.length - 1 &&
-                        <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>}
+                        <Divider key={`${filteredAccount.id}-divider`}
+                                 style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>}
                 </>)
                 filteredAccountsIndex++;
             }
@@ -458,33 +459,39 @@ export const BankAccounts = ({route, navigation}: BankAccountsProps) => {
         } else {
             switch (status) {
                 case AccountVerificationStatus.Verified:
-                    return (<List.Item
-                        key={`${AccountVerificationStatus.Verified}_Key`}
-                        style={styles.bankItemStyle}
-                        titleStyle={styles.bankItemTitle}
-                        descriptionStyle={styles.bankItemDetails}
-                        titleNumberOfLines={1}
-                        descriptionNumberOfLines={2}
-                        title="Hurry!"
-                        description='Connect your first account below'
-                        right={() =>
-                            <List.Icon color={'red'} icon="exclamation"
-                                       key={`${AccountVerificationStatus.Verified}_exclamationKey`}/>}
-                    />);
+                    return (
+                        <>
+                            <List.Item
+                                key={`${AccountVerificationStatus.Verified}_Key`}
+                                style={styles.bankItemStyle}
+                                titleStyle={styles.bankItemTitle}
+                                descriptionStyle={styles.bankItemDetails}
+                                titleNumberOfLines={1}
+                                descriptionNumberOfLines={2}
+                                title="Hurry!"
+                                description='Connect your first account below'
+                                right={() =>
+                                    <List.Icon color={'red'} icon="exclamation"
+                                               key={`${AccountVerificationStatus.Verified}_exclamationKey`}/>}
+                            />
+                        </>);
                 case AccountVerificationStatus.Pending:
-                    return (<List.Item
-                        key={`${AccountVerificationStatus.Pending}_Key`}
-                        style={styles.bankItemStyle}
-                        titleStyle={styles.bankItemTitle}
-                        descriptionStyle={styles.bankItemDetails}
-                        titleNumberOfLines={1}
-                        descriptionNumberOfLines={2}
-                        title="Great job!"
-                        description='No accounts pending verification'
-                        right={() =>
-                            <List.Icon color={'green'} icon="check"
-                                       key={`${AccountVerificationStatus.Pending}_checkKey`}/>}
-                    />);
+                    return (
+                        <>
+                            <List.Item
+                                key={`${AccountVerificationStatus.Pending}_Key`}
+                                style={styles.bankItemStyle}
+                                titleStyle={styles.bankItemTitle}
+                                descriptionStyle={styles.bankItemDetails}
+                                titleNumberOfLines={1}
+                                descriptionNumberOfLines={2}
+                                title="Great job!"
+                                description='No accounts pending verification'
+                                right={() =>
+                                    <List.Icon color={'green'} icon="check"
+                                               key={`${AccountVerificationStatus.Pending}_checkKey`}/>}
+                            />
+                        </>);
                 default:
                     return (<></>);
             }
@@ -520,17 +527,23 @@ export const BankAccounts = ({route, navigation}: BankAccountsProps) => {
                                 <Text style={styles.mainTitle}>Bank Accounts</Text>
                             </View>
                             <View style={styles.content}>
-                                <List.Section style={styles.listSectionView}>
-                                    <List.Subheader style={styles.subHeaderTitle}>Connected Accounts</List.Subheader>
+                                <List.Section key={`${AccountVerificationStatus.Verified}-section`}
+                                              style={styles.listSectionView}>
+                                    <List.Subheader key={`${AccountVerificationStatus.Verified}-subHeader`}
+                                                    style={styles.subHeaderTitle}>Connected Accounts</List.Subheader>
                                     <Divider
+                                        key={`${AccountVerificationStatus.Verified}-divider1`}
                                         style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
                                     {
                                         filterAccounts(AccountVerificationStatus.Verified)
                                     }
                                 </List.Section>
-                                <List.Section style={styles.listSectionView}>
-                                    <List.Subheader style={styles.subHeaderTitle}>Pending Accounts</List.Subheader>
+                                <List.Section key={`${AccountVerificationStatus.Pending}-section`}
+                                              style={styles.listSectionView}>
+                                    <List.Subheader key={`${AccountVerificationStatus.Pending}-subHeader`}
+                                                    style={styles.subHeaderTitle}>Pending Accounts</List.Subheader>
                                     <Divider
+                                        key={`${AccountVerificationStatus.Pending}-divider2`}
                                         style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
                                     {
                                         filterAccounts(AccountVerificationStatus.Pending)

@@ -42,13 +42,6 @@ export const styles = StyleSheet.create({
         width:  Dimensions.get('window').width/1.3,
         color: '#313030'
     },
-    connectButton: {
-        borderRadius: 25,
-        borderColor: '#313030',
-        height: 50,
-        width: 350,
-        marginTop: '5%'
-    },
     listSectionView: {
         marginTop: '10%',
         alignSelf: 'center',
@@ -81,7 +74,8 @@ export const styles = StyleSheet.create({
     },
     faqItemTitle: {
         color: '#313030',
-        fontFamily: 'Raleway-Medium'
+        fontFamily: 'Raleway-Medium',
+        marginLeft: '5%'
     },
     faqItemTitleFaceID: {
         color: '#313030',
@@ -92,8 +86,9 @@ export const styles = StyleSheet.create({
         color: 'grey',
         fontFamily: 'Raleway-Medium',
         textAlign: 'justify',
-        width: Dimensions.get("window").width/1.65,
-        marginTop: '1.5%'
+        width: Dimensions.get("window").width/1.35,
+        marginTop: '1.5%',
+        marginLeft: '5%'
     },
     faqItemRightView: {
         flexDirection: 'row',

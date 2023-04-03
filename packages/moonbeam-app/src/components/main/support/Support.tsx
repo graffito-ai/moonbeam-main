@@ -26,7 +26,7 @@ export const Support = ({route}: SupportProps) => {
      * included in here.
      */
     useEffect(() => {
-        !isDrawerHeaderShown && route.params.setIsDrawerHeaderShown(isDrawerHeaderShown);
+        route.params.setIsDrawerHeaderShown(isDrawerHeaderShown);
     }, [isDrawerHeaderShown]);
 
     // return the component for the Support page
