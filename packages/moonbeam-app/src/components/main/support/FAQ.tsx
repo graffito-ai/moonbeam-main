@@ -86,9 +86,34 @@ export const FAQ = ({route, navigation}: FAQProps) => {
     }
 
     /**
+     * Function to sort alphabetically an array of objects by some specific key.
+     *
+     * @param {String} property Key of the object to sort.
+     */
+    function dynamicSort(property) {
+        var sortOrder = 1;
+
+        if(property[0] === "-") {
+            sortOrder = -1;
+            property = property.substr(1);
+        }
+
+        return function (a,b) {
+            if(sortOrder == -1){
+                return b[property].localeCompare(a[property]);
+            }else{
+                return a[property].localeCompare(b[property]);
+            }
+        }
+    }
+
+    /**
      * Function used to filter and return FAQs, as a list of items.
      */
     const filterFAQs = (): React.ReactNode | React.ReactNode[] => {
+        // first sort the list alphabetically
+        faqList.sort(dynamicSort("title"));
+
         if (faqList.length !== 0) {
             let results: React.ReactNode[] = [];
             let filteredFAQIndex = 0;
