@@ -22,14 +22,6 @@ export const styles = StyleSheet.create({
         fontFamily: 'Raleway-Medium',
         color: '#313030'
     },
-    mainSubtitle: {
-        fontSize: 15,
-        fontFamily: 'Raleway-Regular',
-        textAlign: 'center',
-        height: Dimensions.get('window').height/5,
-        width:  Dimensions.get('window').width/1.3,
-        color: '#313030'
-    },
     listSectionView: {
         marginTop: '10%',
         alignSelf: 'center',

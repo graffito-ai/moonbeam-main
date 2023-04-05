@@ -53,8 +53,6 @@ export const MainDash = ({navigation, route}: MainDashProps) => {
      * else reload the app (redirecting to login)
      */
     const isOAuthRedirectAllowed = async (): Promise<boolean> => {
-        console.log('here');
-        console.log(JSON.stringify(route.params));
         // @ts-ignore
         route.params.params && route.params.params.oauthStateId && setOauthStateId(route.params.params.oauthStateId);
         // check in case an oauth token is present, if we could do the redirect

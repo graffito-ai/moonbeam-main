@@ -21,9 +21,6 @@ export const styles = StyleSheet.create({
         left: '1.5%',
         alignSelf: 'flex-start'
     },
-    bottomView: {
-        alignItems: 'center',
-    },
     content: {
         alignItems: 'flex-start',
     },
@@ -32,14 +29,6 @@ export const styles = StyleSheet.create({
         marginTop: '5%',
         fontSize: 30,
         fontFamily: 'Raleway-Medium',
-        color: '#313030'
-    },
-    mainSubtitle: {
-        fontSize: 15,
-        fontFamily: 'Raleway-Regular',
-        textAlign: 'center',
-        height: Dimensions.get('window').height/5,
-        width:  Dimensions.get('window').width/1.3,
         color: '#313030'
     },
     listSectionView: {
@@ -53,12 +42,6 @@ export const styles = StyleSheet.create({
         shadowRadius: 5,
         elevation: 15,
         borderRadius: 10
-    },
-    subHeaderTitle: {
-        alignSelf: 'flex-start',
-        color: '#313030',
-        fontSize: 15,
-        fontFamily: 'Raleway-Medium'
     },
     faqItemStyle: {
         backgroundColor: '#f2f2f2',

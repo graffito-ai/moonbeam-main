@@ -2,11 +2,13 @@ import React, {useEffect, useState} from 'react';
 import {BottomBarStackParamList} from '../../models/BottomBarProps';
 import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import {DrawerActions, DrawerStatus, NavigationContainer} from '@react-navigation/native';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import {Home} from './home/Home';
 import {Membership} from "./rewards/Membership";
 import {DashboardProps} from "../../models/DrawerProps";
 import {useDrawerStatus} from "@react-navigation/drawer";
+import { Store } from './store/Store';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {Ionicons} from "@expo/vector-icons";
 
 /**
  * Dashboard component.
@@ -53,16 +55,28 @@ export const Dashboard = ({navigation, route}: DashboardProps) => {
                     }}
                     screenOptions={({route}) => ({
                         tabBarIcon: ({focused}) => {
-                            let iconName: any;
+                            let iconName: string;
+                            let iconColor: string;
 
                             if (route.name === 'Home') {
-                                iconName = focused ? 'ios-home-sharp' : 'ios-home-outline';
+                                iconName = focused ? 'home-variant' : 'home-variant-outline';
+                                iconColor = !focused ? '#313030': '#2A3779';
+
+                                return <Icon name={iconName} size={25} color={iconColor}/>;
                             } else if (route.name === 'Membership') {
                                 iconName = focused ? 'ribbon-sharp' : 'ribbon-outline';
+                                iconColor = !focused ? '#313030': '#2A3779';
+
+                                // @ts-ignore
+                                return <Ionicons name={iconName} size={25} color={iconColor}/>;
+                            } else if (route.name === 'Marketplace') {
+                                iconName = focused ? 'storefront': 'storefront-outline';
+                                iconColor = !focused ? '#313030': '#2A3779';
+
+                                return <Icon name={iconName} size={25} color={iconColor}/>;
                             }
 
-                            // You can return any component that you like here!
-                            return <Ionicons name={iconName} size={25} color={'#313030'}/>;
+                            return <></>;
                         }
                     })}
                 >
@@ -77,6 +91,12 @@ export const Dashboard = ({navigation, route}: DashboardProps) => {
                     />
                     <DashboardTab.Screen name="Membership"
                                          component={Membership}
+                                         initialParams={{
+                                             currentUserInformation: route.params.currentUserInformation
+                                         }}
+                    />
+                    <DashboardTab.Screen name="Marketplace"
+                                         component={Store}
                                          initialParams={{
                                              currentUserInformation: route.params.currentUserInformation
                                          }}

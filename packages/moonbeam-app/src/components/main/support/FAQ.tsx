@@ -88,20 +88,20 @@ export const FAQ = ({route, navigation}: FAQProps) => {
     /**
      * Function to sort alphabetically an array of objects by some specific key.
      *
-     * @param {String} property Key of the object to sort.
+     * @param property Key of the object to sort.
      */
-    function dynamicSort(property) {
-        var sortOrder = 1;
+    function dynamicSort(property: string) {
+        let sortOrder = 1;
 
         if(property[0] === "-") {
             sortOrder = -1;
-            property = property.substr(1);
+            property = property.substring(1);
         }
 
         return function (a,b) {
-            if(sortOrder == -1){
+            if(sortOrder == -1) {
                 return b[property].localeCompare(a[property]);
-            }else{
+            } else {
                 return a[property].localeCompare(b[property]);
             }
         }
