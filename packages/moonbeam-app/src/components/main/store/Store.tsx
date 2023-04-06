@@ -5,8 +5,7 @@ import {NavigationContainer} from "@react-navigation/native";
 import {IconButton} from "react-native-paper";
 import {StoreTabProps} from "../../../models/BottomBarProps";
 import {StoreStackParamList} from "../../../models/StoreStackProps";
-import { StoreHorizontal } from './StoreHorizontal';
-import { StoreVertical } from './StoreVertical';
+import {Marketplace} from "./Marketplace";
 
 /**
  * Store component.
@@ -30,7 +29,7 @@ export const Store = ({}: StoreTabProps) => {
     return (
         <NavigationContainer independent={true}>
             <Stack.Navigator
-                initialRouteName={"StoreHorizontal"}
+                initialRouteName={"Marketplace"}
                 screenOptions={({navigation}) => {
                     return({
                         headerLeft: () => {
@@ -51,30 +50,12 @@ export const Store = ({}: StoreTabProps) => {
                 }}
             >
                 <Stack.Screen
-                    name="StoreHorizontal"
-                    component={StoreHorizontal}
+                    name="Marketplace"
+                    component={Marketplace}
                     initialParams={{
 
                     }}
                     options={{
-                        // header: (props) => {
-                        //     return(<Navbar options={props.options} route={props.route} navigation={props.navigation}/>)
-                        // },
-                        // headerTitle: 'Store Center'
-                        headerShown: false
-                    }}
-                />
-                <Stack.Screen
-                    name="StoreVertical"
-                    component={StoreVertical}
-                    initialParams={{
-
-                    }}
-                    options={{
-                        // header: (props) => {
-                        //     return(<Navbar options={props.options} route={props.route} navigation={props.navigation}/>)
-                        // },
-                        // headerTitle: 'Store Center'
                         headerShown: false
                     }}
                 />

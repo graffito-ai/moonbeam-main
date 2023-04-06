@@ -1,6 +1,6 @@
 import {Dimensions, Platform, StyleSheet} from "react-native";
 
-// styles to be used within the horizontal Store component
+// styles to be used within the Store/Marketplace component
 export const styles = StyleSheet.create({
     rowContainer: {
         flex: 1,
@@ -17,46 +17,17 @@ export const styles = StyleSheet.create({
         flexDirection: 'column',
         marginTop: '12%'
     },
-    bottomBarViewLeft: {
-        alignSelf: 'flex-start',
-        width: Dimensions.get('window').width / 8,
-        justifyContent: 'space-between',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        backgroundColor: '#f2f2f2',
-        top: '7%',
-        left: '20%'
-    },
-    bottomBarViewRight: {
-        alignSelf: 'flex-end',
-        width: Dimensions.get('window').width / 4,
-        justifyContent: 'space-between',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        backgroundColor: '#f2f2f2',
-        shadowColor: '#313030',
-        shadowOffset: {width: -2, height: 1},
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
-        elevation: 10,
-        borderRadius: 55,
-        bottom: '5%',
-        right: '20%'
-    },
-    storeViewTypeButtonView: {
-        left: '2%',
-        marginTop: '0.8%',
-        flexDirection: 'row',
-        flexWrap: 'wrap'
-    },
-    storeViewButtonLeft: {},
-    storeViewButtonRight: {},
     titleView: {
         marginTop: '5%',
         marginLeft: '1%',
         alignContent: 'flex-end',
         flexDirection: 'row',
         flexWrap: 'wrap'
+    },
+    toggleViewButton: {
+        width: Dimensions.get('window').width / 11,
+        height: Dimensions.get('window').width / 11,
+        marginTop: "2%"
     },
     content: {
         flex: 1,
@@ -65,7 +36,7 @@ export const styles = StyleSheet.create({
     },
     mainTitle: {
         alignSelf: 'flex-start',
-        marginLeft: '5%',
+        marginLeft: '7%',
         fontSize: 40,
         fontFamily: 'Raleway-Medium',
         color: '#313030',
@@ -96,7 +67,7 @@ export const styles = StyleSheet.create({
         fontFamily: 'Raleway-Medium'
     },
     filterChipView: {
-        alignSelf: 'flex-start',
+        alignSelf: 'center',
         marginLeft: '5%',
         marginTop: '3%',
         flexDirection: 'row',
@@ -139,8 +110,7 @@ export const styles = StyleSheet.create({
         bottom: '66%'
     },
     regularPartnerCard: {
-        left: '4%',
-        backgroundColor: 'transparent',
+        backgroundColor: 'transparent'
     },
     regularPartnerCardTitle: {
         fontFamily: 'Raleway-Medium',
@@ -214,5 +184,20 @@ export const styles = StyleSheet.create({
         alignSelf: 'flex-start',
         bottom: `${Dimensions.get('window').height / 7}%`,
         color: '#2A3779',
+    },
+    storeItemBenefit: {
+        fontFamily: 'Raleway-Medium',
+        color: '#2A3779'
+    },
+    storeItemBenefits: {
+        marginTop: '2%',
+        fontFamily: 'Raleway-Regular',
+        color: 'grey',
+        fontSize: 14
+    },
+    storeItemName: {
+        fontFamily: 'Raleway-Bold',
+        color: '#313030',
+        fontSize: 17
     }
 });
