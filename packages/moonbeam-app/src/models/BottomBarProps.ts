@@ -15,6 +15,7 @@ export type BottomBarStackParamList = {
         currentUserInformation: any;
     },
     Marketplace: {
+        setBottomTabNavigationShown: React.Dispatch<React.SetStateAction<boolean>>;
         currentUserInformation: any;
     }
 };

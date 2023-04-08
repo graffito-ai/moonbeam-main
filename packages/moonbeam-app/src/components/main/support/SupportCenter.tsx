@@ -1,6 +1,6 @@
 import 'react-native-get-random-values';
 import React, {useEffect, useState} from "react";
-import {Dimensions, SafeAreaView, Text, TouchableHighlight, View} from "react-native";
+import {Dimensions, SafeAreaView, Text, View} from "react-native";
 import {commonStyles} from "../../../styles/common.module";
 import {Button, Divider, List, Modal, Portal} from "react-native-paper";
 import {styles} from "../../../styles/supportCenter.module";
@@ -116,51 +116,45 @@ export const SupportCenter = ({route, navigation}: SupportCenterProps) => {
                             <List.Subheader style={styles.subHeaderTitle}>Help</List.Subheader>
                             <Divider
                                 style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
-                            <TouchableHighlight
+                            <List.Item
                                 onPress={async () => {
                                     await contactSupport();
                                 }}
-                                underlayColor="transparent">
-                                <List.Item
-                                    style={styles.supportItemStyle}
-                                    titleStyle={styles.supportItemTitle}
-                                    descriptionStyle={styles.supportItemDetails}
-                                    titleNumberOfLines={2}
-                                    descriptionNumberOfLines={3}
-                                    title={'Contact'}
-                                    description={`You will be redirected to a live agent whom will be able to answer your questions.`}
-                                    left={() =>
-                                        <List.Icon color={'#2A3779'} icon="message"/>}
-                                    right={() =>
-                                        <List.Icon color={'#2A3779'} icon="chevron-right"/>}
-                                />
-                            </TouchableHighlight>
+                                style={styles.supportItemStyle}
+                                titleStyle={styles.supportItemTitle}
+                                descriptionStyle={styles.supportItemDetails}
+                                titleNumberOfLines={2}
+                                descriptionNumberOfLines={3}
+                                title={'Contact'}
+                                description={`You will be redirected to a live agent whom will be able to answer your questions.`}
+                                left={() =>
+                                    <List.Icon color={'#2A3779'} icon="message"/>}
+                                right={() =>
+                                    <List.Icon color={'#2A3779'} icon="chevron-right"/>}
+                            />
                         </List.Section>
                         <List.Section style={styles.listSectionView}>
                             <List.Subheader style={styles.subHeaderTitle}>Knowledge Base</List.Subheader>
                             <Divider
                                 style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
-                            <TouchableHighlight
+                            <List.Item
                                 onPress={() => {
                                     navigation.navigate('FAQ', {
                                         setIsDrawerHeaderShown: route.params.setIsDrawerHeaderShown
                                     });
                                 }}
-                                underlayColor="transparent">
-                                <List.Item
-                                    style={styles.supportItemStyle}
-                                    titleStyle={styles.supportItemTitle}
-                                    descriptionStyle={styles.supportItemDetails}
-                                    titleNumberOfLines={2}
-                                    descriptionNumberOfLines={3}
-                                    title={'FAQ'}
-                                    description={`Access our most frequently asked questions and answers.`}
-                                    left={() =>
-                                        <List.Icon color={'#2A3779'} icon="frequently-asked-questions"/>}
-                                    right={() =>
-                                        <List.Icon color={'#2A3779'} icon="chevron-right"/>}
-                                />
-                            </TouchableHighlight>
+                                style={styles.supportItemStyle}
+                                titleStyle={styles.supportItemTitle}
+                                descriptionStyle={styles.supportItemDetails}
+                                titleNumberOfLines={2}
+                                descriptionNumberOfLines={3}
+                                title={'FAQ'}
+                                description={`Access our most frequently asked questions and answers.`}
+                                left={() =>
+                                    <List.Icon color={'#2A3779'} icon="frequently-asked-questions"/>}
+                                right={() =>
+                                    <List.Icon color={'#2A3779'} icon="chevron-right"/>}
+                            />
                         </List.Section>
                     </View>
                 </View>

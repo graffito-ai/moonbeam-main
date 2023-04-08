@@ -98,6 +98,7 @@ export const Dashboard = ({navigation, route}: DashboardProps) => {
                     <DashboardTab.Screen name="Marketplace"
                                          component={Store}
                                          initialParams={{
+                                             setBottomTabNavigationShown: setBottomTabNavigationShown,
                                              currentUserInformation: route.params.currentUserInformation
                                          }}
                     />

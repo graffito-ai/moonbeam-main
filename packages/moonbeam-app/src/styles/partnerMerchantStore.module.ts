@@ -1,6 +1,6 @@
 import {Dimensions, StyleSheet} from "react-native";
 
-// styles to be used within the HomeReferral component
+// styles to be used within the PartnerMerchantStore component
 export const styles = StyleSheet.create({
     mainView: {
         flex: 1,
@@ -9,78 +9,55 @@ export const styles = StyleSheet.create({
         alignItems: 'center'
     },
     messageView: {
+        marginTop: '40%',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    bottomMessageView: {
+        marginTop: '40%',
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
     },
     messageTitle: {
-        fontSize: 25,
+        marginTop: '2.5%',
+        fontSize: Dimensions.get('window').height / 30,
         fontFamily: 'Raleway-Medium',
         color: '#313030'
     },
     messageSubtitle: {
-        fontSize: 15,
+        fontSize:  Dimensions.get('window').height / 40,
         fontFamily: 'Raleway-Regular',
         textAlign: 'center',
         height: Dimensions.get('window').height / 5,
         width: Dimensions.get('window').width / 1.3,
-        color: '#313030',
+        color: '#575757',
         marginBottom: '-15%'
     },
     referralArt: {
         alignSelf: 'center',
         width: Dimensions.get('window').width / 1.5,
-        height: Dimensions.get('window').height / 3.5,
+        height: Dimensions.get('window').height / 2.8,
     },
     messageFooterTitle: {
-        marginTop: '10%',
-        fontSize: 20,
+        fontSize:  Dimensions.get('window').height / 45,
         fontFamily: 'Raleway-Medium',
         textAlign: 'center',
         color: '#313030'
     },
     messageFooterSubtitle: {
-        fontSize: 15,
-        fontFamily: 'Raleway-Regular',
+        fontSize: Dimensions.get('window').height / 60,
+        fontFamily: 'Raleway-Light',
         textAlign: 'center',
         width: Dimensions.get('window').width / 1.2,
-        color: '#313030'
+        color: '#575757'
     },
     referButton: {
         borderRadius: 25,
         borderColor: '#313030',
-        height: 50,
+        height: Dimensions.get('window').height/19,
         width: Dimensions.get('window').width/1.15,
-        marginTop: '20%',
-        marginBottom: '20%'
+        marginBottom: '5%'
     },
-    modalContainer: {
-        alignSelf: 'center',
-        backgroundColor: 'white',
-        height: Dimensions.get('window').height / 6,
-        borderRadius: 15,
-        padding: 20,
-        borderWidth: 1,
-        borderColor: 'red'
-    },
-    modalParagraph: {
-        textAlign: 'center',
-        alignSelf: 'flex-start',
-        fontFamily: 'Raleway-Regular',
-        fontSize: 16,
-        width: 350,
-        color: '#313030'
-    },
-    modalButton: {
-        borderRadius: 25,
-        borderColor: 'red',
-        height: 40,
-        width: 350,
-        marginTop: '10%'
-    },
-    dismissIcon: {
-        marginTop: '5%',
-        marginBottom: '10%',
-        alignSelf: 'flex-end'
-    }
 });

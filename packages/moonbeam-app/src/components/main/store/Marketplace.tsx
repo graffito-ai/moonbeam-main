@@ -11,7 +11,7 @@ import BattleThreadsLogo from "../../../../assets/companies/battleThreads.jpg";
 /**
  * Marketplace component.
  */
-export const Marketplace = ({}: MarketplaceProps) => {
+export const Marketplace = ({route, navigation}: MarketplaceProps) => {
     // state driven key-value pairs for UI related elements
     const [toggleViewPressed, setToggleViewPressed] = useState<string>('horizontal');
 
@@ -113,6 +113,9 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                     style={{width: Dimensions.get('window').width}}
                                 >
                                     <List.Item
+                                        onPress={() => {
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
+                                        }}
                                         style={{marginLeft: '2%'}}
                                         titleStyle={styles.storeItemName}
                                         descriptionStyle={styles.storeItemBenefits}
@@ -131,6 +134,9 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         right={() => <List.Icon color={'#313030'} icon="chevron-right"/>}
                                     />
                                     <List.Item
+                                        onPress={() => {
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
+                                        }}
                                         style={{marginLeft: '2%'}}
                                         titleStyle={styles.storeItemName}
                                         descriptionStyle={styles.storeItemBenefits}
@@ -149,6 +155,9 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         right={() => <List.Icon color={'#313030'} icon="chevron-right"/>}
                                     />
                                     <List.Item
+                                        onPress={() => {
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
+                                        }}
                                         style={{marginLeft: '2%'}}
                                         titleStyle={styles.storeItemName}
                                         descriptionStyle={styles.storeItemBenefits}
@@ -167,6 +176,9 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         right={() => <List.Icon color={'#313030'} icon="chevron-right"/>}
                                     />
                                     <List.Item
+                                        onPress={() => {
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
+                                        }}
                                         style={{marginLeft: '2%'}}
                                         titleStyle={styles.storeItemName}
                                         descriptionStyle={styles.storeItemBenefits}
@@ -185,6 +197,9 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         right={() => <List.Icon color={'#313030'} icon="chevron-right"/>}
                                     />
                                     <List.Item
+                                        onPress={() => {
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
+                                        }}
                                         style={{marginLeft: '2%'}}
                                         titleStyle={styles.storeItemName}
                                         descriptionStyle={styles.storeItemBenefits}
@@ -203,6 +218,9 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         right={() => <List.Icon color={'#313030'} icon="chevron-right"/>}
                                     />
                                     <List.Item
+                                        onPress={() => {
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
+                                        }}
                                         style={{marginLeft: '2%'}}
                                         titleStyle={styles.storeItemName}
                                         descriptionStyle={styles.storeItemBenefits}
@@ -221,6 +239,9 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         right={() => <List.Icon color={'#313030'} icon="chevron-right"/>}
                                     />
                                     <List.Item
+                                        onPress={() => {
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
+                                        }}
                                         style={{marginLeft: '2%'}}
                                         titleStyle={styles.storeItemName}
                                         descriptionStyle={styles.storeItemBenefits}
@@ -239,6 +260,9 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         right={() => <List.Icon color={'#313030'} icon="chevron-right"/>}
                                     />
                                     <List.Item
+                                        onPress={() => {
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
+                                        }}
                                         style={{marginLeft: '2%'}}
                                         titleStyle={styles.storeItemName}
                                         descriptionStyle={styles.storeItemBenefits}
@@ -257,6 +281,9 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         right={() => <List.Icon color={'#313030'} icon="chevron-right"/>}
                                     />
                                     <List.Item
+                                        onPress={() => {
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
+                                        }}
                                         style={{marginLeft: '2%'}}
                                         titleStyle={styles.storeItemName}
                                         descriptionStyle={styles.storeItemBenefits}
@@ -275,6 +302,9 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         right={() => <List.Icon color={'#313030'} icon="chevron-right"/>}
                                     />
                                     <List.Item
+                                        onPress={() => {
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
+                                        }}
                                         style={{marginLeft: '2%'}}
                                         titleStyle={styles.storeItemName}
                                         descriptionStyle={styles.storeItemBenefits}
@@ -293,6 +323,9 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         right={() => <List.Icon color={'#313030'} icon="chevron-right"/>}
                                     />
                                     <List.Item
+                                        onPress={() => {
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
+                                        }}
                                         style={{marginLeft: '2%'}}
                                         titleStyle={styles.storeItemName}
                                         descriptionStyle={styles.storeItemBenefits}
@@ -311,6 +344,9 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         right={() => <List.Icon color={'#313030'} icon="chevron-right"/>}
                                     />
                                     <List.Item
+                                        onPress={() => {
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
+                                        }}
                                         style={{marginLeft: '2%'}}
                                         titleStyle={styles.storeItemName}
                                         descriptionStyle={styles.storeItemBenefits}
@@ -329,6 +365,9 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         right={() => <List.Icon color={'#313030'} icon="chevron-right"/>}
                                     />
                                     <List.Item
+                                        onPress={() => {
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
+                                        }}
                                         style={{marginLeft: '2%'}}
                                         titleStyle={styles.storeItemName}
                                         descriptionStyle={styles.storeItemBenefits}
@@ -347,6 +386,30 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         right={() => <List.Icon color={'#313030'} icon="chevron-right"/>}
                                     />
                                     <List.Item
+                                        onPress={() => {
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
+                                        }}
+                                        style={{marginLeft: '2%'}}
+                                        titleStyle={styles.storeItemName}
+                                        descriptionStyle={styles.storeItemBenefits}
+                                        titleNumberOfLines={1}
+                                        descriptionNumberOfLines={1}
+                                        title="Battle Threads"
+                                        description={
+                                            <>
+                                                <Text style={styles.storeItemBenefit}>3X</Text>
+                                                {" Points and "}
+                                                <Text style={styles.storeItemBenefit}>10%</Text>
+                                                {" Discount "}
+                                            </>
+                                        }
+                                        left={() => <Avatar.Image size={60} source={BattleThreadsLogo}/>}
+                                        right={() => <List.Icon color={'#313030'} icon="chevron-right"/>}
+                                    />
+                                    <List.Item
+                                        onPress={() => {
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
+                                        }}
                                         style={{marginLeft: '2%'}}
                                         titleStyle={styles.storeItemName}
                                         descriptionStyle={styles.storeItemBenefits}
@@ -410,6 +473,7 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                                     uppercase={false}
                                                     disabled={false}
                                                     onPress={() => {
+                                                        navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation})
                                                     }}
                                                     style={styles.featuredPartnerCardActionButton}
                                                     textColor={"#f2f2f2"}
@@ -449,6 +513,7 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                                     uppercase={false}
                                                     disabled={false}
                                                     onPress={() => {
+                                                        navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation})
                                                     }}
                                                     style={styles.featuredPartnerCardActionButton}
                                                     textColor={"#f2f2f2"}
@@ -488,6 +553,7 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                                     uppercase={false}
                                                     disabled={false}
                                                     onPress={() => {
+                                                        navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation})
                                                     }}
                                                     style={styles.featuredPartnerCardActionButton}
                                                     textColor={"#f2f2f2"}
@@ -527,6 +593,7 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                                     uppercase={false}
                                                     disabled={false}
                                                     onPress={() => {
+                                                        navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation})
                                                     }}
                                                     style={styles.featuredPartnerCardActionButton}
                                                     textColor={"#f2f2f2"}
@@ -566,6 +633,7 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                                     uppercase={false}
                                                     disabled={false}
                                                     onPress={() => {
+                                                        navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation})
                                                     }}
                                                     style={styles.featuredPartnerCardActionButton}
                                                     textColor={"#f2f2f2"}
@@ -600,7 +668,7 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         persistentScrollbar={false}
                                         showsHorizontalScrollIndicator={false}>
                                         <TouchableOpacity style={{left: '4%'}} onPress={() => {
-                                            console.log('this shit is pressed')
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
                                         }}>
                                             <Card style={styles.regularPartnerCard}>
                                                 <Card.Cover
@@ -616,7 +684,7 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         </TouchableOpacity>
                                         <View style={{width: 0.5}}></View>
                                         <TouchableOpacity style={{left: '4%'}} onPress={() => {
-                                            console.log('this shit is pressed')
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
                                         }}>
                                             <Card style={styles.regularPartnerCard}>
                                                 <Card.Cover
@@ -632,7 +700,7 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         </TouchableOpacity>
                                         <View style={{width: 0.5}}></View>
                                         <TouchableOpacity style={{left: '4%'}} onPress={() => {
-                                            console.log('this shit is pressed')
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
                                         }}>
                                             <Card style={styles.regularPartnerCard}>
                                                 <Card.Cover
@@ -648,7 +716,7 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         </TouchableOpacity>
                                         <View style={{width: 0.5}}></View>
                                         <TouchableOpacity style={{left: '4%'}} onPress={() => {
-                                            console.log('this shit is pressed')
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
                                         }}>
                                             <Card style={styles.regularPartnerCard}>
                                                 <Card.Cover
@@ -664,7 +732,7 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         </TouchableOpacity>
                                         <View style={{width: 0.5}}></View>
                                         <TouchableOpacity style={{left: '4%'}} onPress={() => {
-                                            console.log('this shit is pressed')
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
                                         }}>
                                             <Card style={styles.regularPartnerCard}>
                                                 <Card.Cover
@@ -680,7 +748,7 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         </TouchableOpacity>
                                         <View style={{width: 0.5}}></View>
                                         <TouchableOpacity style={{left: '4%'}} onPress={() => {
-                                            console.log('this shit is pressed')
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
                                         }}>
                                             <Card style={styles.regularPartnerCard}>
                                                 <Card.Cover
@@ -696,7 +764,7 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         </TouchableOpacity>
                                         <View style={{width: 0.5}}></View>
                                         <TouchableOpacity style={{left: '4%'}} onPress={() => {
-                                            console.log('this shit is pressed')
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
                                         }}>
                                             <Card style={styles.regularPartnerCard}>
                                                 <Card.Cover
@@ -712,7 +780,7 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         </TouchableOpacity>
                                         <View style={{width: 0.5}}></View>
                                         <TouchableOpacity style={{left: '4%'}} onPress={() => {
-                                            console.log('this shit is pressed')
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
                                         }}>
                                             <Card style={styles.regularPartnerCard}>
                                                 <Card.Cover
@@ -728,7 +796,7 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         </TouchableOpacity>
                                         <View style={{width: 0.5}}></View>
                                         <TouchableOpacity style={{left: '4%'}} onPress={() => {
-                                            console.log('this shit is pressed')
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
                                         }}>
                                             <Card style={styles.regularPartnerCard}>
                                                 <Card.Cover
@@ -744,7 +812,7 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         </TouchableOpacity>
                                         <View style={{width: 0.5}}></View>
                                         <TouchableOpacity style={{left: '4%'}} onPress={() => {
-                                            console.log('this shit is pressed')
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
                                         }}>
                                             <Card style={styles.regularPartnerCard}>
                                                 <Card.Cover
@@ -760,7 +828,7 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         </TouchableOpacity>
                                         <View style={{width: 0.5}}></View>
                                         <TouchableOpacity style={{left: '4%'}} onPress={() => {
-                                            console.log('this shit is pressed')
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
                                         }}>
                                             <Card style={styles.regularPartnerCard}>
                                                 <Card.Cover
@@ -776,7 +844,7 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         </TouchableOpacity>
                                         <View style={{width: 0.5}}></View>
                                         <TouchableOpacity style={{left: '4%'}} onPress={() => {
-                                            console.log('this shit is pressed')
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
                                         }}>
                                             <Card style={styles.regularPartnerCard}>
                                                 <Card.Cover
@@ -792,7 +860,7 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         </TouchableOpacity>
                                         <View style={{width: 0.5}}></View>
                                         <TouchableOpacity style={{left: '4%'}} onPress={() => {
-                                            console.log('this shit is pressed')
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
                                         }}>
                                             <Card style={styles.regularPartnerCard}>
                                                 <Card.Cover
@@ -808,7 +876,7 @@ export const Marketplace = ({}: MarketplaceProps) => {
                                         </TouchableOpacity>
                                         <View style={{width: 0.5}}></View>
                                         <TouchableOpacity style={{left: '4%'}} onPress={() => {
-                                            console.log('this shit is pressed')
+                                            navigation.navigate('PartnerMerchant', {currentUserInformation: route.params.currentUserInformation});
                                         }}>
                                             <Card style={styles.regularPartnerCard}>
                                                 <Card.Cover

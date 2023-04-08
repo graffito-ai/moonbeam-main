@@ -51,6 +51,7 @@ export const Home = ({navigation, route}: HomeTabProps) => {
         if (isOpen) {
             setIsDrawerOpen(false);
         }
+        // set the state for the bottom tab navigation, depending on which screen we are on
         route.params.setBottomTabNavigationShown(bottomTabNavigationShown);
     }, [route.name, bottomTabNavigationShown, isDrawerOpen, isOpen]);
 
