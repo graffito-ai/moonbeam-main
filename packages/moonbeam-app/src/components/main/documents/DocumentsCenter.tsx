@@ -1,6 +1,6 @@
 import 'react-native-get-random-values';
 import React, {useEffect} from "react";
-import {Dimensions, SafeAreaView, Text, TouchableHighlight, View} from "react-native";
+import {Dimensions, SafeAreaView, Text, View} from "react-native";
 import {commonStyles} from "../../../styles/common.module";
 import {Divider, List} from "react-native-paper";
 import {styles} from "../../../styles/documentsCenter.module";
@@ -38,113 +38,80 @@ export const DocumentsCenter = ({route, navigation}: DocumentsCenterProps) => {
                             <List.Subheader style={styles.subHeaderTitle}>Membership Agreements</List.Subheader>
                             <Divider
                                 style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
-                            <TouchableHighlight
+                            <List.Item
+                                style={styles.documentItemStyle}
+                                titleStyle={styles.documentItemTitle}
+                                descriptionStyle={styles.documentItemDetails}
+                                titleNumberOfLines={2}
+                                descriptionNumberOfLines={3}
+                                title="Card member agreement"
+                                description='View your Alpha card details, including your member terms.'
                                 onPress={async () => {
                                     navigation.navigate('DocumentViewer', {
                                         name: 'cardAgreement.pdf',
                                         privacyFlag: true
                                     });
                                 }}
-                                underlayColor="transparent">
-                                <List.Item
-                                    style={styles.documentItemStyle}
-                                    titleStyle={styles.documentItemTitle}
-                                    descriptionStyle={styles.documentItemDetails}
-                                    titleNumberOfLines={2}
-                                    descriptionNumberOfLines={3}
-                                    title="Card member agreement"
-                                    description='View your Alpha card details, including your member terms.'
-                                    onPress={async () => {
-                                        navigation.navigate('DocumentViewer', {
-                                            name: 'cardAgreement.pdf',
-                                            privacyFlag: true
-                                        });
-                                    }}
-                                    left={() => <List.Icon color={'#2A3779'} icon="signature"/>}
-                                    right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
-                                />
-                            </TouchableHighlight>
+                                left={() => <List.Icon color={'#2A3779'} icon="signature"/>}
+                                right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
+                            />
                             <Divider
                                 style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
-                            <TouchableHighlight
+                            <List.Item
+                                style={styles.documentItemStyle}
+                                titleStyle={styles.documentItemTitle}
+                                descriptionStyle={styles.documentItemDetails}
+                                titleNumberOfLines={2}
+                                descriptionNumberOfLines={3}
+                                title="Terms and Conditions"
+                                description='Review what was agreed upon your sign up process.'
                                 onPress={async () => {
                                     navigation.navigate('DocumentViewer', {
                                         name: 'termsAndConditions.pdf',
                                         privacyFlag: false
                                     });
                                 }}
-                                underlayColor="transparent">
-                                <List.Item
-                                    style={styles.documentItemStyle}
-                                    titleStyle={styles.documentItemTitle}
-                                    descriptionStyle={styles.documentItemDetails}
-                                    titleNumberOfLines={2}
-                                    descriptionNumberOfLines={3}
-                                    title="Terms and Conditions"
-                                    description='Review what was agreed upon your sign up process.'
-                                    onPress={async () => {
-                                        navigation.navigate('DocumentViewer', {
-                                            name: 'termsAndConditions.pdf',
-                                            privacyFlag: false
-                                        });
-                                    }}
-                                    left={() => <List.Icon color={'#2A3779'} icon="text"/>}
-                                    right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
-                                />
-                            </TouchableHighlight>
+                                left={() => <List.Icon color={'#2A3779'} icon="text"/>}
+                                right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
+                            />
                             <Divider
                                 style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
-                            <TouchableHighlight
+                            <List.Item
+                                style={styles.documentItemStyle}
+                                titleStyle={styles.documentItemTitle}
+                                descriptionStyle={styles.documentItemDetails}
+                                titleNumberOfLines={2}
+                                descriptionNumberOfLines={3}
+                                title="Privacy Policy"
+                                description='Get details about how we store, share and use your information.'
                                 onPress={async () => {
                                     navigation.navigate('DocumentViewer', {
                                         name: 'privacyPolicy.pdf',
                                         privacyFlag: false
                                     });
                                 }}
-                                underlayColor="transparent">
-                                <List.Item
-                                    style={styles.documentItemStyle}
-                                    titleStyle={styles.documentItemTitle}
-                                    descriptionStyle={styles.documentItemDetails}
-                                    titleNumberOfLines={2}
-                                    descriptionNumberOfLines={3}
-                                    title="Privacy Policy"
-                                    description='Get details about how we store, share and use your information.'
-                                    onPress={async () => {
-                                        navigation.navigate('DocumentViewer', {
-                                            name: 'privacyPolicy.pdf',
-                                            privacyFlag: false
-                                        });
-                                    }}
-                                    left={() => <List.Icon color={'#2A3779'} icon="eye-off"/>}
-                                    right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
-                                />
-                            </TouchableHighlight>
+                                left={() => <List.Icon color={'#2A3779'} icon="eye-off"/>}
+                                right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
+                            />
                         </List.Section>
                         <List.Section style={styles.listSectionView}>
                             <List.Subheader style={styles.subHeaderTitle}>Statements</List.Subheader>
                             <Divider
                                 style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
-                            <TouchableHighlight
-                                onPress={() => {
+                            <List.Item
+                                style={styles.documentItemStyle}
+                                titleStyle={styles.documentItemTitle}
+                                descriptionStyle={styles.documentItemDetails}
+                                titleNumberOfLines={2}
+                                descriptionNumberOfLines={3}
+                                title="February - March 2023"
+                                description='Retrieve your March 2023 statement.'
+                                onPress={async () => {
 
                                 }}
-                                underlayColor="transparent">
-                                <List.Item
-                                    style={styles.documentItemStyle}
-                                    titleStyle={styles.documentItemTitle}
-                                    descriptionStyle={styles.documentItemDetails}
-                                    titleNumberOfLines={2}
-                                    descriptionNumberOfLines={3}
-                                    title="February - March 2023"
-                                    description='Retrieve your March 2023 statement.'
-                                    onPress={async () => {
-
-                                    }}
-                                    left={() => <List.Icon color={'#2A3779'} icon="file-document"/>}
-                                    right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
-                                />
-                            </TouchableHighlight>
+                                left={() => <List.Icon color={'#2A3779'} icon="file-document"/>}
+                                right={() => <List.Icon color={'#2A3779'} icon="chevron-right"/>}
+                            />
                         </List.Section>
                     </View>
                 </View>

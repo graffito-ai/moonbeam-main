@@ -26,14 +26,23 @@ export const styles = StyleSheet.create({
         width: 350,
         marginTop: '10%'
     },
-    bottomView: {
-        alignItems: 'center'
+    topBar: {
+        flex: 0.10,
+        backgroundColor: '#f2f2f2',
+        flexDirection: 'column',
+    },
+    containerView: {
+        flex: 0.10,
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        flexWrap: 'nowrap'
+    },
+    backButton: {
+        top: Dimensions.get('window').height / 25,
+        alignItems: 'flex-start'
     },
     shareButton: {
-        borderRadius: 25,
-        borderColor: '#313030',
-        height: 50,
-        width: 150,
-        marginTop: '5%'
+        top: Dimensions.get('window').height / 25,
+        alignItems: 'flex-end'
     }
 });

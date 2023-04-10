@@ -12,12 +12,15 @@ import {useValidation} from 'react-native-form-validator';
 import {API, Auth, graphqlOperation} from 'aws-amplify';
 import {listReferrals, ReferralStatus, updateReferral} from "@moonbeam/moonbeam-models";
 import * as SecureStore from "expo-secure-store";
+import {Spinner} from '../../common/Spinner';
 
 /**
  * Sign In component.
  */
 export const SignInComponent = ({navigation, route}: SignInProps) => {
     // state driven key-value pairs
+    const [isReady, setIsReady] = useState<boolean>(true);
+    const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [emailFocus, setIsEmailFocus] = useState<boolean>(false);
     const [passwordFocus, setIsPasswordFocus] = useState<boolean>(false);
     const [isInitialRender, setIsInitialRender] = useState<boolean>(route.params.initialRender);
@@ -286,126 +289,135 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
 
     // return the component for the SignIn page
     return (
-        <ImageBackground
-            style={commonStyles.image}
-            imageStyle={{
-                resizeMode: 'stretch'
-            }}
-            source={require('../../../assets/login-background.png')}>
-            <KeyboardAwareScrollView
-                enableOnAndroid={true}
-                enableAutomaticScroll={(Platform.OS === 'ios')}
-                onLayout={route.params.onLayoutRootView}
-                contentContainerStyle={[commonStyles.container]}
-                keyboardShouldPersistTaps={'handled'}
-            >
-                <View style={styles.mainView}>
-                    <View>
-                        <Text style={styles.loginTitle}>Hello</Text>
-                        <Text style={styles.loginSubtitle}>Sign in to your account</Text>
-                    </View>
-                    {loginMainError &&
-                        <Text style={styles.errorMessageMain}>Please fill out the information below!</Text>}
-                    {/* @ts-ignore */}
-                    <TextInput
-                        onChangeText={(value: React.SetStateAction<string>) => {
-                            setIsEmailFocus(true);
-                            setLoginMainError(false);
-                            setEmail(value);
+        <>
+            {
+                !isReady ?
+                    <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
+                    :
+                    <ImageBackground
+                        style={commonStyles.image}
+                        imageStyle={{
+                            resizeMode: 'stretch'
                         }}
-                        value={email}
-                        style={emailFocus ? styles.textInputFocus : styles.textInput}
-                        onFocus={() => {
-                            setIsEmailFocus(true);
-                        }}
-                        label="Email"
-                        textColor={"#313030"}
-                        underlineColor={"#f2f2f2"}
-                        activeUnderlineColor={"#313030"}
-                        left={<TextInput.Icon icon="email" iconColor="#313030"/>}
-                    />
-                    {(emailErrors.length > 0 && !loginMainError) ?
-                        <Text style={styles.errorMessage}>{emailErrors[0]}</Text> : <></>}
+                        source={require('../../../assets/login-background.png')}>
+                        <KeyboardAwareScrollView
+                            enableOnAndroid={true}
+                            enableAutomaticScroll={(Platform.OS === 'ios')}
+                            onLayout={route.params.onLayoutRootView}
+                            contentContainerStyle={[commonStyles.container]}
+                            keyboardShouldPersistTaps={'handled'}
+                        >
+                            <View style={styles.mainView}>
+                                <View>
+                                    <Text style={styles.loginTitle}>Hello</Text>
+                                    <Text style={styles.loginSubtitle}>Sign in to your account</Text>
+                                </View>
+                                {loginMainError &&
+                                    <Text style={styles.errorMessageMain}>Please fill out the information below!</Text>}
+                                {/* @ts-ignore */}
+                                <TextInput
+                                    onChangeText={(value: React.SetStateAction<string>) => {
+                                        setIsEmailFocus(true);
+                                        setLoginMainError(false);
+                                        setEmail(value);
+                                    }}
+                                    value={email}
+                                    style={emailFocus ? styles.textInputFocus : styles.textInput}
+                                    onFocus={() => {
+                                        setIsEmailFocus(true);
+                                    }}
+                                    label="Email"
+                                    textColor={"#313030"}
+                                    underlineColor={"#f2f2f2"}
+                                    activeUnderlineColor={"#313030"}
+                                    left={<TextInput.Icon icon="email" iconColor="#313030"/>}
+                                />
+                                {(emailErrors.length > 0 && !loginMainError) ?
+                                    <Text style={styles.errorMessage}>{emailErrors[0]}</Text> : <></>}
 
-                    {/* @ts-ignore */}
-                    <TextInput
-                        onChangeText={(value: React.SetStateAction<string>) => {
-                            setIsPasswordFocus(true);
-                            setLoginMainError(false);
-                            setPassword(value);
-                        }}
-                        value={password}
-                        style={passwordFocus ? styles.textInputFocus : styles.textInput}
-                        onFocus={() => {
-                            setIsPasswordFocus(true);
-                        }}
-                        label="Password"
-                        secureTextEntry={!passwordShown}
-                        textColor={"#313030"}
-                        underlineColor={"#f2f2f2"}
-                        activeUnderlineColor={"#313030"}
-                        right={<TextInput.Icon icon="eye" iconColor={passwordShown ? "#A2B000" : "#313030"}
-                                               onPress={() => setIsPasswordShown(!passwordShown)}/>}
-                        left={<TextInput.Icon icon="lock" iconColor="#313030"/>}
-                    />
-                    {(passwordErrors.length > 0 && !loginMainError) ?
-                        <Text style={styles.errorMessage}>{passwordErrors[0]}</Text> : <></>}
+                                {/* @ts-ignore */}
+                                <TextInput
+                                    onChangeText={(value: React.SetStateAction<string>) => {
+                                        setIsPasswordFocus(true);
+                                        setLoginMainError(false);
+                                        setPassword(value);
+                                    }}
+                                    value={password}
+                                    style={passwordFocus ? styles.textInputFocus : styles.textInput}
+                                    onFocus={() => {
+                                        setIsPasswordFocus(true);
+                                    }}
+                                    label="Password"
+                                    secureTextEntry={!passwordShown}
+                                    textColor={"#313030"}
+                                    underlineColor={"#f2f2f2"}
+                                    activeUnderlineColor={"#313030"}
+                                    right={<TextInput.Icon icon="eye" iconColor={passwordShown ? "#A2B000" : "#313030"}
+                                                           onPress={() => setIsPasswordShown(!passwordShown)}/>}
+                                    left={<TextInput.Icon icon="lock" iconColor="#313030"/>}
+                                />
+                                {(passwordErrors.length > 0 && !loginMainError) ?
+                                    <Text style={styles.errorMessage}>{passwordErrors[0]}</Text> : <></>}
 
-                    <View style={styles.forgotPasswordView}>
-                        <Text style={styles.forgotPasswordButton}
-                              onPress={() => {
-                                  setEmail("");
-                                  setPassword("");
-                                  setEmailErrors([]);
-                                  setPasswordErrors([]);
-                                  setLoginMainError(false);
-                                  navigation.navigate('ForgotPassword', {initialRender: true})
-                              }}>Forgot Password ?
-                        </Text>
-                    </View>
-                    <Button
-                        uppercase={false}
-                        onPress={async () => {
-                            if (email === "" || password === "") {
-                                setLoginMainError(true);
-                            } else if (emailErrors.length === 0 && passwordErrors.length === 0) {
-                                fieldValidation("email");
-                                fieldValidation("password");
-                                if (emailErrors.length === 0 || passwordErrors.length === 0) {
-                                    const [signedInFlag, userInformation] = await confirmSignIn(email, password);
-                                    if (signedInFlag) {
-                                        // clear the username and password
-                                        setPassword("");
-                                        setEmail("");
-                                        // store the user information in secure store, in order to handle deeplinks later on
-                                        await SecureStore.setItemAsync('currentUserInformation', JSON.stringify(userInformation));
-                                        navigation.navigate('MainDash', {currentUserInformation: userInformation});
-                                    }
-                                }
-                            }
-                        }}
-                        style={styles.signInFooterButton}
-                        textColor={"#f2f2f2"}
-                        buttonColor={"#2A3779"}
-                        mode="outlined"
-                        labelStyle={{fontSize: 18}}>
-                        Log in
-                    </Button>
-                    <View style={styles.bottomView}>
-                        <Image source={LoginLogo} style={styles.loginLogo}/>
-                        <Text style={styles.loginFooter}>Don't have an account ?
-                            <Text style={styles.loginFooterButton}
-                                  onPress={() => {
-                                      // clear the username and password
-                                      setPassword("");
-                                      setEmail("");
-                                      navigation.navigate('SignUp', {initialRender: true})
-                                  }}> Sign up</Text>
-                        </Text>
-                    </View>
-                </View>
-            </KeyboardAwareScrollView>
-        </ImageBackground>
+                                <View style={styles.forgotPasswordView}>
+                                    <Text style={styles.forgotPasswordButton}
+                                          onPress={() => {
+                                              setEmail("");
+                                              setPassword("");
+                                              setEmailErrors([]);
+                                              setPasswordErrors([]);
+                                              setLoginMainError(false);
+                                              navigation.navigate('ForgotPassword', {initialRender: true})
+                                          }}>Forgot Password ?
+                                    </Text>
+                                </View>
+                                <Button
+                                    uppercase={false}
+                                    onPress={async () => {
+                                        if (email === "" || password === "") {
+                                            setLoginMainError(true);
+                                        } else if (emailErrors.length === 0 && passwordErrors.length === 0) {
+                                            fieldValidation("email");
+                                            fieldValidation("password");
+                                            if (emailErrors.length === 0 || passwordErrors.length === 0) {
+                                                setIsReady(false);
+                                                const [signedInFlag, userInformation] = await confirmSignIn(email, password);
+                                                if (signedInFlag) {
+                                                    // clear the username and password
+                                                    setPassword("");
+                                                    setEmail("");
+                                                    // store the user information in secure store, in order to handle deeplinks later on
+                                                    await SecureStore.setItemAsync('currentUserInformation', JSON.stringify(userInformation));
+                                                    navigation.navigate('MainDash', {currentUserInformation: userInformation});
+                                                    setIsReady(true);
+                                                }
+                                            }
+                                        }
+                                    }}
+                                    style={styles.signInFooterButton}
+                                    textColor={"#f2f2f2"}
+                                    buttonColor={"#2A3779"}
+                                    mode="outlined"
+                                    labelStyle={{fontSize: 18}}>
+                                    Log in
+                                </Button>
+                                <View style={styles.bottomView}>
+                                    <Image source={LoginLogo} style={styles.loginLogo}/>
+                                    <Text style={styles.loginFooter}>Don't have an account ?
+                                        <Text style={styles.loginFooterButton}
+                                              onPress={() => {
+                                                  // clear the username and password
+                                                  setPassword("");
+                                                  setEmail("");
+                                                  navigation.navigate('SignUp', {initialRender: true})
+                                              }}> Sign up</Text>
+                                    </Text>
+                                </View>
+                            </View>
+                        </KeyboardAwareScrollView>
+                    </ImageBackground>
+            }
+        </>
     );
 };
 

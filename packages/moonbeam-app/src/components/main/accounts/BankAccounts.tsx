@@ -30,6 +30,7 @@ import * as envInfo from "../../../../amplify/.config/local-env-info.json";
 import * as provider from "../../../../amplify/team-provider-info.json";
 import * as SecureStore from "expo-secure-store";
 import {BankAccountsProps} from "../../../models/DrawerProps";
+import {Spinner} from "../../../common/Spinner";
 import MOONBEAM_DEPLOYMENT_BUCKET_NAME = Constants.MoonbeamConstants.MOONBEAM_DEPLOYMENT_BUCKET_NAME;
 import MOONBEAM_PLAID_OAUTH_FILE_NAME = Constants.MoonbeamConstants.MOONBEAM_PLAID_OAUTH_FILE_NAME;
 
@@ -39,6 +40,8 @@ import MOONBEAM_PLAID_OAUTH_FILE_NAME = Constants.MoonbeamConstants.MOONBEAM_PLA
 export const BankAccounts = ({route, navigation}: BankAccountsProps) => {
     // state driven key-value pairs for UI related elements
     const [isPlaidInitialized, setIsPlaidInitialized] = useState<boolean>(false);
+    const [isReady, setIsReady] = useState<boolean>(true);
+    const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
 
     // state driven key-value pairs for any specific data values
     const [accountLinkDetails, setAccountLinkDetails] = useState<AccountLinkDetails>();
@@ -67,6 +70,7 @@ export const BankAccounts = ({route, navigation}: BankAccountsProps) => {
             } else if (!isPlaidInitialized) {
                 route.params.setIsDrawerHeaderShown(true);
             }
+            setIsReady(true);
         });
     }, [route, route.params.oauthStateId, redirectURL, isPlaidInitialized, bankAccounts]);
 
@@ -74,6 +78,7 @@ export const BankAccounts = ({route, navigation}: BankAccountsProps) => {
      * Function used to retrieve the bank accounts for a particular user
      */
     const retrieveBankAccounts = async (): Promise<void> => {
+        setIsReady(false);
         try {
             // check to see if after the redirect, the user information needs to be retrieved from cache
             const userInformation = route.params.currentUserInformation === '{}'
@@ -500,83 +505,94 @@ export const BankAccounts = ({route, navigation}: BankAccountsProps) => {
 
     // return the component for the Bank Accounts page
     return (
-        isPlaidInitialized ?
-            <PlaidLink
-                oAuthUri={route.params.oauthStateId ? redirectURL : ""}
-                linkToken={accountLinkDetails!.linkToken!}
-                onExit={async (exit: LinkExit) => {
-                    // perform an account link update accordingly
-                    await accountLinkOnExit(exit);
-                }}
-                onSuccess={async (success: LinkSuccess) => {
-                    // perform an account link update accordingly
-                    await accountLinkOnSuccess(success);
-                }}
-                onEvent={undefined}
-            />
-            :
-            <SafeAreaView style={[commonStyles.rowContainer, commonStyles.androidSafeArea]}>
-                <View>
-                    <ScrollView
-                        scrollEnabled={true}
-                        keyboardShouldPersistTaps={'handled'}
-                        showsVerticalScrollIndicator={false}
-                    >
-                        <View style={[styles.mainView]}>
-                            <View style={styles.titleView}>
-                                <Text style={styles.mainTitle}>Bank Accounts</Text>
-                            </View>
-                            <View style={styles.content}>
-                                <List.Section key={`${AccountVerificationStatus.Verified}-section`}
-                                              style={styles.listSectionView}>
-                                    <List.Subheader key={`${AccountVerificationStatus.Verified}-subHeader`}
-                                                    style={styles.subHeaderTitle}>Connected Accounts</List.Subheader>
-                                    <Divider
-                                        key={`${AccountVerificationStatus.Verified}-divider1`}
-                                        style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
-                                    {
-                                        filterAccounts(AccountVerificationStatus.Verified)
-                                    }
-                                </List.Section>
-                                <List.Section key={`${AccountVerificationStatus.Pending}-section`}
-                                              style={styles.listSectionView}>
-                                    <List.Subheader key={`${AccountVerificationStatus.Pending}-subHeader`}
-                                                    style={styles.subHeaderTitle}>Pending Accounts</List.Subheader>
-                                    <Divider
-                                        key={`${AccountVerificationStatus.Pending}-divider2`}
-                                        style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
-                                    {
-                                        filterAccounts(AccountVerificationStatus.Pending)
-                                    }
-                                </List.Section>
-                            </View>
-                        </View>
-                    </ScrollView>
-                    <View style={styles.bottomView}>
-                        <Divider style={[commonStyles.divider, {width: Dimensions.get('window').width}]}/>
-                        <Button
-                            onPress={async () => {
-                                // retrieve the Plaid link token if it is not populated
-                                await addLinkToken();
+        <>
+            {
+                !isReady ?
+                    <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
+                    :
+                    isPlaidInitialized ?
+                        <PlaidLink
+                            oAuthUri={route.params.oauthStateId ? redirectURL : ""}
+                            linkToken={accountLinkDetails!.linkToken!}
+                            onExit={async (exit: LinkExit) => {
+                                // perform an account link update accordingly
+                                await accountLinkOnExit(exit);
                             }}
-                            uppercase={false}
-                            style={styles.connectButton}
-                            textColor={"#f2f2f2"}
-                            buttonColor={"#2A3779"}
-                            mode="outlined"
-                            labelStyle={{fontSize: 18}}
-                            icon={"plus"}>
-                            Add a new Account
-                        </Button>
-                        <View style={styles.bottomTextView}>
-                            <Text style={styles.bottomText}>Can't connect ?
-                                <Text style={styles.bottomTextButton}
-                                      onPress={() => {
-                                      }}> Add account manually</Text>
-                            </Text>
-                        </View>
-                    </View>
-                </View>
-            </SafeAreaView>
+                            onSuccess={async (success: LinkSuccess) => {
+                                // perform an account link update accordingly
+                                await accountLinkOnSuccess(success);
+                            }}
+                            onEvent={undefined}
+                        />
+                        :
+                        <SafeAreaView style={[commonStyles.rowContainer, commonStyles.androidSafeArea]}>
+                            <View>
+                                <ScrollView
+                                    scrollEnabled={true}
+                                    keyboardShouldPersistTaps={'handled'}
+                                    showsVerticalScrollIndicator={false}
+                                >
+                                    <View style={[styles.mainView]}>
+                                        <View style={styles.titleView}>
+                                            <Text style={styles.mainTitle}>Bank Accounts</Text>
+                                        </View>
+                                        <View style={styles.content}>
+                                            <List.Section key={`${AccountVerificationStatus.Verified}-section`}
+                                                          style={styles.listSectionView}>
+                                                <List.Subheader
+                                                    key={`${AccountVerificationStatus.Verified}-subHeader`}
+                                                    style={styles.subHeaderTitle}>Connected
+                                                    Accounts</List.Subheader>
+                                                <Divider
+                                                    key={`${AccountVerificationStatus.Verified}-divider1`}
+                                                    style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
+                                                {
+                                                    filterAccounts(AccountVerificationStatus.Verified)
+                                                }
+                                            </List.Section>
+                                            <List.Section key={`${AccountVerificationStatus.Pending}-section`}
+                                                          style={styles.listSectionView}>
+                                                <List.Subheader
+                                                    key={`${AccountVerificationStatus.Pending}-subHeader`}
+                                                    style={styles.subHeaderTitle}>Pending Accounts</List.Subheader>
+                                                <Divider
+                                                    key={`${AccountVerificationStatus.Pending}-divider2`}
+                                                    style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
+                                                {
+                                                    filterAccounts(AccountVerificationStatus.Pending)
+                                                }
+                                            </List.Section>
+                                        </View>
+                                    </View>
+                                </ScrollView>
+                                <View style={styles.bottomView}>
+                                    <Divider
+                                        style={[commonStyles.divider, {width: Dimensions.get('window').width}]}/>
+                                    <Button
+                                        onPress={async () => {
+                                            // retrieve the Plaid link token if it is not populated
+                                            await addLinkToken();
+                                        }}
+                                        uppercase={false}
+                                        style={styles.connectButton}
+                                        textColor={"#f2f2f2"}
+                                        buttonColor={"#2A3779"}
+                                        mode="outlined"
+                                        labelStyle={{fontSize: 18}}
+                                        icon={"plus"}>
+                                        Add a new Account
+                                    </Button>
+                                    <View style={styles.bottomTextView}>
+                                        <Text style={styles.bottomText}>Can't connect ?
+                                            <Text style={styles.bottomTextButton}
+                                                  onPress={() => {
+                                                  }}> Add account manually</Text>
+                                        </Text>
+                                    </View>
+                                </View>
+                            </View>
+                        </SafeAreaView>
+            }
+        </>
     );
 }

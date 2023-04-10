@@ -6,10 +6,12 @@ import React from "react";
  */
 export type StoreStackParamList = {
     Marketplace: {
-        currentUserInformation: any;
+        currentUserInformation: any,
+        setBottomTabNavigationShown?: React.Dispatch<React.SetStateAction<boolean>>,
+        storeDismissed?: boolean
     },
     PartnerMerchant: {
-        setBottomTabNavigationShown?: React.Dispatch<React.SetStateAction<boolean>>;
+        setBottomTabNavigationShown?: React.Dispatch<React.SetStateAction<boolean>>,
         currentUserInformation: any;
     }
 };

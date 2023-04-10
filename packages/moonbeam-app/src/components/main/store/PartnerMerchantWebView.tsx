@@ -1,11 +1,10 @@
 import React, {useEffect, useRef} from "react";
 import {Dimensions, Text, View} from "react-native";
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {useHeaderHeight} from '@react-navigation/elements';
 import {PartnerMerchantWebViewProps} from "../../../models/PartnerMerchantStackProps";
 import WebView from "react-native-webview";
 import {styles} from "../../../styles/partnerMerchantWebView.module";
-import {FAB, IconButton, Portal} from "react-native-paper";
+import {FAB, IconButton, Portal, TextInput} from "react-native-paper";
 import * as Clipboard from 'expo-clipboard';
 
 /**
@@ -13,7 +12,7 @@ import * as Clipboard from 'expo-clipboard';
  */
 export const PartnerMerchantWebView = ({route}: PartnerMerchantWebViewProps) => {
     // state driven key-value pairs for UI related elements
-    const headerHeight = useHeaderHeight();
+
 
     // state driven key-value pairs for any specific data values
     const [cardDetailsMenuOpen, setCardDetailsMenuOpen] = React.useState<boolean>(false);
@@ -29,13 +28,60 @@ export const PartnerMerchantWebView = ({route}: PartnerMerchantWebViewProps) => 
      * included in here.
      */
     useEffect(() => {
-        webViewRef && route.params.setWebViewRef(webViewRef);
-    }, [webViewRef]);
+    }, []);
 
     // return the component for the PartnerMerchantWebView page
     return (
-        <SafeAreaView edges={['right', 'top', 'left']}
-                      style={[styles.mainView, {paddingTop: headerHeight / 2.05}]}>
+        <SafeAreaView edges={['right', 'left']}
+                      style={styles.mainView}>
+            <View style={styles.topBar}>
+                <View style={styles.containerView}>
+                    <IconButton
+                        rippleColor={'#ecebeb'}
+                        icon="close"
+                        iconColor={"#2A3779"}
+                        size={Dimensions.get('window').height/30}
+                        style={styles.backButton}
+                        onPress={() => {
+                            route.params.navigation && route.params.navigation.navigate('Marketplace', {currentUserInformation: route.params.currentUserInformation, storeDismissed: true});
+                        }}
+                    />
+                    <TextInput
+                        // the text input will be disabled for now, later we can enable it, for a full browser experience
+                        disabled={true}
+                        style={styles.urlBar}
+                        contentStyle={styles.urlInput}
+                        outlineStyle={styles.urlBarOutline}
+                        left={
+                            <TextInput.Icon
+                                style={styles.urlLockIcon}
+                                icon="lock"
+                                rippleColor={'#dbdbdb'}
+                                size={Dimensions.get('window').height/55}
+                            />
+                        }
+                        right={
+                            <TextInput.Icon
+                                style={styles.urlReloadIcon}
+                                icon="reload"
+                                size={Dimensions.get('window').height/40}
+                                onPress={() => {
+                                    // @ts-ignore
+                                    webViewRef.current.reload();
+                                }}
+                            />
+                        }
+                        multiline={false}
+                        textColor={'black'}
+                        selectionColor={'#2A3779'}
+                        mode={'outlined'}
+                        placeholder={'Search or type URL'}
+                        value={
+                            'apple.com'
+                        }
+                    />
+                </View>
+            </View>
             <WebView
                 ref={webViewRef}
                 style={{backgroundColor: 'transparent'}}

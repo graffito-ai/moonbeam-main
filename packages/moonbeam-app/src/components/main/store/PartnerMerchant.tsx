@@ -1,5 +1,5 @@
 import 'react-native-get-random-values';
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {NavigationContainer} from "@react-navigation/native";
 import {IconButton} from "react-native-paper";
@@ -7,7 +7,6 @@ import {PartnerMerchantProps} from "../../../models/StoreStackProps";
 import {PartnerMerchantStackParamList} from "../../../models/PartnerMerchantStackProps";
 import {PartnerMerchantStore} from './PartnerMerchantStore';
 import {PartnerMerchantWebView} from './PartnerMerchantWebView';
-import {WebViewNavbar} from '../../common/WebViewNavbar';
 
 /**
  * PartnerMerchant component.
@@ -15,12 +14,6 @@ import {WebViewNavbar} from '../../common/WebViewNavbar';
 export const PartnerMerchant = ({route, navigation}: PartnerMerchantProps) => {
     // create a native stack navigator, to be used for our PartnerMerchant navigation
     const Stack = createNativeStackNavigator<PartnerMerchantStackParamList>();
-
-    // create a state to keep track of the reload state passed from the WebViewNavbar component button
-    const [reloadState, setReloadState] = useState<boolean>(false);
-
-    // create a state to keep track of the webViewRef from the PartnerMerchantWebView
-    const [webViewRef, setWebViewRef] = useState<any>();
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -30,15 +23,8 @@ export const PartnerMerchant = ({route, navigation}: PartnerMerchantProps) => {
      * included in here.
      */
     useEffect(() => {
-        if (reloadState) {
-            // reset reload state
-            setReloadState(false);
-            // reload the page appropriately
-            // @ts-ignore
-            reloadState && webViewRef && webViewRef.current.reload();
-        }
         route.params.setBottomTabNavigationShown && route.params.setBottomTabNavigationShown(false);
-    }, [reloadState]);
+    }, []);
 
     // return the component for the PartnerMerchant page
     return (
@@ -49,7 +35,6 @@ export const PartnerMerchant = ({route, navigation}: PartnerMerchantProps) => {
                     headerLeft: () => {
                         return (
                             <IconButton
-                                rippleColor={'#ecebeb'}
                                 icon="close"
                                 iconColor={"#2A3779"}
                                 size={30}
@@ -79,15 +64,11 @@ export const PartnerMerchant = ({route, navigation}: PartnerMerchantProps) => {
                     name="PartnerMerchantWebView"
                     component={PartnerMerchantWebView}
                     initialParams={{
-                        setWebViewRef: setWebViewRef,
+                        navigation: navigation,
                         currentUserInformation: route.params.currentUserInformation
                     }}
                     options={{
-                        header: () => {
-                            return (
-                                <WebViewNavbar navigation={navigation} route={route} setReloadState={setReloadState}/>
-                            )
-                        }
+                        headerShown: false
                     }}
                 />
             </Stack.Navigator>

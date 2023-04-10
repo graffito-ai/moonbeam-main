@@ -9,12 +9,15 @@ import {AccountVerificationStatus, Faq, FaqType, listFAQs} from "@moonbeam/moonb
 import * as SecureStore from "expo-secure-store";
 import {API, graphqlOperation} from "aws-amplify";
 import * as Linking from "expo-linking";
+import {Spinner} from "../../../common/Spinner";
 
 /**
  * FAQ component.
  */
 export const FAQ = ({route, navigation}: FAQProps) => {
     // state driven key-value pairs for UI related elements
+    const [isReady, setIsReady] = useState<boolean>(true);
+    const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
 
     // state driven key-value pairs for any specific data values
     const [faqList, setFAQList] = useState<Faq[]>([]);
@@ -29,13 +32,15 @@ export const FAQ = ({route, navigation}: FAQProps) => {
     useEffect(() => {
         route.params.setIsDrawerHeaderShown(false);
         retrieveFAQs().then(() => {
+            setIsReady(true);
         });
-    }, [route, faqList]);
+    }, [faqList]);
 
     /**
      * Function used to retrieve the FAQs
      */
     const retrieveFAQs = async (): Promise<void> => {
+        setIsReady(false);
         try {
             if (faqList.length === 0) {
                 // first check if there are FAQs already loaded
@@ -93,13 +98,13 @@ export const FAQ = ({route, navigation}: FAQProps) => {
     function dynamicSort(property: string) {
         let sortOrder = 1;
 
-        if(property[0] === "-") {
+        if (property[0] === "-") {
             sortOrder = -1;
             property = property.substring(1);
         }
 
-        return function (a,b) {
-            if(sortOrder == -1) {
+        return function (a, b) {
+            if (sortOrder == -1) {
                 return b[property].localeCompare(a[property]);
             } else {
                 return a[property].localeCompare(b[property]);
@@ -136,7 +141,11 @@ export const FAQ = ({route, navigation}: FAQProps) => {
                                                 <>
                                                     {descriptionIndex !== 0 && ' '}
                                                     <Text
-                                                        style={{color: '#2A3779', fontFamily: 'Raleway-Bold', textDecorationLine: 'underline'}}
+                                                        style={{
+                                                            color: '#2A3779',
+                                                            fontFamily: 'Raleway-Bold',
+                                                            textDecorationLine: 'underline'
+                                                        }}
                                                         onPress={async () => {
                                                             console.log(filteredFact!.link!);
                                                             await goToLink(filteredFact!.link!);
@@ -247,25 +256,32 @@ export const FAQ = ({route, navigation}: FAQProps) => {
 
     // return the component for the FAQ page
     return (
-        <SafeAreaView style={[styles.rowContainer, styles.androidSafeArea]}>
-            <ScrollView
-                scrollEnabled={true}
-                keyboardShouldPersistTaps={'handled'}
-                showsVerticalScrollIndicator={false}
-            >
-                <View style={[styles.mainView]}>
-                    <View style={styles.titleView}>
-                        <Text style={styles.mainTitle}>FAQ Center</Text>
-                    </View>
-                    <View style={styles.content}>
-                        <List.Section style={styles.listSectionView}>
-                            {
-                                filterFAQs()
-                            }
-                        </List.Section>
-                    </View>
-                </View>
-            </ScrollView>
-        </SafeAreaView>
+        <>
+            {
+                !isReady ?
+                    <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
+                    :
+                    <SafeAreaView style={[styles.rowContainer, styles.androidSafeArea]}>
+                        <ScrollView
+                            scrollEnabled={true}
+                            keyboardShouldPersistTaps={'handled'}
+                            showsVerticalScrollIndicator={false}
+                        >
+                            <View style={[styles.mainView]}>
+                                <View style={styles.titleView}>
+                                    <Text style={styles.mainTitle}>FAQ Center</Text>
+                                </View>
+                                <View style={styles.content}>
+                                    <List.Section style={styles.listSectionView}>
+                                        {
+                                            filterFAQs()
+                                        }
+                                    </List.Section>
+                                </View>
+                            </View>
+                        </ScrollView>
+                    </SafeAreaView>
+            }
+        </>
     );
 }

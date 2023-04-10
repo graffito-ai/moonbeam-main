@@ -1,5 +1,6 @@
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
-import React from "react";
+import {NativeStackNavigationProp} from "@react-navigation/native-stack";
+import {StoreStackParamList} from './StoreStackProps';
 
 /**
  * The default list of params, to be used across all Partner Merchant derived stack props.
@@ -9,8 +10,8 @@ export type PartnerMerchantStackParamList = {
         currentUserInformation: any
     },
     PartnerMerchantWebView: {
-        currentUserInformation: any
-        setWebViewRef: React.Dispatch<React.SetStateAction<any>>
+        currentUserInformation: any,
+        navigation?: NativeStackNavigationProp<StoreStackParamList, "PartnerMerchant">,
     }
 };
 

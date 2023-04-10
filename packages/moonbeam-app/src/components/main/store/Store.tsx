@@ -2,11 +2,10 @@ import 'react-native-get-random-values';
 import React, {useEffect, useState} from "react";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {NavigationContainer} from "@react-navigation/native";
-import {IconButton} from "react-native-paper";
 import {StoreTabProps} from "../../../models/BottomBarProps";
 import {StoreStackParamList} from "../../../models/StoreStackProps";
 import {Marketplace} from "./Marketplace";
-import { PartnerMerchant } from './PartnerMerchant';
+import {PartnerMerchant} from './PartnerMerchant';
 
 /**
  * Store component.
@@ -35,29 +34,12 @@ export const Store = ({route}: StoreTabProps) => {
         <NavigationContainer independent={true}>
             <Stack.Navigator
                 initialRouteName={"Marketplace"}
-                screenOptions={({navigation}) => {
-                    return({
-                        headerLeft: () => {
-                            return(<IconButton
-                                icon="chevron-left"
-                                iconColor={"#2A3779"}
-                                size={40}
-                                style={{marginTop: '-5%',  marginLeft: `-10%`}}
-                                onPress={() => {
-                                    navigation.navigate('StoreHorizontal', {});
-                                }}
-                            />)
-                        },
-                        headerTitle: '',
-                        headerTransparent: true,
-                        headerTintColor: '#2A3779'
-                    })
-                }}
             >
                 <Stack.Screen
                     name="Marketplace"
                     component={Marketplace}
                     initialParams={{
+                        setBottomTabNavigationShown: setBottomTabNavigationShown,
                         currentUserInformation: route.params.currentUserInformation
                     }}
                     options={{

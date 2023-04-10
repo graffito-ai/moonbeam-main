@@ -73,7 +73,7 @@ export const Documents = ({route}: DocumentsProps) => {
                         setIsDrawerHeaderShown: setIsDrawerHeaderShown
                     }}
                     options={{
-                        headerShown: true
+                        headerShown: false
                     }}
                 />
             </Stack.Navigator>

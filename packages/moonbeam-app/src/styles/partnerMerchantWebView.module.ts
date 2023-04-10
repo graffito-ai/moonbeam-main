@@ -61,5 +61,45 @@ export const styles = StyleSheet.create({
     bottomBarDiscountsLabel: {
         fontFamily: 'Raleway-Medium',
         fontSize: Dimensions.get('window').height / 70
+    },
+    topBar: {
+        flex: 0.15,
+        backgroundColor: '#f2f2f2',
+        flexDirection: 'column',
+    },
+    containerView: {
+        flex: 0.15,
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        flexWrap: 'nowrap'
+    },
+    backButton: {
+        left: '1%',
+        top: Dimensions.get('window').height / 18,
+        alignItems: 'flex-start'
+    },
+    urlBar: {
+        right: Dimensions.get('window').width / 40,
+        top: Dimensions.get('window').height / 11,
+        alignSelf: 'flex-end',
+        backgroundColor: '#dbdbdb',
+        width: Dimensions.get('window').width / 1.15,
+        height: Dimensions.get('window').height / 25
+    },
+    urlInput: {
+        alignSelf: 'center',
+        fontFamily: 'Raleway-Medium',
+        fontSize: Dimensions.get('window').height/55
+    },
+    urlBarOutline: {
+        borderColor: '#dbdbdb',
+        borderRadius: 10
+    },
+    urlLockIcon: {
+        top: '25%',
+        left: Dimensions.get('window').width/4.2
+    },
+    urlReloadIcon: {
+        top: '25%'
     }
 });

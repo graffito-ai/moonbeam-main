@@ -7,6 +7,7 @@ import {Avatar, Button, Card, Chip, List, Paragraph, Searchbar, Text, ToggleButt
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 // @ts-ignore
 import BattleThreadsLogo from "../../../../assets/companies/battleThreads.jpg";
+import {CommonActions} from "@react-navigation/native";
 
 /**
  * Marketplace component.
@@ -27,8 +28,16 @@ export const Marketplace = ({route, navigation}: MarketplaceProps) => {
      * included in here.
      */
     useEffect(() => {
-
-    }, []);
+        // if we get a redirect from the store web view
+        if (route.params.storeDismissed) {
+            // reset the flag appropriately
+            navigation.dispatch({
+                ...CommonActions.setParams({storeDismissed: false}),
+                source: route.key
+            });
+            route.params.setBottomTabNavigationShown && route.params.setBottomTabNavigationShown(true);
+        }
+    }, [route.params.storeDismissed]);
 
     // return the component for the Marketplace page
     return (
@@ -61,14 +70,14 @@ export const Marketplace = ({route, navigation}: MarketplaceProps) => {
                             size={toggleViewPressed === 'horizontal' ? Dimensions.get('window').width / 15 : Dimensions.get('window').width / 18}
                             icon="collage"
                             value="horizontal"
-                            iconColor={toggleViewPressed === 'horizontal' ? '#313030' : '#babbbd'}
+                            iconColor={toggleViewPressed === 'horizontal' ? '#A2B000' : '#babbbd'}
                         />
                         <ToggleButton
                             style={styles.toggleViewButton}
                             size={toggleViewPressed === 'vertical' ? Dimensions.get('window').width / 15 : Dimensions.get('window').width / 18}
                             icon="format-list-bulleted-type"
                             value="vertical"
-                            iconColor={toggleViewPressed === 'vertical' ? '#313030' : '#babbbd'}
+                            iconColor={toggleViewPressed === 'vertical' ? '#A2B000' : '#babbbd'}
                         />
                         <ToggleButton
                             disabled={true}
@@ -76,7 +85,7 @@ export const Marketplace = ({route, navigation}: MarketplaceProps) => {
                             size={toggleViewPressed === 'map' ? Dimensions.get('window').width / 15 : Dimensions.get('window').width / 18}
                             icon="map-marker-radius"
                             value="map"
-                            iconColor={toggleViewPressed === 'map' ? '#313030' : '#babbbd'}
+                            iconColor={toggleViewPressed === 'map' ? '#A2B000' : '#babbbd'}
                         />
                     </ToggleButton.Group>
                 </View>

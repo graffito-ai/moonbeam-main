@@ -19,6 +19,7 @@ import * as SecureStore from "expo-secure-store";
 import {DocumentViewer} from "./src/components/common/DocumentViewer";
 import * as FileSystem from "expo-file-system";
 import {MainDash} from "./src/components/main/MainDash";
+import { StatusBar } from 'expo-status-bar';
 
 // keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync().then(() => {
@@ -157,6 +158,7 @@ export default function App() {
         // return the main component for the application
         return (
             <PaperProvider theme={theme}>
+                <StatusBar style="dark" animated={true} />
                 <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
                     <Stack.Navigator
                         initialRouteName={"SignIn"}
