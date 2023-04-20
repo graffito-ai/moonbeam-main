@@ -6,6 +6,7 @@ schema:
   - ./src/graphql/schemas/AccountLinkSchema.graphql
   - ./src/graphql/schemas/StorageSchema.graphql
   - ./src/graphql/schemas/FAQSchema.graphql
+  - ./src/graphql/schemas/MarketplaceSchema.graphql
 documents:
   - ./src/graphql/queries/Queries.graphql
   - ./src/graphql/queries/Mutations.graphql

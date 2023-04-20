@@ -155,6 +155,19 @@ export type CreateFaqInput = {
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
+export type CreatePartnerStoreInput = {
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+  description?: InputMaybe<Scalars['String']>;
+  discountPercentage: Scalars['Int'];
+  id: Scalars['ID'];
+  logo: Scalars['String'];
+  name: Scalars['String'];
+  pointsMultiplier: Scalars['String'];
+  type: PartnerMerchantType;
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+  websiteURL: Scalars['String'];
+};
+
 export type CreateReferralInput = {
   createdAt?: InputMaybe<Scalars['AWSDateTime']>;
   id: Scalars['ID'];
@@ -245,6 +258,7 @@ export type FinancialInstitutionInput = {
 };
 
 export type GetStorageInput = {
+  expires?: InputMaybe<Scalars['Boolean']>;
   level: FileAccessLevel;
   name: Scalars['String'];
   type: FileType;
@@ -272,6 +286,10 @@ export type ListFaqInput = {
   type?: InputMaybe<FaqType>;
 };
 
+export type ListPartnerStoresInput = {
+  type?: InputMaybe<PartnerMerchantType>;
+};
+
 export type ListReferralInput = {
   inviteeEmail?: InputMaybe<Scalars['String']>;
   inviterEmail?: InputMaybe<Scalars['String']>;
@@ -280,10 +298,17 @@ export type ListReferralInput = {
   statusInviter?: InputMaybe<ReferralStatus>;
 };
 
+export enum MarketplaceErrorType {
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  ValidationError = 'VALIDATION_ERROR'
+}
+
 export type Mutation = {
   __typename?: 'Mutation';
   createAccountLink?: Maybe<AccountLinkResponse>;
   createFAQ?: Maybe<FaqResponse>;
+  createPartnerStore?: Maybe<PartnerStoreResponse>;
   createReferral?: Maybe<ReferralResponse>;
   deleteAccount?: Maybe<AccountResponse>;
   updateAccountLink?: Maybe<AccountLinkResponse>;
@@ -298,6 +323,11 @@ export type MutationCreateAccountLinkArgs = {
 
 export type MutationCreateFaqArgs = {
   createFAQInput: CreateFaqInput;
+};
+
+
+export type MutationCreatePartnerStoreArgs = {
+  createPartnerStoreInput: CreatePartnerStoreInput;
 };
 
 
@@ -324,18 +354,64 @@ export enum OfferType {
   WelcomeReferralBonus = 'WELCOME_REFERRAL_BONUS'
 }
 
+export enum PartnerMerchantType {
+  Featured = 'FEATURED',
+  NonFeatured = 'NON_FEATURED'
+}
+
+export type PartnerStore = {
+  __typename?: 'PartnerStore';
+  createdAt: Scalars['AWSDateTime'];
+  description?: Maybe<Scalars['String']>;
+  discountPercentage: Scalars['Int'];
+  id: Scalars['ID'];
+  logo: Scalars['String'];
+  name: Scalars['String'];
+  pointsMultiplier: Scalars['String'];
+  type: PartnerMerchantType;
+  updatedAt: Scalars['AWSDateTime'];
+  websiteURL: Scalars['String'];
+};
+
+export type PartnerStoreInput = {
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+  description?: InputMaybe<Scalars['String']>;
+  discountPercentage: Scalars['Int'];
+  id: Scalars['ID'];
+  logo: Scalars['String'];
+  name: Scalars['String'];
+  pointsMultiplier: Scalars['String'];
+  type: PartnerMerchantType;
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+  websiteURL: Scalars['String'];
+};
+
+export type PartnerStoreResponse = {
+  __typename?: 'PartnerStoreResponse';
+  data?: Maybe<Array<Maybe<PartnerStore>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<MarketplaceErrorType>;
+};
+
 export type Query = {
   __typename?: 'Query';
   getAccountLink?: Maybe<AccountLinkResponse>;
+  getPartnerStore?: Maybe<PartnerStoreResponse>;
   getReferral?: Maybe<ReferralResponse>;
   getStorage?: Maybe<StorageResponse>;
   listAccounts?: Maybe<AccountResponse>;
   listFAQs?: Maybe<FaqResponse>;
+  listPartnerStores?: Maybe<PartnerStoreResponse>;
   listReferrals?: Maybe<ReferralResponse>;
 };
 
 
 export type QueryGetAccountLinkArgs = {
+  id: Scalars['String'];
+};
+
+
+export type QueryGetPartnerStoreArgs = {
   id: Scalars['String'];
 };
 
@@ -357,6 +433,11 @@ export type QueryListAccountsArgs = {
 
 export type QueryListFaQsArgs = {
   listFAQInput: ListFaqInput;
+};
+
+
+export type QueryListPartnerStoresArgs = {
+  listPartnerStoresInput: ListPartnerStoresInput;
 };
 
 
@@ -472,3 +553,17 @@ export type ListFaQsQueryVariables = Exact<{
 
 
 export type ListFaQsQuery = { __typename?: 'Query', listFAQs?: { __typename?: 'FAQResponse', errorMessage?: string | null, errorType?: FaqErrorType | null, data?: Array<{ __typename?: 'FAQ', id: string, createdAt: string, updatedAt: string, title: string, type: FaqType, applicationLink?: string | null, facts?: Array<{ __typename?: 'Fact', title: string, description: string, link?: string | null, linkTitle?: string | null } | null> | null } | null> | null } | null };
+
+export type GetPartnerStoreQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type GetPartnerStoreQuery = { __typename?: 'Query', getPartnerStore?: { __typename?: 'PartnerStoreResponse', errorMessage?: string | null, errorType?: MarketplaceErrorType | null, data?: Array<{ __typename?: 'PartnerStore', id: string, name: string, type: PartnerMerchantType, description?: string | null, logo: string, createdAt: string, updatedAt: string, websiteURL: string } | null> | null } | null };
+
+export type ListPartnerStoresQueryVariables = Exact<{
+  listPartnerStoresInput: ListPartnerStoresInput;
+}>;
+
+
+export type ListPartnerStoresQuery = { __typename?: 'Query', listPartnerStores?: { __typename?: 'PartnerStoreResponse', errorMessage?: string | null, errorType?: MarketplaceErrorType | null, data?: Array<{ __typename?: 'PartnerStore', id: string, name: string, type: PartnerMerchantType, description?: string | null, logo: string, createdAt: string, updatedAt: string, websiteURL: string } | null> | null } | null };

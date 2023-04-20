@@ -1,0 +1,61 @@
+# graphql/MarketplaceSchema.graphql
+# Marketplace Schema File
+enum MarketplaceErrorType {
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+}
+
+enum PartnerMerchantType {
+    FEATURED
+    NON_FEATURED
+}
+
+type PartnerStore @aws_cognito_user_pools {
+    id: ID!
+    name: String!
+    type: PartnerMerchantType!
+    description: String
+    logo: String!
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+    websiteURL: String!
+    discountPercentage: Int!
+    pointsMultiplier: String!
+}
+
+type PartnerStoreResponse @aws_cognito_user_pools {
+    data: [PartnerStore]
+    errorType: MarketplaceErrorType
+    errorMessage: String
+}
+
+input PartnerStoreInput {
+    id: ID!
+    name: String!
+    type: PartnerMerchantType!
+    description: String
+    logo: String!
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+    websiteURL: String!
+    discountPercentage: Int!
+    pointsMultiplier: String!
+}
+
+input CreatePartnerStoreInput {
+    id: ID!
+    name: String!
+    type: PartnerMerchantType!
+    description: String
+    logo: String!
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+    websiteURL: String!
+    discountPercentage: Int!
+    pointsMultiplier: String!
+}
+
+input ListPartnerStoresInput {
+    type: PartnerMerchantType
+}

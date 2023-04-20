@@ -40,5 +40,6 @@ type StorageResponse @aws_cognito_user_pools {
 input GetStorageInput {
     level: FileAccessLevel!,
     type: FileType!,
-    name: String!
+    name: String!,
+    expires: Boolean
 }

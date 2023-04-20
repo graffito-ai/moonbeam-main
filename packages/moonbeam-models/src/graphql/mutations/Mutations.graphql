@@ -96,3 +96,20 @@ mutation CreateFAQ($createFAQInput: CreateFAQInput!) {
         }
     }
 }
+
+mutation CreatePartnerStore($createPartnerStoreInput: CreatePartnerStoreInput!) {
+    createPartnerStore(createPartnerStoreInput: $createPartnerStoreInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            name
+            type
+            description
+            logo
+            createdAt
+            updatedAt
+            websiteURL
+        }
+    }
+}

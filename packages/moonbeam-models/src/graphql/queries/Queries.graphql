@@ -93,3 +93,37 @@ query ListFAQs($listFAQInput: ListFAQInput!) {
         }
     }
 }
+
+query GetPartnerStore($id: String!) {
+    getPartnerStore(id: $id) {
+        errorMessage
+        errorType
+        data {
+            id
+            name
+            type
+            description
+            logo
+            createdAt
+            updatedAt
+            websiteURL
+        }
+    }
+}
+
+query ListPartnerStores($listPartnerStoresInput: ListPartnerStoresInput!) {
+    listPartnerStores(listPartnerStoresInput: $listPartnerStoresInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            name
+            type
+            description
+            logo
+            createdAt
+            updatedAt
+            websiteURL
+        }
+    }
+}

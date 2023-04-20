@@ -97,7 +97,7 @@ export const styles = StyleSheet.create({
     },
     urlLockIcon: {
         top: '25%',
-        left: Dimensions.get('window').width/4.2
+        alignSelf: 'flex-start'
     },
     urlReloadIcon: {
         top: '25%'

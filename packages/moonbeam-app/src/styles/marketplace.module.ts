@@ -74,11 +74,10 @@ export const styles = StyleSheet.create({
         flexWrap: 'wrap'
     },
     allPartnersView: {
-        bottom: '68%',
-        marginLeft: '5%',
+        bottom: Dimensions.get('window').height / 2.8,
+        marginLeft: '3%',
         justifyContent: 'space-between',
         flexDirection: 'row',
-        flexWrap: 'wrap',
     },
     mapButton: {
         marginTop: '7%'
@@ -86,50 +85,59 @@ export const styles = StyleSheet.create({
     listTitleButton: {
         fontSize: Dimensions.get('window').height / 55,
         fontFamily: 'Raleway-Bold',
-        marginRight: '5%',
-        bottom: '8%',
+        alignSelf: 'flex-end',
+        right: '30%',
         color: '#2A3779',
         textDecorationLine: 'underline'
+    },
+    listTitle2Text: {
+        fontSize: Dimensions.get('window').height / 55,
+        fontFamily: 'Raleway-Bold',
+        left: '60%',
+        alignSelf: 'flex-start'
     },
     listTitleText: {
         fontSize: Dimensions.get('window').height / 55,
         fontFamily: 'Raleway-Bold',
-        left: '5%',
+        left: '6%',
         alignSelf: 'flex-start',
-        bottom: '8%'
+        bottom: `9.5%`
     },
     horizontalScrollView: {
-        marginTop: '25%'
+        marginTop: '22%',
+        flexDirection: 'column'
     },
     featuredPartnersScrollView: {
         height: '100%',
         bottom: '18%'
     },
     regularPartnersScrollView: {
-        height: '100%',
-        bottom: '66%'
+        height: '50%',
+        bottom: '80%'
     },
     regularPartnerCard: {
-        backgroundColor: 'transparent'
+        backgroundColor: 'transparent',
+        width: Dimensions.get('window').width / 3,
+        height: Dimensions.get('window').height / 3.8,
     },
     regularPartnerCardTitle: {
         fontFamily: 'Raleway-Medium',
         fontSize: Dimensions.get('window').height / 60,
-        alignSelf: 'flex-start',
-        right: '5%',
-        bottom: `${Dimensions.get('window').height / 135}%`
+        alignSelf: 'center',
+        textAlign: 'center',
+        bottom: Dimensions.get('window').height / 1200
     },
     regularPartnerCardSubtitle: {
         fontSize: Dimensions.get('window').height / 70,
         fontFamily: 'Raleway-Regular',
-        alignSelf: 'flex-start',
-        left: '5%',
+        alignSelf: 'center',
+        textAlign: 'center',
         color: '#2A3779',
-        bottom: `${Dimensions.get('window').height / 120}%`
+        bottom: Dimensions.get('window').height / 500
     },
     regularPartnerCardCover: {
-        width: Dimensions.get('window').width / 3.5,
-        height: Dimensions.get('window').height / 7.5,
+        width: Dimensions.get('window').width / 3.8,
+        height: Dimensions.get('window').height / 8.5,
         borderBottomRightRadius: 5,
         borderBottomLeftRadius: 5,
     },
@@ -137,7 +145,7 @@ export const styles = StyleSheet.create({
         left: '4%',
         backgroundColor: '#f5f5f5',
         width: Dimensions.get('window').width / 1.15,
-        height: Dimensions.get('window').height / 3.3,
+        height: Dimensions.get('window').height / 3.4,
         shadowColor: '#313030',
         shadowOffset: {width: -2, height: 1},
         shadowOpacity: 0.3,
@@ -145,32 +153,25 @@ export const styles = StyleSheet.create({
         elevation: 10
     },
     featuredPartnerCardCover: {
-        right: '5%',
-        top: '5%',
-        alignSelf: 'flex-end',
-        width: Dimensions.get('window').width / 3.5,
-        height: Dimensions.get('window').height / 7.5,
-        borderBottomRightRadius: 5,
-        borderBottomLeftRadius: 5,
+        left: '100%',
+        width: Dimensions.get('window').width / 3.3,
+        height: Dimensions.get('window').height / 8,
     },
     featuredPartnerCardTitle: {
         fontFamily: 'Raleway-Medium',
-        fontSize: Dimensions.get('window').height / 40,
-        alignSelf: 'flex-start',
-        bottom: `${Dimensions.get('window').height / 6}%`
-    },
-    featuredPartnerCardParagraph: {
-        textAlign: 'justify',
-        bottom: '50%',
-        fontFamily: 'Raleway-Regular',
-        fontSize: Dimensions.get('window').height / 65
-    },
-    featuredPartnerCardActions: {
+        fontSize: Dimensions.get('window').height / 50,
         alignSelf: 'flex-start'
     },
+    featuredPartnerCardParagraph: {
+        top: '10%',
+        padding: 8,
+        textAlign: 'justify',
+        fontFamily: 'Raleway-Regular',
+        fontSize: Dimensions.get('window').height / 75
+    },
     featuredPartnerCardActionButton: {
+        top: '15%',
         left: '15%',
-        bottom: '15%',
         height: Dimensions.get('window').height / 25,
         width: Dimensions.get('window').width / 5
     },
@@ -179,10 +180,11 @@ export const styles = StyleSheet.create({
         fontSize: Dimensions.get('window').height / 60
     },
     featuredPartnerCardSubtitle: {
-        fontSize: Dimensions.get('window').height / 55,
+        fontSize: Dimensions.get('window').height / 60,
         fontFamily: 'Raleway-Bold',
         alignSelf: 'flex-start',
-        bottom: `${Dimensions.get('window').height / 7}%`,
+        top: '10%',
+        width: Dimensions.get('window').width / 2,
         color: '#2A3779',
     },
     storeItemBenefit: {

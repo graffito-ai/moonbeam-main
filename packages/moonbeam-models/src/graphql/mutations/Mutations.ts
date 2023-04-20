@@ -115,3 +115,25 @@ export const createFAQ = /* GraphQL */ `
         }
     }
 `;
+
+// Mutation used to create a Partner Store
+export const createPartnerStore = /* GraphQL */ `
+    mutation CreatePartnerStore($createPartnerStoreInput: CreatePartnerStoreInput!) {
+        createPartnerStore(createPartnerStoreInput: $createPartnerStoreInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                name
+                type
+                description
+                logo
+                createdAt
+                updatedAt
+                websiteURL
+                discountPercentage
+                pointsMultiplier
+            }
+        }
+    }
+`;

@@ -39,8 +39,7 @@ export const Store = ({route}: StoreTabProps) => {
                     name="Marketplace"
                     component={Marketplace}
                     initialParams={{
-                        setBottomTabNavigationShown: setBottomTabNavigationShown,
-                        currentUserInformation: route.params.currentUserInformation
+                        setBottomTabNavigationShown: setBottomTabNavigationShown
                     }}
                     options={{
                         headerShown: false
@@ -50,8 +49,8 @@ export const Store = ({route}: StoreTabProps) => {
                     name="PartnerMerchant"
                     component={PartnerMerchant}
                     initialParams={{
-                        setBottomTabNavigationShown: setBottomTabNavigationShown,
-                        currentUserInformation: route.params.currentUserInformation
+                        currenUserInformation: route.params.currentUserInformation,
+                        setBottomTabNavigationShown: setBottomTabNavigationShown
                     }}
                     options={{
                         headerShown: false

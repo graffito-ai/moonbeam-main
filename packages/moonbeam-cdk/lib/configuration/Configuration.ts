@@ -56,6 +56,13 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     faqTableName: 'faqs',
                     createResolverName: 'createFAQ',
                     listResolverName: 'listFAQs'
+                },
+                marketplaceConfig: {
+                    marketplaceFunctionName: 'marketplaceLambdaFunction',
+                    marketplaceTableName: 'partnerStores',
+                    createResolverName: 'createPartnerStore',
+                    getResolverName: 'getPartnerStore',
+                    listResolverName: 'listPartnerStores'
                 }
             },
             sesConfig: {

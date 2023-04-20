@@ -374,13 +374,16 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
                                 <Button
                                     uppercase={false}
                                     onPress={async () => {
+                                        // set a loader on button press
+                                        setIsReady(false);
                                         if (email === "" || password === "") {
+                                            // reset the loading view in case of errors
+                                            setIsReady(true);
                                             setLoginMainError(true);
                                         } else if (emailErrors.length === 0 && passwordErrors.length === 0) {
                                             fieldValidation("email");
                                             fieldValidation("password");
                                             if (emailErrors.length === 0 || passwordErrors.length === 0) {
-                                                setIsReady(false);
                                                 const [signedInFlag, userInformation] = await confirmSignIn(email, password);
                                                 if (signedInFlag) {
                                                     // clear the username and password
@@ -390,8 +393,17 @@ export const SignInComponent = ({navigation, route}: SignInProps) => {
                                                     await SecureStore.setItemAsync('currentUserInformation', JSON.stringify(userInformation));
                                                     navigation.navigate('MainDash', {currentUserInformation: userInformation});
                                                     setIsReady(true);
+                                                } else {
+                                                    // reset the loading view in case of errors
+                                                    setIsReady(true);
                                                 }
+                                            } else {
+                                                // reset the loading view in case of errors
+                                                setIsReady(true);
                                             }
+                                        } else {
+                                            // reset the loading view in case of errors
+                                            setIsReady(true);
                                         }
                                     }}
                                     style={styles.signInFooterButton}

@@ -20,7 +20,7 @@ export const styles = StyleSheet.create({
     textInputFocus: {
         marginTop: 50,
         width: 350,
-        backgroundColor: '#f2',
+        backgroundColor: '#f2f2f2',
         shadowColor: '#313030',
         shadowOffset: {width: -2, height: 10},
         shadowOpacity: 0.3,

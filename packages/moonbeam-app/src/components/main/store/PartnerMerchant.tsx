@@ -54,7 +54,7 @@ export const PartnerMerchant = ({route, navigation}: PartnerMerchantProps) => {
                     name="PartnerMerchantStore"
                     component={PartnerMerchantStore}
                     initialParams={{
-                        currentUserInformation: route.params.currentUserInformation
+                        partnerStore: route.params.partnerStore
                     }}
                     options={{
                         headerShown: true
@@ -64,8 +64,9 @@ export const PartnerMerchant = ({route, navigation}: PartnerMerchantProps) => {
                     name="PartnerMerchantWebView"
                     component={PartnerMerchantWebView}
                     initialParams={{
+                        currentUserInformation: route.params.currenUserInformation,
                         navigation: navigation,
-                        currentUserInformation: route.params.currentUserInformation
+                        rootLink: route.params.partnerStore.websiteURL
                     }}
                     options={{
                         headerShown: false

@@ -51,6 +51,7 @@ export namespace Constants {
         export const MOONBEAM_MAIN_FILES_CLOUDFRONT_DISTRIBUTION: string = 'MOONBEAM_MAIN_FILES_CLOUDFRONT_DISTRIBUTION';
         export const REFERRAL_TABLE: string = 'REFERRAL_TABLE';
         export const FAQ_TABLE: string = 'FAQ_TABLE';
+        export const PARTNER_MERCHANT_TABLE: string = 'PARTNER_MERCHANT_TABLE';
         export const ENV_NAME: string = 'ENV_NAME';
         export const ACCOUNT_LINKS: string = 'ACCOUNT_LINKS';
         export const AWS_REGION: string = 'AWS_REGION';

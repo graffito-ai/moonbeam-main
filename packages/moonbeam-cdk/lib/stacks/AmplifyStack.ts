@@ -8,6 +8,7 @@ import {AmplifyReferralStack} from "./AmplifyReferralStack";
 import {AmplifyAccountLinkingStack} from "./AmplifyAccountLinkingStack";
 import {AmplifyStorageStack} from "./AmplifyStorageStack";
 import {AmplifyFAQStack} from "./AmplifyFAQStack";
+import {AmplifyMarketplaceStack} from "./AmplifyMarketplaceStack";
 
 /**
  * File used to define the Amplify stack, used to deploy all Amplify related functionality.
@@ -75,10 +76,33 @@ export class AmplifyStack extends Stack {
         });
         appSyncStack.addDependency(amplifyAuthStack);
 
+        // add the resources meant to capture the Marketplace/ Partner Stores
+        const marketPlaceStack = new AmplifyMarketplaceStack(this, `amplify-marketplace-${props.stage}=${props.env!.region}`, {
+            stackName: `amplify-marketplace-${props.stage}-${props.env!.region}`,
+            description: 'This stack will contain all the Amplify Marketplace related resources',
+            env: props.env,
+            stage: props.stage,
+            graphqlApiId: appSyncStack.graphqlApiId,
+            amplifyConfig: {
+                appSyncConfig: {
+                    graphqlApiName: props.amplifyConfig!.appSyncConfig!.graphqlApiName
+                },
+                marketplaceConfig: {
+                    marketplaceFunctionName: props.amplifyConfig!.marketplaceConfig!.marketplaceFunctionName,
+                    marketplaceTableName: props.amplifyConfig!.marketplaceConfig!.marketplaceTableName,
+                    getResolverName: props.amplifyConfig!.marketplaceConfig!.getResolverName,
+                    listResolverName: props.amplifyConfig!.marketplaceConfig!.listResolverName,
+                    createResolverName: props.amplifyConfig!.marketplaceConfig!.createResolverName
+                }
+            },
+            environmentVariables: props.environmentVariables
+        });
+        marketPlaceStack.addDependency(appSyncStack);
+
         // add the resources meant to capture the FAQs
         const faqStack = new AmplifyFAQStack(this, `amplify-faq-${props.stage}=${props.env!.region}`, {
             stackName: `amplify-faq-${props.stage}-${props.env!.region}`,
-            description: 'This stack will contain all the Amplify Storage related resources',
+            description: 'This stack will contain all the Amplify FAQ related resources',
             env: props.env,
             stage: props.stage,
             graphqlApiId: appSyncStack.graphqlApiId,

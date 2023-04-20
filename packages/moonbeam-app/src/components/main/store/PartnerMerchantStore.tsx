@@ -2,7 +2,8 @@ import 'react-native-get-random-values';
 import React, {useEffect} from "react";
 import {Dimensions, SafeAreaView, View} from "react-native";
 import {commonStyles} from "../../../styles/common.module";
-import {Avatar, Button, Text} from "react-native-paper";
+import {Button, Text} from "react-native-paper";
+import {Avatar} from '@rneui/base';
 import {styles} from "../../../styles/partnerMerchantStore.module";
 // @ts-ignore
 import BattleThreadsLogo from "../../../../assets/companies/battleThreads.jpg";
@@ -31,22 +32,29 @@ export const PartnerMerchantStore = ({route, navigation}: PartnerMerchantStorePr
         <SafeAreaView style={[commonStyles.rowContainer, commonStyles.androidSafeArea]}>
             <View style={styles.mainView}>
                 <View style={styles.messageView}>
-                    <Avatar.Image size={Dimensions.get('window').height / 6} source={BattleThreadsLogo}/>
-                    <Text style={styles.messageTitle}>Battle Threads offers</Text>
-                    <Text style={styles.messageSubtitle}>3X Points and 10% Discount</Text>
+                    <Avatar
+                        imageProps={{
+                            resizeMode: 'stretch'
+                        }}
+                        size={200}
+                        rounded
+                        source={{uri: route.params.partnerStore.logo}}
+                    />
+                    <Text style={styles.messageTitle}>{route.params.partnerStore.name} offers</Text>
+                    <Text style={styles.messageSubtitle}>{route.params.partnerStore.pointsMultiplier} Points and {route.params.partnerStore.discountPercentage}% Discount</Text>
                 </View>
                 <View style={styles.bottomMessageView}>
                     <Button
                         onPress={async () => {
-                            navigation.navigate('PartnerMerchantWebView', {currentUserInformation: route.params.currentUserInformation});
+                            navigation.navigate('PartnerMerchantWebView', {rootLink: route.params.partnerStore.websiteURL});
                         }}
                         uppercase={false}
                         style={styles.referButton}
                         textColor={"#f2f2f2"}
                         buttonColor={"#2A3779"}
                         mode="outlined"
-                        labelStyle={{fontSize: Dimensions.get('window').height / 50}}>
-                        Shop at BattleThreads.com
+                        labelStyle={{fontSize: Dimensions.get('window').height / 54, height: Dimensions.get('window').height}}>
+                        Shop at {route.params.partnerStore.websiteURL.split('www.')[1]}
                     </Button>
                     <View>
                         <Text style={styles.messageFooterTitle}>Moonbeam exclusive offer</Text>

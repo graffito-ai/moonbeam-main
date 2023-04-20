@@ -12,6 +12,7 @@ export interface AWSAmplifyConfiguration {
     readonly accountLinkingConfig?: AccountLinkingConfiguration;
     readonly storageConfig?: StorageConfiguration;
     readonly faqConfig?: FAQConfiguration;
+    readonly marketplaceConfig?: MarketplaceConfiguration;
 }
 
 /**
@@ -36,6 +37,17 @@ export interface StorageConfiguration {
     readonly storageFunctionName: string;
     readonly getResolverName: string;
     readonly putResolverName: string;
+}
+
+/**
+ * Interface used to define the configuration for the Marketplace/Partner Store stack
+ */
+export interface MarketplaceConfiguration {
+    readonly marketplaceFunctionName: string;
+    readonly marketplaceTableName: string;
+    readonly createResolverName: string;
+    readonly getResolverName: string;
+    readonly listResolverName: string;
 }
 
 /**

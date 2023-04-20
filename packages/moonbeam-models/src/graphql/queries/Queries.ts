@@ -84,7 +84,7 @@ export const listAccounts = /* GraphQL */ `
     }
 `;
 
-// Query used to retrieve a list of FAQs, based on their type
+// Query used to retrieve a list of FAQs, based on their type (which is an optional filter)
 export const listFAQs = /* GraphQL */ `
     query ListFAQs($listFAQInput: ListFAQInput!) {
         listFAQs(listFAQInput: $listFAQInput) {
@@ -103,6 +103,51 @@ export const listFAQs = /* GraphQL */ `
                     linkTitle
                 }
                 applicationLink
+            }
+        }
+    }
+`;
+
+// Query used to retrieve a Partner Store given its ID
+export const getPartnerStore = /* GraphQL */ `
+    query GetPartnerStore($id: String!) {
+        getPartnerStore(id: $id) {
+            errorMessage
+            errorType
+            data {
+                id
+                name
+                type
+                description
+                logo
+                createdAt
+                updatedAt
+                websiteURL
+                discountPercentage
+                pointsMultiplier
+            }
+        }
+    }
+`;
+
+
+// Query used to retrieve a list of Partner Stores, based on their type (which is an optional filter)
+export const listPartnerStores = /* GraphQL */ `
+    query ListPartnerStores($listPartnerStoresInput: ListPartnerStoresInput!) {
+        listPartnerStores(listPartnerStoresInput: $listPartnerStoresInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                name
+                type
+                description
+                logo
+                createdAt
+                updatedAt
+                websiteURL
+                discountPercentage
+                pointsMultiplier
             }
         }
     }

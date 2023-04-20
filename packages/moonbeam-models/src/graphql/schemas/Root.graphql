@@ -1,6 +1,8 @@
 # graphql/Root.graphql
 # Main Schema File
 type Query {
+    listPartnerStores(listPartnerStoresInput: ListPartnerStoresInput!): PartnerStoreResponse @aws_cognito_user_pools
+    getPartnerStore(id: String!): PartnerStoreResponse @aws_cognito_user_pools
     listFAQs(listFAQInput: ListFAQInput!): FAQResponse @aws_cognito_user_pools
     getStorage(getStorageInput: GetStorageInput!): StorageResponse @aws_cognito_user_pools
     getAccountLink(id: String!): AccountLinkResponse @aws_cognito_user_pools
@@ -10,6 +12,7 @@ type Query {
 }
 
 type Mutation {
+    createPartnerStore(createPartnerStoreInput: CreatePartnerStoreInput!): PartnerStoreResponse @aws_cognito_user_pools
     createFAQ(createFAQInput: CreateFAQInput!): FAQResponse @aws_cognito_user_pools
     createAccountLink(createAccountLinkInput: CreateAccountLinkInput!): AccountLinkResponse @aws_cognito_user_pools
     updateAccountLink(updateAccountLinkInput: UpdateAccountLinkInput!): AccountLinkResponse @aws_cognito_user_pools

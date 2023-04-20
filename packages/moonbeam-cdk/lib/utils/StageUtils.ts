@@ -118,6 +118,13 @@ export class StageUtils {
                             faqTableName: stageConfiguration.amplifyConfig!.faqConfig!.faqTableName,
                             createResolverName: stageConfiguration.amplifyConfig!.faqConfig!.createResolverName,
                             listResolverName: stageConfiguration.amplifyConfig!.faqConfig!.listResolverName
+                        },
+                        marketplaceConfig: {
+                            marketplaceFunctionName: stageConfiguration.amplifyConfig!.marketplaceConfig!.marketplaceFunctionName,
+                            marketplaceTableName: stageConfiguration.amplifyConfig!.marketplaceConfig!.marketplaceTableName,
+                            createResolverName: stageConfiguration.amplifyConfig!.marketplaceConfig!.createResolverName,
+                            getResolverName: stageConfiguration.amplifyConfig!.marketplaceConfig!.getResolverName,
+                            listResolverName: stageConfiguration.amplifyConfig!.marketplaceConfig!.listResolverName,
                         }
                     },
                     environmentVariables: stageConfiguration.environmentVariables

@@ -1,18 +1,20 @@
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React from "react";
+import {PartnerStore} from "../../../moonbeam-models";
 
 /**
  * The default list of params, to be used across all Store derived stack props.
  */
 export type StoreStackParamList = {
     Marketplace: {
-        currentUserInformation: any,
+        currenUserInformation: any,
         setBottomTabNavigationShown?: React.Dispatch<React.SetStateAction<boolean>>,
         storeDismissed?: boolean
     },
     PartnerMerchant: {
+        currenUserInformation: any,
         setBottomTabNavigationShown?: React.Dispatch<React.SetStateAction<boolean>>,
-        currentUserInformation: any;
+        partnerStore: PartnerStore
     }
 };
 

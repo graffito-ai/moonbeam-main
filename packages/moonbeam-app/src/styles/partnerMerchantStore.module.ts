@@ -15,7 +15,7 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
     },
     bottomMessageView: {
-        marginTop: '40%',
+        marginTop: '10%',
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
@@ -24,6 +24,7 @@ export const styles = StyleSheet.create({
         marginTop: '2.5%',
         fontSize: Dimensions.get('window').height / 30,
         fontFamily: 'Raleway-Medium',
+        textAlign: 'center',
         color: '#313030'
     },
     messageSubtitle: {

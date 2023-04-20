@@ -13,7 +13,6 @@ import * as Clipboard from 'expo-clipboard';
 export const PartnerMerchantWebView = ({route}: PartnerMerchantWebViewProps) => {
     // state driven key-value pairs for UI related elements
 
-
     // state driven key-value pairs for any specific data values
     const [cardDetailsMenuOpen, setCardDetailsMenuOpen] = React.useState<boolean>(false);
     const [isBackButtonDisabled, setIsBackButtonDisabled] = React.useState<boolean>(true);
@@ -43,7 +42,7 @@ export const PartnerMerchantWebView = ({route}: PartnerMerchantWebViewProps) => 
                         size={Dimensions.get('window').height/30}
                         style={styles.backButton}
                         onPress={() => {
-                            route.params.navigation && route.params.navigation.navigate('Marketplace', {currentUserInformation: route.params.currentUserInformation, storeDismissed: true});
+                            route.params.navigation && route.params.navigation.navigate('Marketplace', {storeDismissed: true});
                         }}
                     />
                     <TextInput
@@ -77,7 +76,7 @@ export const PartnerMerchantWebView = ({route}: PartnerMerchantWebViewProps) => 
                         mode={'outlined'}
                         placeholder={'Search or type URL'}
                         value={
-                            'apple.com'
+                            route.params.rootLink.split('www.')[1]
                         }
                     />
                 </View>
@@ -89,7 +88,7 @@ export const PartnerMerchantWebView = ({route}: PartnerMerchantWebViewProps) => 
                 automaticallyAdjustContentInsets={true}
                 startInLoadingState={true}
                 source={{
-                    uri: 'https://www.apple.com',
+                    uri: route.params.rootLink,
                 }}
                 originWhiteList={['*']}
                 onNavigationStateChange={state => {

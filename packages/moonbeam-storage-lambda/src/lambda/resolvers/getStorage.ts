@@ -1,4 +1,11 @@
-import {Constants, FileAccessLevel, FileType, GetStorageInput, StorageErrorType, StorageResponse} from "@moonbeam/moonbeam-models";
+import {
+    Constants,
+    FileAccessLevel,
+    FileType,
+    GetStorageInput,
+    StorageErrorType,
+    StorageResponse
+} from "@moonbeam/moonbeam-models";
 import * as AWS from "aws-sdk";
 
 /**
@@ -51,11 +58,29 @@ export const getStorage = async (getStorageInput: GetStorageInput, sub: string):
                         const cloudFrontURLSigner = new AWS.CloudFront.Signer(`${process.env.MOONBEAM_MAIN_FILES_KEY_PAIR_ID!}`, `${cloudFrontMainFilesPair.SecretString!}`);
 
                         // return the signed URL for the given object, with an expiration date
+                        /**
+                         * If there is an expiration flag passed in, and it is true,
+                         * then make the expiration to 1 hour, to coincide with the Cognito
+                         * session expiration.
+                         *
+                         * Otherwise, if the expiration flag is false, then do make the link expire in
+                         * 50 years.
+                         */
+                        let expirationTimestamp: number;
+                        if (getStorageInput.expires !== undefined) {
+                            if (!getStorageInput.expires) {
+                                expirationTimestamp = parseInt(String((new Date().getTime() + 60000 * 60 * 24 * 365 * 50) / 1000));
+                            } else {
+                                expirationTimestamp = parseInt(String((new Date().getTime() + 60000 * 60) / 1000));
+                            }
+                        } else {
+                            expirationTimestamp = parseInt(String((new Date().getTime() + 60000 * 60) / 1000));
+                        }
                         return {
                             data: {
                                 url: new URL(cloudFrontURLSigner.getSignedUrl({
                                     url: `https://${cloudFrontDistributionDomain}/${objectKey}`,
-                                    expires: parseInt(String((new Date().getTime() + 60000 * 60) / 1000)) // expires in 1 hour, to coincide with the Cognito session expiry
+                                    expires: expirationTimestamp
                                 })).href
                             }
                         }

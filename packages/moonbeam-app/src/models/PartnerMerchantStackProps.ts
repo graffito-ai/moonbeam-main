@@ -1,17 +1,19 @@
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {StoreStackParamList} from './StoreStackProps';
+import {PartnerStore} from "../../../moonbeam-models";
 
 /**
  * The default list of params, to be used across all Partner Merchant derived stack props.
  */
 export type PartnerMerchantStackParamList = {
     PartnerMerchantStore: {
-        currentUserInformation: any
+        partnerStore: PartnerStore
     },
     PartnerMerchantWebView: {
         currentUserInformation: any,
         navigation?: NativeStackNavigationProp<StoreStackParamList, "PartnerMerchant">,
+        rootLink: string
     }
 };
 
