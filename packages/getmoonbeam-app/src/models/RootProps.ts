@@ -7,12 +7,10 @@ export type RootStackParamList = {
     AppOverview: {
         onLayoutRootView: () => Promise<void>;
     }
-    Authentication: {
-        initialRender: boolean;
-    }
+    Authentication: {}
 };
 
 // the AppOverview component props, within the root stack
-export type AppOverviewProps = NativeStackScreenProps<RootStackParamList, 'AppOverview'>
+export type AppOverviewProps = NativeStackScreenProps<RootStackParamList, 'AppOverview'>;
 // the Authentication component props, within the root stack
-export type AuthenticationProps = NativeStackScreenProps<RootStackParamList, 'Authentication'>
+export type AuthenticationProps = NativeStackScreenProps<RootStackParamList, 'Authentication'>;

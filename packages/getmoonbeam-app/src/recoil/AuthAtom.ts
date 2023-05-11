@@ -13,17 +13,12 @@ const currentUserInformation = atom({
  * Atom used to keep track of whether the authentication component has
  * rendered before or not.
  */
-const initialAuthenticationRender = atom({
-   key: "initialAuthenticationRender",
-   default: true
+const initialAuthenticationScreen = atom({
+   key: "initialAuthenticationScreen",
+   default: "SignIn"
 });
-
-const onLayoutRootView = atom({
-    key: 'onLayoutRootView',
-    default: () => Promise<void>
-})
 
 /**
  * Export all atoms and/or selectors
  */
-export {currentUserInformation, initialAuthenticationRender, onLayoutRootView}
+export {currentUserInformation, initialAuthenticationScreen}

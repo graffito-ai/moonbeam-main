@@ -124,7 +124,7 @@ export default function App() {
             config,
         };
 
-        // return the main component for the application
+        // return the main component for the application stack
         return (
             <RecoilRoot>
                 <PaperProvider theme={theme}>
@@ -144,6 +144,7 @@ export default function App() {
                             <Stack.Screen
                                 name="Authentication"
                                 component={AuthenticationComponent}
+                                initialParams={{}}
                             />
                         </Stack.Navigator>
                     </NavigationContainer>

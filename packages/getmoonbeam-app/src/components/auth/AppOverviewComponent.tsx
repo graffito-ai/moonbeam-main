@@ -6,13 +6,18 @@ import {AppOverviewProps} from "../../models/RootProps";
 import {LinearGradient} from "expo-linear-gradient";
 import {Text} from "react-native-paper";
 import GestureRecognizer from 'react-native-swipe-gestures';
+import {useRecoilState} from "recoil";
+import {initialAuthenticationScreen} from "../../recoil/AuthAtom";
 
 /**
  * AppOverview component.
  */
-export const AppOverviewComponent = ({route}: AppOverviewProps) => {
+export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
+    // constants used to keep track of shared states
+    const [_, setAuthScreen] = useRecoilState(initialAuthenticationScreen);
     // constants used to keep track of local component state
     const [stepNumber, setStepNumber] = useState<number>(0);
+    // constants used to keep track of steps content
     const stepTitles = [
         "Card-Linked Military\n Discounts",
         "Verify your\n Valor",
@@ -91,7 +96,12 @@ export const AppOverviewComponent = ({route}: AppOverviewProps) => {
                             style={styles.buttonLeft}
                             onPress={
                                 () => {
-                                    console.log('here');
+                                    /**
+                                     * navigate to the Authentication component, and set the recoil state accordingly,
+                                     * in order to display the right subcomponent for Authentication.
+                                     */
+                                    setAuthScreen('Registration');
+                                    navigation.navigate("Authentication", {});
                                 }
                             }
                         >
@@ -101,7 +111,12 @@ export const AppOverviewComponent = ({route}: AppOverviewProps) => {
                             style={styles.buttonRight}
                             onPress={
                                 () => {
-                                    console.log('here');
+                                    /**
+                                     * navigate to the Authentication component, and set the recoil state accordingly,
+                                     * in order to display the right subcomponent for Authentication.
+                                     */
+                                    setAuthScreen('SignIn');
+                                    navigation.navigate("Authentication", {});
                                 }
                             }
                         >

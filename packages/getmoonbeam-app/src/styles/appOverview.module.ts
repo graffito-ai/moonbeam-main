@@ -21,7 +21,8 @@ export const styles = StyleSheet.create({
         fontSize: Dimensions.get('window').height/32,
         textAlign: 'center',
         width: Dimensions.get('window').width/1.25,
-        alignSelf: 'center'
+        alignSelf: 'center',
+        color: '#FFFFFF'
     },
     bottomContainerContent: {
         fontFamily: 'Raleway-Regular',
@@ -29,7 +30,8 @@ export const styles = StyleSheet.create({
         fontSize: Dimensions.get('window').height/52,
         textAlign: 'center',
         width: Dimensions.get('window').width/1.15,
-        alignSelf: 'center'
+        alignSelf: 'center',
+        color: '#FFFFFF'
     },
     progressSteps: {
         marginTop: Dimensions.get('window').height/25
@@ -61,7 +63,6 @@ export const styles = StyleSheet.create({
         backgroundColor: '#F2FF5D',
         width: Dimensions.get('window').width/3.5,
         height: Dimensions.get('window').height/25,
-        marginBottom: Dimensions.get('window').width/12,
         marginRight: Dimensions.get('window').width/5,
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -72,7 +73,6 @@ export const styles = StyleSheet.create({
         backgroundColor: '#F2FF5D',
         width: Dimensions.get('window').width/3.5,
         height: Dimensions.get('window').height/25,
-        marginBottom: Dimensions.get('window').width/12,
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -80,11 +80,12 @@ export const styles = StyleSheet.create({
     },
     buttonText: {
         color: '#313030',
-        fontFamily: 'Saira-SemiBold',
+        fontFamily: 'Saira-Medium',
         fontSize: Dimensions.get('window').height/52,
         marginTop: Dimensions.get('window').height / 90
     },
     bottomContainerButtons: {
+        marginBottom: Dimensions.get('window').width/12,
         alignItems: "center",
         alignContent: 'center',
         justifyContent: 'center'
