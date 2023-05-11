@@ -24,8 +24,8 @@
       "packages/*"
     ],
     "nohoist": [
-      "**/moonbeam-app",
-      "**/moonbeam-app/**",
+      "**/getmoonbeam-app",
+      "**/getmoonbeam-app/**",
       "**/moonbeam-models",
       "**/moonbeam-models/**"
     ]

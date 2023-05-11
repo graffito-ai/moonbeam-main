@@ -1,0 +1,10 @@
+{
+  "moonbeam-amplify-dev-us-west-2": {
+    "awsuserpoolsid": "us-west-2_HgS6BJsHG",
+    "amplifyappid": "d18rri04cikz86",
+    "awsprojectregion": "us-west-2",
+    "awscognitoregion": "us-west-2",
+    "awsuserpoolswebclientid": "6sbftno9t4i47mq6vsjk1knuqm",
+    "awscognitoidentitypoolid": "us-west-2:977729e5-e535-4677-9dba-7bd7ba3e5a3a"
+  }
+}

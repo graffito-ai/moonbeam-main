@@ -1,0 +1,17 @@
+{
+  "projectName": "getmoonbeamapp",
+  "version": "3.1",
+  "frontend": "javascript",
+  "javascript": {
+    "framework": "react-native",
+    "config": {
+      "SourceDir": "src",
+      "DistributionDir": "build",
+      "BuildCommand": "yarn run-script build",
+      "StartCommand": "yarn run-script start-clean"
+    }
+  },
+  "providers": [
+    "awscloudformation"
+  ]
+}
