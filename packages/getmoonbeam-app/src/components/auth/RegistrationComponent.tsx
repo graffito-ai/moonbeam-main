@@ -79,7 +79,6 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
      * included in here.
      */
     useEffect(() => {
-
         // perform field validations on every state change, for the specific field that is being validated
         if (firstNameFocus && firstName !== "") {
             fieldValidator.validateField(firstName, "firstName", setFirstNameErrors);
@@ -178,7 +177,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                         }}
                                         placeholder={'Required'}
                                         label="First Name"
-                                        textColor={"#D9D9D9"}
+                                        textColor={"#FFFFFF"}
                                     />
                                     <TextInput
                                         keyboardType={"default"}
@@ -207,7 +206,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                         }}
                                         placeholder={'Required'}
                                         label="Last Name"
-                                        textColor={"#D9D9D9"}
+                                        textColor={"#FFFFFF"}
                                     />
                                 </View>
                                 <TextInput
@@ -237,7 +236,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                     }}
                                     placeholder={'Required'}
                                     label="Email"
-                                    textColor={"#D9D9D9"}
+                                    textColor={"#FFFFFF"}
                                     left={<TextInput.Icon icon="email" iconColor="#FFFFFF"/>}
                                 />
                                 <TextInput
@@ -271,7 +270,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                     }}
                                     placeholder={'Required MM/DD/YYYY'}
                                     label="Birthday"
-                                    textColor={"#D9D9D9"}
+                                    textColor={"#FFFFFF"}
                                     left={<TextInput.Icon icon="cake" iconColor="#FFFFFF"/>}
                                 />
                                 <TextInput
@@ -305,7 +304,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                     }}
                                     placeholder={'Required +1 (XXX)-XXX-XXXX'}
                                     label="Phone Number"
-                                    textColor={"#D9D9D9"}
+                                    textColor={"#FFFFFF"}
                                     left={<TextInput.Icon icon="phone" iconColor="#FFFFFF"/>}
                                 />
                                 <Text
@@ -326,8 +325,11 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                             style={styles.buttonLeft}
                             onPress={
                                 () => {
+                                    // show back button on next step
+                                    setIsBackButtonShown(true);
+
+                                    // decrease the step number
                                     if (stepNumber > 0) {
-                                        // decrease the step number
                                         let newStepValue = stepNumber - 1;
                                         setStepNumber(newStepValue);
                                     }
@@ -340,8 +342,11 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                             style={styles.buttonRight}
                             onPress={
                                 () => {
+                                    // show back button on next step
+                                    setIsBackButtonShown(true);
+
+                                    // increase the step number
                                     if (stepNumber < 7) {
-                                        // increase the step number
                                         let newStepValue = stepNumber + 1;
                                         setStepNumber(newStepValue);
                                     }

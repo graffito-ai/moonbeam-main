@@ -51,7 +51,7 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF'
     },
     textInputContentStyle: {
-        fontSize: Dimensions.get('window').height/65,
+        fontSize: Dimensions.get('window').height/55,
         fontFamily: 'Saira-Regular'
     },
     textInput: {

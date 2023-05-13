@@ -32,11 +32,11 @@ export const styles = StyleSheet.create({
         marginRight: Dimensions.get('window').width/ 60
     },
     textInputContentStyle: {
-        fontSize: Dimensions.get('window').height/65,
+        fontSize: Dimensions.get('window').height/55,
         fontFamily: 'Saira-Regular'
     },
     textInputNarrowContentStyle: {
-        fontSize: Dimensions.get('window').height/65,
+        fontSize: Dimensions.get('window').height/55,
         fontFamily: 'Saira-Regular'
     },
     textInputNarrow: {

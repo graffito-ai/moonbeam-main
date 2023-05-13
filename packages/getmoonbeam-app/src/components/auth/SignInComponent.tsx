@@ -83,6 +83,7 @@ export const SignInComponent = ({route, navigation}: SignInProps) => {
                                 <Text style={styles.errorMessage}>{passwordErrors[0]}</Text>
                         }
                         <TextInput
+                            keyboardType={"email-address"}
                             placeholderTextColor={'#D9D9D9'}
                             activeUnderlineColor={'#F2FF5D'}
                             underlineColor={'#D9D9D9'}
@@ -103,10 +104,11 @@ export const SignInComponent = ({route, navigation}: SignInProps) => {
                             }}
                             placeholder={'Type in your email...'}
                             label="Email"
-                            textColor={"#D9D9D9"}
+                            textColor={"#FFFFFF"}
                             left={<TextInput.Icon icon="email" iconColor="#FFFFFF"/>}
                         />
                         <TextInput
+                            keyboardType={"default"}
                             placeholderTextColor={'#D9D9D9'}
                             activeUnderlineColor={'#F2FF5D'}
                             underlineColor={'#D9D9D9'}
@@ -128,7 +130,7 @@ export const SignInComponent = ({route, navigation}: SignInProps) => {
                             placeholder={'Type in your password...'}
                             label="Password"
                             secureTextEntry={!passwordShown}
-                            textColor={"#D9D9D9"}
+                            textColor={"#FFFFFF"}
                             right={<TextInput.Icon icon={!passwordShown ? "eye" : "eye-off"}
                                                    iconColor={passwordShown ? "#F2FF5D" : "#FFFFFF"}
                                                    onPress={() => setIsPasswordShown(!passwordShown)}/>}
