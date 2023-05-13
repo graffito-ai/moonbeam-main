@@ -5,9 +5,16 @@ import {AuthenticationStackParamList} from "../../models/AuthenticationProps";
 import {NavigationContainer} from "@react-navigation/native";
 import {IconButton, Text} from "react-native-paper";
 import {SignInComponent} from "./SignInComponent";
-import {RegistrationComponent} from "./RegistrationComponent";
+import {RegistrationComponent} from "./registration/RegistrationComponent";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
+    registrationVerificationDigit1,
+    registrationVerificationDigit2,
+    registrationVerificationDigit3,
+    registrationVerificationDigit4,
+    registrationVerificationDigit5,
+    registrationVerificationDigit6,
+    registrationCodeTimerValue,
     initialAuthenticationScreen,
     registrationBackButtonShown,
     firstNameState,
@@ -28,6 +35,13 @@ export const AuthenticationComponent = ({}: AuthenticationProps) => {
         // create a native stack navigator, to be used for our Authentication application navigation
         const Stack = createNativeStackNavigator<AuthenticationStackParamList>();
         // constants used to keep track of shared states
+        const [, setRegistrationVerificationDigit1] = useRecoilState(registrationVerificationDigit1);
+        const [, setRegistrationVerificationDigit2] = useRecoilState(registrationVerificationDigit2);
+        const [, setRegistrationVerificationDigit3] = useRecoilState(registrationVerificationDigit3);
+        const [, setRegistrationVerificationDigit4] = useRecoilState(registrationVerificationDigit4);
+        const [, setRegistrationVerificationDigit5] = useRecoilState(registrationVerificationDigit5);
+        const [, setRegistrationVerificationDigit6] = useRecoilState(registrationVerificationDigit6);
+        const [, setRegistrationCodeTimerValue] = useRecoilState(registrationCodeTimerValue);
         const [, setStepNumber] = useRecoilState(registrationStepNumber);
         const [, setFirstName] = useRecoilState(firstNameState);
         const [, setLastName] = useRecoilState(lastNameState);
@@ -78,6 +92,13 @@ export const AuthenticationComponent = ({}: AuthenticationProps) => {
                                                 style={commonStyles.backButton}
                                                 onPress={() => {
                                                     // clear the registration values
+                                                    setRegistrationVerificationDigit1("");
+                                                    setRegistrationVerificationDigit2("");
+                                                    setRegistrationVerificationDigit3("");
+                                                    setRegistrationVerificationDigit4("");
+                                                    setRegistrationVerificationDigit5("");
+                                                    setRegistrationVerificationDigit6("");
+                                                    setRegistrationCodeTimerValue(10);
                                                     setStepNumber(0);
                                                     setFirstName("");
                                                     setLastName("");

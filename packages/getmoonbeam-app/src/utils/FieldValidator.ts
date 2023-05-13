@@ -1,4 +1,3 @@
-import React from "react";
 import dayjs from "dayjs";
 
 /**
@@ -121,7 +120,7 @@ export class FieldValidator {
      * @param fieldName name of the field to validate
      * @param setErrorsArray method to popular the array of errors for that state
      */
-    public validateField = (fieldValue: string, fieldName: string, setErrorsArray: React.Dispatch<React.SetStateAction<any[]>>) => {
+    public validateField = (fieldValue: string, fieldName: string, setErrorsArray: any) => {
         switch (fieldName) {
             case 'firstName':
                 if (!/^[^\s\t\n0123456789±!@£$%^&*_+§¡€#¢§¶•ªº«\\\/<>?:;|=.,]{2,100}$/.test(fieldValue)) {

@@ -134,7 +134,6 @@ export const styles = StyleSheet.create({
         backgroundColor: '#F2FF5D',
         width: Dimensions.get('window').width/3.5,
         height: Dimensions.get('window').height/25,
-        marginRight: Dimensions.get('window').width/5,
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -159,5 +158,54 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         marginTop: Dimensions.get('window').height / 40,
         paddingRight: Dimensions.get('window').width/ 8,
-    }
+    },
+    documentSelectionView: {
+        bottom: Dimensions.get('window').height/30,
+        flexDirection: 'column',
+        width: '100%'
+    },
+    documentSelectionOptionTop: {
+        marginBottom: Dimensions.get('window').height/50,
+        alignSelf: 'flex-start',
+        flexDirection: 'row',
+        width: '50%'
+    },
+    documentSelectionOptionBottom: {
+        marginTop: Dimensions.get('window').height/30,
+        marginBottom: Dimensions.get('window').height/30,
+        alignSelf: 'flex-start',
+        flexDirection: 'row',
+        width: '50%'
+    },
+    documentSelectionOptionImage: {
+        height: Dimensions.get('window').height/7,
+        width: Dimensions.get('window').height/7
+    },
+    documentSelectionDescriptionView: {
+        top: Dimensions.get('window').height / 25,
+        left: Dimensions.get('window').width / 10,
+        flexDirection: 'column',
+        width: '100%'
+    },
+    documentSelectionOptionDescription: {
+        alignSelf: 'center',
+        fontFamily: 'Raleway-Medium',
+        bottom: Dimensions.get('window').height / 60,
+        fontSize: Dimensions.get('window').height / 55,
+        width: Dimensions.get('window').width/ 2,
+        color: '#FFFFFF'
+    },
+    documentSelectionDivider: {
+        width: Dimensions.get('window').width / 1.15,
+        backgroundColor: '#D9D9D9'
+    },
+    documentSelectionButton: {
+        backgroundColor: '#F2FF5D',
+        width: Dimensions.get('window').width/3.5,
+        height: Dimensions.get('window').height/25,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
 });

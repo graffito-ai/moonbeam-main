@@ -24,7 +24,55 @@ const initialAuthenticationScreen = atom({
 const registrationMainErrorState = atom({
     key: "registrationMainErrorState",
     default: false
-})
+});
+
+/**
+ * Atom used to keep track of the registration verification code errors
+ */
+const verificationCodeErrorsState = atom({
+    key: "verificationCodeErrorsState",
+    default: []
+});
+
+/**
+ * Atom used to keep track of the registration first name errors
+ */
+const firstNameErrorsState = atom({
+    key: "firstNameErrorsState",
+    default: []
+});
+
+/**
+ * Atom used to keep track of the registration last name errors
+ */
+const lastNameErrorsState = atom({
+    key: "lastNameErrorsState",
+    default: []
+});
+
+/**
+ * Atom used to keep track of the registration birthday errors
+ */
+const birthdayErrorState = atom({
+    key: "birthdayErrorState",
+    default: []
+});
+
+/**
+ * Atom used to keep track of the registration email errors
+ */
+const emailErorrsState = atom({
+    key: "emailErorrsState",
+    default: []
+});
+
+/**
+ * Atom used to keep track of the registration phone number errors
+ */
+const phoneNumberErrorsState = atom({
+    key: "phoneNumberErrorsState",
+    default: []
+});
 
 /**
  * Atom used to keep track of whether the back button is shown for registration
@@ -139,9 +187,24 @@ const registrationCodeTimerValue = atom({
 });
 
 /**
+ * Atom used to keep track of the registration document steps order
+ */
+const documentationStepSkip = atom({
+    key: "documentationStepSkip",
+    default: false
+});
+
+/**
  * Export all atoms and/or selectors
  */
 export {
+    documentationStepSkip,
+    verificationCodeErrorsState,
+    firstNameErrorsState,
+    lastNameErrorsState,
+    birthdayErrorState,
+    emailErorrsState,
+    phoneNumberErrorsState,
     registrationCodeTimerValue,
     registrationVerificationDigit1,
     registrationVerificationDigit2,
