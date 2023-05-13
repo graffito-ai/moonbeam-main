@@ -1,12 +1,13 @@
 import React, {useEffect, useState} from "react";
-import {Image, ImageBackground, View} from "react-native";
+import {Image, ImageBackground, Platform, TouchableOpacity, View} from "react-native";
 import {commonStyles} from '../../styles/common.module';
 import {styles} from '../../styles/signIn.module';
 import {SignInProps} from "../../models/AuthenticationProps";
-import {Button, Text, TextInput} from "react-native-paper";
+import {Text, TextInput} from "react-native-paper";
 import {FieldValidator} from "../../utils/FieldValidator";
 // @ts-ignore
 import LoginLogo from '../../../assets/login-logo.png';
+import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 
 /**
  * SignInComponent component.
@@ -24,10 +25,7 @@ export const SignInComponent = ({route, navigation}: SignInProps) => {
     const [isInitialRender, setIsInitialRender] = useState<boolean>(route.params.initialRender);
 
     // initializing the field validator, to be used for validating form field values
-    const fieldValidator = new FieldValidator({
-        email: email,
-        password: password
-    })
+    const fieldValidator = new FieldValidator();
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -62,7 +60,12 @@ export const SignInComponent = ({route, navigation}: SignInProps) => {
                     resizeMode: 'stretch'
                 }}
                 source={require('../../../assets/backgrounds/authentication-gradient.png')}>
-                <View style={commonStyles.rowContainer}>
+                <KeyboardAwareScrollView
+                    enableOnAndroid={true}
+                    enableAutomaticScroll={(Platform.OS === 'ios')}
+                    contentContainerStyle={commonStyles.rowContainer}
+                    keyboardShouldPersistTaps={'handled'}
+                >
                     <View style={styles.topContainer}>
                         <Text style={styles.greetingTitle}>Hello</Text>
                         <Text style={styles.gettingSubtitle}>Get ready to <Text
@@ -73,11 +76,11 @@ export const SignInComponent = ({route, navigation}: SignInProps) => {
                     </View>
                     <View style={[styles.bottomContainer]}>
                         <Text style={styles.bottomTitle}>Login</Text>
-                        {   loginMainError ?
+                        {loginMainError ?
                             <Text style={styles.errorMessage}>Please fill out the information below!</Text>
                             : (emailErrors.length && !loginMainError) ?
-                            <Text style={styles.errorMessage}>{emailErrors[0]}</Text> :
-                            <Text style={styles.errorMessage}>{passwordErrors[0]}</Text>
+                                <Text style={styles.errorMessage}>{emailErrors[0]}</Text> :
+                                <Text style={styles.errorMessage}>{passwordErrors[0]}</Text>
                         }
                         <TextInput
                             placeholderTextColor={'#D9D9D9'}
@@ -104,7 +107,7 @@ export const SignInComponent = ({route, navigation}: SignInProps) => {
                             left={<TextInput.Icon icon="email" iconColor="#FFFFFF"/>}
                         />
                         <TextInput
-                            placeholderTextColor={'#303030'}
+                            placeholderTextColor={'#D9D9D9'}
                             activeUnderlineColor={'#F2FF5D'}
                             underlineColor={'#D9D9D9'}
                             outlineColor={'#D9D9D9'}
@@ -126,7 +129,8 @@ export const SignInComponent = ({route, navigation}: SignInProps) => {
                             label="Password"
                             secureTextEntry={!passwordShown}
                             textColor={"#D9D9D9"}
-                            right={<TextInput.Icon icon={!passwordShown ? "eye": "eye-off"} iconColor={passwordShown ? "#F2FF5D" : "#FFFFFF"}
+                            right={<TextInput.Icon icon={!passwordShown ? "eye" : "eye-off"}
+                                                   iconColor={passwordShown ? "#F2FF5D" : "#FFFFFF"}
                                                    onPress={() => setIsPasswordShown(!passwordShown)}/>}
                             left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
                         />
@@ -144,8 +148,8 @@ export const SignInComponent = ({route, navigation}: SignInProps) => {
                                   }}>Forgot Password ?
                             </Text>
                         </View>
-                        <Button
-                            uppercase={false}
+                        <TouchableOpacity
+                            style={styles.logInButton}
                             onPress={async () => {
                                 // set a loader on button press
                                 // setIsReady(false);
@@ -179,14 +183,13 @@ export const SignInComponent = ({route, navigation}: SignInProps) => {
                                     // setIsReady(true);
                                 }
                             }}
-                            labelStyle={styles.loginButtonContentStyle}
-                            style={styles.logInButton}>
-                            Log In
-                        </Button>
+                        >
+                            <Text style={styles.loginButtonContentStyle}>Sign In</Text>
+                        </TouchableOpacity>
                         <View style={styles.bottomView}>
                             <Image source={LoginLogo}
                                    style={styles.loginLogo}
-                                   resizeMode={'stretch'}/>
+                                   resizeMode={'contain'}/>
                             <Text style={styles.loginFooter}>Don't have an account ?
                                 <Text style={styles.loginFooterButton}
                                       onPress={() => {
@@ -194,11 +197,11 @@ export const SignInComponent = ({route, navigation}: SignInProps) => {
                                           setPassword("");
                                           setEmail("");
                                           navigation.navigate('Registration', {})
-                                      }}> Sign up</Text>
+                                      }}>{"  "}Sign up</Text>
                             </Text>
                         </View>
                     </View>
-                </View>
+                </KeyboardAwareScrollView>
             </ImageBackground>
         </>
     );

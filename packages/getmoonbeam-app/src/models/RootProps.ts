@@ -1,7 +1,7 @@
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 
 /**
- * The default list of params, to be used across all root stack props.
+ * The default list of params, to be used across all Root stack props.
  */
 export type RootStackParamList = {
     AppOverview: {
@@ -10,7 +10,7 @@ export type RootStackParamList = {
     Authentication: {}
 };
 
-// the AppOverview component props, within the root stack
+// the AppOverview component props, within the Root stack
 export type AppOverviewProps = NativeStackScreenProps<RootStackParamList, 'AppOverview'>;
-// the Authentication component props, within the root stack
+// the Authentication component props, within the Root stack
 export type AuthenticationProps = NativeStackScreenProps<RootStackParamList, 'Authentication'>;

@@ -2,6 +2,12 @@ import {Dimensions, Platform, StyleSheet} from "react-native";
 
 // styles to be used within all components
 export const commonStyles = StyleSheet.create({
+    backButton: {
+        alignSelf: 'flex-start',
+        borderWidth: 1,
+        borderColor: '#FFFFFF',
+        borderRadius: 0
+    },
     container: {
         flex: 1,
         width: '100%',

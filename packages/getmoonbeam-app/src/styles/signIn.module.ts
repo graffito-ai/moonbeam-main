@@ -45,8 +45,8 @@ export const styles = StyleSheet.create({
         fontFamily: 'Saira-Medium',
         alignSelf: 'flex-start',
         marginLeft: Dimensions.get('window').width/20,
-        marginBottom: Dimensions.get('window').height/20,
-        top: Dimensions.get('window').height/20,
+        marginBottom: Dimensions.get('window').height/50,
+        top: Dimensions.get('window').height/50,
         fontSize: Dimensions.get('window').height/25,
         color: '#FFFFFF'
     },
@@ -55,7 +55,7 @@ export const styles = StyleSheet.create({
         fontFamily: 'Saira-Regular'
     },
     textInput: {
-        marginTop: Dimensions.get('window').height/25,
+        marginTop: Dimensions.get('window').height/45,
         alignSelf: 'flex-start',
         marginLeft: Dimensions.get('window').width/20,
         width: Dimensions.get('window').width/1.15,
@@ -68,7 +68,6 @@ export const styles = StyleSheet.create({
     },
     errorMessage: {
         width: Dimensions.get('window').width/1.15,
-        marginTop: Dimensions.get('window').height/100,
         marginLeft: Dimensions.get('window').width/20,
         fontFamily: 'Saira-Medium',
         fontSize: 15,
@@ -89,19 +88,21 @@ export const styles = StyleSheet.create({
     loginButtonContentStyle: {
         color: '#313030',
         fontFamily: 'Saira-Medium',
-        fontSize: 19,
-        marginTop: Dimensions.get('window').height / 85
+        fontSize: Dimensions.get('window').height/50,
+        marginTop: Dimensions.get('window').height / 250,
+        alignItems: 'center',
+        alignSelf: 'center'
     },
     logInButton: {
         marginTop: '10%',
         alignSelf: 'center',
         backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width/2,
+        width: Dimensions.get('window').width/4,
         height: Dimensions.get('window').height/25,
         borderRadius: 0
     },
     bottomView: {
-        marginTop: '15%'
+        marginTop: Dimensions.get('window').height/20
     },
     loginFooter: {
         marginTop: '2%',
@@ -116,6 +117,8 @@ export const styles = StyleSheet.create({
         color: '#F2FF5D',
     },
     loginLogo: {
-        alignSelf: 'center'
+        alignSelf: 'center',
+        height: Dimensions.get('window').height/20,
+        width: Dimensions.get('window').width/9
     }
 });
