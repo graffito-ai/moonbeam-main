@@ -9,9 +9,35 @@ export const styles = StyleSheet.create({
         marginLeft: Dimensions.get('window').width/ 10,
         bottom: Dimensions.get('window').height / 10
     },
-    nameView: {
+    inputColumnView: {
         flexDirection: 'row',
         width: '100%',
+    },
+    codeInputColumnView: {
+        marginRight: Dimensions.get('window').width/15,
+        flexDirection: 'row',
+        width: '100%',
+    },
+    resendCodeView: {
+        flexDirection: 'row',
+        width: '100%',
+    },
+    resendCode: {
+        width: Dimensions.get('window').width / 1.15,
+        bottom: Dimensions.get('window').height / 15,
+        alignSelf: 'flex-start',
+        fontFamily: 'Changa-Medium',
+        fontSize: Dimensions.get('window').height/40,
+        textDecorationLine: 'underline',
+        color: '#F2FF5D'
+    },
+    countdownTimer: {
+        width: Dimensions.get('window').width / 1.15,
+        bottom: Dimensions.get('window').height / 15,
+        alignSelf: 'flex-start',
+        fontFamily: 'Changa-Medium',
+        fontSize: 25,
+        color: '#D9D9D9'
     },
     stepTitle: {
         fontFamily: 'Saira-Medium',
@@ -48,6 +74,24 @@ export const styles = StyleSheet.create({
         bottom: Dimensions.get('window').height / 14,
         alignSelf: 'flex-start',
         width: Dimensions.get('window').width / 2.5,
+    },
+    textInputCodeContentStyle: {
+        fontSize: Dimensions.get('window').height/25,
+        fontFamily: 'Saira-Regular'
+    },
+    textInputCode: {
+        marginTop: Dimensions.get('window').height / 50,
+        bottom: Dimensions.get('window').height / 14,
+        alignSelf: 'flex-start',
+        marginRight: Dimensions.get('window').width / 80,
+        width: Dimensions.get('window').width / 7,
+    },
+    textInputCodeFocus: {
+        marginTop: Dimensions.get('window').height / 50,
+        bottom: Dimensions.get('window').height / 14,
+        alignSelf: 'flex-start',
+        marginRight: Dimensions.get('window').width /80,
+        width: Dimensions.get('window').width / 7,
     },
     textInput: {
         marginTop: Dimensions.get('window').height / 50,

@@ -75,17 +75,80 @@ const phoneNumberState = atom({
 });
 
 /**
- * Atoms used to keep track of the registration step number
+ * Atom used to keep track of the registration step number
  */
 const registrationStepNumber = atom({
     key: "registrationStepNumber",
     default: 0
-})
+});
+
+/**
+ * Atom used to keep track of the registration code's first digit
+ */
+const registrationVerificationDigit1 = atom({
+    key: "registrationVerificationDigit1",
+    default: ""
+});
+
+/**
+ * Atom used to keep track of the registration code's second digit
+ */
+const registrationVerificationDigit2 = atom({
+    key: "registrationVerificationDigit2",
+    default: ""
+});
+
+/**
+ * Atom used to keep track of the registration code's third digit
+ */
+const registrationVerificationDigit3 = atom({
+    key: "registrationVerificationDigit3",
+    default: ""
+});
+
+/**
+ * Atom used to keep track of the registration code's fourth digit
+ */
+const registrationVerificationDigit4 = atom({
+    key: "registrationVerificationDigit4",
+    default: ""
+});
+
+/**
+ * Atom used to keep track of the registration code's fifth digit
+ */
+const registrationVerificationDigit5 = atom({
+    key: "registrationVerificationDigit5",
+    default: ""
+});
+
+/**
+ * Atom used to keep track of the registration code's sixth digit
+ */
+const registrationVerificationDigit6 = atom({
+    key: "registrationVerificationDigit6",
+    default: ""
+});
+
+/**
+ * Atom used to keep track of the registration code timer value
+ */
+const registrationCodeTimerValue = atom({
+    key: "registrationCodeTimerValue",
+    default: 10
+});
 
 /**
  * Export all atoms and/or selectors
  */
 export {
+    registrationCodeTimerValue,
+    registrationVerificationDigit1,
+    registrationVerificationDigit2,
+    registrationVerificationDigit3,
+    registrationVerificationDigit4,
+    registrationVerificationDigit5,
+    registrationVerificationDigit6,
     registrationStepNumber,
     currentUserInformation,
     initialAuthenticationScreen,

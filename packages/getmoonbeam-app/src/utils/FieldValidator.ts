@@ -23,11 +23,11 @@ export class FieldValidator {
         try {
             // detect deletion
             let deletion: boolean = false;
-            if (birthday.length < value.length) {
+            if (birthday.length > value.length) {
                 deletion = true;
             }
 
-            if (deletion) {
+            if (!deletion) {
                 const cleaned = ("" + value).replace(/\D/g, "");
                 const match = cleaned.match(/^(\d{0,2})?(\d{0,2})?(\d{0,4})?$/);
 
@@ -36,6 +36,38 @@ export class FieldValidator {
                         match[1]! ? (match[1].length == 2 ? `${match[1]}/` : match[1]) : "",
                         match[2]! ? (match[2].length == 2 ? `${match[2]}/` : match[2]) : "",
                         match[3]! ? match[3] : ""
+                    ].join("")
+                    : "";
+            } else {
+                return value;
+            }
+        } catch (err) {
+            return "";
+        }
+    }
+
+    /**
+     * Function used to format a code verification digit's value for text input field
+     *
+     * @param codeDigit original digit value
+     * @param value new digit value obtained while typing
+     */
+    public formatCodeDigit = (codeDigit: string, value: string): string => {
+        // for formatting the code verification digit to one single number digit
+        try {
+            // detect deletion
+            let deletion: boolean = false;
+            if (codeDigit.length > value.length) {
+                deletion = true;
+            }
+
+            if (!deletion) {
+                const cleaned = ("" + value).replace(/\D/g, "");
+                const match = cleaned.match(/^(\d)?$/);
+
+                return match
+                    ? [
+                        match[1]! ? `${match[1]}` : ""
                     ].join("")
                     : "";
             } else {
@@ -57,11 +89,11 @@ export class FieldValidator {
         try {
             // detect deletion
             let deletion: boolean = false;
-            if (phoneNumber.length < value.length) {
+            if (phoneNumber.length > value.length) {
                 deletion = true;
             }
 
-            if (deletion) {
+            if (!deletion) {
                 let cleaned = ("" + value).replace('+1', "").replace(/\D/g, "");
                 cleaned = `+1 ${cleaned}`;
                 const match = cleaned.match(/^(\+1)\s(\d{0,3})?(\d{0,3})?(\d{0,4})?$/);
