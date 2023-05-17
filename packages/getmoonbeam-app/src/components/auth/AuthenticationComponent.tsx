@@ -8,21 +8,29 @@ import {SignInComponent} from "./SignInComponent";
 import {RegistrationComponent} from "./registration/RegistrationComponent";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
+    addressCityState,
+    addressLineState,
+    addressStateState,
+    addressZipState,
+    birthdayState,
+    dutyStatusValueState,
+    emailState,
+    enlistingYearState,
+    firstNameState,
+    initialAuthenticationScreen,
+    lastNameState, militaryBranchValueState,
+    militaryRegistrationDisclaimerCheckState,
+    phoneNumberState,
+    registrationBackButtonShown,
+    registrationCodeTimerValue,
+    registrationMainErrorState,
+    registrationStepNumber,
     registrationVerificationDigit1,
     registrationVerificationDigit2,
     registrationVerificationDigit3,
     registrationVerificationDigit4,
     registrationVerificationDigit5,
-    registrationVerificationDigit6,
-    registrationCodeTimerValue,
-    initialAuthenticationScreen,
-    registrationBackButtonShown,
-    firstNameState,
-    lastNameState,
-    emailState,
-    birthdayState,
-    phoneNumberState,
-    registrationStepNumber
+    registrationVerificationDigit6
 } from '../../recoil/AuthAtom';
 import {AccountRecoveryComponent} from "./AccountRecoveryComponent";
 import {Dimensions} from "react-native";
@@ -35,6 +43,7 @@ export const AuthenticationComponent = ({}: AuthenticationProps) => {
         // create a native stack navigator, to be used for our Authentication application navigation
         const Stack = createNativeStackNavigator<AuthenticationStackParamList>();
         // constants used to keep track of shared states
+        const [, setRegistrationMainError] = useRecoilState(registrationMainErrorState);
         const [, setRegistrationVerificationDigit1] = useRecoilState(registrationVerificationDigit1);
         const [, setRegistrationVerificationDigit2] = useRecoilState(registrationVerificationDigit2);
         const [, setRegistrationVerificationDigit3] = useRecoilState(registrationVerificationDigit3);
@@ -48,6 +57,14 @@ export const AuthenticationComponent = ({}: AuthenticationProps) => {
         const [, setBirthday] = useRecoilState(birthdayState);
         const [, setPhoneNumber] = useRecoilState(phoneNumberState);
         const [, setEmail] = useRecoilState(emailState);
+        const [, setDutyStatus] = useRecoilState(dutyStatusValueState);
+        const [, setEnlistingYear] = useRecoilState(enlistingYearState);
+        const [, setAddressState] = useRecoilState(addressStateState);
+        const [, setAddressZip] = useRecoilState(addressZipState);
+        const [, setAddressLine] = useRecoilState(addressLineState);
+        const [, setAddressCity] = useRecoilState(addressCityState);
+        const [, setIsDisclaimerChecked] = useRecoilState(militaryRegistrationDisclaimerCheckState);
+        const [, setMilitaryBranch] = useRecoilState(militaryBranchValueState);
 
         /**
          * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -105,6 +122,15 @@ export const AuthenticationComponent = ({}: AuthenticationProps) => {
                                                     setEmail("");
                                                     setBirthday("");
                                                     setPhoneNumber("");
+                                                    setDutyStatus("");
+                                                    setEnlistingYear("");
+                                                    setAddressLine("");
+                                                    setAddressCity("");
+                                                    setAddressZip("");
+                                                    setAddressState("");
+                                                    setIsDisclaimerChecked(false);
+                                                    setRegistrationMainError(false);
+                                                    setMilitaryBranch("");
 
                                                     // navigate to the SignIn page
                                                     navigation.navigate('SignIn', {initialRender: true});

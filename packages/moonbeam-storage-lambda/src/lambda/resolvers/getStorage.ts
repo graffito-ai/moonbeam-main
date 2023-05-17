@@ -32,7 +32,7 @@ export const getStorage = async (getStorageInput: GetStorageInput, sub: string):
                 const objectKey = getStorageInput.level === FileAccessLevel.Public
                     ? `${getStorageInput.level.toLowerCase()}/${getStorageInput.name}`
                     : `${getStorageInput.level.toLowerCase()}/${sub}/${getStorageInput.name}`;
-                console.log(`Object key is ${objectKey}`);
+
                 const metadata = await new AWS.S3().headObject({
                     Bucket: bucketName,
                     Key: objectKey

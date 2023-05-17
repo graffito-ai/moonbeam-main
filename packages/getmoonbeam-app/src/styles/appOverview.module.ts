@@ -61,8 +61,8 @@ export const styles = StyleSheet.create({
     },
     buttonLeft: {
         backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width/3.5,
-        height: Dimensions.get('window').height/25,
+        width: Dimensions.get('window').width/3,
+        height: Dimensions.get('window').height/20,
         marginRight: Dimensions.get('window').width/5,
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -71,8 +71,8 @@ export const styles = StyleSheet.create({
     },
     buttonRight: {
         backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width/3.5,
-        height: Dimensions.get('window').height/25,
+        width: Dimensions.get('window').width/3,
+        height: Dimensions.get('window').height/20,
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -81,7 +81,7 @@ export const styles = StyleSheet.create({
     buttonText: {
         color: '#313030',
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').height/52,
+        fontSize: Dimensions.get('window').height/45,
         marginTop: Dimensions.get('window').height / 90
     },
     bottomContainerButtons: {

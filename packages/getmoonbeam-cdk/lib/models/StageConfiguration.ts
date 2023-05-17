@@ -1,5 +1,5 @@
 import { Stages } from "@moonbeam/moonbeam-models";
-import {AmplifyConfiguration} from "./ServiceConfiguration";
+import {AmplifyConfiguration, AppSyncConfiguration} from "./ServiceConfiguration";
 import {SESConfiguration} from "@moonbeam/moonbeam-cdk/lib/models/ServiceConfiguration";
 
 /**
@@ -10,5 +10,6 @@ export interface StageConfiguration {
     readonly awsAccountId: string;
     readonly amplifyConfig: AmplifyConfiguration;
     readonly sesConfig: SESConfiguration;
+    readonly appSyncConfig: AppSyncConfiguration;
     readonly environmentVariables: Map<string, string>;
 }

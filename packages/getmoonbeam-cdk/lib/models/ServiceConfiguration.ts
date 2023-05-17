@@ -33,3 +33,10 @@ export interface SESConfiguration {
     readonly created: boolean;
 }
 
+/**
+ * Interface used to define the configuration for AppSync
+ */
+export interface AppSyncConfiguration {
+    readonly graphqlApiName: string;
+}
+

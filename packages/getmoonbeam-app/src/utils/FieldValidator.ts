@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import {stateItems} from "../models/Content";
 
 /**
  * File used as a utility class, for validating field values for forms
@@ -78,6 +79,42 @@ export class FieldValidator {
     }
 
     /**
+     * Function used to format a year entry for text input field
+     *
+     * @param year original year value
+     * @param value new year value obtained while typing
+     */
+    public formatYearEntry = (year: string, value: string): string => {
+        // for formatting the date to a valid XXXX year
+        try {
+            // detect deletion
+            let deletion: boolean = false;
+            if (year.length > value.length) {
+                deletion = true;
+            }
+
+            if (!deletion) {
+                let cleaned = ("" + value).replace(/\D/g, "");
+                const match = cleaned.match(/^(\d{0,4})?$/);
+
+                return match
+                    ? [
+                        match[1]! ? match[1] : "",
+                        match[2]! ? match[2] : "",
+                        match[3]! ? match[3] : "",
+                        match[4]! ? match[4] : ""
+                    ].join("")
+                    : "";
+            } else {
+                return value;
+            }
+        } catch (err) {
+            return "";
+        }
+    }
+
+
+    /**
      * Function used to format phone number value for text input field
      *
      * @param phoneNumber original phone number value
@@ -136,6 +173,13 @@ export class FieldValidator {
                     setErrorsArray([]);
                 }
                 break;
+            case 'email':
+                if (!/^([^\s@]+@[^\s@]+\.[^\s@]+)$/.test(fieldValue)) {
+                    setErrorsArray(["Invalid Email."]);
+                } else {
+                    setErrorsArray([]);
+                }
+                break;
             case 'birthday':
                 // use to calculate the difference in years
                 const birthdayValue = `${fieldValue.split("/")[2]}-${fieldValue.split("/")[0]}-${fieldValue.split("/")[1]}`;
@@ -159,9 +203,55 @@ export class FieldValidator {
                     setErrorsArray([]);
                 }
                 break;
-            case 'email':
-                if (!/^([^\s@]+@[^\s@]+\.[^\s@]+)$/.test(fieldValue)) {
-                    setErrorsArray(["Invalid Email."]);
+            case 'enlistingYear':
+                if (!/^(\d{4})$/.test(fieldValue)) {
+                    setErrorsArray(["Invalid Enlisting Year."]);
+                } else {
+                    setErrorsArray([]);
+                }
+                break;
+            case 'dutyStatus':
+                if (fieldValue !== 'Active Duty' && fieldValue !== 'National Guard' &&
+                    fieldValue !== 'Reservist' && fieldValue !== 'Veteran') {
+                    setErrorsArray(["Invalid Duty Status."]);
+                } else {
+                    setErrorsArray([]);
+                }
+                break;
+            case 'addressLine':
+                if (!/^((\d{1,})+(\,)?) (([a-zA-Z0-9\s]{1,})+(\,)?) ([a-zA-Z0-9\s]{1,})$/.test(fieldValue)) {
+                    setErrorsArray(["Invalid Street Address."]);
+                } else {
+                    setErrorsArray([]);
+                }
+                break;
+            case 'addressCity':
+                if (!/^([a-zA-Z\s]{2,})$/.test(fieldValue)) {
+                    setErrorsArray(["Invalid City."]);
+                } else {
+                    setErrorsArray([]);
+                }
+                break;
+            case 'addressState':
+                if (!/^(([Aa][EeLlKkSsZzRr])|([Cc][AaOoTt])|([Dd][EeCc])|([Ff][MmLl])|([Gg][AaUu])|([Hh][Ii])|([Ii][DdLlNnAa])|([Kk][SsYy])|([Ll][Aa])|([Mm][EeHhDdAaIiNnSsOoTt])|([Nn][EeVvHhJjMmYyCcDd])|([Mm][Pp])|([Oo][HhKkRr])|([Pp][WwAaRr])|([Rr][Ii])|([Ss][CcDd])|([Tt][NnXx])|([Uu][Tt])|([Vv][TtIiAa])|([Ww][AaVvIiYy]))$/.test(fieldValue) &&
+                    stateItems.filter((state) => state.toLowerCase() === fieldValue.toLowerCase()).length !== 1) {
+                    setErrorsArray(["Invalid State."]);
+                } else {
+                    setErrorsArray([]);
+                }
+                break;
+            case 'addressZip':
+                if (!/^\d{5}(?:[-\s]\d{4})?$/.test(fieldValue)) {
+                    setErrorsArray(["Invalid Zip Code."]);
+                } else {
+                    setErrorsArray([]);
+                }
+                break;
+            case 'militaryBranch':
+                if (fieldValue !== 'Air Force' && fieldValue !== 'Army' &&
+                    fieldValue !== 'Coast Guard' && fieldValue !== 'Marine Corps' &&
+                    fieldValue !== 'Navy' && fieldValue !== 'Space Force') {
+                    setErrorsArray(["Invalid Duty Status."]);
                 } else {
                     setErrorsArray([]);
                 }

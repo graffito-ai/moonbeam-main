@@ -35,6 +35,62 @@ const verificationCodeErrorsState = atom({
 });
 
 /**
+ * Atom used to keep track of the registration duty status errors
+ */
+const dutyStatusErrorsState = atom({
+    key: "dutyStatusErrorsState",
+    default: []
+});
+
+/**
+ * Atom used to keep track of the registration military branch errors
+ */
+const militaryBranchErrorsState = atom({
+    key: "militaryBranchErrorsState",
+    default: []
+});
+
+/**
+ * Atom used to keep track of the registration enlisting year errors
+ */
+const enlistingYearErrorsState = atom({
+    key: "enlistingYearErrorsState",
+    default: []
+});
+
+/**
+ * Atom used to keep track of the registration address line errors
+ */
+const addressLineErrorsState = atom({
+    key: "addressLineErrorsState",
+    default: []
+});
+
+/**
+ * Atom used to keep track of the registration address city errors
+ */
+const addressCityErrorsState = atom({
+    key: "addressCityErrorsState",
+    default: []
+});
+
+/**
+ * Atom used to keep track of the registration address state errors
+ */
+const addressStateErrorsState = atom({
+    key: "addressStateErrorsState",
+    default: []
+});
+
+/**
+ * Atom used to keep track of the registration address zip errors
+ */
+const addressZipErrorsState = atom({
+    key: "addressZipErrorsState",
+    default: []
+});
+
+/**
  * Atom used to keep track of the registration first name errors
  */
 const firstNameErrorsState = atom({
@@ -61,8 +117,8 @@ const birthdayErrorState = atom({
 /**
  * Atom used to keep track of the registration email errors
  */
-const emailErorrsState = atom({
-    key: "emailErorrsState",
+const emailErrorsState = atom({
+    key: "emailErrorsState",
     default: []
 });
 
@@ -80,6 +136,46 @@ const phoneNumberErrorsState = atom({
 const registrationBackButtonShown = atom({
     key: "registrationBackButtonShown",
     default: true
+});
+
+/**
+ * Atom used to keep track of the registration enlisting year
+ */
+const enlistingYearState = atom({
+    key: "enlistingYearState",
+    default: ""
+});
+
+/**
+ * Atom used to keep track of the address line for registration
+ */
+const addressLineState = atom({
+    key: "addressLineState",
+    default: ""
+});
+
+/**
+ * Atom used to keep track of the address city for registration
+ */
+const addressCityState = atom({
+    key: "addressCityState",
+    default: ""
+});
+
+/**
+ * Atom used to keep track of the address state for registration
+ */
+const addressStateState = atom({
+    key: "addressStateState",
+    default: ""
+});
+
+/**
+ * Atom used to keep track of the address zip for registration
+ */
+const addressZipState = atom({
+    key: "addressZipState",
+    default: ""
 });
 
 /**
@@ -187,23 +283,73 @@ const registrationCodeTimerValue = atom({
 });
 
 /**
- * Atom used to keep track of the registration document steps order
+ * Atom used to keep track of the registration duty status dropdown
+ * state.
  */
-const documentationStepSkip = atom({
-    key: "documentationStepSkip",
+const dutyStatusState = atom({
+    key: "dutyStatusState",
     default: false
 });
+
+/**
+ * Atom used to keep track of the registration duty status value.
+ */
+const dutyStatusValueState = atom({
+    key: "dutyStatusValueState",
+    default: ""
+});
+
+/**
+ * Atom used to keep track of the registration military branch dropdown state.
+ */
+const militaryBranchState = atom({
+    key: "militaryBranchState",
+    default: false
+});
+
+/**
+ * Atom used to keep track of the registration military branch value.
+ */
+const militaryBranchValueState = atom({
+    key: "militaryBranchValueState",
+    default: ""
+});
+
+/**
+ * Atom used to keep track of the registration disclaimer checkbox state.
+ */
+const militaryRegistrationDisclaimerCheckState = atom({
+    key: "militaryRegistrationDisclaimerCheckState",
+    default: false
+});
+
 
 /**
  * Export all atoms and/or selectors
  */
 export {
-    documentationStepSkip,
+    dutyStatusErrorsState,
+    militaryBranchErrorsState,
+    enlistingYearState,
+    militaryRegistrationDisclaimerCheckState,
+    addressStateState,
+    addressCityState,
+    addressLineState,
+    addressZipState,
+    enlistingYearErrorsState,
+    addressLineErrorsState,
+    addressCityErrorsState,
+    addressZipErrorsState,
+    addressStateErrorsState,
+    militaryBranchState,
+    militaryBranchValueState,
+    dutyStatusValueState,
+    dutyStatusState,
     verificationCodeErrorsState,
     firstNameErrorsState,
     lastNameErrorsState,
     birthdayErrorState,
-    emailErorrsState,
+    emailErrorsState,
     phoneNumberErrorsState,
     registrationCodeTimerValue,
     registrationVerificationDigit1,

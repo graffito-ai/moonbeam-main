@@ -2,7 +2,7 @@ import React, {useEffect} from "react";
 import {Image, Text, TouchableOpacity, View} from "react-native";
 import {Divider} from "react-native-paper";
 import {useRecoilState} from "recoil";
-import {documentationStepSkip, registrationBackButtonShown, registrationStepNumber} from "../../../recoil/AuthAtom";
+import {registrationBackButtonShown, registrationStepNumber} from "../../../recoil/AuthAtom";
 import {styles} from "../../../styles/registration.module";
 
 /**
@@ -10,7 +10,6 @@ import {styles} from "../../../styles/registration.module";
  */
 export const DocumentCaptureStep = () => {
     // constants used to keep track of shared states
-    const [, setSkipDocumentationStep] = useRecoilState(documentationStepSkip);
     const [stepNumber, setStepNumber] = useRecoilState(registrationStepNumber);
     const [, setIsBackButtonShown] = useRecoilState(registrationBackButtonShown);
 
@@ -53,9 +52,6 @@ export const DocumentCaptureStep = () => {
 
                                             // change the step number accordingly
                                             setStepNumber(2);
-
-                                            // set up skipping the step flag for future identification flow
-                                            setSkipDocumentationStep(true);
                                         }
                                     }
                                 >

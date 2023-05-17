@@ -78,7 +78,7 @@ export const SignInComponent = ({route, navigation}: SignInProps) => {
                         <Text style={styles.bottomTitle}>Login</Text>
                         {loginMainError ?
                             <Text style={styles.errorMessage}>Please fill out the information below!</Text>
-                            : (emailErrors.length && !loginMainError) ?
+                            : (emailErrors.length !== 0 && !loginMainError) ?
                                 <Text style={styles.errorMessage}>{emailErrors[0]}</Text> :
                                 <Text style={styles.errorMessage}>{passwordErrors[0]}</Text>
                         }

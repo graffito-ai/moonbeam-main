@@ -13,6 +13,11 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         width: '100%',
     },
+    inputColumnViewAddress: {
+        marginTop: Dimensions.get('window').height/55,
+        flexDirection: 'row',
+        width: '100%',
+    },
     codeInputColumnView: {
         marginRight: Dimensions.get('window').width/15,
         flexDirection: 'row',
@@ -51,7 +56,7 @@ export const styles = StyleSheet.create({
         marginLeft: Dimensions.get('window').width/ 18,
         bottom: Dimensions.get('window').height / 10,
         fontSize: Dimensions.get('window').height / 52,
-        width: Dimensions.get('window').width/ 1.25,
+        width: Dimensions.get('window').width/ 1.15,
         color: '#FFFFFF'
     },
     triangleIcon: {
@@ -98,7 +103,7 @@ export const styles = StyleSheet.create({
         bottom: Dimensions.get('window').height / 14,
         alignSelf: 'flex-start',
         marginRight: Dimensions.get('window').width / 8,
-        width: Dimensions.get('window').width / 1.15,
+        width: Dimensions.get('window').width / 1.15
     },
     textInputFocus: {
         marginTop: Dimensions.get('window').height / 50,
@@ -116,12 +121,21 @@ export const styles = StyleSheet.create({
         fontSize: 15,
         color: '#F2FF5D'
     },
+    disclaimerView: {
+        marginTop: Dimensions.get('window').height/55,
+        flexDirection: 'row',
+        alignContent: 'space-between',
+        width: '100%'
+    },
+    disclaimerCheckbox: {
+        alignSelf: 'flex-start'
+    },
     disclaimerText: {
+        left: Dimensions.get('window').width/50,
         fontFamily: 'Raleway-Regular',
-        alignSelf: 'flex-start',
-        bottom: Dimensions.get('window').height / 17,
-        fontSize: Dimensions.get('window').height / 75,
-        width: Dimensions.get('window').width/ 1.15,
+        alignSelf: 'flex-end',
+        fontSize: Dimensions.get('window').height / 65,
+        width: Dimensions.get('window').width/ 1.25,
         color: '#FFFFFF'
     },
     disclaimerTextHighlighted: {
@@ -132,8 +146,17 @@ export const styles = StyleSheet.create({
     },
     buttonLeft: {
         backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width/3.5,
-        height: Dimensions.get('window').height/25,
+        width: Dimensions.get('window').width/3,
+        height: Dimensions.get('window').height/20,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    buttonRightDisabled: {
+        backgroundColor: '#D9D9D9',
+        width: Dimensions.get('window').width/3,
+        height: Dimensions.get('window').height/20,
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -141,8 +164,8 @@ export const styles = StyleSheet.create({
     },
     buttonRight: {
         backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width/3.5,
-        height: Dimensions.get('window').height/25,
+        width: Dimensions.get('window').width/3,
+        height: Dimensions.get('window').height/20,
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -151,7 +174,7 @@ export const styles = StyleSheet.create({
     buttonText: {
         color: '#313030',
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').height/52,
+        fontSize: Dimensions.get('window').height/45,
         marginTop: Dimensions.get('window').height / 90
     },
     bottomContainerButtons: {
@@ -201,11 +224,35 @@ export const styles = StyleSheet.create({
     },
     documentSelectionButton: {
         backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width/3.5,
-        height: Dimensions.get('window').height/25,
+        width: Dimensions.get('window').width / 3.5,
+        height: Dimensions.get('window').height / 25,
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'center'
     },
+    pickerView: {
+        zIndex: 2000,
+        bottom: Dimensions.get('window').height / 20
+    },
+    dropdownContainer: {
+        backgroundColor: '#1c1a1f',
+        borderColor: "#D9D9D9",
+        width: Dimensions.get('window').width / 1.15,
+        height: Dimensions.get('window').height / 8
+    },
+    dropdownPicker: {
+        backgroundColor: '#1c1a1f',
+        borderColor: "#D9D9D9",
+        width: Dimensions.get('window').width / 1.15,
+        height: Dimensions.get('window').height / 25
+    },
+    dropdownImage: {
+        height: Dimensions.get('window').height / 45,
+        width: Dimensions.get('window').height / 45
+    },
+    militaryRegistrationView: {
+        zIndex: 1000,
+        marginBottom: Dimensions.get('window').height/30
+    }
 });

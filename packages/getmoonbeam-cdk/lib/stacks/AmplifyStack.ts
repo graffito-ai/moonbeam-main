@@ -8,6 +8,10 @@ import {Constants} from "@moonbeam/moonbeam-models";
  * File used to define the Amplify stack, used to deploy all Amplify related functionality.
  */
 export class AmplifyStack extends Stack {
+
+    //
+    readonly userPoolId: string;
+
     /**
      * Constructor for the Amplify stack
      *
