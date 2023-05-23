@@ -14,8 +14,8 @@
     "cdk": "cdk"
   },
   "devDependencies": {
-    "@moonbeam/moonbeam-tsconfig": "*",
     "@moonbeam/moonbeam-models": "*",
+    "@moonbeam/moonbeam-tsconfig": "*",
     "@types/jest": "^29.4.0",
     "@types/node": "18.13.0",
     "aws-cdk": "2.66.1",

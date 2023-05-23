@@ -30,7 +30,7 @@ export const CodeVerificationStep = () => {
     const [verificationCodeDigit6Focus, setIsVerificationCodeDigit6Focus] = useState<boolean>(false);
     // constants used to keep track of shared states
     const [countDownValue, ] = useRecoilState(registrationCodeTimerValue);
-    const [verificationCodeErrors, setVerificationCodeErrors] = useRecoilState(verificationCodeErrorsState);
+    const [verificationCodeErrors, ] = useRecoilState(verificationCodeErrorsState);
     const [verificationCodeDigit1, setVerificationCodeDigit1] = useRecoilState(registrationVerificationDigit1);
     const [verificationCodeDigit2, setVerificationCodeDigit2] = useRecoilState(registrationVerificationDigit2);
     const [verificationCodeDigit3, setVerificationCodeDigit3] = useRecoilState(registrationVerificationDigit3);

@@ -9,7 +9,7 @@ import {Constants} from "@moonbeam/moonbeam-models";
  */
 export class AmplifyStack extends Stack {
 
-    //
+    // User Pool ID, to be used in the dependent AppSync stack
     readonly userPoolId: string;
 
     /**
@@ -27,9 +27,9 @@ export class AmplifyStack extends Stack {
          * the Amplify app (as well as the deployment) once.
          *
          */
-        const amplifyApp = new aws_amplify.CfnApp(this, `${props.amplifyConfig!.amplifyAppName!}`, {
-            name: `${props.amplifyConfig!.amplifyAppName!}`,
-            iamServiceRole: `${props.amplifyConfig!.amplifyServiceRoleName!}`
+        const amplifyApp = new aws_amplify.CfnApp(this, `${props.amplifyConfig.amplifyAppName}`, {
+            name: `${props.amplifyConfig.amplifyAppName}`,
+            iamServiceRole: `${props.amplifyConfig.amplifyServiceRoleName}`
         });
 
         // add the authentication resources through a nested auth stack
@@ -41,6 +41,9 @@ export class AmplifyStack extends Stack {
             amplifyAuthConfig: props.amplifyConfig.amplifyAuthConfig,
             environmentVariables: props.environmentVariables
         });
+
+        // set the user pool id from the Auth Stack exports
+        this.userPoolId = amplifyAuthStack.outputs[2];
 
         // creates the Cfn Outputs, to be added to the resulting file, which will be used by the Amplify frontend
         amplifyApp && new CfnOutput(this, Constants.AmplifyConstants.AMPLIFY_ID, {

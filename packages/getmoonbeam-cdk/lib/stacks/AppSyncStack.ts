@@ -1,19 +1,20 @@
-import {NestedStack, StackProps} from "aws-cdk-lib";
+import {CfnOutput, Stack, StackProps} from "aws-cdk-lib";
 import {Construct} from "constructs";
 import {StageConfiguration} from "../models/StageConfiguration";
 import path from "path";
 import {AuthorizationType, GraphqlApi, SchemaFile} from "aws-cdk-lib/aws-appsync";
 import {UserPool} from "aws-cdk-lib/aws-cognito";
 import {AmplifyAuthConfig} from "../models/ServiceConfiguration";
+import {Constants} from "@moonbeam/moonbeam-models";
 
 /**
  * File used to define the stack responsible for creating the resources
  * for the AppSync API used by various Lambda resolvers and services.
  */
-export class AppSyncStack extends NestedStack {
+export class AppSyncStack extends Stack {
 
     // the created AppSync API id, to be used in retrieving the AppSync API in dependent Lambda resolver stacks
-    public graphqlApiId: string;
+    readonly graphqlApiId: string;
 
     /**
      * Constructor for the app sync stack.
@@ -46,7 +47,10 @@ export class AppSyncStack extends NestedStack {
         });
         this.graphqlApiId = appSyncApi.apiId;
 
-        // populates the outputs that the parent stack has access to (just so we don't output these twice from parent and child stacks)
-        // this.outputs = [props.env!.region!, appSyncApi.graphqlUrl];
+        // creates the Cfn Outputs, to be added to the resulting file, which will be used by the Amplify frontend
+        new CfnOutput(this, Constants.AppSyncConstants.APPSYNC_ENDPOINT, {
+            exportName: Constants.AppSyncConstants.APPSYNC_ENDPOINT.replaceAll('_', '-'),
+            value: appSyncApi.graphqlUrl
+        });
     }
 }

@@ -19,11 +19,11 @@ import {AmplifyConfiguration} from "../models/ServiceConfiguration";
 export class AmplifyAuthStack extends NestedStack {
 
     /**
-     * since this is a nested stack, the CfnOutputs do not accurately work. Thus, in order to take advantage of the CfnOutputs
+     * Since this is a nested stack, the CfnOutputs do not accurately work. Thus, in order to take advantage of the CfnOutputs
      * and display them from the parent stack, in order to eventually write them to a file, we will store them in a variable, accessible
      * from the parent stack.
      */
-    public outputs: string[];
+    readonly outputs: string[];
 
     /**
      * Constructor for the Authentication stack.

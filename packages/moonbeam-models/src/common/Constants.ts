@@ -35,12 +35,14 @@ export namespace Constants {
         export const COGNITO_MFA_TYPES: string = 'aws_cognito_mfa_types';
         export const COGNITO_PASSWORD_PROTECTION_SETTINGS: string = 'aws_cognito_password_protection_settings';
         export const COGNITO_VERIFICATION_MECHANISMS: string = 'aws_cognito_verification_mechanisms';
-
-        // AppSync related
+    }
+    // AppSync constants used in mapping the AppSync CDK outputs to the AWS exports Amplify file
+    export namespace AppSyncConstants {
         export const APPSYNC_ENDPOINT: string = 'aws_appsync_graphqlEndpoint';
         export const APPSYNC_REGION: string = 'aws_appsync_region';
         export const APPSYNC_AUTH_TYPE: string = 'aws_appsync_authenticationType'
     }
+
     // Moonbeam specific constants used in mapping various resources
     export namespace MoonbeamConstants {
         // Infrastructure related
@@ -62,8 +64,5 @@ export namespace Constants {
     export namespace AWSPairConstants {
         export const MAIN_FILES_CLOUDFRONT_DISTRIBUTION_SECRET_NAME = `main-files-cloudfront-pair`;
         export const MAIN_FILES_CLOUDFRONT_PRIVATE_KEY = 'MAIN_FILES_CLOUDFRONT_PRIVATE_KEY';
-        export const PLAID_SECRET_NAME = 'plaid-pair';
-        export const PLAID_CLIENT_ID = 'PLAID-CLIENT-ID';
-        export const PLAID_SECRET = 'PLAID-SECRET';
     }
 }

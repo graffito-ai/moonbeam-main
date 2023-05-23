@@ -1,3 +1,12 @@
+# graphql/Root.graphql
+# Main Schema File
+type Query {
+    getStorage(getStorageInput: GetStorageInput!): StorageResponse @aws_cognito_user_pools
+}
+
+type Mutation {
+    putStorage(putStorageInput: PutStorageInput!): StorageResponse @aws_cognito_user_pools
+}
 # graphql/AccountLinkSchema.graphql
 # Storage Schema File
 enum StorageErrorType {

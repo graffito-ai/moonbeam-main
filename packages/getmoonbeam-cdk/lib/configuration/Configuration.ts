@@ -1,4 +1,4 @@
-import {Regions, Stages} from "@moonbeam/moonbeam-models";
+import {Constants, Regions, Stages} from "@moonbeam/moonbeam-models";
 import {InfrastructureConfiguration} from "../models/InfrastructureConfiguration";
 
 /**
@@ -19,6 +19,21 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     authenticatedRoleName: 'amplify-getmoonbeamapp-dev-authRole', // this role's policies needs to be translated into the role created by amplify via the app
                     unauthenticatedRoleName: 'amplify-getmoonbeamapp-dev-unauthRole' // this role's policies needs to be translated into the role created by amplify via the app
                 },
+            },
+            appSyncConfig: {
+                graphqlApiName: 'getMoonbeamGraphqlApi'
+            },
+            storageConfig: {
+                deploymentBucketName: Constants.MoonbeamConstants.MOONBEAM_DEPLOYMENT_BUCKET_NAME,
+                mainFilesBucketName: Constants.MoonbeamConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME,
+                mainFilesCloudFrontDistributionName: `cloudfront-distribution-${Constants.MoonbeamConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
+                mainFilesCloudFrontTrustedPublicKeyName: `cloudfront-public-key-${Constants.MoonbeamConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
+                mainFilesCloudFrontTrustedKeyGroupName: `cloudfront-key-group-${Constants.MoonbeamConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
+                mainFilesCloudFrontAccessIdentityName: `cloudfront-access-identity-${Constants.MoonbeamConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
+                mainFilesCloudFrontCachePolicyName: `cloudfront-cache-policy-${Constants.MoonbeamConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
+                storageFunctionName: 'storageLambdaFunction',
+                getResolverName: 'getStorage',
+                putResolverName: 'putStorage'
             },
             sesConfig: {
                 emailAddress: `noreply-${Stages.DEV}@moonbeam.vet`,

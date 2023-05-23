@@ -1,7 +1,9 @@
 import {InfrastructureConfiguration} from "../models/InfrastructureConfiguration";
 import {App, Environment} from "aws-cdk-lib";
 import {AmplifyStack} from "../stacks/AmplifyStack";
-import { SESStack } from "../stacks/SESStack";
+import {SESStack} from "../stacks/SESStack";
+import {AppSyncStack} from "../stacks/AppSyncStack";
+import {StorageResolverStack} from "../stacks/StorageResolverStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -52,8 +54,8 @@ export class StageUtils {
                     env: stageEnv,
                     stage: stageConfiguration.stage,
                     sesConfig: {
-                        emailAddress: stageConfiguration.sesConfig!.emailAddress,
-                        created: stageConfiguration.sesConfig!.created
+                        emailAddress: stageConfiguration.sesConfig.emailAddress,
+                        created: stageConfiguration.sesConfig.created
                     },
                     environmentVariables: stageConfiguration.environmentVariables
                 });
@@ -65,19 +67,47 @@ export class StageUtils {
                     env: stageEnv,
                     stage: stageConfiguration.stage,
                     amplifyConfig: {
-                        amplifyAppName: stageConfiguration.amplifyConfig!.amplifyAppName!,
-                        amplifyServiceRoleName: stageConfiguration.amplifyConfig!.amplifyServiceRoleName!,
+                        amplifyAppName: stageConfiguration.amplifyConfig.amplifyAppName,
+                        amplifyServiceRoleName: stageConfiguration.amplifyConfig.amplifyServiceRoleName,
                         amplifyAuthConfig: {
-                            userPoolName: stageConfiguration.amplifyConfig!.amplifyAuthConfig!.userPoolName,
-                            userPoolFrontendClientName: stageConfiguration.amplifyConfig!.amplifyAuthConfig!.userPoolFrontendClientName,
-                            userPoolIdentityFrontendPoolName: stageConfiguration.amplifyConfig!.amplifyAuthConfig!.userPoolIdentityFrontendPoolName,
-                            authenticatedRoleName: stageConfiguration.amplifyConfig!.amplifyAuthConfig!.authenticatedRoleName,
-                            unauthenticatedRoleName: stageConfiguration.amplifyConfig!.amplifyAuthConfig!.unauthenticatedRoleName,
+                            userPoolName: stageConfiguration.amplifyConfig.amplifyAuthConfig.userPoolName,
+                            userPoolFrontendClientName: stageConfiguration.amplifyConfig.amplifyAuthConfig.userPoolFrontendClientName,
+                            userPoolIdentityFrontendPoolName: stageConfiguration.amplifyConfig.amplifyAuthConfig.userPoolIdentityFrontendPoolName,
+                            authenticatedRoleName: stageConfiguration.amplifyConfig.amplifyAuthConfig.authenticatedRoleName,
+                            unauthenticatedRoleName: stageConfiguration.amplifyConfig.amplifyAuthConfig.unauthenticatedRoleName,
                         },
                     },
                     environmentVariables: stageConfiguration.environmentVariables
                 });
                 amplifyStack.addDependency(sesStack);
+
+                // create the AppSync stack && add it to the CDK App
+                const appSyncStack = new AppSyncStack(this.app, `moonbeam-appsync-${stageKey}`, {
+                    stackName: `moonbeam-appsync-${stageKey}`,
+                    description: 'This stack will contain all the AppSync related resources for the GetMoonbeam Application',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    userPoolId: amplifyStack.userPoolId,
+                    userPoolName: `${stageConfiguration.amplifyConfig.amplifyAuthConfig.userPoolName}-${stageKey}-${stageEnv.region}`,
+                    appSyncConfig: {
+                        graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName
+                    },
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                appSyncStack.addDependency(amplifyStack);
+
+                // create the AppSync/Lambda storage resolver stack && add it to the CDK app
+                const storageStack = new StorageResolverStack(this.app, `moonbeam-storage-resolver-${stageKey}`, {
+                    stackName: `moonbeam-storage-resolver-${stageKey}`,
+                    description: 'This stack will contain all the AppSync related resources needed by the Lambda storage resolver',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    graphqlApiId: appSyncStack.graphqlApiId,
+                    graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
+                    storageConfig: stageConfiguration.storageConfig,
+                    environmentVariables: stageConfiguration.environmentVariables,
+                });
+                storageStack.addDependency(appSyncStack);
             }
         }
     };

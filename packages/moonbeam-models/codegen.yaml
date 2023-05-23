@@ -2,11 +2,7 @@ overwrite: true
 schema:
   - ./src/graphql/schemas/Root.graphql
   - ./src/graphql/schemas/RootTypes.graphql
-  - ./src/graphql/schemas/ReferralSchema.graphql
-  - ./src/graphql/schemas/AccountLinkSchema.graphql
   - ./src/graphql/schemas/StorageSchema.graphql
-  - ./src/graphql/schemas/FAQSchema.graphql
-  - ./src/graphql/schemas/MarketplaceSchema.graphql
 documents:
   - ./src/graphql/queries/Queries.graphql
   - ./src/graphql/queries/Mutations.graphql
@@ -21,7 +17,6 @@ config:
     AWSURL: string
     AWSPhone: string
     AWSIPAddress: string
-
 generates:
   appsync.d.ts:
     plugins:

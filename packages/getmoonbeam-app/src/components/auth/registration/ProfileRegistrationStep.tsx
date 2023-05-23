@@ -298,7 +298,7 @@ export const ProfileRegistrationStep = () => {
                     left={<TextInput.Icon icon="phone" iconColor="#FFFFFF"/>}
                 />
                 <TextInput
-                    keyboardType={"numeric"}
+                    keyboardType={"number-pad"}
                     placeholderTextColor={'#D9D9D9'}
                     activeUnderlineColor={'#F2FF5D'}
                     underlineColor={'#D9D9D9'}

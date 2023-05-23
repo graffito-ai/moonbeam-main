@@ -1,4 +1,7 @@
 // constants used to keep track of the registration steps content
+import {DutyStatus} from "@moonbeam/moonbeam-models";
+import {MilitaryBranches} from "@moonbeam/moonbeam-models";
+
 export const registrationStepTitles = [
     "Personal Info",
     "Military Status",
@@ -35,51 +38,49 @@ export const appOverviewStepImageSource = [
     require('../../assets/art/moonbeam-rewards-overview.png')
 ];
 // constants used to keep track of the duty status dropdown values
-// ToDo: Move to moonbeam models
 export const dutyStatusItems = [
     {
-        label: 'Active Duty',
-        value: 'Active Duty'
+        label: DutyStatus.ACTIVE_DUTY,
+        value: DutyStatus.ACTIVE_DUTY
     },
     {
-        label: 'National Guard',
-        value: 'National Guard'
+        label: DutyStatus.NATIONAL_GUARD,
+        value: DutyStatus.NATIONAL_GUARD
     },
     {
-        label: 'Reservist',
-        value: 'Reservist'
+        label: DutyStatus.RESERVIST,
+        value: DutyStatus.RESERVIST
     },
     {
-        label: 'Veteran',
-        value: 'Veteran'
+        label: DutyStatus.VETERAN,
+        value: DutyStatus.VETERAN
     }
 ]
 // constants used to keep track of the military branch dropdown values
-// ToDo: Move to moonbeam models
 export const militaryBranchItems = [
     {
-        label: 'Air Force',
-        value: 'Air Force'
+        label: MilitaryBranches.AIR_FORCE,
+        value: MilitaryBranches.AIR_FORCE
     },
     {
-        label: 'Army',
-        value: 'Army'
+        label: MilitaryBranches.ARMY,
+        value: MilitaryBranches.ARMY
     },
     {
-        label: 'Coast Guard',
-        value: 'Coast Guard'
+        label: MilitaryBranches.COAST_GUARD,
+        value: MilitaryBranches.COAST_GUARD
     },
     {
-        label: 'Marine Corps',
-        value: 'Marine Corps'
+        label: MilitaryBranches.MARINE_CORPS,
+        value: MilitaryBranches.MARINE_CORPS
     },
     {
-        label: 'Navy',
-        value: 'Navy'
+        label: MilitaryBranches.NAVY,
+        value: MilitaryBranches.NAVY
     },
     {
-        label: 'Space Force',
-        value: 'Space Force'
+        label: MilitaryBranches.SPACE_FORCE,
+        value: MilitaryBranches.SPACE_FORCE
     }
 ];
 // constants used to keep track of the US states

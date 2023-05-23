@@ -5,6 +5,11 @@
     "awsprojectregion": "us-west-2",
     "awscognitoregion": "us-west-2",
     "awsuserpoolswebclientid": "6sbftno9t4i47mq6vsjk1knuqm",
-    "awscognitoidentitypoolid": "us-west-2:977729e5-e535-4677-9dba-7bd7ba3e5a3a"
+    "awscognitoidentitypoolid": "us-west-2:977729e5-e535-4677-9dba-7bd7ba3e5a3a",
+    "ExportsOutputFnGetAttmoonbeamamplifyauthdevuswest2NestedStackmoonbeamamplifyauthdevuswest2NestedStackResourceB777DEBAOutputsmoonbeamamplifydevuswest2moonbeamamplifyauthdevuswest2getmoonbeamapplicationpooldevuswest278F41BB0Ref1262B246": "us-west-2_HgS6BJsHG"
+  },
+  "moonbeam-appsync-dev-us-west-2": {
+    "ExportsOutputFnGetAttgetMoonbeamGraphqlApidevuswest268CFF174ApiIdD056B662": "xzclolcdhfchlmwfnnsl3p226i",
+    "awsappsyncgraphqlEndpoint": "https://vqi4ct6f6nah5czgelw4zgb6he.appsync-api.us-west-2.amazonaws.com/graphql"
   }
 }

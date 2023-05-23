@@ -40,3 +40,19 @@ export interface AppSyncConfiguration {
     readonly graphqlApiName: string;
 }
 
+/**
+ * Interface used to define the configuration for the Storage service
+ * (used to retrieve and store from S3)
+ */
+export interface StorageConfiguration {
+    readonly deploymentBucketName: string;
+    readonly mainFilesBucketName: string;
+    readonly mainFilesCloudFrontDistributionName: string;
+    readonly mainFilesCloudFrontTrustedPublicKeyName: string;
+    readonly mainFilesCloudFrontTrustedKeyGroupName: string;
+    readonly mainFilesCloudFrontAccessIdentityName: string;
+    readonly mainFilesCloudFrontCachePolicyName: string;
+    readonly storageFunctionName: string;
+    readonly getResolverName: string;
+    readonly putResolverName: string;
+}
