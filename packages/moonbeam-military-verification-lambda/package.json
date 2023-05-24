@@ -1,10 +1,10 @@
 {
-  "name": "@moonbeam/moonbeam-storage-lambda",
+  "name": "@moonbeam/moonbeam-military-verification-lambda",
   "version": "1.0.0",
-  "description": "This sub-package represents the Lambda function, used for file storage related purposes.",
+  "description": "This sub-package represents the Lambda function, used for military verification purposes.",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
-  "repository": "https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/packages/moonbeam-storage-lambda/package.json/browse",
+  "repository": "https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/packages/moonbeam-military-verification-lambda/package.json/browse",
   "author": "Marius Acsinte <marius@moonbeam.vet>",
   "license": "Moonbeam Inc. Proprietary Code License <https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/LICENSE/browse>",
   "scripts": {
@@ -12,12 +12,9 @@
     "clean": "rm -rf build/ lib/ node_modules/"
   },
   "devDependencies": {
-    "@aws-sdk/client-cloudfront": "^3.335.0",
-    "@aws-sdk/client-s3": "^3.335.0",
-    "@aws-sdk/client-secrets-manager": "^3.335.0",
-    "@aws-sdk/cloudfront-signer": "^3.329.0",
-    "@aws-sdk/lib-storage": "^3.337.0",
+    "@aws-sdk/client-dynamodb": "^3.338.0",
     "@aws-sdk/types": "^3.272.0",
+    "@aws-sdk/util-dynamodb": "^3.284.0",
     "@moonbeam/moonbeam-models": "*",
     "@moonbeam/moonbeam-tsconfig": "*",
     "@types/aws-lambda": "^8.10.111",

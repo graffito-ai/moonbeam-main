@@ -23,7 +23,7 @@ type AppSyncEvent = {
  * Lambda Function handler, handling incoming events,
  * depending on the AppSync field name.
  *
- * @param event AppSync even to be passed in the handler
+ * @param event AppSync event to be passed in the handler
  */
 exports.handler = async (event: AppSyncEvent): Promise<StorageResponse> => {
     console.log(`Received new storage event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);

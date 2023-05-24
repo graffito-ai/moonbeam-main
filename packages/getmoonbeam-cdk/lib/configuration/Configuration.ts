@@ -35,6 +35,13 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 getResolverName: 'getStorage',
                 putResolverName: 'putStorage'
             },
+            militaryVerificationConfig: {
+                militaryVerificationFunctionName: 'militaryVerificationLambdaFunction',
+                militaryVerificationTableName: 'militaryVerificationTable',
+                getMilitaryVerificationStatusResolverName: 'getMilitaryVerificationStatus',
+                updateMilitaryVerificationStatusResolverName: 'updateMilitaryVerificationStatus',
+                createMilitaryVerificationResolverName: 'createMilitaryVerification'
+            },
             sesConfig: {
                 emailAddress: `noreply-${Stages.DEV}@moonbeam.vet`,
                 /**

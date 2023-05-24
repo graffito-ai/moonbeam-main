@@ -3,6 +3,7 @@ schema:
   - ./src/graphql/schemas/Root.graphql
   - ./src/graphql/schemas/RootTypes.graphql
   - ./src/graphql/schemas/StorageSchema.graphql
+  - ./src/graphql/schemas/MilitaryVerificationSchema.graphql
 documents:
   - ./src/graphql/queries/Queries.graphql
   - ./src/graphql/queries/Mutations.graphql

@@ -65,7 +65,7 @@ export class AmplifyAuthStack extends NestedStack {
             standardAttributes: {
                 address: {
                     mutable: true,
-                    required: false
+                    required: true
                 },
                 gender: {
                     mutable: true,
@@ -105,6 +105,11 @@ export class AmplifyAuthStack extends NestedStack {
                     minLen: 7,
                     maxLen: 14,
                     mutable: true
+                }),
+                branch: new StringAttribute({
+                   minLen: 4,
+                   maxLen: 12,
+                   mutable: true
                 }),
                 userId: new StringAttribute({
                     minLen: 36,
@@ -167,7 +172,7 @@ export class AmplifyAuthStack extends NestedStack {
                         {
                             "StringEquals": {
                                 // this identity pool id has to be hardcoded because it cannot be retrieved until after it's created
-                                "cognito-identity.amazonaws.com:aud": `us-west-2:977729e5-e535-4677-9dba-7bd7ba3e5a3a`
+                                "cognito-identity.amazonaws.com:aud": `us-west-2:d634a1d9-f3e9-429a-9984-a9da8f95ac16`
                             },
                             "ForAnyValue:StringLike": {
                                 "cognito-identity.amazonaws.com:amr": "authenticated"
@@ -186,7 +191,7 @@ export class AmplifyAuthStack extends NestedStack {
                         {
                             "StringEquals": {
                                 // this identity pool id has to be hardcoded because it cannot be retrieved until after it's created
-                                "cognito-identity.amazonaws.com:aud": `us-west-2:977729e5-e535-4677-9dba-7bd7ba3e5a3a`
+                                "cognito-identity.amazonaws.com:aud": `us-west-2:d634a1d9-f3e9-429a-9984-a9da8f95ac16`
                             },
                             "ForAnyValue:StringLike": {
                                 "cognito-identity.amazonaws.com:amr": "unauthenticated"

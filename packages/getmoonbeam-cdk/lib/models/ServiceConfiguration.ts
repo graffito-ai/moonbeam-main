@@ -41,7 +41,7 @@ export interface AppSyncConfiguration {
 }
 
 /**
- * Interface used to define the configuration for the Storage service
+ * Interface used to define the configuration for the Storage resolvers
  * (used to retrieve and store from S3)
  */
 export interface StorageConfiguration {
@@ -55,4 +55,15 @@ export interface StorageConfiguration {
     readonly storageFunctionName: string;
     readonly getResolverName: string;
     readonly putResolverName: string;
+}
+
+/**
+ * Interface used to define the configuration for the Military verification service resolvers
+ */
+export interface MilitaryVerificationConfiguration {
+    readonly militaryVerificationFunctionName: string;
+    readonly militaryVerificationTableName: string;
+    readonly getMilitaryVerificationStatusResolverName: string;
+    readonly updateMilitaryVerificationStatusResolverName: string;
+    readonly createMilitaryVerificationResolverName: string;
 }

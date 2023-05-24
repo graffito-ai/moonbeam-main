@@ -9,3 +9,13 @@ query GetStorage($getStorageInput: GetStorageInput!) {
         }
     }
 }
+
+query GetMilitaryVerificationStatus($getMilitaryVerificationInput: GetMilitaryVerificationInput!) {
+    getMilitaryVerificationStatus(getMilitaryVerificationInput: $getMilitaryVerificationInput) {
+        errorMessage
+        errorType
+        data {
+            militaryVerificationStatus
+        }
+    }
+}

@@ -4,6 +4,7 @@ import {AmplifyStack} from "../stacks/AmplifyStack";
 import {SESStack} from "../stacks/SESStack";
 import {AppSyncStack} from "../stacks/AppSyncStack";
 import {StorageResolverStack} from "../stacks/StorageResolverStack";
+import {MilitaryVerificationResolverStack} from "../stacks/MilitaryVerificationResolverStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -108,6 +109,19 @@ export class StageUtils {
                     environmentVariables: stageConfiguration.environmentVariables,
                 });
                 storageStack.addDependency(appSyncStack);
+
+                // create the Military Verification resolver stack && add it to the CDK app
+                const militaryVerificationStack = new MilitaryVerificationResolverStack(this.app, `moonbeam-military-verification-resolver-${stageKey}`, {
+                    stackName: `moonbeam-military-verification-resolver-${stageKey}`,
+                    description: 'This stack will contain all the AppSync related resources needed by the Lambda military verification resolver',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    graphqlApiId: appSyncStack.graphqlApiId,
+                    graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
+                    militaryVerificationConfig: stageConfiguration.militaryVerificationConfig,
+                    environmentVariables: stageConfiguration.environmentVariables,
+                });
+                militaryVerificationStack.addDependency(appSyncStack);
             }
         }
     };

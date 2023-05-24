@@ -1,15 +1,15 @@
 {
   "moonbeam-amplify-dev-us-west-2": {
-    "awsuserpoolsid": "us-west-2_HgS6BJsHG",
-    "amplifyappid": "d18rri04cikz86",
+    "awsuserpoolsid": "us-west-2_BqfrkmwCl",
+    "amplifyappid": "d2stwa4uvnrd85",
     "awsprojectregion": "us-west-2",
     "awscognitoregion": "us-west-2",
-    "awsuserpoolswebclientid": "6sbftno9t4i47mq6vsjk1knuqm",
-    "awscognitoidentitypoolid": "us-west-2:977729e5-e535-4677-9dba-7bd7ba3e5a3a",
-    "ExportsOutputFnGetAttmoonbeamamplifyauthdevuswest2NestedStackmoonbeamamplifyauthdevuswest2NestedStackResourceB777DEBAOutputsmoonbeamamplifydevuswest2moonbeamamplifyauthdevuswest2getmoonbeamapplicationpooldevuswest278F41BB0Ref1262B246": "us-west-2_HgS6BJsHG"
+    "awsuserpoolswebclientid": "6oec7pi7mm4tb94oqqfie28vbq",
+    "awscognitoidentitypoolid": "us-west-2:d634a1d9-f3e9-429a-9984-a9da8f95ac16",
+    "ExportsOutputFnGetAttmoonbeamamplifyauthdevuswest2NestedStackmoonbeamamplifyauthdevuswest2NestedStackResourceB777DEBAOutputsmoonbeamamplifydevuswest2moonbeamamplifyauthdevuswest2getmoonbeamapplicationpooldevuswest278F41BB0Ref1262B246": "us-west-2_BqfrkmwCl"
   },
   "moonbeam-appsync-dev-us-west-2": {
-    "ExportsOutputFnGetAttgetMoonbeamGraphqlApidevuswest268CFF174ApiIdD056B662": "xzclolcdhfchlmwfnnsl3p226i",
-    "awsappsyncgraphqlEndpoint": "https://vqi4ct6f6nah5czgelw4zgb6he.appsync-api.us-west-2.amazonaws.com/graphql"
+    "ExportsOutputFnGetAttgetMoonbeamGraphqlApidevuswest268CFF174ApiIdD056B662": "pkr6ygyik5bqjigb6nd57jl2cm",
+    "awsappsyncgraphqlEndpoint": "https://a3fdqxqu2jfxvolboiywrkgoau.appsync-api.us-west-2.amazonaws.com/graphql"
   }
 }

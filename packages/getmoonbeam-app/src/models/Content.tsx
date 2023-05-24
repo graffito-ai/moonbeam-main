@@ -1,7 +1,6 @@
-// constants used to keep track of the registration steps content
-import {DutyStatus} from "@moonbeam/moonbeam-models";
-import {MilitaryBranches} from "@moonbeam/moonbeam-models";
+import {MilitaryBranch, MilitaryDutyStatus} from "@moonbeam/moonbeam-models";
 
+// constants used to keep track of the registration steps content
 export const registrationStepTitles = [
     "Personal Info",
     "Military Status",
@@ -40,47 +39,47 @@ export const appOverviewStepImageSource = [
 // constants used to keep track of the duty status dropdown values
 export const dutyStatusItems = [
     {
-        label: DutyStatus.ACTIVE_DUTY,
-        value: DutyStatus.ACTIVE_DUTY
+        label: "Active Duty",
+        value: MilitaryDutyStatus.ActiveDuty
     },
     {
-        label: DutyStatus.NATIONAL_GUARD,
-        value: DutyStatus.NATIONAL_GUARD
+        label: "National Guard",
+        value: MilitaryDutyStatus.NationalGuard
     },
     {
-        label: DutyStatus.RESERVIST,
-        value: DutyStatus.RESERVIST
+        label: "Reservist",
+        value: MilitaryDutyStatus.Reservist
     },
     {
-        label: DutyStatus.VETERAN,
-        value: DutyStatus.VETERAN
+        label: "Veteran",
+        value: MilitaryDutyStatus.Veteran
     }
 ]
 // constants used to keep track of the military branch dropdown values
 export const militaryBranchItems = [
     {
-        label: MilitaryBranches.AIR_FORCE,
-        value: MilitaryBranches.AIR_FORCE
+        label: "Air Force",
+        value: MilitaryBranch.AirForce
     },
     {
-        label: MilitaryBranches.ARMY,
-        value: MilitaryBranches.ARMY
+        label: "Army",
+        value: MilitaryBranch.Army
     },
     {
-        label: MilitaryBranches.COAST_GUARD,
-        value: MilitaryBranches.COAST_GUARD
+        label: "Coast Guard",
+        value: MilitaryBranch.CoastGuard
     },
     {
-        label: MilitaryBranches.MARINE_CORPS,
-        value: MilitaryBranches.MARINE_CORPS
+        label: "Marine Corps",
+        value: MilitaryBranch.MarineCorps
     },
     {
-        label: MilitaryBranches.NAVY,
-        value: MilitaryBranches.NAVY
+        label: "Navy",
+        value: MilitaryBranch.Navy
     },
     {
-        label: MilitaryBranches.SPACE_FORCE,
-        value: MilitaryBranches.SPACE_FORCE
+        label: "Space Force",
+        value: MilitaryBranch.SpaceForce
     }
 ];
 // constants used to keep track of the US states

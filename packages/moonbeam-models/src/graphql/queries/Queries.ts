@@ -12,3 +12,16 @@ export const getStorage = /* GraphQL */ `
         }
     }
 `;
+
+// Query used to get the verification status of a particular individual
+export const getMilitaryVerificationStatus = /* GraphQL */ `
+    query GetMilitaryVerificationStatus($getMilitaryVerificationInput: GetMilitaryVerificationInput!) {
+        getMilitaryVerificationStatus(getMilitaryVerificationInput: $getMilitaryVerificationInput) {
+            errorMessage
+            errorType
+            data {
+                militaryVerificationStatus
+            }
+        }
+    }
+`;

@@ -9,3 +9,49 @@ mutation PutStorage($putStorageInput: PutStorageInput!) {
         }
     }
 }
+
+mutation CreateMilitaryVerification($createMilitaryVerificationInput: CreateMilitaryVerificationInput!) {
+    createMilitaryVerification(createMilitaryVerificationInput: $createMilitaryVerificationInput) {
+        errorType
+        errorMessage
+        data {
+            id
+            firstName
+            lastName
+            dateOfBirth
+            addressLine
+            city
+            state
+            zipCode
+            createdAt
+            updatedAt
+            militaryDutyStatus
+            militaryBranch
+            militaryAffiliation
+            militaryVerificationStatus
+        }
+    }
+}
+
+mutation UpdateMilitaryVerificationStatus($updateMilitaryVerificationInput: UpdateMilitaryVerificationInput!) {
+    updateMilitaryVerificationStatus(updateMilitaryVerificationInput: $updateMilitaryVerificationInput) {
+        errorType
+        errorMessage
+        data {
+            id
+            firstName
+            lastName
+            dateOfBirth
+            addressLine
+            city
+            state
+            zipCode
+            createdAt
+            updatedAt
+            militaryDutyStatus
+            militaryBranch
+            militaryAffiliation
+            militaryVerificationStatus
+        }
+    }
+}
