@@ -26,13 +26,13 @@ export type CreateMilitaryVerificationInput = {
   city: Scalars['String'];
   createdAt?: InputMaybe<Scalars['AWSDateTime']>;
   dateOfBirth: Scalars['String'];
+  enlistmentYear: Scalars['String'];
   firstName: Scalars['String'];
   id: Scalars['ID'];
   lastName: Scalars['String'];
   militaryAffiliation: MilitaryAffiliation;
   militaryBranch: MilitaryBranch;
   militaryDutyStatus: MilitaryDutyStatus;
-  militaryVerificationStatus: MilitaryVerificationStatusType;
   state: Scalars['String'];
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
   zipCode: Scalars['String'];
@@ -107,6 +107,7 @@ export type MilitaryVerificationInformation = {
   city: Scalars['String'];
   createdAt: Scalars['AWSDateTime'];
   dateOfBirth: Scalars['String'];
+  enlistmentYear: Scalars['String'];
   firstName: Scalars['String'];
   id: Scalars['ID'];
   lastName: Scalars['String'];

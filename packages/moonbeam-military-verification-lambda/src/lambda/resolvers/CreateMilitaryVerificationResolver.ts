@@ -1,9 +1,13 @@
 import {DynamoDBClient, PutItemCommand} from "@aws-sdk/client-dynamodb";
 import {
-    CreateMilitaryVerificationInput, CreateMilitaryVerificationResponse,
+    CreateMilitaryVerificationInput,
+    CreateMilitaryVerificationResponse,
     MilitaryVerificationErrorType,
     MilitaryVerificationInformation,
+    MilitaryVerificationStatusType,
 } from "@moonbeam/moonbeam-models";
+import {VAClient} from "../clients/VAClient";
+import {QuandisClient} from "../clients/QuandisClient";
 
 /**
  * CreateMilitaryVerification resolver
@@ -24,6 +28,24 @@ export const createMilitaryVerification = async (createMilitaryVerificationInput
         createMilitaryVerificationInput.createdAt = createMilitaryVerificationInput.createdAt ? createMilitaryVerificationInput.createdAt : createdAt;
         createMilitaryVerificationInput.updatedAt = createMilitaryVerificationInput.updatedAt ? createMilitaryVerificationInput.updatedAt : createdAt;
 
+        // call the verification Client APIs here, in order to get the appropriate initial verification status for the object
+        const lighthouseClient = new VAClient(createMilitaryVerificationInput as MilitaryVerificationInformation, process.env.ENV_NAME!, region);
+        const lighthouseVerificationStatus = await lighthouseClient.verify();
+        console.log(`Lighthouse status ${lighthouseVerificationStatus}`);
+
+        const quandisClient = new QuandisClient(createMilitaryVerificationInput as MilitaryVerificationInformation, process.env.ENV_NAME!, region);
+        const quandisVerificationStatus = await quandisClient.verify();
+        console.log(`Quandis status ${quandisVerificationStatus}`);
+
+        // base the stored military verification status, on the responses of both verification client calls
+        let verificationStatus: MilitaryVerificationStatusType;
+        if (lighthouseVerificationStatus === MilitaryVerificationStatusType.Verified
+            || quandisVerificationStatus === MilitaryVerificationStatusType.Verified) {
+            verificationStatus = MilitaryVerificationStatusType.Verified;
+        } else {
+            verificationStatus = MilitaryVerificationStatusType.Pending;
+        }
+
         // store the military verification object
         await dynamoDbClient.send(new PutItemCommand({
             TableName: process.env.MILITARY_VERIFICATION_TABLE!,
@@ -39,6 +61,9 @@ export const createMilitaryVerification = async (createMilitaryVerificationInput
                 },
                 dateOfBirth: {
                     S: createMilitaryVerificationInput.dateOfBirth
+                },
+                enlistmentYear: {
+                    S: createMilitaryVerificationInput.enlistmentYear
                 },
                 addressLine: {
                     S: createMilitaryVerificationInput.addressLine
@@ -62,7 +87,7 @@ export const createMilitaryVerification = async (createMilitaryVerificationInput
                     S: createMilitaryVerificationInput.militaryDutyStatus
                 },
                 militaryVerificationStatus: {
-                    S: createMilitaryVerificationInput.militaryVerificationStatus
+                    S: verificationStatus
                 },
                 createdAt: {
                     S: createMilitaryVerificationInput.createdAt

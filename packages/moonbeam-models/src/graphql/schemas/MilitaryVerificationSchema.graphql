@@ -41,6 +41,7 @@ type MilitaryVerificationInformation @aws_cognito_user_pools {
     firstName: String!
     lastName: String!
     dateOfBirth: String!
+    enlistmentYear: String!
     addressLine: String!
     city: String!
     state: String!
@@ -84,6 +85,7 @@ input CreateMilitaryVerificationInput {
     firstName: String!
     lastName: String!
     dateOfBirth: String!
+    enlistmentYear: String!
     addressLine: String!
     city: String!
     state: String!
@@ -93,5 +95,4 @@ input CreateMilitaryVerificationInput {
     militaryDutyStatus: MilitaryDutyStatus!
     militaryBranch: MilitaryBranch!
     militaryAffiliation: MilitaryAffiliation!
-    militaryVerificationStatus: MilitaryVerificationStatusType!
 }

@@ -10,6 +10,8 @@
   },
   "moonbeam-appsync-dev-us-west-2": {
     "ExportsOutputFnGetAttgetMoonbeamGraphqlApidevuswest268CFF174ApiIdD056B662": "pkr6ygyik5bqjigb6nd57jl2cm",
+    "awsappsyncauthenticationType": "AMAZON_COGNITO_USER_POOLS",
+    "awsappsyncregion": "us-west-2",
     "awsappsyncgraphqlEndpoint": "https://a3fdqxqu2jfxvolboiywrkgoau.appsync-api.us-west-2.amazonaws.com/graphql"
   }
 }

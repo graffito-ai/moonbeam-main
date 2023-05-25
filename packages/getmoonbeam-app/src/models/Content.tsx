@@ -3,19 +3,23 @@ import {MilitaryBranch, MilitaryDutyStatus} from "@moonbeam/moonbeam-models";
 // constants used to keep track of the registration steps content
 export const registrationStepTitles = [
     "Personal Info",
+    "Additional Info",
+    "Account Security",
+    "Code Verification",
     "Military Status",
     "Documentation",
     "Card Linking",
-    "Account Security",
-    "Code Verification",
+    "Linking Status"
 ];
 export const registrationStepDescription = [
     "Enter your full name, email, birthday, phone number, enlisting year and duty status to continue.",
     "Enter your address, duty status and military branch, to help us verify your eligibility.",
+    "Secure your account by setting an account password. You will use this paired with the email, in order to access your new account.",
+    "Enter the 6 digit verification code (OTP) we just sent to your email.",
+    "Continue by allowing us to verify your military service status based on the information that you've provided.",
     "Upload or capture additional supporting documentation, to help aid with your eligibility.",
     "Link your favorite Visa, American Express, or MasterCard card, and earn rewards with every transaction at qualifying merchant locations.",
-    "Secure your account by setting an account password. You will use this paired with the email that you previously entered, in order to access your new account.",
-    "Enter the 6 digit verification code (OTP) we just sent to your email."
+    ""
 ];
 // constants used to keep track of the app overview steps content
 export const appOverviewStepTitles = [

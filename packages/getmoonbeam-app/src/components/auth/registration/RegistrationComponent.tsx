@@ -1,4 +1,5 @@
 import React, {useEffect} from "react";
+import 'react-native-get-random-values';
 import {Dimensions, ImageBackground, Platform, TouchableOpacity, View} from "react-native";
 import {commonStyles} from '../../../styles/common.module';
 import {styles} from '../../../styles/registration.module';
@@ -7,6 +8,7 @@ import {IconButton, Text} from "react-native-paper";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 import {useRecoilState} from "recoil";
 import {
+    currentUserInformation,
     addressCityErrorsState,
     addressCityState, addressLineErrorsState,
     addressLineState, addressStateErrorsState, addressStateState, addressZipErrorsState, addressZipState,
@@ -42,7 +44,13 @@ import {CodeVerificationStep} from "./CodeVerificationStep";
 import {DocumentCaptureStep} from "./DocumentCaptureStep";
 import {CardLinkingStep} from "./CardLinkingStep";
 import {SecurityStep} from "./SecurityStep";
-import {MilitaryRegistrationStep} from "./MilitaryRegistrationStep";
+import {AdditionalRegistrationStep} from "./AdditionalRegistrationStep";
+import {API, graphqlOperation} from "aws-amplify";
+import {createMilitaryVerification} from "@moonbeam/moonbeam-models";
+import {v4 as uuidv4} from 'uuid';
+import {MilitaryAffiliation} from "@moonbeam/moonbeam-models";
+import {MilitaryStatusSplashStep} from "./MilitaryStatusSplashStep";
+import {CardLinkingStatusSplashStep} from "./CardLinkingStatusSplash";
 
 /**
  * RegistrationComponent component.
@@ -51,6 +59,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
     // constants used to keep track of local component state
 
     // constants used to keep track of shared states
+    const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
     const [firstName,] = useRecoilState(firstNameState);
     const [firstNameErrors,] = useRecoilState(firstNameErrorsState);
     const [lastName,] = useRecoilState(lastNameState);
@@ -63,7 +72,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
     const [emailErrors,] = useRecoilState(emailErrorsState);
     const [dutyStatus,] = useRecoilState(dutyStatusValueState);
     const [dutyStatusErrors,] = useRecoilState(dutyStatusErrorsState);
-    const [enlistingYear, ] = useRecoilState(enlistingYearState);
+    const [enlistingYear,] = useRecoilState(enlistingYearState);
     const [enlistingYearErrors,] = useRecoilState(enlistingYearErrorsState);
 
     const [addressLine,] = useRecoilState(addressLineState);
@@ -105,7 +114,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
      *
      * @param seconds number of seconds passed in
      */
-    function startCountdown(seconds) {
+    const startCountdown = (seconds) => {
         let counter = seconds;
 
         const interval = setInterval(() => {
@@ -116,6 +125,42 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                 clearInterval(interval);
             }
         }, 1000);
+    }
+
+    /**
+     * Function used to verify an individual's eligibility by checking their
+     * military verification status.
+     *
+     * @params userId set the uuid to identify the user throughout the sign-up process
+     */
+    const verifyEligibility = async (userId: string) => {
+        // call the verification API
+        const eligibilityResult = await API.graphql(graphqlOperation(createMilitaryVerification, {
+            createMilitaryVerificationInput: {
+                id: userId,
+                firstName: firstName,
+                lastName: lastName,
+                dateOfBirth: birthday,
+                addressLine: addressLine,
+                city: addressCity,
+                state: addressState,
+                zipCode: addressZip,
+                militaryAffiliation: MilitaryAffiliation.ServiceMember, // ToDo: in the future when we add family members, we need a mechanism for that
+                militaryBranch: militaryBranch,
+                militaryDutyStatus: dutyStatus
+            }
+        }));
+        // retrieve the data block from the response
+        // @ts-ignore
+        const responseData = eligibilityResult ? eligibilityResult.data : null;
+
+        // check if there are any errors in the returned response
+        if (responseData && responseData.createMilitaryVerification.errorMessage === null) {
+            console.log(JSON.stringify(eligibilityResult));
+        } else {
+            console.log(`Unexpected error while retrieving the eligibility status ${JSON.stringify(eligibilityResult)}`);
+            // ToDo: need to create a modal with errors
+        }
     }
 
     // return the component for the Registration page
@@ -148,16 +193,18 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                         stepNumber === 0
                             ? <ProfileRegistrationStep/>
                             : stepNumber === 1
-                                ? <MilitaryRegistrationStep/>
+                                ? <AdditionalRegistrationStep/>
                                 : stepNumber === 2
-                                    ? <DocumentCaptureStep/>
+                                    ? <SecurityStep/>
                                     : stepNumber === 3
-                                        ? <CardLinkingStep/>
+                                        ? <CodeVerificationStep/>
                                         : stepNumber === 4
-                                            ? <SecurityStep/>
+                                            ? <MilitaryStatusSplashStep/>
                                             : stepNumber === 5
-                                                ? <CodeVerificationStep/>
-                                                : <></>
+                                                ? <DocumentCaptureStep/>
+                                                : stepNumber === 6
+                                                    ? <CardLinkingStep/>
+                                                    : <CardLinkingStatusSplashStep/>
                     }
                     <View style={[styles.bottomContainerButtons]}>
                         {stepNumber !== 0 && <TouchableOpacity
@@ -181,9 +228,9 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                             <Text style={styles.buttonText}>Previous</Text>
                         </TouchableOpacity>}
                         <TouchableOpacity
-                            disabled={!disclaimerChecked && stepNumber === 1}
-                            style={[!disclaimerChecked && stepNumber === 1 ? styles.buttonRightDisabled : styles.buttonRight,
-                                stepNumber !== 0 && {marginLeft: Dimensions.get('window').width/5}]}
+                            disabled={!disclaimerChecked && stepNumber === 4}
+                            style={[!disclaimerChecked && stepNumber === 4 ? styles.buttonRightDisabled : styles.buttonRight,
+                                stepNumber !== 0 && {marginLeft: Dimensions.get('window').width / 5}]}
                             onPress={
                                 async () => {
                                     // show back button on next step
@@ -206,6 +253,14 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                                     setRegistrationMainError(true);
                                                 }
                                             } else {
+                                                // set the uuid to identify the user throughout the sign-up process
+                                                const userId = uuidv4();
+
+                                                // update the user information state, with the newly created ID
+                                                setUserInformation({
+                                                    userId: userId
+                                                });
+
                                                 setRegistrationMainError(false);
                                                 checksPassed = true;
                                             }
@@ -213,7 +268,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                         case 1:
                                             if (addressLine === "" || addressCity === "" || addressState === "" || addressZip === "" || militaryBranch === ""
                                                 || addressLineErrors.length !== 0 || addressCityErrors.length !== 0 ||
-                                                   addressStateErrors.length !== 0 || addressZipErrors.length !== 0 || militaryBranchErrors.length !== 0) {
+                                                addressStateErrors.length !== 0 || addressZipErrors.length !== 0 || militaryBranchErrors.length !== 0) {
                                                 checksPassed = false;
 
                                                 // only populate main error if there are no other errors showing
@@ -222,26 +277,23 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                                     setRegistrationMainError(true);
                                                 }
                                             } else {
-                                                // clear the next step's old values
-
                                                 setRegistrationMainError(false);
                                                 checksPassed = true;
                                             }
                                             break;
-
-                                        case 4:
+                                        case 2:
                                             // initiate the countdown
                                             setCountDownValue(10);
                                             startCountdown(10);
 
                                             break;
-                                        case 5:
+                                        case 3:
                                             if (verificationCodeDigit1 === "" || verificationCodeDigit2 === "" || verificationCodeDigit3 === "" ||
                                                 verificationCodeDigit4 === "" || verificationCodeDigit5 === "" || verificationCodeDigit6 === "") {
                                                 checksPassed = false;
                                                 setRegistrationMainError(true);
                                             } else {
-                                                // check on the code validity through Amplify
+                                                // check on the code validity through Amplify sign-in/sign-up
 
                                                 checksPassed = true;
                                             }
@@ -249,10 +301,8 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                         default:
                                             break;
                                     }
-
-
                                     // increase the step number
-                                    if (stepNumber < 5 && checksPassed) {
+                                    if (stepNumber < 7 && checksPassed) {
                                         let newStepValue = stepNumber + 1;
                                         setStepNumber(newStepValue);
                                     }
@@ -260,7 +310,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                             }
                         >
                             <Text
-                                style={styles.buttonText}>{stepNumber === 5 ? `Finish` : stepNumber === 1 || stepNumber === 2 ? `Verify` : `Next`}</Text>
+                                style={styles.buttonText}>{stepNumber === 7 ? `Finish` : `Next`}</Text>
                         </TouchableOpacity>
                     </View>
                 </KeyboardAwareScrollView>

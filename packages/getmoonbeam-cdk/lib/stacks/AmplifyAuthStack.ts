@@ -183,6 +183,7 @@ export class AmplifyAuthStack extends NestedStack {
                     maxSessionDuration: Duration.hours(1)
                 }),
                 // create an unauthenticated role to be used with any user pool identities
+                // the Effect for this role needs to be changed to `Deny` after creation
                 unauthenticatedRole: new Role(this, `${props.amplifyAuthConfig.unauthenticatedRoleName}-${props.stage}-${props.env!.region}`, {
                     roleName: `${props.amplifyAuthConfig.unauthenticatedRoleName}`,
                     description: 'IAM Role to be used as an Unauthenticated role for the Cognito user pool identities, used by Amplify',

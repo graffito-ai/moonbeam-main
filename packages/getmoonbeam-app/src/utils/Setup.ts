@@ -7,10 +7,13 @@ import {Amplify} from "aws-amplify";
  * on the current Amplify environment.
  */
 export const initialize = () => {
-    let baseCDKStack: string =  `moonbeam-amplify-${envInfo.envName}-us-west-2`;
+    // ToDo: in the future we need to work on getting the region from a variable passed in through the command or something similar
+    let baseAmplifyCDKStackName: string =  `moonbeam-amplify-${envInfo.envName}-us-west-2`;
+    let baseAppSyncCDKStackName: string = `moonbeam-appsync-${envInfo.envName}-us-west-2`;
     let cdkExport;
     switch (envInfo.envName) {
         case Stages.DEV:
+            // cannot string interpolate the environment name in here for some reason, so left it hardcoded
             cdkExport = require('../../../getmoonbeam-cdk/exports/cdk-exports-dev.json');
             break;
         case Stages.STAGING:
@@ -26,15 +29,15 @@ export const initialize = () => {
     // set up Amplify configuration
     Amplify.configure({
         // General Amplify configuration
-        [Constants.AmplifyConstants.REGION]: cdkExport[baseCDKStack][Constants.AmplifyConstants.REGION.replaceAll('_', '')],
+        [Constants.AmplifyConstants.REGION]: cdkExport[baseAmplifyCDKStackName][Constants.AmplifyConstants.REGION.replaceAll('_', '')],
         // Amplify Auth configuration
-        [Constants.AmplifyConstants.COGNITO_REGION]: cdkExport[baseCDKStack][Constants.AmplifyConstants.COGNITO_REGION.replaceAll('_', '')],
-        [Constants.AmplifyConstants.USER_POOLS_ID]: cdkExport[baseCDKStack][Constants.AmplifyConstants.USER_POOLS_ID.replaceAll('_', '')],
-        [Constants.AmplifyConstants.USER_POOLS_WEB_CLIENT_ID]: cdkExport[baseCDKStack][Constants.AmplifyConstants.USER_POOLS_WEB_CLIENT_ID.replaceAll('_', '')],
-        [Constants.AmplifyConstants.COGNITO_IDENTITY_POOL_ID]: cdkExport[baseCDKStack][Constants.AmplifyConstants.COGNITO_IDENTITY_POOL_ID.replaceAll('_', '')],
+        [Constants.AmplifyConstants.COGNITO_REGION]: cdkExport[baseAmplifyCDKStackName][Constants.AmplifyConstants.COGNITO_REGION.replaceAll('_', '')],
+        [Constants.AmplifyConstants.USER_POOLS_ID]: cdkExport[baseAmplifyCDKStackName][Constants.AmplifyConstants.USER_POOLS_ID.replaceAll('_', '')],
+        [Constants.AmplifyConstants.USER_POOLS_WEB_CLIENT_ID]: cdkExport[baseAmplifyCDKStackName][Constants.AmplifyConstants.USER_POOLS_WEB_CLIENT_ID.replaceAll('_', '')],
+        [Constants.AmplifyConstants.COGNITO_IDENTITY_POOL_ID]: cdkExport[baseAmplifyCDKStackName][Constants.AmplifyConstants.COGNITO_IDENTITY_POOL_ID.replaceAll('_', '')],
         // Amplify AppSync configuration
-        // [Constants.AmplifyConstants.APPSYNC_REGION]: cdkExport[baseCDKStack][Constants.AmplifyConstants.APPSYNC_REGION.replaceAll('_', '')],
-        // [Constants.AmplifyConstants.APPSYNC_AUTH_TYPE]: cdkExport[baseCDKStack][Constants.AmplifyConstants.APPSYNC_AUTH_TYPE.replaceAll('_', '')],
-        // [Constants.AmplifyConstants.APPSYNC_ENDPOINT]: cdkExport[baseCDKStack][Constants.AmplifyConstants.APPSYNC_ENDPOINT.replaceAll('_', '')]
+        [Constants.AppSyncConstants.APPSYNC_REGION]: cdkExport[baseAppSyncCDKStackName][Constants.AppSyncConstants.APPSYNC_REGION.replaceAll('_', '')],
+        [Constants.AppSyncConstants.APPSYNC_ENDPOINT]: cdkExport[baseAppSyncCDKStackName][Constants.AppSyncConstants.APPSYNC_ENDPOINT.replaceAll('_', '')],
+        [Constants.AppSyncConstants.APPSYNC_AUTH_TYPE]: cdkExport[baseAppSyncCDKStackName][Constants.AppSyncConstants.APPSYNC_AUTH_TYPE.replaceAll('_', '')]
     });
 }

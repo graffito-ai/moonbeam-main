@@ -11,22 +11,21 @@ import {
     addressStateErrorsState,
     addressStateState,
     addressZipErrorsState,
-    addressZipState, militaryBranchErrorsState,
+    addressZipState,
+    militaryBranchErrorsState,
     militaryBranchState,
     militaryBranchValueState,
-    militaryRegistrationDisclaimerCheckState,
     registrationBackButtonShown,
     registrationMainErrorState
 } from "../../../recoil/AuthAtom";
 import {militaryBranchItems} from "../../../models/Content";
 import {TextInput} from "react-native-paper";
-import {Checkbox} from "expo-checkbox";
 import {FieldValidator} from "../../../utils/FieldValidator";
 
 /**
- * MilitaryRegistrationStep component.
+ * AdditionalRegistrationStep component.
  */
-export const MilitaryRegistrationStep = () => {
+export const AdditionalRegistrationStep = () => {
     // constants used to keep track of local component state
     const [branchItems, setBranchItems] = useState(militaryBranchItems);
     const [addressLineFocus, setIsAddressLineFocus] = useState<boolean>(false);
@@ -34,7 +33,6 @@ export const MilitaryRegistrationStep = () => {
     const [addressStateFocus, setIsAddressStateFocus] = useState<boolean>(false);
     const [addressZipFocus, setIsAddressZipFocus] = useState<boolean>(false);
     // constants used to keep track of shared states
-    const [disclaimerChecked, setIsDisclaimerChecked] = useRecoilState(militaryRegistrationDisclaimerCheckState);
     const [addressLine, setAddressLine] = useRecoilState(addressLineState);
     const [addressCity, setAddressCity] = useRecoilState(addressCityState);
     const [addressState, setAddressState] = useRecoilState(addressStateState);
@@ -89,7 +87,7 @@ export const MilitaryRegistrationStep = () => {
         addressStateFocus, addressState,
         addressZipFocus, addressZip]);
 
-    // return the component for the MilitaryRegistrationStep, part of the Registration page
+    // return the component for the AdditionalRegistrationStep, part of the Registration page
     return (
         <>
             {registrationMainError
@@ -270,27 +268,6 @@ export const MilitaryRegistrationStep = () => {
                         multiple={false}
                         mode="SIMPLE"
                     />
-                </View>
-                <View style={styles.disclaimerView}>
-                    <Checkbox
-                        style={styles.disclaimerCheckbox}
-                        color={disclaimerChecked ? 'blue' : '#F2FF5D'}
-                        value={disclaimerChecked}
-                        onValueChange={(newValue) => {
-                            setIsDisclaimerChecked(newValue);
-                        }}
-                    />
-                    <Text
-                        style={styles.disclaimerText}>{'By checking this box, you are confirming your status as a military service member, thereby granting Moonbeam the authority to document and review ' +
-                        'this claim, as well as pursue legal action in accordance with U.S. federal statutes and penal codes, if the claim is proven to be fraudulent.\n' +
-                        'You also acknowledge that you read and agree to our '}
-                        <Text style={styles.disclaimerTextHighlighted}
-                              onPress={() => {
-                              }}>Privacy Policy</Text>{' and our'}
-                        <Text style={styles.disclaimerTextHighlighted}
-                              onPress={() => {
-                              }}> Terms & Conditions.</Text>
-                    </Text>
                 </View>
             </View>
         </>

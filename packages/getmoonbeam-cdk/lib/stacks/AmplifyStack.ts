@@ -29,7 +29,8 @@ export class AmplifyStack extends Stack {
          */
         const amplifyApp = new aws_amplify.CfnApp(this, `${props.amplifyConfig.amplifyAppName}`, {
             name: `${props.amplifyConfig.amplifyAppName}`,
-            iamServiceRole: `${props.amplifyConfig.amplifyServiceRoleName}`
+            iamServiceRole: `${props.amplifyConfig.amplifyServiceRoleName}`,
+            description: 'The Moonbeam AWS Amplify Application'
         });
 
         // add the authentication resources through a nested auth stack

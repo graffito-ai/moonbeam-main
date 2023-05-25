@@ -52,5 +52,13 @@ export class AppSyncStack extends Stack {
             exportName: Constants.AppSyncConstants.APPSYNC_ENDPOINT.replaceAll('_', '-'),
             value: appSyncApi.graphqlUrl
         });
+        new CfnOutput(this, Constants.AppSyncConstants.APPSYNC_REGION, {
+            exportName: Constants.AppSyncConstants.APPSYNC_REGION.replaceAll('_', '-'),
+            value: props.env!.region!
+        });
+        new CfnOutput(this, Constants.AppSyncConstants.APPSYNC_AUTH_TYPE, {
+            exportName: Constants.AppSyncConstants.APPSYNC_AUTH_TYPE.replaceAll('_', '-'),
+            value: Constants.AmplifyConstants.ATTRIBUTE_COGNITO_USER_POOLS
+        });
     }
 }

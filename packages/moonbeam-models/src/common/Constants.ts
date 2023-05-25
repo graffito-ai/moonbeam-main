@@ -40,7 +40,7 @@ export namespace Constants {
     export namespace AppSyncConstants {
         export const APPSYNC_ENDPOINT: string = 'aws_appsync_graphqlEndpoint';
         export const APPSYNC_REGION: string = 'aws_appsync_region';
-        export const APPSYNC_AUTH_TYPE: string = 'aws_appsync_authenticationType'
+        export const APPSYNC_AUTH_TYPE: string = 'aws_appsync_authenticationType';
     }
     // Moonbeam specific constants used in mapping various resources
     export namespace MoonbeamConstants {
@@ -61,5 +61,11 @@ export namespace Constants {
     // AWS Secrets Manager (pair-based constants)
     export namespace AWSPairConstants {
         export const MAIN_FILES_CLOUDFRONT_DISTRIBUTION_SECRET_NAME = `main-files-cloudfront-pair`;
+        export const QUANDIS_SECRET_NAME = `quandis-secret-pair`;
+        export const QUANDIS_API_KEY = `QUANDIS-API-KEY`;
+        export const QUANDIS_BASE_URL = `QUANDIS-BASE-URL`;
+        export const LIGHTHOUSE_SECRET_NAME = `lighthouse-secret-pair`;
+        export const LIGHTHOUSE_BASE_URL = `LIGHTHOUSE-BASE-URL`;
+        export const LIGHTHOUSE_API_KEY = `LIGHTHOUSE-API-KEY`;
     }
 }

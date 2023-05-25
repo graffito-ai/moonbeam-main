@@ -1,8 +1,9 @@
-import {aws_appsync, aws_dynamodb, aws_lambda, aws_lambda_nodejs, Stack, StackProps} from "aws-cdk-lib";
+import {aws_appsync, aws_dynamodb, aws_lambda, aws_lambda_nodejs, Duration, Stack, StackProps} from "aws-cdk-lib";
 import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
 import path from "path";
 import {Constants} from "@moonbeam/moonbeam-models";
+import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
 
 /**
  * File used to define the Military Verification resolver stack, used by Amplify.
@@ -25,6 +26,8 @@ export class MilitaryVerificationResolverStack extends Stack {
             entry: path.resolve(path.join(__dirname, '../../../moonbeam-military-verification-lambda/src/lambda/main.ts')),
             handler: 'handler',
             runtime: aws_lambda.Runtime.NODEJS_18_X,
+            // we add a timeout here different from the default of 3seconds, since we expect these API calls to take longer
+            timeout: Duration.minutes(1),
             memorySize: 512,
             bundling: {
                 minify: true, // minify code, defaults to false
@@ -32,7 +35,29 @@ export class MilitaryVerificationResolverStack extends Stack {
                 sourceMapMode: aws_lambda_nodejs.SourceMapMode.BOTH, // defaults to SourceMapMode.DEFAULT
                 sourcesContent: false, // do not include original source into source map, defaults to true
                 target: 'esnext', // target environment for the generated JavaScript code
-            }
+            },
+            initialPolicy: [
+                // policy used to allow the retrieval of the VA Lighthouse API secrets
+                new PolicyStatement({
+                    effect: Effect.ALLOW,
+                    actions: [
+                        "secretsmanager:GetSecretValue"
+                    ],
+                    resources: [
+                        "arn:aws:secretsmanager:us-west-2:963863720257:secret:lighthouse-secret-pair-dev-us-west-2-UxNuez" // this ARN is retrieved post secret creation
+                    ]
+                }),
+                // policy used to allow the retrieval of the Quandis API secrets
+                new PolicyStatement({
+                    effect: Effect.ALLOW,
+                    actions: [
+                        "secretsmanager:GetSecretValue"
+                    ],
+                    resources: [
+                        "arn:aws:secretsmanager:us-west-2:963863720257:secret:quandis-secret-pair-dev-us-west-2-mJ84LF" // this ARN is retrieved post secret creation
+                    ]
+                })
+            ]
         });
 
         // retrieve the GraphQL API created by the other stack
@@ -70,7 +95,8 @@ export class MilitaryVerificationResolverStack extends Stack {
         // enable the Lambda function to access the DynamoDB table (using IAM)
         militaryVerificationTable.grantFullAccess(militaryVerificationLambda);
 
-        // Create an environment variable that we will use in the function code
+        // Create environment variables that we will use in the function code
         militaryVerificationLambda.addEnvironment(`${Constants.MoonbeamConstants.MILITARY_VERIFICATION_TABLE}`, militaryVerificationTable.tableName);
+        militaryVerificationLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
     }
 }

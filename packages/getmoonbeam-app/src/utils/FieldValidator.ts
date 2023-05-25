@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import {stateItems} from "../models/Content";
+import {MilitaryBranch, MilitaryDutyStatus} from "@moonbeam/moonbeam-models";
 
 /**
  * File used as a utility class, for validating field values for forms
@@ -211,8 +212,8 @@ export class FieldValidator {
                 }
                 break;
             case 'dutyStatus':
-                if (fieldValue !== "Active Duty" && fieldValue !== "National Guard" &&
-                    fieldValue !== "Reservist" && fieldValue !== "Veteran") {
+                if (fieldValue !== MilitaryDutyStatus.ActiveDuty && fieldValue !== MilitaryDutyStatus.NationalGuard &&
+                    fieldValue !== MilitaryDutyStatus.Reservist && fieldValue !== MilitaryDutyStatus.Veteran) {
                     setErrorsArray(["Invalid Duty Status."]);
                 } else {
                     setErrorsArray([]);
@@ -248,10 +249,10 @@ export class FieldValidator {
                 }
                 break;
             case 'militaryBranch':
-                if (fieldValue !== "Air Force" && fieldValue !== "Army" &&
-                    fieldValue !== "Coast Guard" && fieldValue !== "Marine Corps" &&
-                    fieldValue !== "Navy" && fieldValue !== "Space Force") {
-                    setErrorsArray(["Invalid Duty Status."]);
+                if (fieldValue !== MilitaryBranch.AirForce && fieldValue !== MilitaryBranch.Army &&
+                    fieldValue !== MilitaryBranch.CoastGuard && fieldValue !== MilitaryBranch.MarineCorps &&
+                    fieldValue !== MilitaryBranch.Navy && fieldValue !== MilitaryBranch.SpaceForce) {
+                    setErrorsArray(["Invalid Military Branch."]);
                 } else {
                     setErrorsArray([]);
                 }
