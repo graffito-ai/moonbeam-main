@@ -100,7 +100,9 @@ export const AdditionalRegistrationStep = () => {
                             ? <Text style={styles.errorMessage}>{addressStateErrors[0]}</Text>
                             : (addressZipErrors.length !== 0 && !registrationMainError)
                                 ? <Text style={styles.errorMessage}>{addressZipErrors[0]}</Text>
-                                : <Text style={styles.errorMessage}>{militaryBranchErrors[0]}</Text>
+                                : (militaryBranchErrors.length !== 0 && !registrationMainError)
+                                    ? <Text style={styles.errorMessage}>{militaryBranchErrors[0]}</Text>
+                                    : <></>
             }
             <View style={styles.militaryRegistrationView}>
                 <TextInput
@@ -248,9 +250,11 @@ export const AdditionalRegistrationStep = () => {
                         dropDownDirection={"BOTTOM"}
                         open={dropdownBranchState}
                         onOpen={() => {
+                            setRegistrationMainError(false);
                             setIsBackButtonShown(false);
                         }}
                         onClose={() => {
+                            setDropdownBranchState(false);
                             setIsBackButtonShown(true);
                         }}
                         value={militaryBranch === "" ? null : militaryBranch}

@@ -279,7 +279,7 @@ const registrationVerificationDigit6 = atom({
  */
 const registrationCodeTimerValue = atom({
     key: "registrationCodeTimerValue",
-    default: 10
+    default: 30
 });
 
 /**
@@ -316,11 +316,77 @@ const militaryBranchValueState = atom({
 });
 
 /**
- * Atom used to keep track of the registration disclaimer checkbox state.
+ * Atom used to keep track of the registration verification disclaimer checkbox state.
  */
 const militaryRegistrationDisclaimerCheckState = atom({
     key: "militaryRegistrationDisclaimerCheckState",
     default: false
+});
+
+/**
+ * Atom used to keep track of the account creation disclaimer checkbox state.
+ */
+const accountCreationDisclaimerCheckState = atom({
+    key: "accountCreationDisclaimerCheckState",
+    default: false
+});
+
+/**
+ * Atom used to keep track of the registration password, used for registration
+ */
+const registrationPasswordState = atom({
+    key: "registrationPasswordState",
+    default: ""
+});
+
+/**
+ * Atom used to keep track of the registration confirmation password, used for registration
+ */
+const registrationConfirmationPasswordState = atom({
+    key: "registrationConfirmationPasswordState",
+    default: ""
+});
+
+
+/**
+ * Atom used to keep track of the registration password errors
+ */
+const registrationPasswordErrorsState = atom({
+    key: "registrationPasswordErrorsState",
+    default: []
+});
+
+/**
+ * Atom used to keep track of the registration confirmation password errors
+ */
+const registrationConfirmationPasswordErrorsState = atom({
+    key: "registrationConfirmationPasswordErrorsState",
+    default: []
+});
+
+/**
+ * Atom used ot keep track of the registration Amplify Sign Up errors
+ */
+const amplifySignUpProcessErrorsState = atom({
+    key: "amplifySignUpProcessErrorsState",
+    default: []
+});
+
+/**
+ * Atom used to keep track of whether the code confirmation timer
+ * needs to be reset.
+ */
+const resetCodeConfirmationTimer = atom({
+    key: "resetCodeConfirmationTimer",
+    default: false
+})
+
+/**
+ * Atom used to keep track of the interval, employed by the code verification timer.
+ */
+const codeConfirmationInterval = atom({
+    key: "codeConfirmationInterval",
+    default: setInterval(() => {}, 0)
 });
 
 
@@ -328,10 +394,18 @@ const militaryRegistrationDisclaimerCheckState = atom({
  * Export all atoms and/or selectors
  */
 export {
+    amplifySignUpProcessErrorsState,
+    codeConfirmationInterval,
+    resetCodeConfirmationTimer,
+    registrationPasswordState,
+    registrationPasswordErrorsState,
+    registrationConfirmationPasswordState,
+    registrationConfirmationPasswordErrorsState,
     dutyStatusErrorsState,
     militaryBranchErrorsState,
     enlistingYearState,
     militaryRegistrationDisclaimerCheckState,
+    accountCreationDisclaimerCheckState,
     addressStateState,
     addressCityState,
     addressLineState,

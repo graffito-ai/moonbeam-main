@@ -120,8 +120,10 @@ export const ProfileRegistrationStep = () => {
                                 : (birthdayErrors.length !== 0 && !registrationMainError)
                                     ? <Text style={styles.errorMessage}>{birthdayErrors[0]}</Text>
                                     : (enlistingYearErrors.length !== 0 && !registrationMainError)
-                                      ? <Text style={styles.errorMessage}>{enlistingYearErrors[0]}</Text>
-                                      : <Text style={styles.errorMessage}>{dutyStatusErrors[0]}</Text>
+                                        ? <Text style={styles.errorMessage}>{enlistingYearErrors[0]}</Text>
+                                        : (dutyStatusErrors.length !== 0 && !registrationMainError)
+                                            ? <Text style={styles.errorMessage}>{dutyStatusErrors[0]}</Text>
+                                            : <></>
             }
             <View style={{zIndex: 1000}}>
                 <View style={styles.inputColumnView}>

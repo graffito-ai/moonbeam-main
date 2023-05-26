@@ -19,6 +19,7 @@ mutation CreateMilitaryVerification($createMilitaryVerificationInput: CreateMili
             firstName
             lastName
             dateOfBirth
+            enlistmentYear
             addressLine
             city
             state
@@ -38,19 +39,6 @@ mutation UpdateMilitaryVerificationStatus($updateMilitaryVerificationInput: Upda
         errorType
         errorMessage
         data {
-            id
-            firstName
-            lastName
-            dateOfBirth
-            addressLine
-            city
-            state
-            zipCode
-            createdAt
-            updatedAt
-            militaryDutyStatus
-            militaryBranch
-            militaryAffiliation
             militaryVerificationStatus
         }
     }

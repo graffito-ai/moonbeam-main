@@ -108,17 +108,17 @@ export const styles = StyleSheet.create({
         marginTop: '2%',
         alignSelf: 'center',
         fontFamily: 'Saira-Regular',
-        fontSize: Dimensions.get('window').height/52,
+        fontSize: Dimensions.get('window').height/45,
         color: '#FFFFFF'
     },
     loginFooterButton: {
         fontFamily: 'Saira-SemiBold',
-        fontSize: Dimensions.get('window').height/52,
+        fontSize: Dimensions.get('window').height/45,
         color: '#F2FF5D',
     },
     loginLogo: {
         alignSelf: 'center',
-        height: Dimensions.get('window').height/20,
-        width: Dimensions.get('window').width/9
+        height: Dimensions.get('window').height/10,
+        width: Dimensions.get('window').width/5
     }
 });

@@ -24,6 +24,7 @@ export const createMilitaryVerification = /* GraphQL */ `
                 firstName
                 lastName
                 dateOfBirth
+                enlistmentYear
                 addressLine
                 city
                 state
@@ -46,19 +47,6 @@ export const updateMilitaryVerificationStatus = /* GraphQL */ `
             errorType
             errorMessage
             data {
-                id
-                firstName
-                lastName
-                dateOfBirth
-                addressLine
-                city
-                state
-                zipCode
-                createdAt
-                updatedAt
-                militaryDutyStatus
-                militaryBranch
-                militaryAffiliation
                 militaryVerificationStatus
             }
         }

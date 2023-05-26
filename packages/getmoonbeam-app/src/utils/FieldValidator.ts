@@ -10,8 +10,7 @@ export class FieldValidator {
     /**
      * Utility constructor
      */
-    constructor() {
-    }
+    constructor() {}
 
     /**
      * Function used to format birthday value for text input field
@@ -157,8 +156,10 @@ export class FieldValidator {
      * @param fieldValue value of the field to validate
      * @param fieldName name of the field to validate
      * @param setErrorsArray method to popular the array of errors for that state
+     * @param comparisonFieldValue value of the field to compare the field value to (optional, and specifically
+     * applicable to comparisons lke password and confirmation password)
      */
-    public validateField = (fieldValue: string, fieldName: string, setErrorsArray: any) => {
+    public validateField = (fieldValue: string, fieldName: string, setErrorsArray: any, comparisonFieldValue?: string) => {
         switch (fieldName) {
             case 'firstName':
                 if (!/^[^\s\t\n0123456789±!@£$%^&*_+§¡€#¢§¶•ªº«\\\/<>?:;|=.,]{2,100}$/.test(fieldValue)) {
@@ -205,7 +206,13 @@ export class FieldValidator {
                 }
                 break;
             case 'enlistingYear':
+                // get current year value
+                const currentYear = new Date().getFullYear();
+
                 if (!/^(\d{4})$/.test(fieldValue)) {
+                    setErrorsArray(["Invalid Enlisting Year."]);
+                } else if (Math.abs(currentYear - Number(fieldValue)) > 83 || currentYear < Number(fieldValue)) {
+                    // the enlisting year can't be more than 83 years in the past (since you can enlist at 17-18), or in the future
                     setErrorsArray(["Invalid Enlisting Year."]);
                 } else {
                     setErrorsArray([]);
@@ -267,8 +274,18 @@ export class FieldValidator {
                 break;
             // password during signup
             case 'newPassword':
+                if (!/^((?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{12,72})$/.test(fieldValue)) {
+                    setErrorsArray(["Invalid Password - 12 - 72 chars, 1 special char, 1 number, 1 lowerCase, 1 UpperCase."]);
+                } else {
+                    setErrorsArray([]);
+                }
                 break;
             case 'confirmPassword':
+                if (fieldValue !== comparisonFieldValue!) {
+                    setErrorsArray(["Passwords do not match."]);
+                } else {
+                    setErrorsArray([]);
+                }
                 break;
             default:
                 console.log(fieldName);

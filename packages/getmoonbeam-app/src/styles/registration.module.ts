@@ -25,11 +25,11 @@ export const styles = StyleSheet.create({
     },
     resendCodeView: {
         flexDirection: 'row',
-        width: '100%',
+        width: Dimensions.get('window').width / 3,
+        bottom: Dimensions.get('window').height / 15
     },
     resendCode: {
-        width: Dimensions.get('window').width / 1.15,
-        bottom: Dimensions.get('window').height / 15,
+        width: Dimensions.get('window').width / 3,
         alignSelf: 'flex-start',
         fontFamily: 'Changa-Medium',
         fontSize: Dimensions.get('window').height/40,
@@ -37,8 +37,7 @@ export const styles = StyleSheet.create({
         color: '#F2FF5D'
     },
     countdownTimer: {
-        width: Dimensions.get('window').width / 1.15,
-        bottom: Dimensions.get('window').height / 15,
+        width: Dimensions.get('window').width /3,
         alignSelf: 'flex-start',
         fontFamily: 'Changa-Medium',
         fontSize: 25,

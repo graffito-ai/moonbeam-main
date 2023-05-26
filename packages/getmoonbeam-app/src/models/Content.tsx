@@ -14,8 +14,8 @@ export const registrationStepTitles = [
 export const registrationStepDescription = [
     "Enter your full name, email, birthday, phone number, enlisting year and duty status to continue.",
     "Enter your address, duty status and military branch, to help us verify your eligibility.",
-    "Secure your account by setting an account password. You will use this paired with the email, in order to access your new account.",
-    "Enter the 6 digit verification code (OTP) we just sent to your email.",
+    "Secure your account by setting an account password. You will use this paired with your email, in order to access your new account.",
+    "Enter the 6 digit verification code we just sent to your email. Check your spam and trash inboxes.",
     "Continue by allowing us to verify your military service status based on the information that you've provided.",
     "Upload or capture additional supporting documentation, to help aid with your eligibility.",
     "Link your favorite Visa, American Express, or MasterCard card, and earn rewards with every transaction at qualifying merchant locations.",
