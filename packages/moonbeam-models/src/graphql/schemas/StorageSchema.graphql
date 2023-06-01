@@ -44,11 +44,3 @@ input GetStorageInput {
     name: String!,
     expires: Boolean
 }
-
-input PutStorageInput {
-    level: FileAccessLevel!,
-    type: FileType!,
-    name: String!,
-    expires: Boolean
-    content: String!
-}

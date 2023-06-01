@@ -21,7 +21,7 @@ import {
 } from "../../../recoil/AuthAtom";
 import {FieldValidator} from "../../../utils/FieldValidator";
 import DropDownPicker from "react-native-dropdown-picker";
-import {dutyStatusItems} from "../../../models/Content";
+import {dutyStatusItems} from "../../../models/Constants";
 
 /**
  * ProfileRegistrationStep component.

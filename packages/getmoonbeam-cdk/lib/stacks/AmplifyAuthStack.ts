@@ -25,6 +25,10 @@ export class AmplifyAuthStack extends NestedStack {
      */
     readonly outputs: string[];
 
+    // Roles to be accessed by other stacks, especially the storage stack, in order to add more permissions
+    readonly authenticatedRole: Role;
+    readonly unauthenticatedRole: Role;
+
     /**
      * Constructor for the Authentication stack.
      *
@@ -107,9 +111,9 @@ export class AmplifyAuthStack extends NestedStack {
                     mutable: true
                 }),
                 branch: new StringAttribute({
-                   minLen: 4,
-                   maxLen: 12,
-                   mutable: true
+                    minLen: 4,
+                    maxLen: 12,
+                    mutable: true
                 }),
                 userId: new StringAttribute({
                     minLen: 36,
@@ -150,6 +154,44 @@ export class AmplifyAuthStack extends NestedStack {
                 userPool: cognitoUserPool
             });
 
+        // create the unauthenticated and authenticated roles to be used with any user pool identities
+        this.authenticatedRole = new Role(this, `${props.amplifyAuthConfig.authenticatedRoleName}-${props.stage}-${props.env!.region}`, {
+            roleName: `${props.amplifyAuthConfig.authenticatedRoleName}`,
+            description: 'IAM Role to be used as an Authenticated role for the Cognito user pool identities, used by Amplify',
+            assumedBy: new FederatedPrincipal(
+                'cognito-identity.amazonaws.com',
+                {
+                    "StringEquals": {
+                        // this identity pool id has to be hardcoded because it cannot be retrieved until after it's created
+                        "cognito-identity.amazonaws.com:aud": `us-west-2:d634a1d9-f3e9-429a-9984-a9da8f95ac16`
+                    },
+                    "ForAnyValue:StringLike": {
+                        "cognito-identity.amazonaws.com:amr": "authenticated"
+                    }
+                },
+                'sts:AssumeRoleWithWebIdentity'
+            ),
+            maxSessionDuration: Duration.hours(1)
+        });
+        this.unauthenticatedRole = new Role(this, `${props.amplifyAuthConfig.unauthenticatedRoleName}-${props.stage}-${props.env!.region}`, {
+            roleName: `${props.amplifyAuthConfig.unauthenticatedRoleName}`,
+            description: 'IAM Role to be used as an Unauthenticated role for the Cognito user pool identities, used by Amplify',
+            assumedBy: new FederatedPrincipal(
+                'cognito-identity.amazonaws.com',
+                {
+                    "StringEquals": {
+                        // this identity pool id has to be hardcoded because it cannot be retrieved until after it's created
+                        "cognito-identity.amazonaws.com:aud": `us-west-2:d634a1d9-f3e9-429a-9984-a9da8f95ac16`
+                    },
+                    "ForAnyValue:StringLike": {
+                        "cognito-identity.amazonaws.com:amr": "unauthenticated"
+                    }
+                },
+                'sts:AssumeRoleWithWebIdentity'
+            ),
+            maxSessionDuration: Duration.hours(1)
+        });
+
         // create a user pool identity from the user pool and the frontend client defined above
         const userPoolFrontendIdentity = new IdentityPool(this,
             `${props.amplifyAuthConfig.userPoolIdentityFrontendPoolName}-${props.stage}-${props.env!.region}`, {
@@ -164,44 +206,9 @@ export class AmplifyAuthStack extends NestedStack {
                     ]
                 },
                 // create an authenticated role to be used with any user pool identities
-                authenticatedRole: new Role(this, `${props.amplifyAuthConfig.authenticatedRoleName}-${props.stage}-${props.env!.region}`, {
-                    roleName: `${props.amplifyAuthConfig.authenticatedRoleName}`,
-                    description: 'IAM Role to be used as an Authenticated role for the Cognito user pool identities, used by Amplify',
-                    assumedBy: new FederatedPrincipal(
-                        'cognito-identity.amazonaws.com',
-                        {
-                            "StringEquals": {
-                                // this identity pool id has to be hardcoded because it cannot be retrieved until after it's created
-                                "cognito-identity.amazonaws.com:aud": `us-west-2:d634a1d9-f3e9-429a-9984-a9da8f95ac16`
-                            },
-                            "ForAnyValue:StringLike": {
-                                "cognito-identity.amazonaws.com:amr": "authenticated"
-                            }
-                        },
-                        'sts:AssumeRoleWithWebIdentity'
-                    ),
-                    maxSessionDuration: Duration.hours(1)
-                }),
+                authenticatedRole: this.authenticatedRole,
                 // create an unauthenticated role to be used with any user pool identities
-                // the Effect for this role needs to be changed to `Deny` after creation
-                unauthenticatedRole: new Role(this, `${props.amplifyAuthConfig.unauthenticatedRoleName}-${props.stage}-${props.env!.region}`, {
-                    roleName: `${props.amplifyAuthConfig.unauthenticatedRoleName}`,
-                    description: 'IAM Role to be used as an Unauthenticated role for the Cognito user pool identities, used by Amplify',
-                    assumedBy: new FederatedPrincipal(
-                        'cognito-identity.amazonaws.com',
-                        {
-                            "StringEquals": {
-                                // this identity pool id has to be hardcoded because it cannot be retrieved until after it's created
-                                "cognito-identity.amazonaws.com:aud": `us-west-2:d634a1d9-f3e9-429a-9984-a9da8f95ac16`
-                            },
-                            "ForAnyValue:StringLike": {
-                                "cognito-identity.amazonaws.com:amr": "unauthenticated"
-                            }
-                        },
-                        'sts:AssumeRoleWithWebIdentity'
-                    ),
-                    maxSessionDuration: Duration.hours(1)
-                })
+                unauthenticatedRole: this.unauthenticatedRole
             });
 
         // populates the outputs that the parent stack has access to (just so we don't output these twice from parent and child stacks)

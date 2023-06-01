@@ -31,7 +31,7 @@ export const getStorage = async (getStorageInput: GetStorageInput, sub: string):
         // switch based on the type of file to be retrieved
         switch (getStorageInput.type) {
             case FileType.Main:
-                const bucketName = `${Constants.MoonbeamConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}-${process.env.ENV_NAME!}-${region}`;
+                const bucketName = `${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}-${process.env.ENV_NAME!}-${region}`;
                 const cloudFrontDistributionDomain = process.env.MOONBEAM_MAIN_FILES_CLOUDFRONT_DISTRIBUTION!;
 
                 /**

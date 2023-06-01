@@ -6,7 +6,6 @@ type Query {
 }
 
 type Mutation {
-    putStorage(putStorageInput: PutStorageInput!): StorageResponse @aws_cognito_user_pools
     updateMilitaryVerificationStatus(updateMilitaryVerificationInput: UpdateMilitaryVerificationInput!): MilitaryVerificationResponse @aws_cognito_user_pools
     createMilitaryVerification(createMilitaryVerificationInput: CreateMilitaryVerificationInput!): CreateMilitaryVerificationResponse @aws_cognito_user_pools
 }

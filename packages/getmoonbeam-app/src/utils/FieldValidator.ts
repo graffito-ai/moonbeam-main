@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
-import {stateItems} from "../models/Content";
-import {MilitaryBranch, MilitaryDutyStatus} from "@moonbeam/moonbeam-models";
+import {stateItems} from "../models/Constants";
+import {MilitaryBranch, MilitaryDutyStatus, VerificationDocument} from "@moonbeam/moonbeam-models";
 
 /**
  * File used as a utility class, for validating field values for forms
@@ -10,7 +10,8 @@ export class FieldValidator {
     /**
      * Utility constructor
      */
-    constructor() {}
+    constructor() {
+    }
 
     /**
      * Function used to format birthday value for text input field
@@ -162,14 +163,14 @@ export class FieldValidator {
     public validateField = (fieldValue: string, fieldName: string, setErrorsArray: any, comparisonFieldValue?: string) => {
         switch (fieldName) {
             case 'firstName':
-                if (!/^[^\s\t\n0123456789±!@£$%^&*_+§¡€#¢§¶•ªº«\\\/<>?:;|=.,]{2,100}$/.test(fieldValue)) {
+                if (!/^[^\t\n0123456789±!@£$%^&*_+§¡€#¢§¶•ªº«\\\/<>?:;|=.,]{2,100}$/.test(fieldValue)) {
                     setErrorsArray(["Invalid First Name."]);
                 } else {
                     setErrorsArray([]);
                 }
                 break;
             case 'lastName':
-                if (!/^[^\s\t\n0123456789±!@£$%^&*_+§¡€#¢§¶•ªº«\\\/<>?:;|=.,]{2,500}$/.test(fieldValue)) {
+                if (!/^[^\t\n0123456789±!@£$%^&*_+§¡€#¢§¶•ªº«\\\/<>?:;|=.,]{2,500}$/.test(fieldValue)) {
                     setErrorsArray(["Invalid Last Name."]);
                 } else {
                     setErrorsArray([]);
@@ -264,6 +265,17 @@ export class FieldValidator {
                     setErrorsArray([]);
                 }
                 break;
+            case 'verificationDocument':
+                if (fieldValue !== VerificationDocument.DD214 && fieldValue !== VerificationDocument.LICENSE &&
+                    fieldValue !== VerificationDocument.VETERAN_ID && fieldValue !== VerificationDocument.VA_ELIGIBILITY_LETTER &&
+                    fieldValue !== VerificationDocument.ERB_ORB && fieldValue !== VerificationDocument.LES &&
+                    fieldValue !== VerificationDocument.NGB_22 && fieldValue !== VerificationDocument.VHIC &&
+                    fieldValue !== VerificationDocument.VIC && fieldValue !== VerificationDocument.VA_DISABILITY_LETTER) {
+                    setErrorsArray(["Invalid Verification Document."]);
+                } else {
+                    setErrorsArray([]);
+                }
+                break;
             // password during login
             case 'password':
                 if (fieldValue === null || fieldValue === undefined || fieldValue.length === 0) {
@@ -281,7 +293,10 @@ export class FieldValidator {
                 }
                 break;
             case 'confirmPassword':
-                if (fieldValue !== comparisonFieldValue!) {
+                if (!/^((?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{12,72})$/.test(fieldValue)
+                    || !/^((?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{12,72})$/.test(comparisonFieldValue!)) {
+                    setErrorsArray(["Invalid Password - 12 - 72 chars, 1 special char, 1 number, 1 lowerCase, 1 UpperCase."]);
+                } else if (fieldValue !== comparisonFieldValue!) {
                     setErrorsArray(["Passwords do not match."]);
                 } else {
                     setErrorsArray([]);

@@ -1,7 +1,7 @@
-import {aws_appsync, aws_lambda, aws_lambda_nodejs, Duration, Stack, StackProps} from "aws-cdk-lib";
+import {aws_appsync, aws_lambda, aws_lambda_nodejs, CfnOutput, Duration, Stack, StackProps} from "aws-cdk-lib";
 import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
-import {BlockPublicAccess, Bucket, BucketAccessControl} from "aws-cdk-lib/aws-s3";
+import {BlockPublicAccess, Bucket, BucketAccessControl, HttpMethods} from "aws-cdk-lib/aws-s3";
 import path from "path";
 import {
     AllowedMethods,
@@ -18,7 +18,7 @@ import {
 } from "aws-cdk-lib/aws-cloudfront";
 import {S3Origin} from "aws-cdk-lib/aws-cloudfront-origins";
 import {Constants} from "@moonbeam/moonbeam-models";
-import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
+import {Effect, PolicyStatement, Role} from "aws-cdk-lib/aws-iam";
 
 /**
  * File used to define the AppSync/Lambda storage resolver stack, used by Amplify.
@@ -30,9 +30,12 @@ export class StorageResolverStack extends Stack {
      *
      * @param scope scope to be passed in (usually a CDK App Construct)
      * @param id stack id to be passed in
+     * @param authenticatedRole authenticated role to be passed in, used by Amplify
+     * @param unauthenticatedRole unauthenticated role to be passed in, used by Amplify
      * @param props stack properties to be passed in
      */
-    constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'storageConfig'> & { graphqlApiId: string, graphqlApiName: string }) {
+    constructor(scope: Construct, id: string, authenticatedRole: Role, unauthenticatedRole: Role,
+                props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'storageConfig'> & { graphqlApiId: string, graphqlApiName: string }) {
         super(scope, id, props);
 
         // main Amplify bucket, used for the application, which is not publicly readable, and is configured to work with Cognito and CloudFront, based on certain permissions.
@@ -41,7 +44,31 @@ export class StorageResolverStack extends Stack {
             bucketName: `${mainFilesBucketName}`,
             versioned: true,
             accessControl: BucketAccessControl.PRIVATE,
-            blockPublicAccess: BlockPublicAccess.BLOCK_ALL
+            blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+            /**
+             * this is for enabling Storage through Amplify. We also need to add the appropriate permissions in the Auth and Un-Auth roles from
+             * @link https://docs.amplify.aws/lib/storage/getting-started/q/platform/react-native/#using-amazon-s3
+             */
+            cors: [
+                {
+                    allowedHeaders: ["*"],
+                    allowedMethods: [
+                        HttpMethods.GET,
+                        HttpMethods.HEAD,
+                        HttpMethods.PUT,
+                        HttpMethods.POST,
+                        HttpMethods.DELETE
+                    ],
+                    allowedOrigins: ["*"],
+                    exposedHeaders: [
+                        "x-amz-server-side-encryption",
+                        "x-amz-request-id",
+                        "x-amz-id-2",
+                        "ETag"
+                    ],
+                    maxAge: 3000
+                }
+            ]
         });
 
         // create the identity used to access the bucket through CloudFront, and grant it read Access through the bucket
@@ -119,8 +146,27 @@ export class StorageResolverStack extends Stack {
                     ],
                     resources: [
                         `arn:aws:s3:::${mainFilesBucketName}/public/*`,
-                        `arn:aws:s3:::${mainFilesBucketName}/private/*`,
+                        `arn:aws:s3:::${mainFilesBucketName}/protected/` + '${cognito-identity.amazonaws.com:sub}/*',
+                        `arn:aws:s3:::${mainFilesBucketName}/private/` + '${cognito-identity.amazonaws.com:sub}/*'
                     ]
+                }),
+                new PolicyStatement({
+                    effect: Effect.ALLOW,
+                    actions: [
+                        "s3:PutObject"
+                    ],
+                    resources: [
+                        `arn:aws:s3:::${mainFilesBucketName}/uploads/*`
+                    ],
+                }),
+                new PolicyStatement({
+                    effect: Effect.ALLOW,
+                    actions: [
+                        "s3:GetObject"
+                    ],
+                    resources: [
+                        `arn:aws:s3:::${mainFilesBucketName}/protected/*`
+                    ],
                 }),
                 new PolicyStatement({
                     effect: Effect.ALLOW,
@@ -135,8 +181,11 @@ export class StorageResolverStack extends Stack {
                             "s3:prefix": [
                                 "public/",
                                 "public/*",
-                                "private/",
-                                "private/*"
+                                "protected/",
+                                "protected/*",
+                                'private/' + '${cognito-identity.amazonaws.com:sub}/',
+                                'private/' + '${cognito-identity.amazonaws.com:sub}/*',
+
                             ]
                         }
                     }
@@ -154,6 +203,110 @@ export class StorageResolverStack extends Stack {
             ]
         });
 
+        // Note that the following policy statements need to be added to the Amplify created roles, after their creation
+        // add the appropriate storage policies, to the auth role, used by Amplify
+        authenticatedRole.addToPrincipalPolicy(new PolicyStatement({
+            effect: Effect.ALLOW,
+            actions: [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject"
+            ],
+            resources: [
+                `arn:aws:s3:::${mainFilesBucketName}/public/*`,
+                `arn:aws:s3:::${mainFilesBucketName}/protected/` + '${cognito-identity.amazonaws.com:sub}/*',
+                `arn:aws:s3:::${mainFilesBucketName}/private/` + '${cognito-identity.amazonaws.com:sub}/*'
+            ]
+        }));
+        authenticatedRole.addToPrincipalPolicy(new PolicyStatement({
+            effect: Effect.ALLOW,
+            actions: [
+                "s3:PutObject"
+            ],
+            resources: [
+                `arn:aws:s3:::${mainFilesBucketName}/uploads/*`
+            ]
+        }));
+        authenticatedRole.addToPrincipalPolicy(new PolicyStatement({
+            effect: Effect.ALLOW,
+            actions: [
+                "s3:GetObject"
+            ],
+            resources: [
+                `arn:aws:s3:::${mainFilesBucketName}/protected/*`
+            ],
+        }));
+        authenticatedRole.addToPrincipalPolicy(new PolicyStatement({
+            effect: Effect.ALLOW,
+            actions: [
+                "s3:ListBucket"
+            ],
+            resources: [
+                `arn:aws:s3:::${mainFilesBucketName}`
+            ],
+            conditions: {
+                "StringLike": {
+                    "s3:prefix": [
+                        "public/",
+                        "public/*",
+                        "protected/",
+                        "protected/*",
+                        'private/' + '${cognito-identity.amazonaws.com:sub}/',
+                        'private/' + '${cognito-identity.amazonaws.com:sub}/*'
+                    ]
+                }
+            }
+        }));
+        // add the appropriate storage policies, to the unauth role, used by Amplify
+        unauthenticatedRole.addToPrincipalPolicy(new PolicyStatement({
+            effect: Effect.ALLOW,
+            actions: [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject"
+            ],
+            resources: [
+                `arn:aws:s3:::${mainFilesBucketName}/public/*`
+            ]
+        }));
+        unauthenticatedRole.addToPrincipalPolicy(new PolicyStatement({
+            effect: Effect.ALLOW,
+            actions: [
+                "s3:PutObject"
+            ],
+            resources: [
+                `arn:aws:s3:::${mainFilesBucketName}/uploads/*`
+            ]
+        }));
+        unauthenticatedRole.addToPrincipalPolicy(new PolicyStatement({
+            effect: Effect.ALLOW,
+            actions: [
+                "s3:GetObject"
+            ],
+            resources: [
+                `arn:aws:s3:::${mainFilesBucketName}/protected/*`
+            ],
+        }));
+        unauthenticatedRole.addToPrincipalPolicy(new PolicyStatement({
+            effect: Effect.ALLOW,
+            actions: [
+                "s3:ListBucket"
+            ],
+            resources: [
+                `arn:aws:s3:::${mainFilesBucketName}`
+            ],
+            conditions: {
+                "StringLike": {
+                    "s3:prefix": [
+                        "public/",
+                        "public/*",
+                        "protected/",
+                        "protected/*"
+                    ]
+                }
+            }
+        }));
+
         // retrieve the GraphQL API created by the AppSync stack
         const graphqlApi = aws_appsync.GraphqlApi.fromGraphqlApiAttributes(this, `${props.graphqlApiName}-${props.stage}-${props.env!.region}`,
             {graphqlApiId: props.graphqlApiId});
@@ -166,14 +319,20 @@ export class StorageResolverStack extends Stack {
             typeName: "Query",
             fieldName: `${props.storageConfig.getResolverName}`
         });
-        storageLambdaDataSource.createResolver(`${props.storageConfig.putResolverName}-${props.stage}-${props.env!.region}`, {
-            typeName: "Mutation",
-            fieldName: `${props.storageConfig.putResolverName}`
-        });
 
         // Create an environment variable that we will use in the function code
-        storageLambda.addEnvironment(`${Constants.MoonbeamConstants.MOONBEAM_MAIN_FILES_CLOUDFRONT_DISTRIBUTION}`, mainCloudFrontDistribution.domainName);
+        storageLambda.addEnvironment(`${Constants.StorageConstants.MOONBEAM_MAIN_FILES_CLOUDFRONT_DISTRIBUTION}`, mainCloudFrontDistribution.domainName);
         storageLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
-        storageLambda.addEnvironment(`${Constants.MoonbeamConstants.MOONBEAM_MAIN_FILES_KEY_PAIR_ID}`, mainFilesBucketPublicKey.publicKeyId);
+        storageLambda.addEnvironment(`${Constants.StorageConstants.MOONBEAM_MAIN_FILES_KEY_PAIR_ID}`, mainFilesBucketPublicKey.publicKeyId);
+
+        // creates the Cfn Outputs, to be added to the resulting file, which will be used by the Amplify frontend
+        new CfnOutput(this, Constants.StorageConstants.AWS_S3_BUCKET_REGION, {
+            exportName: Constants.StorageConstants.AWS_S3_BUCKET_REGION.replaceAll('_', '-'),
+            value: props.env!.region!
+        });
+        new CfnOutput(this, Constants.StorageConstants.AWS_S3_BUCKET, {
+            exportName: Constants.StorageConstants.AWS_S3_BUCKET.replaceAll('_', '-'),
+            value: mainFilesBucket.bucketName
+        });
     }
 }

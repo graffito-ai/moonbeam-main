@@ -12,9 +12,9 @@ import {
     addressCityState,
     addressLineState,
     addressStateState,
-    addressZipState, amplifySignUpProcessErrorsState,
+    addressZipState,
+    amplifySignUpProcessErrorsState,
     birthdayState,
-    codeConfirmationInterval,
     dutyStatusValueState,
     emailState,
     enlistingYearState,
@@ -24,18 +24,10 @@ import {
     militaryBranchValueState,
     phoneNumberState,
     registrationBackButtonShown,
-    registrationCodeTimerValue,
     registrationConfirmationPasswordState,
     registrationMainErrorState,
     registrationPasswordState,
-    registrationStepNumber,
-    registrationVerificationDigit1,
-    registrationVerificationDigit2,
-    registrationVerificationDigit3,
-    registrationVerificationDigit4,
-    registrationVerificationDigit5,
-    registrationVerificationDigit6,
-    resetCodeConfirmationTimer, verificationCodeErrorsState
+    registrationStepNumber
 } from '../../recoil/AuthAtom';
 import {AccountRecoveryComponent} from "./AccountRecoveryComponent";
 import {Dimensions} from "react-native";
@@ -69,17 +61,7 @@ export const AuthenticationComponent = ({}: AuthenticationProps) => {
         const [,setConfirmationPassword] = useRecoilState(registrationConfirmationPasswordState);
         const [,setAccountRegistrationDisclaimer] = useRecoilState(accountCreationDisclaimerCheckState);
         const [,setAmplifySignUpErrors] = useRecoilState(amplifySignUpProcessErrorsState);
-        // step 4
-        const [codeVerificationInterval, setCodeVerificationInterval] = useRecoilState(codeConfirmationInterval);
-        const [codeConfirmationReset, setCodeConfirmationReset] = useRecoilState(resetCodeConfirmationTimer);
-        const [, setRegistrationVerificationDigit1] = useRecoilState(registrationVerificationDigit1);
-        const [, setRegistrationVerificationDigit2] = useRecoilState(registrationVerificationDigit2);
-        const [, setRegistrationVerificationDigit3] = useRecoilState(registrationVerificationDigit3);
-        const [, setRegistrationVerificationDigit4] = useRecoilState(registrationVerificationDigit4);
-        const [, setRegistrationVerificationDigit5] = useRecoilState(registrationVerificationDigit5);
-        const [, setRegistrationVerificationDigit6] = useRecoilState(registrationVerificationDigit6);
-        const [countdownValue, ] = useRecoilState(registrationCodeTimerValue);
-        const [, setVerificationCodeErrors] = useRecoilState(verificationCodeErrorsState);
+        // do not need to clear further steps because back button won't be shown for subsequent ones
 
         /**
          * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -89,11 +71,7 @@ export const AuthenticationComponent = ({}: AuthenticationProps) => {
          * included in here.
          */
         useEffect(() => {
-            // reset the countdown appropriately, if the back button is pressed
-            if ((codeConfirmationReset && codeVerificationInterval) || countdownValue < 0) {
-                setCodeVerificationInterval(setInterval(() => {clearInterval(codeVerificationInterval)}, 0));
-            }
-        }, [codeConfirmationReset, countdownValue]);
+        }, []);
 
         // return the component for the Authentication stack
         return (
@@ -147,15 +125,8 @@ export const AuthenticationComponent = ({}: AuthenticationProps) => {
                                                     setConfirmationPassword("");
                                                     setAccountRegistrationDisclaimer(false);
                                                     setAmplifySignUpErrors([]);
-                                                    // step 4
-                                                    setRegistrationVerificationDigit1("");
-                                                    setRegistrationVerificationDigit2("");
-                                                    setRegistrationVerificationDigit3("");
-                                                    setRegistrationVerificationDigit4("");
-                                                    setRegistrationVerificationDigit5("");
-                                                    setRegistrationVerificationDigit6("");
-                                                    setVerificationCodeErrors([]);
-                                                    setCodeConfirmationReset(true);
+                                                    // do not need to clear next steps because back button won't be shown for subsequent ones
+
                                                     // main
                                                     setRegistrationMainError(false);
                                                     setStepNumber(0);

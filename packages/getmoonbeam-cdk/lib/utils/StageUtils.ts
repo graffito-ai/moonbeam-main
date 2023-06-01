@@ -98,16 +98,17 @@ export class StageUtils {
                 appSyncStack.addDependency(amplifyStack);
 
                 // create the AppSync/Lambda storage resolver stack && add it to the CDK app
-                const storageStack = new StorageResolverStack(this.app, `moonbeam-storage-resolver-${stageKey}`, {
-                    stackName: `moonbeam-storage-resolver-${stageKey}`,
-                    description: 'This stack will contain all the AppSync related resources needed by the Lambda storage resolver',
-                    env: stageEnv,
-                    stage: stageConfiguration.stage,
-                    graphqlApiId: appSyncStack.graphqlApiId,
-                    graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
-                    storageConfig: stageConfiguration.storageConfig,
-                    environmentVariables: stageConfiguration.environmentVariables,
-                });
+                const storageStack = new StorageResolverStack(this.app, `moonbeam-storage-resolver-${stageKey}`,
+                    amplifyStack.authenticatedRole, amplifyStack.unauthenticatedRole, {
+                        stackName: `moonbeam-storage-resolver-${stageKey}`,
+                        description: 'This stack will contain all the AppSync related resources needed by the Lambda storage resolver',
+                        env: stageEnv,
+                        stage: stageConfiguration.stage,
+                        graphqlApiId: appSyncStack.graphqlApiId,
+                        graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
+                        storageConfig: stageConfiguration.storageConfig,
+                        environmentVariables: stageConfiguration.environmentVariables,
+                    });
                 storageStack.addDependency(appSyncStack);
 
                 // create the Military Verification resolver stack && add it to the CDK app

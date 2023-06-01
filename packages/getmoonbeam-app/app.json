@@ -15,7 +15,16 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "location",
+          "fetch"
+        ],
+        "NSLocationWhenInUseUsageDescription": "$(PRODUCT_NAME) uses your location in order to be able to find the best deals near you.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "$(PRODUCT_NAME) uses your location in order to be able to find the best deals near you.",
+        "NSLocationAlwaysUsageDescription": "$(PRODUCT_NAME) uses your location in order to be able to find the best deals near you."
+      }
     },
     "android": {
       "softwareKeyboardLayoutMode": "pan",
@@ -28,6 +37,35 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "Allow $(PRODUCT_NAME) to access your contacts."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location.",
+          "locationAlwaysPermission": "Allow $(PRODUCT_NAME) to use your location.",
+          "locationWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location.",
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true
+        }
+      ],
+      [
+        "expo-document-picker",
+        {
+          "iCloudContainerEnvironment": "Production"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos.",
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera, whenever you choose to take photos."
+        }
+      ]
     ]
   }
 }

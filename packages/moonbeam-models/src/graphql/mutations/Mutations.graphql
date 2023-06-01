@@ -1,15 +1,5 @@
 # graphql/Mutations.graphql
 # Mutations Schema File
-mutation PutStorage($putStorageInput: PutStorageInput!) {
-    putStorage(putStorageInput: $putStorageInput) {
-        errorType
-        errorMessage
-        data {
-            url
-        }
-    }
-}
-
 mutation CreateMilitaryVerification($createMilitaryVerificationInput: CreateMilitaryVerificationInput!) {
     createMilitaryVerification(createMilitaryVerificationInput: $createMilitaryVerificationInput) {
         errorType

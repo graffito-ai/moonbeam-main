@@ -1,7 +1,7 @@
-import {Dimensions, TouchableOpacity, View} from "react-native";
+import {TouchableOpacity, View} from "react-native";
 import {styles} from "../../../styles/registration.module";
 import {Text, TextInput} from "react-native-paper";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {useRecoilState} from "recoil";
 import {
     emailState,
@@ -13,7 +13,6 @@ import {
     registrationVerificationDigit4,
     registrationVerificationDigit5,
     registrationVerificationDigit6,
-    resetCodeConfirmationTimer,
     verificationCodeErrorsState
 } from "../../../recoil/AuthAtom";
 import {FieldValidator} from "../../../utils/FieldValidator";
@@ -34,15 +33,19 @@ export const CodeVerificationStep = () => {
     const [verificationCodeDigit6Focus, setIsVerificationCodeDigit6Focus] = useState<boolean>(false);
     // constants used to keep track of shared states
     const [email,] = useRecoilState(emailState);
-    const [, setCodeConfirmationReset] = useRecoilState(resetCodeConfirmationTimer);
     const [countdownValue, setCountDownValue] = useRecoilState(registrationCodeTimerValue);
     const [verificationCodeErrors, setVerificationCodeErrors] = useRecoilState(verificationCodeErrorsState);
     const [verificationCodeDigit1, setVerificationCodeDigit1] = useRecoilState(registrationVerificationDigit1);
     const [verificationCodeDigit2, setVerificationCodeDigit2] = useRecoilState(registrationVerificationDigit2);
+    const verificationCodeDigit2Ref = useRef(null);
     const [verificationCodeDigit3, setVerificationCodeDigit3] = useRecoilState(registrationVerificationDigit3);
+    const verificationCodeDigit3Ref = useRef(null);
     const [verificationCodeDigit4, setVerificationCodeDigit4] = useRecoilState(registrationVerificationDigit4);
+    const verificationCodeDigit4Ref = useRef(null);
     const [verificationCodeDigit5, setVerificationCodeDigit5] = useRecoilState(registrationVerificationDigit5);
+    const verificationCodeDigit5Ref = useRef(null);
     const [verificationCodeDigit6, setVerificationCodeDigit6] = useRecoilState(registrationVerificationDigit6);
+    const verificationCodeDigit6Ref = useRef(null);
     const [registrationMainError, setRegistrationMainError] = useRecoilState(registrationMainErrorState);
 
     // initializing the field validator, to be used for validating form field values
@@ -57,7 +60,8 @@ export const CodeVerificationStep = () => {
      */
     useEffect(() => {
         /**
-         * if the countdown value runs down, then reset any verification code errors, if there are any present and they are specifying the resend message
+         * if the countdown value runs down, then reset any verification code errors, if there are any present,
+         * and they are specifying the resend message
          */
         if (countdownValue <= 0
             && verificationCodeErrors.length !== 0
@@ -124,6 +128,12 @@ export const CodeVerificationStep = () => {
                             value = fieldValidator.formatCodeDigit(verificationCodeDigit1, value.toString());
 
                             setVerificationCodeDigit1(value);
+
+                            // if the value is of length 1, then move to the next digit
+                            if (value.length === 1) {
+                                // @ts-ignore
+                                verificationCodeDigit2Ref.current.focus();
+                            }
                         }}
                         onBlur={() => {
                             setIsVerificationCodeDigit1Focus(false);
@@ -139,6 +149,7 @@ export const CodeVerificationStep = () => {
                         textColor={"#FFFFFF"}
                     />
                     <TextInput
+                        ref={verificationCodeDigit2Ref}
                         keyboardType={"number-pad"}
                         placeholderTextColor={'#D9D9D9'}
                         activeUnderlineColor={'#F2FF5D'}
@@ -156,6 +167,12 @@ export const CodeVerificationStep = () => {
                             value = fieldValidator.formatCodeDigit(verificationCodeDigit2, value.toString());
 
                             setVerificationCodeDigit2(value);
+
+                            // if the value is of length 1, then move to the next digit
+                            if (value.length === 1) {
+                                // @ts-ignore
+                                verificationCodeDigit3Ref.current.focus();
+                            }
                         }}
                         onBlur={() => {
                             setIsVerificationCodeDigit2Focus(false);
@@ -171,6 +188,7 @@ export const CodeVerificationStep = () => {
                         textColor={"#FFFFFF"}
                     />
                     <TextInput
+                        ref={verificationCodeDigit3Ref}
                         keyboardType={"number-pad"}
                         placeholderTextColor={'#D9D9D9'}
                         activeUnderlineColor={'#F2FF5D'}
@@ -188,6 +206,12 @@ export const CodeVerificationStep = () => {
                             value = fieldValidator.formatCodeDigit(verificationCodeDigit3, value.toString());
 
                             setVerificationCodeDigit3(value);
+
+                            // if the value is of length 1, then move to the next digit
+                            if (value.length === 1) {
+                                // @ts-ignore
+                                verificationCodeDigit4Ref.current.focus();
+                            }
                         }}
                         onBlur={() => {
                             setIsVerificationCodeDigit3Focus(false);
@@ -203,6 +227,7 @@ export const CodeVerificationStep = () => {
                         textColor={"#FFFFFF"}
                     />
                     <TextInput
+                        ref={verificationCodeDigit4Ref}
                         keyboardType={"number-pad"}
                         placeholderTextColor={'#D9D9D9'}
                         activeUnderlineColor={'#F2FF5D'}
@@ -220,6 +245,12 @@ export const CodeVerificationStep = () => {
                             value = fieldValidator.formatCodeDigit(verificationCodeDigit4, value.toString());
 
                             setVerificationCodeDigit4(value);
+
+                            // if the value is of length 1, then move to the next digit
+                            if (value.length === 1) {
+                                // @ts-ignore
+                                verificationCodeDigit5Ref.current.focus();
+                            }
                         }}
                         onBlur={() => {
                             setIsVerificationCodeDigit4Focus(false);
@@ -235,6 +266,7 @@ export const CodeVerificationStep = () => {
                         textColor={"#FFFFFF"}
                     />
                     <TextInput
+                        ref={verificationCodeDigit5Ref}
                         keyboardType={"number-pad"}
                         placeholderTextColor={'#D9D9D9'}
                         activeUnderlineColor={'#F2FF5D'}
@@ -252,6 +284,12 @@ export const CodeVerificationStep = () => {
                             value = fieldValidator.formatCodeDigit(verificationCodeDigit5, value.toString());
 
                             setVerificationCodeDigit5(value);
+
+                            // if the value is of length 1, then move to the next digit
+                            if (value.length === 1) {
+                                // @ts-ignore
+                                verificationCodeDigit6Ref.current.focus();
+                            }
                         }}
                         onBlur={() => {
                             setIsVerificationCodeDigit5Focus(false);
@@ -267,6 +305,7 @@ export const CodeVerificationStep = () => {
                         textColor={"#FFFFFF"}
                     />
                     <TextInput
+                        ref={verificationCodeDigit6Ref}
                         keyboardType={"number-pad"}
                         placeholderTextColor={'#D9D9D9'}
                         activeUnderlineColor={'#F2FF5D'}
@@ -307,7 +346,6 @@ export const CodeVerificationStep = () => {
                             onPress={
                                 async () => {
                                     // reset the timer
-                                    setCodeConfirmationReset(false);
                                     setCountDownValue(30);
 
                                     // resend the verification code

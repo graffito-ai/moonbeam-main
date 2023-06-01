@@ -18,7 +18,7 @@ import {
     registrationBackButtonShown,
     registrationMainErrorState
 } from "../../../recoil/AuthAtom";
-import {militaryBranchItems} from "../../../models/Content";
+import {militaryBranchItems} from "../../../models/Constants";
 import {TextInput} from "react-native-paper";
 import {FieldValidator} from "../../../utils/FieldValidator";
 

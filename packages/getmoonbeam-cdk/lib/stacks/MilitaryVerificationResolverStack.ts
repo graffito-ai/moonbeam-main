@@ -26,8 +26,8 @@ export class MilitaryVerificationResolverStack extends Stack {
             entry: path.resolve(path.join(__dirname, '../../../moonbeam-military-verification-lambda/src/lambda/main.ts')),
             handler: 'handler',
             runtime: aws_lambda.Runtime.NODEJS_18_X,
-            // we add a timeout here different from the default of 3seconds, since we expect these API calls to take longer
-            timeout: Duration.minutes(1),
+            // we add a timeout here different from the default of 3 seconds, since we expect these API calls to take longer
+            timeout: Duration.seconds(5),
             memorySize: 512,
             bundling: {
                 minify: true, // minify code, defaults to false

@@ -1,4 +1,5 @@
 import {atom} from "recoil";
+import {MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
 
 /**
  * Atom used to keep track of the information for the current authenticated
@@ -14,8 +15,8 @@ const currentUserInformation = atom({
  * rendered before or not.
  */
 const initialAuthenticationScreen = atom({
-   key: "initialAuthenticationScreen",
-   default: "SignIn"
+    key: "initialAuthenticationScreen",
+    default: "SignIn"
 });
 
 /**
@@ -373,30 +374,39 @@ const amplifySignUpProcessErrorsState = atom({
 });
 
 /**
- * Atom used to keep track of whether the code confirmation timer
- * needs to be reset.
+ * Atom used to keep track of the military verification status of a registering
+ * user.
  */
-const resetCodeConfirmationTimer = atom({
-    key: "resetCodeConfirmationTimer",
-    default: false
-})
-
-/**
- * Atom used to keep track of the interval, employed by the code verification timer.
- */
-const codeConfirmationInterval = atom({
-    key: "codeConfirmationInterval",
-    default: setInterval(() => {}, 0)
+const militaryVerificationStatus = atom({
+    key: "militaryVerificationStatus",
+    default: MilitaryVerificationStatusType.Rejected
 });
 
+/**
+ * Atom used to keep track of whether additional documentation is needed, in
+ * order to verify military eligibility.
+ */
+const additionalDocumentationNeeded = atom({
+    key: "additionalDocumentationNeeded",
+    default: false
+});
+
+/**
+ * Atom used to keep track of the military verification specific, additional documentation errors
+ */
+const additionalDocumentationErrors = atom({
+    key: "additionalDocumentationErrors",
+    default: []
+});
 
 /**
  * Export all atoms and/or selectors
  */
 export {
+    additionalDocumentationErrors,
+    additionalDocumentationNeeded,
+    militaryVerificationStatus,
     amplifySignUpProcessErrorsState,
-    codeConfirmationInterval,
-    resetCodeConfirmationTimer,
     registrationPasswordState,
     registrationPasswordErrorsState,
     registrationConfirmationPasswordState,

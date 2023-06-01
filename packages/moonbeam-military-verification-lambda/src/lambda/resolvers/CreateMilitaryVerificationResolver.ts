@@ -37,10 +37,9 @@ export const createMilitaryVerification = async (createMilitaryVerificationInput
         const quandisVerificationStatus = await quandisClient.verify();
         console.log(`Quandis status ${quandisVerificationStatus}`);
 
-        // base the stored military verification status, on the responses of both verification client calls
+        // resolve the resulting status accordingly
         let verificationStatus: MilitaryVerificationStatusType;
-        if (lighthouseVerificationStatus === MilitaryVerificationStatusType.Verified
-            || quandisVerificationStatus === MilitaryVerificationStatusType.Verified) {
+        if (lighthouseVerificationStatus === MilitaryVerificationStatusType.Verified || quandisVerificationStatus === MilitaryVerificationStatusType.Verified) {
             verificationStatus = MilitaryVerificationStatusType.Verified;
         } else {
             verificationStatus = MilitaryVerificationStatusType.Pending;
@@ -100,7 +99,10 @@ export const createMilitaryVerification = async (createMilitaryVerificationInput
 
         // return the military verification object
         return {
-            data: createMilitaryVerificationInput as MilitaryVerificationInformation
+            data: {
+                ...createMilitaryVerificationInput,
+                militaryVerificationStatus: verificationStatus
+            } as MilitaryVerificationInformation
         }
     } catch (err) {
         const errorMessage = `Unexpected error while executing createMilitaryVerification mutation ${err}`;

@@ -1,4 +1,4 @@
-import {MilitaryBranch, MilitaryDutyStatus} from "@moonbeam/moonbeam-models";
+import {MilitaryBranch, MilitaryDutyStatus, VerificationDocument} from "@moonbeam/moonbeam-models";
 
 // constants used to keep track of the registration steps content
 export const registrationStepTitles = [
@@ -6,6 +6,7 @@ export const registrationStepTitles = [
     "Additional Info",
     "Account Security",
     "Code Verification",
+    "App Permissions",
     "Military Status",
     "Documentation",
     "Card Linking",
@@ -16,11 +17,13 @@ export const registrationStepDescription = [
     "Enter your address, duty status and military branch, to help us verify your eligibility.",
     "Secure your account by setting an account password. You will use this paired with your email, in order to access your new account.",
     "Enter the 6 digit verification code we just sent to your email. Check your spam and trash inboxes.",
-    "Continue by allowing us to verify your military service status based on the information that you've provided.",
-    "Upload or capture additional supporting documentation, to help aid with your eligibility.",
+    "",
+    "Continue by allowing us to verify your military service status based on the information that you provided.",
+    "We need additional information to verify your military identity. Upload or capture supporting documentation, to help with your eligibility.",
     "Link your favorite Visa, American Express, or MasterCard card, and earn rewards with every transaction at qualifying merchant locations.",
     ""
 ];
+
 // constants used to keep track of the app overview steps content
 export const appOverviewStepTitles = [
     "Card-Linked Military\n Discounts",
@@ -84,6 +87,49 @@ export const militaryBranchItems = [
     {
         label: "Space Force",
         value: MilitaryBranch.SpaceForce
+    }
+];
+// constants used to keep track of the document selection dropdown value
+export const documentSelectionItems = [
+    {
+        label: VerificationDocument.DD214,
+        value: VerificationDocument.DD214
+    },
+    {
+        label: VerificationDocument.LICENSE,
+        value: VerificationDocument.LICENSE
+    },
+    {
+        label: VerificationDocument.VETERAN_ID,
+        value: VerificationDocument.VETERAN_ID
+    },
+    {
+        label: VerificationDocument.VA_ELIGIBILITY_LETTER,
+        value: VerificationDocument.VA_ELIGIBILITY_LETTER,
+    },
+    {
+        label: VerificationDocument.ERB_ORB,
+        value: VerificationDocument.ERB_ORB
+    },
+    {
+        label: VerificationDocument.LES,
+        value: VerificationDocument.LES
+    },
+    {
+        label: VerificationDocument.NGB_22,
+        value: VerificationDocument.NGB_22
+    },
+    {
+        label: VerificationDocument.VHIC,
+        value: VerificationDocument.VHIC
+    },
+    {
+        label: VerificationDocument.VIC,
+        value: VerificationDocument.VIC
+    },
+    {
+        label: VerificationDocument.VA_DISABILITY_LETTER,
+        value: VerificationDocument.VA_DISABILITY_LETTER
     }
 ];
 // constants used to keep track of the US states

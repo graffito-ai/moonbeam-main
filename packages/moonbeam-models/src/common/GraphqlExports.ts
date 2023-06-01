@@ -141,7 +141,6 @@ export enum MilitaryVerificationStatusType {
 export type Mutation = {
   __typename?: 'Mutation';
   createMilitaryVerification?: Maybe<CreateMilitaryVerificationResponse>;
-  putStorage?: Maybe<StorageResponse>;
   updateMilitaryVerificationStatus?: Maybe<MilitaryVerificationResponse>;
 };
 
@@ -151,21 +150,8 @@ export type MutationCreateMilitaryVerificationArgs = {
 };
 
 
-export type MutationPutStorageArgs = {
-  putStorageInput: PutStorageInput;
-};
-
-
 export type MutationUpdateMilitaryVerificationStatusArgs = {
   updateMilitaryVerificationInput: UpdateMilitaryVerificationInput;
-};
-
-export type PutStorageInput = {
-  content: Scalars['String'];
-  expires?: InputMaybe<Scalars['Boolean']>;
-  level: FileAccessLevel;
-  name: Scalars['String'];
-  type: FileType;
 };
 
 export type Query = {

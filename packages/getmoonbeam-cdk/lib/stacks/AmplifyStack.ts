@@ -3,6 +3,7 @@ import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
 import {AmplifyAuthStack} from "./AmplifyAuthStack";
 import {Constants} from "@moonbeam/moonbeam-models";
+import {Role} from "aws-cdk-lib/aws-iam";
 
 /**
  * File used to define the Amplify stack, used to deploy all Amplify related functionality.
@@ -11,6 +12,10 @@ export class AmplifyStack extends Stack {
 
     // User Pool ID, to be used in the dependent AppSync stack
     readonly userPoolId: string;
+
+    // Roles to be accessed by other stacks, especially the storage stack, in order to add more permissions
+    readonly authenticatedRole: Role;
+    readonly unauthenticatedRole: Role;
 
     /**
      * Constructor for the Amplify stack
@@ -71,5 +76,9 @@ export class AmplifyStack extends Stack {
             exportName: Constants.AmplifyConstants.USER_POOLS_WEB_CLIENT_ID.replaceAll('_', '-'),
             value: amplifyAuthStack.outputs[3]
         });
+
+        // set up the roles to be accessed by other stacks, to be the ones obtained in the Auth nested stack
+        this.authenticatedRole = amplifyAuthStack.authenticatedRole;
+        this.unauthenticatedRole = amplifyAuthStack.unauthenticatedRole;
     }
 }

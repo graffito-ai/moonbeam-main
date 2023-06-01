@@ -8,7 +8,7 @@ import {Text} from "react-native-paper";
 import GestureRecognizer from 'react-native-swipe-gestures';
 import {useRecoilState} from "recoil";
 import {initialAuthenticationScreen} from "../../recoil/AuthAtom";
-import {appOverviewStepContent, appOverviewStepImageSource, appOverviewStepTitles} from "../../models/Content";
+import {appOverviewStepContent, appOverviewStepImageSource, appOverviewStepTitles} from "../../models/Constants";
 
 /**
  * AppOverview component.

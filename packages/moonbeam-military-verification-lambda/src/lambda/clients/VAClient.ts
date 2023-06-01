@@ -40,14 +40,21 @@ export class VAClient extends VerificationClient {
             // check to see if we obtained any invalid secret values from the call above
             if (lighthouseBaseURL === null || lighthouseBaseURL.length === 0 ||
                 lighthouseAPIKey === null || lighthouseAPIKey.length === 0) {
-                throw new Error(`invalid secrets obtained`);
+                // for invalid secrets, return a Pending status, for a better customer experience
+                console.log('Invalid Secrets obtained for Lighthouse API call!');
+
+                return MilitaryVerificationStatusType.Pending;
             }
 
             // convert the date of birth into the appropriate format (YYYY-MM-DD), accepted by Lighthouse
             let dob = this.verificationInformation.dateOfBirth;
             dob = `${dob.split('/')[2]}-${dob.split('/')[0]}-${dob.split('/')[1]}`;
 
-            // build the Lighthouse API request body to be passed in, and perform a POST to it with the appropriate information
+            /**
+             * build the Lighthouse API request body to be passed in, and perform a POST to it with the appropriate information
+             * we imply that if the API does not respond in 2 seconds, that we automatically catch that, and return a Pending status
+             * for a better customer experience.
+             */
             const verificationResponse = await axios.post(lighthouseBaseURL, {
                 firstName: this.verificationInformation.firstName,
                 lastName: this.verificationInformation.lastName,
@@ -61,7 +68,9 @@ export class VAClient extends VerificationClient {
                 headers: {
                     "Content-Type": "application/json",
                     "apiKey": lighthouseAPIKey
-                }
+                },
+                timeout: 2000, // in milliseconds here
+                timeoutErrorMessage: 'Lighthouse API timed out after 2000ms!'
             });
 
             // check the status of the response, and act appropriately
@@ -73,16 +82,17 @@ export class VAClient extends VerificationClient {
                 }
             }
 
-            // throw an error for status codes that are not 200
+            // return a Pending status for status codes that are not 200
             const errorMessage = `Unexpected error while calling the Lighthouse API, with status ${verificationResponse.status}, and response ${verificationResponse.data}`;
             console.log(errorMessage);
 
-            throw new Error(errorMessage);
+            return MilitaryVerificationStatusType.Pending;
         } catch (err) {
-            const errorMessage = `Unexpected error while verifying military status ${err}`;
+            // for any error caught here, return a Pending status, for a better customer experience
+            const errorMessage = `Unexpected error while verifying military status through Lighthouse API ${err}`;
             console.log(errorMessage);
 
-            throw new Error(errorMessage);
+            return MilitaryVerificationStatusType.Pending;
         }
     }
 }

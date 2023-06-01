@@ -52,10 +52,7 @@ export const SecurityStep = () => {
         }
         (confirmPassword === "" && password === "") && setConfirmPasswordErrors([]);
         // for cases when password mismatch is not caught by validator
-        if (confirmPassword !== "" && password !== "" && confirmPassword === password) {
-            setPasswordErrors([]);
-            setConfirmPasswordErrors([]);
-        } else if (confirmPassword !== "" && password !== "" && confirmPassword !== password) {
+        if (confirmPassword !== "" && password !== "" && confirmPassword !== password) {
             // @ts-ignore
             setConfirmPasswordErrors(["Passwords do not match."]);
         }
@@ -105,7 +102,7 @@ export const SecurityStep = () => {
                     placeholder={'Required'}
                     label="Password"
                     textColor={"#FFFFFF"}
-                    left={<TextInput.Icon icon="home-map-marker" iconColor="#FFFFFF"/>}
+                    left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
                     right={<TextInput.Icon icon="eye"
                                            iconColor={isPasswordShown ? "#F2FF5D" : "#FFFFFF"}
                                            onPress={() => setIsPasswordShown(!isPasswordShown)}/>}
@@ -140,7 +137,7 @@ export const SecurityStep = () => {
                     placeholder={'Required (must match Password)'}
                     label="Confirm Password"
                     textColor={"#FFFFFF"}
-                    left={<TextInput.Icon icon="home-map-marker" iconColor="#FFFFFF"/>}
+                    left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
                     right={<TextInput.Icon icon="eye"
                                            iconColor={isConfirmPasswordShown ? "#F2FF5D" : "#FFFFFF"}
                                            onPress={() => setIsConfirmPasswordShown(!isConfirmPasswordShown)}/>}
