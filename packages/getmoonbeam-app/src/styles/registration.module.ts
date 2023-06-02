@@ -160,6 +160,12 @@ export const styles = StyleSheet.create({
         alignContent: 'space-between',
         width: '100%'
     },
+    cardLinkingDisclaimerView: {
+        bottom: Dimensions.get('window').height/40,
+        flexDirection: 'row',
+        alignContent: 'space-between',
+        width: '100%'
+    },
     disclaimerCheckbox: {
         alignSelf: 'flex-start'
     },
@@ -350,11 +356,29 @@ export const styles = StyleSheet.create({
         width: Dimensions.get('window').width / 1.15,
         height: Dimensions.get('window').height / 25
     },
+    issuingCountryDropdownContainer: {
+        backgroundColor: '#1c1a1f',
+        borderColor: "#D9D9D9",
+        width: Dimensions.get('window').width / 1.15,
+        height: Dimensions.get('window').height / 5,
+        top: Dimensions.get('window').width/3.6
+    },
+    issuingCountryDropdownPicker: {
+        backgroundColor: '#1c1a1f',
+        borderColor: "#D9D9D9",
+        width: Dimensions.get('window').width / 1.15,
+        height: Dimensions.get('window').height / 25,
+        top: Dimensions.get('window').width/6.2
+    },
     dropdownImage: {
         height: Dimensions.get('window').height / 45,
         width: Dimensions.get('window').height / 45
     },
     militaryRegistrationView: {
+        zIndex: 1000,
+        marginBottom: Dimensions.get('window').height/30
+    },
+    cardLinkingView: {
         zIndex: 1000,
         marginBottom: Dimensions.get('window').height/30
     },
@@ -369,5 +393,13 @@ export const styles = StyleSheet.create({
         height: Dimensions.get('window').height * 0.65,
         width: Dimensions.get('window').width * 0.75,
         flex: 0.75
-    }
+    },
+    cardGroupImage: {
+        right: Dimensions.get('window').width/13
+    },
+    inputColumnViewCardDetails: {
+        marginTop: Dimensions.get('window').height/10,
+        flexDirection: 'row',
+        width: '100%',
+    },
 });

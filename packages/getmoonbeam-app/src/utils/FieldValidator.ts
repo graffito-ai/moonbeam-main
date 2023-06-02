@@ -48,6 +48,39 @@ export class FieldValidator {
     }
 
     /**
+     * Function used to format the expiration date value for text input field
+     *
+     * @param expirationDate original expiration date value
+     * @param value new expiration date value obtained while typing
+     */
+    public formatExpirationDate = (expirationDate: string, value: string): string => {
+        // for formatting the date to MM/YYYY
+        try {
+            // detect deletion
+            let deletion: boolean = false;
+            if (expirationDate.length > value.length) {
+                deletion = true;
+            }
+
+            if (!deletion) {
+                const cleaned = ("" + value).replace(/\D/g, "");
+                const match = cleaned.match(/^(\d{0,2})?(\d{0,4})?$/);
+
+                return match
+                    ? [
+                        match[1]! ? (match[1].length == 2 ? `${match[1]}/` : match[1]) : "",
+                        match[2]! ? match[2] : ""
+                    ].join("")
+                    : "";
+            } else {
+                return value;
+            }
+        } catch (err) {
+            return "";
+        }
+    }
+
+    /**
      * Function used to format a code verification digit's value for text input field
      *
      * @param codeDigit original digit value
@@ -114,6 +147,56 @@ export class FieldValidator {
         }
     }
 
+    /**
+     * Function used to format a card number entry for text input field
+     *
+     * @param cardNumber original card number value
+     * @param value new card number value obtained while typing
+     */
+    public formatCardNumberEntry = (cardNumber: string, value: string): string => {
+        // for formatting the date to a valid card number format
+        try {
+            // detect deletion
+            let deletion: boolean = false;
+            if (cardNumber.length > value.length) {
+                deletion = true;
+            }
+
+            if (!deletion) {
+                let cleaned = ("" + value).replace(/\D/g, "");
+                const match = cleaned.match(/^(\d{0,20})?$/);
+
+                return match
+                    ? [
+                        match[1]! ? match[1] : "",
+                        match[2]! ? match[2] : "",
+                        match[3]! ? match[3] : "",
+                        match[4]! ? match[4] : "",
+                        match[5]! ? match[5] : "",
+                        match[6]! ? match[6] : "",
+                        match[7]! ? match[7] : "",
+                        match[8]! ? match[8] : "",
+                        match[9]! ? match[9] : "",
+                        match[10]! ? match[10] : "",
+                        match[11]! ? match[11] : "",
+                        match[12]! ? match[12] : "",
+                        match[13]! ? match[13] : "",
+                        match[14]! ? match[14] : "",
+                        match[15]! ? match[15] : "",
+                        match[16]! ? match[16] : "",
+                        match[17]! ? match[17] : "",
+                        match[18]! ? match[18] : "",
+                        match[19]! ? match[19] : "",
+                        match[20]! ? match[20] : ""
+                    ].join("")
+                    : "";
+            } else {
+                return value;
+            }
+        } catch (err) {
+            return "";
+        }
+    }
 
     /**
      * Function used to format phone number value for text input field
@@ -298,6 +381,40 @@ export class FieldValidator {
                     setErrorsArray(["Invalid Password - 12 - 72 chars, 1 special char, 1 number, 1 lowerCase, 1 UpperCase."]);
                 } else if (fieldValue !== comparisonFieldValue!) {
                     setErrorsArray(["Passwords do not match."]);
+                } else {
+                    setErrorsArray([]);
+                }
+                break;
+            case 'cardNumber':
+                if (!/^\d{13,20}$/.test(fieldValue)) {
+                    setErrorsArray(["Invalid Card Number."]);
+                } else {
+                    setErrorsArray([]);
+                }
+                break;
+            case 'expirationDate':
+                // use to calculate the difference in years
+                const monthValue = Number(`${fieldValue.split("/")[0]}`);
+                const yearValue = Number(`${fieldValue.split("/")[1]}`);
+
+                if (!/^(\d{2})(\/)(\d{4})$/.test(fieldValue)) {
+                    setErrorsArray(["Invalid expiration date."]);
+                } else if (yearValue < new Date().getFullYear()) {
+                    // make sure that the year is a valid year
+                    setErrorsArray(["Invalid expiration year."]);
+                } else if (!(1 <= monthValue && 12 >= monthValue)) {
+                    // make sure that the month is a valid month
+                    setErrorsArray(["Invalid expiration month."]);
+                } else if (yearValue === new Date().getFullYear() && monthValue < new Date().getMonth()) {
+                    // make sure that the month year combination is less than current month and year
+                    setErrorsArray(["Invalid expiration date."]);
+                } else {
+                    setErrorsArray([]);
+                }
+                break;
+            case 'issuingCountry':
+                if (fieldValue !== 'US' && fieldValue !== 'UK') {
+                    setErrorsArray(["Invalid Issuing Country."]);
                 } else {
                     setErrorsArray([]);
                 }

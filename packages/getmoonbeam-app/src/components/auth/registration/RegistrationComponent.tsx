@@ -20,16 +20,16 @@ import {
     addressZipState,
     amplifySignUpProcessErrorsState,
     birthdayErrorState,
-    birthdayState,
+    birthdayState, cardLinkingDisclaimerCheckState, cardNumberErrorsState, cardNumberState,
     currentUserInformation,
     dutyStatusErrorsState,
     dutyStatusValueState,
     emailErrorsState,
     emailState,
     enlistingYearErrorsState,
-    enlistingYearState,
+    enlistingYearState, expirationDateErrorsState, expirationDateState,
     firstNameErrorsState,
-    firstNameState,
+    firstNameState, issuingCountryErrorsState, issuingCountryState,
     lastNameErrorsState,
     lastNameState,
     militaryBranchErrorsState,
@@ -137,6 +137,14 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
     // step 6
     const [additionalDocumentsNeeded, setAdditionalDocumentsNeeded] = useRecoilState(additionalDocumentationNeeded);
     const [, setDocumentationErrors] = useRecoilState(additionalDocumentationErrors);
+    // step 7
+    const [cardNumber,] = useRecoilState(cardNumberState);
+    const [expirationDate,] = useRecoilState(expirationDateState);
+    const [cardNumberErrors,] = useRecoilState(cardNumberErrorsState);
+    const [expirationDateErrors,] = useRecoilState(expirationDateErrorsState);
+    const [issuingCountryErrors,] = useRecoilState(issuingCountryErrorsState);
+    const [issuingCountry,] = useRecoilState(issuingCountryState);
+    const [cardLinkingDisclaimer,] = useRecoilState(cardLinkingDisclaimerCheckState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -476,7 +484,8 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                         >
                             <View
                                 style={[styles.titleView, {marginTop: Dimensions.get('window').height / 6},
-                                    (stepNumber === 4 || (stepNumber === 5 && militaryStatus !== MilitaryVerificationStatusType.Rejected)) && {marginTop: Dimensions.get('window').height / 4.5}]}>
+                                    (stepNumber === 4 || (stepNumber === 5 && militaryStatus !== MilitaryVerificationStatusType.Rejected)) && {marginTop: Dimensions.get('window').height / 4.5},
+                                    stepNumber === 7 && {marginTop: Dimensions.get('window').height/5.2}]}>
                                 {stepNumber === 4 &&
                                     <TouchableOpacity
                                         style={styles.buttonSkip}
@@ -555,15 +564,18 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                         (!militaryVerificationDisclaimer && stepNumber === 5)
                                         || (!accountRegistrationDisclaimer && stepNumber === 2)
                                         || (additionalDocumentsNeeded && stepNumber === 6)
+                                        || (!cardLinkingDisclaimer && stepNumber === 7)
                                     }
                                     style={[
                                         (!militaryVerificationDisclaimer && stepNumber === 5
                                             || (!accountRegistrationDisclaimer && stepNumber === 2)
-                                            || (additionalDocumentsNeeded && stepNumber === 6))
+                                            || (additionalDocumentsNeeded && stepNumber === 6)
+                                            || (!cardLinkingDisclaimer && stepNumber === 7))
                                         ? styles.buttonRightDisabled
                                         : styles.buttonRight,
                                         (stepNumber === 1 || stepNumber === 2) && {marginLeft: Dimensions.get('window').width / 5},
-                                        (stepNumber === 4 || (stepNumber === 5 && militaryStatus !== MilitaryVerificationStatusType.Rejected)) && {marginBottom: Dimensions.get('window').height / 25}]}
+                                        (stepNumber === 4 || (stepNumber === 5 && militaryStatus !== MilitaryVerificationStatusType.Rejected)) && {marginBottom: Dimensions.get('window').height / 25},
+                                        stepNumber === 7 && {bottom: Dimensions.get('window').height/30}]}
                                     onPress={
                                         async () => {
                                             // show back button on next step if the step is 0, 1 or 2
@@ -708,6 +720,20 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                                 case 6:
                                                     break;
                                                 case 7:
+                                                    if (cardNumber === "" || expirationDate === "" || issuingCountry === "" ||
+                                                        cardNumberErrors.length !== 0 || expirationDateErrors.length !== 0 ||
+                                                        issuingCountryErrors.length !== 0) {
+                                                        checksPassed = false;
+
+                                                        // only populate main error if there are no other errors showing
+                                                        if (cardNumberErrors.length === 0 && expirationDateErrors.length === 0 &&
+                                                            issuingCountryErrors.length === 0) {
+                                                            setRegistrationMainError(true);
+                                                        }
+                                                    } else {
+                                                        setRegistrationMainError(false);
+                                                        checksPassed = true;
+                                                    }
                                                     break;
                                                 case 8:
                                                     break;

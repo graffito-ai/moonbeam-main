@@ -325,6 +325,14 @@ const militaryRegistrationDisclaimerCheckState = atom({
 });
 
 /**
+ * Atom used to keep track of the registration card linking disclaimer checkbox state.
+ */
+const cardLinkingDisclaimerCheckState = atom({
+    key: "cardLinkingDisclaimerCheckState",
+    default: false
+});
+
+/**
  * Atom used to keep track of the account creation disclaimer checkbox state.
  */
 const accountCreationDisclaimerCheckState = atom({
@@ -400,9 +408,75 @@ const additionalDocumentationErrors = atom({
 });
 
 /**
+ * Atom used to keep track of the card linking, card number specific errors
+ */
+const cardNumberErrorsState = atom({
+    key: "cardNumberErrorsState",
+    default: []
+});
+
+/**
+ * Atom used to keep track of the card number, used for card linking during registration
+ */
+const cardNumberState = atom({
+    key: "cardNumberState",
+    default: ""
+});
+
+/**
+ * Atom used to keep track of the card linking, expiration date specific errors
+ */
+const expirationDateErrorsState = atom({
+    key: "expirationDateErrorsState",
+    default: []
+});
+
+/**
+ * Atom used to keep track of the expiration date, used for card linking during registration
+ */
+const expirationDateState = atom({
+    key: "expirationDateState",
+    default: ""
+});
+
+/**
+ * Atom used to keep track of the card linking, issuing country specific errors
+ */
+const issuingCountryErrorsState = atom({
+    key: "issuingCountryErrorsState",
+    default: []
+});
+
+/**
+ * Atom used to keep track of the issuing country value.
+ */
+const issuingCountryState = atom({
+    key: "issuingCountryState",
+    default: ""
+});
+
+/**
+ * Atom used to keep track of the issuing country dropdown state,
+ * used for card linking during registration
+ */
+const issuingCountryDropdownState = atom({
+    key: "issuingCountryDropdownState",
+    default: false
+});
+
+
+/**
  * Export all atoms and/or selectors
  */
 export {
+    cardLinkingDisclaimerCheckState,
+    issuingCountryState,
+    cardNumberErrorsState,
+    cardNumberState,
+    expirationDateErrorsState,
+    expirationDateState,
+    issuingCountryErrorsState,
+    issuingCountryDropdownState,
     additionalDocumentationErrors,
     additionalDocumentationNeeded,
     militaryVerificationStatus,

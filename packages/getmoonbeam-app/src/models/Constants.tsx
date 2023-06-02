@@ -132,7 +132,18 @@ export const documentSelectionItems = [
         value: VerificationDocument.VA_DISABILITY_LETTER
     }
 ];
+// constants used to keep track of the issuing country selection dropdown value
+export const issuingCountrySelectionItems = [
+    {
+        label: 'United States of America',
+        value: 'US'
+    },
+    {
+        label: 'United Kingdom',
+        value: 'UK'
+    }
+];
 // constants used to keep track of the US states
 export const stateItems = [
     "Alaska", "Alabama", "Arkansas", "American Samoa", "Arizona", "California", "Colorado", "Connecticut", "District of Columbia", "Delaware", "Florida", "Georgia", "Guam", "Hawaii", "Iowa", "Idaho", "Illinois", "Indiana", "Kansas", "Kentucky", "Louisiana", "Massachusetts", "Maryland", "Maine", "Michigan", "Minnesota", "Missouri", "Mississippi", "Montana", "North Carolina", "North Dakota", "Nebraska", "New Hampshire", "New Jersey", "New Mexico", "Nevada", "New York", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Puerto Rico", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Virginia", "Virgin Islands", "Vermont", "Washington", "Wisconsin", "West Virginia", "Wyoming"
-]
+];
