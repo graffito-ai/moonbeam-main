@@ -280,7 +280,7 @@ const registrationVerificationDigit6 = atom({
  */
 const registrationCodeTimerValue = atom({
     key: "registrationCodeTimerValue",
-    default: 30
+    default: 10
 });
 
 /**
@@ -355,7 +355,6 @@ const registrationConfirmationPasswordState = atom({
     key: "registrationConfirmationPasswordState",
     default: ""
 });
-
 
 /**
  * Atom used to keep track of the registration password errors
@@ -463,7 +462,6 @@ const issuingCountryDropdownState = atom({
     key: "issuingCountryDropdownState",
     default: false
 });
-
 
 /**
  * Export all atoms and/or selectors

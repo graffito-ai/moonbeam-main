@@ -97,6 +97,16 @@ export const styles = StyleSheet.create({
         fontSize: Dimensions.get('window').height/55,
         fontFamily: 'Saira-Regular'
     },
+    textInputNarrowCardLinked: {
+        bottom: Dimensions.get('window').height / 16,
+        alignSelf: 'flex-start',
+        width: Dimensions.get('window').width / 2.5,
+    },
+    textInputNarrowFocusCardLinked: {
+        bottom: Dimensions.get('window').height / 16,
+        alignSelf: 'flex-start',
+        width: Dimensions.get('window').width / 2.5,
+    },
     textInputNarrow: {
         bottom: Dimensions.get('window').height / 14,
         alignSelf: 'flex-start',
@@ -161,7 +171,7 @@ export const styles = StyleSheet.create({
         width: '100%'
     },
     cardLinkingDisclaimerView: {
-        bottom: Dimensions.get('window').height/40,
+        top: Dimensions.get('window').height/15,
         flexDirection: 'row',
         alignContent: 'space-between',
         width: '100%'
@@ -205,9 +215,10 @@ export const styles = StyleSheet.create({
         backgroundColor: '#D9D9D9',
         width: Dimensions.get('window').width/3,
         height: Dimensions.get('window').height/20,
-        left: Dimensions.get('window').width/70,
+        right: Dimensions.get('window').width/20,
         flexDirection: 'row',
         flexWrap: 'wrap',
+        alignSelf: 'center',
         alignItems: 'center',
         justifyContent: 'center'
     },
@@ -215,9 +226,10 @@ export const styles = StyleSheet.create({
         backgroundColor: '#F2FF5D',
         width: Dimensions.get('window').width/3,
         height: Dimensions.get('window').height/20,
-        left: Dimensions.get('window').width/70,
+        right: Dimensions.get('window').width/20,
         flexDirection: 'row',
         flexWrap: 'wrap',
+        alignSelf: 'center',
         alignItems: 'center',
         justifyContent: 'center'
     },
@@ -242,7 +254,7 @@ export const styles = StyleSheet.create({
     bottomContainerButtons: {
         flexDirection: 'row',
         marginTop: Dimensions.get('window').height / 40,
-        paddingRight: Dimensions.get('window').width/ 8,
+        paddingRight: Dimensions.get('window').width/ 20,
     },
     documentSelectionView: {
         zIndex: 1000,
@@ -360,15 +372,13 @@ export const styles = StyleSheet.create({
         backgroundColor: '#1c1a1f',
         borderColor: "#D9D9D9",
         width: Dimensions.get('window').width / 1.15,
-        height: Dimensions.get('window').height / 5,
-        top: Dimensions.get('window').width/3.6
+        height: Dimensions.get('window').height / 5
     },
     issuingCountryDropdownPicker: {
         backgroundColor: '#1c1a1f',
         borderColor: "#D9D9D9",
         width: Dimensions.get('window').width / 1.15,
-        height: Dimensions.get('window').height / 25,
-        top: Dimensions.get('window').width/6.2
+        height: Dimensions.get('window').height / 25
     },
     dropdownImage: {
         height: Dimensions.get('window').height / 45,
@@ -380,7 +390,10 @@ export const styles = StyleSheet.create({
     },
     cardLinkingView: {
         zIndex: 1000,
-        marginBottom: Dimensions.get('window').height/30
+        marginBottom: Dimensions.get('window').width/5
+    },
+    cardLinkingInputView: {
+        bottom: -Dimensions.get('window').height/22
     },
     permissionsView: {
         flex: 1,
@@ -396,10 +409,5 @@ export const styles = StyleSheet.create({
     },
     cardGroupImage: {
         right: Dimensions.get('window').width/13
-    },
-    inputColumnViewCardDetails: {
-        marginTop: Dimensions.get('window').height/10,
-        flexDirection: 'row',
-        width: '100%',
-    },
+    }
 });

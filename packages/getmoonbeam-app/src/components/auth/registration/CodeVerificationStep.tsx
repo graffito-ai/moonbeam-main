@@ -340,13 +340,13 @@ export const CodeVerificationStep = () => {
                 </View>
                 <View style={styles.resendCodeView}>
                     {countdownValue > 0
-                        ? <Text style={styles.countdownTimer}>{`00:${countdownValue}`}</Text>
+                        ? <Text style={styles.countdownTimer}>{``}</Text>
                         :
                         <TouchableOpacity
                             onPress={
                                 async () => {
                                     // reset the timer
-                                    setCountDownValue(30);
+                                    setCountDownValue(10);
 
                                     // resend the verification code
                                     await resendCode();

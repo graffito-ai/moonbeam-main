@@ -8,7 +8,8 @@ import {IconButton, Text} from "react-native-paper";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 import {useRecoilState} from "recoil";
 import {
-    accountCreationDisclaimerCheckState, additionalDocumentationErrors,
+    accountCreationDisclaimerCheckState,
+    additionalDocumentationErrors,
     additionalDocumentationNeeded,
     addressCityErrorsState,
     addressCityState,
@@ -20,16 +21,23 @@ import {
     addressZipState,
     amplifySignUpProcessErrorsState,
     birthdayErrorState,
-    birthdayState, cardLinkingDisclaimerCheckState, cardNumberErrorsState, cardNumberState,
+    birthdayState,
+    cardLinkingDisclaimerCheckState,
+    cardNumberErrorsState,
+    cardNumberState,
     currentUserInformation,
     dutyStatusErrorsState,
     dutyStatusValueState,
     emailErrorsState,
     emailState,
     enlistingYearErrorsState,
-    enlistingYearState, expirationDateErrorsState, expirationDateState,
+    enlistingYearState,
+    expirationDateErrorsState,
+    expirationDateState,
     firstNameErrorsState,
-    firstNameState, issuingCountryErrorsState, issuingCountryState,
+    firstNameState,
+    issuingCountryErrorsState,
+    issuingCountryState,
     lastNameErrorsState,
     lastNameState,
     militaryBranchErrorsState,
@@ -38,7 +46,8 @@ import {
     militaryVerificationStatus,
     phoneNumberErrorsState,
     phoneNumberState,
-    registrationBackButtonShown, registrationCodeTimerValue,
+    registrationBackButtonShown,
+    registrationCodeTimerValue,
     registrationConfirmationPasswordErrorsState,
     registrationConfirmationPasswordState,
     registrationMainErrorState,
@@ -75,6 +84,7 @@ import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 import {fetchFile} from "../../../utils/File";
 import {Spinner} from "../../common/Spinner";
+import {splashStatusState} from "../../../recoil/SplashAtom";
 
 /**
  * RegistrationComponent component.
@@ -145,6 +155,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
     const [issuingCountryErrors,] = useRecoilState(issuingCountryErrorsState);
     const [issuingCountry,] = useRecoilState(issuingCountryState);
     const [cardLinkingDisclaimer,] = useRecoilState(cardLinkingDisclaimerCheckState);
+    const [splashState, setSplashState] = useRecoilState(splashStatusState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -154,9 +165,9 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
      * included in here.
      */
     useEffect(() => {
-        // start the countdown if the value is 30
-        if (countdownValue == 30) {
-            startCountdown(30);
+        // start the countdown if the value is 10
+        if (countdownValue == 10) {
+            startCountdown(10);
         }
     }, [countdownValue]);
 
@@ -174,7 +185,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
             counter--;
 
             // if the number of seconds goes below 0
-            if (counter < 0 ) {
+            if (counter < 0) {
                 clearInterval(interval);
             }
         }, 1000);
@@ -482,10 +493,10 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                             contentContainerStyle={[commonStyles.rowContainer]}
                             keyboardShouldPersistTaps={'handled'}
                         >
-                            <View
+                            {stepNumber !== 8 && <View
                                 style={[styles.titleView, {marginTop: Dimensions.get('window').height / 6},
                                     (stepNumber === 4 || (stepNumber === 5 && militaryStatus !== MilitaryVerificationStatusType.Rejected)) && {marginTop: Dimensions.get('window').height / 4.5},
-                                    stepNumber === 7 && {marginTop: Dimensions.get('window').height/5.2}]}>
+                                    stepNumber === 7 && {marginTop: Dimensions.get('window').height / 5.2}]}>
                                 {stepNumber === 4 &&
                                     <TouchableOpacity
                                         style={styles.buttonSkip}
@@ -509,7 +520,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                         style={styles.triangleIcon}
                                     />
                                 </View>
-                            </View>
+                            </View>}
                             {(militaryStatus === MilitaryVerificationStatusType.Verified && stepNumber === 5) ? <></> :
                                 <Text style={styles.stepDescription}>{registrationStepDescription[stepNumber]}</Text>}
                             {/*switch views based on the step number*/}
@@ -567,15 +578,35 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                         || (!cardLinkingDisclaimer && stepNumber === 7)
                                     }
                                     style={[
-                                        (!militaryVerificationDisclaimer && stepNumber === 5
+                                        (
+                                            !militaryVerificationDisclaimer && stepNumber === 5
                                             || (!accountRegistrationDisclaimer && stepNumber === 2)
                                             || (additionalDocumentsNeeded && stepNumber === 6)
-                                            || (!cardLinkingDisclaimer && stepNumber === 7))
-                                        ? styles.buttonRightDisabled
-                                        : styles.buttonRight,
+                                            || (!cardLinkingDisclaimer && stepNumber === 7)
+                                        )
+                                            ? styles.buttonRightDisabled
+                                            : styles.buttonRight,
                                         (stepNumber === 1 || stepNumber === 2) && {marginLeft: Dimensions.get('window').width / 5},
-                                        (stepNumber === 4 || (stepNumber === 5 && militaryStatus !== MilitaryVerificationStatusType.Rejected)) && {marginBottom: Dimensions.get('window').height / 25},
-                                        stepNumber === 7 && {bottom: Dimensions.get('window').height/30}]}
+                                        (stepNumber === 4 || (stepNumber === 5 && militaryStatus !== MilitaryVerificationStatusType.Rejected))
+                                        && {
+                                            marginBottom: Dimensions.get('window').height / 15,
+                                            marginLeft: Dimensions.get('window').width / 25
+                                        },
+                                        stepNumber === 6
+                                        && {
+                                            marginLeft: Dimensions.get('window').width / 25
+                                        },
+                                        stepNumber === 7
+                                        && {
+                                            marginLeft: Dimensions.get('window').width / 25,
+                                            bottom: Dimensions.get('window').width / 20
+                                        },
+                                        stepNumber === 8
+                                        && {
+                                            marginBottom: Dimensions.get('window').height / 10,
+                                            marginLeft: Dimensions.get('window').width / 6
+                                        }]
+                                    }
                                     onPress={
                                         async () => {
                                             // show back button on next step if the step is 0, 1 or 2
@@ -634,7 +665,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                                         // check if registration was successful
                                                         if (signUpFlag) {
                                                             // initiate the countdown if an account has been created without any errors
-                                                            setCountdownValue(30);
+                                                            setCountdownValue(10);
 
                                                             setRegistrationMainError(false);
                                                             checksPassed = true;
@@ -731,8 +762,23 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                                             setRegistrationMainError(true);
                                                         }
                                                     } else {
+                                                        // set the loader
+                                                        setIsReady(false);
+
+                                                        // ToDo: once the card linking provider is determined, call an actual AppSync API here
+                                                        setSplashState({
+                                                            splashTitle: 'Congrats!',
+                                                            splashDescription: 'Your card was successfully linked.',
+                                                            splashButtonText: 'Finish',
+                                                            splashArtSource: require('../../../../assets/art/card-linked-success.png'),
+                                                            withButton: false
+                                                        });
+
                                                         setRegistrationMainError(false);
                                                         checksPassed = true;
+
+                                                        // release the loader
+                                                        setIsReady(true);
                                                     }
                                                     break;
                                                 case 8:
@@ -741,7 +787,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                                     break;
                                             }
                                             // increase the step number
-                                            if (stepNumber < 7 && checksPassed) {
+                                            if (stepNumber < 8 && checksPassed) {
                                                 // in case the military status was verified, skip the documentation step
                                                 if (stepNumber === 5 && militaryStatus === MilitaryVerificationStatusType.Verified) {
                                                     let newStepValue = stepNumber + 2;
@@ -757,12 +803,14 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                     <Text
                                         style={styles.buttonText}>{
                                         stepNumber === 7
-                                            ? `Finish`
+                                            ? `Link`
                                             : stepNumber === 4
                                                 ? `Enable`
                                                 : (militaryStatus === MilitaryVerificationStatusType.Rejected && stepNumber === 5)
                                                     ? `Verify`
-                                                    : `Next`}</Text>
+                                                    : stepNumber === 8
+                                                        ? splashState.splashButtonText
+                                                        : `Next`}</Text>
                                 </TouchableOpacity>
                             </View>
                         </KeyboardAwareScrollView>

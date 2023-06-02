@@ -1,9 +1,15 @@
 import React, {useEffect} from "react";
+import {useRecoilState} from "recoil";
+import {splashStatusState} from "../../../recoil/SplashAtom";
+import {SplashScreen} from "../../common/Splash";
 
 /**
  * CardLinkingStatusSplashStep component.
  */
 export const CardLinkingStatusSplashStep = () => {
+
+    // constants used to keep track of shared states
+    const [splashState,] = useRecoilState(splashStatusState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -17,10 +23,16 @@ export const CardLinkingStatusSplashStep = () => {
 
     }, []);
 
-
     // return the component for the CardLinkingStatusSplashStep, part of the Registration page
     return (
         <>
+            <SplashScreen
+                splashArtSource={splashState.splashArtSource}
+                splashButtonText={splashState.splashButtonText}
+                splashTitle={splashState.splashTitle}
+                splashDescription={splashState.splashDescription}
+                withButton={splashState.withButton}
+            />
         </>
     );
 }

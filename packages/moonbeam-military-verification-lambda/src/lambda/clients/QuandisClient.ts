@@ -70,8 +70,8 @@ export class QuandisClient extends VerificationClient {
                     "Content-Type": "application/json",
                     "X-ApiKey": quandisAPIKey
                 },
-                timeout: 2000, // in milliseconds here
-                timeoutErrorMessage: 'Quandis API timed out after 2000ms!'
+                timeout: 4000, // in milliseconds here
+                timeoutErrorMessage: 'Quandis API timed out after 4000ms!'
             });
 
             // check the status of the response, and act appropriately

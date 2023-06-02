@@ -10,7 +10,7 @@ export const registrationStepTitles = [
     "Military Status",
     "Documentation",
     "Card Linking",
-    "Linking Status"
+    ""
 ];
 export const registrationStepDescription = [
     "Enter your full name, email, birthday, phone number, enlisting year and duty status to continue.",

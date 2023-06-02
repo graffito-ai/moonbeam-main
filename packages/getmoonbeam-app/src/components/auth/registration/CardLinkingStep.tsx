@@ -80,11 +80,89 @@ export const CardLinkingStep = () => {
                             : <></>
             }
             <View style={styles.cardLinkingView}>
+                <View style={styles.cardLinkingInputView}>
+                    <TextInput
+                        keyboardType={"number-pad"}
+                        placeholderTextColor={'#D9D9D9'}
+                        activeUnderlineColor={'#F2FF5D'}
+                        underlineColor={'#D9D9D9'}
+                        outlineColor={'#D9D9D9'}
+                        activeOutlineColor={'#F2FF5D'}
+                        selectionColor={'#F2FF5D'}
+                        mode={'outlined'}
+                        onChangeText={(value: React.SetStateAction<string>) => {
+                            setIsCreditCardNumberFocus(true);
+                            setRegistrationMainError(false);
+
+                            // format value
+                            value = fieldValidator.formatCardNumberEntry(cardNumber, value.toString());
+
+                            setCardNumber(value.toString());
+                        }}
+                        onBlur={() => {
+                            setIsCreditCardNumberFocus(false);
+                        }}
+                        value={cardNumber}
+                        contentStyle={styles.textInputContentStyle}
+                        style={[cardNumberFocus ? styles.textInputFocus : styles.textInput, {zIndex: 6000}]}
+                        onFocus={() => {
+                            setIsCreditCardNumberFocus(true);
+
+                            // close the dropdown if opened
+                            dropdownIssuingCountryState && setDropdownIssuingCountryState(false);
+                        }}
+                        placeholder={'15 or 16 digit Card Number'}
+                        label="Card Number"
+                        textColor={"#FFFFFF"}
+                        right={
+                            <TextInput.Icon
+                                size={100}
+                                style={styles.cardGroupImage}
+                                icon={require('../../../../assets/art/credit-card-logo-group.png')}
+                                iconColor="#FFFFFF"/>
+                        }
+                    />
+                    <TextInput
+                        keyboardType={"number-pad"}
+                        placeholderTextColor={'#D9D9D9'}
+                        activeUnderlineColor={'#F2FF5D'}
+                        underlineColor={'#D9D9D9'}
+                        outlineColor={'#D9D9D9'}
+                        activeOutlineColor={'#F2FF5D'}
+                        selectionColor={'#F2FF5D'}
+                        mode={'outlined'}
+                        onChangeText={(value: React.SetStateAction<string>) => {
+                            setIsExpirationDateFocus(true);
+                            setRegistrationMainError(false);
+
+                            // format value
+                            value = fieldValidator.formatExpirationDate(expirationDate, value.toString());
+
+                            setExpirationDate(value.toString());
+                        }}
+                        onBlur={() => {
+                            setIsExpirationDateFocus(false);
+                        }}
+                        value={expirationDate}
+                        contentStyle={styles.textInputNarrowContentStyle}
+                        style={[expirationDateFocus ? styles.textInputNarrowFocusCardLinked : styles.textInputNarrowCardLinked]}
+                        onFocus={() => {
+                            setIsExpirationDateFocus(true);
+
+                            // close the dropdown if opened
+                            dropdownIssuingCountryState && setDropdownIssuingCountryState(false);
+                        }}
+                        placeholder={'MM/YYYY'}
+                        label="Expiration"
+                        textColor={"#FFFFFF"}
+                        left={<TextInput.Icon icon="calendar-remove" iconColor="#FFFFFF"/>}
+                    />
+                </View>
                 <DropDownPicker
                     zIndex={5000}
                     placeholder={"Country of Issue"}
                     dropDownContainerStyle={styles.issuingCountryDropdownContainer}
-                    style={styles.issuingCountryDropdownPicker}
+                    style={[styles.issuingCountryDropdownPicker]}
                     textStyle={[styles.textInputContentStyle, {color: '#D9D9D9'}]}
                     dropDownDirection={"BOTTOM"}
                     open={dropdownIssuingCountryState}
@@ -110,84 +188,6 @@ export const CardLinkingStep = () => {
                     mode="SIMPLE"
                     searchable={true}
                 />
-                <TextInput
-                    keyboardType={"number-pad"}
-                    placeholderTextColor={'#D9D9D9'}
-                    activeUnderlineColor={'#F2FF5D'}
-                    underlineColor={'#D9D9D9'}
-                    outlineColor={'#D9D9D9'}
-                    activeOutlineColor={'#F2FF5D'}
-                    selectionColor={'#F2FF5D'}
-                    mode={'outlined'}
-                    onChangeText={(value: React.SetStateAction<string>) => {
-                        setIsCreditCardNumberFocus(true);
-                        setRegistrationMainError(false);
-
-                        // format value
-                        value = fieldValidator.formatCardNumberEntry(cardNumber, value.toString());
-
-                        setCardNumber(value.toString());
-                    }}
-                    onBlur={() => {
-                        setIsCreditCardNumberFocus(false);
-                    }}
-                    value={cardNumber}
-                    contentStyle={styles.textInputContentStyle}
-                    style={[cardNumberFocus ? styles.textInputFocus : styles.textInput, {zIndex: 6000}]}
-                    onFocus={() => {
-                        setIsCreditCardNumberFocus(true);
-
-                        // close the dropdown if opened
-                        dropdownIssuingCountryState && setDropdownIssuingCountryState(false);
-                    }}
-                    placeholder={'15 or 16 digit Card Number'}
-                    label="Card Number"
-                    textColor={"#FFFFFF"}
-                    right={
-                        <TextInput.Icon
-                            size={100}
-                            style={styles.cardGroupImage}
-                            icon={require('../../../../assets/art/credit-card-logo-group.png')}
-                            iconColor="#FFFFFF"/>
-                    }
-                />
-                <View style={styles.inputColumnViewCardDetails}>
-                    <TextInput
-                        keyboardType={"number-pad"}
-                        placeholderTextColor={'#D9D9D9'}
-                        activeUnderlineColor={'#F2FF5D'}
-                        underlineColor={'#D9D9D9'}
-                        outlineColor={'#D9D9D9'}
-                        activeOutlineColor={'#F2FF5D'}
-                        selectionColor={'#F2FF5D'}
-                        mode={'outlined'}
-                        onChangeText={(value: React.SetStateAction<string>) => {
-                            setIsExpirationDateFocus(true);
-                            setRegistrationMainError(false);
-
-                            // format value
-                            value = fieldValidator.formatExpirationDate(expirationDate, value.toString());
-
-                            setExpirationDate(value.toString());
-                        }}
-                        onBlur={() => {
-                            setIsExpirationDateFocus(false);
-                        }}
-                        value={expirationDate}
-                        contentStyle={styles.textInputNarrowContentStyle}
-                        style={[expirationDateFocus ? styles.textInputNarrowFocus : styles.textInputNarrow]}
-                        onFocus={() => {
-                            setIsExpirationDateFocus(true);
-
-                            // close the dropdown if opened
-                            dropdownIssuingCountryState && setDropdownIssuingCountryState(false);
-                        }}
-                        placeholder={'MM/YYYY'}
-                        label="Expiration"
-                        textColor={"#FFFFFF"}
-                        left={<TextInput.Icon icon="calendar-remove" iconColor="#FFFFFF"/>}
-                    />
-                </View>
                 <View style={styles.cardLinkingDisclaimerView}>
                     <Checkbox
                         style={styles.disclaimerCheckbox}
@@ -202,7 +202,7 @@ export const CardLinkingStep = () => {
                     />
                     <Text
                         style={styles.disclaimerText}>{'By submitting your card information you authorize Visa, MasterCard, or American Express' +
-                        ' (depending on linked card), to monitor and share transaction data with Fidel (our service provider), in order to participate in merchant offers/programs through Moonbeam.' +
+                        ' to monitor and share transaction data with Fidel (our service provider), in order to participate in merchant programs through Moonbeam.' +
                         ' You acknowledge and agree that Fidel may share certain details of your qualifying transactions with Moonbeam, to enable this participation, and for other purposes.' +
                         ' You may opt-out of transaction monitoring at any time, via the Settings menu. Any transaction monitoring or data sharing is done, in accordance with our'}
                         <Text style={styles.disclaimerTextHighlighted}
