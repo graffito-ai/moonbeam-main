@@ -28,7 +28,6 @@
     "@aws-cdk/aws-cognito-identitypool-alpha": "^2.66.1-alpha.0",
     "aws-cdk-lib": "2.66.1",
     "constructs": "^10.1.264",
-    "expo-image-picker": "^14.1.1",
     "source-map-support": "^0.5.21"
   },
   "private": true

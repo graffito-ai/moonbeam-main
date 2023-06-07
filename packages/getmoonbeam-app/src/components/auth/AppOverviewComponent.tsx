@@ -8,7 +8,7 @@ import {Text} from "react-native-paper";
 import GestureRecognizer from 'react-native-swipe-gestures';
 import {useRecoilState} from "recoil";
 import {initialAuthenticationScreen} from "../../recoil/AuthAtom";
-import {appOverviewStepContent, appOverviewStepImageSource, appOverviewStepTitles} from "../../models/Constants";
+import {appOverviewSteps} from "../../models/Constants";
 
 /**
  * AppOverview component.
@@ -42,7 +42,7 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
                         imageStyle={{
                             resizeMode: 'contain'
                         }}
-                        source={appOverviewStepImageSource[stepNumber]}/>
+                        source={appOverviewSteps[stepNumber].stepImageSource}/>
                 </LinearGradient>
                 <GestureRecognizer
                     onSwipeLeft={() => {
@@ -62,10 +62,10 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
                     style={styles.bottomContainer}
                 >
                     <Text style={styles.bottomContainerTitle}>
-                        {appOverviewStepTitles[stepNumber]}
+                        {appOverviewSteps[stepNumber].stepTitle}
                     </Text>
                     <Text style={styles.bottomContainerContent}>
-                        {appOverviewStepContent[stepNumber]}
+                        {appOverviewSteps[stepNumber].stepDescription}
                     </Text>
                     <View style={[commonStyles.columnContainer, styles.progressSteps]}>
                         <View style={stepNumber === 0 ? styles.activeStep : styles.inactiveStep}></View>

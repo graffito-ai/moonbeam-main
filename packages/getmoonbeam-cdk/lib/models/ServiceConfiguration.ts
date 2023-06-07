@@ -45,7 +45,7 @@ export interface AppSyncConfiguration {
  * (used to retrieve and store from S3)
  */
 export interface StorageConfiguration {
-    readonly deploymentBucketName: string;
+    readonly publicFilesBucketName: string;
     readonly mainFilesBucketName: string;
     readonly mainFilesCloudFrontDistributionName: string;
     readonly mainFilesCloudFrontTrustedPublicKeyName: string;

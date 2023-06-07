@@ -45,9 +45,9 @@ export class AmplifyAuthStack extends NestedStack {
             selfSignUpEnabled: true,
             userVerification: {
                 emailSubject: 'Verify your email for Moonbeam!',
-                emailBody: 'Thanks for signing up to Moonbeam! Your verification code is {####}. Never share it!',
+                emailBody: 'Your Moonbeam verification code is {####}. Never share it!',
                 emailStyle: VerificationEmailStyle.CODE,
-                smsMessage: 'Your Moonbeam verification code is {####}. Don\'t share it!'
+                smsMessage: 'Your Moonbeam verification code is {####}. Never share it!'
             },
             userInvitation: {
                 emailSubject: 'Invite to join Moonbeam!',

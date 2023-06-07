@@ -1,5 +1,32 @@
 import {MilitaryBranch, MilitaryDutyStatus, VerificationDocument} from "@moonbeam/moonbeam-models";
 
+// constants used to keep track of the account recovery steps content
+export const accountRecoverySteps = [
+    {
+        stepTitle: "Verification",
+        stepSubtitle: "First confirm your ",
+        stepSubtitleHighlighted: "identity",
+        contentTitle: "Forgot Password ?",
+        contentDescription: "Enter the email address associated with your account. We will send you a one-time pass code (OTP), to reset your password.",
+        stepButtonText: "Send Code"
+    },
+    {
+        stepTitle: "Password",
+        stepSubtitle: "Set a new ",
+        stepSubtitleHighlighted: "password",
+        contentTitle: "Create a new Password",
+        contentDescription: "Please create your new password below.",
+        stepButtonText: "Continue"
+    },
+    {
+        stepTitle: "Code",
+        stepSubtitle: "Verify your ",
+        stepSubtitleHighlighted: "code",
+        contentTitle: "Code Verification",
+        contentDescription: "Enter the 6 digit verification code (OTP) we just sent to your email, in order to finish your password reset.",
+        stepButtonText: "Confirm"
+    },
+]
 // constants used to keep track of the registration steps content
 export const registrationStepTitles = [
     "Personal Info",
@@ -20,29 +47,32 @@ export const registrationStepDescription = [
     "",
     "Continue by allowing us to verify your military service status based on the information that you provided.",
     "We need additional information to verify your military identity. Upload or capture supporting documentation, to help with your eligibility.",
-    "Link your favorite Visa, American Express, or MasterCard card, and earn rewards with every transaction at qualifying merchant locations.",
+    "Link your favorite MasterCard or Visa card, and earn rewards with every transaction at qualifying merchant locations.",
     ""
 ];
-
 // constants used to keep track of the app overview steps content
-export const appOverviewStepTitles = [
-    "Card-Linked Military\n Discounts",
-    "Verify your\n Valor",
-    "Link & Start Earning\n Cashback",
-    "Earn Discounts\n Seamlessly"
-];
-export const appOverviewStepContent = [
-    "Access exclusive military discounts and rewards just by linking your existing debit or credit card.",
-    "Go through our secure and trusted military verification process to ensure exclusive access.",
-    "Link your Visa, MasterCard or American Express debit or credit cards, and earn through qualifying transactions.",
-    "Discounts are automatically applied and will show on your statements daily. No need to ask the cashier."
-];
-export const appOverviewStepImageSource = [
-    require('../../assets/art/moonbeam-card-overview.png'),
-    require('../../assets/art/moonbeam-verification-overview.png'),
-    require('../../assets/art/moonbeam-linking-overview.png'),
-    require('../../assets/art/moonbeam-rewards-overview.png')
-];
+export const appOverviewSteps = [
+    {
+        stepTitle: "Card-Linked Military\n Discounts",
+        stepDescription: "Access unique military discounts and rewards just by linking your existing debit or credit card.",
+        stepImageSource: require('../../assets/art/moonbeam-card-overview.png')
+    },
+    {
+        stepTitle: "Verify your\n Valor",
+        stepDescription: "Go through our secure and trusted military verification process to ensure secure access.",
+        stepImageSource: require('../../assets/art/moonbeam-verification-overview.png')
+    },
+    {
+        stepTitle: "Link & Start Earning\n Cashback",
+        stepDescription: "Link your MasterCard or Visa debit or credit cards, and earn through qualifying transactions.",
+        stepImageSource: require('../../assets/art/moonbeam-linking-overview.png')
+    },
+    {
+        stepTitle: "Earn Discounts\n Seamlessly",
+        stepDescription: "Discounts are automatically applied and will show on your statements monthly. No need to ask the cashier.",
+        stepImageSource: require('../../assets/art/moonbeam-rewards-overview.png')
+    }
+]
 // constants used to keep track of the duty status dropdown values
 export const dutyStatusItems = [
     {

@@ -201,9 +201,9 @@ export const CardLinkingStep = () => {
                         }}
                     />
                     <Text
-                        style={styles.disclaimerText}>{'By submitting your card information you authorize Visa, MasterCard, or American Express' +
-                        ' to monitor and share transaction data with Fidel (our service provider), in order to participate in merchant programs through Moonbeam.' +
-                        ' You acknowledge and agree that Fidel may share certain details of your qualifying transactions with Moonbeam, to enable this participation, and for other purposes.' +
+                        style={styles.disclaimerText}>{'By submitting your card information you authorize Visa or MasterCard' +
+                        ' to monitor and share transaction data with Olive (our service provider), in order to participate in merchant programs through Moonbeam.' +
+                        ' You acknowledge and agree that Olive may share certain details of your qualifying transactions with Moonbeam, to enable this participation, and for other purposes.' +
                         ' You may opt-out of transaction monitoring at any time, via the Settings menu. Any transaction monitoring or data sharing is done, in accordance with our'}
                         <Text style={styles.disclaimerTextHighlighted}
                               onPress={() => {

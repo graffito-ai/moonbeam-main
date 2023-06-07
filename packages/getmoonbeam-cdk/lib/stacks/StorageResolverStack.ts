@@ -1,7 +1,7 @@
 import {aws_appsync, aws_lambda, aws_lambda_nodejs, CfnOutput, Duration, Stack, StackProps} from "aws-cdk-lib";
 import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
-import {BlockPublicAccess, Bucket, BucketAccessControl, HttpMethods} from "aws-cdk-lib/aws-s3";
+import {BlockPublicAccess, Bucket, BucketAccessControl, HttpMethods, ObjectOwnership} from "aws-cdk-lib/aws-s3";
 import path from "path";
 import {
     AllowedMethods,
@@ -38,6 +38,16 @@ export class StorageResolverStack extends Stack {
                 props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'storageConfig'> & { graphqlApiId: string, graphqlApiName: string }) {
         super(scope, id, props);
 
+        /**
+         * add a deployment bucket, to be used for storing various/miscellaneous, public readable files (like Olive related ones).
+         */
+        const publicFilesBucketName = `${props.storageConfig!.publicFilesBucketName}-${props.stage}-${props.env!.region}`;
+        new Bucket(this, `${publicFilesBucketName}`, {
+            bucketName: `${publicFilesBucketName}`,
+            versioned: false,
+            accessControl: BucketAccessControl.PRIVATE, // only owner has access besides certain files
+            objectOwnership: ObjectOwnership.BUCKET_OWNER_PREFERRED
+        });
         // main Amplify bucket, used for the application, which is not publicly readable, and is configured to work with Cognito and CloudFront, based on certain permissions.
         const mainFilesBucketName = `${props.storageConfig.mainFilesBucketName}-${props.stage}-${props.env!.region}`;
         const mainFilesBucket = new Bucket(this, `${mainFilesBucketName}`, {

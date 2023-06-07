@@ -80,6 +80,15 @@ export const CodeVerificationStep = () => {
                 // this is not an actual error, but we will treat is an alerting message
                 // @ts-ignore
                 setVerificationCodeErrors([RESEND_CODE_ALERT_MESSAGE]);
+
+                // clear previous code and any errors
+                setVerificationCodeDigit1("");
+                setVerificationCodeDigit2("");
+                setVerificationCodeDigit3("");
+                setVerificationCodeDigit4("");
+                setVerificationCodeDigit5("");
+                setVerificationCodeDigit6("");
+                setVerificationCodeErrors([]);
             }
         } catch (error) {
             // @ts-ignore

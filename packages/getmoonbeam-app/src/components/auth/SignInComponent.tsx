@@ -70,8 +70,9 @@ export const SignInComponent = ({route, navigation}: SignInProps) => {
                         <Text style={styles.greetingTitle}>Hello</Text>
                         <Text style={styles.gettingSubtitle}>Get ready to <Text
                             style={styles.gettingSubtitleHighlighted}>Earn</Text></Text>
-                        <Image resizeMode={'cover'}
-                               source={require('../../../assets/art/authentication-logos.png')}
+                        <Image resizeMethod={"scale"}
+                               resizeMode={'contain'}
+                               source={require('../../../assets/art/military-branch-logos.png')}
                                style={styles.topContainerImage}/>
                     </View>
                     <View style={[styles.bottomContainer]}>

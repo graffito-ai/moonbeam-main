@@ -24,7 +24,7 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 graphqlApiName: 'getMoonbeamGraphqlApi'
             },
             storageConfig: {
-                deploymentBucketName: Constants.StorageConstants.MOONBEAM_DEPLOYMENT_BUCKET_NAME,
+                publicFilesBucketName: Constants.StorageConstants.MOONBEAM_PUBLIC_FILES_BUCKET_NAME,
                 mainFilesBucketName: Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME,
                 mainFilesCloudFrontDistributionName: `cloudfront-distribution-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
                 mainFilesCloudFrontTrustedPublicKeyName: `cloudfront-public-key-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,

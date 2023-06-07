@@ -10,7 +10,9 @@ export const styles = StyleSheet.create({
     topContainerImage: {
         alignSelf: 'flex-start',
         marginLeft: Dimensions.get('window').width/20,
-        marginTop: Dimensions.get('window').height/12
+        bottom: Dimensions.get('window').height/6.5,
+        height: Dimensions.get('window').height * 0.50,
+        width: Dimensions.get('window').width * 0.75
     },
     bottomContainer: {
         backgroundColor: '#313030',
