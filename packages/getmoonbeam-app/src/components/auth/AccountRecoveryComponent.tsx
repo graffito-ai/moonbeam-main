@@ -182,15 +182,15 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                 source={require('../../../assets/backgrounds/authentication-gradient.png')}>
                 <Portal>
                     <Modal dismissable={false} visible={modalVisible} onDismiss={() => setModalVisible(false)}
-                           contentContainerStyle={[styles.modalContainer, {borderColor: 'green'}]}>
-                        <Text style={styles.modalParagraph}>Thanks for confirming the code! Your password is now changed!</Text>
+                           contentContainerStyle={[commonStyles.modalContainer, {borderColor: 'green'}]}>
+                        <Text style={commonStyles.modalParagraph}>Thanks for confirming the code! Your password is now changed!</Text>
                         <TouchableOpacity
-                            style={[styles.modalButton, stepNumber === 1 && {marginTop: Dimensions.get('window').height / 15}]}
+                            style={[commonStyles.modalButton]}
                             onPress={() => {
                                 navigation.navigate('SignIn', {initialRender: true});
                             }}
                         >
-                            <Text style={styles.modalButtonText}>Sign In</Text>
+                            <Text style={commonStyles.modalButtonText}>Sign In</Text>
                         </TouchableOpacity>
                     </Modal>
                 </Portal>

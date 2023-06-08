@@ -9,7 +9,7 @@ import {
  * GetMilitaryVerificationStatus resolver
  *
  * @param getMilitaryVerificationInput military verification input used for the verification status to be retrieved
- * @returns {@link Promise} of {@link GetMilitaryVerificationResponse}
+ * @returns {@link Promise} of {@link MilitaryVerificationResponse}
  */
 export const getMilitaryVerificationStatus = async (getMilitaryVerificationInput: GetMilitaryVerificationInput): Promise<MilitaryVerificationResponse> => {
     try {

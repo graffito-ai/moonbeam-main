@@ -1,15 +1,24 @@
 # graphql/Queries.graphql
 # Queries Schema File
-query GetStorage($getStorageInput: GetStorageInput!) {
-    getStorage(getStorageInput: $getStorageInput) {
+query GetCardLink($getCardLinkInput: GetCardLinkInput!) {
+    getCardLink(getCardLinkInput: $getCardLinkInput) {
         errorMessage
         errorType
         data {
-            url
+            id
+            cards {
+                id
+                token
+                type
+                name
+                last4
+                additionalProgramID
+                createdAt
+                updatedAt
+            }
         }
     }
 }
-
 query GetMilitaryVerificationStatus($getMilitaryVerificationInput: GetMilitaryVerificationInput!) {
     getMilitaryVerificationStatus(getMilitaryVerificationInput: $getMilitaryVerificationInput) {
         errorMessage

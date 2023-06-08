@@ -1,11 +1,14 @@
 # graphql/Root.graphql
 # Main Schema File
 type Query {
+    getCardLink(getCardLinkInput: GetCardLinkInput!): CardLinkResponse @aws_cognito_user_pools
     getStorage(getStorageInput: GetStorageInput!): StorageResponse @aws_cognito_user_pools
     getMilitaryVerificationStatus(getMilitaryVerificationInput: GetMilitaryVerificationInput!): MilitaryVerificationResponse @aws_cognito_user_pools
 }
 
 type Mutation {
+    createCardLink(createCardLinkInput: CreateCardLinkInput!): CardLinkResponse @aws_cognito_user_pools
+    deleteCard(deleteCardInput: DeleteCardInput!): CardLinkResponse @aws_cognito_user_pools
     updateMilitaryVerificationStatus(updateMilitaryVerificationInput: UpdateMilitaryVerificationInput!): MilitaryVerificationResponse @aws_cognito_user_pools
     createMilitaryVerification(createMilitaryVerificationInput: CreateMilitaryVerificationInput!): CreateMilitaryVerificationResponse @aws_cognito_user_pools
 }

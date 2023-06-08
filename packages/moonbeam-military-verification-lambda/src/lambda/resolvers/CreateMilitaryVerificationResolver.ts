@@ -13,7 +13,7 @@ import {QuandisClient} from "../clients/QuandisClient";
  * CreateMilitaryVerification resolver
  *
  * @param createMilitaryVerificationInput military verification object to be created
- * @returns {@link Promise} of {@link MilitaryVerificationResponse}
+ * @returns {@link Promise} of {@link CreateMilitaryVerificationResponse}
  */
 export const createMilitaryVerification = async (createMilitaryVerificationInput: CreateMilitaryVerificationInput): Promise<CreateMilitaryVerificationResponse> => {
     try {

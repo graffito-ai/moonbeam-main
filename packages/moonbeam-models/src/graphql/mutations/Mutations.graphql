@@ -1,5 +1,43 @@
 # graphql/Mutations.graphql
 # Mutations Schema File
+mutation CreateCardLink($createCardLinkInput: CreateCardLinkInput!) {
+    createCardLink(createCardLinkInput: $createCardLinkInput) {
+        errorType
+        errorMessage
+        data {
+            id
+            cards {
+                id
+                token
+                type
+                name
+                last4
+                additionalProgramID
+                createdAt
+                updatedAt
+            }
+        }
+    }
+}
+mutation DeleteCard($deleteCardInput: DeleteCardInput!) {
+    deleteCard(deleteCardInput: $deleteCardInput) {
+        errorType
+        errorMessage
+        data {
+            id
+            cards {
+                id
+                token
+                type
+                name
+                last4
+                additionalProgramID
+                createdAt
+                updatedAt
+            }
+        }
+    }
+}
 mutation CreateMilitaryVerification($createMilitaryVerificationInput: CreateMilitaryVerificationInput!) {
     createMilitaryVerification(createMilitaryVerificationInput: $createMilitaryVerificationInput) {
         errorType
@@ -23,7 +61,6 @@ mutation CreateMilitaryVerification($createMilitaryVerificationInput: CreateMili
         }
     }
 }
-
 mutation UpdateMilitaryVerificationStatus($updateMilitaryVerificationInput: UpdateMilitaryVerificationInput!) {
     updateMilitaryVerificationStatus(updateMilitaryVerificationInput: $updateMilitaryVerificationInput) {
         errorType

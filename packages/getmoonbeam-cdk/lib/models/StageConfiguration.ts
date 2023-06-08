@@ -1,7 +1,7 @@
 import { Stages } from "@moonbeam/moonbeam-models";
 import {
     AmplifyConfiguration,
-    AppSyncConfiguration, MilitaryVerificationConfiguration,
+    AppSyncConfiguration, CardLinkingConfiguration, MilitaryVerificationConfiguration,
     SESConfiguration,
     StorageConfiguration
 } from "./ServiceConfiguration";
@@ -17,5 +17,6 @@ export interface StageConfiguration {
     readonly appSyncConfig: AppSyncConfiguration;
     readonly storageConfig: StorageConfiguration;
     readonly militaryVerificationConfig: MilitaryVerificationConfiguration;
+    readonly cardLinkingConfig: CardLinkingConfiguration;
     readonly environmentVariables: Map<string, string>;
 }

@@ -171,37 +171,5 @@ export const styles = StyleSheet.create({
         fontFamily: 'Saira-Medium',
         fontSize: 15,
         color: '#F2FF5D'
-    },
-    modalButton: {
-        backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width/3,
-        height: Dimensions.get('window').height/20,
-        marginTop: Dimensions.get('window').height/50,
-        alignSelf: 'center',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    modalButtonText: {
-        color: '#313030',
-        fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').height/45,
-        marginTop: Dimensions.get('window').height / 90
-    },
-    modalParagraph: {
-        textAlign: 'center',
-        alignSelf: 'center',
-        fontFamily: 'Raleway-Regular',
-        fontSize: Dimensions.get('window').height/50,
-        color: '#313030'
-    },
-    modalContainer: {
-        alignSelf: 'center',
-        backgroundColor: '#D9D9D9',
-        height: Dimensions.get('window').height/5,
-        width: Dimensions.get('window').width/1.3,
-        borderRadius: 15,
-        padding: 20
     }
 });

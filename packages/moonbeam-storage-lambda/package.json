@@ -20,7 +20,6 @@
     "@aws-sdk/types": "^3.272.0",
     "@moonbeam/moonbeam-models": "*",
     "@moonbeam/moonbeam-tsconfig": "*",
-    "@types/aws-lambda": "^8.10.111",
     "plaid": "^12.5.0"
   },
   "private": true

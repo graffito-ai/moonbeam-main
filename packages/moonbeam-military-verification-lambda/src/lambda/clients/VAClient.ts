@@ -1,11 +1,11 @@
 import {Constants, MilitaryVerificationInformation, MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
-import {VerificationClient} from "./VerificationClient";
 import axios from "axios";
+import {BaseAPIClient} from "@moonbeam/moonbeam-models";
 
 /**
  * Class used as the base/generic client for all VA Lighthouse verification calls.
  */
-export class VAClient extends VerificationClient {
+export class VAClient extends BaseAPIClient {
     /**
      * The verification information provided by the customer, which they will
      * get verified upon.
@@ -51,6 +51,9 @@ export class VAClient extends VerificationClient {
             dob = `${dob.split('/')[2]}-${dob.split('/')[0]}-${dob.split('/')[1]}`;
 
             /**
+             * POST /status
+             * @link https://developer.va.gov/explore/verification/docs/veteran_confirmation?version=current
+             *
              * build the Lighthouse API request body to be passed in, and perform a POST to it with the appropriate information
              * we imply that if the API does not respond in 2 seconds, that we automatically catch that, and return a Pending status
              * for a better customer experience.
@@ -82,7 +85,7 @@ export class VAClient extends VerificationClient {
                 }
             }
 
-            // return a Pending status for status codes that are not 200
+            // return a Pending status for status codes that are not 200, in case the error block doesn't catch it
             const errorMessage = `Unexpected error while calling the Lighthouse API, with status ${verificationResponse.status}, and response ${verificationResponse.data}`;
             console.log(errorMessage);
 

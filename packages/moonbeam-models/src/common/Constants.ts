@@ -56,6 +56,7 @@ export namespace Constants {
         // Infrastructure related
         export const MILITARY_VERIFICATION_TABLE: string = 'MILITARY_VERIFICATION_TABLE';
         export const PARTNER_MERCHANT_TABLE: string = 'PARTNER_MERCHANT_TABLE';
+        export const CARD_LINKING_TABLE: string = 'CARD_LINKING_TABLE';
         export const ENV_NAME: string = 'ENV_NAME';
         export const ACCOUNT_LINKS: string = 'ACCOUNT_LINKS';
         export const AWS_REGION: string = 'AWS_REGION';
@@ -71,5 +72,9 @@ export namespace Constants {
         export const LIGHTHOUSE_SECRET_NAME = `lighthouse-secret-pair`;
         export const LIGHTHOUSE_BASE_URL = `LIGHTHOUSE-BASE-URL`;
         export const LIGHTHOUSE_API_KEY = `LIGHTHOUSE-API-KEY`;
+        export const OLIVE_SECRET_NAME = `olive-secret-pair`;
+        export const OLIVE_BASE_URL = `OLIVE-BASE-URL`;
+        export const OLIVE_PUBLIC_KEY = `OLIVE-PUBLIC-KEY`;
+        export const OLIVE_PRIVATE_KEY = `OLIVE-PRIVATE-KEY`;
     }
 }

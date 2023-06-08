@@ -41,6 +41,13 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 updateMilitaryVerificationStatusResolverName: 'updateMilitaryVerificationStatus',
                 createMilitaryVerificationResolverName: 'createMilitaryVerification'
             },
+            cardLinkingConfig: {
+                cardLinkingFunctionName: 'cardLinkingLambdaFunction',
+                cardLinkingTableName: 'cardLinkingTable',
+                getCardLinkResolverName: 'getCardLink',
+                createCardLinkResolverName: 'createCardLink',
+                deleteCardResolverName: 'deleteCard'
+            },
             sesConfig: {
                 emailAddress: `noreply-${Stages.DEV}@moonbeam.vet`,
                 /**

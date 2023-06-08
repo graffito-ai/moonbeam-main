@@ -21,6 +21,59 @@ export type Scalars = {
   AWSURL: string;
 };
 
+export type Card = {
+  __typename?: 'Card';
+  additionalProgramID?: Maybe<Scalars['String']>;
+  createdAt: Scalars['AWSDateTime'];
+  id: Scalars['ID'];
+  last4: Scalars['String'];
+  name: Scalars['String'];
+  token: Scalars['String'];
+  type: CardType;
+  updatedAt: Scalars['AWSDateTime'];
+};
+
+export type CardInput = {
+  additionalProgramID?: InputMaybe<Scalars['String']>;
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+  id?: InputMaybe<Scalars['ID']>;
+  last4: Scalars['String'];
+  name: Scalars['String'];
+  token: Scalars['String'];
+  type: CardType;
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
+export type CardLink = {
+  __typename?: 'CardLink';
+  cards: Array<Maybe<Card>>;
+  id: Scalars['ID'];
+};
+
+export enum CardLinkErrorType {
+  AlreadyExistent = 'ALREADY_EXISTENT',
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  ValidationError = 'VALIDATION_ERROR'
+}
+
+export type CardLinkResponse = {
+  __typename?: 'CardLinkResponse';
+  data?: Maybe<CardLink>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<CardLinkErrorType>;
+};
+
+export enum CardType {
+  Mastercard = 'MASTERCARD',
+  Visa = 'VISA'
+}
+
+export type CreateCardLinkInput = {
+  card: CardInput;
+  id: Scalars['ID'];
+};
+
 export type CreateMilitaryVerificationInput = {
   addressLine: Scalars['String'];
   city: Scalars['String'];
@@ -45,6 +98,11 @@ export type CreateMilitaryVerificationResponse = {
   errorType?: Maybe<MilitaryVerificationErrorType>;
 };
 
+export type DeleteCardInput = {
+  cardId: Scalars['ID'];
+  id: Scalars['ID'];
+};
+
 export type File = {
   __typename?: 'File';
   url: Scalars['String'];
@@ -59,6 +117,10 @@ export enum FileAccessLevel {
 export enum FileType {
   Main = 'MAIN'
 }
+
+export type GetCardLinkInput = {
+  id: Scalars['ID'];
+};
 
 export type GetMilitaryVerificationInput = {
   id: Scalars['ID'];
@@ -140,13 +202,25 @@ export enum MilitaryVerificationStatusType {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  createCardLink?: Maybe<CardLinkResponse>;
   createMilitaryVerification?: Maybe<CreateMilitaryVerificationResponse>;
+  deleteCard?: Maybe<CardLinkResponse>;
   updateMilitaryVerificationStatus?: Maybe<MilitaryVerificationResponse>;
+};
+
+
+export type MutationCreateCardLinkArgs = {
+  createCardLinkInput: CreateCardLinkInput;
 };
 
 
 export type MutationCreateMilitaryVerificationArgs = {
   createMilitaryVerificationInput: CreateMilitaryVerificationInput;
+};
+
+
+export type MutationDeleteCardArgs = {
+  deleteCardInput: DeleteCardInput;
 };
 
 
@@ -156,8 +230,14 @@ export type MutationUpdateMilitaryVerificationStatusArgs = {
 
 export type Query = {
   __typename?: 'Query';
+  getCardLink?: Maybe<CardLinkResponse>;
   getMilitaryVerificationStatus?: Maybe<MilitaryVerificationResponse>;
   getStorage?: Maybe<StorageResponse>;
+};
+
+
+export type QueryGetCardLinkArgs = {
+  getCardLinkInput: GetCardLinkInput;
 };
 
 
@@ -191,12 +271,12 @@ export type UpdateMilitaryVerificationInput = {
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
-export type GetStorageQueryVariables = Exact<{
-  getStorageInput: GetStorageInput;
+export type GetCardLinkQueryVariables = Exact<{
+  getCardLinkInput: GetCardLinkInput;
 }>;
 
 
-export type GetStorageQuery = { __typename?: 'Query', getStorage?: { __typename?: 'StorageResponse', errorMessage?: string | null, errorType?: StorageErrorType | null, data?: { __typename?: 'File', url: string } | null } | null };
+export type GetCardLinkQuery = { __typename?: 'Query', getCardLink?: { __typename?: 'CardLinkResponse', errorMessage?: string | null, errorType?: CardLinkErrorType | null, data?: { __typename?: 'CardLink', id: string, cards: Array<{ __typename?: 'Card', id: string, token: string, type: CardType, name: string, last4: string, additionalProgramID?: string | null, createdAt: string, updatedAt: string } | null> } | null } | null };
 
 export type GetMilitaryVerificationStatusQueryVariables = Exact<{
   getMilitaryVerificationInput: GetMilitaryVerificationInput;

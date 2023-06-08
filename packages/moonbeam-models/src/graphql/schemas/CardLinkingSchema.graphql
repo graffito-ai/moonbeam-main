@@ -1,0 +1,60 @@
+# graphql/CardLinkingSchema.graphql
+# Card Linking Schema File
+enum CardLinkErrorType {
+    ALREADY_EXISTENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+    NONE_OR_ABSENT
+}
+
+enum CardType {
+    MASTERCARD
+    VISA
+}
+
+type Card @aws_cognito_user_pools {
+    id: ID! # this will be passed on to Olive as the enrollment ID (referenceAppId)
+    token: String!
+    type: CardType!
+    name: String!
+    last4: String!
+    additionalProgramID: String # not all card will have additional program IDs enrolled to them
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+}
+
+type CardLink @aws_cognito_user_pools {
+    id: ID! # this will be passed on to Olive as the unique user ID (extMemberId)
+    cards: [Card]!
+}
+
+input CardInput {
+    id: ID # not required since it will be generated on the back-end
+    token: String!
+    type: CardType!
+    name: String!
+    last4: String!
+    additionalProgramID: String # not required since cards will mainly only be enrolled into the default program ID for Moonbeam through Olive
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+}
+
+input CreateCardLinkInput {
+    id: ID!
+    card: CardInput!
+}
+
+input GetCardLinkInput {
+    id: ID!
+}
+
+input DeleteCardInput {
+    id: ID!
+    cardId: ID!
+}
+
+type CardLinkResponse @aws_cognito_user_pools {
+    data: CardLink
+    errorType: CardLinkErrorType
+    errorMessage: String
+}

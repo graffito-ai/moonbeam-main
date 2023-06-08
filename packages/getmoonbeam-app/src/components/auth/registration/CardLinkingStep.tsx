@@ -1,45 +1,20 @@
 import React, {useEffect, useState} from "react";
-import {TextInput} from "react-native-paper";
-import {styles} from "../../../styles/registration.module";
-import {Text, View} from "react-native";
+import {Dimensions, SafeAreaView, TouchableOpacity} from "react-native";
+import WebView from "react-native-webview";
 import {useRecoilState} from "recoil";
-import {
-    cardLinkingDisclaimerCheckState,
-    cardNumberErrorsState,
-    cardNumberState,
-    expirationDateErrorsState,
-    expirationDateState,
-    issuingCountryDropdownState,
-    issuingCountryErrorsState,
-    issuingCountryState,
-    registrationMainErrorState
-} from "../../../recoil/AuthAtom";
-import DropDownPicker from "react-native-dropdown-picker";
-import {issuingCountrySelectionItems} from "../../../models/Constants";
-import {FieldValidator} from "../../../utils/FieldValidator";
-import {Checkbox} from "expo-checkbox";
+import {cardLinkingStatusState} from "../../../recoil/AuthAtom";
+import {Modal, Portal, Text} from "react-native-paper";
+import {commonStyles} from '../../../styles/common.module';
 
 /**
  * CardLinkingStep component.
  */
 export const CardLinkingStep = () => {
-    // constants used to keep track of local component state
-    const [issuingCountryItems, setIssuingCountryItems] = useState(issuingCountrySelectionItems);
-    const [cardNumberFocus, setIsCreditCardNumberFocus] = useState<boolean>(false);
-    const [expirationDateFocus, setIsExpirationDateFocus] = useState<boolean>(false);
     // constants used to keep track of shared states
-    const [cardNumber, setCardNumber] = useRecoilState(cardNumberState);
-    const [expirationDate, setExpirationDate] = useRecoilState(expirationDateState);
-    const [cardNumberErrors, setCardNumberErrors] = useRecoilState(cardNumberErrorsState);
-    const [expirationDateErrors, setExpirationDateErrors] = useRecoilState(expirationDateErrorsState);
-    const [issuingCountryErrors, setIssuingCountryErrors] = useRecoilState(issuingCountryErrorsState);
-    const [issuingCountry, setIssuingCountry] = useRecoilState(issuingCountryState);
-    const [dropdownIssuingCountryState, setDropdownIssuingCountryState] = useRecoilState(issuingCountryDropdownState);
-    const [registrationMainError, setRegistrationMainError] = useRecoilState(registrationMainErrorState);
-    const [cardLinkingDisclaimer, setCardLinkingDisclaimer] = useRecoilState(cardLinkingDisclaimerCheckState);
+    const [modalVisible, setModalVisible] = useState<boolean>(false);
 
-    // initializing the field validator, to be used for validating form field values
-    const fieldValidator = new FieldValidator();
+    // constants used to keep track of shared states
+    const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -49,171 +24,108 @@ export const CardLinkingStep = () => {
      * included in here.
      */
     useEffect(() => {
-        // perform field validations on every state change, for the specific field that is being validated
-        if (cardNumberFocus && cardNumber !== "") {
-            fieldValidator.validateField(cardNumber, "cardNumber", setCardNumberErrors);
-        }
-        cardNumber === "" && setCardNumberErrors([]);
 
-        if (expirationDateFocus && expirationDate !== "") {
-            fieldValidator.validateField(expirationDate, "expirationDate", setExpirationDateErrors);
-        }
-        expirationDate === "" && setExpirationDateErrors([]);
+    }, []);
 
-        if (issuingCountry !== "") {
-            fieldValidator.validateField(issuingCountry, "issuingCountry", setIssuingCountryErrors);
-        }
-        issuingCountry === "" && setIssuingCountryErrors([]);
-    }, [cardNumber, cardNumberFocus, expirationDateFocus, expirationDate, issuingCountry]);
+    /**
+     * Function used to keep track of the card linking action executed inside
+     * the card linking form.
+     *
+     * @param data data to be passed in from the webview form.
+     */
+    function onCardLinkAction(data) {
+        const linkingData = JSON.parse(data.nativeEvent.data);
 
-    // return the component for the CardLinkingStep, part of the Registration page
+        // check to see if there were any errors during the card linking step
+        if (!linkingData.data || linkingData.error || !linkingData.success) {
+            // if there were errors, then display a modal prompting the user to retry linking their card
+            console.log(`Error while linking card ${linkingData.error}`);
+            setCardLinkingStatus(false);
+            setModalVisible(true);
+        } else {
+            /**
+             * If there are no errors to display, then retrieve the token and timestamp of their terms & conditions
+             * acceptance, and call our internal card linking API to complete the linking process.
+             */
+
+
+
+
+        }
+    }
+
+    /**
+     * Content of the Olive iFrame, used to display the card linking form.
+     * More information can be found at {@link https://developer.oliveltd.com/docs/2-enroll-your-customer-in-olive-programs}
+     */
+    const oliveIframeContent =
+        `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8" />
+            <title></title>
+            <meta content="width=width, initial-scale=1, maximum-scale=1" name="viewport"></meta>
+        </head>
+        <body>
+            <div id="olive-sdk-container" style="height: ${Dimensions.get('window').height}px; width: ${Dimensions.get('window').width * 1.2}px"></div>
+            <script>
+                function callback(pmData, error, successFlag) {
+                    window.ReactNativeWebView.postMessage(JSON.stringify({
+                        data: pmData,
+                        error: error,
+                        success: successFlag 
+                    }));
+                }
+            </script>
+            <script type="application/javascript"
+                    id="olive-link-card-form"
+                    src="https://oliveaddcardsdkjs.blob.core.windows.net/script/olive-add-card-sdk.js"
+                    data-public-key=Zlltp0W5jB09Us0kkOPN6edVwfy1JYGO
+                    data-container-div="olive-sdk-container"
+                    data-environment="sandbox"
+                    data-auto-open=true>
+            </script>
+        </body>    
+        </html>
+        `;
+
+    // return the component for the CardLinkinStep, part of the Registration page
     return (
         <>
-            {registrationMainError
-                ? <Text style={styles.errorMessage}>Please fill out the information below!</Text>
-                : (cardNumberErrors.length !== 0 && !registrationMainError)
-                    ? <Text style={styles.errorMessage}>{cardNumberErrors[0]}</Text>
-                    : (expirationDateErrors.length !== 0 && !registrationMainError)
-                        ? <Text style={styles.errorMessage}>{expirationDateErrors[0]}</Text>
-                        : (issuingCountryErrors.length !== 0 && !registrationMainError)
-                            ? <Text style={styles.errorMessage}>{issuingCountryErrors[0]}</Text>
-                            : <></>
-            }
-            <View style={styles.cardLinkingView}>
-                <View style={styles.cardLinkingInputView}>
-                    <TextInput
-                        keyboardType={"number-pad"}
-                        placeholderTextColor={'#D9D9D9'}
-                        activeUnderlineColor={'#F2FF5D'}
-                        underlineColor={'#D9D9D9'}
-                        outlineColor={'#D9D9D9'}
-                        activeOutlineColor={'#F2FF5D'}
-                        selectionColor={'#F2FF5D'}
-                        mode={'outlined'}
-                        onChangeText={(value: React.SetStateAction<string>) => {
-                            setIsCreditCardNumberFocus(true);
-                            setRegistrationMainError(false);
-
-                            // format value
-                            value = fieldValidator.formatCardNumberEntry(cardNumber, value.toString());
-
-                            setCardNumber(value.toString());
+            <Portal>
+                <Modal dismissable={false} visible={modalVisible} onDismiss={() => setModalVisible(false)}
+                       contentContainerStyle={[commonStyles.modalContainer, {borderColor: 'green'}]}>
+                    <Text style={commonStyles.modalParagraph}>There was an error while linking your card!</Text>
+                    <TouchableOpacity
+                        style={commonStyles.modalButton}
+                        onPress={() => {
+                            setModalVisible(false);
                         }}
-                        onBlur={() => {
-                            setIsCreditCardNumberFocus(false);
-                        }}
-                        value={cardNumber}
-                        contentStyle={styles.textInputContentStyle}
-                        style={[cardNumberFocus ? styles.textInputFocus : styles.textInput, {zIndex: 6000}]}
-                        onFocus={() => {
-                            setIsCreditCardNumberFocus(true);
-
-                            // close the dropdown if opened
-                            dropdownIssuingCountryState && setDropdownIssuingCountryState(false);
-                        }}
-                        placeholder={'15 or 16 digit Card Number'}
-                        label="Card Number"
-                        textColor={"#FFFFFF"}
-                        right={
-                            <TextInput.Icon
-                                size={100}
-                                style={styles.cardGroupImage}
-                                icon={require('../../../../assets/art/credit-card-logo-group.png')}
-                                iconColor="#FFFFFF"/>
-                        }
-                    />
-                    <TextInput
-                        keyboardType={"number-pad"}
-                        placeholderTextColor={'#D9D9D9'}
-                        activeUnderlineColor={'#F2FF5D'}
-                        underlineColor={'#D9D9D9'}
-                        outlineColor={'#D9D9D9'}
-                        activeOutlineColor={'#F2FF5D'}
-                        selectionColor={'#F2FF5D'}
-                        mode={'outlined'}
-                        onChangeText={(value: React.SetStateAction<string>) => {
-                            setIsExpirationDateFocus(true);
-                            setRegistrationMainError(false);
-
-                            // format value
-                            value = fieldValidator.formatExpirationDate(expirationDate, value.toString());
-
-                            setExpirationDate(value.toString());
-                        }}
-                        onBlur={() => {
-                            setIsExpirationDateFocus(false);
-                        }}
-                        value={expirationDate}
-                        contentStyle={styles.textInputNarrowContentStyle}
-                        style={[expirationDateFocus ? styles.textInputNarrowFocusCardLinked : styles.textInputNarrowCardLinked]}
-                        onFocus={() => {
-                            setIsExpirationDateFocus(true);
-
-                            // close the dropdown if opened
-                            dropdownIssuingCountryState && setDropdownIssuingCountryState(false);
-                        }}
-                        placeholder={'MM/YYYY'}
-                        label="Expiration"
-                        textColor={"#FFFFFF"}
-                        left={<TextInput.Icon icon="calendar-remove" iconColor="#FFFFFF"/>}
-                    />
-                </View>
-                <DropDownPicker
-                    zIndex={5000}
-                    placeholder={"Country of Issue"}
-                    dropDownContainerStyle={styles.issuingCountryDropdownContainer}
-                    style={[styles.issuingCountryDropdownPicker]}
-                    textStyle={[styles.textInputContentStyle, {color: '#D9D9D9'}]}
-                    dropDownDirection={"BOTTOM"}
-                    open={dropdownIssuingCountryState}
-                    onOpen={() => {
-                        setRegistrationMainError(false);
+                    >
+                        <Text style={commonStyles.modalButtonText}>Try again!</Text>
+                    </TouchableOpacity>
+                </Modal>
+            </Portal>
+            <SafeAreaView
+                style={{flex: 1, backgroundColor: '#313030'}}>
+                <WebView
+                    onMessage={onCardLinkAction}
+                    scrollEnabled={true}
+                    originWhitelist={['*']}
+                    source={{html: oliveIframeContent}}
+                    style={{
+                        right: Dimensions.get('window').width / 9,
+                        backgroundColor: 'transparent',
+                        height: Dimensions.get('window').height,
+                        width: Dimensions.get('window').width * 1.2
                     }}
-                    onClose={() => {
-                        setDropdownIssuingCountryState(false);
-                    }}
-                    value={issuingCountry === "" ? null : issuingCountry}
-                    items={issuingCountryItems}
-                    setOpen={setDropdownIssuingCountryState}
-                    setValue={setIssuingCountry}
-                    setItems={setIssuingCountryItems}
-                    onSelectItem={(item) => {
-                        setIssuingCountry(item.value!);
-
-                        // validate value
-                        fieldValidator.validateField(item.value!, "issuingCountry", setIssuingCountryErrors);
-                    }}
-                    theme="DARK"
-                    multiple={false}
-                    mode="SIMPLE"
-                    searchable={true}
+                    scalesPageToFit
+                    setSupportMultipleWindows={false}
+                    nestedScrollEnabled={true}
+                    startInLoadingState={true}
                 />
-                <View style={styles.cardLinkingDisclaimerView}>
-                    <Checkbox
-                        style={styles.disclaimerCheckbox}
-                        color={cardLinkingDisclaimer ? 'blue' : '#F2FF5D'}
-                        value={cardLinkingDisclaimer}
-                        onValueChange={(newValue) => {
-                            setCardLinkingDisclaimer(newValue);
-
-                            // clear any errors (if any)
-                            setRegistrationMainError(false);
-                        }}
-                    />
-                    <Text
-                        style={styles.disclaimerText}>{'By submitting your card information you authorize Visa or MasterCard' +
-                        ' to monitor and share transaction data with Olive (our service provider), in order to participate in merchant programs through Moonbeam.' +
-                        ' You acknowledge and agree that Olive may share certain details of your qualifying transactions with Moonbeam, to enable this participation, and for other purposes.' +
-                        ' You may opt-out of transaction monitoring at any time, via the Settings menu. Any transaction monitoring or data sharing is done, in accordance with our'}
-                        <Text style={styles.disclaimerTextHighlighted}
-                              onPress={() => {
-                              }}> Privacy Policy, </Text>{"and"}
-                        <Text style={styles.disclaimerTextHighlighted}
-                              onPress={() => {
-                              }}> Terms & Conditions, </Text>
-                    </Text>
-                </View>
-            </View>
+            </SafeAreaView>
         </>
     );
 }

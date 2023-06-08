@@ -21,10 +21,7 @@ import {
     addressZipState,
     amplifySignUpProcessErrorsState,
     birthdayErrorState,
-    birthdayState,
-    cardLinkingDisclaimerCheckState,
-    cardNumberErrorsState,
-    cardNumberState,
+    birthdayState, cardLinkingStatusState,
     currentUserInformation,
     dutyStatusErrorsState,
     dutyStatusValueState,
@@ -32,12 +29,8 @@ import {
     emailState,
     enlistingYearErrorsState,
     enlistingYearState,
-    expirationDateErrorsState,
-    expirationDateState,
     firstNameErrorsState,
     firstNameState,
-    issuingCountryErrorsState,
-    issuingCountryState,
     lastNameErrorsState,
     lastNameState,
     militaryBranchErrorsState,
@@ -66,7 +59,6 @@ import {registrationStepDescription, registrationStepTitles} from "../../../mode
 import {ProfileRegistrationStep} from "./ProfileRegistrationStep";
 import {CodeVerificationStep} from "./CodeVerificationStep";
 import {DocumentCaptureStep} from "./DocumentCaptureStep";
-import {CardLinkingStep} from "./CardLinkingStep";
 import {SecurityStep} from "./SecurityStep";
 import {AdditionalRegistrationStep} from "./AdditionalRegistrationStep";
 import {API, Auth, graphqlOperation} from "aws-amplify";
@@ -85,6 +77,7 @@ import * as Notifications from 'expo-notifications';
 import {fetchFile} from "../../../utils/File";
 import {Spinner} from "../../common/Spinner";
 import {splashStatusState} from "../../../recoil/SplashAtom";
+import {CardLinkingStep} from "./CardLinkingStep";
 
 /**
  * RegistrationComponent component.
@@ -148,13 +141,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
     const [additionalDocumentsNeeded, setAdditionalDocumentsNeeded] = useRecoilState(additionalDocumentationNeeded);
     const [, setDocumentationErrors] = useRecoilState(additionalDocumentationErrors);
     // step 7
-    const [cardNumber,] = useRecoilState(cardNumberState);
-    const [expirationDate,] = useRecoilState(expirationDateState);
-    const [cardNumberErrors,] = useRecoilState(cardNumberErrorsState);
-    const [expirationDateErrors,] = useRecoilState(expirationDateErrorsState);
-    const [issuingCountryErrors,] = useRecoilState(issuingCountryErrorsState);
-    const [issuingCountry,] = useRecoilState(issuingCountryState);
-    const [cardLinkingDisclaimer,] = useRecoilState(cardLinkingDisclaimerCheckState);
+    const [cardLinkingStatus, ] = useRecoilState(cardLinkingStatusState);
     const [splashState, setSplashState] = useRecoilState(splashStatusState);
 
     /**
@@ -165,11 +152,29 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
      * included in here.
      */
     useEffect(() => {
+        setStepNumber(7);
+        setIsBackButtonShown(false);
         // start the countdown if the value is 10
         if (countdownValue == 10) {
             startCountdown(10);
         }
-    }, [countdownValue]);
+        // since for step number 7, the driving action is performed by the linking button in Olive's iFrame,
+        // we want to ensure that once the linking was done successfully there, then we proceed to the next step.
+        if (stepNumber == 7 && cardLinkingStatus) {
+            // move on to the next step
+            let newStepValue = stepNumber + 1;
+            setStepNumber(newStepValue);
+
+            // setting the splash state for the next step
+            setSplashState({
+                splashTitle: 'Congrats!',
+                splashDescription: 'Your card was successfully linked.',
+                splashButtonText: 'Finish',
+                splashArtSource: require('../../../../assets/art/card-linked-success.png'),
+                withButton: false
+            });
+        }
+    }, [countdownValue, cardLinkingStatus, splashState, stepNumber]);
 
     /**
      * Callback function used to decrease the value of the countdown by 1,
@@ -487,16 +492,16 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                         }}
                         source={require('../../../../assets/backgrounds/registration-background.png')}>
                         <KeyboardAwareScrollView
-                            scrollEnabled={stepNumber == 0 || stepNumber === 1 || stepNumber === 2 || stepNumber === 3 || stepNumber === 7}
+                            scrollEnabled={stepNumber == 0 || stepNumber === 1 || stepNumber === 2 || stepNumber === 3}
                             enableOnAndroid={true}
                             enableAutomaticScroll={(Platform.OS === 'ios')}
                             contentContainerStyle={[commonStyles.rowContainer]}
                             keyboardShouldPersistTaps={'handled'}
                         >
-                            {stepNumber !== 8 && <View
+                            {stepNumber !== 8 &&
+                                <View
                                 style={[styles.titleView, {marginTop: Dimensions.get('window').height / 6},
-                                    (stepNumber === 4 || (stepNumber === 5 && militaryStatus !== MilitaryVerificationStatusType.Rejected)) && {marginTop: Dimensions.get('window').height / 4.5},
-                                    stepNumber === 7 && {marginTop: Dimensions.get('window').height / 5.2}]}>
+                                    (stepNumber === 4 || (stepNumber === 5 && militaryStatus !== MilitaryVerificationStatusType.Rejected)) && {marginTop: Dimensions.get('window').height / 4.5}]}>
                                 {stepNumber === 4 &&
                                     <TouchableOpacity
                                         style={styles.buttonSkip}
@@ -511,8 +516,10 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                         <Text style={styles.buttonSkipText}>Skip</Text>
                                     </TouchableOpacity>
                                 }
-                                <View style={styles.titleViewDescription}>
-                                    <Text style={styles.stepTitle}>{registrationStepTitles[stepNumber]}</Text>
+                                <View style={[styles.titleViewDescription, stepNumber == 7 && {right: Dimensions.get('window').width/20}]}>
+                                    <Text style={styles.stepTitle}>
+                                        {registrationStepTitles[stepNumber]}
+                                    </Text>
                                     <IconButton
                                         icon={"triangle"}
                                         iconColor={"#F2FF5D"}
@@ -570,19 +577,17 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                     >
                                         <Text style={styles.buttonText}>Previous</Text>
                                     </TouchableOpacity>}
-                                <TouchableOpacity
+                                {stepNumber !== 7 && <TouchableOpacity
                                     disabled={
                                         (!militaryVerificationDisclaimer && stepNumber === 5)
                                         || (!accountRegistrationDisclaimer && stepNumber === 2)
                                         || (additionalDocumentsNeeded && stepNumber === 6)
-                                        || (!cardLinkingDisclaimer && stepNumber === 7)
                                     }
                                     style={[
                                         (
                                             !militaryVerificationDisclaimer && stepNumber === 5
                                             || (!accountRegistrationDisclaimer && stepNumber === 2)
                                             || (additionalDocumentsNeeded && stepNumber === 6)
-                                            || (!cardLinkingDisclaimer && stepNumber === 7)
                                         )
                                             ? styles.buttonRightDisabled
                                             : styles.buttonRight,
@@ -595,11 +600,6 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                         stepNumber === 6
                                         && {
                                             marginLeft: Dimensions.get('window').width / 25
-                                        },
-                                        stepNumber === 7
-                                        && {
-                                            marginLeft: Dimensions.get('window').width / 25,
-                                            bottom: Dimensions.get('window').width / 20
                                         },
                                         stepNumber === 8
                                         && {
@@ -750,37 +750,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                                     break;
                                                 case 6:
                                                     break;
-                                                case 7:
-                                                    if (cardNumber === "" || expirationDate === "" || issuingCountry === "" ||
-                                                        cardNumberErrors.length !== 0 || expirationDateErrors.length !== 0 ||
-                                                        issuingCountryErrors.length !== 0) {
-                                                        checksPassed = false;
-
-                                                        // only populate main error if there are no other errors showing
-                                                        if (cardNumberErrors.length === 0 && expirationDateErrors.length === 0 &&
-                                                            issuingCountryErrors.length === 0) {
-                                                            setRegistrationMainError(true);
-                                                        }
-                                                    } else {
-                                                        // set the loader
-                                                        setIsReady(false);
-
-                                                        // ToDo: once the card linking provider is determined, call an actual AppSync API here
-                                                        setSplashState({
-                                                            splashTitle: 'Congrats!',
-                                                            splashDescription: 'Your card was successfully linked.',
-                                                            splashButtonText: 'Finish',
-                                                            splashArtSource: require('../../../../assets/art/card-linked-success.png'),
-                                                            withButton: false
-                                                        });
-
-                                                        setRegistrationMainError(false);
-                                                        checksPassed = true;
-
-                                                        // release the loader
-                                                        setIsReady(true);
-                                                    }
-                                                    break;
+                                                // for the 7th step, the driver of the step is the linking button inside of Olive's iFrame instead
                                                 case 8:
                                                     break;
                                                 default:
@@ -802,16 +772,14 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                 >
                                     <Text
                                         style={styles.buttonText}>{
-                                        stepNumber === 7
-                                            ? `Link`
-                                            : stepNumber === 4
-                                                ? `Enable`
-                                                : (militaryStatus === MilitaryVerificationStatusType.Rejected && stepNumber === 5)
-                                                    ? `Verify`
-                                                    : stepNumber === 8
-                                                        ? splashState.splashButtonText
-                                                        : `Next`}</Text>
-                                </TouchableOpacity>
+                                        stepNumber === 4
+                                            ? `Enable`
+                                            : (militaryStatus === MilitaryVerificationStatusType.Rejected && stepNumber === 5)
+                                                ? `Verify`
+                                                : stepNumber === 8
+                                                    ? splashState.splashButtonText
+                                                    : `Next`}</Text>
+                                </TouchableOpacity>}
                             </View>
                         </KeyboardAwareScrollView>
                     </ImageBackground>

@@ -66,3 +66,14 @@ export interface MilitaryVerificationConfiguration {
     readonly updateMilitaryVerificationStatusResolverName: string;
     readonly createMilitaryVerificationResolverName: string;
 }
+
+/**
+ * Interface used to define the configuration for the card linking service resolvers
+ */
+export interface CardLinkingConfiguration {
+    readonly cardLinkingFunctionName: string;
+    readonly cardLinkingTableName: string;
+    readonly getCardLinkResolverName: string;
+    readonly createCardLinkResolverName: string;
+    readonly deleteCardResolverName: string;
+}

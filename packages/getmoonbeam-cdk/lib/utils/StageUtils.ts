@@ -5,6 +5,7 @@ import {SESStack} from "../stacks/SESStack";
 import {AppSyncStack} from "../stacks/AppSyncStack";
 import {StorageResolverStack} from "../stacks/StorageResolverStack";
 import {MilitaryVerificationResolverStack} from "../stacks/MilitaryVerificationResolverStack";
+import {CardLinkingResolverStack} from "../stacks/CardLinkingResolverStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -123,6 +124,19 @@ export class StageUtils {
                     environmentVariables: stageConfiguration.environmentVariables,
                 });
                 militaryVerificationStack.addDependency(appSyncStack);
+
+                // create the Card Linking resolver stack && add it to the CDK app
+                const cardLinkingStack = new CardLinkingResolverStack(this.app, `moonbeam-card-linking-resolver-${stageKey}`, {
+                    stackName: `moonbeam-card-linking-resolver-${stageKey}`,
+                    description: 'This stack will contain all the AppSync related resources needed by the Lambda card linking resolver',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    graphqlApiId: appSyncStack.graphqlApiId,
+                    graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
+                    cardLinkingConfig: stageConfiguration.cardLinkingConfig,
+                    environmentVariables: stageConfiguration.environmentVariables,
+                });
+                cardLinkingStack.addDependency(appSyncStack);
             }
         }
     };

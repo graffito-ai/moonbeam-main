@@ -1,11 +1,15 @@
-import {Constants, MilitaryVerificationInformation, MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
-import {VerificationClient} from "./VerificationClient";
+import {
+    BaseAPIClient,
+    Constants,
+    MilitaryVerificationInformation,
+    MilitaryVerificationStatusType
+} from "@moonbeam/moonbeam-models";
 import axios from "axios";
 
 /**
  * Class used as the base/generic client for all Quandis verification calls.
  */
-export class QuandisClient extends VerificationClient {
+export class QuandisClient extends BaseAPIClient {
     /**
      * The verification information provided by the customer, which they will
      * get verified upon.
@@ -54,9 +58,12 @@ export class QuandisClient extends VerificationClient {
             let dateOfInterest = `${this.verificationInformation.enlistmentYear}-12-31`;
 
             /**
+             * POST /api/military/scra/instant/{clientID}
+             * @link https://uatservices.quandis.io/api/military/documentation/index.html
+             *
              * build the Quandis API request body to be passed in, and perform a POST to it with the appropriate information
              * Note that the client_id, appended to the base URL, is the uuid for the user, which will be used for tracking purposes in case of any issues
-             * we imply that if the API does not respond in 2 seconds, that we automatically catch that, and return a Pending status
+             * we imply that if the API does not respond in 4 seconds, that we automatically catch that, and return a Pending status
              * for a better customer experience.
              */
             const verificationResponse = await axios.post(`${quandisBaseURL}/${this.verificationInformation.id}`, {
@@ -83,7 +90,7 @@ export class QuandisClient extends VerificationClient {
                 }
             }
 
-            // return a Pending status for status codes that are not 200
+            // return a Pending status for status codes that are not 200, in case the error block doesn't catch it
             const errorMessage = `Unexpected error while calling the Quandis API, with status ${verificationResponse.status}, and response ${verificationResponse.data}`;
             console.log(errorMessage);
 

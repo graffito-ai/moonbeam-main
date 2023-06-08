@@ -385,40 +385,6 @@ export class FieldValidator {
                     setErrorsArray([]);
                 }
                 break;
-            case 'cardNumber':
-                if (!/^\d{13,20}$/.test(fieldValue)) {
-                    setErrorsArray(["Invalid Card Number."]);
-                } else {
-                    setErrorsArray([]);
-                }
-                break;
-            case 'expirationDate':
-                // use to calculate the difference in years
-                const monthValue = Number(`${fieldValue.split("/")[0]}`);
-                const yearValue = Number(`${fieldValue.split("/")[1]}`);
-
-                if (!/^(\d{2})(\/)(\d{4})$/.test(fieldValue)) {
-                    setErrorsArray(["Invalid expiration date."]);
-                } else if (yearValue < new Date().getFullYear()) {
-                    // make sure that the year is a valid year
-                    setErrorsArray(["Invalid expiration year."]);
-                } else if (!(1 <= monthValue && 12 >= monthValue)) {
-                    // make sure that the month is a valid month
-                    setErrorsArray(["Invalid expiration month."]);
-                } else if (yearValue === new Date().getFullYear() && monthValue < new Date().getMonth()) {
-                    // make sure that the month year combination is less than current month and year
-                    setErrorsArray(["Invalid expiration date."]);
-                } else {
-                    setErrorsArray([]);
-                }
-                break;
-            case 'issuingCountry':
-                if (fieldValue !== 'US' && fieldValue !== 'UK') {
-                    setErrorsArray(["Invalid Issuing Country."]);
-                } else {
-                    setErrorsArray([]);
-                }
-                break;
             default:
                 console.log(fieldName);
                 console.log('Unexpected field name!');
