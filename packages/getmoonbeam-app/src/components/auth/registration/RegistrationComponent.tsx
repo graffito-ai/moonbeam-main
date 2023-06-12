@@ -152,8 +152,6 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
      * included in here.
      */
     useEffect(() => {
-        setStepNumber(7);
-        setIsBackButtonShown(false);
         // start the countdown if the value is 10
         if (countdownValue == 10) {
             startCountdown(10);
@@ -205,43 +203,51 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
      * representing whether eligibility was verified successfully or not, and implicitly, the verification status.
      */
     const verifyEligibility = async (userId: string): Promise<[boolean, MilitaryVerificationStatusType]> => {
-        // set a loader on button press
-        setIsReady(false);
+        try {
+            // set a loader on button press
+            setIsReady(false);
 
-        // call the verification API
-        const eligibilityResult = await API.graphql(graphqlOperation(createMilitaryVerification, {
-            createMilitaryVerificationInput: {
-                id: userId,
-                firstName: firstName,
-                lastName: lastName,
-                dateOfBirth: birthday,
-                enlistmentYear: enlistingYear,
-                addressLine: addressLine,
-                city: addressCity,
-                state: addressState,
-                zipCode: addressZip,
-                militaryAffiliation: MilitaryAffiliation.ServiceMember, // ToDo: in the future when we add family members, we need a mechanism for that
-                militaryBranch: militaryBranch,
-                militaryDutyStatus: dutyStatus
+            // call the verification API
+            const eligibilityResult = await API.graphql(graphqlOperation(createMilitaryVerification, {
+                createMilitaryVerificationInput: {
+                    id: userId,
+                    firstName: firstName,
+                    lastName: lastName,
+                    dateOfBirth: birthday,
+                    enlistmentYear: enlistingYear,
+                    addressLine: addressLine,
+                    city: addressCity,
+                    state: addressState,
+                    zipCode: addressZip,
+                    militaryAffiliation: MilitaryAffiliation.ServiceMember, // ToDo: in the future when we add family members, we need a mechanism for that
+                    militaryBranch: militaryBranch,
+                    militaryDutyStatus: dutyStatus
+                }
+            }));
+
+            // retrieve the data block from the response
+            // @ts-ignore
+            const responseData = eligibilityResult ? eligibilityResult.data : null;
+
+            // check if there are any errors in the returned response
+            if (responseData && responseData.createMilitaryVerification.errorMessage === null) {
+                // release the loader on button press
+                setIsReady(true);
+
+                return [true, responseData.createMilitaryVerification.data.militaryVerificationStatus];
+            } else {
+                // release the loader on button press
+                setIsReady(true);
+
+                console.log(`Unexpected error while retrieving the eligibility status ${JSON.stringify(eligibilityResult)}`);
+                return [false, MilitaryVerificationStatusType.Pending];
             }
-        }));
-
-        // retrieve the data block from the response
-        // @ts-ignore
-        const responseData = eligibilityResult ? eligibilityResult.data : null;
-
-        // check if there are any errors in the returned response
-        if (responseData && responseData.createMilitaryVerification.errorMessage === null) {
+        } catch (error) {
             // release the loader on button press
             setIsReady(true);
 
-            return [true, responseData.createMilitaryVerification.data.militaryVerificationStatus];
-        } else {
-            // release the loader on button press
-            setIsReady(true);
-
-            console.log(`Unexpected error while retrieving the eligibility status ${JSON.stringify(eligibilityResult)}`);
-            return [false, MilitaryVerificationStatusType.Rejected];
+            console.log(`Unexpected error while retrieving the eligibility status ${JSON.stringify(error)}`);
+            return [false, MilitaryVerificationStatusType.Pending];
         }
     }
 

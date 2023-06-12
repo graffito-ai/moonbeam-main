@@ -102,7 +102,7 @@ export const fetchFile = async (name: string, privacyFlag: boolean): Promise<[bo
         // file exists, just return the locally cached URI
         return [true, fileUri];
     } catch (error) {
-        console.log(`Unexpected error while fetching file: ${error}`);
+        console.log(`Unexpected error while fetching file: ${JSON.stringify(error)}`);
 
         return [false, null];
     }

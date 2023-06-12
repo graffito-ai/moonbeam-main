@@ -2,10 +2,13 @@ import React, {useEffect, useState} from "react";
 import {SafeAreaView, StyleSheet, TouchableOpacity} from "react-native";
 import WebView from "react-native-webview";
 import {useRecoilState} from "recoil";
-import {cardLinkingStatusState} from "../../../recoil/AuthAtom";
+import {cardLinkingStatusState, currentUserInformation} from "../../../recoil/AuthAtom";
 import {Modal, Portal, Text} from "react-native-paper";
 import {commonStyles} from '../../../styles/common.module';
 import {styles} from '../../../styles/registration.module';
+import {Spinner} from "../../common/Spinner";
+import {API, graphqlOperation} from "aws-amplify";
+import {CardLinkErrorType, CardType, createCardLink} from "@moonbeam/moonbeam-models";
 
 /**
  * CardLinkingStep component.
@@ -13,9 +16,13 @@ import {styles} from '../../../styles/registration.module';
 export const CardLinkingStep = () => {
     // constants used to keep track of shared states
     const [modalVisible, setModalVisible] = useState<boolean>(false);
+    const [modalCustomMessage, setModalCustomMessage] = useState<string>("");
+    const [isReady, setIsReady] = useState<boolean>(true);
+    const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
 
     // constants used to keep track of shared states
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
+    const [userInformation,] = useRecoilState(currentUserInformation);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -25,36 +32,149 @@ export const CardLinkingStep = () => {
      * included in here.
      */
     useEffect(() => {
-
     }, []);
 
     /**
      * Function used to keep track of the card linking action executed inside
-     * the card linking form.
+     * the card linking form, once a user attempt to link a card.
      *
      * @param data data to be passed in from the webview form.
      */
-    function onCardLinkAction(data) {
+    const onCardLinkAction = async (data): Promise<void> => {
+        // set a loader on button press
+        setIsReady(false);
+
+        // parse the incoming form data
         const linkingData = JSON.parse(data.nativeEvent.data);
 
-        console.log(JSON.stringify(linkingData));
+        /**
+         * ensure that the incoming tokenized card, is for a valid/support card network. Even though
+         * this is also verified on the back-end, it is import to do it on the front-end, as well, to
+         * avoid making an extra network call if possible.
+         */
+        if (linkingData.data.card_type !== "visa" && linkingData.data.card_type !== "master") {
+            const errorMessage = `Unsupported card linked. Only MasterCard and/or Visa available to link!`;
+            console.log(`${errorMessage} ${linkingData.data.card_type}`);
 
-        // check to see if there were any errors during the card linking step
-        if (!linkingData.data || linkingData.error || !linkingData.success) {
-            // if there were errors, then display a modal prompting the user to retry linking their card
-            console.log(`Error while linking card ${linkingData.error}`);
             setCardLinkingStatus(false);
+            // set a custom message for the modal message
+            setModalCustomMessage(errorMessage);
             setModalVisible(true);
         } else {
-            /**
-             * If there are no errors to display, then retrieve the token and timestamp of their terms & conditions
-             * acceptance, and call our internal card linking API to complete the linking process.
-             */
+            // set the card type to be sent in to the API, accordingly
+            let cardType: CardType;
+            switch (linkingData.data.card_type) {
+                case 'visa':
+                    cardType = CardType.Visa;
+                    break;
+                case 'master':
+                    cardType = CardType.Mastercard;
+                    break;
+                default:
+                    cardType = CardType.Invalid;
+                    break;
+            }
+            ;
 
+            // check to see if there were any errors during the card linking step
+            if (!linkingData.data || linkingData.error || !linkingData.success
+                || !linkingData.data.card_type || !linkingData.data.full_name
+                || !linkingData.data.last_four_digits || !linkingData.data.token) {
+                // release the loader on button press
+                setIsReady(true);
 
+                // if there were errors, then display a modal prompting the user to retry linking their card
+                console.log(`Error with initial token structure ${linkingData.error}`);
+                setCardLinkingStatus(false);
+                setModalVisible(true);
+            } else {
+                /**
+                 * If there are no errors to display, then retrieve the token, card nickname, last 4 digits for the card, the type,
+                 * and the unique user ID for the signup process. Use that information to then call our internal card linking API to
+                 * complete the account creation/member signup linking process.
+                 */
+                const [signupCardLinkedMemberResult, errorObject] = await signupCardLinkedMember(userInformation["userId"], linkingData.data.full_name,
+                    cardType, linkingData.data.last_four_digits, linkingData.data.token);
 
+                // check if there was an error
+                if (errorObject || !signupCardLinkedMemberResult) {
+                    // filter through errors and determine whether a custom modal message is needed
+                    if (errorObject && errorObject[1] === CardLinkErrorType.InvalidCardScheme) {
+                        // release the loader on button press
+                        setIsReady(true);
+
+                        const errorMessage = `Unsupported card linked. Only MasterCard and/or Visa available to link!`;
+                        console.log(`${errorMessage} ${linkingData.data.card_type}`);
+
+                        setCardLinkingStatus(false);
+                        // set a custom message for the modal message
+                        setModalCustomMessage(errorMessage);
+                        setModalVisible(true);
+                    } else {
+                        // release the loader on button press
+                        setIsReady(true);
+
+                        // if there were errors, then display a modal prompting the user to retry linking their card
+                        console.log(`Error while linking card ${JSON.stringify(errorObject)}`);
+                        setCardLinkingStatus(false);
+                        setModalVisible(true);
+                    }
+                } else {
+                    // release the loader on button press
+                    setIsReady(true);
+
+                    setCardLinkingStatus(true);
+                }
+            }
         }
     }
+
+    /**
+     * Function used to link an individual's card, and signup a new member during the signup process.
+     *
+     * @param userId uniquely generated user identifier.
+     * @param cardNickname the name/nickname of the card, inputted by the user.
+     * @param cardType the type of the card, auto-detected upon user linking via the enrollment form.
+     * @param last4Digits the last 4 digits of the card, inputted by the user, obtained from the card number.
+     * @param cardToken the card linking token, generated via the card vault, via the enrollment form.
+     *
+     * @return a {@link Promise}, containing a pair of a {@link Boolean}, and a {@link {String, CardLinkErrorType}},
+     * representing whether the card was successfully linked or not, and implicitly, if it was not, what
+     * the error message and code for that error was.
+     */
+    const signupCardLinkedMember = async (userId: string, cardNickname: string, cardType: CardType,
+                                          last4Digits: string, cardToken: string): Promise<[boolean, [string, CardLinkErrorType]?]> => {
+        try {
+            // call the internal card linking API
+            const cardLinkingResult = await API.graphql(graphqlOperation(createCardLink, {
+                createCardLinkInput: {
+                    id: userId,
+                    card: {
+                        token: cardToken,
+                        type: cardType,
+                        name: cardNickname,
+                        last4: last4Digits
+                    }
+                }
+            }));
+
+            // retrieve the data block from the response
+            // @ts-ignore
+            const responseData = cardLinkingResult ? cardLinkingResult.data : null;
+
+            // check if there are any errors in the returned response
+            if (responseData && responseData.createCardLink.errorMessage === null) {
+                return [true];
+            } else {
+                console.log(`Unexpected error while signing a new member up through the card linking API ${JSON.stringify(cardLinkingResult)}`);
+                return [false, [responseData.createCardLink.errorMessage, responseData.createCardLink.errorType]];
+            }
+        } catch (error) {
+            console.log(`Unexpected error while signing a new member up through the card linking API ${JSON.stringify(error)}`);
+            return [false, [`Unexpected error`, CardLinkErrorType.UnexpectedError]];
+        }
+    }
+
 
     /**
      * Content of the Olive iFrame, used to display the card linking form.
@@ -105,34 +225,47 @@ export const CardLinkingStep = () => {
     // return the component for the CardLinkinStep, part of the Registration page
     return (
         <>
-            <Portal>
-                <Modal dismissable={false} visible={modalVisible} onDismiss={() => setModalVisible(false)}
-                       contentContainerStyle={commonStyles.modalContainer}>
-                    <Text style={commonStyles.modalParagraph}>There was an error while linking your card!</Text>
-                    <TouchableOpacity
-                        style={commonStyles.modalButton}
-                        onPress={() => {
-                            setModalVisible(false);
-                        }}
-                    >
-                        <Text style={commonStyles.modalButtonText}>Try again!</Text>
-                    </TouchableOpacity>
-                </Modal>
-            </Portal>
-            <SafeAreaView
-                style={[StyleSheet.absoluteFill, styles.cardLinkingParentView]}>
-                <WebView
-                    onMessage={onCardLinkAction}
-                    scrollEnabled={false}
-                    originWhitelist={['*']}
-                    source={{html: oliveIframeContent}}
-                    style={styles.cardLinkingIframeView}
-                    scalesPageToFit={true}
-                    setSupportMultipleWindows={false}
-                    nestedScrollEnabled={true}
-                    startInLoadingState={true}
-                />
-            </SafeAreaView>
+            {!isReady ?
+                <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
+                :
+                <>
+                    <Portal>
+                        <Modal dismissable={false} visible={modalVisible} onDismiss={() => setModalVisible(false)}
+                               contentContainerStyle={commonStyles.modalContainer}>
+                            <Text
+                                style={commonStyles.modalParagraph}>{`Error while linking your card! ${modalCustomMessage}`}</Text>
+                            <TouchableOpacity
+                                style={commonStyles.modalButton}
+                                onPress={() => {
+                                    setModalVisible(false);
+                                }}
+                            >
+                                <Text style={commonStyles.modalButtonText}>Try again!</Text>
+                            </TouchableOpacity>
+                        </Modal>
+                    </Portal>
+                    <SafeAreaView
+                        style={[StyleSheet.absoluteFill, styles.cardLinkingParentView]}>
+                        <WebView
+                            onMessage={onCardLinkAction}
+                            scrollEnabled={false}
+                            originWhitelist={['*']}
+                            source={{html: oliveIframeContent}}
+                            style={styles.cardLinkingIframeView}
+                            scalesPageToFit={true}
+                            setSupportMultipleWindows={false}
+                            nestedScrollEnabled={true}
+                            startInLoadingState={true}
+                            renderLoading={() => {
+                                return (
+                                    <Spinner loadingSpinnerShown={loadingSpinnerShown}
+                                             setLoadingSpinnerShown={setLoadingSpinnerShown}/>
+                                )
+                            }}
+                        />
+                    </SafeAreaView>
+                </>
+            }
         </>
     );
 }
