@@ -41,6 +41,9 @@ export const CardLinkingStep = () => {
      * @param data data to be passed in from the webview form.
      */
     const onCardLinkAction = async (data): Promise<void> => {
+        // reset previously modal error message
+        setModalCustomMessage("");
+
         // set a loader on button press
         setIsReady(false);
 
@@ -53,6 +56,9 @@ export const CardLinkingStep = () => {
          * avoid making an extra network call if possible.
          */
         if (linkingData.data.card_type !== "visa" && linkingData.data.card_type !== "master") {
+            // release the loader on button press
+            setIsReady(true);
+
             const errorMessage = `Unsupported card linked. Only MasterCard and/or Visa available to link!`;
             console.log(`${errorMessage} ${linkingData.data.card_type}`);
 
@@ -74,7 +80,6 @@ export const CardLinkingStep = () => {
                     cardType = CardType.Invalid;
                     break;
             }
-            ;
 
             // check to see if there were any errors during the card linking step
             if (!linkingData.data || linkingData.error || !linkingData.success
@@ -212,7 +217,7 @@ export const CardLinkingStep = () => {
                 </script>
                 <script type="application/javascript"
                         id="olive-link-card-form"
-                        src="https://moonbeam-public-files-bucket-dev-us-west-2.s3.us-west-2.amazonaws.com/customized-moonbeam-olive-script.js"
+                        src="https://moonbeam-public-files-bucket-dev-us-west-2.s3.us-west-2.amazonaws.com/olive-custom-script-version1.js"
                         data-public-key=Zlltp0W5jB09Us0kkOPN6edVwfy1JYGO
                         data-container-div="olive-sdk-container"
                         data-environment="sandbox"

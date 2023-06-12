@@ -55,7 +55,7 @@ export class VAClient extends BaseAPIClient {
              * @link https://developer.va.gov/explore/verification/docs/veteran_confirmation?version=current
              *
              * build the Lighthouse API request body to be passed in, and perform a POST to it with the appropriate information
-             * we imply that if the API does not respond in 2 seconds, then we automatically catch that, and return a Pending status
+             * we imply that if the API does not respond in 10 seconds, then we automatically catch that, and return a Pending status
              * for a better customer experience.
              */
             const requestData = {
@@ -74,7 +74,7 @@ export class VAClient extends BaseAPIClient {
                     "Content-Type": "application/json",
                     "apiKey": lighthouseAPIKey
                 },
-                timeout: 2000, // in milliseconds here
+                timeout: 10000, // in milliseconds here
                 timeoutErrorMessage: 'Lighthouse API timed out after 2000ms!'
             }).then(verificationResponse => {
                 /**

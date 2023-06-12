@@ -63,7 +63,7 @@ export class QuandisClient extends BaseAPIClient {
              *
              * build the Quandis API request body to be passed in, and perform a POST to it with the appropriate information
              * Note that the client_id, appended to the base URL, is the uuid for the user, which will be used for tracking purposes in case of any issues
-             * we imply that if the API does not respond in 4 seconds, then we automatically catch that, and return a Pending status
+             * we imply that if the API does not respond in 10 seconds, then we automatically catch that, and return a Pending status
              * for a better customer experience.
              */
             const requestData = {
@@ -79,7 +79,7 @@ export class QuandisClient extends BaseAPIClient {
                     "Content-Type": "application/json",
                     "X-ApiKey": quandisAPIKey
                 },
-                timeout: 4000, // in milliseconds here
+                timeout: 10000, // in milliseconds here
                 timeoutErrorMessage: 'Quandis API timed out after 4000ms!'
             }).then(verificationResponse => {
                 /**
