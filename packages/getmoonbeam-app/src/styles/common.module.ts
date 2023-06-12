@@ -86,7 +86,7 @@ export const commonStyles = StyleSheet.create({
     modalButtonText: {
         color: '#313030',
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').height/45,
+        fontSize: Dimensions.get('window').height/50,
         marginTop: Dimensions.get('window').height / 90
     },
     modalParagraph: {

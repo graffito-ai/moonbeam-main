@@ -5,7 +5,7 @@ import {atom} from "recoil";
  * screen after.
  */
 const splashStatusState = atom({
-    key: "cardLinkingStatusState",
+    key: "splashStatusState",
     default: {
         splashTitle: "",
         splashDescription: "",

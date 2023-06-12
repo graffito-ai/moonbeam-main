@@ -6,8 +6,10 @@ mutation CreateCardLink($createCardLinkInput: CreateCardLinkInput!) {
         errorMessage
         data {
             id
+            memberId
             cards {
                 id
+                applicationID
                 token
                 type
                 name

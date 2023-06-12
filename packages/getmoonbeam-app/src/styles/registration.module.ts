@@ -382,7 +382,13 @@ export const styles = StyleSheet.create({
         width: Dimensions.get('window').width * 0.75,
         flex: 0.75
     },
-    cardGroupImage: {
-        right: Dimensions.get('window').width/13
+    cardLinkingParentView: {
+        backgroundColor: '#313030', marginTop: -Dimensions.get('window').height/20, alignContent: 'center',  alignSelf: 'center', alignItems: 'center'
     },
+    cardLinkingIframeView: {
+        left: Dimensions.get('window').width / 2.03,
+        backgroundColor: 'transparent',
+        width: Dimensions.get('window').width*2,
+        flexGrow: 1
+    }
 });

@@ -24,6 +24,7 @@ export type Scalars = {
 export type Card = {
   __typename?: 'Card';
   additionalProgramID?: Maybe<Scalars['String']>;
+  applicationID: Scalars['ID'];
   createdAt: Scalars['AWSDateTime'];
   id: Scalars['ID'];
   last4: Scalars['String'];
@@ -35,8 +36,8 @@ export type Card = {
 
 export type CardInput = {
   additionalProgramID?: InputMaybe<Scalars['String']>;
+  applicationID?: InputMaybe<Scalars['ID']>;
   createdAt?: InputMaybe<Scalars['AWSDateTime']>;
-  id?: InputMaybe<Scalars['ID']>;
   last4: Scalars['String'];
   name: Scalars['String'];
   token: Scalars['String'];
@@ -48,10 +49,12 @@ export type CardLink = {
   __typename?: 'CardLink';
   cards: Array<Maybe<Card>>;
   id: Scalars['ID'];
+  memberId: Scalars['ID'];
 };
 
 export enum CardLinkErrorType {
   AlreadyExistent = 'ALREADY_EXISTENT',
+  InvalidCardScheme = 'INVALID_CARD_SCHEME',
   NoneOrAbsent = 'NONE_OR_ABSENT',
   UnexpectedError = 'UNEXPECTED_ERROR',
   ValidationError = 'VALIDATION_ERROR'
@@ -65,6 +68,7 @@ export type CardLinkResponse = {
 };
 
 export enum CardType {
+  Invalid = 'INVALID',
   Mastercard = 'MASTERCARD',
   Visa = 'VISA'
 }
@@ -276,7 +280,7 @@ export type GetCardLinkQueryVariables = Exact<{
 }>;
 
 
-export type GetCardLinkQuery = { __typename?: 'Query', getCardLink?: { __typename?: 'CardLinkResponse', errorMessage?: string | null, errorType?: CardLinkErrorType | null, data?: { __typename?: 'CardLink', id: string, cards: Array<{ __typename?: 'Card', id: string, token: string, type: CardType, name: string, last4: string, additionalProgramID?: string | null, createdAt: string, updatedAt: string } | null> } | null } | null };
+export type GetCardLinkQuery = { __typename?: 'Query', getCardLink?: { __typename?: 'CardLinkResponse', errorMessage?: string | null, errorType?: CardLinkErrorType | null, data?: { __typename?: 'CardLink', id: string, memberId: string, cards: Array<{ __typename?: 'Card', id: string, applicationID: string, token: string, type: CardType, name: string, last4: string, additionalProgramID?: string | null, createdAt: string, updatedAt: string } | null> } | null } | null };
 
 export type GetMilitaryVerificationStatusQueryVariables = Exact<{
   getMilitaryVerificationInput: GetMilitaryVerificationInput;

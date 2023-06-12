@@ -63,38 +63,62 @@ export class QuandisClient extends BaseAPIClient {
              *
              * build the Quandis API request body to be passed in, and perform a POST to it with the appropriate information
              * Note that the client_id, appended to the base URL, is the uuid for the user, which will be used for tracking purposes in case of any issues
-             * we imply that if the API does not respond in 4 seconds, that we automatically catch that, and return a Pending status
+             * we imply that if the API does not respond in 4 seconds, then we automatically catch that, and return a Pending status
              * for a better customer experience.
              */
-            const verificationResponse = await axios.post(`${quandisBaseURL}/${this.verificationInformation.id}`, {
+            const requestData = {
                 certificate: false,
                 firstName: this.verificationInformation.firstName,
                 lastName: this.verificationInformation.lastName,
                 birthDate: dob,
                 dateOfInterest: dateOfInterest
-            }, {
+            };
+            console.log(`Quandis API request Object: ${JSON.stringify(requestData)}`);
+            return axios.post(`${quandisBaseURL}/${this.verificationInformation.id}`, requestData, {
                 headers: {
                     "Content-Type": "application/json",
                     "X-ApiKey": quandisAPIKey
                 },
                 timeout: 4000, // in milliseconds here
                 timeoutErrorMessage: 'Quandis API timed out after 4000ms!'
-            });
-
-            // check the status of the response, and act appropriately
-            if (verificationResponse.status === 200) {
-                if (verificationResponse.data["covered"] === true) {
+            }).then(verificationResponse => {
+                /**
+                 * if we reached this, then we assume that a 2xx response code was returned.
+                 * check the contents of the response, and act appropriately.
+                 */
+                if (verificationResponse.data && verificationResponse.data["covered"] === true) {
                     return MilitaryVerificationStatusType.Verified;
                 } else {
                     return MilitaryVerificationStatusType.Pending;
                 }
-            }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the Quandis API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
 
-            // return a Pending status for status codes that are not 200, in case the error block doesn't catch it
-            const errorMessage = `Unexpected error while calling the Quandis API, with status ${verificationResponse.status}, and response ${verificationResponse.data}`;
-            console.log(errorMessage);
+                    return MilitaryVerificationStatusType.Pending;
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the Quandis API, for request ${error.request}`;
+                    console.log(errorMessage);
 
-            return MilitaryVerificationStatusType.Pending;
+                    return MilitaryVerificationStatusType.Pending;
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the Quandis API, ${error.message}`;
+                    console.log(errorMessage);
+
+                    return MilitaryVerificationStatusType.Pending;
+                }
+            });
         } catch (err) {
             // for any error caught here, return a Pending status, for a better customer experience
             const errorMessage = `Unexpected error while verifying military status through Quandis ${err}`;

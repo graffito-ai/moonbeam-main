@@ -163,15 +163,18 @@ enum CardLinkErrorType {
     VALIDATION_ERROR
     UNEXPECTED_ERROR
     NONE_OR_ABSENT
+    INVALID_CARD_SCHEME
 }
 
 enum CardType {
     MASTERCARD
     VISA
+    INVALID
 }
 
 type Card @aws_cognito_user_pools {
-    id: ID! # this will be passed on to Olive as the enrollment ID (referenceAppId)
+    id: ID! # this will be obtained from Olive (and it is the Olive card id)
+    applicationID: ID! # this will be passed on to Olive as the enrollment ID (referenceAppId)
     token: String!
     type: CardType!
     name: String!
@@ -182,12 +185,13 @@ type Card @aws_cognito_user_pools {
 }
 
 type CardLink @aws_cognito_user_pools {
-    id: ID! # this will be passed on to Olive as the unique user ID (extMemberId)
+    id: ID! # this will be passed on to Olive as the unique user ID (extMemberId), and represents Moonbeam's unique user ID
+    memberId: ID! # this will be obtained from Olive (and it is the Olive member id)
     cards: [Card]!
 }
 
 input CardInput {
-    id: ID # not required since it will be generated on the back-end
+    applicationID: ID # not required since this will be generated on the back-end
     token: String!
     type: CardType!
     name: String!

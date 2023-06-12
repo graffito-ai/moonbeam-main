@@ -8,8 +8,10 @@ export const createCardLink = /* GraphQL */ `
             errorMessage
             data {
                 id
+                memberId
                 cards {
                     id
+                    applicationID
                     token
                     type
                     name

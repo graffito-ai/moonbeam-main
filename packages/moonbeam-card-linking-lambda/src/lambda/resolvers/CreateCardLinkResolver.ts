@@ -1,5 +1,12 @@
 import {DynamoDBClient, GetItemCommand, PutItemCommand} from "@aws-sdk/client-dynamodb";
-import {Card, CardLinkErrorType, CardLinkResponse, CreateCardLinkInput, OliveClient} from "@moonbeam/moonbeam-models";
+import {
+    Card, CardLink,
+    CardLinkErrorType,
+    CardLinkResponse,
+    CardType,
+    CreateCardLinkInput,
+    OliveClient
+} from "@moonbeam/moonbeam-models";
 import {v4 as uuidv4} from 'uuid';
 
 /**
@@ -13,6 +20,14 @@ export const createCardLink = async (createCardLinkInput: CreateCardLinkInput): 
     try {
         // retrieving the current function region
         const region = process.env.AWS_REGION!;
+
+        // check if an invalid card type is passed in, then return an error accordingly
+        if (createCardLinkInput.card.type === CardType.Invalid) {
+            return {
+                errorMessage: `Unsupported card scheme.`,
+                errorType: CardLinkErrorType.InvalidCardScheme
+            }
+        }
 
         // initializing the DynamoDB document client
         const dynamoDbClient = new DynamoDBClient({region: region});
@@ -31,6 +46,7 @@ export const createCardLink = async (createCardLinkInput: CreateCardLinkInput): 
                 }
             }
         }));
+
         // if there is an item retrieved, then we need to check its contents
         if (preExistingCardForLink && preExistingCardForLink.Item) {
             // if there is an existent link, then it will contain a card, so we will return an error
@@ -42,53 +58,62 @@ export const createCardLink = async (createCardLinkInput: CreateCardLinkInput): 
                 errorType: CardLinkErrorType.AlreadyExistent
             }
         } else {
-            // there is no card link available in the DB, so we will create one with the appropriate card.
+            console.log(`No card link existent in DB for user ${createCardLinkInput.id}`);
 
-            // generate a unique identifier for the card, to be passed in to Olive as the enrollment identifier
-            createCardLinkInput.card.id = uuidv4();
+            // generate a unique application identifier for the card, to be passed in to Olive as the "referenceAppId"
+            createCardLinkInput.card.applicationID = uuidv4();
 
             // call the Olive Client API here, in order to call the appropriate endpoints for this resolver
             const oliveClient = new OliveClient(createCardLinkInput.card as Card, createCardLinkInput.id, process.env.ENV_NAME!, region);
-            const cardLinkResponse = await oliveClient.link();
+            const response = await oliveClient.link();
 
             // check to see if the card linking call was executed successfully
-            if (cardLinkResponse && !cardLinkResponse.errorMessage && !cardLinkResponse.errorType && cardLinkResponse.data) {
+            if (response && !response.errorMessage && !response.errorType && response.data) {
+                // convert the incoming linked data into a CardLink object
+                const cardLinkedResponse = response.data as CardLink;
+
                 // store the card linking object
                 await dynamoDbClient.send(new PutItemCommand({
                     TableName: process.env.CARD_LINKING_TABLE!,
                     Item: {
                         id: {
-                            S: createCardLinkInput.id
+                            S: cardLinkedResponse.id
+                        },
+                        memberId: {
+                            S: cardLinkedResponse.memberId
                         },
                         cards: {
                             L: [
                                 {
                                     M: {
                                         id: {
-                                            S: createCardLinkInput.card.id!
+                                            S: cardLinkedResponse.cards[0]!.id
                                         },
-                                        ...(createCardLinkInput.card.additionalProgramID && {
+                                        applicationID: {
+                                            S: cardLinkedResponse.cards[0]!.applicationID
+                                        },
+                                        ...(cardLinkedResponse.cards[0]!.additionalProgramID && {
                                             additionalProgramID: {
-                                                S: createCardLinkInput.card.additionalProgramID!
+                                                S: cardLinkedResponse.cards[0]!.additionalProgramID!
                                             }
                                         }),
                                         createdAt: {
-                                            S: createCardLinkInput.card.createdAt
+                                            S: cardLinkedResponse.cards[0]!.createdAt
                                         },
                                         updatedAt: {
-                                            S: createCardLinkInput.card.updatedAt
+                                            S: cardLinkedResponse.cards[0]!.updatedAt
                                         },
                                         last4: {
-                                            S: createCardLinkInput.card.last4
+                                            S: cardLinkedResponse.cards[0]!.last4
                                         },
                                         name: {
-                                            S: createCardLinkInput.card.name
+                                            S: cardLinkedResponse.cards[0]!.name
                                         },
                                         token: {
-                                            S: createCardLinkInput.card.token
+                                            S: cardLinkedResponse.cards[0]!.token
                                         },
                                         type: {
-                                            S: createCardLinkInput.card.type
+                                            S: cardLinkedResponse.cards[0]!.type
                                         }
                                     }
                                 }
@@ -100,13 +125,14 @@ export const createCardLink = async (createCardLinkInput: CreateCardLinkInput): 
                 // return the card linking object
                 return {
                     data: {
-                        id: createCardLinkInput.id,
-                        cards: [createCardLinkInput.card as Card]
+                        id: cardLinkedResponse.id,
+                        memberId: cardLinkedResponse.memberId,
+                        cards: [cardLinkedResponse.cards[0]! as Card]
                     }
                 }
             } else {
                 // if there are errors associated with the call, just return the error message and error type from the upstream client
-                return cardLinkResponse;
+                return response;
             }
         }
     } catch (err) {

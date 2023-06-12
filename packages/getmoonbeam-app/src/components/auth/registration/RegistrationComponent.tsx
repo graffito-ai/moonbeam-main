@@ -498,7 +498,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                             contentContainerStyle={[commonStyles.rowContainer]}
                             keyboardShouldPersistTaps={'handled'}
                         >
-                            {stepNumber !== 8 &&
+                            {stepNumber !== 8 && stepNumber !== 7 &&
                                 <View
                                 style={[styles.titleView, {marginTop: Dimensions.get('window').height / 6},
                                     (stepNumber === 4 || (stepNumber === 5 && militaryStatus !== MilitaryVerificationStatusType.Rejected)) && {marginTop: Dimensions.get('window').height / 4.5}]}>
@@ -516,7 +516,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                         <Text style={styles.buttonSkipText}>Skip</Text>
                                     </TouchableOpacity>
                                 }
-                                <View style={[styles.titleViewDescription, stepNumber == 7 && {right: Dimensions.get('window').width/20}]}>
+                                <View style={[styles.titleViewDescription]}>
                                     <Text style={styles.stepTitle}>
                                         {registrationStepTitles[stepNumber]}
                                     </Text>
@@ -528,7 +528,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                     />
                                 </View>
                             </View>}
-                            {(militaryStatus === MilitaryVerificationStatusType.Verified && stepNumber === 5) ? <></> :
+                            {(militaryStatus === MilitaryVerificationStatusType.Verified && stepNumber === 5) || stepNumber === 7 ? <></> :
                                 <Text style={styles.stepDescription}>{registrationStepDescription[stepNumber]}</Text>}
                             {/*switch views based on the step number*/}
                             {

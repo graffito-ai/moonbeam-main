@@ -1,4 +1,4 @@
-import {aws_appsync, aws_dynamodb, aws_lambda, aws_lambda_nodejs, Stack, StackProps} from "aws-cdk-lib";
+import {aws_appsync, aws_dynamodb, aws_lambda, aws_lambda_nodejs, Duration, Stack, StackProps} from "aws-cdk-lib";
 import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
 import path from "path";
@@ -26,6 +26,8 @@ export class CardLinkingResolverStack extends Stack {
             entry: path.resolve(path.join(__dirname, '../../../moonbeam-card-linking-lambda/src/lambda/main.ts')),
             handler: 'handler',
             runtime: aws_lambda.Runtime.NODEJS_18_X,
+            // we add a timeout here different from the default of 3 seconds, since we expect these API calls to take longer
+            timeout: Duration.seconds(6),
             memorySize: 512,
             bundling: {
                 minify: true, // minify code, defaults to false
@@ -42,7 +44,7 @@ export class CardLinkingResolverStack extends Stack {
                         "secretsmanager:GetSecretValue"
                     ],
                     resources: [
-                        "arn:aws:secretsmanager:us-west-2:963863720257:secret:olive-secret-pair-NKqM6n" // this ARN is retrieved post secret creation
+                        "arn:aws:secretsmanager:us-west-2:963863720257:secret:olive-secret-pair-dev-us-west-2-OTgCOk" // this ARN is retrieved post secret creation
                     ]
                 })
             ]
@@ -61,8 +63,12 @@ export class CardLinkingResolverStack extends Stack {
             typeName: "Mutation",
             fieldName: `${props.cardLinkingConfig.createCardLinkResolverName}`
         });
+        cardLinkingLambdaDataSource.createResolver(`${props.cardLinkingConfig.getCardLinkResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Query",
+            fieldName: `${props.cardLinkingConfig.getCardLinkResolverName}`
+        });
 
-        // create a new table to be used for the Military Verification
+        // create a new table to be used for the Card Linking purposes
         const cardLinkingTable = new aws_dynamodb.Table(this, `${props.cardLinkingConfig.cardLinkingTableName}-${props.stage}-${props.env!.region}`, {
             tableName: `${props.cardLinkingConfig.cardLinkingTableName}-${props.stage}-${props.env!.region}`,
             billingMode: aws_dynamodb.BillingMode.PAY_PER_REQUEST,
@@ -74,6 +80,48 @@ export class CardLinkingResolverStack extends Stack {
 
         // enable the Lambda function to access the DynamoDB table (using IAM)
         cardLinkingTable.grantFullAccess(cardLinkingLambdaDataSource);
+        cardLinkingLambda.addToRolePolicy(
+            /**
+             * policy used to allow full Dynamo DB access for the Lambda, added again on top of the lines above, since they sometimes don't work
+             * Note: by "they" meaning "grantFullAccess" above.
+             */
+            new PolicyStatement(
+                new PolicyStatement({
+                        effect: Effect.ALLOW,
+                        actions: [
+                            "dynamodb:GetItem",
+                            "dynamodb:PutItem",
+                            "dynamodb:Query",
+                            "dynamodb:UpdateItem",
+                            "dynamodb:DeleteItem"
+                        ],
+                        resources: [
+                            `${cardLinkingTable.tableArn}`
+                        ]
+                    }
+                )
+            ));
+        cardLinkingLambda.addToRolePolicy(
+            /**
+             * policy used to allow full Dynamo DB access for the Lambda, added again on top of the lines above, since they sometimes don't work
+             * Note: by "they" meaning "grantFullAccess" above.
+             */
+            new PolicyStatement(
+                new PolicyStatement({
+                        effect: Effect.ALLOW,
+                        actions: [
+                            "dynamodb:GetItem",
+                            "dynamodb:PutItem",
+                            "dynamodb:Query",
+                            "dynamodb:UpdateItem",
+                            "dynamodb:DeleteItem"
+                        ],
+                        resources: [
+                            `${cardLinkingTable.tableArn}`
+                        ]
+                    }
+                )
+            ));
 
         // Create environment variables that we will use in the function code
         cardLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.CARD_LINKING_TABLE}`, cardLinkingTable.tableName);

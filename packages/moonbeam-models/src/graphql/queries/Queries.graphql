@@ -6,8 +6,10 @@ query GetCardLink($getCardLinkInput: GetCardLinkInput!) {
         errorType
         data {
             id
+            memberId
             cards {
                 id
+                applicationID
                 token
                 type
                 name
