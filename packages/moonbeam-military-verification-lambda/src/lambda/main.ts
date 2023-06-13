@@ -2,9 +2,10 @@ import {
     CreateMilitaryVerificationInput,
     CreateMilitaryVerificationResponse,
     GetMilitaryVerificationInput,
+    GetMilitaryVerificationResponse,
     MilitaryVerificationErrorType,
-    MilitaryVerificationResponse,
-    UpdateMilitaryVerificationInput
+    UpdateMilitaryVerificationInput,
+    UpdateMilitaryVerificationResponse
 } from "@moonbeam/moonbeam-models";
 import {createMilitaryVerification} from "./resolvers/CreateMilitaryVerificationResolver";
 import {getMilitaryVerificationStatus} from "./resolvers/GetMilitaryVerificationStatusResolver";
@@ -34,7 +35,7 @@ type AppSyncEvent = {
  *
  * @param event AppSync event to be passed in the handler
  */
-exports.handler = async (event: AppSyncEvent): Promise<CreateMilitaryVerificationResponse | MilitaryVerificationResponse | null> => {
+exports.handler = async (event: AppSyncEvent): Promise<CreateMilitaryVerificationResponse | GetMilitaryVerificationResponse | UpdateMilitaryVerificationResponse> => {
     console.log(`Received new storage event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
         case "getMilitaryVerificationStatus":

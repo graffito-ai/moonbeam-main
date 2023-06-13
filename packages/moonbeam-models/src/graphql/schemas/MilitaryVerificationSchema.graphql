@@ -55,6 +55,7 @@ type MilitaryVerificationInformation @aws_cognito_user_pools {
 }
 
 type MilitaryVerificationStatus @aws_cognito_user_pools {
+    id: ID!
     militaryVerificationStatus: MilitaryVerificationStatusType!
 }
 
@@ -64,8 +65,15 @@ type CreateMilitaryVerificationResponse @aws_cognito_user_pools {
     errorMessage: String
 }
 
-type MilitaryVerificationResponse @aws_cognito_user_pools {
+type GetMilitaryVerificationResponse @aws_cognito_user_pools {
     data: MilitaryVerificationStatus
+    errorType: MilitaryVerificationErrorType
+    errorMessage: String
+}
+
+type UpdateMilitaryVerificationResponse @aws_cognito_user_pools {
+    id: ID
+    militaryVerificationStatus: MilitaryVerificationStatusType
     errorType: MilitaryVerificationErrorType
     errorMessage: String
 }

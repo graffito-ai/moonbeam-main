@@ -8,7 +8,7 @@ import {Amplify} from "aws-amplify";
  */
 export const initialize = () => {
     // ToDo: in the future we need to work on getting the region from a variable passed in through the command or something similar
-    let baseAmplifyCDKStackName: string =  `moonbeam-amplify-${envInfo.envName}-us-west-2`;
+    let baseAmplifyCDKStackName: string = `moonbeam-amplify-${envInfo.envName}-us-west-2`;
     let baseAppSyncCDKStackName: string = `moonbeam-appsync-${envInfo.envName}-us-west-2`;
     let baseStorageCDKStackName: string = `moonbeam-storage-resolver-${envInfo.envName}-us-west-2`;
     let cdkExport;
@@ -43,5 +43,5 @@ export const initialize = () => {
         // Amplify Storage configuration
         [Constants.StorageConstants.AWS_S3_BUCKET]: cdkExport[baseStorageCDKStackName][Constants.StorageConstants.AWS_S3_BUCKET.replaceAll('_', '')],
         [Constants.StorageConstants.AWS_S3_BUCKET_REGION]: cdkExport[baseStorageCDKStackName][Constants.StorageConstants.AWS_S3_BUCKET_REGION.replaceAll('_', '')]
-});
+    });
 }

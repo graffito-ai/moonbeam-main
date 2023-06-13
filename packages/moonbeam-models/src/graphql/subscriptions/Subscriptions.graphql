@@ -1,0 +1,10 @@
+# graphql/Subscriptions.graphql
+# Subscriptions Schema File
+subscription UpdatedMilitaryVerificationStatus($id: ID!) {
+    updatedMilitaryVerificationStatus(id: $id) {
+        errorType
+        errorMessage
+        id
+        militaryVerificationStatus
+    }
+}

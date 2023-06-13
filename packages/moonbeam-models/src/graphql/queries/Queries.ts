@@ -45,6 +45,7 @@ export const getMilitaryVerificationStatus = /* GraphQL */ `
             errorMessage
             errorType
             data {
+                id
                 militaryVerificationStatus
             }
         }

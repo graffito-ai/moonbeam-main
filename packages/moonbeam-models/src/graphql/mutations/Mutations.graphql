@@ -67,8 +67,7 @@ mutation UpdateMilitaryVerificationStatus($updateMilitaryVerificationInput: Upda
     updateMilitaryVerificationStatus(updateMilitaryVerificationInput: $updateMilitaryVerificationInput) {
         errorType
         errorMessage
-        data {
-            militaryVerificationStatus
-        }
+        id
+        militaryVerificationStatus
     }
 }

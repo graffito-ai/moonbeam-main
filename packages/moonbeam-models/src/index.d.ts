@@ -5,5 +5,6 @@ export * from './common/enums/VerificationDocument';
 export * from './common/GraphqlExports';
 export * from './graphql/queries/Queries';
 export * from './graphql/mutations/Mutations';
+export * from './graphql/subscriptions/Subscriptions';
 export * from './common/clients/BaseAPIClient';
 export * from './common/clients/OliveClient';

@@ -81,9 +81,8 @@ export const updateMilitaryVerificationStatus = /* GraphQL */ `
         updateMilitaryVerificationStatus(updateMilitaryVerificationInput: $updateMilitaryVerificationInput) {
             errorType
             errorMessage
-            data {
-                militaryVerificationStatus
-            }
+            id
+            militaryVerificationStatus
         }
     }
 `;

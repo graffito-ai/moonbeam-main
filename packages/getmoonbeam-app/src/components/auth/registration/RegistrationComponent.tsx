@@ -21,7 +21,8 @@ import {
     addressZipState,
     amplifySignUpProcessErrorsState,
     birthdayErrorState,
-    birthdayState, cardLinkingStatusState,
+    birthdayState,
+    cardLinkingStatusState,
     currentUserInformation,
     dutyStatusErrorsState,
     dutyStatusValueState,
@@ -65,7 +66,9 @@ import {API, Auth, graphqlOperation} from "aws-amplify";
 import {
     createMilitaryVerification,
     MilitaryAffiliation,
-    MilitaryVerificationStatusType
+    MilitaryVerificationStatusType,
+    updatedMilitaryVerificationStatus,
+    UpdateMilitaryVerificationResponse
 } from "@moonbeam/moonbeam-models";
 import {v4 as uuidv4} from 'uuid';
 import {MilitaryStatusSplashStep} from "./MilitaryStatusSplashStep";
@@ -78,6 +81,7 @@ import {fetchFile} from "../../../utils/File";
 import {Spinner} from "../../common/Spinner";
 import {splashStatusState} from "../../../recoil/SplashAtom";
 import {CardLinkingStep} from "./CardLinkingStep";
+import {Observable} from "zen-observable-ts";
 
 /**
  * RegistrationComponent component.
@@ -86,6 +90,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
     // constants used to keep track of local component state
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
+    const [militaryStatusUpdatesSubscription, setMilitaryStatusUpdatesSubscription] = useState<ZenObservable.Subscription | null>(null);
 
     // constants used to keep track of shared states
     const [, setAmplifySignUpErrors] = useRecoilState(amplifySignUpProcessErrorsState);
@@ -120,8 +125,8 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
     const [militaryBranch,] = useRecoilState(militaryBranchValueState);
     const [militaryBranchErrors,] = useRecoilState(militaryBranchErrorsState);
     // step 3
-    const [password,] = useRecoilState(registrationPasswordState);
-    const [confirmPassword,] = useRecoilState(registrationConfirmationPasswordState);
+    const [password, setPassword] = useRecoilState(registrationPasswordState);
+    const [confirmPassword, setConfirmPassword] = useRecoilState(registrationConfirmationPasswordState);
     const [passwordErrors,] = useRecoilState(registrationPasswordErrorsState);
     const [confirmPasswordErrors,] = useRecoilState(registrationConfirmationPasswordErrorsState);
     const [accountRegistrationDisclaimer,] = useRecoilState(accountCreationDisclaimerCheckState);
@@ -141,7 +146,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
     const [additionalDocumentsNeeded, setAdditionalDocumentsNeeded] = useRecoilState(additionalDocumentationNeeded);
     const [, setDocumentationErrors] = useRecoilState(additionalDocumentationErrors);
     // step 7
-    const [cardLinkingStatus, ] = useRecoilState(cardLinkingStatusState);
+    const [cardLinkingStatus,] = useRecoilState(cardLinkingStatusState);
     const [splashState, setSplashState] = useRecoilState(splashStatusState);
 
     /**
@@ -172,7 +177,52 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                 withButton: false
             });
         }
-    }, [countdownValue, cardLinkingStatus, splashState, stepNumber]);
+        userInformation && userInformation["userId"] && subscribeToMilitaryStatusUpdates(userInformation["userId"]);
+        militaryStatusUpdatesSubscription && militaryStatusUpdatesSubscription.unsubscribe();
+    }, [userInformation, countdownValue, cardLinkingStatus, splashState, stepNumber]);
+
+
+    /**
+     * Function used to start subscribing to any military status updates, made through the
+     * "updateMilitaryVerificationStatus" mutation, for a specific user id.
+     *
+     * @param userId userID generated through previous steps during the sign-up process
+     * @return a {@link Promise} of a {@link Boolean} representing a flag indicating whether the subscription
+     * was successful or not.
+     */
+    const subscribeToMilitaryStatusUpdates = (userId: string) => {
+        try {
+            const militaryStatusUpdates = API.graphql(graphqlOperation(updatedMilitaryVerificationStatus, {id : userId})) as unknown as Observable<any>;
+            // @ts-ignore
+            setMilitaryStatusUpdatesSubscription(militaryStatusUpdates.subscribe({
+                // function triggering on the next military verification status update
+                next: ({value}) => {
+                    // check to ensure that there is a value and a valid data block to parse the message from
+                    if (value && value.data && value.data.updatedMilitaryVerificationStatus) {
+                        // parse the military status data from the subscription message received
+                        const messageData: UpdateMilitaryVerificationResponse = value.data.updatedMilitaryVerificationStatus;
+                        console.log(messageData);
+
+                        // ToDo: act on this success, return something and/or update some local state with the message data
+                    } else {
+                        console.log(`Unexpected error while parsing subscription message for military status update ${JSON.stringify(value)}`);
+
+                        // ToDo: act on this error, return something and/or display an error
+                    }
+                },
+                // function triggering in case there are any errors
+                error: (error) => {
+                    console.log(`Unexpected error while subscribing to military status updates ${JSON.stringify(error)}`);
+
+                    // ToDo: act on this error, return something and/or display an error
+                }
+            }));
+        } catch (error) {
+            console.log(`Unexpected error while building a subscription to observe military status updates ${JSON.stringify(error)}`);
+
+            // ToDo: act on this error, return something and/or display an error
+        }
+    }
 
     /**
      * Callback function used to decrease the value of the countdown by 1,
@@ -198,7 +248,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
      * Function used to verify an individual's eligibility by checking their
      * military verification status.
      *
-     * @params userId set the uuid to identify the user throughout the sign-up process
+     * @params userId generated through previous steps during the sign-up process
      * @return a {@link Promise} of a pair, containing a {@link Boolean} and {@link MilitaryVerificationStatusType},
      * representing whether eligibility was verified successfully or not, and implicitly, the verification status.
      */
@@ -278,7 +328,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
             await Auth.signUp({
                 // enables auto sign in after user is confirmed
                 autoSignIn: {
-                    enabled: true
+                    enabled: false
                 },
                 username: email,
                 password: password,
@@ -329,7 +379,8 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
     }
 
     /**
-     * Function used to capture the confirmation of the verification code
+     * Function used to capture the confirmation of the verification code, and automatically sign in
+     * a user, if they have successfully verified their account.
      *
      * @returns a {@link Promise} containing a {@link boolean} flag, representing
      * whether the sign-up code was successfully confirmed or not
@@ -346,10 +397,39 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                 {forceAliasCreation: false}
             );
             if (signUp) {
-                // release the loader on button press
-                setIsReady(true);
+                /**
+                 * perform sign in here, once the user confirmed their account. Even though the 'autoSignIn' should have done this, since it doesn't properly
+                 * work, we set that to false, and do it manually here instead.
+                 */
+                const user = await Auth.signIn(email, password);
+                if (user) {
+                    // remove the password and confirm password, since we won't need them anymore, and we don't store passwords anyway.
+                    setPassword("");
+                    setConfirmPassword("")
 
-                return true;
+                    // retrieve the user information payload from the authenticated session.
+                    const userInfo = user.signInUserSession.idToken.payload;
+
+                    // set the current user information accordingly
+                    setUserInformation({
+                        ...userInformation,
+                        userInfo
+                    });
+
+                    // release the loader on button press
+                    setIsReady(true);
+
+                    return true;
+                } else {
+                    console.log(`Unexpected error while signing in upon verifying account: ${JSON.stringify(signUp)}`);
+                    // @ts-ignore
+                    setVerificationCodeErrors(["Unexpected error while confirming sign up code. Try again!"]);
+
+                    // release the loader on button press
+                    setIsReady(true);
+
+                    return false;
+                }
             } else {
                 console.log(`Unexpected error while confirming sign up code: ${JSON.stringify(signUp)}`);
                 // @ts-ignore
@@ -506,34 +586,34 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                         >
                             {stepNumber !== 8 && stepNumber !== 7 &&
                                 <View
-                                style={[styles.titleView, {marginTop: Dimensions.get('window').height / 6},
-                                    (stepNumber === 4 || (stepNumber === 5 && militaryStatus !== MilitaryVerificationStatusType.Rejected)) && {marginTop: Dimensions.get('window').height / 4.5}]}>
-                                {stepNumber === 4 &&
-                                    <TouchableOpacity
-                                        style={styles.buttonSkip}
-                                        onPress={() => {
-                                            // skip the current step
-                                            setStepNumber(stepNumber + 1);
+                                    style={[styles.titleView, {marginTop: Dimensions.get('window').height / 6},
+                                        (stepNumber === 4 || (stepNumber === 5 && militaryStatus !== MilitaryVerificationStatusType.Rejected)) && {marginTop: Dimensions.get('window').height / 4.5}]}>
+                                    {stepNumber === 4 &&
+                                        <TouchableOpacity
+                                            style={styles.buttonSkip}
+                                            onPress={() => {
+                                                // skip the current step
+                                                setStepNumber(stepNumber + 1);
 
-                                            // clear the registration error
-                                            setRegistrationMainError(false);
-                                        }}
-                                    >
-                                        <Text style={styles.buttonSkipText}>Skip</Text>
-                                    </TouchableOpacity>
-                                }
-                                <View style={[styles.titleViewDescription]}>
-                                    <Text style={styles.stepTitle}>
-                                        {registrationStepTitles[stepNumber]}
-                                    </Text>
-                                    <IconButton
-                                        icon={"triangle"}
-                                        iconColor={"#F2FF5D"}
-                                        size={Dimensions.get('window').width / 20}
-                                        style={styles.triangleIcon}
-                                    />
-                                </View>
-                            </View>}
+                                                // clear the registration error
+                                                setRegistrationMainError(false);
+                                            }}
+                                        >
+                                            <Text style={styles.buttonSkipText}>Skip</Text>
+                                        </TouchableOpacity>
+                                    }
+                                    <View style={[styles.titleViewDescription]}>
+                                        <Text style={styles.stepTitle}>
+                                            {registrationStepTitles[stepNumber]}
+                                        </Text>
+                                        <IconButton
+                                            icon={"triangle"}
+                                            iconColor={"#F2FF5D"}
+                                            size={Dimensions.get('window').width / 20}
+                                            style={styles.triangleIcon}
+                                        />
+                                    </View>
+                                </View>}
                             {(militaryStatus === MilitaryVerificationStatusType.Verified && stepNumber === 5) || stepNumber === 7 ? <></> :
                                 <Text style={styles.stepDescription}>{registrationStepDescription[stepNumber]}</Text>}
                             {/*switch views based on the step number*/}

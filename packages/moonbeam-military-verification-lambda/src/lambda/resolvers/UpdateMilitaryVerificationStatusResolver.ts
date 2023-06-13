@@ -1,17 +1,17 @@
 import {DynamoDBClient, UpdateItemCommand} from "@aws-sdk/client-dynamodb";
 import {
     MilitaryVerificationErrorType,
-    MilitaryVerificationResponse,
     UpdateMilitaryVerificationInput,
+    UpdateMilitaryVerificationResponse,
 } from "@moonbeam/moonbeam-models";
 
 /**
  * UpdateMilitaryVerificationStatus resolver
  *
  * @param updateMilitaryVerificationInput military verification input, used to update an existent one
- * @returns {@link Promise} of {@link MilitaryVerificationResponse}
+ * @returns {@link Promise} of {@link UpdateMilitaryVerificationResponse}
  */
-export const updateMilitaryVerificationStatus = async (updateMilitaryVerificationInput: UpdateMilitaryVerificationInput): Promise<MilitaryVerificationResponse> => {
+export const updateMilitaryVerificationStatus = async (updateMilitaryVerificationInput: UpdateMilitaryVerificationInput): Promise<UpdateMilitaryVerificationResponse> => {
     try {
         // retrieving the current function region
         const region = process.env.AWS_REGION!;
@@ -49,9 +49,8 @@ export const updateMilitaryVerificationStatus = async (updateMilitaryVerificatio
 
         // return the updated military verification status
         return {
-            data: {
-                militaryVerificationStatus: updateMilitaryVerificationInput.militaryVerificationStatus
-            }
+            id: updateMilitaryVerificationInput.id,
+            militaryVerificationStatus: updateMilitaryVerificationInput.militaryVerificationStatus
         }
     } catch (err) {
         const errorMessage = `Unexpected error while executing createMilitaryVerification mutation ${err}`;

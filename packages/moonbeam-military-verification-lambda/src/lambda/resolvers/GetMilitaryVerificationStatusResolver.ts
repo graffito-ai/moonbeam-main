@@ -1,7 +1,8 @@
 import {DynamoDBClient, GetItemCommand} from "@aws-sdk/client-dynamodb";
 import {
     GetMilitaryVerificationInput,
-    MilitaryVerificationErrorType, MilitaryVerificationResponse,
+    GetMilitaryVerificationResponse,
+    MilitaryVerificationErrorType,
     MilitaryVerificationStatusType
 } from "@moonbeam/moonbeam-models";
 
@@ -9,9 +10,9 @@ import {
  * GetMilitaryVerificationStatus resolver
  *
  * @param getMilitaryVerificationInput military verification input used for the verification status to be retrieved
- * @returns {@link Promise} of {@link MilitaryVerificationResponse}
+ * @returns {@link Promise} of {@link GetMilitaryVerificationResponse}
  */
-export const getMilitaryVerificationStatus = async (getMilitaryVerificationInput: GetMilitaryVerificationInput): Promise<MilitaryVerificationResponse> => {
+export const getMilitaryVerificationStatus = async (getMilitaryVerificationInput: GetMilitaryVerificationInput): Promise<GetMilitaryVerificationResponse> => {
     try {
         // retrieving the current function region
         const region = process.env.AWS_REGION!;
@@ -34,6 +35,7 @@ export const getMilitaryVerificationStatus = async (getMilitaryVerificationInput
             // return the retrieved verification status
             return {
                 data: {
+                    id: retrievedData.Item.id.S!,
                     militaryVerificationStatus: retrievedData.Item.militaryVerificationStatus.S! as MilitaryVerificationStatusType
                 }
             }
