@@ -1,17 +1,19 @@
 import React, {useEffect} from "react";
 import {Image, Text, View} from "react-native";
-import {styles} from "../../../styles/registration.module";
+import {styles} from "../../../../styles/registration.module";
 import {Checkbox} from "expo-checkbox";
 import {useRecoilState} from "recoil";
 import {
     militaryRegistrationDisclaimerCheckState,
     militaryVerificationStatus,
     registrationMainErrorState
-} from "../../../recoil/AuthAtom";
+} from "../../../../recoil/AuthAtom";
 import {MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
 
 /**
  * MilitaryStatusSplashStep component.
+ *
+ * @constructor constructor for the component.
  */
 export const MilitaryStatusSplashStep = () => {
 
@@ -41,7 +43,7 @@ export const MilitaryStatusSplashStep = () => {
                     <View style={styles.permissionsView}>
                         <Image
                             style={styles.permissionsImage}
-                            source={require('../../../../assets/art/military-approval.png')}/>
+                            source={require('../../../../../assets/art/military-approval.png')}/>
                         <Text style={styles.permissionsStepTitle}>{"Congratulations.\n"}</Text>
                         <Text
                             style={styles.permissionsStepDescription}>{"Your military status has been verified."}</Text>

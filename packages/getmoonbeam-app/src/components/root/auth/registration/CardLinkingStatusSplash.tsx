@@ -1,10 +1,12 @@
 import React, {useEffect} from "react";
 import {useRecoilState} from "recoil";
-import {splashStatusState} from "../../../recoil/SplashAtom";
-import {SplashScreen} from "../../common/Splash";
+import {splashStatusState} from "../../../../recoil/SplashAtom";
+import {SplashScreen} from "../../../common/Splash";
 
 /**
  * CardLinkingStatusSplashStep component.
+ *
+ * @constructor constructor for the component.
  */
 export const CardLinkingStatusSplashStep = () => {
 

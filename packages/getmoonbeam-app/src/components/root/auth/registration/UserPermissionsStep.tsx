@@ -1,11 +1,13 @@
 import React, {useEffect} from "react";
 import {Image, Text, View} from "react-native";
-import {styles} from "../../../styles/registration.module";
+import {styles} from "../../../../styles/registration.module";
 import {useRecoilState} from "recoil";
-import {registrationMainErrorState} from "../../../recoil/AuthAtom";
+import {registrationMainErrorState} from "../../../../recoil/AuthAtom";
 
 /**
  * UserPermissionsStep component.
+ *
+ * @constructor constructor for the component.
  */
 export const UserPermissionsStep = () => {
     // constants used to keep track of shared states
@@ -30,7 +32,7 @@ export const UserPermissionsStep = () => {
             <View style={styles.permissionsView}>
                 <Image
                     style={styles.permissionsImage}
-                    source={require('../../../../assets/art/permissions.png')}/>
+                    source={require('../../../../../assets/art/permissions.png')}/>
                 <Text style={styles.permissionsStepTitle}>{"Make the most out of Moonbeam.\n"}</Text>
                 <Text style={styles.permissionsStepDescription}>{"• Get notified when you receive cash back for your purchases.\n• Get help faster, by enabling access to your contacts.\n• Enable location services so you don't miss any deals."}</Text>
             </View>

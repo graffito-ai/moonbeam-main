@@ -2,16 +2,18 @@ import React, {useEffect, useState} from "react";
 import {SafeAreaView, StyleSheet, TouchableOpacity} from "react-native";
 import WebView from "react-native-webview";
 import {useRecoilState} from "recoil";
-import {cardLinkingStatusState, currentUserInformation} from "../../../recoil/AuthAtom";
+import {cardLinkingStatusState, currentUserInformation} from "../../../../recoil/AuthAtom";
 import {Modal, Portal, Text} from "react-native-paper";
-import {commonStyles} from '../../../styles/common.module';
-import {styles} from '../../../styles/registration.module';
-import {Spinner} from "../../common/Spinner";
+import {commonStyles} from '../../../../styles/common.module';
+import {styles} from '../../../../styles/registration.module';
+import {Spinner} from "../../../common/Spinner";
 import {API, graphqlOperation} from "aws-amplify";
 import {CardLinkErrorType, CardType, createCardLink} from "@moonbeam/moonbeam-models";
 
 /**
  * CardLinkingStep component.
+ *
+ * @constructor constructor for the component.
  */
 export const CardLinkingStep = () => {
     // constants used to keep track of shared states

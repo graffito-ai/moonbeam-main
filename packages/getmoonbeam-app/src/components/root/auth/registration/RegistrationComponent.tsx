@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from "react";
 import 'react-native-get-random-values';
 import {Dimensions, ImageBackground, Platform, TouchableOpacity, View} from "react-native";
-import {commonStyles} from '../../../styles/common.module';
-import {styles} from '../../../styles/registration.module';
-import {RegistrationProps} from "../../../models/AuthenticationProps";
+import {commonStyles} from '../../../../styles/common.module';
+import {styles} from '../../../../styles/registration.module';
+import {RegistrationProps} from "../../../../models/props/AuthenticationProps";
 import {IconButton, Text} from "react-native-paper";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 import {useRecoilState} from "recoil";
@@ -55,8 +55,8 @@ import {
     registrationVerificationDigit5,
     registrationVerificationDigit6,
     verificationCodeErrorsState
-} from '../../../recoil/AuthAtom';
-import {registrationStepDescription, registrationStepTitles} from "../../../models/Constants";
+} from '../../../../recoil/AuthAtom';
+import {registrationStepDescription, registrationStepTitles} from "../../../../models/Constants";
 import {ProfileRegistrationStep} from "./ProfileRegistrationStep";
 import {CodeVerificationStep} from "./CodeVerificationStep";
 import {DocumentCaptureStep} from "./DocumentCaptureStep";
@@ -77,21 +77,23 @@ import {UserPermissionsStep} from "./UserPermissionsStep";
 import * as Contacts from "expo-contacts";
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
-import {fetchFile} from "../../../utils/File";
-import {Spinner} from "../../common/Spinner";
-import {splashStatusState} from "../../../recoil/SplashAtom";
+import {fetchFile} from "../../../../utils/File";
+import {Spinner} from "../../../common/Spinner";
+import {splashStatusState} from "../../../../recoil/SplashAtom";
 import {CardLinkingStep} from "./CardLinkingStep";
 import {Observable} from "zen-observable-ts";
 
 /**
  * RegistrationComponent component.
+ *
+ * @param navigation navigation object passed in from the parent navigator.
+ * @constructor constructor for the component.
  */
-export const RegistrationComponent = ({}: RegistrationProps) => {
+export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     // constants used to keep track of local component state
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [militaryStatusUpdatesSubscription, setMilitaryStatusUpdatesSubscription] = useState<ZenObservable.Subscription | null>(null);
-
     // constants used to keep track of shared states
     const [, setAmplifySignUpErrors] = useRecoilState(amplifySignUpProcessErrorsState);
     const [, setRegistrationMainError] = useRecoilState(registrationMainErrorState);
@@ -161,25 +163,9 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
         if (countdownValue == 10) {
             startCountdown(10);
         }
-        // since for step number 7, the driving action is performed by the linking button in Olive's iFrame,
-        // we want to ensure that once the linking was done successfully there, then we proceed to the next step.
-        if (stepNumber == 7 && cardLinkingStatus) {
-            // move on to the next step
-            let newStepValue = stepNumber + 1;
-            setStepNumber(newStepValue);
-
-            // setting the splash state for the next step
-            setSplashState({
-                splashTitle: 'Congrats!',
-                splashDescription: 'Your card was successfully linked.',
-                splashButtonText: 'Finish',
-                splashArtSource: require('../../../../assets/art/card-linked-success.png'),
-                withButton: false
-            });
-        }
         userInformation && userInformation["userId"] && subscribeToMilitaryStatusUpdates(userInformation["userId"]);
         militaryStatusUpdatesSubscription && militaryStatusUpdatesSubscription.unsubscribe();
-    }, [userInformation, countdownValue, cardLinkingStatus, splashState, stepNumber]);
+    }, [militaryStatusUpdatesSubscription, userInformation, countdownValue]);
 
 
     /**
@@ -403,9 +389,9 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                  */
                 const user = await Auth.signIn(email, password);
                 if (user) {
-                    // remove the password and confirm password, since we won't need them anymore, and we don't store passwords anyway.
+                    // remove the password and confirm password fields, since we won't need them beyond this point, and we don't store passwords anyway.
                     setPassword("");
-                    setConfirmPassword("")
+                    setConfirmPassword("");
 
                     // retrieve the user information payload from the authenticated session.
                     const userInfo = user.signInUserSession.idToken.payload;
@@ -421,7 +407,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
 
                     return true;
                 } else {
-                    console.log(`Unexpected error while signing in upon verifying account: ${JSON.stringify(signUp)}`);
+                    console.log(`Unexpected error while signing in upon verifying account: ${JSON.stringify(user)}`);
                     // @ts-ignore
                     setVerificationCodeErrors(["Unexpected error while confirming sign up code. Try again!"]);
 
@@ -576,7 +562,7 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                         imageStyle={{
                             resizeMode: 'stretch'
                         }}
-                        source={require('../../../../assets/backgrounds/registration-background.png')}>
+                        source={require('../../../../../assets/backgrounds/registration-background.png')}>
                         <KeyboardAwareScrollView
                             scrollEnabled={stepNumber == 0 || stepNumber === 1 || stepNumber === 2 || stepNumber === 3}
                             enableOnAndroid={true}
@@ -634,7 +620,9 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                                             ? <DocumentCaptureStep/>
                                                             : stepNumber === 7
                                                                 ? <CardLinkingStep/>
-                                                                : <CardLinkingStatusSplashStep/>
+                                                                : stepNumber === 8
+                                                                    ? <CardLinkingStatusSplashStep/>
+                                                                    : <></>
                             }
                             <View style={[styles.bottomContainerButtons]}>
                                 {(stepNumber === 1 || stepNumber === 2) &&
@@ -835,9 +823,31 @@ export const RegistrationComponent = ({}: RegistrationProps) => {
                                                     }
                                                     break;
                                                 case 6:
+                                                    // for the 7th step, the driver of the step is the additional documentation needed flag in the Documentation component
                                                     break;
-                                                // for the 7th step, the driver of the step is the linking button inside of Olive's iFrame instead
+                                                case 7:
+                                                    /**
+                                                     * since for step number 7, the driving action is performed by the linking button in Olive's iFrame,
+                                                     * we want to ensure that once the linking was done successfully there, then before we proceed to the next step,
+                                                     * we set the state for the next one accordingly.
+                                                     */
+                                                    if (cardLinkingStatus) {
+                                                        // setting the splash state for the next step
+                                                        setSplashState({
+                                                            splashTitle: 'Congrats!',
+                                                            splashDescription: 'Your card was successfully linked.',
+                                                            splashButtonText: 'Finish',
+                                                            splashArtSource: require('../../../../../assets/art/card-linked-success.png'),
+                                                            withButton: false
+                                                        });
+                                                    }
+                                                    break;
                                                 case 8:
+                                                    /**
+                                                     * if we got to this point, then all checks passed, everything worked as expected, so we can just redirect the
+                                                     * already logged-in user to the App Drawer.
+                                                     */
+                                                    navigation.navigate("AppDrawer", {});
                                                     break;
                                                 default:
                                                     break;

@@ -1,16 +1,19 @@
 import React, {useEffect, useRef, useState} from "react";
 import {Dimensions, ImageBackground, Platform, TouchableOpacity, View} from "react-native";
-import {commonStyles} from '../../styles/common.module';
-import {AccountRecoveryProps} from "../../models/AuthenticationProps";
+import {commonStyles} from '../../../styles/common.module';
+import {AccountRecoveryProps} from "../../../models/props/AuthenticationProps";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
-import {styles} from "../../styles/accountRecovery.module";
+import {styles} from "../../../styles/accountRecovery.module";
 import {Modal, Portal, Text, TextInput} from "react-native-paper";
-import {accountRecoverySteps} from "../../models/Constants";
-import {FieldValidator} from "../../utils/FieldValidator";
+import {accountRecoverySteps} from "../../../models/Constants";
+import {FieldValidator} from "../../../utils/FieldValidator";
 import {Auth} from "aws-amplify";
 
 /**
  * AccountRecoveryComponent component.
+ *
+ * @param navigation navigation object passed in from the parent navigator.
+ * @constructor constructor for the component.
  */
 export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => {
     // constants used to keep track of local component state
@@ -179,7 +182,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                 imageStyle={{
                     resizeMode: 'stretch'
                 }}
-                source={require('../../../assets/backgrounds/authentication-gradient.png')}>
+                source={require('../../../../assets/backgrounds/authentication-gradient.png')}>
                 <Portal>
                     <Modal dismissable={false} visible={modalVisible} onDismiss={() => setModalVisible(false)}
                            contentContainerStyle={[commonStyles.modalContainer, {borderColor: 'green'}]}>
@@ -187,7 +190,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                         <TouchableOpacity
                             style={[commonStyles.modalButton]}
                             onPress={() => {
-                                navigation.navigate('SignIn', {initialRender: true});
+                                navigation.navigate('SignIn', {});
                             }}
                         >
                             <Text style={commonStyles.modalButtonText}>Sign In</Text>
@@ -648,7 +651,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                         <Text style={styles.bottomAuthenticationText}>{"Remember your password ?"}
                             <Text
                                 onPress={() => {
-                                    navigation.navigate('SignIn', {initialRender: true});
+                                    navigation.navigate('SignIn', {});
                                 }}
                                 style={styles.bottomAuthenticationTextButton}>{" Sign In"}
                             </Text>

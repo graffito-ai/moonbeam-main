@@ -12,9 +12,9 @@ import * as SecureStore from "expo-secure-store";
 import * as FileSystem from "expo-file-system";
 import {StatusBar} from 'expo-status-bar';
 import {RecoilRoot} from 'recoil';
-import {AppOverviewComponent} from './src/components/auth/AppOverviewComponent';
-import {AuthenticationComponent} from "./src/components/auth/AuthenticationComponent";
-import {RootStackParamList} from "./src/models/RootProps";
+import {AppOverviewComponent} from './src/components/root/AppOverviewComponent';
+import {AuthenticationComponent} from "./src/components/root/auth/AuthenticationComponent";
+import {RootStackParamList} from "./src/models/props/RootProps";
 
 // keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync().then(() => {
@@ -27,7 +27,9 @@ initialize();
 Logs.enableExpoCliLogging();
 
 /**
- * Main application entrypoint.
+ * App component, representing the main application entrypoint.
+ *
+ * @constructor constructor for the component.
  */
 export default function App() {
     // state used to keep track of whether the application is ready to load or not
@@ -102,7 +104,7 @@ export default function App() {
         return null;
     } else {
         // create a native stack navigator, to be used for our root application navigation
-        const Stack = createNativeStackNavigator<RootStackParamList>();
+        const RootStack = createNativeStackNavigator<RootStackParamList>();
 
         // enabling the linking configuration for creating links to the application screens, based on the navigator
         const config = {
@@ -130,23 +132,23 @@ export default function App() {
                 <PaperProvider theme={theme}>
                     <StatusBar style="light" animated={true}/>
                     <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
-                        <Stack.Navigator
+                        <RootStack.Navigator
                             initialRouteName={"AppOverview"}
                             screenOptions={{
                                 headerShown: false
                             }}
                         >
-                            <Stack.Screen
+                            <RootStack.Screen
                                 name="AppOverview"
                                 component={AppOverviewComponent}
                                 initialParams={{onLayoutRootView: onLayoutRootView}}
                             />
-                            <Stack.Screen
+                            <RootStack.Screen
                                 name="Authentication"
                                 component={AuthenticationComponent}
                                 initialParams={{}}
                             />
-                        </Stack.Navigator>
+                        </RootStack.Navigator>
                     </NavigationContainer>
                 </PaperProvider>
             </RecoilRoot>

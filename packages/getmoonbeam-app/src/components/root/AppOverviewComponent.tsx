@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {ImageBackground, TouchableOpacity, View} from "react-native";
 import {commonStyles} from '../../styles/common.module';
 import {styles} from '../../styles/appOverview.module';
-import {AppOverviewProps} from "../../models/RootProps";
+import {AppOverviewProps} from "../../models/props/RootProps";
 import {LinearGradient} from "expo-linear-gradient";
 import {Text} from "react-native-paper";
 import GestureRecognizer from 'react-native-swipe-gestures';
@@ -12,6 +12,10 @@ import {appOverviewSteps} from "../../models/Constants";
 
 /**
  * AppOverview component.
+ *
+ * @param route route object to be passed in from the parent navigator.
+ * @param navigation navigation object to be passed in from the parent navigator.
+ * @constructor constructor for the component.
  */
 export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
     // constants used to keep track of shared states

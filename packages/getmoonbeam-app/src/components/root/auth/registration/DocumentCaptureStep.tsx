@@ -2,20 +2,22 @@ import React, {useEffect, useState} from "react";
 import {Dimensions, Image, Text, TouchableOpacity, View} from "react-native";
 import {Divider, TextInput} from "react-native-paper";
 import {useRecoilState} from "recoil";
-import {additionalDocumentationErrors, additionalDocumentationNeeded} from "../../../recoil/AuthAtom";
-import {styles} from "../../../styles/registration.module";
+import {additionalDocumentationErrors, additionalDocumentationNeeded} from "../../../../recoil/AuthAtom";
+import {styles} from "../../../../styles/registration.module";
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import {MediaTypeOptions, UIImagePickerPresentationStyle} from 'expo-image-picker';
 import * as FileSystem from "expo-file-system";
-import {isValidSize, uploadFile} from "../../../utils/File";
+import {isValidSize, uploadFile} from "../../../../utils/File";
 import DropDownPicker from "react-native-dropdown-picker";
-import {documentSelectionItems} from "../../../models/Constants";
-import {FieldValidator} from "../../../utils/FieldValidator";
-import {Spinner} from "../../common/Spinner";
+import {documentSelectionItems} from "../../../../models/Constants";
+import {FieldValidator} from "../../../../utils/FieldValidator";
+import {Spinner} from "../../../common/Spinner";
 
 /**
  * DocumentCaptureStep component.
+ *
+ * @constructor for the component.
  */
 export const DocumentCaptureStep = () => {
     // constants used to keep track of local component state
@@ -471,7 +473,7 @@ export const DocumentCaptureStep = () => {
                                     resizeMethod={"scale"}
                                     style={styles.photoUploadOptionImage}
                                     resizeMode={'stretch'}
-                                    source={require('../../../../assets/art/moonbeam-document-upload-2.png')}/>
+                                    source={require('../../../../../assets/art/moonbeam-document-upload-2.png')}/>
                                 <View style={styles.documentCapturingDescriptionView}>
                                     <Text style={styles.documentCapturingOptionDescription}>{
                                         capturedFileName === ""
@@ -555,7 +557,7 @@ export const DocumentCaptureStep = () => {
                                     resizeMethod={"scale"}
                                     style={styles.documentUploadOptionImage}
                                     resizeMode={'stretch'}
-                                    source={require('../../../../assets/art/moonbeam-document-upload-1.png')}/>
+                                    source={require('../../../../../assets/art/moonbeam-document-upload-1.png')}/>
                                 <View style={styles.documentCapturingDescriptionView}>
                                     <Text style={styles.documentCapturingOptionDescription}>{
                                         uploadedFileName === ""

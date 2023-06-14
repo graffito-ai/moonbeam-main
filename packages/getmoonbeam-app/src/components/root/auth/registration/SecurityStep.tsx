@@ -1,18 +1,20 @@
 import React, {useEffect, useState} from "react";
-import {styles} from "../../../styles/registration.module";
+import {styles} from "../../../../styles/registration.module";
 import {Text, TextInput} from "react-native-paper";
 import {View} from "react-native";
 import {
     accountCreationDisclaimerCheckState, amplifySignUpProcessErrorsState,
     registrationBackButtonShown, registrationConfirmationPasswordErrorsState, registrationConfirmationPasswordState,
     registrationMainErrorState, registrationPasswordErrorsState, registrationPasswordState
-} from "../../../recoil/AuthAtom";
+} from "../../../../recoil/AuthAtom";
 import {useRecoilState} from "recoil";
 import {Checkbox} from "expo-checkbox";
-import {FieldValidator} from "../../../utils/FieldValidator";
+import {FieldValidator} from "../../../../utils/FieldValidator";
 
 /**
  * SecurityStep component.
+ *
+ * @constructor constructor for the component.
  */
 export const SecurityStep = () => {
     // constants used to keep track of local component state

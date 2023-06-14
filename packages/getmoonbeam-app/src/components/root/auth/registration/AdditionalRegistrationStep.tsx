@@ -1,7 +1,7 @@
 import {Dimensions, Text, View} from "react-native";
 import React, {useEffect, useState} from "react";
 import DropDownPicker from "react-native-dropdown-picker";
-import {styles} from "../../../styles/registration.module";
+import {styles} from "../../../../styles/registration.module";
 import {useRecoilState} from "recoil";
 import {
     addressCityErrorsState,
@@ -17,13 +17,15 @@ import {
     militaryBranchValueState,
     registrationBackButtonShown,
     registrationMainErrorState
-} from "../../../recoil/AuthAtom";
-import {militaryBranchItems} from "../../../models/Constants";
+} from "../../../../recoil/AuthAtom";
+import {militaryBranchItems} from "../../../../models/Constants";
 import {TextInput} from "react-native-paper";
-import {FieldValidator} from "../../../utils/FieldValidator";
+import {FieldValidator} from "../../../../utils/FieldValidator";
 
 /**
  * AdditionalRegistrationStep component.
+ *
+ * @constructor constructor for the component.
  */
 export const AdditionalRegistrationStep = () => {
     // constants used to keep track of local component state

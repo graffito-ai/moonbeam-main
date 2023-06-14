@@ -1,5 +1,5 @@
 import {Dimensions, View} from "react-native";
-import {styles} from "../../../styles/registration.module";
+import {styles} from "../../../../styles/registration.module";
 import {Text, TextInput} from "react-native-paper";
 import React, {useEffect, useState} from "react";
 import {useRecoilState} from "recoil";
@@ -18,13 +18,15 @@ import {
     phoneNumberState,
     registrationBackButtonShown,
     registrationMainErrorState
-} from "../../../recoil/AuthAtom";
-import {FieldValidator} from "../../../utils/FieldValidator";
+} from "../../../../recoil/AuthAtom";
+import {FieldValidator} from "../../../../utils/FieldValidator";
 import DropDownPicker from "react-native-dropdown-picker";
-import {dutyStatusItems} from "../../../models/Constants";
+import {dutyStatusItems} from "../../../../models/Constants";
 
 /**
  * ProfileRegistrationStep component.
+ *
+ * @constructor constructor for the component.
  */
 export const ProfileRegistrationStep = () => {
     // constants used to keep track of local component state

@@ -1,7 +1,7 @@
 import React, {useEffect} from "react";
-import {AuthenticationProps} from "../../models/RootProps";
+import {AuthenticationProps} from "../../../models/props/RootProps";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
-import {AuthenticationStackParamList} from "../../models/AuthenticationProps";
+import {AuthenticationStackParamList} from "../../../models/props/AuthenticationProps";
 import {NavigationContainer} from "@react-navigation/native";
 import {IconButton, Text} from "react-native-paper";
 import {SignInComponent} from "./SignInComponent";
@@ -28,13 +28,15 @@ import {
     registrationMainErrorState,
     registrationPasswordState,
     registrationStepNumber
-} from '../../recoil/AuthAtom';
+} from '../../../recoil/AuthAtom';
 import {AccountRecoveryComponent} from "./AccountRecoveryComponent";
 import {Dimensions} from "react-native";
-import {commonStyles} from "../../styles/common.module";
+import {commonStyles} from "../../../styles/common.module";
 
 /**
  * Authentication component.
+ *
+ * @constructor constructor for the component.
  */
 export const AuthenticationComponent = ({}: AuthenticationProps) => {
         // create a native stack navigator, to be used for our Authentication application navigation
@@ -86,7 +88,7 @@ export const AuthenticationComponent = ({}: AuthenticationProps) => {
                         <Stack.Screen
                             name="SignIn"
                             component={SignInComponent}
-                            initialParams={{initialRender: true}}
+                            initialParams={{}}
                         />
                         <Stack.Screen
                             name="Registration"
@@ -131,7 +133,7 @@ export const AuthenticationComponent = ({}: AuthenticationProps) => {
                                                     setRegistrationMainError(false);
                                                     setStepNumber(0);
                                                     // navigate to the SignIn page
-                                                    navigation.navigate('SignIn', {initialRender: true});
+                                                    navigation.navigate('SignIn', {});
                                                 }}
                                             />)
                                             : <></>
@@ -143,6 +145,11 @@ export const AuthenticationComponent = ({}: AuthenticationProps) => {
                         <Stack.Screen
                             name="AccountRecovery"
                             component={AccountRecoveryComponent}
+                            initialParams={{}}
+                        />
+                        <Stack.Screen
+                            name="AppDrawer"
+                            component={() => <></>}
                             initialParams={{}}
                         />
                     </Stack.Navigator>

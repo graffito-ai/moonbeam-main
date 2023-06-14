@@ -1,5 +1,5 @@
 import {TouchableOpacity, View} from "react-native";
-import {styles} from "../../../styles/registration.module";
+import {styles} from "../../../../styles/registration.module";
 import {Text, TextInput} from "react-native-paper";
 import React, {useEffect, useRef, useState} from "react";
 import {useRecoilState} from "recoil";
@@ -14,12 +14,14 @@ import {
     registrationVerificationDigit5,
     registrationVerificationDigit6,
     verificationCodeErrorsState
-} from "../../../recoil/AuthAtom";
-import {FieldValidator} from "../../../utils/FieldValidator";
+} from "../../../../recoil/AuthAtom";
+import {FieldValidator} from "../../../../utils/FieldValidator";
 import {Auth} from "aws-amplify";
 
 /**
  * CodeVerificationStep component.
+ *
+ * @constructor constructor for the component.
  */
 export const CodeVerificationStep = () => {
     // other constants

@@ -3,7 +3,11 @@ import {Image, ImageSourcePropType, SafeAreaView, Text, View} from "react-native
 import {styles} from '../../styles/splashScreen.module';
 
 /**
- * Splash component used for confirmations and/or error messages.
+ * Splash component. This component will be used as a confirmation and/or error message screen
+ * by various parent components for a better UI/UX experience.
+ *
+ * @param props component properties to be passed in.
+ * @constructor constructor for the component.
  */
 export const SplashScreen = (props: {
     splashTitle: string,
