@@ -4,33 +4,37 @@ import {StyleSheet} from "react-native";
 export const styles = StyleSheet.create({
     avatarStyle: {
         alignSelf: 'flex-start',
-        right: '10%',
-        backgroundColor: 'grey',
-        top: '-20%'
+        left: '10%',
+        backgroundColor: 'white',
+        top: '5%'
     },
     avatarAccessoryStyle: {
-        left: '75%',
-        top: '75%'
+        left: '72%',
+        top: '75%',
+        backgroundColor: '#303030'
     },
     userNameStyle: {
         alignSelf: 'flex-start',
-        top: '-5%',
-        right: '8%',
-        fontFamily: 'Raleway-Medium',
-        fontSize: 22
+        fontFamily: 'Saira-Medium',
+        color: 'white',
+        textAlign: 'left'
+    },
+    titleStyle: {
+        fontFamily: 'Raleway-Regular',
+        color: 'grey'
     },
     drawerItemListView: {
         flex: 1,
-        backgroundColor: 'white',
+        backgroundColor: '#5B5A5A',
         padding: 5
     },
     bottomDrawerItemListView: {
-        backgroundColor: 'white',
+        backgroundColor: '#5B5A5A',
         marginLeft: '2%',
-        marginBottom: '5%'
+        marginBottom: '10%'
     },
     drawerItemLabel: {
-        fontFamily: 'Raleway-Bold',
-        fontSize: 16
+        fontFamily: 'Raleway-Medium',
+        color: '#FFFFFF'
     }
 });

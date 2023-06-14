@@ -12,6 +12,8 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import {styles} from '../../styles/customDrawer.module';
 import {useRecoilState} from "recoil";
 import {currentUserInformation} from "../../recoil/AuthAtom";
+import {deviceTypeState} from "../../recoil/RootAtom";
+import {DeviceType} from "expo-device";
 
 /**
  * CustomDrawer component. This component will be used to further tailor our sidebar navigation drawer, mainly
@@ -22,10 +24,11 @@ import {currentUserInformation} from "../../recoil/AuthAtom";
  */
 export const CustomDrawer = (props: DrawerContentComponentProps) => {
     // constants used to keep track of local component state
-    const [currentUserTitle,] = useState<string>("N/A");
-    const [currentUserName,] = useState<string>("N/A");
+    const [currentUserTitle,] = useState<string>("MA");
+    const [currentUserName,] = useState<string>("John Luke Tippetts");
     // constants used to keep track of shared states
     const [,] = useRecoilState(currentUserInformation);
+    const [deviceType,] = useRecoilState(deviceTypeState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -43,34 +46,53 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                 <DrawerContentScrollView
                     {...props}
                     scrollEnabled={false}
-                    contentContainerStyle={{backgroundColor: '#f2f2f2', flexDirection: 'column'}}
+                    contentContainerStyle={{backgroundColor: '#5B5A5A', flexDirection: 'column'}}
                 >
                     <ImageBackground
+                        resizeMethod={"scale"}
                         imageStyle={{
                             resizeMode: 'cover'
                         }}
-                        style={{padding: `${Dimensions.get('window').width / 25}%`}}
-                        source={require('../../../assets/sidebar.png')}>
-                        <Avatar
-                            size={Dimensions.get('window').width / 4.5}
-                            rounded
-                            title={currentUserTitle}
-                            containerStyle={styles.avatarStyle}
+                        source={require('../../../assets/art/sidebar.png')}>
+                    <Avatar
+                        size={deviceType === DeviceType.TABLET ? 240 : Dimensions.get('window').height/8}
+                        rounded
+                        titleStyle={[styles.titleStyle, deviceType === DeviceType.TABLET ? {fontSize: 80} : {fontSize: Dimensions.get('window').width/10}]}
+                        title={currentUserTitle}
+                        containerStyle={styles.avatarStyle}
+                        onPress={() => {
+                            console.log('go to profile');
+                        }}
+                    >
+                        <Avatar.Accessory
+                            size={deviceType == DeviceType.TABLET ? 55 : Dimensions.get('window').width/15}
+                            style={styles.avatarAccessoryStyle}
+                            color={'#F2FF5D'}
                             onPress={() => {
                                 console.log('go to profile');
                             }}
-                        >
-                            <Avatar.Accessory
-                                size={20}
-                                style={styles.avatarAccessoryStyle}
-                                onPress={() => {
-                                    console.log('go to profile');
-                                }}
-                            />
-                        </Avatar>
-                        {/*@ts-ignore*/}
-                        <Text numberOfLines={2} style={styles.userNameStyle}>{currentUserName}</Text>
+                        />
+                    </Avatar>
+                    {/*@ts-ignore*/}
+                    <Text numberOfLines={3} textBreakStrategy={"simple"} style={[styles.userNameStyle,
+                        deviceType === DeviceType.TABLET
+                            ? {
+                                fontSize: 45,
+                                top: '8%',
+                                marginBottom: '20%',
+                                left: '10%',
+                                width: Dimensions.get('window').width / 2.1
+                            }
+                            : {
+                                fontSize: Dimensions.get('window').width/15,
+                                top: '8%',
+                                marginBottom: '20%',
+                                left: '10%',
+                                width: Dimensions.get('window').width / 1.6
+                            }]}>{currentUserName}</Text>
                     </ImageBackground>
+                    <Divider
+                        style={[commonStyles.divider]}/>
                     <View style={styles.drawerItemListView}>
                         <DrawerItemList {...props}/>
                     </View>
@@ -81,9 +103,10 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                     {/*@ts-ignore*/}
                     <DrawerItem
                         activeBackgroundColor={'transparent'}
-                        activeTintColor={'#A2B000'}
-                        icon={() => <Icon size={25} name={'logout'}/>}
-                        labelStyle={styles.drawerItemLabel}
+                        activeTintColor={'#F2FF5D'}
+                        icon={() => <Icon size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width/25 : Dimensions.get('window').width/15} name={'logout'}
+                                          color={'#F2FF5D'}/>}
+                        labelStyle={[styles.drawerItemLabel, deviceType === DeviceType.TABLET ? {fontSize: Dimensions.get('window').width/35} : {fontSize: Dimensions.get('window').width/25}]}
                         label={'Log Out'}
                         onPress={() => {
                             console.log('sign out');

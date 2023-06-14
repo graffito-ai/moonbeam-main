@@ -105,9 +105,9 @@ export const SignInComponent = ({navigation}: SignInProps) => {
             const errorCode = error.code;
             if (error && errorCode) {
                 if (errorCode === "UserNotFoundException") {
-                    authenticationErrorMessage = `User not found! Please register before continuing.`;
+                    authenticationErrorMessage = `User not found! Register first.`;
                 } else if (errorCode === "NotAuthorizedException") {
-                    authenticationErrorMessage = `User and password combination incorrect. Try again!`
+                    authenticationErrorMessage = `User and password combination incorrect.`
                 }
                 // ToDo: add more filtering if needed below
             }

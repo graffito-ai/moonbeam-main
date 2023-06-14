@@ -43,7 +43,8 @@ export const commonStyles = StyleSheet.create({
         flex: 1
     },
     divider: {
-        backgroundColor: '#313030'
+        backgroundColor: '#303030',
+        height: Dimensions.get('window').width/300
     },
     androidSafeArea: {
         flex: 1,

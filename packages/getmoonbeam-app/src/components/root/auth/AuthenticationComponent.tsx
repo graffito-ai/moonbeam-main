@@ -32,6 +32,7 @@ import {
 import {AccountRecoveryComponent} from "./AccountRecoveryComponent";
 import {Dimensions} from "react-native";
 import {commonStyles} from "../../../styles/common.module";
+import {AppDrawer} from "../drawer/AppDrawer";
 
 /**
  * Authentication component.
@@ -149,7 +150,7 @@ export const AuthenticationComponent = ({}: AuthenticationProps) => {
                         />
                         <Stack.Screen
                             name="AppDrawer"
-                            component={() => <></>}
+                            component={AppDrawer}
                             initialParams={{}}
                         />
                     </Stack.Navigator>

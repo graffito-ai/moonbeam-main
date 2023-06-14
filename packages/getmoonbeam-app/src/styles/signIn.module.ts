@@ -90,8 +90,8 @@ export const styles = StyleSheet.create({
     loginButtonContentStyle: {
         color: '#313030',
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').height/50,
-        marginTop: Dimensions.get('window').height / 250,
+        fontSize: Dimensions.get('window').height/45,
+        marginTop: Dimensions.get('window').height / 200,
         alignItems: 'center',
         alignSelf: 'center'
     },
@@ -99,8 +99,8 @@ export const styles = StyleSheet.create({
         marginTop: '10%',
         alignSelf: 'center',
         backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width/4,
-        height: Dimensions.get('window').height/25,
+        width: Dimensions.get('window').width/3,
+        height: Dimensions.get('window').height/20,
         borderRadius: 0
     },
     bottomView: {
@@ -120,7 +120,7 @@ export const styles = StyleSheet.create({
     },
     loginLogo: {
         alignSelf: 'center',
-        height: Dimensions.get('window').height/10,
+        height: Dimensions.get('window').height/15,
         width: Dimensions.get('window').width/5
     }
 });

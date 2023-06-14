@@ -9,6 +9,10 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import {useRecoilState} from "recoil";
 import {appDrawerHeaderShownState} from "../../../recoil/AppDrawerAtom";
 import {Home} from "./home/Home";
+import {Ionicons} from "@expo/vector-icons";
+import * as Device from "expo-device";
+import {DeviceType} from "expo-device";
+import {deviceTypeState} from "../../../recoil/RootAtom";
 
 /**
  * AppDrawer component.
@@ -18,6 +22,7 @@ import {Home} from "./home/Home";
 export const AppDrawer = ({}: AppDrawerProps) => {
     // constants used to keep track of shared states
     const [drawerHeaderShown,] = useRecoilState(appDrawerHeaderShownState);
+    const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
 
     /**
      * create a drawer navigator, to be used for our sidebar navigation, which is the main driving
@@ -33,6 +38,10 @@ export const AppDrawer = ({}: AppDrawerProps) => {
      * included in here.
      */
     useEffect(() => {
+        // check and set the type of device, to be used throughout the app
+        Device.getDeviceTypeAsync().then(deviceType => {
+            setDeviceType(deviceType);
+        })
     }, []);
 
     // return the component for the AppDrawer page
@@ -46,20 +55,27 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     }
                     initialRouteName={"Home"}
                     screenOptions={{
-                        drawerLabelStyle: {fontFamily: 'Raleway-Medium', fontSize: 16},
+                        drawerLabelStyle: {
+                            fontFamily: 'Raleway-Medium',
+                            fontSize: deviceType === DeviceType.TABLET ? Dimensions.get('window').width/35 : Dimensions.get('window').width/25
+                        },
                         drawerActiveBackgroundColor: 'transparent',
-                        drawerActiveTintColor: 'black',
-                        drawerInactiveTintColor: 'black',
+                        drawerActiveTintColor: '#F2FF5D',
+                        drawerInactiveTintColor: 'white',
                         swipeEnabled: false,
-                        drawerStyle: {width: Dimensions.get('window').width / 1.5}
+                        drawerStyle: {
+                            width: deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 2 : Dimensions.get('window').width / 1.5,
+                            backgroundColor: '#5B5A5A'
+                        }
                     }}
                 >
                     <ApplicationDrawer.Screen
                         name={"Home"}
                         component={Home}
                         options={{
+                            drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20: 0},
                             drawerIcon: () => (
-                                <Icon size={25} name={'dots-circle'}/>
+                                <Icon size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width/25 : Dimensions.get('window').width/15} name={'home-variant-outline'} color={'#F2FF5D'}/>
                             ),
                             headerShown: true
                         }}
@@ -70,8 +86,9 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                         component={() => <></>}
                         initialParams={{}}
                         options={{
+                            drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20: 0},
                             drawerIcon: () => (
-                                <Icon size={25} name={'file-document-multiple-outline'}/>
+                                <Icon size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width/25 : Dimensions.get('window').width/15} name={'file-document-multiple-outline'} color={'#F2FF5D'}/>
                             ),
                             header: () => {
                                 return (<></>)
@@ -83,8 +100,9 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                         name={"Settings"}
                         component={() => <></>}
                         options={{
+                            drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20: 0},
                             drawerIcon: () => (
-                                <Icon size={25} name={'cellphone-settings'}/>
+                                <Ionicons size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width/25 : Dimensions.get('window').width/15} name={'settings-outline'} color={'#F2FF5D'}/>
                             ),
                             header: () => {
                                 return (<></>)
@@ -98,8 +116,9 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                         component={() => <></>}
                         initialParams={{}}
                         options={{
+                            drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20: 0},
                             drawerIcon: () => (
-                                <Icon size={25} name={'help-circle-outline'}/>
+                                <Icon size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width/25 : Dimensions.get('window').width/15} name={'help-circle-outline'} color={'#F2FF5D'}/>
                             ),
                             header: () => {
                                 return (<></>)

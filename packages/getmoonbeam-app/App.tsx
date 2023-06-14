@@ -3,9 +3,7 @@ import {Logs} from "expo";
 import {initialize} from './src/utils/Setup';
 import React, {useCallback, useEffect, useState} from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {theme} from "./src/utils/Theme";
 import {NavigationContainer} from '@react-navigation/native';
-import {Provider as PaperProvider, Text} from 'react-native-paper';
 import * as Linking from 'expo-linking';
 import * as Font from 'expo-font';
 import * as SecureStore from "expo-secure-store";
@@ -15,10 +13,10 @@ import {RecoilRoot} from 'recoil';
 import {AppOverviewComponent} from './src/components/root/AppOverviewComponent';
 import {AuthenticationComponent} from "./src/components/root/auth/AuthenticationComponent";
 import {RootStackParamList} from "./src/models/props/RootProps";
+import {PaperProvider, Text, useTheme} from "react-native-paper";
 
 // keep the splash screen visible while we fetch resources
-SplashScreen.preventAutoHideAsync().then(() => {
-});
+SplashScreen.preventAutoHideAsync().then(() => {});
 
 // initialize the application according to the current Amplify environment
 initialize();
@@ -32,7 +30,11 @@ Logs.enableExpoCliLogging();
  * @constructor constructor for the component.
  */
 export default function App() {
-    // state used to keep track of whether the application is ready to load or not
+    // Setting up the  theme to be used in application
+    const theme = useTheme();
+    theme.colors.secondaryContainer = 'transparent';
+
+    // constants used to keep track of local component state
     const [appIsReady, setAppIsReady] = useState<boolean>(false);
 
     /**
@@ -129,7 +131,7 @@ export default function App() {
         // return the main component for the application stack
         return (
             <RecoilRoot>
-                <PaperProvider theme={theme}>
+                <PaperProvider>
                     <StatusBar style="light" animated={true}/>
                     <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
                         <RootStack.Navigator

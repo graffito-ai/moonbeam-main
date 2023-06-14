@@ -6,6 +6,7 @@ import {createMaterialBottomTabNavigator} from "@react-navigation/material-botto
 import {HomeStackParamList} from "../../../../models/props/HomeProps";
 import {useRecoilState} from "recoil";
 import {bottomTabShownState} from "../../../../recoil/HomeAtom";
+import {Text} from 'react-native';
 
 /**
  * Home component. This is where the bottom bar components will reside, as well
@@ -36,32 +37,34 @@ export const Home = ({}: HomeProps) => {
             <NavigationContainer independent={true}>
                 <HomeTabStack.Navigator
                     initialRouteName={"Dashboard"}
+                    shifting={true}
+                    labeled={true}
+                    activeColor={'white'}
                     barStyle={{
-                        backgroundColor: 'white',
-                        height: 70,
+                        backgroundColor: '#313030',
                         ...(!bottomTabShown && {display: 'none'})
                     }}
                     screenOptions={({route}) => ({
+                        tabBarLabel: route.name === 'Dashboard' ? 'Home': route.name,
                         tabBarIcon: ({focused}) => {
                             let iconName: string;
                             let iconColor: string;
 
                             if (route.name === 'Dashboard') {
                                 iconName = focused ? 'home-variant' : 'home-variant-outline';
-                                iconColor = !focused ? '#313030': '#2A3779';
+                                iconColor = !focused ? 'white' : '#F2FF5D';
 
-                                return <Icon name={iconName} size={25} color={iconColor}/>;
+                                return <Icon name={iconName} size={30} color={iconColor}/>;
                             } else if (route.name === 'Marketplace') {
-                                iconName = focused ? 'ribbon-sharp' : 'ribbon-outline';
-                                iconColor = !focused ? '#313030': '#2A3779';
+                                iconName = focused ? 'store-marker' : 'store-marker-outline';
+                                iconColor = !focused ? 'white' : '#F2FF5D';
 
-                                // @ts-ignore
-                                return <Ionicons name={iconName} size={25} color={iconColor}/>;
+                                return <Icon name={iconName} size={30} color={iconColor}/>;
                             } else if (route.name === 'Cards') {
-                                iconName = focused ? 'storefront': 'storefront-outline';
-                                iconColor = !focused ? '#313030': '#2A3779';
+                                iconName = focused ? 'credit-card-multiple' : 'credit-card-multiple-outline';
+                                iconColor = !focused ? 'white' : '#F2FF5D';
 
-                                return <Icon name={iconName} size={25} color={iconColor}/>;
+                                return <Icon name={iconName} size={30} color={iconColor}/>;
                             }
 
                             return <></>;
@@ -69,15 +72,15 @@ export const Home = ({}: HomeProps) => {
                     })}
                 >
                     <HomeTabStack.Screen name="Dashboard"
-                                         component={() => <></>}
+                                         component={() => <><Text>Dashboard</Text></>}
                                          initialParams={{}}
                     />
                     <HomeTabStack.Screen name="Marketplace"
-                                         component={() => <></>}
+                                         component={() => <><Text>Marketplace</Text></>}
                                          initialParams={{}}
                     />
                     <HomeTabStack.Screen name="Cards"
-                                         component={() => <></>}
+                                         component={() => <><Text>Cards</Text></>}
                                          initialParams={{}}
                     />
                 </HomeTabStack.Navigator>
