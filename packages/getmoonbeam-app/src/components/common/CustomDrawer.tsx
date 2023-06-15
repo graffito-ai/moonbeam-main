@@ -11,9 +11,9 @@ import {commonStyles} from "../../styles/common.module";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import {styles} from '../../styles/customDrawer.module';
 import {useRecoilState} from "recoil";
-import {currentUserInformation} from "../../recoil/AuthAtom";
 import {deviceTypeState} from "../../recoil/RootAtom";
 import {DeviceType} from "expo-device";
+import { currentUserInformation } from '../../recoil/AuthAtom';
 
 /**
  * CustomDrawer component. This component will be used to further tailor our sidebar navigation drawer, mainly
@@ -24,10 +24,10 @@ import {DeviceType} from "expo-device";
  */
 export const CustomDrawer = (props: DrawerContentComponentProps) => {
     // constants used to keep track of local component state
-    const [currentUserTitle,] = useState<string>("MA");
-    const [currentUserName,] = useState<string>("John Luke Tippetts");
+    const [currentUserTitle, setCurrentUserTitle] = useState<string>("N/A");
+    const [currentUserName, setCurrentUserName] = useState<string>("N/A");
     // constants used to keep track of shared states
-    const [,] = useRecoilState(currentUserInformation);
+    const [userInformation,] = useRecoilState(currentUserInformation);
     const [deviceType,] = useRecoilState(deviceTypeState);
 
     /**
@@ -38,6 +38,12 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
      * included in here.
      */
     useEffect(() => {
+        // check to see if the user information object has been populated accordingly
+        if (userInformation && userInformation["given_name"] && userInformation["family_name"]) {
+            //set the title of the user's avatar in the dashboard, based on the user's information
+            setCurrentUserTitle(`${Array.from(userInformation["given_name"].split(" ")[0])[0] as string}${Array.from(userInformation["family_name"].split(" ")[0])[0] as string}`);
+            setCurrentUserName(`${userInformation["given_name"]} ${userInformation["family_name"]}`);
+        }
     }, []);
 
     return (

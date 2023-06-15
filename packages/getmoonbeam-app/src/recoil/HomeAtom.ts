@@ -10,8 +10,18 @@ const bottomTabShownState = atom({
 });
 
 /**
+ * Atom used to keep track of the Application Wall step number
+ */
+const appWallStepNumber = atom({
+    key: "appWallStepNumber",
+    default: 0
+});
+
+
+/**
  * Export all atoms and/or selectors
  */
 export {
+    appWallStepNumber,
     bottomTabShownState
 };

@@ -7,16 +7,19 @@ import {HomeStackParamList} from "../../../../models/props/HomeProps";
 import {useRecoilState} from "recoil";
 import {bottomTabShownState} from "../../../../recoil/HomeAtom";
 import {Text} from 'react-native';
+import {appWallShownState} from "../../../../recoil/AppDrawerAtom";
 
 /**
  * Home component. This is where the bottom bar components will reside, as well
  * any of their nested children views/navigators.
  *
- * @constructor constructor for the component
+ * @param navigation navigation object passed in from the parent navigator.
+ * @constructor constructor for the component.
  */
-export const Home = ({}: HomeProps) => {
+export const Home = ({navigation}: HomeProps) => {
     // constants used to keep track of shared states
     const [bottomTabShown,] = useRecoilState(bottomTabShownState);
+    const [appWallShown,] = useRecoilState(appWallShownState);
 
     // create a bottom navigator, to be used for our Home bottom bar navigation
     const HomeTabStack = createMaterialBottomTabNavigator<HomeStackParamList>();
@@ -29,7 +32,11 @@ export const Home = ({}: HomeProps) => {
      * included in here.
      */
     useEffect(() => {
-    }, []);
+        // show the application wall accordingly
+        if (appWallShown) {
+            navigation.navigate('AppWall', {});
+        }
+    }, [appWallShown]);
 
     // return the component for the Home page
     return (
@@ -45,7 +52,7 @@ export const Home = ({}: HomeProps) => {
                         ...(!bottomTabShown && {display: 'none'})
                     }}
                     screenOptions={({route}) => ({
-                        tabBarLabel: route.name === 'Dashboard' ? 'Home': route.name,
+                        tabBarLabel: route.name === 'Dashboard' ? 'Home' : route.name,
                         tabBarIcon: ({focused}) => {
                             let iconName: string;
                             let iconColor: string;

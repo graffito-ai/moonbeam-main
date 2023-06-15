@@ -28,28 +28,63 @@ export const accountRecoverySteps = [
     },
 ]
 // constants used to keep track of the registration steps content
-export const registrationStepTitles = [
-    "Personal Info",
-    "Additional Info",
-    "Account Security",
-    "Code Verification",
-    "App Permissions",
-    "Military Status",
-    "Documentation",
-    "Card Linking",
-    ""
-];
-export const registrationStepDescription = [
-    "Enter your full name, email, birthday, phone number, enlisting year and duty status to continue.",
-    "Enter your address, duty status and military branch, to help us verify your eligibility.",
-    "Secure your account by setting an account password. You will use this paired with your email, in order to access your new account.",
-    "Enter the 6 digit verification code we just sent to your email. Check your spam and trash inboxes.",
-    "",
-    "Continue by allowing us to verify your military service status based on the information that you provided.",
-    "We need additional information to verify your military identity. Upload or capture supporting documentation, to help with your eligibility.",
-    "Link your favorite MasterCard or Visa card, and earn rewards with every transaction at qualifying merchant locations.",
-    ""
-];
+export const registrationSteps = [
+    {
+        stepTitle: "Personal Info",
+        stepDescription: "Enter your full name, email, birthday, phone number, enlisting year and duty status to continue.",
+    },
+    {
+        stepTitle: "Additional Info",
+        stepDescription: "Enter your address, duty status and military branch, to help us verify your eligibility.",
+    },
+    {
+        stepTitle: "Account Security",
+        stepDescription: "Secure your account by setting an account password. You will use this paired with your email, in order to access your new account.",
+    },
+    {
+        stepTitle: "Code Verification",
+        stepDescription: "Enter the 6 digit verification code we just sent to your email. Check your spam and trash inboxes.",
+    },
+    {
+        stepTitle: "App Permissions",
+        stepDescription: "",
+    },
+    {
+        stepTitle: "Military Status",
+        stepDescription: "Continue by allowing us to verify your military service status based on the information that you provided.",
+    },
+    {
+        stepTitle: "Documentation",
+        stepDescription: "We need additional information to verify your military identity. Upload or capture supporting documentation, to help with your eligibility.",
+    },
+    {
+        stepTitle: "Card Linking",
+        stepDescription: "Link your favorite MasterCard or Visa card, and earn rewards with every transaction at qualifying merchant locations.",
+    },
+    {
+        stepTitle: "",
+        stepDescription: ""
+    }
+]
+// constants used to keep track of the application wall steps
+export const applicationWallSteps = [
+    {
+        stepTitle: "",
+        stepDescription: ""
+    },
+    {
+        stepTitle: "Military Status",
+        stepDescription: "Allow us to verify your military service status based on the information that you provided during signup.",
+    },
+    {
+        stepTitle: "Documentation",
+        stepDescription: "We need additional information to verify your military identity. Upload or capture supporting documentation, to help with your eligibility."
+    },
+    {
+        stepTitle: "",
+        stepDescription: ""
+    }
+]
 // constants used to keep track of the app overview steps content
 export const appOverviewSteps = [
     {

@@ -82,7 +82,9 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                 const userInfo = user.signInUserSession.idToken.payload;
 
                 // set the current user information accordingly
-                setUserInformation({userInfo});
+                setUserInformation({
+                    ...userInfo
+                });
 
                 // release the loader on button press
                 setIsReady(true);

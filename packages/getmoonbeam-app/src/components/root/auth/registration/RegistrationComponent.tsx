@@ -56,7 +56,7 @@ import {
     registrationVerificationDigit6,
     verificationCodeErrorsState
 } from '../../../../recoil/AuthAtom';
-import {registrationStepDescription, registrationStepTitles} from "../../../../models/Constants";
+import {registrationSteps} from "../../../../models/Constants";
 import {ProfileRegistrationStep} from "./ProfileRegistrationStep";
 import {CodeVerificationStep} from "./CodeVerificationStep";
 import {DocumentCaptureStep} from "./DocumentCaptureStep";
@@ -66,9 +66,7 @@ import {API, Auth, graphqlOperation} from "aws-amplify";
 import {
     createMilitaryVerification,
     MilitaryAffiliation,
-    MilitaryVerificationStatusType,
-    updatedMilitaryVerificationStatus,
-    UpdateMilitaryVerificationResponse
+    MilitaryVerificationStatusType
 } from "@moonbeam/moonbeam-models";
 import {v4 as uuidv4} from 'uuid';
 import {MilitaryStatusSplashStep} from "./MilitaryStatusSplashStep";
@@ -81,7 +79,6 @@ import {fetchFile} from "../../../../utils/File";
 import {Spinner} from "../../../common/Spinner";
 import {splashStatusState} from "../../../../recoil/SplashAtom";
 import {CardLinkingStep} from "./CardLinkingStep";
-import {Observable} from "zen-observable-ts";
 
 /**
  * RegistrationComponent component.
@@ -93,7 +90,6 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     // constants used to keep track of local component state
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
-    const [militaryStatusUpdatesSubscription, setMilitaryStatusUpdatesSubscription] = useState<ZenObservable.Subscription | null>(null);
     // constants used to keep track of shared states
     const [, setAmplifySignUpErrors] = useRecoilState(amplifySignUpProcessErrorsState);
     const [, setRegistrationMainError] = useRecoilState(registrationMainErrorState);
@@ -163,52 +159,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
         if (countdownValue == 10) {
             startCountdown(10);
         }
-        userInformation && userInformation["userId"] && subscribeToMilitaryStatusUpdates(userInformation["userId"]);
-        militaryStatusUpdatesSubscription && militaryStatusUpdatesSubscription.unsubscribe();
-    }, [militaryStatusUpdatesSubscription, userInformation, countdownValue]);
-
-
-    /**
-     * Function used to start subscribing to any military status updates, made through the
-     * "updateMilitaryVerificationStatus" mutation, for a specific user id.
-     *
-     * @param userId userID generated through previous steps during the sign-up process
-     * @return a {@link Promise} of a {@link Boolean} representing a flag indicating whether the subscription
-     * was successful or not.
-     */
-    const subscribeToMilitaryStatusUpdates = (userId: string) => {
-        try {
-            const militaryStatusUpdates = API.graphql(graphqlOperation(updatedMilitaryVerificationStatus, {id : userId})) as unknown as Observable<any>;
-            // @ts-ignore
-            setMilitaryStatusUpdatesSubscription(militaryStatusUpdates.subscribe({
-                // function triggering on the next military verification status update
-                next: ({value}) => {
-                    // check to ensure that there is a value and a valid data block to parse the message from
-                    if (value && value.data && value.data.updatedMilitaryVerificationStatus) {
-                        // parse the military status data from the subscription message received
-                        const messageData: UpdateMilitaryVerificationResponse = value.data.updatedMilitaryVerificationStatus;
-                        console.log(messageData);
-
-                        // ToDo: act on this success, return something and/or update some local state with the message data
-                    } else {
-                        console.log(`Unexpected error while parsing subscription message for military status update ${JSON.stringify(value)}`);
-
-                        // ToDo: act on this error, return something and/or display an error
-                    }
-                },
-                // function triggering in case there are any errors
-                error: (error) => {
-                    console.log(`Unexpected error while subscribing to military status updates ${JSON.stringify(error)}`);
-
-                    // ToDo: act on this error, return something and/or display an error
-                }
-            }));
-        } catch (error) {
-            console.log(`Unexpected error while building a subscription to observe military status updates ${JSON.stringify(error)}`);
-
-            // ToDo: act on this error, return something and/or display an error
-        }
-    }
+    }, [countdownValue]);
 
     /**
      * Callback function used to decrease the value of the countdown by 1,
@@ -399,7 +350,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                     // set the current user information accordingly
                     setUserInformation({
                         ...userInformation,
-                        userInfo
+                        ...userInfo
                     });
 
                     // release the loader on button press
@@ -590,7 +541,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                     }
                                     <View style={[styles.titleViewDescription]}>
                                         <Text style={styles.stepTitle}>
-                                            {registrationStepTitles[stepNumber]}
+                                            {registrationSteps[stepNumber].stepTitle}
                                         </Text>
                                         <IconButton
                                             icon={"triangle"}
@@ -601,7 +552,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                     </View>
                                 </View>}
                             {(militaryStatus === MilitaryVerificationStatusType.Verified && stepNumber === 5) || stepNumber === 7 ? <></> :
-                                <Text style={styles.stepDescription}>{registrationStepDescription[stepNumber]}</Text>}
+                                <Text style={styles.stepDescription}>{registrationSteps[stepNumber].stepDescription}</Text>}
                             {/*switch views based on the step number*/}
                             {
                                 stepNumber === 0

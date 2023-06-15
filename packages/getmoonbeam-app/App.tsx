@@ -6,7 +6,6 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native';
 import * as Linking from 'expo-linking';
 import * as Font from 'expo-font';
-import * as SecureStore from "expo-secure-store";
 import * as FileSystem from "expo-file-system";
 import {StatusBar} from 'expo-status-bar';
 import {RecoilRoot} from 'recoil';
@@ -14,6 +13,7 @@ import {AppOverviewComponent} from './src/components/root/AppOverviewComponent';
 import {AuthenticationComponent} from "./src/components/root/auth/AuthenticationComponent";
 import {RootStackParamList} from "./src/models/props/RootProps";
 import {PaperProvider, Text, useTheme} from "react-native-paper";
+import {Hub} from "aws-amplify";
 
 // keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync().then(() => {});
@@ -72,22 +72,42 @@ export default function App() {
                     'Raleway-Regular': require('assets/fonts/Raleway/static/Raleway-Regular.ttf'),
                     'Raleway-SemiBold': require('assets/fonts/Raleway/static/Raleway-SemiBold.ttf'),
                 });
-
-                // clear any cached items from the SecureStore
-                await SecureStore.deleteItemAsync('bankAccounts');
             } catch (e) {
                 console.warn(e);
             } finally {
-                // clean the file system cache
-                await FileSystem.deleteAsync(`${FileSystem.documentDirectory!}` + `files`, {
-                    idempotent: true
-                });
-
                 // tell the application to render
                 setAppIsReady(true);
             }
         }
         prepare().then(async () => {
+            // clean the file system cache
+            await FileSystem.deleteAsync(`${FileSystem.documentDirectory!}` + `files`, {
+                idempotent: true
+            });
+
+            /**
+             * initialize the Amplify Hub, and start listening to various events, that would help in capturing important metrics,
+             * and/or making specific decisions.
+             */
+            return Hub.listen('auth', (data) => {
+                switch (data.payload.event) {
+                    case 'signIn':
+                        console.log(`user signed in`);
+                        break;
+                    case 'signOut':
+                        /**
+                         * Amplify automatically manages the sessions, and when the session token expires, it will log out the user and send an event
+                         * here. What we do then is intercept that event, and since the user Sign-Out has already happened, we will perform the cleanup that
+                         * we usually do in our Sign-Out functionality, without actually signing the user out.
+                         */
+                        console.log(`user signed out ${JSON.stringify(data.payload)}`);
+                        console.log(`user signed out ${JSON.stringify(data)}`);
+                        break;
+                    case 'configured':
+                        console.log('the Auth module is successfully configured!');
+                        break;
+                }
+            });
         });
     }, []);
 

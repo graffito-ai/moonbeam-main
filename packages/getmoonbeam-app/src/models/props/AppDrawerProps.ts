@@ -7,7 +7,8 @@ export type AppDrawerStackParamList = {
     Home: {},
     Documents: {},
     Settings: {},
-    Support: {}
+    Support: {},
+    AppWall: {}
 };
 
 /**
@@ -24,3 +25,5 @@ export type SupportProps = NativeStackScreenProps<AppDrawerStackParamList, 'Docu
 export type SettingsProps = NativeStackScreenProps<AppDrawerStackParamList, 'Settings'>
 // the Support component props, within the AppDrawer stack
 export type BankAccountsProps = NativeStackScreenProps<AppDrawerStackParamList, 'Support'>
+// the AppWall component props, within the AppDrawer stack
+export type AppWallProps = NativeStackScreenProps<AppDrawerStackParamList, 'AppWall'>
