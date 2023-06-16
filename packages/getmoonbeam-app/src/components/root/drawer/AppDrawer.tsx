@@ -7,7 +7,7 @@ import {CustomDrawer} from "../../common/CustomDrawer";
 import {Dimensions, Text} from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import {useRecoilState} from "recoil";
-import {appDrawerHeaderShownState, appWallShownState} from "../../../recoil/AppDrawerAtom";
+import {appDrawerHeaderShownState} from "../../../recoil/AppDrawerAtom";
 import {Home} from "./home/Home";
 import {Ionicons} from "@expo/vector-icons";
 import * as Device from "expo-device";
@@ -15,9 +15,7 @@ import {DeviceType} from "expo-device";
 import {deviceTypeState} from "../../../recoil/RootAtom";
 import {
     getMilitaryVerificationStatus,
-    MilitaryVerificationErrorType,
-    MilitaryVerificationStatus,
-    MilitaryVerificationStatusType,
+    MilitaryVerificationErrorType, MilitaryVerificationStatusType,
     updatedMilitaryVerificationStatus,
     UpdateMilitaryVerificationResponse
 } from "@moonbeam/moonbeam-models";
@@ -27,7 +25,7 @@ import {currentUserInformation} from "../../../recoil/AuthAtom";
 import {Spinner} from "../../common/Spinner";
 import {Modal, Portal} from "react-native-paper";
 import {commonStyles} from "../../../styles/common.module";
-import {AppWall} from "./home/AppWall";
+import {AppWall} from "./home/wall/AppWall";
 
 /**
  * AppDrawer component.
@@ -45,7 +43,6 @@ export const AppDrawer = ({}: AppDrawerProps) => {
     const [militaryStatusUpdatesSubscribed, setMilitaryStatusUpdatesSubscribed] = useState<boolean>(false);
     // constants used to keep track of shared states
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
-    const [appWallShown, setAppWallShown] = useRecoilState(appWallShownState);
 
     /**
      * create a drawer navigator, to be used for our sidebar navigation, which is the main driving
@@ -72,41 +69,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         }
         // retrieve an application wall accordingly (if needed)
         !userInformation["militaryStatus"] && retrieveMilitaryVerification(userInformation["custom:userId"]);
-        userInformation["militaryStatus"] && retrieveApplicationWall(userInformation["militaryStatus"]);
-        userInformation["incomingMilitaryStatus"] && retrieveApplicationWall(userInformation["incomingMilitaryStatus"]);
     }, [militaryStatusUpdatesSubscription, userInformation]);
-
-    /**
-     * Function used to retrieve the application wall, within an application.
-     * Depending on the military status of the user, determine whether the application wall is shown. If:
-     *      - the status is PENDING, then a wall instructing the user to wait until their status is verified, is shown;
-     *      - the status is REJECTED, then a wall instructing the user to contact customer service, is shown;
-     *      - the status is VERIFIED, then enable the user to use the application, as expected;
-     *      - there was no status retrieved for this user (UNKNOWN), then instruct the user to go through the linking process again;
-     * @param incomingMilitaryStatus the military verification status to be passed in
-     */
-    const retrieveApplicationWall = async (incomingMilitaryStatus: MilitaryVerificationStatus | "UNKNOWN") => {
-        // switch and display an appropriate application wall (if needed)
-        switch (incomingMilitaryStatus) {
-            case MilitaryVerificationStatusType.Pending:
-                setAppWallShown(true);
-                break;
-            case MilitaryVerificationStatusType.Rejected:
-                setAppWallShown(true);
-                break;
-            case MilitaryVerificationStatusType.Verified:
-                setAppWallShown(false);
-                break;
-            case "UNKNOWN":
-                setAppWallShown(true);
-                break;
-            default:
-                console.log(`Unknown status retrieved from the military verification object`);
-                setModalVisible(true);
-                setAppWallShown(false);
-                break;
-        }
-    }
 
     /**
      * Function used to retrieve the individual's eligibility by checking their
@@ -164,7 +127,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
             // release the loader
             setIsReady(true);
 
-            console.log(`Unexpected error while attempting to retrieve the military verification object ${JSON.stringify(error)}`);
+            console.log(`Unexpected error while attempting to retrieve the military verification object ${error}`);
             setModalVisible(true);
         }
     }
@@ -204,7 +167,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                 },
                 // function triggering in case there are any errors
                 error: (error) => {
-                    console.log(`Unexpected error while subscribing to military status updates ${JSON.stringify(error)}`);
+                    console.log(`Unexpected error while subscribing to military status updates ${error}`);
                     setModalVisible(true);
                 }
             }));
@@ -215,7 +178,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
             // release the loader
             setIsReady(true);
 
-            console.log(`Unexpected error while building a subscription to observe military status updates ${JSON.stringify(error)}`);
+            console.log(`Unexpected error while building a subscription to observe military status updates ${error}`);
             setModalVisible(true);
         }
     }
@@ -241,7 +204,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                     props =>
                                         <CustomDrawer {...props} />
                                 }
-                                initialRouteName={appWallShown ? "AppWall" : "Home"}
+                                initialRouteName={"Home"}
                                 screenOptions={{
                                     drawerLabelStyle: {
                                         fontFamily: 'Raleway-Medium',
@@ -323,7 +286,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                     }}
                                 />
                                 {
-                                    appWallShown &&
+                                    userInformation["militaryStatus"] !== MilitaryVerificationStatusType.Verified &&
                                     <ApplicationDrawer.Screen
                                         name={"AppWall"}
                                         component={AppWall}

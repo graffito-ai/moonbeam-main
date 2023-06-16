@@ -49,30 +49,36 @@ export const MilitaryStatusSplashStep = () => {
                             style={styles.permissionsStepDescription}>{"Your military status has been verified."}</Text>
                     </View>
                     :
-                    <View style={styles.disclaimerView}>
-                        <Checkbox
-                            style={styles.disclaimerCheckbox}
-                            color={militaryStatusDisclaimer ? 'blue' : '#F2FF5D'}
-                            value={militaryStatusDisclaimer}
-                            onValueChange={(newValue) => {
-                                setMilitaryStatusDisclaimer(newValue);
+                    <>
+                        <Image
+                            style={styles.militaryVerificationImage}
+                            source={require('../../../../../assets/art/military-verification.png')}/>
+                        <View style={styles.disclaimerView}>
+                            <Checkbox
+                                style={styles.disclaimerCheckbox}
+                                color={militaryStatusDisclaimer ? 'blue' : '#F2FF5D'}
+                                value={militaryStatusDisclaimer}
+                                onValueChange={(newValue) => {
+                                    setMilitaryStatusDisclaimer(newValue);
 
-                                // clear any errors (if any)
-                                setRegistrationMainError(false);
-                            }}
-                        />
-                        <Text
-                            style={styles.disclaimerText}>{'By checking this box, you are confirming your status as a military service member, thereby granting Moonbeam the authority to document and review ' +
-                            'this claim, as well as pursue legal action in accordance with U.S. federal statutes and penal codes, if the claim is proven to be fraudulent.\n' +
-                            'You also acknowledge that you read and agree to our '}
-                            <Text style={styles.disclaimerTextHighlighted}
-                                  onPress={() => {
-                                  }}>Privacy Policy</Text>{' and our'}
-                            <Text style={styles.disclaimerTextHighlighted}
-                                  onPress={() => {
-                                  }}> Terms & Conditions.</Text>
-                        </Text>
-                    </View>
+                                    // clear any errors (if any)
+                                    setRegistrationMainError(false);
+                                }}
+                            />
+                            <Text
+                                style={styles.disclaimerText}>{'By checking this box, you are confirming your status as a military service member, thereby granting Moonbeam the authority to document and review ' +
+                                'this claim, as well as pursue legal action in accordance with U.S. federal statutes and penal codes, if the claim is proven to be fraudulent.\n' +
+                                'You also acknowledge that you read and agree to our '}
+                                <Text style={styles.disclaimerTextHighlighted}
+                                      onPress={() => {
+                                      }}>Privacy Policy</Text>{' and our'}
+                                <Text style={styles.disclaimerTextHighlighted}
+                                      onPress={() => {
+                                      }}> Terms & Conditions.</Text>
+                            </Text>
+                        </View>
+                    </>
+
             }
         </>
     );

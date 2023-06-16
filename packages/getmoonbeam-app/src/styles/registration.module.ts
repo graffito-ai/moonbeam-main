@@ -382,6 +382,12 @@ export const styles = StyleSheet.create({
         width: Dimensions.get('window').width * 0.75,
         flex: 0.75
     },
+    militaryVerificationImage: {
+        resizeMode: 'contain',
+        height: Dimensions.get('window').height * 0.65,
+        width: Dimensions.get('window').width * 0.75,
+        flex: 0.55
+    },
     cardLinkingParentView: {
         backgroundColor: '#313030', marginTop: -Dimensions.get('window').height/20, alignContent: 'center',  alignSelf: 'center', alignItems: 'center'
     },

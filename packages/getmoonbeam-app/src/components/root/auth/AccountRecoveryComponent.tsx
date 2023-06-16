@@ -156,7 +156,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
             } else if (errorCode === 'LimitExceededException') {
                 errorMessage = 'Password reset limit exceeded! Please try again later!';
             }
-            console.log(`${errorMessage} ${JSON.stringify(error)}`);
+            console.log(`${errorMessage} ${error}`);
 
             setEmailErrors([errorMessage]);
             return false;
@@ -202,7 +202,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
             if (errorCode === 'CodeMismatchException') {
                 errorMessage = 'Invalid verification code provided. Try again!';
             }
-            console.log(`${errorMessage} ${JSON.stringify(error)}`);
+            console.log(`${errorMessage} ${error}`);
 
             setVerificationCodeErrors([errorMessage]);
             return false;

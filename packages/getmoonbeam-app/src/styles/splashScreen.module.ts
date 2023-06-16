@@ -19,7 +19,7 @@ export const styles = StyleSheet.create({
         fontFamily: 'Saira-Bold',
         fontSize: Dimensions.get('window').height / 35,
         marginBottom: Dimensions.get('window').height / 70,
-        color: '#FFFFFF'
+        color: '#F2FF5D'
     },
     splashDescription: {
         alignSelf: 'center',

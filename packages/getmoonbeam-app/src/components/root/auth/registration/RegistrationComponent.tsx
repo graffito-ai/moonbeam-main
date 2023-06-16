@@ -159,7 +159,26 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
         if (countdownValue == 10) {
             startCountdown(10);
         }
-    }, [countdownValue]);
+        /**
+         * since for step number 7, the driving action is performed by the linking button in Olive's iFrame,
+         * we want to ensure that once the linking was done successfully there, then before we proceed to the next step,
+         * we set the state for the next one accordingly.
+         */
+        if (stepNumber === 7 && cardLinkingStatus) {
+            // setting the splash state for the next step
+            setSplashState({
+                splashTitle: 'Congrats!',
+                splashDescription: 'Your card was successfully linked.',
+                splashButtonText: 'Finish',
+                splashArtSource: require('../../../../../assets/art/card-linked-success.png'),
+                withButton: false
+            });
+
+            // increase the step number
+            let newStepValue = stepNumber + 1;
+            setStepNumber(newStepValue);
+        }
+    }, [countdownValue, stepNumber, cardLinkingStatus]);
 
     /**
      * Callback function used to decrease the value of the countdown by 1,
@@ -233,7 +252,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
             // release the loader on button press
             setIsReady(true);
 
-            console.log(`Unexpected error while retrieving the eligibility status ${JSON.stringify(error)}`);
+            console.log(`Unexpected error while retrieving the eligibility status ${error}`);
             return [false, MilitaryVerificationStatusType.Pending];
         }
     }
@@ -282,7 +301,8 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                     updated_at: Date.now().toString(),
                     'custom:branch': militaryBranch,
                     'custom:duty_status': dutyStatus,
-                    'custom:userId': userId
+                    'custom:userId': userId,
+                    'custom:enlistmentYear': enlistingYear
                 }
             });
 
@@ -306,7 +326,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
             }
             console.log(errorMessage
                 ? `Unexpected error while Signing Up: ${JSON.stringify(errorMessage)}`
-                : `Unexpected error while Signing Up: ${JSON.stringify(error)}`);
+                : `Unexpected error while Signing Up: ${error}`);
 
             // release the loader on button press
             setIsReady(true);
@@ -399,7 +419,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
             }
             console.log(errorMessage
                 ? `Unexpected error while confirming sign up code: ${JSON.stringify(errorMessage)}`
-                : `Unexpected error while confirming sign up code: ${JSON.stringify(error)}`);
+                : `Unexpected error while confirming sign up code: ${error}`);
 
             // release the loader on button press
             setIsReady(true);
@@ -617,7 +637,12 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                             ? styles.buttonRightDisabled
                                             : styles.buttonRight,
                                         (stepNumber === 1 || stepNumber === 2) && {marginLeft: Dimensions.get('window').width / 5},
-                                        (stepNumber === 4 || (stepNumber === 5 && militaryStatus !== MilitaryVerificationStatusType.Rejected))
+                                        (stepNumber === 4)
+                                        && {
+                                            marginBottom: Dimensions.get('window').height / 15,
+                                            marginLeft: Dimensions.get('window').width / 25
+                                        },
+                                        (stepNumber === 5)
                                         && {
                                             marginBottom: Dimensions.get('window').height / 15,
                                             marginLeft: Dimensions.get('window').width / 25
@@ -778,20 +803,9 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                     break;
                                                 case 7:
                                                     /**
-                                                     * since for step number 7, the driving action is performed by the linking button in Olive's iFrame,
-                                                     * we want to ensure that once the linking was done successfully there, then before we proceed to the next step,
-                                                     * we set the state for the next one accordingly.
+                                                     * for the 8th step, we need to handle that retroactively in the useEffect(), since we don't have control over the button press,
+                                                     * given that it's coming from Olive's iFrame.
                                                      */
-                                                    if (cardLinkingStatus) {
-                                                        // setting the splash state for the next step
-                                                        setSplashState({
-                                                            splashTitle: 'Congrats!',
-                                                            splashDescription: 'Your card was successfully linked.',
-                                                            splashButtonText: 'Finish',
-                                                            splashArtSource: require('../../../../../assets/art/card-linked-success.png'),
-                                                            withButton: false
-                                                        });
-                                                    }
                                                     break;
                                                 case 8:
                                                     /**

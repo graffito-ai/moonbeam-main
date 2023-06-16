@@ -17,11 +17,31 @@ const appWallStepNumber = atom({
     default: 0
 });
 
+/**
+ * Atom used to keep track of whether additional documentation is needed in the Application Wall, in
+ * order to verify military eligibility.
+ */
+const additionalAppWallDocumentationNeeded = atom({
+    key: "additionalAppWallDocumentationNeeded",
+    default: false
+});
+
+/**
+ * Atom used to keep track of the military verification specific, additional documentation errors, in
+ * the Application Wall.
+ */
+const additionalAppWallDocumentationErrors = atom({
+    key: "additionalAppWallDocumentationErrors",
+    default: []
+});
+
 
 /**
  * Export all atoms and/or selectors
  */
 export {
     appWallStepNumber,
-    bottomTabShownState
+    bottomTabShownState,
+    additionalAppWallDocumentationNeeded,
+    additionalAppWallDocumentationErrors
 };

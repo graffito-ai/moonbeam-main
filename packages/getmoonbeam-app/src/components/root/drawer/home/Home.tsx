@@ -7,7 +7,8 @@ import {HomeStackParamList} from "../../../../models/props/HomeProps";
 import {useRecoilState} from "recoil";
 import {bottomTabShownState} from "../../../../recoil/HomeAtom";
 import {Text} from 'react-native';
-import {appWallShownState} from "../../../../recoil/AppDrawerAtom";
+import {currentUserInformation} from "../../../../recoil/AuthAtom";
+import {MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
 
 /**
  * Home component. This is where the bottom bar components will reside, as well
@@ -19,7 +20,7 @@ import {appWallShownState} from "../../../../recoil/AppDrawerAtom";
 export const Home = ({navigation}: HomeProps) => {
     // constants used to keep track of shared states
     const [bottomTabShown,] = useRecoilState(bottomTabShownState);
-    const [appWallShown,] = useRecoilState(appWallShownState);
+    const [userInformation,] = useRecoilState(currentUserInformation);
 
     // create a bottom navigator, to be used for our Home bottom bar navigation
     const HomeTabStack = createMaterialBottomTabNavigator<HomeStackParamList>();
@@ -33,10 +34,10 @@ export const Home = ({navigation}: HomeProps) => {
      */
     useEffect(() => {
         // show the application wall accordingly
-        if (appWallShown) {
+        if (userInformation["militaryStatus"] !== MilitaryVerificationStatusType.Verified) {
             navigation.navigate('AppWall', {});
         }
-    }, [appWallShown]);
+    }, [userInformation["militaryStatus"]]);
 
     // return the component for the Home page
     return (

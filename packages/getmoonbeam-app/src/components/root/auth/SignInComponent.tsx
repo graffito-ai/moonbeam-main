@@ -116,7 +116,7 @@ export const SignInComponent = ({navigation}: SignInProps) => {
 
             // release the loader on button press
             setIsReady(true);
-            console.log(`${authenticationErrorMessage} ${JSON.stringify(error)}`);
+            console.log(`${authenticationErrorMessage} ${error}`);
             /**
              * here we just chose to populate one of the error arrays for the fields, instead of having to create a separate
              * error array for authentication purposes.

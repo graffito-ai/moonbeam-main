@@ -69,7 +69,7 @@ export class OliveClient extends BaseAPIClient {
              * @link https://developer.oliveltd.com/docs/2-enroll-your-customer-in-olive-programs
              *
              * build the Olive API request body to be passed in, and perform a POST to it with the appropriate information
-             * we imply that if the API does not respond in 10 seconds, then we automatically catch that, and return an
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
              * error for a better customer experience.
              */
             const requestData = {
@@ -92,7 +92,7 @@ export class OliveClient extends BaseAPIClient {
                     "Content-Type": "application/json",
                     "Olive-Key": olivePrivateKey
                 },
-                timeout: 10000, // in milliseconds here
+                timeout: 15000, // in milliseconds here
                 timeoutErrorMessage: 'Olive API timed out after 4000ms!'
             }).then(cardLinkedResponse => {
                 /**

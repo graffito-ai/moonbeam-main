@@ -10,18 +10,8 @@ const appDrawerHeaderShownState = atom({
 });
 
 /**
- * Atom used to keep track of the state of the application wall (meaning if it will be shown
- * or not).
- */
-const appWallShownState = atom({
-    key: "appWallShownState",
-    default: false
-})
-
-/**
  * Export all atoms and/or selectors
  */
 export {
-    appWallShownState,
     appDrawerHeaderShownState
 };
