@@ -76,9 +76,9 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         // retrieve an application wall accordingly (if needed)
         !userInformation["militaryStatus"] && retrieveMilitaryVerification(userInformation["custom:userId"]);
         // retrieve a custom banner accordingly (if needed)
-        !cardLinkingStatus && userInformation["militaryStatus"]
+        !cardLinkingStatus && userInformation["militaryStatus"] && !userInformation["linkedCard"]
         && userInformation["militaryStatus"] === MilitaryVerificationStatusType.Verified
-        && retrieveCardLinkingStatus("custom:userId");
+        && retrieveLinkedCard(userInformation["custom:userId"]);
     }, [militaryStatusUpdatesSubscription, userInformation, cardLinkingStatus]);
 
 
@@ -87,7 +87,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
      *
      * @param userId userID generated through the previous steps during the sign-up process
      */
-    const retrieveCardLinkingStatus = async (userId: string): Promise<void> => {
+    const retrieveLinkedCard = async (userId: string): Promise<void> => {
         try {
             // set the loader
             setIsReady(false);
@@ -119,6 +119,12 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     bannerButtonLabelActionSource: "",
                     bannerArtSource: require(''),
                     dismissing: true
+                });
+
+                // adding the linked card object to the user information object
+                setUserInformation({
+                    ...userInformation,
+                    linkedCard: responseData.getCardLink.data
                 });
             } else {
                 /**
@@ -299,8 +305,8 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                 screenOptions={({ navigation }) => ({
                                     headerLeft: () => <IconButton icon={'menu'} iconColor={'#FFFFFF'} size={30} onPress={navigation.toggleDrawer} />,
                                     headerTitle: () =>
-                                        <Image  resizeMode={"center"}
-                                                style={{alignSelf: 'center'}}
+                                        <Image  resizeMode={"contain"}
+                                                style={{alignSelf: 'center', width: Dimensions.get('window').width/12, height: Dimensions.get('window').height/12}}
                                                 source={require('../../../../assets/moonbeam-navigation-logo.png')}
                                         />,
                                     headerStyle: {
@@ -324,6 +330,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                     name={"Home"}
                                     component={Home}
                                     options={{
+                                        swipeEnabled: true,
                                         drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20 : 0},
                                         drawerIcon: () => (
                                             <Icon
@@ -339,6 +346,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                     component={() => <></>}
                                     initialParams={{}}
                                     options={{
+                                        swipeEnabled: true,
                                         drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20 : 0},
                                         drawerIcon: () => (
                                             <Icon
@@ -355,6 +363,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                     name={"Settings"}
                                     component={() => <></>}
                                     options={{
+                                        swipeEnabled: true,
                                         drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20 : 0},
                                         drawerIcon: () => (
                                             <Ionicons
@@ -373,6 +382,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                     component={() => <></>}
                                     initialParams={{}}
                                     options={{
+                                        swipeEnabled: true,
                                         drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20 : 0},
                                         drawerIcon: () => (
                                             <Icon
@@ -392,6 +402,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                         component={AppWall}
                                         initialParams={{}}
                                         options={{
+                                            swipeEnabled: false,
                                             drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20 : 0},
                                             drawerIcon: () => (
                                                 <Icon

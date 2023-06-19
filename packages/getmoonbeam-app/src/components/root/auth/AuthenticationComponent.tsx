@@ -83,7 +83,8 @@ export const AuthenticationComponent = ({}: AuthenticationProps) => {
                     <Stack.Navigator
                         initialRouteName={useRecoilValue(initialAuthenticationScreen) == 'SignIn' ? "SignIn" : 'Registration'}
                         screenOptions={{
-                            headerShown: false
+                            headerShown: false,
+                            gestureEnabled: false
                         }}
                     >
                         <Stack.Screen

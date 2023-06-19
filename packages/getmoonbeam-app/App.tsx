@@ -157,7 +157,8 @@ export default function App() {
                         <RootStack.Navigator
                             initialRouteName={"AppOverview"}
                             screenOptions={{
-                                headerShown: false
+                                headerShown: false,
+                                gestureEnabled: false
                             }}
                         >
                             <RootStack.Screen

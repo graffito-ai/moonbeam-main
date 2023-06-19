@@ -1,5 +1,5 @@
 import {DynamoDBClient, GetItemCommand} from "@aws-sdk/client-dynamodb";
-import {CardLinkErrorType, CardLinkResponse, GetCardLinkInput} from "@moonbeam/moonbeam-models";
+import {CardLinkErrorType, CardLinkResponse, CardType, GetCardLinkInput} from "@moonbeam/moonbeam-models";
 
 /**
  * GetCardLink resolver
@@ -33,7 +33,16 @@ export const getCardLink = async (getCardLinkInput: GetCardLinkInput): Promise<C
                     id: retrievedData.Item.id.S!,
                     memberId: retrievedData.Item.memberId.S!,
                     cards: [
-                        retrievedData.Item.cards[0].M!
+                        {
+                            createdAt: retrievedData.Item.cards.L![0].M!.createdAt.S!,
+                            last4: retrievedData.Item.cards.L![0].M!.last4.S!,
+                            name: retrievedData.Item.cards.L![0].M!.name.S!,
+                            id: retrievedData.Item.cards.L![0].M!.id.S!,
+                            applicationID: retrievedData.Item.cards.L![0].M!.applicationID.S!,
+                            type: retrievedData.Item.cards.L![0].M!.type.S! as CardType,
+                            updatedAt: retrievedData.Item.cards.L![0].M!.updatedAt.S!,
+                            token: retrievedData.Item.cards.L![0].M!.token.S!
+                        }
                     ]
                 }
             }
