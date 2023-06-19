@@ -37,7 +37,7 @@ import Image = Animated.Image;
  * @constructor constructor for the component
  */
 export const AppDrawer = ({}: AppDrawerProps) => {
-    // constants used to keep track of shared states
+    // constants used to keep track of local component state
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
@@ -337,7 +337,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                                 size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 25 : Dimensions.get('window').width / 15}
                                                 name={'home-variant-outline'} color={'#F2FF5D'}/>
                                         ),
-                                        headerShown: true
+                                        headerShown: drawerHeaderShown
                                     }}
                                     initialParams={{}}
                                 />
@@ -353,9 +353,6 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                                 size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 25 : Dimensions.get('window').width / 15}
                                                 name={'file-document-multiple-outline'} color={'#F2FF5D'}/>
                                         ),
-                                        header: () => {
-                                            return (<></>)
-                                        },
                                         headerShown: drawerHeaderShown
                                     }}
                                 />
@@ -370,9 +367,6 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                                 size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 25 : Dimensions.get('window').width / 15}
                                                 name={'settings-outline'} color={'#F2FF5D'}/>
                                         ),
-                                        header: () => {
-                                            return (<></>)
-                                        },
                                         headerShown: drawerHeaderShown
                                     }}
                                     initialParams={{}}
@@ -389,9 +383,6 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                                 size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 25 : Dimensions.get('window').width / 15}
                                                 name={'help-circle-outline'} color={'#F2FF5D'}/>
                                         ),
-                                        header: () => {
-                                            return (<></>)
-                                        },
                                         headerShown: drawerHeaderShown
                                     }}
                                 />

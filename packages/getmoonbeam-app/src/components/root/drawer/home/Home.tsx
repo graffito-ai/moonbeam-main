@@ -6,11 +6,14 @@ import {createMaterialBottomTabNavigator} from "@react-navigation/material-botto
 import {HomeStackParamList} from "../../../../models/props/HomeProps";
 import {useRecoilState} from "recoil";
 import {bottomTabShownState} from "../../../../recoil/HomeAtom";
-import {Text} from 'react-native';
+import {Dimensions} from 'react-native';
 import {currentUserInformation} from "../../../../recoil/AuthAtom";
 import {MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
 import {CustomBanner} from "../../../common/CustomBanner";
 import {customBannerState} from "../../../../recoil/CustomBannerAtom";
+import {Wallet} from "./cards/Wallet";
+import {Dashboard} from "./dashboard/Dashboard";
+import {Marketplace} from "./marketplace/Marketplace";
 
 /**
  * Home component. This is where the bottom bar components will reside, as well
@@ -59,6 +62,8 @@ export const Home = ({navigation}: HomeProps) => {
                     labeled={true}
                     activeColor={'white'}
                     barStyle={{
+                        borderTopWidth: Dimensions.get('window').width/1000,
+                        borderTopColor: '#FFFFFF',
                         backgroundColor: '#313030',
                         ...(!bottomTabShown && {display: 'none'})
                     }}
@@ -90,15 +95,15 @@ export const Home = ({navigation}: HomeProps) => {
                     })}
                 >
                     <HomeTabStack.Screen name="Dashboard"
-                                         component={() => <><Text>Dashboard</Text></>}
+                                         component={Dashboard}
                                          initialParams={{}}
                     />
                     <HomeTabStack.Screen name="Marketplace"
-                                         component={() => <><Text>Marketplace</Text></>}
+                                         component={Marketplace}
                                          initialParams={{}}
                     />
                     <HomeTabStack.Screen name="Cards"
-                                         component={() => <><Text>Cards</Text></>}
+                                         component={Wallet}
                                          initialParams={{}}
                     />
                 </HomeTabStack.Navigator>

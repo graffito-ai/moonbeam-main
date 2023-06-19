@@ -6,7 +6,7 @@ import {atom} from "recoil";
  */
 const appDrawerHeaderShownState = atom({
     key: "appDrawerHeaderShownState",
-    default: false
+    default: true
 });
 
 /**
