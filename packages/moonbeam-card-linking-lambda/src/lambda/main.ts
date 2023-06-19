@@ -6,6 +6,7 @@ import {
     GetCardLinkInput
 } from "@moonbeam/moonbeam-models";
 import {createCardLink} from "./resolvers/CreateCardLinkResolver";
+import { getCardLink } from "./resolvers/GetCardLinkResolver";
 
 /**
  * Mapping out the App Sync event type, so we can use it as a type in the Lambda Handler
@@ -34,6 +35,8 @@ type AppSyncEvent = {
 exports.handler = async (event: AppSyncEvent): Promise<CardLinkResponse> => {
     console.log(`Received new storage event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
+        case "getCardLink":
+            return await getCardLink(event.arguments.getCardLinkInput);
         case "createCardLink":
             return await createCardLink(event.arguments.createCardLinkInput);
         default:

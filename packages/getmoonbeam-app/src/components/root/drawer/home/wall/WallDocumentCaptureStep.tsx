@@ -15,7 +15,7 @@ import {Spinner} from "../../../../common/Spinner";
 import {
     additionalAppWallDocumentationErrors,
     additionalAppWallDocumentationNeeded
-} from "../../../../../recoil/HomeAtom";
+} from "../../../../../recoil/AppDrawerAtom";
 
 /**
  * WallDocumentCaptureStep component.

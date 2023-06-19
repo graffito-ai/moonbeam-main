@@ -2,7 +2,7 @@ import {atom} from "recoil";
 
 /**
  * Atom used to keep track of the splash status state, to be used for displaying a splash
- * screen after.
+ * screen.
  */
 const splashStatusState = atom({
     key: "splashStatusState",

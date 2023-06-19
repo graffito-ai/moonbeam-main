@@ -9,6 +9,8 @@ import {bottomTabShownState} from "../../../../recoil/HomeAtom";
 import {Text} from 'react-native';
 import {currentUserInformation} from "../../../../recoil/AuthAtom";
 import {MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
+import {CustomBanner} from "../../../common/CustomBanner";
+import {customBannerState} from "../../../../recoil/CustomBannerAtom";
 
 /**
  * Home component. This is where the bottom bar components will reside, as well
@@ -21,6 +23,7 @@ export const Home = ({navigation}: HomeProps) => {
     // constants used to keep track of shared states
     const [bottomTabShown,] = useRecoilState(bottomTabShownState);
     const [userInformation,] = useRecoilState(currentUserInformation);
+    const [bannerState,] = useRecoilState(customBannerState);
 
     // create a bottom navigator, to be used for our Home bottom bar navigation
     const HomeTabStack = createMaterialBottomTabNavigator<HomeStackParamList>();
@@ -42,6 +45,13 @@ export const Home = ({navigation}: HomeProps) => {
     // return the component for the Home page
     return (
         <>
+            <CustomBanner bannerVisibilityState={bannerState.bannerVisibilityState}
+                          bannerMessage={bannerState.bannerMessage}
+                          bannerButtonLabel={bannerState.bannerButtonLabel}
+                          bannerButtonLabelActionSource={bannerState.bannerButtonLabelActionSource}
+                          bannerArtSource={bannerState.bannerArtSource}
+                          dismissing={bannerState.dismissing}
+            />
             <NavigationContainer independent={true}>
                 <HomeTabStack.Navigator
                     initialRouteName={"Dashboard"}

@@ -402,8 +402,8 @@ const additionalDocumentationErrors = atom({
  * Atom used to keep track of the card-linking status, so that we can proceed to the next step
  * in the registration process accordingly.
  */
-const cardLinkingStatusState = atom({
-    key: "cardLinkingStatusState",
+const cardLinkingRegistrationStatusState = atom({
+    key: "cardLinkingRegistrationStatusState",
     default: false
 });
 
@@ -412,7 +412,7 @@ const cardLinkingStatusState = atom({
  * Export all atoms and/or selectors
  */
 export {
-    cardLinkingStatusState,
+    cardLinkingRegistrationStatusState,
     additionalDocumentationErrors,
     additionalDocumentationNeeded,
     militaryVerificationStatus,

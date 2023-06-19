@@ -4,10 +4,9 @@ import {NavigationContainer} from "@react-navigation/native";
 import {AppDrawerProps} from "../../../models/props/AuthenticationProps";
 import {AppDrawerStackParamList} from "../../../models/props/AppDrawerProps";
 import {CustomDrawer} from "../../common/CustomDrawer";
-import {Dimensions, Text} from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import {Animated, Dimensions, Text} from "react-native";
 import {useRecoilState} from "recoil";
-import {appDrawerHeaderShownState} from "../../../recoil/AppDrawerAtom";
+import {appDrawerHeaderShownState, cardLinkingStatusState} from "../../../recoil/AppDrawerAtom";
 import {Home} from "./home/Home";
 import {Ionicons} from "@expo/vector-icons";
 import * as Device from "expo-device";
@@ -15,7 +14,8 @@ import {DeviceType} from "expo-device";
 import {deviceTypeState} from "../../../recoil/RootAtom";
 import {
     getMilitaryVerificationStatus,
-    MilitaryVerificationErrorType, MilitaryVerificationStatusType,
+    MilitaryVerificationErrorType,
+    MilitaryVerificationStatusType,
     updatedMilitaryVerificationStatus,
     UpdateMilitaryVerificationResponse
 } from "@moonbeam/moonbeam-models";
@@ -23,9 +23,13 @@ import {API, graphqlOperation} from "aws-amplify";
 import {Observable} from "zen-observable-ts";
 import {currentUserInformation} from "../../../recoil/AuthAtom";
 import {Spinner} from "../../common/Spinner";
-import {Modal, Portal} from "react-native-paper";
+import {IconButton, Modal, Portal} from "react-native-paper";
 import {commonStyles} from "../../../styles/common.module";
 import {AppWall} from "./home/wall/AppWall";
+import {getCardLink} from "@moonbeam/moonbeam-models/lib";
+import {customBannerState} from "../../../recoil/CustomBannerAtom";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Image = Animated.Image;
 
 /**
  * AppDrawer component.
@@ -34,8 +38,6 @@ import {AppWall} from "./home/wall/AppWall";
  */
 export const AppDrawer = ({}: AppDrawerProps) => {
     // constants used to keep track of shared states
-    const [drawerHeaderShown,] = useRecoilState(appDrawerHeaderShownState);
-    const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
@@ -43,6 +45,10 @@ export const AppDrawer = ({}: AppDrawerProps) => {
     const [militaryStatusUpdatesSubscribed, setMilitaryStatusUpdatesSubscribed] = useState<boolean>(false);
     // constants used to keep track of shared states
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
+    const [drawerHeaderShown,] = useRecoilState(appDrawerHeaderShownState);
+    const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
+    const [cardLinkingStatus, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
+    const [, setBannerState] = useRecoilState(customBannerState);
 
     /**
      * create a drawer navigator, to be used for our sidebar navigation, which is the main driving
@@ -69,7 +75,89 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         }
         // retrieve an application wall accordingly (if needed)
         !userInformation["militaryStatus"] && retrieveMilitaryVerification(userInformation["custom:userId"]);
-    }, [militaryStatusUpdatesSubscription, userInformation]);
+        // retrieve a custom banner accordingly (if needed)
+        !cardLinkingStatus && userInformation["militaryStatus"]
+        && userInformation["militaryStatus"] === MilitaryVerificationStatusType.Verified
+        && retrieveCardLinkingStatus("custom:userId");
+    }, [militaryStatusUpdatesSubscription, userInformation, cardLinkingStatus]);
+
+
+    /**
+     * Function used to retrieve an individual's card linked object.
+     *
+     * @param userId userID generated through the previous steps during the sign-up process
+     */
+    const retrieveCardLinkingStatus = async (userId: string): Promise<void> => {
+        try {
+            // set the loader
+            setIsReady(false);
+
+            // call the internal card linking status API
+            const retrievedCardLinkingResult = await API.graphql(graphqlOperation(getCardLink, {
+                getCardLinkInput: {
+                    id: userId
+                }
+            }));
+
+            // retrieve the data block from the response
+            // @ts-ignore
+            const responseData = retrievedCardLinkingResult ? retrievedCardLinkingResult.data : null;
+
+            // check if there are any errors in the returned response
+            if (responseData && responseData.getCardLink.errorMessage === null) {
+                // release the loader
+                setIsReady(true);
+
+                // adding the card linking status accordingly
+                setCardLinkingStatus(true);
+
+                // set the banner state accordingly
+                setBannerState({
+                    bannerVisibilityState: cardLinkingStatusState,
+                    bannerMessage: "",
+                    bannerButtonLabel: "",
+                    bannerButtonLabelActionSource: "",
+                    bannerArtSource: require(''),
+                    dismissing: true
+                });
+            } else {
+                /**
+                 * if there is no card linking object retrieved for the user id, then display the banner accordingly. Whenever
+                 * a new card is linked successfully, then the status of the card linking will be changed, and thus, the banner
+                 * will be hidden.
+                 */
+                if (responseData.getCardLink.errorType === MilitaryVerificationErrorType.NoneOrAbsent) {
+                    // release the loader
+                    setIsReady(true);
+
+                    // adding the card linking status accordingly
+                    setCardLinkingStatus(false);
+
+                    // set the banner state accordingly
+                    setBannerState({
+                        bannerVisibilityState: cardLinkingStatusState,
+                        bannerMessage: "You currently do not have a linked card to your Moonbeam account. Get started now!",
+                        bannerButtonLabel: "Link Now",
+                        bannerButtonLabelActionSource: "",
+                        bannerArtSource: require('../../../../assets/art/moonbeam-card-linking.png'),
+                        dismissing: false
+                    });
+                } else {
+                    // release the loader
+                    setIsReady(true);
+
+                    console.log(`Unexpected error while retrieving the card linking through the API ${JSON.stringify(retrievedCardLinkingResult)}`);
+                    setModalVisible(true);
+                }
+            }
+        } catch (error) {
+            // release the loader
+            setIsReady(true);
+
+            console.log(`Unexpected error while attempting to retrieve the card linking object ${error}`);
+            setModalVisible(true);
+        }
+    }
 
     /**
      * Function used to retrieve the individual's eligibility by checking their
@@ -110,6 +198,9 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                  * in the useEffect() method above.
                  */
                 if (responseData.getMilitaryVerificationStatus.errorType === MilitaryVerificationErrorType.NoneOrAbsent) {
+                    // release the loader
+                    setIsReady(true);
+
                     // adding the military status to the user information object
                     setUserInformation({
                         ...userInformation,
@@ -205,7 +296,16 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                         <CustomDrawer {...props} />
                                 }
                                 initialRouteName={"Home"}
-                                screenOptions={{
+                                screenOptions={({ navigation }) => ({
+                                    headerLeft: () => <IconButton icon={'menu'} iconColor={'#FFFFFF'} size={30} onPress={navigation.toggleDrawer} />,
+                                    headerTitle: () =>
+                                        <Image  resizeMode={"center"}
+                                                style={{alignSelf: 'center'}}
+                                                source={require('../../../../assets/moonbeam-navigation-logo.png')}
+                                        />,
+                                    headerStyle: {
+                                        backgroundColor: '#313030'
+                                    },
                                     drawerLabelStyle: {
                                         fontFamily: 'Raleway-Medium',
                                         fontSize: deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 35 : Dimensions.get('window').width / 25
@@ -218,7 +318,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                         width: deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 2 : Dimensions.get('window').width / 1.5,
                                         backgroundColor: '#5B5A5A'
                                     }
-                                }}
+                                })}
                             >
                                 <ApplicationDrawer.Screen
                                     name={"Home"}

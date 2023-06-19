@@ -22,7 +22,7 @@ import {
     amplifySignUpProcessErrorsState,
     birthdayErrorState,
     birthdayState,
-    cardLinkingStatusState,
+    cardLinkingRegistrationStatusState,
     currentUserInformation,
     dutyStatusErrorsState,
     dutyStatusValueState,
@@ -144,7 +144,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [additionalDocumentsNeeded, setAdditionalDocumentsNeeded] = useRecoilState(additionalDocumentationNeeded);
     const [, setDocumentationErrors] = useRecoilState(additionalDocumentationErrors);
     // step 7
-    const [cardLinkingStatus,] = useRecoilState(cardLinkingStatusState);
+    const [cardLinkingStatus,] = useRecoilState(cardLinkingRegistrationStatusState);
     const [splashState, setSplashState] = useRecoilState(splashStatusState);
 
     /**

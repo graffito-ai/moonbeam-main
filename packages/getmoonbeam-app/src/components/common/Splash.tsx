@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Image, ImageSourcePropType, SafeAreaView, Text, View} from "react-native";
 import {styles} from '../../styles/splashScreen.module';
 
@@ -16,7 +16,18 @@ export const SplashScreen = (props: {
     splashArtSource: ImageSourcePropType,
     withButton: boolean
 }) => {
-    // return the component for the Splash
+
+    /**
+     * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
+     * auth-related functionality for example), as well as any afferent API calls.
+     *
+     * Generally speaking, any functionality imperative prior to the full page-load should be
+     * included in here.
+     */
+    useEffect(() => {
+    }, []);
+
+    // return the component for the Splash page
     return (
         <SafeAreaView style={styles.splashScreenView}>
             <Image

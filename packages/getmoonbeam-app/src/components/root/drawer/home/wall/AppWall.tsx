@@ -11,21 +11,21 @@ import {applicationWallSteps} from "../../../../../models/Constants";
 import {
     createMilitaryVerification,
     MilitaryAffiliation,
-    MilitaryVerificationStatusType
+    MilitaryVerificationStatusType,
+    updateMilitaryVerificationStatus
 } from "@moonbeam/moonbeam-models";
 import {Spinner} from "../../../../common/Spinner";
-import {
-    additionalAppWallDocumentationErrors,
-    additionalAppWallDocumentationNeeded,
-    appWallStepNumber
-} from "../../../../../recoil/HomeAtom";
 import {splashStatusState} from "../../../../../recoil/SplashAtom";
 import {SplashScreen} from "../../../../common/Splash";
 import * as SMS from 'expo-sms';
 import {Checkbox} from "expo-checkbox";
 import {API, graphqlOperation} from "aws-amplify";
 import {WallDocumentCaptureStep} from "./WallDocumentCaptureStep";
-import {updateMilitaryVerificationStatus} from "@moonbeam/moonbeam-models";
+import {
+    additionalAppWallDocumentationErrors,
+    additionalAppWallDocumentationNeeded,
+    appWallStepNumber
+} from "../../../../../recoil/AppDrawerAtom";
 
 /**
  * AppWall Component.

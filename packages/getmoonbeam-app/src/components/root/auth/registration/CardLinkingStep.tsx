@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {SafeAreaView, StyleSheet, TouchableOpacity} from "react-native";
 import WebView from "react-native-webview";
 import {useRecoilState} from "recoil";
-import {cardLinkingStatusState, currentUserInformation} from "../../../../recoil/AuthAtom";
+import {cardLinkingRegistrationStatusState, currentUserInformation} from "../../../../recoil/AuthAtom";
 import {Modal, Portal, Text} from "react-native-paper";
 import {commonStyles} from '../../../../styles/common.module';
 import {styles} from '../../../../styles/registration.module';
@@ -23,7 +23,7 @@ export const CardLinkingStep = () => {
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
 
     // constants used to keep track of shared states
-    const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
+    const [, setCardLinkingStatus] = useRecoilState(cardLinkingRegistrationStatusState);
     const [userInformation,] = useRecoilState(currentUserInformation);
 
     /**
