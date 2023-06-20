@@ -15,7 +15,7 @@ export const styles = StyleSheet.create({
         backgroundColor: '#F2FF5D',
         width: Dimensions.get('window').width/1.4,
         height: Dimensions.get('window').height/20,
-        marginTop: Dimensions.get('window').height/2.8,
+        left: Dimensions.get('window').width/13,
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -50,9 +50,49 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontFamily: 'Saira-Medium'
     },
-    bottomSheetContainerContent: {
+    cardLinkingParentView: {
         backgroundColor: '#5B5A5A',
-        alignItems: 'center',
-        height: Dimensions.get('window').height
+        alignContent: 'center',
+        alignSelf: 'center',
+        alignItems: 'center'
     },
+    cardLinkingIframeView: {
+        left: Dimensions.get('window').width / 2.03,
+        backgroundColor: 'transparent',
+        width: Dimensions.get('window').width*2,
+        flexGrow: 1
+    },
+    disclaimerTextView: {
+        position: 'absolute',
+        bottom: Dimensions.get('window').height/40,
+        alignSelf: 'center',
+        textAlign: 'center'
+    },
+    disclaimerText: {
+        fontFamily: 'Saira-Regular',
+        fontSize: Dimensions.get('window').width / 28,
+        width: Dimensions.get('window').width / 1.15,
+        textAlign: 'center'
+    },
+    walletTextView: {
+        alignSelf: 'flex-start',
+        marginTop: Dimensions.get('window').height / 20,
+        left: Dimensions.get('window').width / 20
+    },
+    walletTitle: {
+        fontFamily: 'Saira-SemiBold',
+        fontSize: Dimensions.get('window').width / 13
+    },
+    walletSubtitle: {
+        fontFamily: 'Raleway-Regular',
+        fontSize: Dimensions.get('window').width / 22,
+        width: Dimensions.get('window').width / 1.15,
+        textAlign: 'justify'
+    },
+    bottomSheet: {
+        backgroundColor: '#5B5A5A'
+    },
+    highlightedText: {
+        color: '#F2FF5D'
+    }
 });

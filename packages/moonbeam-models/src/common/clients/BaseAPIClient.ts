@@ -1,6 +1,6 @@
 import {GetSecretValueCommand, SecretsManagerClient} from "@aws-sdk/client-secrets-manager";
 import { Constants } from "../Constants";
-import {CardLinkResponse, MilitaryVerificationStatusType} from "../GraphqlExports";
+import {MemberResponse, CardLinkResponse, MilitaryVerificationStatusType, RemoveCardResponse} from "../GraphqlExports";
 
 /**
  * Class used as the base/generic client for all API clients that
@@ -78,6 +78,8 @@ export abstract class BaseAPIClient {
      *
      * @return a {@link Promise} of {@link MilitaryVerificationStatusType} representing the
      * military verification status obtained from the client verification call
+     *
+     * @protected
      */
     protected verify?(): Promise<MilitaryVerificationStatusType>;
 
@@ -85,7 +87,39 @@ export abstract class BaseAPIClient {
      * Function used to complete the linking of an individual's card on the platform.
      *
      * @return a {@link Promise} of {@link CardLinkResponse} representing the
-     * military verification status obtained from the client verification call
+     * card link response object obtained from the linking call
+     *
+     * @protected
      */
     protected link?(): Promise<CardLinkResponse>;
+
+    /**
+     * Function used to add a new card to an existing member.
+     *
+     * @return a {@link Promise} of {@link CardLinkResponse} representing the
+     * card link response object obtained from the add card call
+     *
+     * @protected
+     */
+    protected addCard?(): Promise<CardLinkResponse>;
+
+    /**
+     * Function used to update a member's status, to either active or inactive.
+     *
+     * @return a {@link Promise} of {@link MemberResponse} representing the
+     * member's contents after the update is performed
+     *
+     * @protected
+     */
+    protected updateMemberStatus?(): Promise<MemberResponse>;
+
+    /**
+     * Function used to remove/deactivate a card, given its ID.
+     *
+     * @return a {@link Promise} of {@link RemoveCardResponse} representing the
+     * card removal response.
+     *
+     * @protected
+     */
+    protected removeCard?(): Promise<RemoveCardResponse>;
 }

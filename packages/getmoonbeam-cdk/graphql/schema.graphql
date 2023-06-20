@@ -7,8 +7,9 @@ type Query {
 }
 
 type Mutation {
+    addCard(addCardInput: AddCardInput!): CardResponse! @aws_cognito_user_pools
     createCardLink(createCardLinkInput: CreateCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
-    deleteCard(deleteCardInput: DeleteCardInput!): CardLinkResponse! @aws_cognito_user_pools
+    deleteCard(deleteCardInput: DeleteCardInput!): CardResponse! @aws_cognito_user_pools
     updateMilitaryVerificationStatus(updateMilitaryVerificationInput: UpdateMilitaryVerificationInput!): UpdateMilitaryVerificationResponse! @aws_cognito_user_pools
     createMilitaryVerification(createMilitaryVerificationInput: CreateMilitaryVerificationInput!): CreateMilitaryVerificationResponse! @aws_cognito_user_pools
 }
@@ -192,14 +193,26 @@ type Card @aws_cognito_user_pools {
     name: String!
     last4: String!
     additionalProgramID: String # not all card will have additional program IDs enrolled to them
-    createdAt: AWSDateTime!
-    updatedAt: AWSDateTime!
 }
 
 type CardLink @aws_cognito_user_pools {
     id: ID! # this will be passed on to Olive as the unique user ID (extMemberId), and represents Moonbeam's unique user ID
     memberId: ID! # this will be obtained from Olive (and it is the Olive member id)
     cards: [Card]!
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+}
+
+type Member @aws_cognito_user_pools {
+    id: ID!
+    memberId: ID!
+    isActive: Boolean
+}
+
+type CardUpdate @aws_cognito_user_pools {
+    id: ID!
+    cardId: ID!
+    updatedAt: AWSDateTime!
 }
 
 input CardInput {
@@ -209,13 +222,19 @@ input CardInput {
     name: String!
     last4: String!
     additionalProgramID: String # not required since cards will mainly only be enrolled into the default program ID for Moonbeam through Olive
-    createdAt: AWSDateTime
-    updatedAt: AWSDateTime
 }
 
 input CreateCardLinkInput {
     id: ID!
     card: CardInput!
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+}
+
+input AddCardInput {
+    id: ID!
+    card: CardInput!
+    updatedAt: AWSDateTime
 }
 
 input GetCardLinkInput {
@@ -225,10 +244,29 @@ input GetCardLinkInput {
 input DeleteCardInput {
     id: ID!
     cardId: ID!
+    updatedAt: AWSDateTime
+}
+
+type CardResponse @aws_cognito_user_pools {
+    data: CardUpdate
+    errorType: CardLinkErrorType
+    errorMessage: String
 }
 
 type CardLinkResponse @aws_cognito_user_pools {
     data: CardLink
+    errorType: CardLinkErrorType
+    errorMessage: String
+}
+
+type MemberResponse @aws_cognito_user_pools {
+    data: Member
+    errorType: CardLinkErrorType
+    errorMessage: String
+}
+
+type RemoveCardResponse @aws_cognito_user_pools {
+    data: Boolean
     errorType: CardLinkErrorType
     errorMessage: String
 }

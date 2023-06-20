@@ -15,9 +15,20 @@ mutation CreateCardLink($createCardLinkInput: CreateCardLinkInput!) {
                 name
                 last4
                 additionalProgramID
-                createdAt
-                updatedAt
             }
+            createdAt
+            updatedAt
+        }
+    }
+}
+mutation AddCard($addCardInput: AddCardInput!) {
+    addCard(addCardInput: $addCardInput) {
+        errorType
+        errorMessage
+        data {
+            id
+            cardId
+            updatedAt
         }
     }
 }
@@ -27,16 +38,8 @@ mutation DeleteCard($deleteCardInput: DeleteCardInput!) {
         errorMessage
         data {
             id
-            cards {
-                id
-                token
-                type
-                name
-                last4
-                additionalProgramID
-                createdAt
-                updatedAt
-            }
+            cardId
+            updatedAt
         }
     }
 }

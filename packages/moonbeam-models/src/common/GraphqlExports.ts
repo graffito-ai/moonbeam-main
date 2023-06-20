@@ -21,35 +21,39 @@ export type Scalars = {
   AWSURL: string;
 };
 
+export type AddCardInput = {
+  card: CardInput;
+  id: Scalars['ID'];
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
 export type Card = {
   __typename?: 'Card';
   additionalProgramID?: Maybe<Scalars['String']>;
   applicationID: Scalars['ID'];
-  createdAt: Scalars['AWSDateTime'];
   id: Scalars['ID'];
   last4: Scalars['String'];
   name: Scalars['String'];
   token: Scalars['String'];
   type: CardType;
-  updatedAt: Scalars['AWSDateTime'];
 };
 
 export type CardInput = {
   additionalProgramID?: InputMaybe<Scalars['String']>;
   applicationID?: InputMaybe<Scalars['ID']>;
-  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
   last4: Scalars['String'];
   name: Scalars['String'];
   token: Scalars['String'];
   type: CardType;
-  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
 export type CardLink = {
   __typename?: 'CardLink';
   cards: Array<Maybe<Card>>;
+  createdAt: Scalars['AWSDateTime'];
   id: Scalars['ID'];
   memberId: Scalars['ID'];
+  updatedAt: Scalars['AWSDateTime'];
 };
 
 export enum CardLinkErrorType {
@@ -67,15 +71,31 @@ export type CardLinkResponse = {
   errorType?: Maybe<CardLinkErrorType>;
 };
 
+export type CardResponse = {
+  __typename?: 'CardResponse';
+  data?: Maybe<CardUpdate>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<CardLinkErrorType>;
+};
+
 export enum CardType {
   Invalid = 'INVALID',
   Mastercard = 'MASTERCARD',
   Visa = 'VISA'
 }
 
+export type CardUpdate = {
+  __typename?: 'CardUpdate';
+  cardId: Scalars['ID'];
+  id: Scalars['ID'];
+  updatedAt: Scalars['AWSDateTime'];
+};
+
 export type CreateCardLinkInput = {
   card: CardInput;
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
   id: Scalars['ID'];
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
 export type CreateMilitaryVerificationInput = {
@@ -105,6 +125,7 @@ export type CreateMilitaryVerificationResponse = {
 export type DeleteCardInput = {
   cardId: Scalars['ID'];
   id: Scalars['ID'];
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
 export type File = {
@@ -142,6 +163,20 @@ export type GetStorageInput = {
   level: FileAccessLevel;
   name: Scalars['String'];
   type: FileType;
+};
+
+export type Member = {
+  __typename?: 'Member';
+  id: Scalars['ID'];
+  isActive?: Maybe<Scalars['Boolean']>;
+  memberId: Scalars['ID'];
+};
+
+export type MemberResponse = {
+  __typename?: 'MemberResponse';
+  data?: Maybe<Member>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<CardLinkErrorType>;
 };
 
 export enum MilitaryAffiliation {
@@ -207,10 +242,16 @@ export enum MilitaryVerificationStatusType {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addCard: CardResponse;
   createCardLink: CardLinkResponse;
   createMilitaryVerification: CreateMilitaryVerificationResponse;
-  deleteCard: CardLinkResponse;
+  deleteCard: CardResponse;
   updateMilitaryVerificationStatus: UpdateMilitaryVerificationResponse;
+};
+
+
+export type MutationAddCardArgs = {
+  addCardInput: AddCardInput;
 };
 
 
@@ -253,6 +294,13 @@ export type QueryGetMilitaryVerificationStatusArgs = {
 
 export type QueryGetStorageArgs = {
   getStorageInput: GetStorageInput;
+};
+
+export type RemoveCardResponse = {
+  __typename?: 'RemoveCardResponse';
+  data?: Maybe<Scalars['Boolean']>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<CardLinkErrorType>;
 };
 
 export enum StorageErrorType {
@@ -299,14 +347,21 @@ export type CreateCardLinkMutationVariables = Exact<{
 }>;
 
 
-export type CreateCardLinkMutation = { __typename?: 'Mutation', createCardLink: { __typename?: 'CardLinkResponse', errorType?: CardLinkErrorType | null, errorMessage?: string | null, data?: { __typename?: 'CardLink', id: string, memberId: string, cards: Array<{ __typename?: 'Card', id: string, applicationID: string, token: string, type: CardType, name: string, last4: string, additionalProgramID?: string | null, createdAt: string, updatedAt: string } | null> } | null } };
+export type CreateCardLinkMutation = { __typename?: 'Mutation', createCardLink: { __typename?: 'CardLinkResponse', errorType?: CardLinkErrorType | null, errorMessage?: string | null, data?: { __typename?: 'CardLink', id: string, memberId: string, createdAt: string, updatedAt: string, cards: Array<{ __typename?: 'Card', id: string, applicationID: string, token: string, type: CardType, name: string, last4: string, additionalProgramID?: string | null } | null> } | null } };
+
+export type AddCardMutationVariables = Exact<{
+  addCardInput: AddCardInput;
+}>;
+
+
+export type AddCardMutation = { __typename?: 'Mutation', addCard: { __typename?: 'CardResponse', errorType?: CardLinkErrorType | null, errorMessage?: string | null, data?: { __typename?: 'CardUpdate', id: string, cardId: string, updatedAt: string } | null } };
 
 export type DeleteCardMutationVariables = Exact<{
   deleteCardInput: DeleteCardInput;
 }>;
 
 
-export type DeleteCardMutation = { __typename?: 'Mutation', deleteCard: { __typename?: 'CardLinkResponse', errorType?: CardLinkErrorType | null, errorMessage?: string | null, data?: { __typename?: 'CardLink', id: string, cards: Array<{ __typename?: 'Card', id: string, token: string, type: CardType, name: string, last4: string, additionalProgramID?: string | null, createdAt: string, updatedAt: string } | null> } | null } };
+export type DeleteCardMutation = { __typename?: 'Mutation', deleteCard: { __typename?: 'CardResponse', errorType?: CardLinkErrorType | null, errorMessage?: string | null, data?: { __typename?: 'CardUpdate', id: string, cardId: string, updatedAt: string } | null } };
 
 export type CreateMilitaryVerificationMutationVariables = Exact<{
   createMilitaryVerificationInput: CreateMilitaryVerificationInput;
@@ -327,7 +382,7 @@ export type GetCardLinkQueryVariables = Exact<{
 }>;
 
 
-export type GetCardLinkQuery = { __typename?: 'Query', getCardLink: { __typename?: 'CardLinkResponse', errorMessage?: string | null, errorType?: CardLinkErrorType | null, data?: { __typename?: 'CardLink', id: string, memberId: string, cards: Array<{ __typename?: 'Card', id: string, applicationID: string, token: string, type: CardType, name: string, last4: string, additionalProgramID?: string | null, createdAt: string, updatedAt: string } | null> } | null } };
+export type GetCardLinkQuery = { __typename?: 'Query', getCardLink: { __typename?: 'CardLinkResponse', errorMessage?: string | null, errorType?: CardLinkErrorType | null, data?: { __typename?: 'CardLink', id: string, memberId: string, createdAt: string, updatedAt: string, cards: Array<{ __typename?: 'Card', id: string, applicationID: string, token: string, type: CardType, name: string, last4: string, additionalProgramID?: string | null } | null> } | null } };
 
 export type GetMilitaryVerificationStatusQueryVariables = Exact<{
   getMilitaryVerificationInput: GetMilitaryVerificationInput;

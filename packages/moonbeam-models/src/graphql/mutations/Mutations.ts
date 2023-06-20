@@ -1,6 +1,6 @@
 // This is a file used to define the all GraphQL query constants
 
-// Mutation used to create a new card link for a user, with a new card.
+// Mutation used to create a new card link for a brand-new user, with a new card.
 export const createCardLink = /* GraphQL */ `
     mutation CreateCardLink($createCardLinkInput: CreateCardLinkInput!) {
         createCardLink(createCardLinkInput: $createCardLinkInput) {
@@ -17,9 +17,24 @@ export const createCardLink = /* GraphQL */ `
                     name
                     last4
                     additionalProgramID
-                    createdAt
-                    updatedAt
                 }
+                createdAt
+                updatedAt
+            }
+        }
+    }
+`;
+
+// Mutation used to add a new card, to an existing user, without creating a brand-new user.
+export const addCard = /* GraphQL */ `
+    mutation AddCard($addCardInput: AddCardInput!) {
+        addCard(addCardInput: $addCardInput) {
+            errorType
+            errorMessage
+            data {
+                id
+                cardId
+                updatedAt
             }
         }
     }
@@ -33,16 +48,8 @@ export const deleteCard = /* GraphQL */ `
             errorMessage
             data {
                 id
-                cards {
-                    id
-                    token
-                    type
-                    name
-                    last4
-                    additionalProgramID
-                    createdAt
-                    updatedAt
-                }
+                cardId
+                updatedAt
             }
         }
     }

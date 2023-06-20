@@ -54,7 +54,7 @@ export const CardLinkingStep = () => {
 
         /**
          * ensure that the incoming tokenized card, is for a valid/support card network. Even though
-         * this is also verified on the back-end, it is import to do it on the front-end, as well, to
+         * this is also verified on the back-end, it is important to do it on the front-end, as well, to
          * avoid making an extra network call if possible.
          */
         if (linkingData.data.card_type !== "visa" && linkingData.data.card_type !== "master") {

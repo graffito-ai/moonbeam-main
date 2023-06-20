@@ -389,7 +389,11 @@ export const styles = StyleSheet.create({
         flex: 0.55
     },
     cardLinkingParentView: {
-        backgroundColor: '#313030', marginTop: -Dimensions.get('window').height/20, alignContent: 'center',  alignSelf: 'center', alignItems: 'center'
+        backgroundColor: '#313030',
+        marginTop: -Dimensions.get('window').height/20,
+        alignContent: 'center',
+        alignSelf: 'center',
+        alignItems: 'center'
     },
     cardLinkingIframeView: {
         left: Dimensions.get('window').width / 2.03,

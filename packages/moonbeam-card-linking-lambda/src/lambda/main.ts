@@ -1,11 +1,12 @@
 import {
     CardLinkErrorType,
-    CardLinkResponse,
+    CardLinkResponse, CardResponse,
     CreateCardLinkInput,
     DeleteCardInput,
     GetCardLinkInput
 } from "@moonbeam/moonbeam-models";
 import {createCardLink} from "./resolvers/CreateCardLinkResolver";
+import { deleteCard } from "./resolvers/DeleteCardResolver";
 import { getCardLink } from "./resolvers/GetCardLinkResolver";
 
 /**
@@ -32,13 +33,15 @@ type AppSyncEvent = {
  *
  * @param event AppSync event to be passed in the handler
  */
-exports.handler = async (event: AppSyncEvent): Promise<CardLinkResponse> => {
+exports.handler = async (event: AppSyncEvent): Promise<CardLinkResponse | CardResponse> => {
     console.log(`Received new storage event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
         case "getCardLink":
             return await getCardLink(event.arguments.getCardLinkInput);
         case "createCardLink":
             return await createCardLink(event.arguments.createCardLinkInput);
+        case "deleteCard":
+            return await deleteCard(event.arguments.deleteCardInput);
         default:
             const errorMessage = `Unexpected field name: ${event.info.fieldName}`;
             console.log(errorMessage);

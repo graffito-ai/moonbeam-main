@@ -63,6 +63,10 @@ export class CardLinkingResolverStack extends Stack {
             typeName: "Mutation",
             fieldName: `${props.cardLinkingConfig.createCardLinkResolverName}`
         });
+        cardLinkingLambdaDataSource.createResolver(`${props.cardLinkingConfig.deleteCardResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Mutation",
+            fieldName: `${props.cardLinkingConfig.deleteCardResolverName}`
+        });
         cardLinkingLambdaDataSource.createResolver(`${props.cardLinkingConfig.getCardLinkResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Query",
             fieldName: `${props.cardLinkingConfig.getCardLinkResolverName}`

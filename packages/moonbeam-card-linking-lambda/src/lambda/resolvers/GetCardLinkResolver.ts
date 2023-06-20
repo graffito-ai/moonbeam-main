@@ -25,22 +25,22 @@ export const getCardLink = async (getCardLinkInput: GetCardLinkInput): Promise<C
             }
         }));
 
-        // if there is an item retrieved, then return its it accordingly
+        // if there is an item retrieved, then return it accordingly
         if (retrievedData && retrievedData.Item) {
             // return the retrieved card linking object
             return {
                 data: {
                     id: retrievedData.Item.id.S!,
                     memberId: retrievedData.Item.memberId.S!,
+                    createdAt: retrievedData.Item.createdAt.S!,
+                    updatedAt: retrievedData.Item.updatedAt.S!,
                     cards: [
                         {
-                            createdAt: retrievedData.Item.cards.L![0].M!.createdAt.S!,
                             last4: retrievedData.Item.cards.L![0].M!.last4.S!,
                             name: retrievedData.Item.cards.L![0].M!.name.S!,
                             id: retrievedData.Item.cards.L![0].M!.id.S!,
                             applicationID: retrievedData.Item.cards.L![0].M!.applicationID.S!,
                             type: retrievedData.Item.cards.L![0].M!.type.S! as CardType,
-                            updatedAt: retrievedData.Item.cards.L![0].M!.updatedAt.S!,
                             token: retrievedData.Item.cards.L![0].M!.token.S!
                         }
                     ]

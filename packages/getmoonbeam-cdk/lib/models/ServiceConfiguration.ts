@@ -76,4 +76,5 @@ export interface CardLinkingConfiguration {
     readonly getCardLinkResolverName: string;
     readonly createCardLinkResolverName: string;
     readonly deleteCardResolverName: string;
+    readonly addCardResolverName: string;
 }

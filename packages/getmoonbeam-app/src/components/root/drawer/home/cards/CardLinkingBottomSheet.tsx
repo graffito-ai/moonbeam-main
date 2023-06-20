@@ -5,7 +5,7 @@ import {useRecoilState} from "recoil";
 import {cardLinkingRegistrationStatusState, currentUserInformation} from "../../../../../recoil/AuthAtom";
 import {Modal, Portal, Text} from "react-native-paper";
 import {commonStyles} from '../../../../../styles/common.module';
-import {styles} from '../../../../../styles/registration.module';
+import {styles} from '../../../../../styles/wallet.module';
 import {Spinner} from "../../../../common/Spinner";
 import {API, graphqlOperation} from "aws-amplify";
 import {CardLinkErrorType, CardType, createCardLink} from "@moonbeam/moonbeam-models";
@@ -54,7 +54,7 @@ export const CardLinkingBottomSheet = () => {
 
         /**
          * ensure that the incoming tokenized card, is for a valid/support card network. Even though
-         * this is also verified on the back-end, it is import to do it on the front-end, as well, to
+         * this is also verified on the back-end, it is important to do it on the front-end, as well, to
          * avoid making an extra network call if possible.
          */
         if (linkingData.data.card_type !== "visa" && linkingData.data.card_type !== "master") {
@@ -219,7 +219,7 @@ export const CardLinkingBottomSheet = () => {
                 </script>
                 <script type="application/javascript"
                         id="olive-link-card-form"
-                        src="https://moonbeam-public-files-bucket-dev-us-west-2.s3.us-west-2.amazonaws.com/olive-custom-script-version1.js"
+                        src="https://moonbeam-public-files-bucket-dev-us-west-2.s3.us-west-2.amazonaws.com/olive-custom-script-version2.js"
                         data-public-key=Zlltp0W5jB09Us0kkOPN6edVwfy1JYGO
                         data-container-div="olive-sdk-container"
                         data-environment="sandbox"

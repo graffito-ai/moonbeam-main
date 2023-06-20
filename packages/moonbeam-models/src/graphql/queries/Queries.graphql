@@ -15,9 +15,9 @@ query GetCardLink($getCardLinkInput: GetCardLinkInput!) {
                 name
                 last4
                 additionalProgramID
-                createdAt
-                updatedAt
             }
+            createdAt
+            updatedAt
         }
     }
 }

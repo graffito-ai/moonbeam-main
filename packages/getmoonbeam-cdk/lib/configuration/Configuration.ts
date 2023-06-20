@@ -46,7 +46,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 cardLinkingTableName: 'cardLinkingTable',
                 getCardLinkResolverName: 'getCardLink',
                 createCardLinkResolverName: 'createCardLink',
-                deleteCardResolverName: 'deleteCard'
+                deleteCardResolverName: 'deleteCard',
+                addCardResolverName: 'addCard'
             },
             sesConfig: {
                 emailAddress: `noreply-${Stages.DEV}@moonbeam.vet`,

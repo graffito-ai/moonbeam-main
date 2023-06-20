@@ -7,8 +7,9 @@ type Query {
 }
 
 type Mutation {
+    addCard(addCardInput: AddCardInput!): CardResponse! @aws_cognito_user_pools
     createCardLink(createCardLinkInput: CreateCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
-    deleteCard(deleteCardInput: DeleteCardInput!): CardLinkResponse! @aws_cognito_user_pools
+    deleteCard(deleteCardInput: DeleteCardInput!): CardResponse! @aws_cognito_user_pools
     updateMilitaryVerificationStatus(updateMilitaryVerificationInput: UpdateMilitaryVerificationInput!): UpdateMilitaryVerificationResponse! @aws_cognito_user_pools
     createMilitaryVerification(createMilitaryVerificationInput: CreateMilitaryVerificationInput!): CreateMilitaryVerificationResponse! @aws_cognito_user_pools
 }

@@ -17,10 +17,11 @@ export const getCardLink = /* GraphQL */ `
                     name
                     last4
                     additionalProgramID
-                    createdAt
-                    updatedAt
                 }
+                createdAt
+                updatedAt
             }
+            
         }
     }
 `;

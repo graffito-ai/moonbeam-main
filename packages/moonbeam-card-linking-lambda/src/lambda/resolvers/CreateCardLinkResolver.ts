@@ -34,10 +34,14 @@ export const createCardLink = async (createCardLinkInput: CreateCardLinkInput): 
 
         // update the timestamps accordingly
         const createdAt = new Date().toISOString();
-        createCardLinkInput.card.createdAt = createCardLinkInput.card.createdAt ? createCardLinkInput.card.createdAt : createdAt;
-        createCardLinkInput.card.updatedAt = createCardLinkInput.card.updatedAt ? createCardLinkInput.card.updatedAt : createdAt;
+        createCardLinkInput.createdAt = createCardLinkInput.createdAt ? createCardLinkInput.createdAt : createdAt;
+        createCardLinkInput.updatedAt = createCardLinkInput.updatedAt ? createCardLinkInput.updatedAt : createdAt;
 
-        // check to see if the user already has a card enrolled in. If they do, then return an error since we only support one card linking per customer as of now.
+        /**
+         * check to see if the user already has a card enrolled in. If they do, then return an error, since we only don't want to create a brand-new customer
+         * with a new card, for an existing customer whom already has a linked card. In order to change a card for a customer, we will require them to first call
+         * our deleteCard API, followed by addCard API.
+         */
         const preExistingCardForLink =  await dynamoDbClient.send(new GetItemCommand({
             TableName: process.env.CARD_LINKING_TABLE!,
             Key: {
@@ -49,8 +53,8 @@ export const createCardLink = async (createCardLinkInput: CreateCardLinkInput): 
 
         // if there is an item retrieved, then we need to check its contents
         if (preExistingCardForLink && preExistingCardForLink.Item) {
-            // if there is an existent link, then it will contain a card, so we will return an error
-            const errorMessage = `Pre-existing card already linked. Unlink that one before adding a new one!`;
+            // if there is an existent link object, then we cannot duplicate that, so we will return an error
+            const errorMessage = `Pre-existing card linked object. Delete it before adding a new one!`;
             console.log(errorMessage);
 
             return {
@@ -64,7 +68,8 @@ export const createCardLink = async (createCardLinkInput: CreateCardLinkInput): 
             createCardLinkInput.card.applicationID = uuidv4();
 
             // call the Olive Client API here, in order to call the appropriate endpoints for this resolver
-            const oliveClient = new OliveClient(createCardLinkInput.card as Card, createCardLinkInput.id, process.env.ENV_NAME!, region);
+            const oliveClient = new OliveClient(process.env.ENV_NAME!, region, createCardLinkInput.card as Card,
+                createCardLinkInput.id, createCardLinkInput.createdAt, createCardLinkInput.updatedAt);
             const response = await oliveClient.link();
 
             // check to see if the card linking call was executed successfully
@@ -82,6 +87,12 @@ export const createCardLink = async (createCardLinkInput: CreateCardLinkInput): 
                         memberId: {
                             S: cardLinkedResponse.memberId
                         },
+                        createdAt: {
+                            S: createCardLinkInput.createdAt!
+                        },
+                        updatedAt: {
+                            S: createCardLinkInput.updatedAt!
+                        },
                         cards: {
                             L: [
                                 {
@@ -97,12 +108,6 @@ export const createCardLink = async (createCardLinkInput: CreateCardLinkInput): 
                                                 S: cardLinkedResponse.cards[0]!.additionalProgramID!
                                             }
                                         }),
-                                        createdAt: {
-                                            S: cardLinkedResponse.cards[0]!.createdAt
-                                        },
-                                        updatedAt: {
-                                            S: cardLinkedResponse.cards[0]!.updatedAt
-                                        },
                                         last4: {
                                             S: cardLinkedResponse.cards[0]!.last4
                                         },
@@ -127,6 +132,8 @@ export const createCardLink = async (createCardLinkInput: CreateCardLinkInput): 
                     data: {
                         id: cardLinkedResponse.id,
                         memberId: cardLinkedResponse.memberId,
+                        createdAt: createCardLinkInput.createdAt!,
+                        updatedAt: createCardLinkInput.updatedAt!,
                         cards: [cardLinkedResponse.cards[0]! as Card]
                     }
                 }
