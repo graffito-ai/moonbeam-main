@@ -6,7 +6,7 @@ import {AppDrawerStackParamList} from "../../../models/props/AppDrawerProps";
 import {CustomDrawer} from "../../common/CustomDrawer";
 import {Animated, Dimensions, Text} from "react-native";
 import {useRecoilState} from "recoil";
-import {appDrawerHeaderShownState, cardLinkingStatusState} from "../../../recoil/AppDrawerAtom";
+import {appDrawerHeaderShownState, cardLinkingStatusState, customBannerShown} from "../../../recoil/AppDrawerAtom";
 import {Home} from "./home/Home";
 import {Ionicons} from "@expo/vector-icons";
 import * as Device from "expo-device";
@@ -49,6 +49,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
     const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
     const [cardLinkingStatus, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
     const [, setBannerState] = useRecoilState(customBannerState);
+    const [, setBannerShown] = useRecoilState(customBannerShown);
 
     /**
      * create a drawer navigator, to be used for our sidebar navigation, which is the main driving
@@ -108,34 +109,12 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                 // release the loader
                 setIsReady(true);
 
-                // adding the card linking status accordingly
-                setCardLinkingStatus(true);
-
-                // set the banner state accordingly
-                setBannerState({
-                    bannerVisibilityState: cardLinkingStatusState,
-                    bannerMessage: "",
-                    bannerButtonLabel: "",
-                    bannerButtonLabelActionSource: "",
-                    bannerArtSource: require(''),
-                    dismissing: true
-                });
-
-                // adding the linked card object to the user information object
-                setUserInformation({
-                    ...userInformation,
-                    linkedCard: responseData.getCardLink.data
-                });
-            } else {
                 /**
-                 * if there is no card linking object retrieved for the user id, then display the banner accordingly. Whenever
-                 * a new card is linked successfully, then the status of the card linking will be changed, and thus, the banner
-                 * will be hidden.
+                 * if there are no linked cards for an existing object, then display the banner accordingly.
+                 * Whenever a new card is linked successfully, then the status of the card linking will be changed,
+                 * and thus, the banner will be hidden.
                  */
-                if (responseData.getCardLink.errorType === MilitaryVerificationErrorType.NoneOrAbsent) {
-                    // release the loader
-                    setIsReady(true);
-
+                if (responseData.getCardLink.data.cards.length === 0) {
                     // adding the card linking status accordingly
                     setCardLinkingStatus(false);
 
@@ -148,10 +127,58 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                         bannerArtSource: require('../../../../assets/art/moonbeam-card-linking.png'),
                         dismissing: false
                     });
-                } else {
-                    // release the loader
-                    setIsReady(true);
+                    setBannerShown(true);
 
+                    // adding the linked card object to the user information object
+                    setUserInformation({
+                        ...userInformation,
+                        linkedCard: responseData.getCardLink.data
+                    });
+                } else {
+                    // adding the card linking status accordingly
+                    setCardLinkingStatus(true);
+
+                    // set the banner state accordingly
+                    setBannerState({
+                        bannerVisibilityState: cardLinkingStatusState,
+                        bannerMessage: "",
+                        bannerButtonLabel: "",
+                        bannerButtonLabelActionSource: "",
+                        bannerArtSource: require('../../../../assets/art/moonbeam-card-linking.png'),
+                        dismissing: false
+                    });
+                    setBannerShown(false);
+
+                    // adding the linked card object to the user information object
+                    setUserInformation({
+                        ...userInformation,
+                        linkedCard: responseData.getCardLink.data
+                    });
+                }
+            } else {
+                // release the loader
+                setIsReady(true);
+
+                /**
+                 * if there is no card linking object retrieved for the user id, then display the banner accordingly.
+                 * Whenever a new card is linked successfully, then the status of the card linking will be changed, and thus,
+                 * the banner will be hidden.
+                 */
+                if (responseData.getCardLink.errorType === MilitaryVerificationErrorType.NoneOrAbsent) {
+                    // adding the card linking status accordingly
+                    setCardLinkingStatus(false);
+
+                    // set the banner state accordingly
+                    setBannerState({
+                        bannerVisibilityState: cardLinkingStatusState,
+                        bannerMessage: "You currently do not have a linked card to your Moonbeam account. Get started now!",
+                        bannerButtonLabel: "Link Now",
+                        bannerButtonLabelActionSource: "",
+                        bannerArtSource: require('../../../../assets/art/moonbeam-card-linking.png'),
+                        dismissing: false
+                    });
+                    setBannerShown(true);
+                } else {
                     console.log(`Unexpected error while retrieving the card linking through the API ${JSON.stringify(retrievedCardLinkingResult)}`);
                     setModalVisible(true);
                 }
@@ -160,7 +187,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
             // release the loader
             setIsReady(true);
 
-            console.log(`Unexpected error while attempting to retrieve the card linking object ${error}`);
+            console.log(`Unexpected error while attempting to retrieve the card linking object ${JSON.stringify(error)} ${error}`);
             setModalVisible(true);
         }
     }
@@ -224,7 +251,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
             // release the loader
             setIsReady(true);
 
-            console.log(`Unexpected error while attempting to retrieve the military verification object ${error}`);
+            console.log(`Unexpected error while attempting to retrieve the military verification object ${JSON.stringify(error)} ${error}`);
             setModalVisible(true);
         }
     }
@@ -264,7 +291,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                 },
                 // function triggering in case there are any errors
                 error: (error) => {
-                    console.log(`Unexpected error while subscribing to military status updates ${error}`);
+                    console.log(`Unexpected error while subscribing to military status updates ${JSON.stringify(error)} ${error}`);
                     setModalVisible(true);
                 }
             }));
@@ -275,7 +302,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
             // release the loader
             setIsReady(true);
 
-            console.log(`Unexpected error while building a subscription to observe military status updates ${error}`);
+            console.log(`Unexpected error while building a subscription to observe military status updates ${JSON.stringify(error)} ${error}`);
             setModalVisible(true);
         }
     }

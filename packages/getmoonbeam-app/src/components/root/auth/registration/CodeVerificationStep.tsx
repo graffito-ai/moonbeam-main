@@ -106,7 +106,7 @@ export const CodeVerificationStep = () => {
             }
             console.log(errorMessage
                 ? `Unexpected error while resending verification code: ${JSON.stringify(errorMessage)}`
-                : `Unexpected error while resending verification code: ${error}`);
+                : `Unexpected error while resending verification code: ${JSON.stringify(error)} ${error}`);
         }
     };
 

@@ -2,13 +2,15 @@ import React, {useEffect, useState} from "react";
 import {SafeAreaView, StyleSheet, TouchableOpacity} from "react-native";
 import WebView from "react-native-webview";
 import {useRecoilState} from "recoil";
-import {cardLinkingRegistrationStatusState, currentUserInformation} from "../../../../../recoil/AuthAtom";
+import {currentUserInformation} from "../../../../../recoil/AuthAtom";
 import {Modal, Portal, Text} from "react-native-paper";
 import {commonStyles} from '../../../../../styles/common.module';
 import {styles} from '../../../../../styles/wallet.module';
 import {Spinner} from "../../../../common/Spinner";
 import {API, graphqlOperation} from "aws-amplify";
-import {CardLinkErrorType, CardType, createCardLink} from "@moonbeam/moonbeam-models";
+import {addCard, CardLink, CardLinkErrorType, CardType, createCardLink} from "@moonbeam/moonbeam-models";
+import {cardLinkingStatusState, customBannerShown} from "../../../../../recoil/AppDrawerAtom";
+import { cardLinkingBottomSheetState } from "../../../../../recoil/WalletAtom";
 
 /**
  * CardLinkingBottomSheet component.
@@ -16,15 +18,16 @@ import {CardLinkErrorType, CardType, createCardLink} from "@moonbeam/moonbeam-mo
  * @constructor constructor for the component.
  */
 export const CardLinkingBottomSheet = () => {
-    // constants used to keep track of shared states
+    // constants used to keep track of local component state
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [modalCustomMessage, setModalCustomMessage] = useState<string>("");
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
-
     // constants used to keep track of shared states
-    const [, setCardLinkingStatus] = useRecoilState(cardLinkingRegistrationStatusState);
-    const [userInformation,] = useRecoilState(currentUserInformation);
+    const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
+    const [, setBannerShown] = useRecoilState(customBannerShown);
+    const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
+    const [, setCardLinkingBottomSheetState] = useRecoilState(cardLinkingBottomSheetState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -96,43 +99,158 @@ export const CardLinkingBottomSheet = () => {
                 setModalVisible(true);
             } else {
                 /**
-                 * If there are no errors to display, then retrieve the token, card nickname, last 4 digits for the card, the type,
-                 * and the unique user ID for the signup process. Use that information to then call our internal card linking API to
-                 * complete the account creation/member signup linking process.
+                 * check to see which type of call to perform. Whether we need a new enrollment call in case a user has skipped the
+                 * card enrollment process at signup, or an add card call in case we are just attempting to add a new card for an
+                 * existing user, who already has completed that process.
                  */
-                const [signupCardLinkedMemberResult, errorObject] = await signupCardLinkedMember(userInformation["userId"], linkingData.data.full_name,
-                    cardType, linkingData.data.last_four_digits, linkingData.data.token);
+                if (userInformation["linkedCard"]) {
+                    /**
+                     * If there are no errors to display, then retrieve the token, the member id, card nickname, last 4 digits for the card, the type,
+                     * and the unique user ID for the signup process. Use that information to then call our internal card addition API to
+                     * add a card to an existing member.
+                     */
+                    const [addCardResult, errorObject] = await addCardToMember(userInformation["custom:userId"], userInformation["linkedCard"]["memberId"],
+                        linkingData.data.full_name, cardType, linkingData.data.last_four_digits, linkingData.data.token);
 
-                // check if there was an error
-                if (errorObject || !signupCardLinkedMemberResult) {
-                    // filter through errors and determine whether a custom modal message is needed
-                    if (errorObject && errorObject[1] === CardLinkErrorType.InvalidCardScheme) {
-                        // release the loader on button press
-                        setIsReady(true);
+                    // check if there was an error
+                    if (errorObject || !addCardResult) {
+                        // filter through errors and determine whether a custom modal message is needed
+                        if (errorObject && errorObject[1] === CardLinkErrorType.InvalidCardScheme) {
+                            // release the loader on button press
+                            setIsReady(true);
 
-                        const errorMessage = `Unsupported card linked. Only MasterCard and/or Visa available to link!`;
-                        console.log(`${errorMessage} ${linkingData.data.card_type}`);
+                            const errorMessage = `Unsupported card added. Only MasterCard and/or Visa available to be added!`;
+                            console.log(`${errorMessage} ${linkingData.data.card_type}`);
 
-                        setCardLinkingStatus(false);
-                        // set a custom message for the modal message
-                        setModalCustomMessage(errorMessage);
-                        setModalVisible(true);
+                            setCardLinkingStatus(false);
+                            // set a custom message for the modal message
+                            setModalCustomMessage(errorMessage);
+                            setModalVisible(true);
+                        } else {
+                            // release the loader on button press
+                            setIsReady(true);
+
+                            // if there were errors, then display a modal prompting the user to retry adding their card
+                            console.log(`Error while adding new card ${JSON.stringify(errorObject)}`);
+                            setCardLinkingStatus(false);
+                            setModalVisible(true);
+                        }
                     } else {
                         // release the loader on button press
                         setIsReady(true);
 
-                        // if there were errors, then display a modal prompting the user to retry linking their card
-                        console.log(`Error while linking card ${JSON.stringify(errorObject)}`);
-                        setCardLinkingStatus(false);
-                        setModalVisible(true);
+                        // set the banner and card linking status accordingly
+                        setCardLinkingStatus(true);
+                        setBannerShown(false);
+
+                        // update the user information object accordingly
+                        setUserInformation({
+                            ...userInformation,
+                            linkedCard: addCardResult
+                        });
+
+                        // update the bottom sheet state for the wallet
+                        setCardLinkingBottomSheetState(true);
                     }
                 } else {
-                    // release the loader on button press
-                    setIsReady(true);
+                    /**
+                     * If there are no errors to display, then retrieve the token, card nickname, last 4 digits for the card, the type,
+                     * and the unique user ID for the signup process. Use that information to then call our internal card linking API to
+                     * complete the account creation/member signup linking process.
+                     */
+                    const [signupCardLinkedMemberResult, errorObject] = await signupCardLinkedMember(userInformation["custom:userId"], linkingData.data.full_name,
+                        cardType, linkingData.data.last_four_digits, linkingData.data.token);
 
-                    setCardLinkingStatus(true);
+                    // check if there was an error
+                    if (errorObject || !signupCardLinkedMemberResult) {
+                        // filter through errors and determine whether a custom modal message is needed
+                        if (errorObject && errorObject[1] === CardLinkErrorType.InvalidCardScheme) {
+                            // release the loader on button press
+                            setIsReady(true);
+
+                            const errorMessage = `Unsupported card linked. Only MasterCard and/or Visa available to link!`;
+                            console.log(`${errorMessage} ${linkingData.data.card_type}`);
+
+                            setCardLinkingStatus(false);
+                            // set a custom message for the modal message
+                            setModalCustomMessage(errorMessage);
+                            setModalVisible(true);
+                        } else {
+                            // release the loader on button press
+                            setIsReady(true);
+
+                            // if there were errors, then display a modal prompting the user to retry linking their card
+                            console.log(`Error while linking card ${JSON.stringify(errorObject)}`);
+                            setCardLinkingStatus(false);
+                            setModalVisible(true);
+                        }
+                    } else {
+                        // release the loader on button press
+                        setIsReady(true);
+
+                        // set the banner and card linking status accordingly
+                        setCardLinkingStatus(true);
+                        setBannerShown(false);
+
+                        // update the user information object accordingly
+                        setUserInformation({
+                            ...userInformation,
+                            linkedCard: signupCardLinkedMemberResult
+                        });
+
+                        // update the bottom sheet state for the wallet
+                        setCardLinkingBottomSheetState(true);
+                    }
                 }
             }
+        }
+    }
+
+    /**
+     * Function used to add a card to an individual's card linked object.
+     *
+     * @param userId uniquely generated user identifier.
+     * @param memberId member id obtained from Olive during the signup process.
+     * @param cardNickname the name/nickname of the card, inputted by the user.
+     * @param cardType the type of the card, auto-detected upon user linking via the enrollment form.
+     * @param last4Digits the last 4 digits of the card, inputted by the user, obtained from the card number.
+     * @param cardToken the card linking token, generated via the card vault, via the enrollment form.
+     *
+     * @return a {@link Promise}, containing a pair of a {@link CardLink}, and a {@link {String, CardLinkErrorType}},
+     * representing the card link object if it was successfully added, and implicitly,
+     * if it was not, what the error message and code for that error was.
+     */
+    const addCardToMember = async (userId: string, memberId: string, cardNickname: string, cardType: CardType,
+                                   last4Digits: string, cardToken: string): Promise<[CardLink | null, [string, CardLinkErrorType]?]> => {
+        try {
+            // call the internal add card API
+            const addCardResult = await API.graphql(graphqlOperation(addCard, {
+                addCardInput: {
+                    id: userId,
+                    memberId: memberId,
+                    card: {
+                        token: cardToken,
+                        type: cardType,
+                        name: cardNickname,
+                        last4: last4Digits
+                    }
+                }
+            }));
+
+            // retrieve the data block from the response
+            // @ts-ignore
+            const responseData = addCardResult ? addCardResult.data : null;
+
+            // check if there are any errors in the returned response
+            if (responseData && responseData.addCard.errorMessage === null) {
+                return [responseData.addCard.data];
+            } else {
+                console.log(`Unexpected error while adding a new card through the add card API ${JSON.stringify(addCardResult)}`);
+                return [null, [responseData.addCard.errorMessage, responseData.addCard.errorType]];
+            }
+        } catch (error) {
+            console.log(`Unexpected error while attempting to add a new card through the add card API ${JSON.stringify(error)} ${error}`);
+            return [null, [`Unexpected error`, CardLinkErrorType.UnexpectedError]];
         }
     }
 
@@ -145,12 +263,12 @@ export const CardLinkingBottomSheet = () => {
      * @param last4Digits the last 4 digits of the card, inputted by the user, obtained from the card number.
      * @param cardToken the card linking token, generated via the card vault, via the enrollment form.
      *
-     * @return a {@link Promise}, containing a pair of a {@link Boolean}, and a {@link {String, CardLinkErrorType}},
-     * representing whether the card was successfully linked or not, and implicitly, if it was not, what
-     * the error message and code for that error was.
+     * @return a {@link Promise}, containing a pair of a {@link CardLink}, and a {@link {String, CardLinkErrorType}},
+     * representing the card link object if it was successfully linked, and implicitly,
+     * if it was not, what the error message and code for that error was.
      */
     const signupCardLinkedMember = async (userId: string, cardNickname: string, cardType: CardType,
-                                          last4Digits: string, cardToken: string): Promise<[boolean, [string, CardLinkErrorType]?]> => {
+                                          last4Digits: string, cardToken: string): Promise<[CardLink | null, [string, CardLinkErrorType]?]> => {
         try {
             // call the internal card linking API
             const cardLinkingResult = await API.graphql(graphqlOperation(createCardLink, {
@@ -171,17 +289,16 @@ export const CardLinkingBottomSheet = () => {
 
             // check if there are any errors in the returned response
             if (responseData && responseData.createCardLink.errorMessage === null) {
-                return [true];
+                return [responseData.createCardLink.data];
             } else {
                 console.log(`Unexpected error while signing a new member up through the card linking API ${JSON.stringify(cardLinkingResult)}`);
-                return [false, [responseData.createCardLink.errorMessage, responseData.createCardLink.errorType]];
+                return [null, [responseData.createCardLink.errorMessage, responseData.createCardLink.errorType]];
             }
         } catch (error) {
-            console.log(`Unexpected error while signing a new member up through the card linking API ${error}`);
-            return [false, [`Unexpected error`, CardLinkErrorType.UnexpectedError]];
+            console.log(`Unexpected error while attempting to sign a new member up through the card linking API ${JSON.stringify(error)} ${error}`);
+            return [null, [`Unexpected error`, CardLinkErrorType.UnexpectedError]];
         }
     }
-
 
     /**
      * Content of the Olive iFrame, used to display the card linking form.

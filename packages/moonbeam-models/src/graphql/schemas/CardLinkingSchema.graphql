@@ -62,6 +62,7 @@ input CreateCardLinkInput {
 
 input AddCardInput {
     id: ID!
+    memberId: ID!
     card: CardInput!
     updatedAt: AWSDateTime
 }
@@ -72,6 +73,7 @@ input GetCardLinkInput {
 
 input DeleteCardInput {
     id: ID!
+    memberId: ID!
     cardId: ID!
     updatedAt: AWSDateTime
 }

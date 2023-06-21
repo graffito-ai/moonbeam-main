@@ -7,7 +7,7 @@ type Query {
 }
 
 type Mutation {
-    addCard(addCardInput: AddCardInput!): CardResponse! @aws_cognito_user_pools
+    addCard(addCardInput: AddCardInput!): CardLinkResponse! @aws_cognito_user_pools
     createCardLink(createCardLinkInput: CreateCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
     deleteCard(deleteCardInput: DeleteCardInput!): CardResponse! @aws_cognito_user_pools
     updateMilitaryVerificationStatus(updateMilitaryVerificationInput: UpdateMilitaryVerificationInput!): UpdateMilitaryVerificationResponse! @aws_cognito_user_pools
@@ -233,6 +233,7 @@ input CreateCardLinkInput {
 
 input AddCardInput {
     id: ID!
+    memberId: ID!
     card: CardInput!
     updatedAt: AWSDateTime
 }
@@ -243,6 +244,7 @@ input GetCardLinkInput {
 
 input DeleteCardInput {
     id: ID!
+    memberId: ID!
     cardId: ID!
     updatedAt: AWSDateTime
 }

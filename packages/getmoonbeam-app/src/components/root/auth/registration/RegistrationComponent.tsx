@@ -170,8 +170,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                 splashTitle: 'Congrats!',
                 splashDescription: 'Your card was successfully linked.',
                 splashButtonText: 'Finish',
-                splashArtSource: require('../../../../../assets/art/card-linked-success.png'),
-                withButton: false
+                splashArtSource: require('../../../../../assets/art/card-linked-success.png')
             });
 
             // increase the step number
@@ -252,7 +251,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
             // release the loader on button press
             setIsReady(true);
 
-            console.log(`Unexpected error while retrieving the eligibility status ${error}`);
+            console.log(`Unexpected error while retrieving the eligibility status ${JSON.stringify(error)} ${error}`);
             return [false, MilitaryVerificationStatusType.Pending];
         }
     }
@@ -326,7 +325,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
             }
             console.log(errorMessage
                 ? `Unexpected error while Signing Up: ${JSON.stringify(errorMessage)}`
-                : `Unexpected error while Signing Up: ${error}`);
+                : `Unexpected error while Signing Up: ${JSON.stringify(error)} ${error}`);
 
             // release the loader on button press
             setIsReady(true);
@@ -419,7 +418,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
             }
             console.log(errorMessage
                 ? `Unexpected error while confirming sign up code: ${JSON.stringify(errorMessage)}`
-                : `Unexpected error while confirming sign up code: ${error}`);
+                : `Unexpected error while confirming sign up code: ${JSON.stringify(error)} ${error}`);
 
             // release the loader on button press
             setIsReady(true);

@@ -33,7 +33,17 @@ export const addCard = /* GraphQL */ `
             errorMessage
             data {
                 id
-                cardId
+                memberId
+                cards {
+                    id
+                    applicationID
+                    token
+                    type
+                    name
+                    last4
+                    additionalProgramID
+                }
+                createdAt
                 updatedAt
             }
         }

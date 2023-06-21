@@ -27,7 +27,7 @@ export class CardLinkingResolverStack extends Stack {
             handler: 'handler',
             runtime: aws_lambda.Runtime.NODEJS_18_X,
             // we add a timeout here different from the default of 3 seconds, since we expect these API calls to take longer
-            timeout: Duration.seconds(20),
+            timeout: Duration.seconds(50),
             memorySize: 512,
             bundling: {
                 minify: true, // minify code, defaults to false
@@ -62,6 +62,10 @@ export class CardLinkingResolverStack extends Stack {
         cardLinkingLambdaDataSource.createResolver(`${props.cardLinkingConfig.createCardLinkResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Mutation",
             fieldName: `${props.cardLinkingConfig.createCardLinkResolverName}`
+        });
+        cardLinkingLambdaDataSource.createResolver(`${props.cardLinkingConfig.addCardResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Mutation",
+            fieldName: `${props.cardLinkingConfig.addCardResolverName}`
         });
         cardLinkingLambdaDataSource.createResolver(`${props.cardLinkingConfig.deleteCardResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Mutation",

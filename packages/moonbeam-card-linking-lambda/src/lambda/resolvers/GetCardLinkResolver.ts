@@ -1,5 +1,5 @@
 import {DynamoDBClient, GetItemCommand} from "@aws-sdk/client-dynamodb";
-import {CardLinkErrorType, CardLinkResponse, CardType, GetCardLinkInput} from "@moonbeam/moonbeam-models";
+import {Card, CardLinkErrorType, CardLinkResponse, CardType, GetCardLinkInput} from "@moonbeam/moonbeam-models";
 
 /**
  * GetCardLink resolver
@@ -16,7 +16,7 @@ export const getCardLink = async (getCardLinkInput: GetCardLinkInput): Promise<C
         const dynamoDbClient = new DynamoDBClient({region: region});
 
         // retrieve the card linking object, given the card linking input object
-        const retrievedData =  await dynamoDbClient.send(new GetItemCommand({
+        const retrievedData = await dynamoDbClient.send(new GetItemCommand({
             TableName: process.env.CARD_LINKING_TABLE!,
             Key: {
                 id: {
@@ -27,6 +27,18 @@ export const getCardLink = async (getCardLinkInput: GetCardLinkInput): Promise<C
 
         // if there is an item retrieved, then return it accordingly
         if (retrievedData && retrievedData.Item) {
+            // check to see if there are any cards in the list of cards for the card linked object, and populate the returned card array accordingly
+            const cards: Card[] = retrievedData.Item.cards.L!.length !== 0
+                ? [{
+                    last4: retrievedData.Item.cards.L![0].M!.last4.S!,
+                    name: retrievedData.Item.cards.L![0].M!.name.S!,
+                    id: retrievedData.Item.cards.L![0].M!.id.S!,
+                    applicationID: retrievedData.Item.cards.L![0].M!.applicationID.S!,
+                    type: retrievedData.Item.cards.L![0].M!.type.S! as CardType,
+                    token: retrievedData.Item.cards.L![0].M!.token.S!
+                }]
+                : [];
+
             // return the retrieved card linking object
             return {
                 data: {
@@ -34,16 +46,7 @@ export const getCardLink = async (getCardLinkInput: GetCardLinkInput): Promise<C
                     memberId: retrievedData.Item.memberId.S!,
                     createdAt: retrievedData.Item.createdAt.S!,
                     updatedAt: retrievedData.Item.updatedAt.S!,
-                    cards: [
-                        {
-                            last4: retrievedData.Item.cards.L![0].M!.last4.S!,
-                            name: retrievedData.Item.cards.L![0].M!.name.S!,
-                            id: retrievedData.Item.cards.L![0].M!.id.S!,
-                            applicationID: retrievedData.Item.cards.L![0].M!.applicationID.S!,
-                            type: retrievedData.Item.cards.L![0].M!.type.S! as CardType,
-                            token: retrievedData.Item.cards.L![0].M!.token.S!
-                        }
-                    ]
+                    cards: cards
                 }
             }
         } else {

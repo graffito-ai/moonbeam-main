@@ -177,7 +177,7 @@ export const CardLinkingStep = () => {
                 return [false, [responseData.createCardLink.errorMessage, responseData.createCardLink.errorType]];
             }
         } catch (error) {
-            console.log(`Unexpected error while signing a new member up through the card linking API ${error}`);
+            console.log(`Unexpected error while attempting to sign a new member up through the card linking API ${JSON.stringify(error)} ${error}`);
             return [false, [`Unexpected error`, CardLinkErrorType.UnexpectedError]];
         }
     }

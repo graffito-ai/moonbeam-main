@@ -96,8 +96,7 @@ export const AppWall = () => {
                 splashTitle: splashTitle,
                 splashDescription: splashDescription,
                 splashButtonText: splashButtonText,
-                splashArtSource: splashArtSource,
-                withButton: false
+                splashArtSource: splashArtSource
             });
         }
     }, [stepNumber, userInformation["militaryStatus"]]);
@@ -132,7 +131,7 @@ export const AppWall = () => {
                 return false;
             }
         } catch (error) {
-            console.log(`Unexpected error while updating the eligibility status through update ${error}`);
+            console.log(`Unexpected error while updating the eligibility status through update ${JSON.stringify(error)} ${error}`);
             return false;
         }
     }
@@ -211,8 +210,7 @@ export const AppWall = () => {
                             splashTitle: `Great!`,
                             splashDescription: `You finished our verification process, and can now continue!`,
                             splashButtonText: `Finish`,
-                            splashArtSource: require('../../../../../../assets/art/military-approval.png'),
-                            withButton: false
+                            splashArtSource: require('../../../../../../assets/art/military-approval.png')
                         });
                         // go to the final step
                         setStepNumber(stepNumber + 2);
@@ -232,7 +230,7 @@ export const AppWall = () => {
             // release the loader on button press
             setIsReady(true);
 
-            console.log(`Unexpected error while updating the eligibility status through creation ${error}`);
+            console.log(`Unexpected error while updating the eligibility status through creation ${JSON.stringify(error)} ${error}`);
             return false;
         }
     }
@@ -342,7 +340,6 @@ export const AppWall = () => {
                                         splashButtonText={splashState.splashButtonText}
                                         splashTitle={splashState.splashTitle}
                                         splashDescription={splashState.splashDescription}
-                                        withButton={splashState.withButton}
                                     />
                                     : stepNumber === 1
                                         ?
@@ -389,7 +386,6 @@ export const AppWall = () => {
                                                     splashButtonText={splashState.splashButtonText}
                                                     splashTitle={splashState.splashTitle}
                                                     splashDescription={splashState.splashDescription}
-                                                    withButton={splashState.withButton}
                                                 />
                                                 : <></>
                             }
@@ -454,8 +450,7 @@ export const AppWall = () => {
                                                         splashTitle: `Account is pending creation!`,
                                                         splashDescription: `Our team is working on verifying the documentation that you provided!`,
                                                         splashButtonText: `Finish`,
-                                                        splashArtSource: require('../../../../../../assets/art/military-status-pending.png'),
-                                                        withButton: false
+                                                        splashArtSource: require('../../../../../../assets/art/military-status-pending.png')
                                                     });
                                                     break;
                                                 case 3:

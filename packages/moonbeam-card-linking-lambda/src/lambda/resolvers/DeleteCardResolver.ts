@@ -1,4 +1,4 @@
-import {CardLinkErrorType, CardResponse, DeleteCardInput} from "@moonbeam/moonbeam-models";
+import {CardLinkErrorType, CardResponse, DeleteCardInput, OliveClient} from "@moonbeam/moonbeam-models";
 import {DynamoDBClient, GetItemCommand, UpdateItemCommand} from "@aws-sdk/client-dynamodb";
 
 /**
@@ -33,38 +33,70 @@ export const deleteCard = async (deleteCardInput: DeleteCardInput): Promise<Card
         if (retrievedData && retrievedData.Item) {
             // check if there is a card with the requested ID, in the retrieved object, to be deleted/unlinked
             if (retrievedData.Item.cards.L!.length !== 0 && retrievedData.Item.cards.L![0].M!.id.S! === deleteCardInput.cardId) {
-                //
+                // call the Olive Client API here, in order to call the appropriate endpoints for this resolver
+                const oliveClient = new OliveClient(process.env.ENV_NAME!, region, deleteCardInput.id);
 
-                // finally, update the card linked object, by removing the unlinked card from it
-                await dynamoDbClient.send(new UpdateItemCommand({
-                    TableName: process.env.CARD_LINKING_TABLE!,
-                    Key: {
-                        id: {
-                            S: deleteCardInput.id
-                        }
-                    },
-                    ExpressionAttributeNames: {
-                        "#CA": "cards",
-                        "#UA": "updatedAt"
-                    },
-                    ExpressionAttributeValues: {
-                        ":list": {
-                            L: []
-                        },
-                        ":ua": {
-                            S: deleteCardInput.updatedAt!
-                        }
-                    },
-                    UpdateExpression: "SET #CA = :list, #UA = :ua",
-                    ReturnValues: "UPDATED_NEW"
-                }));
+                // first execute the member update call, to deactivate the member
+                const updateMemberResponse = await oliveClient.updateMemberStatus(deleteCardInput.memberId, false, deleteCardInput.updatedAt!);
 
-                // return the updated IDs and timestamp
-                return {
-                    data: {
-                        id: deleteCardInput.id,
-                        cardId: deleteCardInput.cardId,
-                        updatedAt: deleteCardInput.updatedAt!
+                // check to see if the update member status call was executed successfully
+                if (updateMemberResponse && !updateMemberResponse.errorMessage && !updateMemberResponse.errorType
+                    && updateMemberResponse.data && updateMemberResponse.data.isActive === false
+                    && updateMemberResponse.data.id === deleteCardInput.id && updateMemberResponse.data.memberId === deleteCardInput.memberId) {
+
+                    // then execute the remove card call, to remove/deactivate a card to the member
+                    const removeCardResponse = await oliveClient.removeCard(deleteCardInput.cardId);
+
+                    // check to see if the remove card call was executed successfully
+                    if (removeCardResponse && !removeCardResponse.errorMessage && !removeCardResponse.errorType && removeCardResponse.data) {
+                        // finally, update the card linked object, by removing the unlinked card from it
+                        await dynamoDbClient.send(new UpdateItemCommand({
+                            TableName: process.env.CARD_LINKING_TABLE!,
+                            Key: {
+                                id: {
+                                    S: deleteCardInput.id
+                                }
+                            },
+                            ExpressionAttributeNames: {
+                                "#CA": "cards",
+                                "#UA": "updatedAt"
+                            },
+                            ExpressionAttributeValues: {
+                                ":list": {
+                                    L: []
+                                },
+                                ":ua": {
+                                    S: deleteCardInput.updatedAt!
+                                }
+                            },
+                            UpdateExpression: "SET #CA = :list, #UA = :ua",
+                            ReturnValues: "UPDATED_NEW"
+                        }));
+
+                        // return the card response object
+                        return {
+                            data: {
+                                id: deleteCardInput.id,
+                                cardId: deleteCardInput.cardId,
+                                updatedAt: deleteCardInput.updatedAt!
+                            }
+                        }
+                    } else {
+                        console.log(`Unexpected response structure returned from the remove card call!`);
+
+                        // if there are errors associated with the remove card call, just return the error message and error type from the upstream client
+                        return {
+                            errorMessage: removeCardResponse.errorMessage,
+                            errorType: removeCardResponse.errorType
+                        }
+                    }
+                } else {
+                    console.log(`Unexpected response structure returned from the update member status call!`);
+
+                    // if there are errors associated with the update member status call, just return the error message and error type from the upstream client
+                    return {
+                        errorMessage: updateMemberResponse.errorMessage,
+                        errorType: updateMemberResponse.errorType
                     }
                 }
             } else {

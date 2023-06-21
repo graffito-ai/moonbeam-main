@@ -82,6 +82,8 @@ export class QuandisClient extends BaseAPIClient {
                 timeout: 10000, // in milliseconds here
                 timeoutErrorMessage: 'Quandis API timed out after 4000ms!'
             }).then(verificationResponse => {
+                console.log(`Quandis API response ${JSON.stringify(verificationResponse.data)}`);
+
                 /**
                  * if we reached this, then we assume that a 2xx response code was returned.
                  * check the contents of the response, and act appropriately.

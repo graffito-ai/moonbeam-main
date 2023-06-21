@@ -33,7 +33,6 @@ export const CardLinkingStatusSplashStep = () => {
                 splashButtonText={splashState.splashButtonText}
                 splashTitle={splashState.splashTitle}
                 splashDescription={splashState.splashDescription}
-                withButton={splashState.withButton}
             />
         </>
     );

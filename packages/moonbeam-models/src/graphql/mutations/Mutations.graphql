@@ -27,7 +27,17 @@ mutation AddCard($addCardInput: AddCardInput!) {
         errorMessage
         data {
             id
-            cardId
+            memberId
+            cards {
+                id
+                applicationID
+                token
+                type
+                name
+                last4
+                additionalProgramID
+            }
+            createdAt
             updatedAt
         }
     }

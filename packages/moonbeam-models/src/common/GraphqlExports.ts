@@ -24,6 +24,7 @@ export type Scalars = {
 export type AddCardInput = {
   card: CardInput;
   id: Scalars['ID'];
+  memberId: Scalars['ID'];
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
@@ -125,6 +126,7 @@ export type CreateMilitaryVerificationResponse = {
 export type DeleteCardInput = {
   cardId: Scalars['ID'];
   id: Scalars['ID'];
+  memberId: Scalars['ID'];
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
@@ -242,7 +244,7 @@ export enum MilitaryVerificationStatusType {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  addCard: CardResponse;
+  addCard: CardLinkResponse;
   createCardLink: CardLinkResponse;
   createMilitaryVerification: CreateMilitaryVerificationResponse;
   deleteCard: CardResponse;
@@ -354,7 +356,7 @@ export type AddCardMutationVariables = Exact<{
 }>;
 
 
-export type AddCardMutation = { __typename?: 'Mutation', addCard: { __typename?: 'CardResponse', errorType?: CardLinkErrorType | null, errorMessage?: string | null, data?: { __typename?: 'CardUpdate', id: string, cardId: string, updatedAt: string } | null } };
+export type AddCardMutation = { __typename?: 'Mutation', addCard: { __typename?: 'CardLinkResponse', errorType?: CardLinkErrorType | null, errorMessage?: string | null, data?: { __typename?: 'CardLink', id: string, memberId: string, createdAt: string, updatedAt: string, cards: Array<{ __typename?: 'Card', id: string, applicationID: string, token: string, type: CardType, name: string, last4: string, additionalProgramID?: string | null } | null> } | null } };
 
 export type DeleteCardMutationVariables = Exact<{
   deleteCardInput: DeleteCardInput;

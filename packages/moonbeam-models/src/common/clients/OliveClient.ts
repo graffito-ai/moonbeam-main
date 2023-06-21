@@ -8,50 +8,11 @@ import axios from "axios";
  */
 export class OliveClient extends BaseAPIClient {
     /**
-     * The card input, provided by the customer, used to finalize the linking
-     * and/enrollment process of a card.
-     *
-     * @private
-     */
-    private readonly card: Card;
-
-    /**
      *  The unique ID of a card linking user.
      *
      * @private
      */
     private readonly userId: string;
-
-    /**
-     * Member ID, obtained from Olive.
-     *
-     * @private
-     */
-    private readonly memberId: string | undefined;
-
-    /**
-     * Member flag to be passed in, signifying whether
-     * a member is active or not.
-     *
-     * @private
-     */
-    private readonly memberFlag: boolean | undefined;
-
-    /**
-     * Card ID, obtained from Olive.
-     *
-     * @private
-     */
-    private readonly cardId: string | undefined;
-
-    /**
-     * Timestamps to be passed in at client initialization, to be
-     * used in subsequent API calls.
-     *
-     * @private
-     */
-    private readonly createdAt: string;
-    private readonly updatedAt: string;
 
     /**
      * Generic constructor for the client.
@@ -60,36 +21,24 @@ export class OliveClient extends BaseAPIClient {
      * @param region the AWS region passed in from the Lambda resolver.
      * @param card card information provided by the customer.
      * @param userId unique user ID of a card linking user.
-     * @param createdAt creation date to be passed in.
-     * @param updatedAt update date to be passed in.
-     * @param memberId member id of user, obtained from Olive, optional, depending on the
-     *                 type of API calls to be made via client.
-     * @param memberFlag flag to indicate whether a member is active or not, optional, depending on the
-     *                   type of API calls to be made via the client.
-     * @param cardId card ID to be passed in, optional, depending on the type of API calls to be made via
-     *               the client.
      */
-    constructor(environment: string, region: string, card: Card, userId: string,
-                createdAt: string, updatedAt: string, memberId?: string,
-                memberFlag?: boolean, cardId?: string) {
+    constructor(environment: string, region: string, userId: string) {
         super(region, environment);
 
-        this.card = card;
         this.userId = userId;
-        this.memberId = memberId;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.memberFlag = memberFlag;
-        this.cardId = cardId;
     }
 
     /**
      * Function used to complete the linking of an individual's card on the platform.
      *
+     * @param createdAt card linked object creation date
+     * @param updatedAt card linked object update date
+     * @param card card information to be used during the enrollment/linking process
+     *
      * @return a {@link Promise} of {@link CardLinkResponse} representing the
-     * military verification status obtained from the client verification call
+     * card link response object obtained from the linking call
      */
-    async link(): Promise<CardLinkResponse> {
+    async link(createdAt: string, updatedAt: string, card: Card): Promise<CardLinkResponse> {
         // easily identifiable API endpoint information
         const endpointInfo = 'POST /members/signup Olive API';
 
@@ -119,17 +68,17 @@ export class OliveClient extends BaseAPIClient {
              * error for a better customer experience.
              */
             const requestData = {
-                cardToken: this.card.token,
-                nickname: this.card.name,
+                cardToken: card.token,
+                nickname: card.name,
                 member: {
-                    tcAcceptedDate: this.updatedAt,
-                    referenceAppId: this.card.applicationID,
+                    tcAcceptedDate: createdAt,
+                    referenceAppId: card.applicationID,
                     extMemberId: this.userId,
                     cashbackProgram: true,
                     roundingProgram: false
                 },
-                ...(this.card.additionalProgramID && this.card.additionalProgramID.length !== 0 && {
-                    loyaltyProgramId: this.card.additionalProgramID
+                ...(card.additionalProgramID && card.additionalProgramID.length !== 0 && {
+                    loyaltyProgramId: card.additionalProgramID
                 })
             };
             console.log(`Olive API request Object: ${JSON.stringify(requestData)}`);
@@ -141,6 +90,8 @@ export class OliveClient extends BaseAPIClient {
                 timeout: 15000, // in milliseconds here
                 timeoutErrorMessage: 'Olive API timed out after 15000ms!'
             }).then(cardLinkedResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(cardLinkedResponse.data)}`);
+
                 /**
                  * if we reached this, then we assume that a 2xx response code was returned.
                  * check the contents of the response, and act appropriately.
@@ -150,25 +101,25 @@ export class OliveClient extends BaseAPIClient {
                     && cardLinkedResponse.data["card"] && cardLinkedResponse.data["card"]["id"]
                     && cardLinkedResponse.data["card"] && cardLinkedResponse.data["card"]["last4Digits"]) {
                     // match the last 4 from the request. Always go by the /members/signup last 4 in case they don't match
-                    if (cardLinkedResponse.data["card"]["last4Digits"] !== this.card.last4) {
-                        this.card.last4 = cardLinkedResponse.data["card"]["last4Digits"];
+                    if (cardLinkedResponse.data["card"]["last4Digits"] !== card.last4) {
+                        card.last4 = cardLinkedResponse.data["card"]["last4Digits"];
                     }
 
                     return {
                         data: {
                             id: this.userId,
                             memberId: cardLinkedResponse.data["member"]["id"],
-                            createdAt: this.createdAt,
-                            updatedAt: this.updatedAt,
+                            createdAt: createdAt,
+                            updatedAt: updatedAt,
                             cards: [{
-                                ...this.card,
+                                ...card,
                                 id: cardLinkedResponse.data["card"]["id"]
                             }]
                         }
                     }
                 } else {
                     return {
-                        errorMessage: `Invalid response structure returned!`,
+                        errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
                         errorType: CardLinkErrorType.ValidationError
                     }
                 }
@@ -234,10 +185,15 @@ export class OliveClient extends BaseAPIClient {
     /**
      * Function used to add a new card to an existing member.
      *
+     * @param memberId member id, retrieved from Olive, which the card will be added to
+     * @param createdAt card linked object creation date
+     * @param updatedAt card linked object update date
+     * @param card card information to be used in adding a new card to a member
+     *
      * @return a {@link Promise} of {@link CardLinkResponse} representing the
      * card link response object obtained from the add card call
      */
-    async addCard(): Promise<CardLinkResponse> {
+    async addCard(memberId: string, createdAt: string, updatedAt: string, card: Card): Promise<CardLinkResponse> {
         // easily identifiable API endpoint information
         const endpointInfo = 'POST /cards Olive API';
 
@@ -267,10 +223,9 @@ export class OliveClient extends BaseAPIClient {
              * error for a better customer experience.
              */
             const requestData = {
-                // for this call we know for sure that at client initialization time, a member ID will be passed in
-                memberId: this.memberId!,
-                nickname: this.card.name,
-                cardToken: this.card.token
+                memberId: memberId,
+                nickname: card.name,
+                cardToken: card.token
             };
             console.log(`Olive API request Object: ${JSON.stringify(requestData)}`);
             return axios.post(`${oliveBaseURL}/cards`, requestData, {
@@ -281,31 +236,33 @@ export class OliveClient extends BaseAPIClient {
                 timeout: 15000, // in milliseconds here
                 timeoutErrorMessage: 'Olive API timed out after 15000ms!'
             }).then(addCardResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(addCardResponse.data)}`);
+
                 /**
                  * if we reached this, then we assume that a 2xx response code was returned.
                  * check the contents of the response, and act appropriately.
                  */
                 if (addCardResponse.data && addCardResponse.data["memberId"] && addCardResponse.data["id"] && addCardResponse.data["last4Digits"]) {
                     // match the last 4 from the request. Always go by the /cards last 4 in case they don't match
-                    if (addCardResponse.data["last4Digits"] !== this.card.last4) {
-                        this.card.last4 = addCardResponse.data["last4Digits"];
+                    if (addCardResponse.data["last4Digits"] !== card.last4) {
+                        card.last4 = addCardResponse.data["last4Digits"];
                     }
 
                     return {
                         data: {
                             id: this.userId,
                             memberId: addCardResponse.data["memberId"],
-                            createdAt: this.createdAt,
-                            updatedAt: this.updatedAt,
+                            createdAt: createdAt,
+                            updatedAt: updatedAt,
                             cards: [{
-                                ...this.card,
+                                ...card,
                                 id: addCardResponse.data["id"]
                             }]
                         }
                     }
                 } else {
                     return {
-                        errorMessage: `Invalid response structure returned!`,
+                        errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
                         errorType: CardLinkErrorType.ValidationError
                     }
                 }
@@ -371,10 +328,14 @@ export class OliveClient extends BaseAPIClient {
     /**
      * Function used to update a member's status, to either active or inactive.
      *
+     * @param memberId member id, retrieved from Olive, which the status will be updated for
+     * @param memberFlag flag to indicate what the status of the member, will be updated to
+     * @param updatedAt card linked object update date
+     *
      * @return a {@link Promise} of {@link MemberResponse} representing the
      * member's contents after the update is performed
      */
-    async updateMemberStatus?(): Promise<MemberResponse> {
+    async updateMemberStatus(memberId: string, memberFlag: boolean, updatedAt: string): Promise<MemberResponse> {
         // easily identifiable API endpoint information
         const endpointInfo = 'POST /members/{id} Olive API';
 
@@ -400,42 +361,44 @@ export class OliveClient extends BaseAPIClient {
              * @link https://developer.oliveltd.com/reference/edit-member
              *
              * build the Olive API request body to be passed in, and perform a POST to it with the appropriate information
-             * we imply that if the API does not respond in 10 seconds, then we automatically catch that, and return an
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
              * error for a better customer experience.
              */
             const requestData = {
-                tcAcceptedDate: this.updatedAt,
+                tcAcceptedDate: updatedAt,
                 extMemberId: this.userId,
                 // for this call we know for sure that at client initialization time, a member flag will be passed in
-                isActive: this.memberFlag!,
+                isActive: memberFlag,
                 cashbackProgram: true,
                 roundingProgram: false
             };
             console.log(`Olive API request Object: ${JSON.stringify(requestData)}`);
-            // for this call we know for sure that at client initialization time, a member ID will be passed in
-            return axios.post(`${oliveBaseURL}/members/${this.memberId!}`, requestData, {
+
+            return axios.put(`${oliveBaseURL}/members/${memberId}`, requestData, {
                 headers: {
                     "Content-Type": "application/json",
                     "Olive-Key": olivePrivateKey
                 },
-                timeout: 10000, // in milliseconds here
-                timeoutErrorMessage: 'Olive API timed out after 10000ms!'
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Olive API timed out after 15000ms!'
             }).then(updateMemberResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(updateMemberResponse.data)}`);
+
                 /**
                  * if we reached this, then we assume that a 2xx response code was returned.
                  * check the contents of the response, and act appropriately.
                  */
-                if (updateMemberResponse.data && updateMemberResponse.data["Id"] && updateMemberResponse.data["externalMemberId"] && updateMemberResponse.data["IsActive"]) {
+                if (updateMemberResponse.data && updateMemberResponse.data["id"] && updateMemberResponse.data["extMemberId"] && (updateMemberResponse.data["isActive"] !== null || updateMemberResponse.data["isActive"] !== undefined)) {
                     return {
                         data: {
-                            id: updateMemberResponse.data["Id"],
-                            memberId: updateMemberResponse.data["externalMemberId"],
-                            isActive: updateMemberResponse.data["IsActive"]
+                            id: updateMemberResponse.data["extMemberId"],
+                            memberId: updateMemberResponse.data["id"],
+                            isActive: updateMemberResponse.data["isActive"]
                         }
                     }
                 } else {
                     return {
-                        errorMessage: `Invalid response structure returned!`,
+                        errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
                         errorType: CardLinkErrorType.ValidationError
                     }
                 }
@@ -491,14 +454,14 @@ export class OliveClient extends BaseAPIClient {
     /**
      * Function used to remove/deactivate a card, given its ID.
      *
+     * @param cardId the id of the card to be removed/deleted/deactivated
+     *
      * @return a {@link Promise} of {@link RemoveCardResponse} representing the
      * card removal response.
-     *
-     * @protected
      */
-    async removeCard?(): Promise<RemoveCardResponse> {
+    async removeCard(cardId: string): Promise<RemoveCardResponse> {
         // easily identifiable API endpoint information
-        const endpointInfo = 'POST /cards/deactivate/{id} Olive API';
+        const endpointInfo = 'POST /cards/{id}/deactivate Olive API';
 
         try {
             // retrieve the API Key and Base URL, needed in order to make the card linking call through the client
@@ -518,22 +481,24 @@ export class OliveClient extends BaseAPIClient {
             }
 
             /**
-             * POST /cards/deactivate/{id}
+             * POST /cards/{id}/deactivate
              * @link https://developer.oliveltd.com/reference/delete-card
              *
              * build the Olive API request body to be passed in, and perform a POST to it with the appropriate information
-             * we imply that if the API does not respond in 10 seconds, then we automatically catch that, and return an
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
              * error for a better customer experience.
              */
             // for this call we know for sure that at client initialization time, a card ID will be passed in
-            return axios.post(`${oliveBaseURL}/cards/deactivate/${this.cardId!}`, {}, {
+            return axios.post(`${oliveBaseURL}/cards/${cardId}/deactivate`, {}, {
                 headers: {
                     "Content-Type": "application/json",
                     "Olive-Key": olivePrivateKey
                 },
-                timeout: 10000, // in milliseconds here
-                timeoutErrorMessage: 'Olive API timed out after 10000ms!'
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Olive API timed out after 15000ms!'
             }).then(removeCardResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(removeCardResponse.data)}`);
+
                 /**
                  * if we reached this, then we assume that a 2xx response code was returned.
                  */
@@ -543,7 +508,7 @@ export class OliveClient extends BaseAPIClient {
                     }
                 } else {
                     return {
-                        errorMessage: `Invalid response structure returned!`,
+                        errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
                         errorType: CardLinkErrorType.ValidationError
                     }
                 }

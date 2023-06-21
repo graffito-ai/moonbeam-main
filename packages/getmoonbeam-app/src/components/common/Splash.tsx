@@ -13,8 +13,7 @@ export const SplashScreen = (props: {
     splashTitle: string,
     splashDescription: string,
     splashButtonText: string,
-    splashArtSource: ImageSourcePropType,
-    withButton: boolean
+    splashArtSource: ImageSourcePropType
 }) => {
 
     /**
@@ -40,12 +39,6 @@ export const SplashScreen = (props: {
                 <Text style={styles.splashTitle}>{props.splashTitle}</Text>
                 <Text style={styles.splashDescription}>{props.splashDescription}</Text>
             </View>
-            {
-                props.withButton &&
-                <>
-                    {/*ToDo add a button functionality here*/}
-                </>
-            }
         </SafeAreaView>
     );
 };

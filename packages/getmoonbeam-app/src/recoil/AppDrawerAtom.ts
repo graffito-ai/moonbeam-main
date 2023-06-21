@@ -45,6 +45,16 @@ const cardLinkingStatusState = atom({
 });
 
 /**
+ * Additional flag, indicating whether the banner will be shown or not. In some cases, even if
+ * a banner is shown, we don't want to display it for some screens.
+ */
+const customBannerShown = atom({
+    key: "customBannerShown",
+    default: false
+});
+
+
+/**
  * Export all atoms and/or selectors
  */
 export {
@@ -52,5 +62,6 @@ export {
     appWallStepNumber,
     additionalAppWallDocumentationNeeded,
     additionalAppWallDocumentationErrors,
-    cardLinkingStatusState
+    cardLinkingStatusState,
+    customBannerShown
 };

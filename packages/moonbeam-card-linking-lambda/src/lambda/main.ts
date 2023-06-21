@@ -1,4 +1,5 @@
 import {
+    AddCardInput,
     CardLinkErrorType,
     CardLinkResponse, CardResponse,
     CreateCardLinkInput,
@@ -8,6 +9,7 @@ import {
 import {createCardLink} from "./resolvers/CreateCardLinkResolver";
 import { deleteCard } from "./resolvers/DeleteCardResolver";
 import { getCardLink } from "./resolvers/GetCardLinkResolver";
+import {addCard} from "./resolvers/AddCardResolver";
 
 /**
  * Mapping out the App Sync event type, so we can use it as a type in the Lambda Handler
@@ -17,6 +19,7 @@ type AppSyncEvent = {
         fieldName: string
     },
     arguments: {
+        addCardInput: AddCardInput,
         getCardLinkInput: GetCardLinkInput,
         createCardLinkInput: CreateCardLinkInput,
         deleteCardInput: DeleteCardInput
@@ -36,6 +39,8 @@ type AppSyncEvent = {
 exports.handler = async (event: AppSyncEvent): Promise<CardLinkResponse | CardResponse> => {
     console.log(`Received new storage event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
+        case "addCard":
+            return await addCard(event.arguments.addCardInput);
         case "getCardLink":
             return await getCardLink(event.arguments.getCardLinkInput);
         case "createCardLink":

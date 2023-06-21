@@ -1,6 +1,12 @@
 import {GetSecretValueCommand, SecretsManagerClient} from "@aws-sdk/client-secrets-manager";
 import { Constants } from "../Constants";
-import {MemberResponse, CardLinkResponse, MilitaryVerificationStatusType, RemoveCardResponse} from "../GraphqlExports";
+import {
+    MemberResponse,
+    CardLinkResponse,
+    MilitaryVerificationStatusType,
+    RemoveCardResponse,
+    Card
+} from "../GraphqlExports";
 
 /**
  * Class used as the base/generic client for all API clients that
@@ -86,40 +92,55 @@ export abstract class BaseAPIClient {
     /**
      * Function used to complete the linking of an individual's card on the platform.
      *
+     * @param createdAt card linked object creation date
+     * @param updatedAt card linked object update date
+     * @param card card information to be used during the enrollment/linking process
+     *
      * @return a {@link Promise} of {@link CardLinkResponse} representing the
      * card link response object obtained from the linking call
      *
      * @protected
      */
-    protected link?(): Promise<CardLinkResponse>;
+    protected link?(createdAt: string, updatedAt: string, card: Card): Promise<CardLinkResponse>;
 
     /**
      * Function used to add a new card to an existing member.
+     *
+     * @param memberId member id, retrieved from Olive, which the card will be added to
+     * @param createdAt card linked object creation date
+     * @param updatedAt card linked object update date
+     * @param card card information to be used in adding a new card to a member
      *
      * @return a {@link Promise} of {@link CardLinkResponse} representing the
      * card link response object obtained from the add card call
      *
      * @protected
      */
-    protected addCard?(): Promise<CardLinkResponse>;
+    protected addCard?(memberId: string, createdAt: string, updatedAt: string, card: Card): Promise<CardLinkResponse>;
 
     /**
      * Function used to update a member's status, to either active or inactive.
+     *
+     * @param memberId member id, retrieved from Olive, which the status will be updated for
+     * @param memberFlag flag to indicate what the status of the member, will be updated to
+     * @param updatedAt card linked object update date
      *
      * @return a {@link Promise} of {@link MemberResponse} representing the
      * member's contents after the update is performed
      *
      * @protected
      */
-    protected updateMemberStatus?(): Promise<MemberResponse>;
+    protected updateMemberStatus?(memberId: string, memberFlag: boolean, updatedAt: string): Promise<MemberResponse>;
 
     /**
      * Function used to remove/deactivate a card, given its ID.
+     *
+     * @param cardId the id of the card to be removed/deleted/deactivated
      *
      * @return a {@link Promise} of {@link RemoveCardResponse} representing the
      * card removal response.
      *
      * @protected
      */
-    protected removeCard?(): Promise<RemoveCardResponse>;
+    protected removeCard?(cardId: string): Promise<RemoveCardResponse>;
 }

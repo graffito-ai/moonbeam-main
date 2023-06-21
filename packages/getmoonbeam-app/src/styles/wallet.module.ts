@@ -11,11 +11,42 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         alignSelf: 'center'
     },
+    cardRemovalButton: {
+        backgroundColor: '#F2FF5D',
+        position: 'absolute',
+        width: Dimensions.get('window').width/1.4,
+        height: Dimensions.get('window').height/20,
+        bottom: -Dimensions.get('window').height/9,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
     linkingButton: {
         backgroundColor: '#F2FF5D',
         width: Dimensions.get('window').width/1.4,
         height: Dimensions.get('window').height/20,
         left: Dimensions.get('window').width/13,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    linkingButtonDisabled: {
+        backgroundColor: '#D9D9D9',
+        width: Dimensions.get('window').width/1.4,
+        height: Dimensions.get('window').height/20,
+        left: Dimensions.get('window').width/13,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    splashButton: {
+        backgroundColor: '#F2FF5D',
+        width: Dimensions.get('window').width/1.4,
+        height: Dimensions.get('window').height/20,
+        marginBottom: Dimensions.get('window').width/30,
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -81,13 +112,34 @@ export const styles = StyleSheet.create({
     },
     walletTitle: {
         fontFamily: 'Saira-SemiBold',
-        fontSize: Dimensions.get('window').width / 13
+        fontSize: Dimensions.get('window').width / 13,
+        color: '#FFFFFF'
     },
     walletSubtitle: {
         fontFamily: 'Raleway-Regular',
         fontSize: Dimensions.get('window').width / 22,
         width: Dimensions.get('window').width / 1.15,
-        textAlign: 'justify'
+        textAlign: 'justify',
+        color: '#FFFFFF'
+    },
+    cardRemovalTitle: {
+        fontFamily: 'Saira-Medium',
+        fontSize: Dimensions.get('window').width / 13,
+        color: '#FFFFFF'
+    },
+    cardRemovalDetails: {
+        fontFamily: 'Saira-Medium',
+        fontSize: Dimensions.get('window').width / 23,
+        bottom: Dimensions.get('window').height / 80,
+        color: '#F2FF5D'
+    },
+    cardRemovalSubtitle: {
+        fontFamily: 'Raleway-Regular',
+        fontSize: Dimensions.get('window').width / 22,
+        width: Dimensions.get('window').width / 1.15,
+        top: Dimensions.get('window').height / 100,
+        textAlign: 'center',
+        color: '#FFFFFF'
     },
     bottomSheet: {
         backgroundColor: '#5B5A5A'

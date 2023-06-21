@@ -3,6 +3,7 @@ import {Image, ImageSourcePropType} from "react-native";
 import {Banner, Text} from 'react-native-paper';
 import {RecoilState, useRecoilState} from "recoil";
 import {styles} from '../../styles/customBanner.module';
+import {customBannerShown} from "../../recoil/AppDrawerAtom";
 
 /**
  * Custom Banner component. This component will be used as a banner for notification and/or
@@ -20,6 +21,8 @@ export const CustomBanner = (props: {
     dismissing: boolean
 }) => {
     // constants used to keep track of shared states
+    const [bannerShown, ] = useRecoilState(customBannerShown);
+    // constants used to keep track of local component state
     const [bannerVisibile, setBannerVisible] = useRecoilState(props.bannerVisibilityState);
 
     /**
@@ -36,7 +39,7 @@ export const CustomBanner = (props: {
     return (
         <Banner
             style={{backgroundColor: '#5B5A5A'}}
-            visible={!bannerVisibile}
+            visible={!bannerVisibile && bannerShown}
             actions={[
                 {
                     label: props.bannerButtonLabel,
