@@ -79,6 +79,10 @@ import {fetchFile} from "../../../../utils/File";
 import {Spinner} from "../../../common/Spinner";
 import {splashStatusState} from "../../../../recoil/SplashAtom";
 import {CardLinkingStep} from "./CardLinkingStep";
+// @ts-ignore
+import CardLinkedSuccessImage from '../../../../../assets/art/card-linked-success.png';
+// @ts-ignore
+import RegistrationBackgroundImage from '../../../../../assets/backgrounds/registration-background.png';
 
 /**
  * RegistrationComponent component.
@@ -170,7 +174,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                 splashTitle: 'Congrats!',
                 splashDescription: 'Your card was successfully linked.',
                 splashButtonText: 'Finish',
-                splashArtSource: require('../../../../../assets/art/card-linked-success.png')
+                splashArtSource: CardLinkedSuccessImage
             });
 
             // increase the step number
@@ -532,7 +536,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                         imageStyle={{
                             resizeMode: 'stretch'
                         }}
-                        source={require('../../../../../assets/backgrounds/registration-background.png')}>
+                        source={RegistrationBackgroundImage}>
                         <KeyboardAwareScrollView
                             scrollEnabled={stepNumber == 0 || stepNumber === 1 || stepNumber === 2 || stepNumber === 3}
                             enableOnAndroid={true}

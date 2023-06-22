@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {Dimensions, ImageBackground, SafeAreaView, TouchableOpacity, View} from "react-native";
 import {CardsProps} from "../../../../../models/props/HomeProps";
 import {IconButton, List, Text} from "react-native-paper";
@@ -22,6 +22,18 @@ import {SplashScreen} from "../../../../common/Splash";
 import {splashStatusState} from "../../../../../recoil/SplashAtom";
 import {customBannerState} from "../../../../../recoil/CustomBannerAtom";
 import {cardLinkingBottomSheetState} from "../../../../../recoil/WalletAtom";
+// @ts-ignore
+import CardLinkingImage from '../../../../../../assets/art/moonbeam-card-linking.png';
+// @ts-ignore
+import CardDeletionImage from '../../../../../../assets/art/moonbeam-card-deletion.png';
+// @ts-ignore
+import MoonbeamErrorImage from '../../../../../../assets/art/moonbeam-error.png';
+// @ts-ignore
+import MoonbeamVisaImage from '../../../../../../assets/moonbeam-visa-icon.png';
+// @ts-ignore
+import MoonbeamMasterCardImage from '../../../../../../assets/moonbeam-mastercard-icon.png';
+// @ts-ignore
+import RegistrationBackgroundImage from '../../../../../../assets/backgrounds/registration-background.png';
 
 /**
  * Wallet component. This component will be used as a place where users can manager their
@@ -35,14 +47,15 @@ export const Wallet = ({navigation}: CardsProps) => {
     // constants used to keep track of local component state
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
-    const [bottomSheetIndex, setBottomSheetIndex] = useState<number>(-1);
     const [splashShown, setSplashShown] = useState<boolean>(false);
+    const [showBottomSheet, setShowBottomSheet] = useState<boolean>(false);
+    const bottomSheetRef = useRef(null);
     // constants used to keep track of shared states
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
     const [, setBannerState] = useRecoilState(customBannerState);
     const [, setBannerShown] = useRecoilState(customBannerShown);
-    const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
-    const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
+    const [appDrawerHeaderShown, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
+    const [bannerShown, setBottomTabShown] = useRecoilState(bottomTabShownState);
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
     const [splashState, setSplashState] = useRecoilState(splashStatusState);
     const [cardLinkingBottomSheet, setCardLinkingBottomSheet] = useRecoilState(cardLinkingBottomSheetState);
@@ -61,7 +74,7 @@ export const Wallet = ({navigation}: CardsProps) => {
             setBannerShown(false);
         }
         // manipulate the bottom bar navigation accordingly, depending on the bottom sheet being shown or not
-        if (bottomSheetIndex === -1 && !splashShown) {
+        if (!showBottomSheet && !splashShown) {
             setBottomTabShown(true);
         } else {
             setBottomTabShown(false);
@@ -73,14 +86,23 @@ export const Wallet = ({navigation}: CardsProps) => {
                 splashTitle: `Great!`,
                 splashDescription: `You have successfully linked your card.`,
                 splashButtonText: `Continue`,
-                splashArtSource: require('../../../../../../assets/art/moonbeam-card-linking.png')
+                splashArtSource: CardLinkingImage
             });
             setSplashShown(true);
             setBottomTabShown(false);
             // hide the bottom sheet for deletion, to show splash message
-            setBottomSheetIndex(-1);
+            setShowBottomSheet(false);
         }
-    }, [navigation.getState(), bottomSheetIndex, userInformation, cardLinkingBottomSheet]);
+        // manipulate the bottom sheet
+        if (!showBottomSheet && bottomSheetRef) {
+            // @ts-ignore
+            bottomSheetRef.current?.close?.();
+        }
+        if (showBottomSheet && bottomSheetRef) {
+            // @ts-ignore
+            bottomSheetRef.current?.expand?.();
+        }
+    }, [navigation.getState(), showBottomSheet, userInformation, cardLinkingBottomSheet]);
 
     /**
      * Function used to handle the delete card action, from the bottom sheet
@@ -96,25 +118,38 @@ export const Wallet = ({navigation}: CardsProps) => {
         // check the delete card flag, and display a splash screen accordingly
         if (deleteCardFlag) {
             // hide the bottom sheet for deletion, to show splash message
-            setBottomSheetIndex(-1);
+            setShowBottomSheet(false);
             // if the card deletion was successful, then show the link card banner, and display the appropriate splash screen
             setSplashState({
                 splashTitle: `Card successfully unlinked!`,
                 splashDescription: `Don't forget to link a new card if you want to participate in our discount programs.`,
                 splashButtonText: `Ok`,
-                splashArtSource: require('../../../../../../assets/art/moonbeam-card-deletion.png')
+                splashArtSource: CardDeletionImage
             });
             setSplashShown(true);
             setBottomTabShown(false);
+
+            // change the card linking status
+            setCardLinkingStatus(false);
+
+            // set the custom banner state for future screens accordingly
+            setBannerState({
+                bannerVisibilityState: cardLinkingStatusState,
+                bannerMessage: "You currently do not have a linked card to your Moonbeam account. Get started now!",
+                bannerButtonLabel: "Link Now",
+                bannerButtonLabelActionSource: "",
+                bannerArtSource: CardLinkingImage,
+                dismissing: false
+            });
         } else {
             // hide the bottom sheet for deletion, to show splash message
-            setBottomSheetIndex(-1);
+            setShowBottomSheet(false);
             // if the card deletion was not successful, then display the appropriate splash screen
             setSplashState({
                 splashTitle: `Houston we got a problem!`,
                 splashDescription: `There was an error while unlinking your card.`,
                 splashButtonText: `Try Again`,
-                splashArtSource: require('../../../../../../assets/art/moonbeam-error.png')
+                splashArtSource: MoonbeamErrorImage
             });
             setSplashShown(true);
             setBottomTabShown(false);
@@ -164,15 +199,6 @@ export const Wallet = ({navigation}: CardsProps) => {
             } else {
                 // release the loader on button press
                 setIsReady(true);
-
-                // set the user information object's card list accordingly - need to delete this but we will leave it here for now
-                setUserInformation({
-                    ...userInformation,
-                    linkedCard: {
-                        ...userInformation["linkedCard"],
-                        cards: []
-                    }
-                })
 
                 console.log(`Unexpected error while deleting a card through the delete card API ${JSON.stringify(deleteCardResult)}`);
                 return false;
@@ -230,8 +256,8 @@ export const Wallet = ({navigation}: CardsProps) => {
                             <IconButton
                                 icon={
                                     card["type"] === CardType.Visa
-                                        ? require('../../../../../../assets/moonbeam-visa-icon.png')
-                                        : require('../../../../../../assets/moonbeam-mastercard-icon.png')
+                                        ? MoonbeamVisaImage
+                                        : MoonbeamMasterCardImage
                                 }
                                 iconColor={'#F2FF5D'}
                                 rippleColor={'transparent'}
@@ -250,7 +276,7 @@ export const Wallet = ({navigation}: CardsProps) => {
                                 }}
                                 size={Dimensions.get('window').height / 35}
                                 onPress={async () => {
-                                    setBottomSheetIndex(1);
+                                    setShowBottomSheet(true);
                                 }}
                             />}
                     />
@@ -267,12 +293,11 @@ export const Wallet = ({navigation}: CardsProps) => {
                 <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                 :
                 <ImageBackground
-                    style={commonStyles.image}
-                    resizeMethod={'scale'}
+                    style={[commonStyles.image]}
                     imageStyle={{
                         resizeMode: 'stretch'
                     }}
-                    source={require('../../../../../../assets/backgrounds/moonbeam-card-linking-background.png')}>
+                    source={RegistrationBackgroundImage}>
                     <SafeAreaView style={styles.walletView}>
                         {
                             splashShown ?
@@ -323,7 +348,7 @@ export const Wallet = ({navigation}: CardsProps) => {
                                              * open up the bottom sheet, where the linking action will take place. Any linked cards and/or errors will be
                                              * handled by the CardLinkingBottomSheet component
                                              */
-                                            setBottomSheetIndex(1);
+                                            setShowBottomSheet(true);
                                         } else {
                                             // reset the success linking flag, in case it is true, as well as hide the custom banner accordingly
                                             if (cardLinkingBottomSheet) {
@@ -338,13 +363,13 @@ export const Wallet = ({navigation}: CardsProps) => {
                                                     bannerMessage: "",
                                                     bannerButtonLabel: "",
                                                     bannerButtonLabelActionSource: "",
-                                                    bannerArtSource: require('../../../../../../assets/art/moonbeam-card-linking.png'),
+                                                    bannerArtSource: CardLinkingImage,
                                                     dismissing: false
                                                 });
                                             }
 
                                             // close the previously opened bottom sheet, and reset the splash shown flag, to return to the default wallet view
-                                            setBottomSheetIndex(-1);
+                                            setShowBottomSheet(false);
                                             setBottomTabShown(true);
                                             setSplashShown(false);
                                         }
@@ -374,18 +399,19 @@ export const Wallet = ({navigation}: CardsProps) => {
                             }
                         </View>
                         {
-                            !cardLinkingBottomSheet &&
+                            !cardLinkingBottomSheet && !appDrawerHeaderShown && !bannerShown &&
                             <BottomSheet
+                                ref={bottomSheetRef}
                                 backgroundStyle={styles.bottomSheet}
                                 enablePanDownToClose={true}
-                                index={bottomSheetIndex}
+                                index={showBottomSheet ? 0 : -1}
                                 snapPoints={
                                     (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0)
                                         ? ['40%', '40%']
                                         : ['80%', '80%']
                                 }
                                 onChange={(index) => {
-                                    setBottomSheetIndex(index);
+                                    setShowBottomSheet(index !== -1);
                                 }}
                             >
                                 {
@@ -404,7 +430,8 @@ export const Wallet = ({navigation}: CardsProps) => {
                                                 {userInformation["linkedCard"]["cards"][0]["type"] === CardType.Visa ? 'VISA' : 'MASTERCARD'} ••••{userInformation["linkedCard"]["cards"][0]["last4"]}
                                             </Text>
                                             <Text style={styles.cardRemovalSubtitle}>
-                                                Once you remove this card, you will no longer be eligible to participate
+                                                Once you remove this card, you will no longer be eligible to
+                                                participate
                                                 in
                                                 previously linked programs and/or offers. Do you wish to continue ?
                                             </Text>
@@ -414,19 +441,6 @@ export const Wallet = ({navigation}: CardsProps) => {
                                                     async () => {
                                                         // delete the card
                                                         await deleteCardAction();
-
-                                                        // change the card linking status
-                                                        setCardLinkingStatus(false);
-
-                                                        // set the custom banner state for future screens accordingly
-                                                        setBannerState({
-                                                            bannerVisibilityState: cardLinkingStatusState,
-                                                            bannerMessage: "You currently do not have a linked card to your Moonbeam account. Get started now!",
-                                                            bannerButtonLabel: "Link Now",
-                                                            bannerButtonLabelActionSource: "",
-                                                            bannerArtSource: require('../../../../../../assets/art/moonbeam-card-linking.png'),
-                                                            dismissing: false
-                                                        });
                                                     }
                                                 }
                                             >

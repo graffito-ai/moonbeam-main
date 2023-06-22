@@ -360,7 +360,7 @@ export class OliveClient extends BaseAPIClient {
              * POST /members/{id}
              * @link https://developer.oliveltd.com/reference/edit-member
              *
-             * build the Olive API request body to be passed in, and perform a POST to it with the appropriate information
+             * build the Olive API request body to be passed in, and perform a PUT to it with the appropriate information
              * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
              * error for a better customer experience.
              */
@@ -489,7 +489,7 @@ export class OliveClient extends BaseAPIClient {
              * error for a better customer experience.
              */
             // for this call we know for sure that at client initialization time, a card ID will be passed in
-            return axios.post(`${oliveBaseURL}/cards/${cardId}/deactivate`, {}, {
+            return axios.post(`${oliveBaseURL}/cards/${cardId}/deactivate`, undefined, {
                 headers: {
                     "Content-Type": "application/json",
                     "Olive-Key": olivePrivateKey
@@ -502,7 +502,7 @@ export class OliveClient extends BaseAPIClient {
                 /**
                  * if we reached this, then we assume that a 2xx response code was returned.
                  */
-                if (removeCardResponse.data) {
+                if (removeCardResponse.data === "") {
                     return {
                         data: true
                     }

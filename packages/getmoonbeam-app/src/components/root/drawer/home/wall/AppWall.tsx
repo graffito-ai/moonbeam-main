@@ -26,6 +26,18 @@ import {
     additionalAppWallDocumentationNeeded,
     appWallStepNumber
 } from "../../../../../recoil/AppDrawerAtom";
+// @ts-ignore
+import StatusPendingImage from '../../../../../../assets/art/military-status-pending.png';
+// @ts-ignore
+import StatusRejectedImage from '../../../../../../assets/art/military-status-rejected.png';
+// @ts-ignore
+import StatusUnknownImage from '../../../../../../assets/art/military-status-unknown.png';
+// @ts-ignore
+import MilitaryApprovalImage from '../../../../../../assets/art/military-approval.png';
+// @ts-ignore
+import RegistrationBackgroundImage from '../../../../../../assets/backgrounds/registration-background.png';
+// @ts-ignore
+import MilitaryVerificationImage from '../../../../../../assets/art/military-verification.png';
 
 /**
  * AppWall Component.
@@ -72,19 +84,19 @@ export const AppWall = () => {
                 case MilitaryVerificationStatusType.Pending:
                     splashTitle = `Sorry for the wait!`;
                     splashDescription = `We're working on verifying your account, and will hear back from our team shortly.`;
-                    splashArtSource = require('../../../../../../assets/art/military-status-pending.png');
+                    splashArtSource = StatusPendingImage;
                     splashButtonText = `Contact Us`;
                     break;
                 case MilitaryVerificationStatusType.Rejected:
                     splashTitle = `Sorry for the inconvenience!`;
                     splashDescription = `We were not able to verify your military status. Contact our team for more information!`;
-                    splashArtSource = require('../../../../../../assets/art/military-status-rejected.png');
+                    splashArtSource = StatusRejectedImage;
                     splashButtonText = `Contact Us`;
                     break;
                 case "UNKNOWN":
                     splashTitle = `Resume your registration!`;
                     splashDescription = `It looks like you haven't finished our military verification process.`;
-                    splashArtSource = require('../../../../../../assets/art/military-status-unknown.png');
+                    splashArtSource = StatusUnknownImage;
                     splashButtonText = `Get Started`;
                     break;
                 default:
@@ -210,7 +222,7 @@ export const AppWall = () => {
                             splashTitle: `Great!`,
                             splashDescription: `You finished our verification process, and can now continue!`,
                             splashButtonText: `Finish`,
-                            splashArtSource: require('../../../../../../assets/art/military-approval.png')
+                            splashArtSource: MilitaryApprovalImage
                         });
                         // go to the final step
                         setStepNumber(stepNumber + 2);
@@ -289,7 +301,7 @@ export const AppWall = () => {
                         imageStyle={{
                             resizeMode: 'stretch'
                         }}
-                        source={require('../../../../../../assets/backgrounds/registration-background.png')}>
+                        source={RegistrationBackgroundImage}>
                         <Portal>
                             <Modal dismissable={false} visible={supportModalVisible}
                                    onDismiss={() => setSupportModalVisible(false)}
@@ -352,7 +364,7 @@ export const AppWall = () => {
                                             }
                                             <Image
                                                 style={styles.militaryVerificationImage}
-                                                source={require('../../../../../../assets/art/military-verification.png')}/>
+                                                source={MilitaryVerificationImage}/>
                                             <View style={styles.disclaimerView}>
                                                 <Checkbox
                                                     style={styles.disclaimerCheckbox}
@@ -450,7 +462,7 @@ export const AppWall = () => {
                                                         splashTitle: `Account is pending creation!`,
                                                         splashDescription: `Our team is working on verifying the documentation that you provided!`,
                                                         splashButtonText: `Finish`,
-                                                        splashArtSource: require('../../../../../../assets/art/military-status-pending.png')
+                                                        splashArtSource: StatusPendingImage
                                                     });
                                                     break;
                                                 case 3:

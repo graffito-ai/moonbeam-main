@@ -29,6 +29,10 @@ import {AppWall} from "./home/wall/AppWall";
 import {getCardLink} from "@moonbeam/moonbeam-models/lib";
 import {customBannerState} from "../../../recoil/CustomBannerAtom";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+// @ts-ignore
+import CardLinkingImage from '../../../../assets/art/moonbeam-card-linking.png';
+// @ts-ignore
+import MoonbeamNavigationLogo from '../../../../assets/moonbeam-navigation-logo.png';
 import Image = Animated.Image;
 
 /**
@@ -124,7 +128,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                         bannerMessage: "You currently do not have a linked card to your Moonbeam account. Get started now!",
                         bannerButtonLabel: "Link Now",
                         bannerButtonLabelActionSource: "",
-                        bannerArtSource: require('../../../../assets/art/moonbeam-card-linking.png'),
+                        bannerArtSource: CardLinkingImage,
                         dismissing: false
                     });
                     setBannerShown(true);
@@ -144,7 +148,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                         bannerMessage: "",
                         bannerButtonLabel: "",
                         bannerButtonLabelActionSource: "",
-                        bannerArtSource: require('../../../../assets/art/moonbeam-card-linking.png'),
+                        bannerArtSource: CardLinkingImage,
                         dismissing: false
                     });
                     setBannerShown(false);
@@ -174,7 +178,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                         bannerMessage: "You currently do not have a linked card to your Moonbeam account. Get started now!",
                         bannerButtonLabel: "Link Now",
                         bannerButtonLabelActionSource: "",
-                        bannerArtSource: require('../../../../assets/art/moonbeam-card-linking.png'),
+                        bannerArtSource: CardLinkingImage,
                         dismissing: false
                     });
                     setBannerShown(true);
@@ -334,7 +338,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                     headerTitle: () =>
                                         <Image  resizeMode={"contain"}
                                                 style={{alignSelf: 'center', width: Dimensions.get('window').width/12, height: Dimensions.get('window').height/12}}
-                                                source={require('../../../../assets/moonbeam-navigation-logo.png')}
+                                                source={MoonbeamNavigationLogo}
                                         />,
                                     headerStyle: {
                                         backgroundColor: '#313030'

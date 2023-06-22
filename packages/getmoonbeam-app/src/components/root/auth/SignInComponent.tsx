@@ -12,6 +12,10 @@ import {useRecoilState} from "recoil";
 import {currentUserInformation} from "../../../recoil/AuthAtom";
 import {Auth} from "aws-amplify";
 import {Spinner} from "../../common/Spinner";
+// @ts-ignore
+import AuthenticationGradientImage from '../../../../assets/backgrounds/authentication-gradient.png';
+// @ts-ignore
+import MilitaryBranchImage from '../../../../assets/art/military-branch-logos.png';
 
 /**
  * Sign In component.
@@ -138,7 +142,7 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                         imageStyle={{
                             resizeMode: 'stretch'
                         }}
-                        source={require('../../../../assets/backgrounds/authentication-gradient.png')}>
+                        source={AuthenticationGradientImage}>
                         <KeyboardAwareScrollView
                             enableOnAndroid={true}
                             enableAutomaticScroll={(Platform.OS === 'ios')}
@@ -151,7 +155,7 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                                     style={styles.gettingSubtitleHighlighted}>Earn</Text></Text>
                                 <Image resizeMethod={"scale"}
                                        resizeMode={'contain'}
-                                       source={require('../../../../assets/art/military-branch-logos.png')}
+                                       source={MilitaryBranchImage}
                                        style={styles.topContainerImage}/>
                             </View>
                             <View style={[styles.bottomContainer]}>

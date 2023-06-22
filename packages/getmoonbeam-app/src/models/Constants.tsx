@@ -1,4 +1,12 @@
 import {MilitaryBranch, MilitaryDutyStatus, VerificationDocument} from "@moonbeam/moonbeam-models";
+// @ts-ignore
+import CardOverviewImage from '../../assets/art/moonbeam-card-overview.png';
+// @ts-ignore
+import VerificationOverviewImage from '../../assets/art/moonbeam-verification-overview.png';
+// @ts-ignore
+import LinkingOverviewImage from '../../assets/art/moonbeam-linking-overview.png';
+// @ts-ignore
+import RewardsOverviewImage from '../../assets/art/moonbeam-rewards-overview.png';
 
 // constants used to keep track of the account recovery steps content
 export const accountRecoverySteps = [
@@ -90,22 +98,22 @@ export const appOverviewSteps = [
     {
         stepTitle: "Card-Linked Military\n Discounts",
         stepDescription: "Access unique military discounts and rewards just by linking your existing debit or credit card.",
-        stepImageSource: require('../../assets/art/moonbeam-card-overview.png')
+        stepImageSource: CardOverviewImage
     },
     {
         stepTitle: "Verify your\n Valor",
         stepDescription: "Go through our secure and trusted military verification process to ensure secure access.",
-        stepImageSource: require('../../assets/art/moonbeam-verification-overview.png')
+        stepImageSource: VerificationOverviewImage
     },
     {
         stepTitle: "Link & Start Earning\n Cashback",
         stepDescription: "Link your MasterCard or Visa debit or credit cards, and earn through qualifying transactions.",
-        stepImageSource: require('../../assets/art/moonbeam-linking-overview.png')
+        stepImageSource: LinkingOverviewImage
     },
     {
         stepTitle: "Earn Discounts\n Seamlessly",
         stepDescription: "Discounts are automatically applied and will show on your statements monthly. No need to ask the cashier.",
-        stepImageSource: require('../../assets/art/moonbeam-rewards-overview.png')
+        stepImageSource: RewardsOverviewImage
     }
 ]
 // constants used to keep track of the duty status dropdown values

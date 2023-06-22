@@ -14,6 +14,8 @@ import {useRecoilState} from "recoil";
 import {deviceTypeState} from "../../recoil/RootAtom";
 import {DeviceType} from "expo-device";
 import { currentUserInformation } from '../../recoil/AuthAtom';
+// @ts-ignore
+import SideBarImage from '../../../assets/art/sidebar.png';
 
 /**
  * CustomDrawer component. This component will be used to further tailor our sidebar navigation drawer, mainly
@@ -59,7 +61,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                         imageStyle={{
                             resizeMode: 'cover'
                         }}
-                        source={require('../../../assets/art/sidebar.png')}>
+                        source={SideBarImage}>
                     <Avatar
                         size={deviceType === DeviceType.TABLET ? 240 : Dimensions.get('window').height/8}
                         rounded

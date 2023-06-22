@@ -9,6 +9,10 @@ import {
     registrationMainErrorState
 } from "../../../../recoil/AuthAtom";
 import {MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
+// @ts-ignore
+import MilitaryApprovalImage from '../../../../../assets/art/military-approval.png';
+// @ts-ignore
+import MilitaryVerificationImage from '../../../../../assets/art/military-verification.png';
 
 /**
  * MilitaryStatusSplashStep component.
@@ -43,7 +47,7 @@ export const MilitaryStatusSplashStep = () => {
                     <View style={styles.permissionsView}>
                         <Image
                             style={styles.permissionsImage}
-                            source={require('../../../../../assets/art/military-approval.png')}/>
+                            source={MilitaryApprovalImage}/>
                         <Text style={styles.permissionsStepTitle}>{"Congratulations.\n"}</Text>
                         <Text
                             style={styles.permissionsStepDescription}>{"Your military status has been verified."}</Text>
@@ -52,7 +56,7 @@ export const MilitaryStatusSplashStep = () => {
                     <>
                         <Image
                             style={styles.militaryVerificationImage}
-                            source={require('../../../../../assets/art/military-verification.png')}/>
+                            source={MilitaryVerificationImage}/>
                         <View style={styles.disclaimerView}>
                             <Checkbox
                                 style={styles.disclaimerCheckbox}

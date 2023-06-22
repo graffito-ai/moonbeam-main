@@ -16,6 +16,11 @@ import {
     additionalAppWallDocumentationErrors,
     additionalAppWallDocumentationNeeded
 } from "../../../../../recoil/AppDrawerAtom";
+// @ts-ignore
+import DocumentationUpload1Picture from '../../../../../../assets/art/moonbeam-document-upload-1.png';
+// @ts-ignore
+import DocumentationUpload2Picture from '../../../../../../assets/art/moonbeam-document-upload-2.png';
+
 
 /**
  * WallDocumentCaptureStep component.
@@ -479,7 +484,7 @@ export const WallDocumentCaptureStep = () => {
                                     resizeMethod={"scale"}
                                     style={styles.photoUploadOptionImage}
                                     resizeMode={'stretch'}
-                                    source={require('../../../../../../assets/art/moonbeam-document-upload-2.png')}/>
+                                    source={DocumentationUpload2Picture}/>
                                 <View style={styles.documentCapturingDescriptionView}>
                                     <Text style={styles.documentCapturingOptionDescription}>{
                                         capturedFileName === ""
@@ -563,7 +568,7 @@ export const WallDocumentCaptureStep = () => {
                                     resizeMethod={"scale"}
                                     style={styles.documentUploadOptionImage}
                                     resizeMode={'stretch'}
-                                    source={require('../../../../../../assets/art/moonbeam-document-upload-1.png')}/>
+                                    source={DocumentationUpload1Picture}/>
                                 <View style={styles.documentCapturingDescriptionView}>
                                     <Text style={styles.documentCapturingOptionDescription}>{
                                         uploadedFileName === ""

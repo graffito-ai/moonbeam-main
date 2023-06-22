@@ -9,6 +9,8 @@ import {accountRecoverySteps} from "../../../models/Constants";
 import {FieldValidator} from "../../../utils/FieldValidator";
 import {Auth} from "aws-amplify";
 import {Spinner} from "../../common/Spinner";
+// @ts-ignore
+import AuthenticationGradientPicture from '../../../../assets/backgrounds/authentication-gradient.png'
 
 /**
  * AccountRecoveryComponent component.
@@ -221,7 +223,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                         imageStyle={{
                             resizeMode: 'stretch'
                         }}
-                        source={require('../../../../assets/backgrounds/authentication-gradient.png')}>
+                        source={AuthenticationGradientPicture}>
                         <Portal>
                             <Modal dismissable={false} visible={modalVisible} onDismiss={() => setModalVisible(false)}
                                    contentContainerStyle={commonStyles.modalContainer}>
