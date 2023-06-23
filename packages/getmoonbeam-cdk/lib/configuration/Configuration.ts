@@ -49,6 +49,17 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 deleteCardResolverName: 'deleteCard',
                 addCardResolverName: 'addCard'
             },
+            cardLinkingServiceConfig: {
+                cardLinkingWebhookServiceAPIName: 'cardLinkingWebhookAPI',
+                apiDeploymentGroupName: 'cardLinkingWebhookAPILogGroup',
+                oliveSharedAPIKeyName: 'cardLinkingOliveSharedAPIKey',
+                oliveUsagePlan: `cardLinkingOliveUsagePlan`,
+                transactionsPostMethodName: `transactionsCallback`
+            },
+            webhookTransactionsConfig: {
+                transactionsFunctionName: 'webhookTransactionsLambdaFunction',
+                transactionsTableName: 'transactionsTable'
+            },
             sesConfig: {
                 emailAddress: `noreply-${Stages.DEV}@moonbeam.vet`,
                 /**

@@ -6,7 +6,7 @@ import {useRecoilState} from "recoil";
 import {
     appDrawerHeaderShownState,
     cardLinkingStatusState,
-    customBannerShown
+    customBannerShown, drawerSwipeState
 } from "../../../../../recoil/AppDrawerAtom";
 import {styles} from '../../../../../styles/wallet.module';
 import {commonStyles} from "../../../../../styles/common.module";
@@ -59,6 +59,7 @@ export const Wallet = ({navigation}: CardsProps) => {
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
     const [splashState, setSplashState] = useRecoilState(splashStatusState);
     const [cardLinkingBottomSheet, setCardLinkingBottomSheet] = useRecoilState(cardLinkingBottomSheetState);
+    const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -68,10 +69,11 @@ export const Wallet = ({navigation}: CardsProps) => {
      * included in here.
      */
     useEffect(() => {
-        // set the app drawer status accordingly && set the custom banner visibility accordingly
+        // set the app drawer status accordingly,custom banner visibility and drawer swipe actions accordingly
         if (navigation.getState().index === 2) {
             setAppDrawerHeaderShown(false);
             setBannerShown(false);
+            setDrawerSwipeEnabled(false);
         }
         // manipulate the bottom bar navigation accordingly, depending on the bottom sheet being shown or not
         if (!showBottomSheet && !splashShown) {

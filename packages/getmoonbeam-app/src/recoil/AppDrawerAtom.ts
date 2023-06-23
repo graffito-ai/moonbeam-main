@@ -53,6 +53,11 @@ const customBannerShown = atom({
     default: false
 });
 
+const drawerSwipeState = atom({
+   key: 'drawerSwipeState',
+   default: true
+});
+
 
 /**
  * Export all atoms and/or selectors
@@ -63,5 +68,6 @@ export {
     additionalAppWallDocumentationNeeded,
     additionalAppWallDocumentationErrors,
     cardLinkingStatusState,
-    customBannerShown
+    customBannerShown,
+    drawerSwipeState
 };

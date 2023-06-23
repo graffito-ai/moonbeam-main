@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {Image, ImageSourcePropType} from "react-native";
+import {Image, ImageSourcePropType, SafeAreaView} from "react-native";
 import {Banner, Text} from 'react-native-paper';
 import {RecoilState, useRecoilState} from "recoil";
 import {styles} from '../../styles/customBanner.module';
@@ -37,36 +37,38 @@ export const CustomBanner = (props: {
 
     // return the component for the Custom Banner page
     return (
-        <Banner
-            style={{backgroundColor: '#5B5A5A'}}
-            visible={!bannerVisibile && bannerShown}
-            actions={[
-                {
-                    label: props.bannerButtonLabel,
-                    labelStyle: styles.buttonLabel,
-                    onPress: () => {
-                        // hide banner accordingly or go to a specific URL within the application
+        <SafeAreaView style={{backgroundColor: '#313030'}}>
+            <Banner
+                style={{backgroundColor: '#5B5A5A'}}
+                visible={!bannerVisibile && bannerShown}
+                actions={[
+                    {
+                        label: props.bannerButtonLabel,
+                        labelStyle: styles.buttonLabel,
+                        onPress: () => {
+                            // hide banner accordingly or go to a specific URL within the application
+                        },
                     },
-                },
-                ...props.dismissing ? [{
-                    labelStyle: styles.buttonLabel,
-                    label: 'Dismiss',
-                    onPress: () => {
-                        // hide banner
-                        setBannerVisible(false);
-                    },
-                }] : []
-            ]}
-            icon={({}) => (
-                <Image
-                    source={props.bannerArtSource}
-                    style={styles.bannerImage}
-                />
-            )}>
-            <Text style={styles.bannerDescription}>
-                {props.bannerMessage}
-            </Text>
-        </Banner>
+                    ...props.dismissing ? [{
+                        labelStyle: styles.buttonLabel,
+                        label: 'Dismiss',
+                        onPress: () => {
+                            // hide banner
+                            setBannerVisible(false);
+                        },
+                    }] : []
+                ]}
+                icon={({}) => (
+                    <Image
+                        source={props.bannerArtSource}
+                        style={styles.bannerImage}
+                    />
+                )}>
+                <Text style={styles.bannerDescription}>
+                    {props.bannerMessage}
+                </Text>
+            </Banner>
+        </SafeAreaView>
     );
 };
 

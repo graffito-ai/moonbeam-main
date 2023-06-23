@@ -6,7 +6,12 @@ import {AppDrawerStackParamList} from "../../../models/props/AppDrawerProps";
 import {CustomDrawer} from "../../common/CustomDrawer";
 import {Animated, Dimensions, Text} from "react-native";
 import {useRecoilState} from "recoil";
-import {appDrawerHeaderShownState, cardLinkingStatusState, customBannerShown} from "../../../recoil/AppDrawerAtom";
+import {
+    appDrawerHeaderShownState,
+    cardLinkingStatusState,
+    customBannerShown,
+    drawerSwipeState
+} from "../../../recoil/AppDrawerAtom";
 import {Home} from "./home/Home";
 import {Ionicons} from "@expo/vector-icons";
 import * as Device from "expo-device";
@@ -34,6 +39,7 @@ import CardLinkingImage from '../../../../assets/art/moonbeam-card-linking.png';
 // @ts-ignore
 import MoonbeamNavigationLogo from '../../../../assets/moonbeam-navigation-logo.png';
 import Image = Animated.Image;
+import {Settings} from "./settings/Settings";
 
 /**
  * AppDrawer component.
@@ -52,6 +58,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
     const [drawerHeaderShown,] = useRecoilState(appDrawerHeaderShownState);
     const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
     const [cardLinkingStatus, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
+    const [drawerSwipeEnabled,] = useRecoilState(drawerSwipeState);
     const [, setBannerState] = useRecoilState(customBannerState);
     const [, setBannerShown] = useRecoilState(customBannerShown);
 
@@ -361,7 +368,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                     name={"Home"}
                                     component={Home}
                                     options={{
-                                        swipeEnabled: true,
+                                        swipeEnabled: drawerSwipeEnabled,
                                         drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20 : 0},
                                         drawerIcon: () => (
                                             <Icon
@@ -389,7 +396,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                 />
                                 <ApplicationDrawer.Screen
                                     name={"Settings"}
-                                    component={() => <></>}
+                                    component={Settings}
                                     options={{
                                         swipeEnabled: true,
                                         drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20 : 0},

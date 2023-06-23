@@ -76,5 +76,6 @@ export namespace Constants {
         export const OLIVE_BASE_URL = `OLIVE-BASE-URL`;
         export const OLIVE_PUBLIC_KEY = `OLIVE-PUBLIC-KEY`;
         export const OLIVE_PRIVATE_KEY = `OLIVE-PRIVATE-KEY`;
+        export const OLIVE_WEBHOOK_KEY = `OLIVE-WEBHOOK-KEY`;
     }
 }

@@ -35,6 +35,7 @@ type AppSyncEvent = {
  * depending on the AppSync field name.
  *
  * @param event AppSync event to be passed in the handler
+ * @returns a {@link Promise} containing a {@link CardLinkResponse} or {@link CardResponse}
  */
 exports.handler = async (event: AppSyncEvent): Promise<CardLinkResponse | CardResponse> => {
     console.log(`Received new storage event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);

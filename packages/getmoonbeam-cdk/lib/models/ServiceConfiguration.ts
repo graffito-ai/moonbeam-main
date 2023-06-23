@@ -42,7 +42,7 @@ export interface AppSyncConfiguration {
 
 /**
  * Interface used to define the configuration for the Storage resolvers
- * (used to retrieve and store from S3)
+ * (used to retrieve and store from S3) (GraphQL based)
  */
 export interface StorageConfiguration {
     readonly publicFilesBucketName: string;
@@ -58,6 +58,7 @@ export interface StorageConfiguration {
 
 /**
  * Interface used to define the configuration for the Military verification service resolvers
+ * (GraphQL based)
  */
 export interface MilitaryVerificationConfiguration {
     readonly militaryVerificationFunctionName: string;
@@ -69,6 +70,7 @@ export interface MilitaryVerificationConfiguration {
 
 /**
  * Interface used to define the configuration for the card linking service resolvers
+ * (GraphQL based)
  */
 export interface CardLinkingConfiguration {
     readonly cardLinkingFunctionName: string;
@@ -77,4 +79,25 @@ export interface CardLinkingConfiguration {
     readonly createCardLinkResolverName: string;
     readonly deleteCardResolverName: string;
     readonly addCardResolverName: string;
+}
+
+/**
+ * Interface used to define the configuration for the card linking webhook service
+ * API (REST based)
+ */
+export interface CardLinkingServiceConfiguration {
+    readonly cardLinkingWebhookServiceAPIName: string;
+    readonly apiDeploymentGroupName: string;
+    readonly oliveSharedAPIKeyName: string;
+    readonly oliveUsagePlan: string;
+    readonly transactionsPostMethodName: string;
+}
+
+/**
+ * Interface used to define the configuration for the transactions-related lambda, used by the card linking
+ * webhook service.
+ */
+export interface WebhookTransactionsConfiguration {
+    readonly transactionsFunctionName: string;
+    readonly transactionsTableName: string;
 }

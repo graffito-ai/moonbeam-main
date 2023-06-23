@@ -34,6 +34,7 @@ type AppSyncEvent = {
  * depending on the AppSync field name.
  *
  * @param event AppSync event to be passed in the handler
+ * @returns a {@link Promise} containing a {@link CreateMilitaryVerificationResponse} or {@link GetMilitaryVerificationResponse} or {@link UpdateMilitaryVerificationResponse}
  */
 exports.handler = async (event: AppSyncEvent): Promise<CreateMilitaryVerificationResponse | GetMilitaryVerificationResponse | UpdateMilitaryVerificationResponse> => {
     console.log(`Received new storage event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);

@@ -6,6 +6,8 @@ import {AppSyncStack} from "../stacks/AppSyncStack";
 import {StorageResolverStack} from "../stacks/StorageResolverStack";
 import {MilitaryVerificationResolverStack} from "../stacks/MilitaryVerificationResolverStack";
 import {CardLinkingResolverStack} from "../stacks/CardLinkingResolverStack";
+import {CardLinkingServiceStack} from "../stacks/CardLinkingServiceStack";
+import {WebhookTransactionsLambdaStack} from "../stacks/WebhookTransactionsLambdaStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -108,7 +110,7 @@ export class StageUtils {
                         graphqlApiId: appSyncStack.graphqlApiId,
                         graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
                         storageConfig: stageConfiguration.storageConfig,
-                        environmentVariables: stageConfiguration.environmentVariables,
+                        environmentVariables: stageConfiguration.environmentVariables
                     });
                 storageStack.addDependency(appSyncStack);
 
@@ -121,7 +123,7 @@ export class StageUtils {
                     graphqlApiId: appSyncStack.graphqlApiId,
                     graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
                     militaryVerificationConfig: stageConfiguration.militaryVerificationConfig,
-                    environmentVariables: stageConfiguration.environmentVariables,
+                    environmentVariables: stageConfiguration.environmentVariables
                 });
                 militaryVerificationStack.addDependency(appSyncStack);
 
@@ -134,9 +136,31 @@ export class StageUtils {
                     graphqlApiId: appSyncStack.graphqlApiId,
                     graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
                     cardLinkingConfig: stageConfiguration.cardLinkingConfig,
-                    environmentVariables: stageConfiguration.environmentVariables,
+                    environmentVariables: stageConfiguration.environmentVariables
                 });
                 cardLinkingStack.addDependency(appSyncStack);
+
+                // create the Webhook Transactions Lambda stack && add it to the CDK app
+                const webhookTransactionsLambdaStack = new WebhookTransactionsLambdaStack(this.app, `moonbeam-webhook-transactions-handler-${stageKey}`, {
+                    stackName: `moonbeam-webhook-transactions-handler-${stageKey}`,
+                    description: 'This stack will contain all the Lambda related resources needed webhook transaction handlers',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    webhookTransactionsConfig: stageConfiguration.webhookTransactionsConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+
+                // create the Card Linking service API stack && add it to the CDK app
+                const cardLinkingServiceStack = new CardLinkingServiceStack(this.app, `moonbeam-card-linking-service-${stageKey}`, {
+                    stackName: `moonbeam-card-linking-service-${stageKey}`,
+                    description: 'This stack will contain all the API Gateway related resources for the GetMoonbeam Application',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    webhookTransactionsLambda: webhookTransactionsLambdaStack.webhookTransactionsLambda,
+                    cardLinkingServiceConfig: stageConfiguration.cardLinkingServiceConfig,
+                    environmentVariables: stageConfiguration.environmentVariables,
+                });
+                cardLinkingServiceStack.addDependency(webhookTransactionsLambdaStack);
             }
         }
     };

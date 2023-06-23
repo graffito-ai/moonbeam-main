@@ -9,7 +9,8 @@ export const styles = StyleSheet.create({
         flexDirection: 'column',
         alignContent: 'center',
         alignItems: 'center',
-        alignSelf: 'center'
+        alignSelf: 'center',
+        backgroundColor: '#313030'
     },
     cardRemovalButton: {
         backgroundColor: '#F2FF5D',
