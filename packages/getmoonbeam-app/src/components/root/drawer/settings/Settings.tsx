@@ -1,10 +1,11 @@
 import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
-import {IconButton} from "react-native-paper";
+import {IconButton, Text} from "react-native-paper";
 import {SettingsProps} from "../../../../models/props/AppDrawerProps";
 import {SettingsStackParamList} from "../../../../models/props/SettingsProps";
 import {SettingsList} from "./SettingsList";
+import * as Linking from "expo-linking";
 
 /**
  * Settings component
@@ -25,19 +26,39 @@ export const Settings = ({}: SettingsProps) => {
     useEffect(() => {
     }, []);
 
+    // enabling the linking configuration for creating links to the application screens, based on the navigator
+    const config = {
+        screens: {
+            SettingsList: {
+                path: 'main/settings/list'
+            }
+        },
+    };
+
+    /**
+     * configuring the navigation linking, based on the types of prefixes that the application supports, given
+     * the environment that we deployed the application in.
+     * @see https://docs.expo.dev/guides/linking/?redirected
+     * @see https://reactnavigation.org/docs/deep-linking/
+     */
+    const linking = {
+        prefixes: [Linking.createURL('/')],
+        config,
+    };
+
     // return the component for the Settings page
     return (
-        <NavigationContainer independent={true}>
+        <NavigationContainer independent={true} linking={linking} fallback={<Text>Loading...</Text>}>
             <Stack.Navigator
                 initialRouteName={"SettingsList"}
                 screenOptions={({navigation}) => {
-                    return({
+                    return ({
                         headerLeft: () => {
-                            return(<IconButton
+                            return (<IconButton
                                 icon="chevron-left"
                                 iconColor={"#2A3779"}
                                 size={40}
-                                style={{marginTop: '-5%',  marginLeft: `-10%`}}
+                                style={{marginTop: '-5%', marginLeft: `-10%`}}
                                 onPress={() => {
                                     navigation.navigate('SettingsList', {});
                                 }}

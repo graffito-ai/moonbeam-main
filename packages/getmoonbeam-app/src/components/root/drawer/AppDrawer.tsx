@@ -40,6 +40,7 @@ import CardLinkingImage from '../../../../assets/art/moonbeam-card-linking.png';
 import MoonbeamNavigationLogo from '../../../../assets/moonbeam-navigation-logo.png';
 import Image = Animated.Image;
 import {Settings} from "./settings/Settings";
+import * as Linking from "expo-linking";
 
 /**
  * AppDrawer component.
@@ -67,6 +68,51 @@ export const AppDrawer = ({}: AppDrawerProps) => {
      * navigation of our application.
      */
     const ApplicationDrawer = createDrawerNavigator<AppDrawerStackParamList>();
+
+    // enabling the linking configuration for creating links to the application screens, based on the navigator
+    const config = {
+        screens: {
+            Home: {
+                path: 'main',
+                screens: {
+                    Dashboard: {
+                        path: 'dashboard'
+                    },
+                    Marketplace: {
+                        path: 'marketplace'
+                    },
+                    Cards: {
+                        path: 'wallet'
+                    }
+                }
+            },
+            Documents: {
+                path: 'main/documents'
+            },
+            Settings: {
+                path: 'main/settings',
+                screens: {
+                    SettingsList: {
+                        path: 'list'
+                    }
+                }
+            },
+            Support: {
+                path: 'main/support'
+            }
+        },
+    };
+
+    /**
+     * configuring the navigation linking, based on the types of prefixes that the application supports, given
+     * the environment that we deployed the application in.
+     * @see https://docs.expo.dev/guides/linking/?redirected
+     * @see https://reactnavigation.org/docs/deep-linking/
+     */
+    const linking = {
+        prefixes: [Linking.createURL('/')],
+        config,
+    };
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -134,7 +180,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                         bannerVisibilityState: cardLinkingStatusState,
                         bannerMessage: "You currently do not have a linked card to your Moonbeam account. Get started now!",
                         bannerButtonLabel: "Link Now",
-                        bannerButtonLabelActionSource: "",
+                        bannerButtonLabelActionSource: "/main/wallet",
                         bannerArtSource: CardLinkingImage,
                         dismissing: false
                     });
@@ -184,7 +230,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                         bannerVisibilityState: cardLinkingStatusState,
                         bannerMessage: "You currently do not have a linked card to your Moonbeam account. Get started now!",
                         bannerButtonLabel: "Link Now",
-                        bannerButtonLabelActionSource: "",
+                        bannerButtonLabelActionSource: "/main/wallet",
                         bannerArtSource: CardLinkingImage,
                         dismissing: false
                     });
@@ -333,7 +379,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                     style={commonStyles.modalParagraph}>{`Unexpected error while loading application!`}</Text>
                             </Modal>
                         </Portal>
-                        <NavigationContainer independent={true}>
+                        <NavigationContainer independent={true} linking={linking} fallback={<Text>Loading...</Text>}>
                             <ApplicationDrawer.Navigator
                                 drawerContent={
                                     props =>

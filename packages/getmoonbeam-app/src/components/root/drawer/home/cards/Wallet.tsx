@@ -110,7 +110,7 @@ export const Wallet = ({navigation}: CardsProps) => {
      * Function used to handle the delete card action, from the bottom sheet
      * button press.
      */
-    const deleteCardAction = async () => {
+    const deleteCardAction = async (): Promise<void> => {
         // need to call the delete API here
         const deleteCardFlag = await deactivateCard(
             userInformation["custom:userId"],
@@ -139,7 +139,7 @@ export const Wallet = ({navigation}: CardsProps) => {
                 bannerVisibilityState: cardLinkingStatusState,
                 bannerMessage: "You currently do not have a linked card to your Moonbeam account. Get started now!",
                 bannerButtonLabel: "Link Now",
-                bannerButtonLabelActionSource: "",
+                bannerButtonLabelActionSource: "/main/wallet",
                 bannerArtSource: CardLinkingImage,
                 dismissing: false
             });

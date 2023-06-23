@@ -131,8 +131,55 @@ export default function App() {
         // enabling the linking configuration for creating links to the application screens, based on the navigator
         const config = {
             screens: {
-                SignIn: {
+                AppOverview: {
                     path: '*'
+                },
+                Authentication: {
+                    path: '',
+                    screens: {
+                        SignIn: {
+                            path: 'authenticate'
+                        },
+                        Registration: {
+                            path: 'registration'
+                        },
+                        AccountRecovery: {
+                            path: 'recovery'
+                        },
+                        AppDrawer: {
+                            path: 'main',
+                            screens: {
+                                Home: {
+                                    path: '',
+                                    screens: {
+                                        Dashboard: {
+                                            path: 'dashboard'
+                                        },
+                                        Marketplace: {
+                                            path: 'marketplace'
+                                        },
+                                        Cards: {
+                                            path: 'wallet'
+                                        }
+                                    }
+                                },
+                                Documents: {
+                                    path: 'documents'
+                                },
+                                Settings: {
+                                    path: 'settings',
+                                    screens: {
+                                        SettingsList: {
+                                            path: 'list'
+                                        }
+                                    }
+                                },
+                                Support: {
+                                    path: 'support'
+                                }
+                            }
+                        }
+                    }
                 }
             },
         };
@@ -147,6 +194,7 @@ export default function App() {
             prefixes: [Linking.createURL('/')],
             config,
         };
+
 
         // return the main component for the application stack
         return (

@@ -4,6 +4,7 @@ import {Banner, Text} from 'react-native-paper';
 import {RecoilState, useRecoilState} from "recoil";
 import {styles} from '../../styles/customBanner.module';
 import {customBannerShown} from "../../recoil/AppDrawerAtom";
+import * as Linking from "expo-linking";
 
 /**
  * Custom Banner component. This component will be used as a banner for notification and/or
@@ -45,8 +46,9 @@ export const CustomBanner = (props: {
                     {
                         label: props.bannerButtonLabel,
                         labelStyle: styles.buttonLabel,
-                        onPress: () => {
-                            // hide banner accordingly or go to a specific URL within the application
+                        onPress: async () => {
+                            // go to a specific URL within the application
+                            await Linking.openURL(Linking.createURL(props.bannerButtonLabelActionSource));
                         },
                     },
                     ...props.dismissing ? [{
