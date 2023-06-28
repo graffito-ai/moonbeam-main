@@ -254,6 +254,9 @@ export const CodeVerificationBottomSheet = (props: {
             if (errorCode === 'CodeMismatchException') {
                 errorMessage = 'Invalid verification code provided. Try again!';
             }
+            if (errorCode === 'AliasExistsException') {
+                errorMessage = 'An account with the given email already exists. Try again with a new email!';
+            }
             console.log(`${errorMessage} - ${error}`);
 
             setModalCustomMessage(errorMessage);
