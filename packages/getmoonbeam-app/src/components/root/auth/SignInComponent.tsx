@@ -145,6 +145,7 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                         source={AuthenticationGradientImage}>
                         <KeyboardAwareScrollView
                             enableOnAndroid={true}
+                            showsVerticalScrollIndicator={false}
                             enableAutomaticScroll={(Platform.OS === 'ios')}
                             contentContainerStyle={commonStyles.rowContainer}
                             keyboardShouldPersistTaps={'handled'}

@@ -71,7 +71,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
      */
     useEffect(() => {
         // start the countdown if the value is 10
-        if (countdownValue == 10) {
+        if (countdownValue === 10) {
             startCountdown(10);
         }
         // perform field validations on every state change, for the specific field that is being validated
@@ -241,6 +241,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                         </Portal>
                         <KeyboardAwareScrollView
                             enableOnAndroid={true}
+                            showsVerticalScrollIndicator={false}
                             enableAutomaticScroll={(Platform.OS === 'ios')}
                             contentContainerStyle={commonStyles.rowContainer}
                             keyboardShouldPersistTaps={'handled'}
@@ -682,7 +683,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                             setModalVisible(true);
                                                         }
                                                     }
-                                                    break
+                                                    break;
                                                 default:
                                                     console.log(`Unexpected step number ${stepNumber}!`);
                                                     break;

@@ -10,7 +10,7 @@ import {
     appDrawerHeaderShownState,
     cardLinkingStatusState,
     customBannerShown,
-    drawerSwipeState
+    drawerSwipeState, profilePictureURIState
 } from "../../../recoil/AppDrawerAtom";
 import {Home} from "./home/Home";
 import {Ionicons} from "@expo/vector-icons";
@@ -24,7 +24,7 @@ import {
     updatedMilitaryVerificationStatus,
     UpdateMilitaryVerificationResponse
 } from "@moonbeam/moonbeam-models";
-import {API, graphqlOperation} from "aws-amplify";
+import {API, Auth, graphqlOperation} from "aws-amplify";
 import {Observable} from "zen-observable-ts";
 import {currentUserInformation} from "../../../recoil/AuthAtom";
 import {Spinner} from "../../common/Spinner";
@@ -41,6 +41,7 @@ import MoonbeamNavigationLogo from '../../../../assets/moonbeam-navigation-logo.
 import Image = Animated.Image;
 import {Settings} from "./settings/Settings";
 import * as Linking from "expo-linking";
+import {fetchFile} from "../../../utils/File";
 
 /**
  * AppDrawer component.
@@ -56,6 +57,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
     const [militaryStatusUpdatesSubscribed, setMilitaryStatusUpdatesSubscribed] = useState<boolean>(false);
     // constants used to keep track of shared states
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
+    const [profilePictureURI, setProfilePictureURI] = useRecoilState(profilePictureURIState);
     const [drawerHeaderShown,] = useRecoilState(appDrawerHeaderShownState);
     const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
     const [cardLinkingStatus, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
@@ -94,6 +96,9 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                 screens: {
                     SettingsList: {
                         path: 'list'
+                    },
+                    Profile: {
+                        path: 'profile'
                     }
                 }
             },
@@ -137,8 +142,48 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         !cardLinkingStatus && userInformation["militaryStatus"] && !userInformation["linkedCard"]
         && userInformation["militaryStatus"] === MilitaryVerificationStatusType.Verified
         && retrieveLinkedCard(userInformation["custom:userId"]);
-    }, [militaryStatusUpdatesSubscription, userInformation, cardLinkingStatus]);
+        // retrieve the profile picture (if existent)
+        (!profilePictureURI || profilePictureURI === "") && retrieveProfilePicture();
+    }, [militaryStatusUpdatesSubscription, userInformation["custom:userId"],  userInformation["militaryStatus"],
+        cardLinkingStatus, profilePictureURI, deviceType]);
 
+    /**
+     * Function used to retrieve the new profile picture, after picking a picture through
+     * the photo picker and uploading it into storage.
+     */
+    const retrieveProfilePicture = async (): Promise<void> => {
+        try {
+            // set the loader on button press
+            setIsReady(false);
+
+            // retrieve the identity id for the current user
+            const userCredentials = await Auth.currentUserCredentials();
+
+            // fetch the profile picture URI from storage and/or cache
+            const [returnFlag, profilePictureURI] = await fetchFile('profile_picture.png', true,
+                true, false, userCredentials["identityId"]);
+            if (!returnFlag || profilePictureURI === null) {
+                // release the loader on button press
+                setIsReady(true);
+
+                // for any error we just want to print them out, and not set any profile picture, and show the default avatar instead
+                console.log(`Unable to retrieve new profile picture!`);
+            } else {
+                // release the loader on button press
+                setIsReady(true);
+
+                // update the global profile picture state
+                setProfilePictureURI(profilePictureURI);
+            }
+        } catch (error) {
+            // release the loader on button press
+            setIsReady(true);
+
+            // for any error we just want to print them out, and not set any profile picture, and show the default avatar instead
+            const errorMessage = `Error while retrieving profile picture!`;
+            console.log(`${errorMessage} - ${error}`);
+        }
+    }
 
     /**
      * Function used to retrieve an individual's card linked object.
@@ -386,12 +431,22 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                         <CustomDrawer {...props} />
                                 }
                                 initialRouteName={"Home"}
-                                screenOptions={({ navigation }) => ({
-                                    headerLeft: () => <IconButton icon={'menu'} iconColor={'#FFFFFF'} size={30} onPress={navigation.toggleDrawer} />,
+                                screenOptions={({navigation}) => ({
+                                    headerLeft: () => <IconButton icon={'menu'} iconColor={'#FFFFFF'} size={30}
+                                                                  onPress={navigation.toggleDrawer}/>,
                                     headerTitle: () =>
-                                        <Image  resizeMode={"contain"}
-                                                style={{alignSelf: 'center', width: Dimensions.get('window').width/12, height: Dimensions.get('window').height/12}}
-                                                source={MoonbeamNavigationLogo}
+                                        <Image resizeMode={"contain"}
+                                               style={[{alignSelf: 'center'},
+                                                   deviceType === DeviceType.TABLET
+                                                       ? {
+                                                           width: Dimensions.get('window').width / 22,
+                                                           height: Dimensions.get('window').height / 22
+                                                       }
+                                                       : {
+                                                           width: Dimensions.get('window').width / 12,
+                                                           height: Dimensions.get('window').height / 12
+                                                       }]}
+                                               source={MoonbeamNavigationLogo}
                                         />,
                                     headerStyle: {
                                         backgroundColor: '#313030'
@@ -444,7 +499,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                     name={"Settings"}
                                     component={Settings}
                                     options={{
-                                        swipeEnabled: true,
+                                        swipeEnabled: drawerSwipeEnabled,
                                         drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20 : 0},
                                         drawerIcon: () => (
                                             <Ionicons

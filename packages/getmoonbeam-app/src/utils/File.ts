@@ -8,17 +8,18 @@ import {FileAccessLevel, FileType, getStorage} from "@moonbeam/moonbeam-models";
  *
  * @param uri uri of the document to upload
  * @param privacyFlag privacy level flag
+ * @param optionalFileName optional file name to be passed in, for cases where that's needed
  *
  * @return an instance of {@link Promise} of a tuple containing a {@link boolean} and a {@link string}
  */
-export const uploadFile = async (uri: string, privacyFlag: boolean): Promise<[boolean, (string | null)]> => {
+export const uploadFile = async (uri: string, privacyFlag: boolean, optionalFileName?: string): Promise<[boolean, (string | null)]> => {
     try {
         // first retrieve file information from local storage
         const fileInfo = await FileSystem.getInfoAsync(uri);
 
         // retrieve the file name, from the URI passed in
         const uriSplit = uri.split('/');
-        const fileName = uriSplit[uriSplit.length - 1];
+        const fileName = optionalFileName ? optionalFileName : uriSplit[uriSplit.length - 1];
 
         // retrieve the file blob to upload from passed in URI
         const fileBlob = await (await(fetch(fileInfo.uri))).blob();
@@ -57,10 +58,14 @@ export const uploadFile = async (uri: string, privacyFlag: boolean): Promise<[bo
  *
  * @param name name of the document to fetch
  * @param privacyFlag privacy level flag
+ * @param expires flag to be passed in
+ * @param cached flag to indicate whether file will be cached or not
+ * @param identity optional identity to be passed in, for cases where the privacy flag is
+ * set to true, indicating a Private level
  *
  * @return an instance of {@link Promise} of a tuple containing a {@link boolean} and a {@link string}
  */
-export const fetchFile = async (name: string, privacyFlag: boolean): Promise<[boolean, (string | null)]> => {
+export const fetchFile = async (name: string, privacyFlag: boolean, expires: boolean, cached: boolean, identity?: string): Promise<[boolean, (string | null)]> => {
     try {
         // first check if the base directory exists or not
         const baseDir = `${FileSystem.documentDirectory!}` + `files/`;
@@ -72,35 +77,48 @@ export const fetchFile = async (name: string, privacyFlag: boolean): Promise<[bo
         const fileUri = baseDir + name;
         const fileInfo = await FileSystem.getInfoAsync(fileUri);
 
+        // remove the file from local storage depending on the cached flag
+        if (!cached && fileInfo.exists) {
+            console.log('Removing pre-existing file from storage, given caching flag!');
+
+            await FileSystem.deleteAsync(fileUri);
+        }
+
         // if the file already exists in local file system cache
         // ToDo: re-download the file after a certain time
-        if (!fileInfo.exists) {
+        if (!cached || !fileInfo.exists) {
             console.log(`${name} isn't cached locally. Downloading...`);
             // perform the query to fetch a file
             const fetchFileResult = await API.graphql(graphqlOperation(getStorage, {
                 getStorageInput: {
                     level: privacyFlag ? FileAccessLevel.Private : FileAccessLevel.Public,
                     type: FileType.Main,
-                    name: name
+                    name: name,
+                    expires: expires,
+                    ...(identity && identity.length !== 0) && {
+                        id: identity
+                    }
                 }
             }));
+
             // @ts-ignore
             if (fetchFileResult && fetchFileResult.data.getStorage.errorMessage === null) {
                 // @ts-ignore
                 const retrievedURI = fetchFileResult.data.getStorage.data.url;
                 const fileDownloadResult = await FileSystem.downloadAsync(retrievedURI, fileUri);
 
-                // file did not exist, downloaded the file and return the newly locally cached URI
-                return [true, fileDownloadResult.uri];
+                // file did not exist or was force not cached, downloaded the file and return the appropriate URI
+                return [true, cached ? fileDownloadResult.uri: retrievedURI];
             } else {
                 console.log(`Unexpected error while fetching file ${name} ${JSON.stringify(fetchFileResult)}`);
                 return [false, null];
             }
-        }
-        console.log(`${name} is cached locally.`);
+        } else {
+            console.log(`${name} is cached locally.`);
 
-        // file exists, just return the locally cached URI
-        return [true, fileUri];
+            // file exists, just return the locally cached URI
+            return [true, fileUri];
+        }
     } catch (error) {
         console.log(`Unexpected error while fetching file: ${error}`);
 

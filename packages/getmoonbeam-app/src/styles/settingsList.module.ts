@@ -22,6 +22,13 @@ export const styles = StyleSheet.create({
         fontSize: Dimensions.get('window').width/23,
         fontFamily: 'Saira-Medium'
     },
+    subHeaderTitleTablet: {
+        marginTop: '1.5%',
+        alignSelf: 'center',
+        color: '#F2FF5D',
+        fontSize: Dimensions.get('window').width/43,
+        fontFamily: 'Saira-Medium'
+    },
     settingsItemTitle: {
         color: '#FFFFFF',
         fontFamily: 'Saira-Medium'
@@ -39,5 +46,13 @@ export const styles = StyleSheet.create({
         alignSelf: 'center',
         alignItems: 'center',
         marginLeft: Dimensions.get('window').width/30
+    },
+    backButton: {
+        marginTop: '-5%',
+        marginLeft: `-10%`
+    },
+    backButtonTablet: {
+        marginTop: '-5%',
+        marginLeft: `-5%`
     }
 });

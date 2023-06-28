@@ -160,7 +160,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
      */
     useEffect(() => {
         // start the countdown if the value is 10
-        if (countdownValue == 10) {
+        if (countdownValue === 10) {
             startCountdown(10);
         }
         /**
@@ -476,7 +476,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
         if (status === 'granted') {
             // fetch the URI for the image to be retrieved from CloudFront
             // retrieving the document link from either local cache, or from storage
-            const [returnFlag, shareURI] = await fetchFile('contact-icon.png', false);
+            const [returnFlag, shareURI] = await fetchFile('contact-icon.png', false, true, true);
             if (!returnFlag || shareURI === null) {
                 console.log(`Unable to download contact icon file!`);
             } else {
@@ -540,6 +540,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                         <KeyboardAwareScrollView
                             scrollEnabled={stepNumber == 0 || stepNumber === 1 || stepNumber === 2 || stepNumber === 3}
                             enableOnAndroid={true}
+                            showsVerticalScrollIndicator={false}
                             enableAutomaticScroll={(Platform.OS === 'ios')}
                             contentContainerStyle={[commonStyles.rowContainer]}
                             keyboardShouldPersistTaps={'handled'}

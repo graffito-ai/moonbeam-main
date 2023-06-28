@@ -12,10 +12,13 @@ import {Spinner} from "../../../common/Spinner";
 import {API, graphqlOperation} from "aws-amplify";
 import {deleteCard} from "@moonbeam/moonbeam-models";
 import * as Linking from 'expo-linking';
-import {cardLinkingStatusState} from "../../../../recoil/AppDrawerAtom";
+import {cardLinkingStatusState, drawerSwipeState} from "../../../../recoil/AppDrawerAtom";
 // @ts-ignore
 import CardLinkingImage from "../../../../../assets/art/moonbeam-card-linking.png";
 import {customBannerState} from "../../../../recoil/CustomBannerAtom";
+import {deviceTypeState} from "../../../../recoil/RootAtom";
+import * as Device from "expo-device";
+import {DeviceType} from "expo-device";
 
 /**
  * SettingsList component
@@ -36,6 +39,8 @@ export const SettingsList = ({}: SettingsListProps) => {
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
     const [, setBannerState] = useRecoilState(customBannerState);
+    const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
+    const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -45,6 +50,14 @@ export const SettingsList = ({}: SettingsListProps) => {
      * included in here.
      */
     useEffect(() => {
+        // check and set the type of device, to be used throughout the app
+        Device.getDeviceTypeAsync().then(deviceType => {
+            setDeviceType(deviceType);
+        });
+
+        // enable the swipe for the drawer
+        setDrawerSwipeEnabled(true);
+
         // check if a member has already been deactivated or never completed the linked card process
         if (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0) {
             // set the opt-out information accordingly
@@ -57,7 +70,7 @@ export const SettingsList = ({}: SettingsListProps) => {
             setOptionDescription("You can re-opt to the available cashback programs, by linking your favorite Visa or MasterCard card!");
             setOptionIcon('credit-card-plus-outline');
         }
-    }, [userInformation]);
+    }, [userInformation["linkedCard"], deviceType]);
 
     /**
      * Function used to handle the opt-out action, from the settings list
@@ -168,7 +181,7 @@ export const SettingsList = ({}: SettingsListProps) => {
                                         showsVerticalScrollIndicator={false}
                                         keyboardShouldPersistTaps={'handled'}>
                                 <List.Section style={styles.listSectionView}>
-                                    <List.Subheader style={styles.subHeaderTitle}>Account Management</List.Subheader>
+                                    <List.Subheader style={deviceType === DeviceType.TABLET ? styles.subHeaderTitleTablet : styles.subHeaderTitle}>Account Management</List.Subheader>
                                     <Divider style={styles.divider}/>
                                     <Divider style={styles.divider}/>
                                     <List.Item
@@ -181,7 +194,12 @@ export const SettingsList = ({}: SettingsListProps) => {
                                         description='View and edit your basic information, such as email, phone number, name or address.'
                                         left={() => <List.Icon color={'#F2FF5D'} icon="clipboard-account-outline"/>}
                                         right={() => <List.Icon style={{left: Dimensions.get('window').width/60}} color={'#F2FF5D'} icon="chevron-right"/>}
+                                        onPress={async () => {
+                                            // go to the Profile screen
+                                            await Linking.openURL(Linking.createURL(`/main/settings/profile`));
+                                        }}
                                     />
+                                    <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>
                                     <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>
                                     <List.Item
                                         style={styles.settingsItemStyle}
@@ -196,7 +214,7 @@ export const SettingsList = ({}: SettingsListProps) => {
                                     />
                                 </List.Section>
                                 <List.Section style={styles.listSectionView}>
-                                    <List.Subheader style={styles.subHeaderTitle}>Wallet Management</List.Subheader>
+                                    <List.Subheader style={deviceType === DeviceType.TABLET ? styles.subHeaderTitleTablet : styles.subHeaderTitle}>Wallet Management</List.Subheader>
                                     <Divider style={styles.divider}/>
                                     <Divider style={styles.divider}/>
                                     <List.Item
@@ -209,7 +227,7 @@ export const SettingsList = ({}: SettingsListProps) => {
                                         description={optionDescription}
                                         left={() => <List.Icon color={'#F2FF5D'} icon={optionIcon}/>}
                                         right={() => <List.Icon style={{left: Dimensions.get('window').width/60}} color={'#F2FF5D'} icon={FaceIDIcon}/>}
-                                        onPress={ async () => {
+                                        onPress={async () => {
                                             // check if a member has already been deactivated or never completed the linked card process
                                             if (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0) {
                                                 // there's a need to deactivate
@@ -226,7 +244,7 @@ export const SettingsList = ({}: SettingsListProps) => {
                                     />
                                 </List.Section>
                                 <List.Section style={styles.listSectionView}>
-                                    <List.Subheader style={styles.subHeaderTitle}>Security and Privacy</List.Subheader>
+                                    <List.Subheader style={deviceType === DeviceType.TABLET ? styles.subHeaderTitleTablet : styles.subHeaderTitle}>Security and Privacy</List.Subheader>
                                     <Divider style={styles.divider}/>
                                     <Divider style={styles.divider}/>
                                     <List.Item
@@ -241,6 +259,7 @@ export const SettingsList = ({}: SettingsListProps) => {
                                         right={() => <List.Icon style={{left: Dimensions.get('window').width/60}} color={'#F2FF5D'} icon="chevron-right"/>}
                                     />
                                     <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>
+                                    <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>
                                     <List.Item
                                         style={styles.settingsItemStyle}
                                         titleStyle={styles.settingsItemTitle}
@@ -252,6 +271,7 @@ export const SettingsList = ({}: SettingsListProps) => {
                                         left={() => <List.Icon color={'#F2FF5D'} icon="lock"/>}
                                         right={() => <List.Icon style={{left: Dimensions.get('window').width/60}} color={'#F2FF5D'} icon="chevron-right"/>}
                                     />
+                                    <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>
                                     <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>
                                     <List.Item
                                         style={styles.settingsItemStyle}

@@ -162,6 +162,7 @@ export type GetMilitaryVerificationResponse = {
 
 export type GetStorageInput = {
   expires?: InputMaybe<Scalars['Boolean']>;
+  id?: InputMaybe<Scalars['String']>;
   level: FileAccessLevel;
   name: Scalars['String'];
   type: FileType;

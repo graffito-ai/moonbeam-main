@@ -119,8 +119,8 @@ export class StorageResolverStack extends Stack {
                 cachePolicy: new CachePolicy(this, `${props.storageConfig.mainFilesCloudFrontCachePolicyName}-${props.stage}-${props.env!.region}`, {
                     cachePolicyName: `${props.storageConfig.mainFilesCloudFrontCachePolicyName}-${props.stage}-${props.env!.region}`,
                     comment: `A cache policy, used to access the files in the ${props.storageConfig.mainFilesBucketName}-${props.stage}-${props.env!.region} bucket, by CloudFront`,
-                    defaultTtl: Duration.hours(24),
-                    maxTtl: Duration.hours(24),
+                    defaultTtl: Duration.seconds(1),
+                    maxTtl: Duration.seconds(1),
                     minTtl: Duration.seconds(1),
                     cookieBehavior: CacheCookieBehavior.all(),
                     headerBehavior: CacheHeaderBehavior.none(),
@@ -156,8 +156,8 @@ export class StorageResolverStack extends Stack {
                     ],
                     resources: [
                         `arn:aws:s3:::${mainFilesBucketName}/public/*`,
-                        `arn:aws:s3:::${mainFilesBucketName}/protected/` + '${cognito-identity.amazonaws.com:sub}/*',
-                        `arn:aws:s3:::${mainFilesBucketName}/private/` + '${cognito-identity.amazonaws.com:sub}/*'
+                        `arn:aws:s3:::${mainFilesBucketName}/protected/*`,
+                        `arn:aws:s3:::${mainFilesBucketName}/private/*`
                     ]
                 }),
                 new PolicyStatement({
@@ -193,8 +193,8 @@ export class StorageResolverStack extends Stack {
                                 "public/*",
                                 "protected/",
                                 "protected/*",
-                                'private/' + '${cognito-identity.amazonaws.com:sub}/',
-                                'private/' + '${cognito-identity.amazonaws.com:sub}/*',
+                                'private/',
+                                'private/*',
 
                             ]
                         }
@@ -224,8 +224,8 @@ export class StorageResolverStack extends Stack {
             ],
             resources: [
                 `arn:aws:s3:::${mainFilesBucketName}/public/*`,
-                `arn:aws:s3:::${mainFilesBucketName}/protected/` + '${cognito-identity.amazonaws.com:sub}/*',
-                `arn:aws:s3:::${mainFilesBucketName}/private/` + '${cognito-identity.amazonaws.com:sub}/*'
+                `arn:aws:s3:::${mainFilesBucketName}/protected/*`,
+                `arn:aws:s3:::${mainFilesBucketName}/private/*`
             ]
         }));
         authenticatedRole.addToPrincipalPolicy(new PolicyStatement({
@@ -261,8 +261,8 @@ export class StorageResolverStack extends Stack {
                         "public/*",
                         "protected/",
                         "protected/*",
-                        'private/' + '${cognito-identity.amazonaws.com:sub}/',
-                        'private/' + '${cognito-identity.amazonaws.com:sub}/*'
+                        'private/',
+                        'private/*'
                     ]
                 }
             }

@@ -8,6 +8,23 @@ import LinkingOverviewImage from '../../assets/art/moonbeam-linking-overview.png
 // @ts-ignore
 import RewardsOverviewImage from '../../assets/art/moonbeam-rewards-overview.png';
 
+// constants used to keep track of the email code verification steps content
+export const emailCodeVerificationSteps = [
+    {
+        stepTitle: "Verification",
+        stepSubtitle: "We identified that you want to change your ",
+        stepSubtitleHighlighted: "email",
+        contentDescription: "We will send you a one-time pass code, to confirm it.",
+        stepButtonText: "Send Code"
+    },
+    {
+        stepTitle: "Code Verification",
+        stepSubtitle: "Verify your ",
+        stepSubtitleHighlighted: "code",
+        contentDescription: "Enter the 6 digit verification code (OTP) we just sent to your email, in order to confirm your identity.",
+        stepButtonText: "Confirm"
+    }
+]
 // constants used to keep track of the account recovery steps content
 export const accountRecoverySteps = [
     {
@@ -220,3 +237,8 @@ export const issuingCountrySelectionItems = [
 export const stateItems = [
     "Alaska", "Alabama", "Arkansas", "American Samoa", "Arizona", "California", "Colorado", "Connecticut", "District of Columbia", "Delaware", "Florida", "Georgia", "Guam", "Hawaii", "Iowa", "Idaho", "Illinois", "Indiana", "Kansas", "Kentucky", "Louisiana", "Massachusetts", "Maryland", "Maine", "Michigan", "Minnesota", "Missouri", "Mississippi", "Montana", "North Carolina", "North Dakota", "Nebraska", "New Hampshire", "New Jersey", "New Mexico", "Nevada", "New York", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Puerto Rico", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Virginia", "Virgin Islands", "Vermont", "Washington", "Wisconsin", "West Virginia", "Wyoming"
 ];
+// enum for the CodeVerification screen
+export enum CodeVerificationType {
+    EMAIL = 'EMAIL',
+    PHONE = 'PHONE'
+}

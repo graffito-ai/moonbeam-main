@@ -6,6 +6,14 @@ import {SettingsProps} from "../../../../models/props/AppDrawerProps";
 import {SettingsStackParamList} from "../../../../models/props/SettingsProps";
 import {SettingsList} from "./SettingsList";
 import * as Linking from "expo-linking";
+import {Profile} from './profile/Profile';
+import {useRecoilState} from "recoil";
+import {appDrawerHeaderShownState, drawerSwipeState} from "../../../../recoil/AppDrawerAtom";
+import {deviceTypeState} from "../../../../recoil/RootAtom";
+import * as Device from "expo-device";
+import {DeviceType} from "expo-device";
+import {Dimensions} from "react-native";
+import {styles} from "../../../../styles/settingsList.module";
 
 /**
  * Settings component
@@ -13,6 +21,11 @@ import * as Linking from "expo-linking";
  * @constructor constructor for the component.
  */
 export const Settings = ({}: SettingsProps) => {
+    // constants used to keep track of shared states
+    const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
+    const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
+    const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
+
     // create a native stack navigator, to be used for our Settings navigation
     const Stack = createNativeStackNavigator<SettingsStackParamList>();
 
@@ -24,13 +37,20 @@ export const Settings = ({}: SettingsProps) => {
      * included in here.
      */
     useEffect(() => {
-    }, []);
+        // check and set the type of device, to be used throughout the app
+        Device.getDeviceTypeAsync().then(deviceType => {
+            setDeviceType(deviceType);
+        });
+    }, [deviceType]);
 
     // enabling the linking configuration for creating links to the application screens, based on the navigator
     const config = {
         screens: {
             SettingsList: {
                 path: 'main/settings/list'
+            },
+            Profile: {
+                path: 'main/settings/profile'
             }
         },
     };
@@ -56,20 +76,36 @@ export const Settings = ({}: SettingsProps) => {
                         headerLeft: () => {
                             return (<IconButton
                                 icon="chevron-left"
-                                iconColor={"#2A3779"}
-                                size={40}
-                                style={{marginTop: '-5%', marginLeft: `-10%`}}
+                                iconColor={"#F2FF5D"}
+                                size={deviceType === DeviceType.TABLET ? Dimensions.get('window').height / 28 : Dimensions.get('window').height / 22}
+                                style={deviceType === DeviceType.TABLET ? styles.backButtonTablet : styles.backButton}
                                 onPress={() => {
+                                    // enable swipes for the App Drawer
+                                    setDrawerSwipeEnabled(true);
+
+                                    // set the visibility of the App Header
+                                    setAppDrawerHeaderShown(true);
+
+                                    // navigate back to the SettingsList component
                                     navigation.navigate('SettingsList', {});
                                 }}
                             />)
                         },
                         headerTitle: '',
-                        headerTransparent: true,
-                        headerTintColor: '#2A3779'
+                        headerTransparent: false,
+                        headerStyle: {backgroundColor: '#313030'},
+                        gestureEnabled: false
                     })
                 }}
             >
+                <Stack.Screen
+                    name="Profile"
+                    component={Profile}
+                    options={{
+                        headerShown: true
+                    }}
+                    initialParams={{}}
+                />
                 <Stack.Screen
                     name="SettingsList"
                     component={SettingsList}

@@ -62,10 +62,6 @@ export class AmplifyAuthStack extends NestedStack {
                 email: true,
                 // phone: true
             },
-            keepOriginal: {
-                email: true,
-                // phone: true
-            },
             standardAttributes: {
                 address: {
                     mutable: true,

@@ -45,19 +45,30 @@ const cardLinkingStatusState = atom({
 });
 
 /**
- * Additional flag, indicating whether the banner will be shown or not. In some cases, even if
- * a banner is shown, we don't want to display it for some screens.
+ * Atom used to keep track of a flag, indicating whether the banner will be shown or not. In some cases,
+ * even if a banner is shown, we don't want to display it for some screens.
  */
 const customBannerShown = atom({
     key: "customBannerShown",
     default: false
 });
 
+/**
+ * Atom used to keep track of a flag, indicating whether the AppDrawer can open via a swipe from different
+ * Home screens.
+ */
 const drawerSwipeState = atom({
    key: 'drawerSwipeState',
    default: true
 });
 
+/**
+ * Atom used to keep track of the profile picture URI, retrieved from storage.
+ */
+const profilePictureURIState = atom({
+    key: 'profilePictureURIState',
+    default: ""
+});
 
 /**
  * Export all atoms and/or selectors
@@ -69,5 +80,6 @@ export {
     additionalAppWallDocumentationErrors,
     cardLinkingStatusState,
     customBannerShown,
-    drawerSwipeState
+    drawerSwipeState,
+    profilePictureURIState
 };

@@ -79,7 +79,7 @@ export const DocumentCaptureStep = () => {
     }, [captureButtonState, uploadButtonState, photoSelectionButtonState, documentationErrors, capturedFileName, uploadedFileName]);
 
     /**
-     * Function used to pick a verification picture to storage, based on the photo library storage,
+     * Function used to pick a verification picture, based on the photo library storage,
      * obtained from an image picker.
      *
      * @return a {@link Promise} containing a {@link Boolean} representing a flag of whether
@@ -133,17 +133,29 @@ export const DocumentCaptureStep = () => {
                                 // release the loader on button press
                                 setIsReady(true);
                                 return false;
+                            } else {
+                                // set the captured file name, so it can be displayed in the UI
+                                setCapturedFileName(fileName!);
+
+                                // release the loader on button press
+                                setIsReady(true);
+                                return true;
                             }
-                            // set the captured file name, so it can be displayed in the UI
-                            setCapturedFileName(fileName!);
+                        } else {
+                            const errorMessage = "Invalid photo size. Maximum allotted size is 10MB";
+                            console.log(errorMessage);
+
+                            // set the documentation errors accordingly
+                            // @ts-ignore
+                            setDocumentationErrors([errorMessage]);
 
                             // release the loader on button press
                             setIsReady(true);
-                            return true;
-
+                            return false;
                         }
-                        const errorMessage = "Invalid photo size. Maximum allotted size is 10MB";
-                        console.log(errorMessage);
+                    } else {
+                        const errorMessage = `Please pick only 1 photo of your document to continue!`;
+                        console.log(`${errorMessage} - ${result.canceled}`);
 
                         // set the documentation errors accordingly
                         // @ts-ignore
@@ -153,7 +165,8 @@ export const DocumentCaptureStep = () => {
                         setIsReady(true);
                         return false;
                     }
-                    const errorMessage = `Please pick only 1 photo of your document to continue!`;
+                } else {
+                    const errorMessage = `Please pick a photo of your document to continue!`;
                     console.log(`${errorMessage} - ${result.canceled}`);
 
                     // set the documentation errors accordingly
@@ -164,16 +177,6 @@ export const DocumentCaptureStep = () => {
                     setIsReady(true);
                     return false;
                 }
-                const errorMessage = `Please pick a photo of your document to continue!`;
-                console.log(`${errorMessage} - ${result.canceled}`);
-
-                // set the documentation errors accordingly
-                // @ts-ignore
-                setDocumentationErrors([errorMessage]);
-
-                // release the loader on button press
-                setIsReady(true);
-                return false;
             } else {
                 const errorMessage = `Permission to access media library was not granted!`;
                 console.log(errorMessage);
@@ -256,17 +259,29 @@ export const DocumentCaptureStep = () => {
                                 // release the loader on button press
                                 setIsReady(true);
                                 return false;
+                            } else {
+                                // set the uploaded file name, so it can be displayed in the UI
+                                setCapturedFileName(fileName!);
+
+                                // release the loader on button press
+                                setIsReady(true);
+                                return true;
                             }
-                            // set the uploaded file name, so it can be displayed in the UI
-                            setCapturedFileName(fileName!);
+                        } else {
+                            const errorMessage = "Invalid photo size. Maximum allotted size is 10MB";
+                            console.log(errorMessage);
+
+                            // set the documentation errors accordingly
+                            // @ts-ignore
+                            setDocumentationErrors([errorMessage]);
 
                             // release the loader on button press
                             setIsReady(true);
-                            return true;
-
+                            return false;
                         }
-                        const errorMessage = "Invalid photo size. Maximum allotted size is 10MB";
-                        console.log(errorMessage);
+                    } else {
+                        const errorMessage = `Please capture 1 photo of your document to continue!`;
+                        console.log(`${errorMessage} - ${result.canceled}`);
 
                         // set the documentation errors accordingly
                         // @ts-ignore
@@ -276,7 +291,8 @@ export const DocumentCaptureStep = () => {
                         setIsReady(true);
                         return false;
                     }
-                    const errorMessage = `Please capture 1 photo of your document to continue!`;
+                } else {
+                    const errorMessage = `Please capture your document to continue!`;
                     console.log(`${errorMessage} - ${result.canceled}`);
 
                     // set the documentation errors accordingly
@@ -287,16 +303,6 @@ export const DocumentCaptureStep = () => {
                     setIsReady(true);
                     return false;
                 }
-                const errorMessage = `Please capture your document to continue!`;
-                console.log(`${errorMessage} - ${result.canceled}`);
-
-                // set the documentation errors accordingly
-                // @ts-ignore
-                setDocumentationErrors([errorMessage]);
-
-                // release the loader on button press
-                setIsReady(true);
-                return false;
             } else {
                 const errorMessage = `Permission to access camera was not granted!`;
                 console.log(errorMessage);
@@ -378,16 +384,29 @@ export const DocumentCaptureStep = () => {
                         // release the loader on button press
                         setIsReady(true);
                         return false;
+                    } else {
+                        // set the uploaded file name, so it can be displayed in the UI
+                        setUploadedFileName(fileName!);
+
+                        // release the loader on button press
+                        setIsReady(true);
+                        return true;
                     }
-                    // set the uploaded file name, so it can be displayed in the UI
-                    setUploadedFileName(fileName!);
+                } else {
+                    const errorMessage = "Invalid file size. Maximum allotted size is 10MB";
+                    console.log(errorMessage);
+
+                    // set the documentation errors accordingly
+                    // @ts-ignore
+                    setDocumentationErrors([errorMessage]);
 
                     // release the loader on button press
                     setIsReady(true);
-                    return true;
+                    return false;
                 }
-                const errorMessage = "Invalid file size. Maximum allotted size is 10MB";
-                console.log(errorMessage);
+            } else {
+                const errorMessage = `Please upload a file to continue!`;
+                console.log(`${errorMessage} - ${result.type}`);
 
                 // set the documentation errors accordingly
                 // @ts-ignore
@@ -397,16 +416,6 @@ export const DocumentCaptureStep = () => {
                 setIsReady(true);
                 return false;
             }
-            const errorMessage = `Please upload a file to continue!`;
-            console.log(`${errorMessage} - ${result.type}`);
-
-            // set the documentation errors accordingly
-            // @ts-ignore
-            setDocumentationErrors([errorMessage]);
-
-            // release the loader on button press
-            setIsReady(true);
-            return false;
         } catch (error) {
             const errorMessage = `Error while uploading file!`;
             console.log(`${errorMessage} - ${error}`);

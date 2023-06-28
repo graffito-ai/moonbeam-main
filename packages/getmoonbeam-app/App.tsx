@@ -171,6 +171,9 @@ export default function App() {
                                     screens: {
                                         SettingsList: {
                                             path: 'list'
+                                        },
+                                        Profile: {
+                                            path: 'profile'
                                         }
                                     }
                                 },

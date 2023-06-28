@@ -16,6 +16,8 @@ import {DeviceType} from "expo-device";
 import { currentUserInformation } from '../../recoil/AuthAtom';
 // @ts-ignore
 import SideBarImage from '../../../assets/art/sidebar.png';
+import {profilePictureURIState} from "../../recoil/AppDrawerAtom";
+import * as Linking from "expo-linking";
 
 /**
  * CustomDrawer component. This component will be used to further tailor our sidebar navigation drawer, mainly
@@ -30,6 +32,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const [currentUserName, setCurrentUserName] = useState<string>("N/A");
     // constants used to keep track of shared states
     const [userInformation,] = useRecoilState(currentUserInformation);
+    const [profilePictureURI, ] = useRecoilState(profilePictureURIState);
     const [deviceType,] = useRecoilState(deviceTypeState);
 
     /**
@@ -46,7 +49,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             setCurrentUserTitle(`${Array.from(userInformation["given_name"].split(" ")[0])[0] as string}${Array.from(userInformation["family_name"].split(" ")[0])[0] as string}`);
             setCurrentUserName(`${userInformation["given_name"]} ${userInformation["family_name"]}`);
         }
-    }, []);
+    }, [userInformation, profilePictureURI]);
 
     return (
         <>
@@ -63,25 +66,41 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                         }}
                         source={SideBarImage}>
                     <Avatar
+                        {...profilePictureURI && profilePictureURI !== "" && {
+                            source: {
+                                uri: profilePictureURI,
+                                cache: 'reload'
+                            }}
+                        }
+                        avatarStyle={{
+                            resizeMode: 'cover',
+                            borderColor: '#F2FF5D',
+                            borderWidth: 3
+                        }}
                         size={deviceType === DeviceType.TABLET ? 240 : Dimensions.get('window').height/8}
                         rounded
-                        titleStyle={[styles.titleStyle, deviceType === DeviceType.TABLET ? {fontSize: 80} : {fontSize: Dimensions.get('window').width/10}]}
-                        title={currentUserTitle}
+                        title={(!profilePictureURI || profilePictureURI === "") ? currentUserTitle : undefined}
+                        {...(!profilePictureURI || profilePictureURI === "") && {
+                            titleStyle: [
+                                styles.titleStyle, deviceType === DeviceType.TABLET ? {fontSize: 80} : {fontSize: Dimensions.get('window').width / 10}
+                            ]
+                        }}
                         containerStyle={styles.avatarStyle}
-                        onPress={() => {
-                            console.log('go to profile');
+                        onPress={async () => {
+                            // go to the Profile screen
+                            await Linking.openURL(Linking.createURL(`main/settings/profile`));
                         }}
                     >
                         <Avatar.Accessory
                             size={deviceType == DeviceType.TABLET ? 55 : Dimensions.get('window').width/15}
                             style={styles.avatarAccessoryStyle}
                             color={'#F2FF5D'}
-                            onPress={() => {
-                                console.log('go to profile');
+                            onPress={async () => {
+                                // go to the Profile screen
+                                await Linking.openURL(Linking.createURL(`main/settings/profile`));
                             }}
                         />
                     </Avatar>
-                    {/*@ts-ignore*/}
                     <Text numberOfLines={3} textBreakStrategy={"simple"} style={[styles.userNameStyle,
                         deviceType === DeviceType.TABLET
                             ? {

@@ -58,6 +58,7 @@ type StorageResponse @aws_cognito_user_pools {
 }
 
 input GetStorageInput {
+    id: String,
     level: FileAccessLevel!,
     type: FileType!,
     name: String!,

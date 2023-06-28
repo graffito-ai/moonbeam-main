@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {SafeAreaView, StyleSheet, TouchableOpacity} from "react-native";
+import {Dimensions, SafeAreaView, StyleSheet, TouchableOpacity} from "react-native";
 import WebView from "react-native-webview";
 import {useRecoilState} from "recoil";
 import {currentUserInformation} from "../../../../../recoil/AuthAtom";
@@ -10,7 +10,10 @@ import {Spinner} from "../../../../common/Spinner";
 import {API, graphqlOperation} from "aws-amplify";
 import {addCard, CardLink, CardLinkErrorType, CardType, createCardLink} from "@moonbeam/moonbeam-models";
 import {cardLinkingStatusState, customBannerShown} from "../../../../../recoil/AppDrawerAtom";
-import { cardLinkingBottomSheetState } from "../../../../../recoil/WalletAtom";
+import {cardLinkingBottomSheetState} from "../../../../../recoil/WalletAtom";
+import {deviceTypeState} from "../../../../../recoil/RootAtom";
+import * as Device from "expo-device";
+import {DeviceType} from "expo-device";
 
 /**
  * CardLinkingBottomSheet component.
@@ -28,6 +31,7 @@ export const CardLinkingBottomSheet = () => {
     const [, setBannerShown] = useRecoilState(customBannerShown);
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
     const [, setCardLinkingBottomSheetState] = useRecoilState(cardLinkingBottomSheetState);
+    const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -37,7 +41,11 @@ export const CardLinkingBottomSheet = () => {
      * included in here.
      */
     useEffect(() => {
-    }, []);
+        // check and set the type of device, to be used throughout the app
+        Device.getDeviceTypeAsync().then(deviceType => {
+            setDeviceType(deviceType);
+        });
+    }, [deviceType]);
 
     /**
      * Function used to keep track of the card linking action executed inside
@@ -375,7 +383,7 @@ export const CardLinkingBottomSheet = () => {
                             scrollEnabled={false}
                             originWhitelist={['*']}
                             source={{html: oliveIframeContent}}
-                            style={styles.cardLinkingIframeView}
+                            style={[styles.cardLinkingIframeView, deviceType === DeviceType.TABLET && {bottom: Dimensions.get('window').height / 20}]}
                             scalesPageToFit={true}
                             setSupportMultipleWindows={false}
                             nestedScrollEnabled={true}

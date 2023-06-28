@@ -76,11 +76,13 @@ export const styles = StyleSheet.create({
     cardItemStyle: {},
     cardItemTitle: {
         color: '#FFFFFF',
-        fontFamily: 'Saira-Bold'
+        fontFamily: 'Saira-Bold',
+        fontSize: Dimensions.get('window').height/50
     },
     cardItemDetails: {
         color: '#FFFFFF',
-        fontFamily: 'Saira-Medium'
+        fontFamily: 'Saira-Medium',
+        fontSize: Dimensions.get('window').height/60
     },
     cardLinkingParentView: {
         backgroundColor: '#5B5A5A',
@@ -90,6 +92,7 @@ export const styles = StyleSheet.create({
     },
     cardLinkingIframeView: {
         left: Dimensions.get('window').width / 2.03,
+        bottom: Dimensions.get('window').height / 50,
         backgroundColor: 'transparent',
         width: Dimensions.get('window').width*2,
         flexGrow: 1
@@ -106,6 +109,12 @@ export const styles = StyleSheet.create({
         width: Dimensions.get('window').width / 1.15,
         textAlign: 'center'
     },
+    disclaimerTextTablet: {
+        fontFamily: 'Saira-Regular',
+        fontSize: Dimensions.get('window').width / 35,
+        width: Dimensions.get('window').width / 1.15,
+        textAlign: 'center'
+    },
     walletTextView: {
         alignSelf: 'flex-start',
         marginTop: Dimensions.get('window').height / 20,
@@ -116,9 +125,21 @@ export const styles = StyleSheet.create({
         fontSize: Dimensions.get('window').width / 13,
         color: '#FFFFFF'
     },
+    walletTitleTablet: {
+        fontFamily: 'Saira-SemiBold',
+        fontSize: Dimensions.get('window').width / 19,
+        color: '#FFFFFF'
+    },
     walletSubtitle: {
         fontFamily: 'Raleway-Regular',
         fontSize: Dimensions.get('window').width / 22,
+        width: Dimensions.get('window').width / 1.15,
+        textAlign: 'justify',
+        color: '#FFFFFF'
+    },
+    walletSubtitleTablet: {
+        fontFamily: 'Raleway-Regular',
+        fontSize: Dimensions.get('window').width / 28,
         width: Dimensions.get('window').width / 1.15,
         textAlign: 'justify',
         color: '#FFFFFF'
@@ -128,15 +149,34 @@ export const styles = StyleSheet.create({
         fontSize: Dimensions.get('window').width / 13,
         color: '#FFFFFF'
     },
+    cardRemovalTitleTablet: {
+        fontFamily: 'Saira-Medium',
+        fontSize: Dimensions.get('window').width / 18,
+        color: '#FFFFFF'
+    },
     cardRemovalDetails: {
         fontFamily: 'Saira-Medium',
         fontSize: Dimensions.get('window').width / 23,
         bottom: Dimensions.get('window').height / 80,
         color: '#F2FF5D'
     },
+    cardRemovalDetailsTablet: {
+        fontFamily: 'Saira-Medium',
+        fontSize: Dimensions.get('window').width / 33,
+        bottom: Dimensions.get('window').height / 80,
+        color: '#F2FF5D'
+    },
     cardRemovalSubtitle: {
         fontFamily: 'Raleway-Regular',
         fontSize: Dimensions.get('window').width / 22,
+        width: Dimensions.get('window').width / 1.15,
+        top: Dimensions.get('window').height / 100,
+        textAlign: 'center',
+        color: '#FFFFFF'
+    },
+    cardRemovalSubtitleTablet: {
+        fontFamily: 'Raleway-Regular',
+        fontSize: Dimensions.get('window').width / 32,
         width: Dimensions.get('window').width / 1.15,
         top: Dimensions.get('window').height / 100,
         textAlign: 'center',

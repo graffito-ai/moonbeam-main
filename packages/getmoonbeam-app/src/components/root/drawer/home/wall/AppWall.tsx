@@ -318,7 +318,8 @@ export const AppWall = () => {
                             </Modal>
                         </Portal>
                         <KeyboardAwareScrollView
-                            scrollEnabled={false}
+                            scrollEnabled={true}
+                            showsVerticalScrollIndicator={false}
                             enableOnAndroid={true}
                             enableAutomaticScroll={(Platform.OS === 'ios')}
                             contentContainerStyle={[commonStyles.rowContainer]}

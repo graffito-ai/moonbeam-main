@@ -5,6 +5,9 @@ import {RecoilState, useRecoilState} from "recoil";
 import {styles} from '../../styles/customBanner.module';
 import {customBannerShown} from "../../recoil/AppDrawerAtom";
 import * as Linking from "expo-linking";
+import {deviceTypeState} from "../../recoil/RootAtom";
+import * as Device from "expo-device";
+import {DeviceType} from "expo-device";
 
 /**
  * Custom Banner component. This component will be used as a banner for notification and/or
@@ -23,7 +26,7 @@ export const CustomBanner = (props: {
 }) => {
     // constants used to keep track of shared states
     const [bannerShown, ] = useRecoilState(customBannerShown);
-    // constants used to keep track of local component state
+    const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
     const [bannerVisibile, setBannerVisible] = useRecoilState(props.bannerVisibilityState);
 
     /**
@@ -34,7 +37,11 @@ export const CustomBanner = (props: {
      * included in here.
      */
     useEffect(() => {
-    }, []);
+        // check and set the type of device, to be used throughout the app
+        Device.getDeviceTypeAsync().then(deviceType => {
+            setDeviceType(deviceType);
+        })
+    }, [deviceType]);
 
     // return the component for the Custom Banner page
     return (
@@ -45,14 +52,14 @@ export const CustomBanner = (props: {
                 actions={[
                     {
                         label: props.bannerButtonLabel,
-                        labelStyle: styles.buttonLabel,
+                        labelStyle: deviceType === DeviceType.TABLET ? styles.buttonLabelTablet : styles.buttonLabel,
                         onPress: async () => {
                             // go to a specific URL within the application
                             await Linking.openURL(Linking.createURL(props.bannerButtonLabelActionSource));
                         },
                     },
                     ...props.dismissing ? [{
-                        labelStyle: styles.buttonLabel,
+                        labelStyle: deviceType === DeviceType.TABLET ? styles.buttonLabelTablet : styles.buttonLabel,
                         label: 'Dismiss',
                         onPress: () => {
                             // hide banner
@@ -63,10 +70,10 @@ export const CustomBanner = (props: {
                 icon={({}) => (
                     <Image
                         source={props.bannerArtSource}
-                        style={styles.bannerImage}
+                        style={deviceType === DeviceType.TABLET ? styles.bannerImageTablet: styles.bannerImage}
                     />
                 )}>
-                <Text style={styles.bannerDescription}>
+                <Text style={deviceType === DeviceType.TABLET ? styles.bannerDescriptionTablet : styles.bannerDescription}>
                     {props.bannerMessage}
                 </Text>
             </Banner>

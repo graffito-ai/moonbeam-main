@@ -6,7 +6,8 @@ import {useRecoilState} from "recoil";
 import {
     appDrawerHeaderShownState,
     cardLinkingStatusState,
-    customBannerShown, drawerSwipeState
+    customBannerShown,
+    drawerSwipeState
 } from "../../../../../recoil/AppDrawerAtom";
 import {styles} from '../../../../../styles/wallet.module';
 import {commonStyles} from "../../../../../styles/common.module";
@@ -34,6 +35,9 @@ import MoonbeamVisaImage from '../../../../../../assets/moonbeam-visa-icon.png';
 import MoonbeamMasterCardImage from '../../../../../../assets/moonbeam-mastercard-icon.png';
 // @ts-ignore
 import RegistrationBackgroundImage from '../../../../../../assets/backgrounds/registration-background.png';
+import {deviceTypeState} from "../../../../../recoil/RootAtom";
+import * as Device from "expo-device";
+import {DeviceType} from "expo-device";
 
 /**
  * Wallet component. This component will be used as a place where users can manager their
@@ -60,6 +64,7 @@ export const Wallet = ({navigation}: CardsProps) => {
     const [splashState, setSplashState] = useRecoilState(splashStatusState);
     const [cardLinkingBottomSheet, setCardLinkingBottomSheet] = useRecoilState(cardLinkingBottomSheetState);
     const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
+    const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -69,6 +74,10 @@ export const Wallet = ({navigation}: CardsProps) => {
      * included in here.
      */
     useEffect(() => {
+        // check and set the type of device, to be used throughout the app
+        Device.getDeviceTypeAsync().then(deviceType => {
+            setDeviceType(deviceType);
+        });
         // set the app drawer status accordingly,custom banner visibility and drawer swipe actions accordingly
         if (navigation.getState().index === 2) {
             setAppDrawerHeaderShown(false);
@@ -104,7 +113,7 @@ export const Wallet = ({navigation}: CardsProps) => {
             // @ts-ignore
             bottomSheetRef.current?.expand?.();
         }
-    }, [navigation.getState(), showBottomSheet, userInformation, cardLinkingBottomSheet]);
+    }, [navigation.getState(), showBottomSheet, bottomSheetRef, userInformation, cardLinkingBottomSheet, deviceType]);
 
     /**
      * Function used to handle the delete card action, from the bottom sheet
@@ -274,7 +283,7 @@ export const Wallet = ({navigation}: CardsProps) => {
                                 iconColor={'#FFFFFF'}
                                 style={{
                                     marginTop: Dimensions.get('window').height / 70,
-                                    left: Dimensions.get('window').width / 25
+                                    left: deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 150 : Dimensions.get('window').width / 20
                                 }}
                                 size={Dimensions.get('window').height / 35}
                                 onPress={async () => {
@@ -311,10 +320,10 @@ export const Wallet = ({navigation}: CardsProps) => {
                                 :
                                 <>
                                     <View style={styles.walletTextView}>
-                                        <Text style={styles.walletTitle}>
+                                        <Text style={deviceType === DeviceType.TABLET ? styles.walletTitleTablet : styles.walletTitle}>
                                             Wallet
                                         </Text>
-                                        <Text style={styles.walletSubtitle}>
+                                        <Text style={deviceType === DeviceType.TABLET ? styles.walletSubtitleTablet : styles.walletSubtitle}>
                                             Link your debit or credit card, and earn discounts on every transaction at
                                             qualifying
                                             merchant
@@ -389,7 +398,7 @@ export const Wallet = ({navigation}: CardsProps) => {
                             </TouchableOpacity>
                             {
                                 !splashShown &&
-                                <Text style={styles.disclaimerText}>
+                                <Text style={deviceType === DeviceType.TABLET ? styles.disclaimerTextTablet : styles.disclaimerText}>
                                     Limited to <Text style={styles.highlightedText}>one</Text> linked card per customer
                                     at a
                                     time.
@@ -425,13 +434,13 @@ export const Wallet = ({navigation}: CardsProps) => {
                                             alignItems: 'center',
                                             alignSelf: 'center'
                                         }}>
-                                            <Text style={styles.cardRemovalTitle}>
+                                            <Text style={deviceType === DeviceType.TABLET ? styles.cardRemovalTitleTablet : styles.cardRemovalTitle}>
                                                 Card Removal
                                             </Text>
-                                            <Text style={styles.cardRemovalDetails}>
+                                            <Text style={deviceType === DeviceType.TABLET ? styles.cardRemovalDetailsTablet : styles.cardRemovalDetails}>
                                                 {userInformation["linkedCard"]["cards"][0]["type"] === CardType.Visa ? 'VISA' : 'MASTERCARD'} ••••{userInformation["linkedCard"]["cards"][0]["last4"]}
                                             </Text>
-                                            <Text style={styles.cardRemovalSubtitle}>
+                                            <Text style={deviceType === DeviceType.TABLET ? styles.cardRemovalSubtitleTablet : styles.cardRemovalSubtitle}>
                                                 Once you remove this card, you will no longer be eligible to
                                                 participate
                                                 in
