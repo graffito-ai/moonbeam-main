@@ -8,7 +8,7 @@ import {APIGatewayProxyEvent, APIGatewayProxyResult} from "aws-lambda/trigger/ap
  * @returns a {@link Promise} containing a {@link APIGatewayProxyResult}
  */
 exports.handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    console.log(`Received new storage event for operation [${event.httpMethod}${event.path}], with arguments ${JSON.stringify(event.body)}`);
+    console.log(`Received new transaction event from Olive, through operation [${event.httpMethod}${event.path}], with arguments ${JSON.stringify(event.body)}`);
 
     // return a dummy response for testing purposes
     return {

@@ -7,7 +7,8 @@ import {StorageResolverStack} from "../stacks/StorageResolverStack";
 import {MilitaryVerificationResolverStack} from "../stacks/MilitaryVerificationResolverStack";
 import {CardLinkingResolverStack} from "../stacks/CardLinkingResolverStack";
 import {CardLinkingServiceStack} from "../stacks/CardLinkingServiceStack";
-import {WebhookTransactionsLambdaStack} from "../stacks/WebhookTransactionsLambdaStack";
+import {TransactionsFanOutStack} from "../stacks/TransactionsFanOutStack";
+import {TransactionsProducerConsumerStack} from "../stacks/TransactionsProducerConsumerStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -140,27 +141,40 @@ export class StageUtils {
                 });
                 cardLinkingStack.addDependency(appSyncStack);
 
-                // create the Webhook Transactions Lambda stack && add it to the CDK app
-                const webhookTransactionsLambdaStack = new WebhookTransactionsLambdaStack(this.app, `moonbeam-webhook-transactions-handler-${stageKey}`, {
-                    stackName: `moonbeam-webhook-transactions-handler-${stageKey}`,
-                    description: 'This stack will contain all the Lambda related resources needed webhook transaction handlers',
+                // create the Transaction Producer Consumer stack && add it to the CDK app
+                const transactionsProducerConsumerStack = new TransactionsProducerConsumerStack(this.app, `moonbeam-transactions-producer-consumer-${stageKey}`, {
+                    stackName: `moonbeam-transactions-consumers-${stageKey}`,
+                    description: 'This stack will contain all the resources needed for the async transactional consumers, as well as producers',
                     env: stageEnv,
                     stage: stageConfiguration.stage,
-                    webhookTransactionsConfig: stageConfiguration.webhookTransactionsConfig,
+                    transactionsProducerConsumerConfig: stageConfiguration.transactionsProducerConsumerConfig,
                     environmentVariables: stageConfiguration.environmentVariables
                 });
 
                 // create the Card Linking service API stack && add it to the CDK app
                 const cardLinkingServiceStack = new CardLinkingServiceStack(this.app, `moonbeam-card-linking-service-${stageKey}`, {
                     stackName: `moonbeam-card-linking-service-${stageKey}`,
-                    description: 'This stack will contain all the API Gateway related resources for the GetMoonbeam Application',
+                    description: 'This stack will contain all the Card Linking, API Gateway related resources for the GetMoonbeam Application',
                     env: stageEnv,
                     stage: stageConfiguration.stage,
-                    webhookTransactionsLambda: webhookTransactionsLambdaStack.webhookTransactionsLambda,
+                    webhookTransactionsLambda: transactionsProducerConsumerStack.webhookTransactionsLambda,
                     cardLinkingServiceConfig: stageConfiguration.cardLinkingServiceConfig,
                     environmentVariables: stageConfiguration.environmentVariables,
                 });
-                cardLinkingServiceStack.addDependency(webhookTransactionsLambdaStack);
+                cardLinkingServiceStack.addDependency(transactionsProducerConsumerStack);
+
+                // create the Transactions fan-out stack && add it to the CDK app
+                const transactionsFanOutStack = new TransactionsFanOutStack(this.app, `moonbeam-transactions-fan-out-${stageKey}`, {
+                    stackName: `moonbeam-transactions-fan-out-${stageKey}`,
+                    description: 'This stack will contain all the resources (SNS, SQS) needed for the transactional fan-out mechanism',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    transactionsFanOutConfig: stageConfiguration.transactionsFanOutConfig,
+                    transactionsProcessingLambda: transactionsProducerConsumerStack.transactionsProcessingLambda,
+                    webhookTransactionsLambda: transactionsProducerConsumerStack.webhookTransactionsLambda,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                transactionsFanOutStack.addDependency(transactionsProducerConsumerStack);
             }
         }
     };

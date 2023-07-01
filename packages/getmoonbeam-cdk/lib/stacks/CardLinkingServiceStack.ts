@@ -17,7 +17,8 @@ import {Constants} from "@moonbeam/moonbeam-models";
 /**
  * File used to define the CardLinkingService stack, used to create an API Gateway based service.
  * This service will house various REST endpoints, which have their logic implemented in a serverless
- * manner through Lambdas, revolved around card linking.
+ * manner through Lambdas, revolved around card linking. It will handle incoming requests for Olive-based
+ * asynchronous events, such as: transactions, offers, reimbursements/credits, etc.
  */
 export class CardLinkingServiceStack extends Stack {
 

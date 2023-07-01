@@ -58,7 +58,7 @@ export interface StorageConfiguration {
 
 /**
  * Interface used to define the configuration for the Military verification service resolvers
- * (GraphQL based)
+ * (GraphQL based), and other afferent data stores.
  */
 export interface MilitaryVerificationConfiguration {
     readonly militaryVerificationFunctionName: string;
@@ -70,7 +70,7 @@ export interface MilitaryVerificationConfiguration {
 
 /**
  * Interface used to define the configuration for the card linking service resolvers
- * (GraphQL based)
+ * (GraphQL based), and other afferent data stores.
  */
 export interface CardLinkingConfiguration {
     readonly cardLinkingFunctionName: string;
@@ -83,7 +83,8 @@ export interface CardLinkingConfiguration {
 
 /**
  * Interface used to define the configuration for the card linking webhook service
- * API (REST based)
+ * API (REST based), which will handle incoming requests for Olive-based events,
+ * such as: transactions, offers, reimbursements/credits, etc.
  */
 export interface CardLinkingServiceConfiguration {
     readonly cardLinkingWebhookServiceAPIName: string;
@@ -94,10 +95,26 @@ export interface CardLinkingServiceConfiguration {
 }
 
 /**
- * Interface used to define the configuration for the transactions-related lambda, used by the card linking
- * webhook service.
+ * Interface used to define the configuration for the transactions-related fan-out pattern, composed
+ * of an event-based process, driven by SNS and SQS.
  */
-export interface WebhookTransactionsConfiguration {
+export interface TransactionsFanOutConfiguration {
+    readonly transactionsProcessingTopicName: string;
+    readonly transactionsProcessingQueueName: string;
+    readonly transactionsProcessingDLQName: string;
+    readonly transactionsProcessingTopicDLQName: string;
+    readonly transactionsProcessingEventSourceMapping: string;
+}
+
+/**
+ * Interface used to define all the resources for the producer and consumers, taking advantage
+ * of the async transactional data.
+ */
+export interface TransactionsProducerConsumerConfiguration {
     readonly transactionsFunctionName: string;
     readonly transactionsTableName: string;
+    readonly transactionsPrimaryKey: string;
+    readonly transactionIdGlobalIndex: string;
+    readonly transactionStatusLocalIndex: string;
+    readonly transactionsProcessingFunctionName: string;
 }

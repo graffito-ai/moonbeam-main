@@ -7,7 +7,8 @@ import {
     MilitaryVerificationConfiguration,
     SESConfiguration,
     StorageConfiguration,
-    WebhookTransactionsConfiguration
+    TransactionsFanOutConfiguration,
+    TransactionsProducerConsumerConfiguration
 } from "./ServiceConfiguration";
 
 /**
@@ -23,6 +24,7 @@ export interface StageConfiguration {
     readonly militaryVerificationConfig: MilitaryVerificationConfiguration;
     readonly cardLinkingConfig: CardLinkingConfiguration;
     readonly cardLinkingServiceConfig: CardLinkingServiceConfiguration;
-    readonly webhookTransactionsConfig: WebhookTransactionsConfiguration;
+    readonly transactionsFanOutConfig: TransactionsFanOutConfiguration;
+    readonly transactionsProducerConsumerConfig: TransactionsProducerConsumerConfiguration;
     readonly environmentVariables: Map<string, string>;
 }

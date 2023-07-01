@@ -56,9 +56,20 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 oliveUsagePlan: `cardLinkingOliveUsagePlan`,
                 transactionsPostMethodName: `transactionsCallback`
             },
-            webhookTransactionsConfig: {
+            transactionsFanOutConfig: {
+                transactionsProcessingTopicName: 'transactionsProcessingTopic',
+                transactionsProcessingQueueName: 'transactionsProcessingQueue',
+                transactionsProcessingDLQName: 'transactionsProcessingDLQ',
+                transactionsProcessingTopicDLQName: 'transactionsProcessingTopicDLQ',
+                transactionsProcessingEventSourceMapping: 'transactionsProcessingEventSourceMapping'
+            },
+            transactionsProducerConsumerConfig: {
                 transactionsFunctionName: 'webhookTransactionsLambdaFunction',
-                transactionsTableName: 'transactionsTable'
+                transactionsTableName: 'transactionsTable',
+                transactionsPrimaryKey: 'transactionsPrimaryKey',
+                transactionIdGlobalIndex: 'transactionIdGlobalIndex',
+                transactionStatusLocalIndex: 'transactionStatusLocalIndex',
+                transactionsProcessingFunctionName: 'transactionsProcessingLambdaFunction'
             },
             sesConfig: {
                 emailAddress: `noreply-${Stages.DEV}@moonbeam.vet`,
