@@ -1,13 +1,16 @@
-import {aws_dynamodb, aws_lambda, aws_lambda_nodejs, Duration, Stack, StackProps} from "aws-cdk-lib";
+import {aws_dynamodb, aws_lambda, aws_lambda_nodejs, aws_sns, aws_sqs, Duration, Stack, StackProps} from "aws-cdk-lib";
 import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
 import path from "path";
 import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
-import { Constants } from "@moonbeam/moonbeam-models";
+import {Constants} from "@moonbeam/moonbeam-models";
+import {SqsSubscription} from "aws-cdk-lib/aws-sns-subscriptions";
+import {EventSourceMapping} from "aws-cdk-lib/aws-lambda";
 
 /**
  * File used to define the TransactionsProducerConsumerStack stack, used to create all the necessary resources
- * involved around handling incoming transactional data in an async fashion (Lambdas, DynamoDB tables, etc.). This
+ * involved around handling incoming transactional data in an async fashion (Lambdas, DynamoDB tables, etc.), aws well as
+ * around the transactions-related fan-out pattern, composed of an event-based process, driven by SNS and SQS. This
  * will help build the infrastructure for the acknowledgment service, or producer, as well as any of its consumers.
  */
 export class TransactionsProducerConsumerStack extends Stack {
@@ -17,12 +20,13 @@ export class TransactionsProducerConsumerStack extends Stack {
      * to be used in configuring REST API Gateway endpoints in dependent stacks, as well as setting up
      * the fan-out mechanism form transactions.
      */
-    readonly webhookTransactionsLambda: aws_lambda_nodejs.NodejsFunction;
+    readonly transactionsProducerLambda: aws_lambda_nodejs.NodejsFunction;
 
     /**
-     * the consumer transactions Lambda Function, to be used in setting up the fan-out mechanism form transactions.
+     * the consumer for transactional offers Lambda Function, to be used in setting up the fan-out
+     * mechanism for transactions eligible to be redeemed as offers.
      */
-    readonly transactionsProcessingLambda: aws_lambda_nodejs.NodejsFunction;
+    readonly transactionalOffersConsumerLambda: aws_lambda_nodejs.NodejsFunction;
 
     /**
      * Constructor for the TransactionsProducerConsumerStack stack.
@@ -35,9 +39,9 @@ export class TransactionsProducerConsumerStack extends Stack {
         super(scope, id, props);
 
         // create a new Lambda function to be used with the Card Linking Webhook service for transaction purposes, acting as the acknowledgment service or producer
-        this.webhookTransactionsLambda = new aws_lambda_nodejs.NodejsFunction(this, `${props.transactionsProducerConsumerConfig.transactionsFunctionName}-${props.stage}-${props.env!.region}`, {
-            functionName: `${props.transactionsProducerConsumerConfig.transactionsFunctionName}-${props.stage}-${props.env!.region}`,
-            entry: path.resolve(path.join(__dirname, '../../../moonbeam-webhook-transactions-lambda/src/lambda/main.ts')),
+        this.transactionsProducerLambda = new aws_lambda_nodejs.NodejsFunction(this, `${props.transactionsProducerConsumerConfig.transactionsProducerFunctionName}-${props.stage}-${props.env!.region}`, {
+            functionName: `${props.transactionsProducerConsumerConfig.transactionsProducerFunctionName}-${props.stage}-${props.env!.region}`,
+            entry: path.resolve(path.join(__dirname, '../../../moonbeam-transactions-producer-lambda/src/lambda/main.ts')),
             handler: 'handler',
             runtime: aws_lambda.Runtime.NODEJS_18_X,
             // we add a timeout here different from the default of 3 seconds, since we expect these API calls to take longer
@@ -63,10 +67,10 @@ export class TransactionsProducerConsumerStack extends Stack {
             ]
         });
 
-        // create a new Lambda function to be used as a consumer for transactional data, acting as the transaction processor.
-        this.transactionsProcessingLambda = new aws_lambda_nodejs.NodejsFunction(this, `${props.transactionsProducerConsumerConfig.transactionsProcessingFunctionName}-${props.stage}-${props.env!.region}`, {
-            functionName: `${props.transactionsProducerConsumerConfig.transactionsProcessingFunctionName}-${props.stage}-${props.env!.region}`,
-            entry: path.resolve(path.join(__dirname, '../../../moonbeam-transactions-processor-lambda/src/lambda/main.ts')),
+        // create a new Lambda function to be used as a consumer for transactional data, acting as the transaction processor for offers eligible to be redeemed.
+        this.transactionalOffersConsumerLambda = new aws_lambda_nodejs.NodejsFunction(this, `${props.transactionsProducerConsumerConfig.transactionalOffersConsumerFunctionName}-${props.stage}-${props.env!.region}`, {
+            functionName: `${props.transactionsProducerConsumerConfig.transactionalOffersConsumerFunctionName}-${props.stage}-${props.env!.region}`,
+            entry: path.resolve(path.join(__dirname, '../../../moonbeam-transactional-offers-consumer-lambda/src/lambda/main.ts')),
             handler: 'handler',
             runtime: aws_lambda.Runtime.NODEJS_18_X,
             // we add a timeout here different from the default of 3 seconds, since we expect these API calls to take longer
@@ -120,7 +124,7 @@ export class TransactionsProducerConsumerStack extends Stack {
          * {@link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html}
          */
         transactionsTable.addGlobalSecondaryIndex({
-            indexName: `${props.transactionsProducerConsumerConfig.transactionIdGlobalIndex}-${props.stage}-${props.env!.region}`,
+            indexName: `${props.transactionsProducerConsumerConfig.transactionsIdGlobalIndex}-${props.stage}-${props.env!.region}`,
             partitionKey: {
                 name: 'transactionId',
                 type: aws_dynamodb.AttributeType.STRING
@@ -133,16 +137,16 @@ export class TransactionsProducerConsumerStack extends Stack {
          * {@link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html}
          */
         transactionsTable.addLocalSecondaryIndex({
-            indexName: `${props.transactionsProducerConsumerConfig.transactionStatusLocalIndex}-${props.stage}-${props.env!.region}`,
+            indexName: `${props.transactionsProducerConsumerConfig.transactionsStatusLocalIndex}-${props.stage}-${props.env!.region}`,
             sortKey: {
                 name: 'status',
                 type: aws_dynamodb.AttributeType.STRING
             }
         });
 
-        // enable the webhook transactions Lambda function to access the DynamoDB table (using IAM)
-        transactionsTable.grantFullAccess(this.webhookTransactionsLambda);
-        this.webhookTransactionsLambda.addToRolePolicy(
+        // enable the transactions producer Lambda function to access the DynamoDB table (using IAM)
+        transactionsTable.grantFullAccess(this.transactionsProducerLambda);
+        this.transactionsProducerLambda.addToRolePolicy(
             /**
              * policy used to allow full Dynamo DB access for the Lambda, added again on top of the lines above, since they sometimes don't work
              * Note: by "they" meaning "grantFullAccess" above.
@@ -164,14 +168,9 @@ export class TransactionsProducerConsumerStack extends Stack {
                 )
             ));
 
-        // Create environment variables that we will use in the producer function code
-        this.webhookTransactionsLambda.addEnvironment(`${Constants.MoonbeamConstants.TRANSACTIONS_TABLE}`, transactionsTable.tableName);
-        this.webhookTransactionsLambda.addEnvironment(`${Constants.MoonbeamConstants.TRANSACTION_STATUS_LOCAL_INDEX}`, props.transactionsProducerConsumerConfig.transactionStatusLocalIndex);
-        this.webhookTransactionsLambda.addEnvironment(`${Constants.MoonbeamConstants.TRANSACTION_ID_GLOBAL_INDEX}`, props.transactionsProducerConsumerConfig.transactionIdGlobalIndex);
-
-        // enable the transactions consumer services, to access the DynamoDB table (using IAM)
-        transactionsTable.grantFullAccess(this.transactionsProcessingLambda);
-        this.transactionsProcessingLambda.addToRolePolicy(
+        // enable the transactional offers consumer Lambda function to access the DynamoDB table (using IAM)
+        transactionsTable.grantFullAccess(this.transactionalOffersConsumerLambda);
+        this.transactionalOffersConsumerLambda.addToRolePolicy(
             /**
              * policy used to allow full Dynamo DB access for the Lambda, added again on top of the lines above, since they sometimes don't work
              * Note: by "they" meaning "grantFullAccess" above.
@@ -194,8 +193,105 @@ export class TransactionsProducerConsumerStack extends Stack {
             ));
 
         // Create environment variables that we will use in the consumer function code
-        this.transactionsProcessingLambda.addEnvironment(`${Constants.MoonbeamConstants.TRANSACTIONS_TABLE}`, transactionsTable.tableName);
-        this.transactionsProcessingLambda.addEnvironment(`${Constants.MoonbeamConstants.TRANSACTION_STATUS_LOCAL_INDEX}`, props.transactionsProducerConsumerConfig.transactionStatusLocalIndex);
-        this.transactionsProcessingLambda.addEnvironment(`${Constants.MoonbeamConstants.TRANSACTION_ID_GLOBAL_INDEX}`, props.transactionsProducerConsumerConfig.transactionIdGlobalIndex);
+        this.transactionalOffersConsumerLambda.addEnvironment(`${Constants.MoonbeamConstants.TRANSACTIONS_TABLE}`, transactionsTable.tableName);
+        this.transactionalOffersConsumerLambda.addEnvironment(`${Constants.MoonbeamConstants.TRANSACTIONS_STATUS_LOCAL_INDEX}`, props.transactionsProducerConsumerConfig.transactionsStatusLocalIndex);
+        this.transactionalOffersConsumerLambda.addEnvironment(`${Constants.MoonbeamConstants.TRANSACTIONS_ID_GLOBAL_INDEX}`, props.transactionsProducerConsumerConfig.transactionsIdGlobalIndex);
+        this.transactionalOffersConsumerLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
+
+        // create a new FIFO SNS topic, with deduplication enabled based on the message contents, used for transaction message processing
+        const transactionsProcessingTopic = new aws_sns.Topic(this, `${props.transactionsProducerConsumerConfig.transactionsFanOutConfig.transactionsProcessingTopicName}-${props.stage}-${props.env!.region}`, {
+            displayName: `${props.transactionsProducerConsumerConfig.transactionsFanOutConfig.transactionsProcessingTopicName}`,
+            topicName: `${props.transactionsProducerConsumerConfig.transactionsFanOutConfig.transactionsProcessingTopicName}-${props.stage}-${props.env!.region}`,
+            fifo: true,
+            // we are guaranteed that for messages with a same content, to be dropped in the topic, that the deduplication id will be based on the content
+            contentBasedDeduplication: true
+        });
+
+        // give the webhook transactions Lambda, acting as the acknowledgment service or producer, permissions to publish messages in the transactions SNS topic
+        transactionsProcessingTopic.grantPublish(this.transactionsProducerLambda);
+
+        // Create environment variables that we will use in the producer function code
+        this.transactionsProducerLambda.addEnvironment(`${Constants.MoonbeamConstants.TRANSACTIONS_PROCESSING_TOPIC_ARN}`, transactionsProcessingTopic.topicArn);
+        this.transactionsProducerLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
+
+
+        /**
+         * create a new FIFO SQS queue, with deduplication enabled based on the message contents,
+         * that will be subscribed to the SNS topic above, used for transactions processing.
+         *
+         * This will be used for processing incoming transactions eligible to be redeemed as offers.
+         */
+        const transactionalOffersProcessingQueue = new aws_sqs.Queue(this, `${props.transactionsProducerConsumerConfig.transactionsFanOutConfig.transactionalOffersProcessingQueueName}-${props.stage}-${props.env!.region}.fifo`, {
+            queueName: `${props.transactionsProducerConsumerConfig.transactionsFanOutConfig.transactionalOffersProcessingQueueName}-${props.stage}-${props.env!.region}.fifo`,
+            // long-polling enabled here, waits to receive a message for 10 seconds
+            receiveMessageWaitTime: Duration.seconds(10),
+            /**
+             * the time that a message will wait to be deleted by one of the queue subscribers (aka how much time to we have to process a transaction)
+             * since this message will be "invisible" to other consumers during this time.
+             */
+            visibilityTimeout: Duration.seconds(50),
+            fifo: true,
+            // we are guaranteed that for messages with a same content, to be dropped in the queue, that the deduplication id will be based on the content
+            contentBasedDeduplication: true,
+            // creates a dead-letter-queue (DLQ) here, in order to handle any failed messages, that cannot be processed by the consumers of the transactional offers queue
+            deadLetterQueue: {
+                queue: new aws_sqs.Queue(this, `${props.transactionsProducerConsumerConfig.transactionsFanOutConfig.transactionalOffersProcessingDLQName}-${props.stage}-${props.env!.region}.fifo`, {
+                    queueName: `${props.transactionsProducerConsumerConfig.transactionsFanOutConfig.transactionalOffersProcessingDLQName}-${props.stage}-${props.env!.region}.fifo`,
+                    fifo: true,
+                    contentBasedDeduplication: true,
+                    /**
+                     * we want to add the maximum retention period for messages in the dead-letter queue which is 1209600 seconds or 14 days,
+                     * just to ensure that we have enough time to re-process any failures. For the transactions queue, this will be set to
+                     * the default of 4 days.
+                     */
+                    retentionPeriod: Duration.seconds(1209600)
+                }),
+                // another way of essentially deleting message from the queue, is specifying after how many retries a message will be moved to the dead-letter queue
+                maxReceiveCount: 3
+            }
+        });
+
+        // ToDo: when notifications will be implemented, we will need to create another queue, responsible for processing notifications,
+        //  as well as a corresponding subscription and service
+
+        // create a subscription for the transactional offers processing SQS queue, to the SNS transactions topic
+        transactionsProcessingTopic.addSubscription(new SqsSubscription(transactionalOffersProcessingQueue, {
+            // the message to the queue is the same as it was sent to the topic
+            rawMessageDelivery: true,
+            // creates a dead-letter-queue (DLQ) here, in order to handle any failed messages, that cannot be sent from SNS to SQS
+            deadLetterQueue: new aws_sqs.Queue(this, `${props.transactionsProducerConsumerConfig.transactionsFanOutConfig.transactionsProcessingTopicDLQName}-${props.stage}-${props.env!.region}.fifo`, {
+                queueName: `${props.transactionsProducerConsumerConfig.transactionsFanOutConfig.transactionsProcessingTopicDLQName}-${props.stage}-${props.env!.region}.fifo`,
+                fifo: true,
+                contentBasedDeduplication: true,
+                /**
+                 * we want to add the maximum retention period for messages in the dead-letter queue which is 1209600 seconds or 14 days,
+                 * just to ensure that we have enough time to re-process any failures. For the transactions queue, this will be set to
+                 * the default of 4 days.
+                 */
+                retentionPeriod: Duration.seconds(1209600)
+            })
+        }));
+
+        /**
+         * give the transactional offers consumer Lambda, acting as the processing service or one of the consumers,
+         * permissions to consume messages from the SQS transactional offers queue.
+         */
+        transactionalOffersProcessingQueue.grantConsumeMessages(this.transactionalOffersConsumerLambda);
+
+        /**
+         * create the event source mapping/trigger for the transactional offers consumer Lambda, which will trigger this Lambda,
+         * every time one and/or multiple new SQS event representing offers eligible to be redeemed are added in the queue, ready to be processed.
+         */
+        new EventSourceMapping(this, `${props.transactionsProducerConsumerConfig.transactionsFanOutConfig.transactionalOffersProcessingEventSourceMapping}-${props.stage}-${props.env!.region}`, {
+            target: this.transactionalOffersConsumerLambda,
+            eventSourceArn: transactionalOffersProcessingQueue.queueArn,
+            /**
+             * we do not want the lambda to batch more than 1 records at a time from the queue, we want it to process 1 transactional offers at a time instead.
+             * for future purposes, we might want to save cost by increasing this number somewhere between 1-10 (10 max for FIFO queues), in order to process
+             * more messages at the same time
+             */
+            batchSize: 1,
+            reportBatchItemFailures: true
+        });
     }
 }

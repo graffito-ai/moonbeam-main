@@ -87,11 +87,11 @@ export interface CardLinkingConfiguration {
  * such as: transactions, offers, reimbursements/credits, etc.
  */
 export interface CardLinkingServiceConfiguration {
-    readonly cardLinkingWebhookServiceAPIName: string;
+    readonly cardLinkingServiceAPIName: string;
     readonly apiDeploymentGroupName: string;
     readonly oliveSharedAPIKeyName: string;
     readonly oliveUsagePlan: string;
-    readonly transactionsPostMethodName: string;
+    readonly transactionsAcknowledgmentMethodName: string;
 }
 
 /**
@@ -100,10 +100,10 @@ export interface CardLinkingServiceConfiguration {
  */
 export interface TransactionsFanOutConfiguration {
     readonly transactionsProcessingTopicName: string;
-    readonly transactionsProcessingQueueName: string;
-    readonly transactionsProcessingDLQName: string;
+    readonly transactionalOffersProcessingQueueName: string;
+    readonly transactionalOffersProcessingDLQName: string;
     readonly transactionsProcessingTopicDLQName: string;
-    readonly transactionsProcessingEventSourceMapping: string;
+    readonly transactionalOffersProcessingEventSourceMapping: string;
 }
 
 /**
@@ -111,10 +111,11 @@ export interface TransactionsFanOutConfiguration {
  * of the async transactional data.
  */
 export interface TransactionsProducerConsumerConfiguration {
-    readonly transactionsFunctionName: string;
+    readonly transactionsProducerFunctionName: string;
     readonly transactionsTableName: string;
     readonly transactionsPrimaryKey: string;
-    readonly transactionIdGlobalIndex: string;
-    readonly transactionStatusLocalIndex: string;
-    readonly transactionsProcessingFunctionName: string;
+    readonly transactionsIdGlobalIndex: string;
+    readonly transactionsStatusLocalIndex: string;
+    readonly transactionalOffersConsumerFunctionName: string;
+    readonly transactionsFanOutConfig: TransactionsFanOutConfiguration;
 }

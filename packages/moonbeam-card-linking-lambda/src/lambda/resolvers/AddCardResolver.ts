@@ -4,7 +4,7 @@ import {
     CardLink,
     CardLinkErrorType,
     CardLinkResponse,
-    CardResponse,
+    CardResponse, MemberResponse,
     OliveClient
 } from "@moonbeam/moonbeam-models";
 import {DynamoDBClient, GetItemCommand, UpdateItemCommand} from "@aws-sdk/client-dynamodb";
@@ -55,10 +55,10 @@ export const addCard = async (addCardInput: AddCardInput): Promise<CardLinkRespo
             addCardInput.card.applicationID = uuidv4();
 
             // call the Olive Client API here, in order to call the appropriate endpoints for this resolver
-            const oliveClient = new OliveClient(process.env.ENV_NAME!, region, addCardInput.id);
+            const oliveClient = new OliveClient(process.env.ENV_NAME!, region);
 
             // first execute the member update call, to re-activate the member
-            const updateMemberResponse = await oliveClient.updateMemberStatus(addCardInput.memberId, true, addCardInput.updatedAt!);
+            const updateMemberResponse: MemberResponse = await oliveClient.updateMemberStatus(addCardInput.id, addCardInput.memberId, true, addCardInput.updatedAt!);
 
             // check to see if the update member status call was executed successfully
             if (updateMemberResponse && !updateMemberResponse.errorMessage && !updateMemberResponse.errorType
@@ -66,7 +66,7 @@ export const addCard = async (addCardInput: AddCardInput): Promise<CardLinkRespo
                 && updateMemberResponse.data.id === addCardInput.id && updateMemberResponse.data.memberId === addCardInput.memberId) {
 
                 // then execute the add card call, to add a card to the member
-                const addCardResponse = await oliveClient.addCard(addCardInput.memberId, addCardInput.updatedAt!, addCardInput.updatedAt!, addCardInput.card as Card);
+                const addCardResponse: CardLinkResponse = await oliveClient.addCard(addCardInput.id, addCardInput.memberId, addCardInput.updatedAt!, addCardInput.updatedAt!, addCardInput.card as Card);
 
                 // check to see if the add card call was executed successfully
                 if (addCardResponse && !addCardResponse.errorMessage && !addCardResponse.errorType && addCardResponse.data) {

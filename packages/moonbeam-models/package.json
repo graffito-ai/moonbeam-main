@@ -8,7 +8,7 @@
   "author": "Marius Acsinte <marius@moonbeam.vet>",
   "license": "Moonbeam Inc. Proprietary Code License <https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/LICENSE/browse>",
   "scripts": {
-    "build": "rm ../getmoonbeam-cdk/graphql/schema.graphql && rm -rf ./lib && ./node_modules/.bin/graphql-codegen && cat appsync.d.ts > ./src/common/GraphqlExports.ts && tsc && rm appsync.d.ts && cat ./src/graphql/schemas/Root.graphql >> ../getmoonbeam-cdk/graphql/schema.graphql && cat ./src/graphql/schemas/StorageSchema.graphql >> ../getmoonbeam-cdk/graphql/schema.graphql && cat ./src/graphql/schemas/MilitaryVerificationSchema.graphql >> ../getmoonbeam-cdk/graphql/schema.graphql && cat ./src/graphql/schemas/CardLinkingSchema.graphql >> ../getmoonbeam-cdk/graphql/schema.graphql",
+    "build": "rm ../getmoonbeam-cdk/graphql/schema.graphql && rm -rf ./lib && ./node_modules/.bin/graphql-codegen && cat appsync.d.ts > ./src/common/GraphqlExports.ts && tsc && rm appsync.d.ts && cat ./src/graphql/schemas/Root.graphql >> ../getmoonbeam-cdk/graphql/schema.graphql && cat ./src/graphql/schemas/StorageSchema.graphql >> ../getmoonbeam-cdk/graphql/schema.graphql && cat ./src/graphql/schemas/MilitaryVerificationSchema.graphql >> ../getmoonbeam-cdk/graphql/schema.graphql && cat ./src/graphql/schemas/CardLinkingSchema.graphql >> ../getmoonbeam-cdk/graphql/schema.graphql && cat ./src/graphql/schemas/TransactionsSchema.graphql >> ../getmoonbeam-cdk/graphql/schema.graphql",
     "clean": "rm -rf build/ lib/ node_modules/"
   },
   "devDependencies": {

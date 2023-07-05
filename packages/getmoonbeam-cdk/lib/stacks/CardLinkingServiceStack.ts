@@ -15,27 +15,28 @@ import {LogGroup, RetentionDays} from "aws-cdk-lib/aws-logs";
 import {Constants} from "@moonbeam/moonbeam-models";
 
 /**
- * File used to define the CardLinkingService stack, used to create an API Gateway based service.
- * This service will house various REST endpoints, which have their logic implemented in a serverless
+ * File used to define the APIGatewayServiceStack stack, used to create various API Gateway based services.
+ *
+ * 1) This service will house various REST endpoints, which have their logic implemented in a serverless
  * manner through Lambdas, revolved around card linking. It will handle incoming requests for Olive-based
  * asynchronous events, such as: transactions, offers, reimbursements/credits, etc.
  */
-export class CardLinkingServiceStack extends Stack {
+export class APIGatewayServiceStack extends Stack {
 
     /**
-     * Constructor for the CardLinkingService stack.
+     * Constructor for the APIGatewayServiceStack stack.
      *
      * @param scope scope to be passed in (usually a CDK App Construct)
      * @param id stack id to be passed in
      * @param props stack properties to be passed in
      */
     constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'cardLinkingServiceConfig'>
-        & { webhookTransactionsLambda: aws_lambda_nodejs.NodejsFunction }) {
+        & { transactionsProducerLambda: aws_lambda_nodejs.NodejsFunction }) {
         super(scope, id, props);
 
         // create the API Gateway API service
-        const cardLinkingServiceAPI = new aws_apigateway.RestApi(this, `${props.cardLinkingServiceConfig.cardLinkingWebhookServiceAPIName}-${props.stage}-${props.env!.region}`, {
-            restApiName: `${props.cardLinkingServiceConfig.cardLinkingWebhookServiceAPIName}-${props.stage}-${props.env!.region}`,
+        const cardLinkingServiceAPI = new aws_apigateway.RestApi(this, `${props.cardLinkingServiceConfig.cardLinkingServiceAPIName}-${props.stage}-${props.env!.region}`, {
+            restApiName: `${props.cardLinkingServiceConfig.cardLinkingServiceAPIName}-${props.stage}-${props.env!.region}`,
             description: "The Card Linking Service used for Webhook purposes.",
             deploy: true,
             apiKeySourceType: ApiKeySourceType.HEADER,
@@ -44,7 +45,7 @@ export class CardLinkingServiceStack extends Stack {
                 domainName: 'api.moonbeam.vet', // our domain for incoming requests, to point to an Edge Cloudfront endpoint, that will then point to the actual API Gateway distribution endpoint
                 endpointType: EndpointType.EDGE,
                 certificate: aws_certificatemanager.Certificate
-                    .fromCertificateArn(this, `${props.cardLinkingServiceConfig.cardLinkingWebhookServiceAPIName}-certificate-${props.stage}-${props.env!.region}`,
+                    .fromCertificateArn(this, `${props.cardLinkingServiceConfig.cardLinkingServiceAPIName}-certificate-${props.stage}-${props.env!.region}`,
                         `arn:aws:acm:us-east-1:963863720257:certificate/3c73d13c-5c11-4f62-b00c-bc4880d23e1a`) // ARN retrieved after its creation, has to be in us-east-1
             },
             deployOptions: {
@@ -89,7 +90,7 @@ export class CardLinkingServiceStack extends Stack {
         oliveUsagePlan.addApiKey(oliveAPIKey);
 
         // create a new API Integration for transactions
-        const postTransactionsIntegration = new aws_apigateway.LambdaIntegration(props.webhookTransactionsLambda, {
+        const postTransactionsIntegration = new aws_apigateway.LambdaIntegration(props.transactionsProducerLambda, {
             allowTestInvoke: true,
             timeout: Duration.seconds(29)
         });
@@ -98,9 +99,9 @@ export class CardLinkingServiceStack extends Stack {
          * create a new POST method for the API/Lambda integration, used for posting transaction.
          * This method will be secured via an API key
          */
-        cardLinkingServiceAPI.root.addResource(`${props.cardLinkingServiceConfig.transactionsPostMethodName}`).addMethod("POST", postTransactionsIntegration, {
+        cardLinkingServiceAPI.root.addResource(`${props.cardLinkingServiceConfig.transactionsAcknowledgmentMethodName}`).addMethod("POST", postTransactionsIntegration, {
             apiKeyRequired: true,
-            operationName: props.cardLinkingServiceConfig.transactionsPostMethodName
+            operationName: props.cardLinkingServiceConfig.transactionsAcknowledgmentMethodName
         });
     }
 }

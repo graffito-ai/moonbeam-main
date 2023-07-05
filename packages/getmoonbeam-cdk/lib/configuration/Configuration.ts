@@ -50,26 +50,26 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 addCardResolverName: 'addCard'
             },
             cardLinkingServiceConfig: {
-                cardLinkingWebhookServiceAPIName: 'cardLinkingWebhookAPI',
-                apiDeploymentGroupName: 'cardLinkingWebhookAPILogGroup',
+                cardLinkingServiceAPIName: 'cardLinkingServiceAPI',
+                apiDeploymentGroupName: 'cardLinkingAPILogGroup',
                 oliveSharedAPIKeyName: 'cardLinkingOliveSharedAPIKey',
                 oliveUsagePlan: `cardLinkingOliveUsagePlan`,
-                transactionsPostMethodName: `transactionsCallback`
-            },
-            transactionsFanOutConfig: {
-                transactionsProcessingTopicName: 'transactionsProcessingTopic',
-                transactionsProcessingQueueName: 'transactionsProcessingQueue',
-                transactionsProcessingDLQName: 'transactionsProcessingDLQ',
-                transactionsProcessingTopicDLQName: 'transactionsProcessingTopicDLQ',
-                transactionsProcessingEventSourceMapping: 'transactionsProcessingEventSourceMapping'
+                transactionsAcknowledgmentMethodName: `transactionsAcknowledgment`
             },
             transactionsProducerConsumerConfig: {
-                transactionsFunctionName: 'webhookTransactionsLambdaFunction',
+                transactionsProducerFunctionName: 'transactionsProducerLambdaFunction',
                 transactionsTableName: 'transactionsTable',
                 transactionsPrimaryKey: 'transactionsPrimaryKey',
-                transactionIdGlobalIndex: 'transactionIdGlobalIndex',
-                transactionStatusLocalIndex: 'transactionStatusLocalIndex',
-                transactionsProcessingFunctionName: 'transactionsProcessingLambdaFunction'
+                transactionsIdGlobalIndex: 'transactionsIdGlobalIndex',
+                transactionsStatusLocalIndex: 'transactionsStatusLocalIndex',
+                transactionalOffersConsumerFunctionName: 'transactionalOffersConsumerLambdaFunction',
+                transactionsFanOutConfig: {
+                    transactionsProcessingTopicName: 'transactionsProcessingTopic',
+                    transactionalOffersProcessingQueueName: 'transactionalOffersProcessingQueue',
+                    transactionalOffersProcessingDLQName: 'transactionalOffersProcessingDLQ',
+                    transactionsProcessingTopicDLQName: 'transactionsProcessingTopicDLQ',
+                    transactionalOffersProcessingEventSourceMapping: 'transactionalOffersProcessingEventSourceMapping'
+                }
             },
             sesConfig: {
                 emailAddress: `noreply-${Stages.DEV}@moonbeam.vet`,

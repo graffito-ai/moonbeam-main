@@ -273,3 +273,75 @@ type RemoveCardResponse @aws_cognito_user_pools {
     errorType: CardLinkErrorType
     errorMessage: String
 }
+# graphql/TransactionsSchema.graphql
+# Transactions Schema File
+enum TransactionsErrorType {
+    DUPLICATE_OBJECT_FOUND
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+    UNPROCESSABLE
+}
+
+# Defines the types of the statuses for a transaction, during its lifecycle. Although these
+# statuses might not match Olive's statuses 1:1, they represent what our customers see in their
+# dashboard, and how we translate incoming Olive information, and communicate it to our end
+# users.
+enum TransactionsStatus {
+    PENDING
+    PROCESSED
+    CREDITED
+}
+
+# Defines the type of transactions that are available, depending on incoming information received
+# through the Olive webhooks. The transactions processor, will handle these transaction types and
+# determine whether they are offers to be redeemed, round-ups, contributions/matching, etc.
+enum TransactionType {
+    OFFER_REDEEMED
+    ROUNDUP
+    CONTRIBUTION
+}
+
+# For now we only support USD as the currency code type for transactions
+enum CurrencyCodeType {
+    USD
+}
+
+type Transaction @aws_cognito_user_pools {
+    id: ID! # this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    transactionId: ID!
+    transactionStatus: TransactionsStatus!
+    transactionType: TransactionType!
+    createdAt: AWSDateTime! # this will be the same as the "timestamp" value above, only represented in a date time format
+    updatedAt: AWSDateTime!
+    memberId: ID! # this will be obtained from Olive (and it is the Olive member id)
+    cardId: ID!
+    brandId: ID!
+    storeId: ID!
+    category: String!
+    currencyCode: CurrencyCodeType!,
+    rewardAmount: Float,
+    totalAmount: Float,
+    cardLast4: String,
+    pendingCashbackAmount: String # this amount should be the total reward amount that's pending reimbursement to the customer
+    creditedCashbackAmount: String # this amount should be the total reward amount that's reimbursed/credited to the customer
+    transactionBrandName: String,
+    transactionBrandDescription: String,
+    transactionBrandAddress: String,
+    transactionBrandLogoUrl: String
+}
+
+type TransactionResponse @aws_cognito_user_pools {
+    data: Transaction
+    errorType: TransactionsErrorType
+    errorMessage: String
+}
+
+type MemberDetailsResponse @aws_cognito_user_pools {
+    data: String
+    errorType: TransactionsErrorType
+    errorMessage: String
+}
+
+# TBD on inputs for various AppSync resolver Queries, Mutations and/or Subscriptions

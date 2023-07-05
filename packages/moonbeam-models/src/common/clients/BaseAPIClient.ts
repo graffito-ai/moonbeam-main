@@ -5,7 +5,7 @@ import {
     CardLinkResponse,
     MilitaryVerificationStatusType,
     RemoveCardResponse,
-    Card
+    Card, Transaction, TransactionResponse, MemberDetailsResponse
 } from "../GraphqlExports";
 
 /**
@@ -92,6 +92,7 @@ export abstract class BaseAPIClient {
     /**
      * Function used to complete the linking of an individual's card on the platform.
      *
+     * @param userId unique user ID of a card linking user.
      * @param createdAt card linked object creation date
      * @param updatedAt card linked object update date
      * @param card card information to be used during the enrollment/linking process
@@ -101,11 +102,12 @@ export abstract class BaseAPIClient {
      *
      * @protected
      */
-    protected link?(createdAt: string, updatedAt: string, card: Card): Promise<CardLinkResponse>;
+    protected link?(userId: string, createdAt: string, updatedAt: string, card: Card): Promise<CardLinkResponse>;
 
     /**
      * Function used to add a new card to an existing member.
      *
+     * @param userId unique user ID of a card linking user.
      * @param memberId member id, retrieved from Olive, which the card will be added to
      * @param createdAt card linked object creation date
      * @param updatedAt card linked object update date
@@ -116,11 +118,12 @@ export abstract class BaseAPIClient {
      *
      * @protected
      */
-    protected addCard?(memberId: string, createdAt: string, updatedAt: string, card: Card): Promise<CardLinkResponse>;
+    protected addCard?(userId: string, memberId: string, createdAt: string, updatedAt: string, card: Card): Promise<CardLinkResponse>;
 
     /**
      * Function used to update a member's status, to either active or inactive.
      *
+     * @param userId unique user ID of a card linking user.
      * @param memberId member id, retrieved from Olive, which the status will be updated for
      * @param memberFlag flag to indicate what the status of the member, will be updated to
      * @param updatedAt card linked object update date
@@ -130,7 +133,7 @@ export abstract class BaseAPIClient {
      *
      * @protected
      */
-    protected updateMemberStatus?(memberId: string, memberFlag: boolean, updatedAt: string): Promise<MemberResponse>;
+    protected updateMemberStatus?(userId: string, memberId: string, memberFlag: boolean, updatedAt: string): Promise<MemberResponse>;
 
     /**
      * Function used to remove/deactivate a card, given its ID.
@@ -143,4 +146,45 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected removeCard?(cardId: string): Promise<RemoveCardResponse>;
+
+    /**
+     * Function used to retrieve the brand details, given a brand ID.
+     *
+     * @param transaction the transaction object, populated by the initial details
+     * passed in by Olive. This object will be used to set even more information for
+     * it, obtained from this brand call.
+     *
+     * @return a {@link Promise} of {@link TransactionResponse} representing the transaction
+     * with the brand details obtained, included in it.
+     *
+     * @protected
+     */
+    protected getBrandDetails?(transaction: Transaction): Promise<TransactionResponse>;
+
+    /**
+     * Function used to retrieve the store details, given a store ID.
+     *
+     * @param transaction the transaction object, populated by the initial details
+     * passed in by Olive. This object will be used to set even more information for
+     * it, obtained from this brand call.
+     *
+     * @return a {@link Promise} of {@link TransactionResponse} representing the transaction
+     * with the store details obtained, included in it.
+     *
+     * @protected
+     */
+    protected getStoreDetails?(transaction: Transaction): Promise<TransactionResponse>;
+
+    /**
+     * Function used to retrieve the member details, specifically the extMemberId, which is Moonbeam's unique user ID
+     * set at creation time, given a member ID.
+     *
+     * @param memberId member ID obtained from Olive at creation time, used to retrieve the
+     * other member details.
+     *
+     * @return a {@link Promise} of {@link MemberDetailsResponse} representing the member details
+     *
+     * @protected
+     */
+    protected getMemberDetails?(memberId: string): Promise<MemberDetailsResponse>;
 }

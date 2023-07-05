@@ -123,6 +123,10 @@ export type CreateMilitaryVerificationResponse = {
   errorType?: Maybe<MilitaryVerificationErrorType>;
 };
 
+export enum CurrencyCodeType {
+  Usd = 'USD'
+}
+
 export type DeleteCardInput = {
   cardId: Scalars['ID'];
   id: Scalars['ID'];
@@ -173,6 +177,13 @@ export type Member = {
   id: Scalars['ID'];
   isActive?: Maybe<Scalars['Boolean']>;
   memberId: Scalars['ID'];
+};
+
+export type MemberDetailsResponse = {
+  __typename?: 'MemberDetailsResponse';
+  data?: Maybe<Scalars['String']>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<TransactionsErrorType>;
 };
 
 export type MemberResponse = {
@@ -330,6 +341,59 @@ export type Subscription = {
 export type SubscriptionUpdatedMilitaryVerificationStatusArgs = {
   id: Scalars['ID'];
 };
+
+export type Transaction = {
+  __typename?: 'Transaction';
+  brandId: Scalars['ID'];
+  cardId: Scalars['ID'];
+  cardLast4?: Maybe<Scalars['String']>;
+  category: Scalars['String'];
+  createdAt: Scalars['AWSDateTime'];
+  creditedCashbackAmount?: Maybe<Scalars['String']>;
+  currencyCode: CurrencyCodeType;
+  id: Scalars['ID'];
+  memberId: Scalars['ID'];
+  pendingCashbackAmount?: Maybe<Scalars['String']>;
+  rewardAmount?: Maybe<Scalars['Float']>;
+  storeId: Scalars['ID'];
+  timestamp: Scalars['AWSTimestamp'];
+  totalAmount?: Maybe<Scalars['Float']>;
+  transactionBrandAddress?: Maybe<Scalars['String']>;
+  transactionBrandDescription?: Maybe<Scalars['String']>;
+  transactionBrandLogoUrl?: Maybe<Scalars['String']>;
+  transactionBrandName?: Maybe<Scalars['String']>;
+  transactionId: Scalars['ID'];
+  transactionStatus: TransactionsStatus;
+  transactionType: TransactionType;
+  updatedAt: Scalars['AWSDateTime'];
+};
+
+export type TransactionResponse = {
+  __typename?: 'TransactionResponse';
+  data?: Maybe<Transaction>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<TransactionsErrorType>;
+};
+
+export enum TransactionType {
+  Contribution = 'CONTRIBUTION',
+  OfferRedeemed = 'OFFER_REDEEMED',
+  Roundup = 'ROUNDUP'
+}
+
+export enum TransactionsErrorType {
+  DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  Unprocessable = 'UNPROCESSABLE',
+  ValidationError = 'VALIDATION_ERROR'
+}
+
+export enum TransactionsStatus {
+  Credited = 'CREDITED',
+  Pending = 'PENDING',
+  Processed = 'PROCESSED'
+}
 
 export type UpdateMilitaryVerificationInput = {
   id: Scalars['ID'];

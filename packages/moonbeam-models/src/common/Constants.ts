@@ -58,8 +58,9 @@ export namespace Constants {
         export const PARTNER_MERCHANT_TABLE: string = 'PARTNER_MERCHANT_TABLE';
         export const CARD_LINKING_TABLE: string = 'CARD_LINKING_TABLE';
         export const TRANSACTIONS_TABLE: string = 'TRANSACTIONS_TABLE';
-        export const TRANSACTION_ID_GLOBAL_INDEX: string = 'TRANSACTION_ID_GLOBAL_INDEX';
-        export const TRANSACTION_STATUS_LOCAL_INDEX: string = 'TRANSACTION_STATUS_LOCAL_INDEX';
+        export const TRANSACTIONS_PROCESSING_TOPIC_ARN: string = 'TRANSACTIONS_PROCESSING_TOPIC_ARN';
+        export const TRANSACTIONS_ID_GLOBAL_INDEX: string = 'TRANSACTIONS_ID_GLOBAL_INDEX';
+        export const TRANSACTIONS_STATUS_LOCAL_INDEX: string = 'TRANSACTIONS_STATUS_LOCAL_INDEX';
         export const ENV_NAME: string = 'ENV_NAME';
         export const ACCOUNT_LINKS: string = 'ACCOUNT_LINKS';
         export const AWS_REGION: string = 'AWS_REGION';

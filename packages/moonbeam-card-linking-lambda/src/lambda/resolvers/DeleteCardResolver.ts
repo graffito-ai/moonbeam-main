@@ -1,4 +1,11 @@
-import {CardLinkErrorType, CardResponse, DeleteCardInput, OliveClient} from "@moonbeam/moonbeam-models";
+import {
+    CardLinkErrorType,
+    CardResponse,
+    DeleteCardInput,
+    MemberResponse,
+    OliveClient,
+    RemoveCardResponse
+} from "@moonbeam/moonbeam-models";
 import {DynamoDBClient, GetItemCommand, UpdateItemCommand} from "@aws-sdk/client-dynamodb";
 
 /**
@@ -34,10 +41,10 @@ export const deleteCard = async (deleteCardInput: DeleteCardInput): Promise<Card
             // check if there is a card with the requested ID, in the retrieved object, to be deleted/unlinked
             if (retrievedData.Item.cards.L!.length !== 0 && retrievedData.Item.cards.L![0].M!.id.S! === deleteCardInput.cardId) {
                 // call the Olive Client API here, in order to call the appropriate endpoints for this resolver
-                const oliveClient = new OliveClient(process.env.ENV_NAME!, region, deleteCardInput.id);
+                const oliveClient = new OliveClient(process.env.ENV_NAME!, region);
 
                 // first execute the member update call, to deactivate the member
-                const updateMemberResponse = await oliveClient.updateMemberStatus(deleteCardInput.memberId, false, deleteCardInput.updatedAt!);
+                const updateMemberResponse: MemberResponse = await oliveClient.updateMemberStatus(deleteCardInput.id, deleteCardInput.memberId, false, deleteCardInput.updatedAt!);
 
                 // check to see if the update member status call was executed successfully
                 if (updateMemberResponse && !updateMemberResponse.errorMessage && !updateMemberResponse.errorType
@@ -45,7 +52,7 @@ export const deleteCard = async (deleteCardInput: DeleteCardInput): Promise<Card
                     && updateMemberResponse.data.id === deleteCardInput.id && updateMemberResponse.data.memberId === deleteCardInput.memberId) {
 
                     // then execute the remove card call, to remove/deactivate a card to the member
-                    const removeCardResponse = await oliveClient.removeCard(deleteCardInput.cardId);
+                    const removeCardResponse: RemoveCardResponse = await oliveClient.removeCard(deleteCardInput.cardId);
 
                     // check to see if the remove card call was executed successfully
                     if (removeCardResponse && !removeCardResponse.errorMessage && !removeCardResponse.errorType && removeCardResponse.data) {

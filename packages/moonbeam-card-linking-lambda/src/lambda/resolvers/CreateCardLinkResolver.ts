@@ -69,10 +69,10 @@ export const createCardLink = async (createCardLinkInput: CreateCardLinkInput): 
             createCardLinkInput.card.applicationID = uuidv4();
 
             // call the Olive Client API here, in order to call the appropriate endpoints for this resolver
-            const oliveClient = new OliveClient(process.env.ENV_NAME!, region, createCardLinkInput.id);
+            const oliveClient = new OliveClient(process.env.ENV_NAME!, region);
 
             // execute the member linking/enrollment call
-            const response = await oliveClient.link(createCardLinkInput.createdAt, createCardLinkInput.updatedAt, createCardLinkInput.card as Card);
+            const response: CardLinkResponse = await oliveClient.link(createCardLinkInput.id, createCardLinkInput.createdAt, createCardLinkInput.updatedAt, createCardLinkInput.card as Card);
 
             // check to see if the card linking call was executed successfully
             if (response && !response.errorMessage && !response.errorType && response.data) {

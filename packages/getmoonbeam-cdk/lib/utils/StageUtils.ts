@@ -6,8 +6,7 @@ import {AppSyncStack} from "../stacks/AppSyncStack";
 import {StorageResolverStack} from "../stacks/StorageResolverStack";
 import {MilitaryVerificationResolverStack} from "../stacks/MilitaryVerificationResolverStack";
 import {CardLinkingResolverStack} from "../stacks/CardLinkingResolverStack";
-import {CardLinkingServiceStack} from "../stacks/CardLinkingServiceStack";
-import {TransactionsFanOutStack} from "../stacks/TransactionsFanOutStack";
+import {APIGatewayServiceStack} from "../stacks/CardLinkingServiceStack";
 import {TransactionsProducerConsumerStack} from "../stacks/TransactionsProducerConsumerStack";
 
 /**
@@ -143,7 +142,7 @@ export class StageUtils {
 
                 // create the Transaction Producer Consumer stack && add it to the CDK app
                 const transactionsProducerConsumerStack = new TransactionsProducerConsumerStack(this.app, `moonbeam-transactions-producer-consumer-${stageKey}`, {
-                    stackName: `moonbeam-transactions-consumers-${stageKey}`,
+                    stackName: `moonbeam-transactions-producer-consumer-${stageKey}`,
                     description: 'This stack will contain all the resources needed for the async transactional consumers, as well as producers',
                     env: stageEnv,
                     stage: stageConfiguration.stage,
@@ -152,29 +151,16 @@ export class StageUtils {
                 });
 
                 // create the Card Linking service API stack && add it to the CDK app
-                const cardLinkingServiceStack = new CardLinkingServiceStack(this.app, `moonbeam-card-linking-service-${stageKey}`, {
-                    stackName: `moonbeam-card-linking-service-${stageKey}`,
-                    description: 'This stack will contain all the Card Linking, API Gateway related resources for the GetMoonbeam Application',
+                const apiGatewayStack = new APIGatewayServiceStack(this.app, `moonbeam-api-gateway-${stageKey}`, {
+                    stackName: `moonbeam-api-gateway-${stageKey}`,
+                    description: 'This stack will contain all the API Gateway related resources for the GetMoonbeam Application',
                     env: stageEnv,
                     stage: stageConfiguration.stage,
-                    webhookTransactionsLambda: transactionsProducerConsumerStack.webhookTransactionsLambda,
+                    transactionsProducerLambda: transactionsProducerConsumerStack.transactionsProducerLambda,
                     cardLinkingServiceConfig: stageConfiguration.cardLinkingServiceConfig,
                     environmentVariables: stageConfiguration.environmentVariables,
                 });
-                cardLinkingServiceStack.addDependency(transactionsProducerConsumerStack);
-
-                // create the Transactions fan-out stack && add it to the CDK app
-                const transactionsFanOutStack = new TransactionsFanOutStack(this.app, `moonbeam-transactions-fan-out-${stageKey}`, {
-                    stackName: `moonbeam-transactions-fan-out-${stageKey}`,
-                    description: 'This stack will contain all the resources (SNS, SQS) needed for the transactional fan-out mechanism',
-                    env: stageEnv,
-                    stage: stageConfiguration.stage,
-                    transactionsFanOutConfig: stageConfiguration.transactionsFanOutConfig,
-                    transactionsProcessingLambda: transactionsProducerConsumerStack.transactionsProcessingLambda,
-                    webhookTransactionsLambda: transactionsProducerConsumerStack.webhookTransactionsLambda,
-                    environmentVariables: stageConfiguration.environmentVariables
-                });
-                transactionsFanOutStack.addDependency(transactionsProducerConsumerStack);
+                apiGatewayStack.addDependency(transactionsProducerConsumerStack);
             }
         }
     };
