@@ -1,4 +1,15 @@
 import {SQSBatchResponse, SQSEvent} from "aws-lambda";
+import {
+    MemberDetailsResponse,
+    MoonbeamClient,
+    MoonbeamTransaction,
+    MoonbeamTransactionResponse,
+    OliveClient,
+    Transaction,
+    TransactionResponse,
+    TransactionsErrorType
+} from "@moonbeam/moonbeam-models";
+import {SQSBatchItemFailure} from "aws-lambda/trigger/sqs";
 
 /**
  * OfferRedeemedProcessorHandler handler
@@ -10,122 +21,110 @@ import {SQSBatchResponse, SQSEvent} from "aws-lambda";
 export const processOfferRedeemedTransactions = async (event: SQSEvent): Promise<SQSBatchResponse> => {
     try {
         // retrieving the current function region
-        // const region = process.env.AWS_REGION!;
+        const region = process.env.AWS_REGION!;
 
-        // TODO:
-        //      1) Call the GET member details Olive API to retrieve the member details (extMemberID) for member
-        //      2) Call the GET brand details Olive API to retrieve the brand name for transaction
-        //      3) Call the GET store details Olive API to retrieve the brand store address for transaction
-        //      4) Call the createTransaction Moonbeam AppSync API endpoint, to store transaction in Dynamo DB database
-        //      5) Convert any necessary timestamps and created/updated at times to appropriate formats
-        //      6) Return the appropriate responses for happy and/or unhappy paths
+        /**
+         * initializing the batch response, as an empty array, that will be populated with errors, if any throughout the processing
+         *
+         * for the Lambda to indicate SQS that there have been no failures, and thus enable the deletion of all processed messages
+         * from the queue, we have to return an empty batchItemFailures array. If we want to indicate that there have been errors,
+         * for each individual message, based on its ID, we have to add it in the final batch response
+         *
+         * @link https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html
+         */
+        const itemFailures: SQSBatchItemFailure[] = [];
 
-        // // call the Olive Client API here, in order to call the appropriate endpoints for this handler
-        // const oliveClient = new OliveClient(process.env.ENV_NAME!, region);
-        //
-        // // execute the member details retrieval call, in order to get the Moonbeam userId to be used in associating a transaction with a Moonbeam user
-        // const response: MemberDetailsResponse = await oliveClient.getMemberDetails(requestData["memberId"]);
-        //
-        // // check to see if the member details call was executed successfully
-        // if (response && !response.errorMessage && !response.errorType && response.data && response.data.length !== 0) {
-        //     // build the transaction object from the incoming request body
-        //     const transaction: Transaction = {
-        //         id: response.data,
-        //         memberId: requestData["memberId"],
-        //         storeId: requestData["transaction"]["storeId"],
-        //         brandId: requestData["transaction"]["brandId"],
-        //         cardId: requestData["transaction"]["cardId"],
-        //         category: requestData["transaction"]["merchantCategoryCode"],
-        //         currencyCode: requestData["transaction"]["currencyCode"],
-        //         transactionId: requestData["transaction"]["created"],
-        //         // set the status of all incoming transactions to be pending, until we get a status change and/or until the cashback is reimbursed to the customer
-        //         transactionStatus: TransactionsStatus.Pending,
-        //         // the type of this transaction will be an offer redeemed type for now. In the future when we process different types of transactions, this might change
-        //         transactionType: TransactionType.OfferRedeemed,
-        //         /**
-        //          * at creation time, these timestamps won't be converted appropriately, to what we expect them to look like. That conversion will be done all at
-        //          * processing time, but it will all depend on the creation time of the transaction, which is why that is passed for all these values below
-        //          */
-        //         timestamp: 0,
-        //         createdAt: requestData["transaction"]["created"],
-        //         updatedAt: requestData["transaction"]["created"],
-        //         rewardAmount: requestData["transaction"]["rewardAmount"],
-        //         totalAmount: requestData["transaction"]["amount"],
-        //         // we start with 0 dollars credited to the customer, since the whole reward amount is pending credit at transaction creation time
-        //         creditedCashbackAmount: "0",
-        //         pendingCashbackAmount: requestData["transaction"]["rewardAmount"]
-        //     }
-        //
-        //     // initializing the SNS Client
-        //     const snsClient = new SNSClient({region: region});
-        //
-        //     /**
-        //      * drop the transaction as a message to the transactions processing topic
-        //      *
-        //      * note: in the future when we will have other types of transactions, other than offer based ones, we will need to add a filter
-        //      * through the message attributes of the topic, so that only messages with specific filters get dropped to a particular processing
-        //      * queue.
-        //      */
-        //     const transactionReceipt = await snsClient.send(new PublishCommand({
-        //         TopicArn: process.env.TRANSACTIONS_PROCESSING_TOPIC_ARN!,
-        //         Message: JSON.stringify(transaction),
-        //         /**
-        //          * the message group id, will be represented by the user id, so that we can group transaction messages for a particular user id,
-        //          * and sort them in the FIFO processing topic accordingly
-        //          */
-        //         MessageGroupId: transaction.id
-        //     }));
-        //
-        //     // ensure that the transaction message was properly sent to the appropriate processing topic
-        //     if (transactionReceipt && transactionReceipt.MessageId && transactionReceipt.MessageId.length !== 0 &&
-        //         transactionReceipt.SequenceNumber && transactionReceipt.SequenceNumber.length !== 0) {
-        //         /**
-        //          * the transaction has been successfully dropped into the topic, and will be picked up by the transactions consumer and other
-        //          * services, like the notifications service consumer.
-        //          */
-        //         console.log(`Transaction successfully sent to topic for processing with receipt information: ${transactionReceipt.MessageId} ${transactionReceipt.SequenceNumber}`);
-        //
-        //         return {
-        //             statusCode: 202,
-        //             body: JSON.stringify({
-        //                 data: `Transaction acknowledged!`
-        //             })
-        //         }
-        //     } else {
-        //         const errorMessage = `Unexpected error while sending the transaction message further!`;
-        //         console.log(errorMessage);
-        //
-        //         /**
-        //          * if there are errors associated with sending the message to the topic.
-        //          * Olive will retry sending this message upon receiving of a non 2XX code
-        //          */
-        //         return {
-        //             statusCode: 424,
-        //             body: JSON.stringify({
-        //                 data: null,
-        //                 errorType: TransactionsErrorType.Unprocessable,
-        //                 errorMessage: errorMessage
-        //             })
-        //         }
-        //     }
-        // } else {
-        //     const errorMessage = `Unexpected response structure returned from the member details call!`;
-        //     console.log(errorMessage);
-        //
-        //     /**
-        //      * if there are errors associated with the call, just return the error message and error type from the upstream client
-        //      * Olive will retry sending this message upon receiving of a non 2XX code
-        //      */
-        //     return {
-        //         statusCode: 400,
-        //         body: JSON.stringify({
-        //             data: null,
-        //             errorType: TransactionsErrorType.ValidationError,
-        //             errorMessage: errorMessage
-        //         })
-        //     }
-        // }
+        // for each record in the incoming event, repeat the transaction processing steps
+        for (const transactionalRecord of event.Records) {
+            /**
+             * The overall transaction processing, will be made up of the following steps:
+             *
+             * 1) Call the GET member details Olive API to retrieve the member details (extMemberID) for member
+             * 2) Call the GET brand details Olive API to retrieve the brand name for incoming transaction
+             * 3) Call the GET store details Olive API to retrieve the brand store address for incoming transaction
+             * 4) Convert any necessary timestamps and created/updated at times to appropriate formats
+             * 5) Call the createTransaction Moonbeam AppSync API endpoint, to store transaction in Dynamo DB
+             */
+                // first, convert the incoming event message body, into a transaction object
+            const transaction: Transaction = JSON.parse(transactionalRecord.body) as Transaction;
 
+            // initialize the Olive Client API here, in order to call the appropriate endpoints for this handler
+            const oliveClient = new OliveClient(process.env.ENV_NAME!, region);
+
+            // 1) Call the GET member details Olive API to retrieve the member details (extMemberID) for member
+            const memberDetailsResponse: MemberDetailsResponse = await getMemberDetails(oliveClient, transaction.memberId);
+
+            // check to see if the member details call was successful or not
+            if (memberDetailsResponse && !memberDetailsResponse.errorMessage && !memberDetailsResponse.errorType && memberDetailsResponse.data) {
+                // set the transaction id, to be the userID mapped to the extMemberId retrieved from the member details call
+                transaction.id = memberDetailsResponse.data;
+
+                // 2) Call the GET brand details Olive API to retrieve the brand name for incoming transaction
+                const brandDetailsResponse: TransactionResponse = await getBrandDetails(oliveClient, transaction);
+
+                // check to see if the brand details call was successful or not
+                if (brandDetailsResponse && !brandDetailsResponse.errorMessage && !brandDetailsResponse.errorType && brandDetailsResponse.data) {
+                    // 3) Call the GET store details Olive API to retrieve the brand store address for incoming transaction
+                    const storeDetailsResponse: TransactionResponse = await getStoreDetails(oliveClient, transaction);
+
+                    // check to see if the store details call was successful or not
+                    if (storeDetailsResponse && !storeDetailsResponse.errorMessage && !storeDetailsResponse.errorType && storeDetailsResponse.data) {
+                        // 4) Convert any necessary timestamps and created/updated at times to appropriate formats
+                        const createdAtFormatted = new Date(transaction.createdAt).toISOString();
+                        transaction.createdAt = createdAtFormatted;
+                        transaction.updatedAt = createdAtFormatted;
+                        transaction.timestamp = Date.parse(createdAtFormatted);
+
+                        /**
+                         * 5) Call the createTransaction Moonbeam AppSync API endpoint, to store transaction in Dynamo DB
+                         *
+                         * first initialize the Olive Client API here, in order to call the appropriate endpoints for this resolver
+                         */
+                        const moonbeamClient = new MoonbeamClient(process.env.ENV_NAME!, region);
+
+                        // execute the createTransaction call
+                        const response: MoonbeamTransactionResponse = await moonbeamClient.createTransaction(transaction as MoonbeamTransaction);
+
+                        // check to see if the card linking call was executed successfully
+                        if (response && !response.errorMessage && !response.errorType && response.data) {
+                            // convert the incoming linked data into a CardLink object
+                            const transactionResponse = response.data as MoonbeamTransaction;
+
+                            console.log(JSON.stringify(transactionResponse));
+                        } else {
+                            console.log(`Unexpected error returned from the createTransaction call!`);
+
+                            // adds an item failure, for the SQS message which failed processing, as part of the incoming event
+                            itemFailures.push({
+                                itemIdentifier: transactionalRecord.messageId
+                            });
+                        }
+
+                    } else {
+                        console.log(`Store Details mapping through GET store details call failed`);
+
+                        // adds an item failure, for the SQS message which failed processing, as part of the incoming event
+                        itemFailures.push({
+                            itemIdentifier: transactionalRecord.messageId
+                        });
+                    }
+                } else {
+                    console.log(`Brand Details mapping through GET brand details call failed`);
+
+                    // adds an item failure, for the SQS message which failed processing, as part of the incoming event
+                    itemFailures.push({
+                        itemIdentifier: transactionalRecord.messageId
+                    });
+                }
+            } else {
+                console.log(`UserID mapping through GET member details call failed`);
+
+                // adds an item failure, for the SQS message which failed processing, as part of the incoming event
+                itemFailures.push({
+                    itemIdentifier: transactionalRecord.messageId
+                });
+            }
+        }
 
         /**
          * for the Lambda to indicate SQS that there have been no failures, and thus enable the deletion of all processed messages
@@ -134,11 +133,10 @@ export const processOfferRedeemedTransactions = async (event: SQSEvent): Promise
          * @link https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html
          */
         return {
-            batchItemFailures: []
+            batchItemFailures: itemFailures
         }
     } catch (error) {
-        const errorMessage = `Unexpected error while processing ${JSON.stringify(event)} transactional event`;
-        console.log(`${errorMessage} ${error}`);
+        console.log(`Unexpected error while processing ${JSON.stringify(event)} transactional event ${error}`);
 
         /**
          * returns a batch response failure for the particular message IDs which failed
@@ -151,6 +149,112 @@ export const processOfferRedeemedTransactions = async (event: SQSEvent): Promise
                 // for this case, we only process 1 record at a time, we might need to change this in the future
                 itemIdentifier: event.Records[0].messageId
             }]
+        }
+    }
+}
+
+/**
+ * Function used to retrieve the member details of a user, which includes the extMemberId
+ * of a member, directly mapped to a Moonbeam userId, to be used when storing a transaction.
+ *
+ * @param oliveClient client used to make Olive API calls
+ * @param memberId the id of the member, obtained from Olive through the transaction message,
+ * which details are retrieved for
+ *
+ * @returns a {@link Promise} of {@link MemberDetailsResponse} representing the details of a member
+ * in the form of either an error, or a valid string-based response signifying the member's external id
+ */
+const getMemberDetails = async (oliveClient: OliveClient, memberId: string): Promise<MemberDetailsResponse> => {
+    // execute the member details retrieval call, in order to get the Moonbeam userId to be used in associating a transaction with a Moonbeam user
+    const response: MemberDetailsResponse = await oliveClient.getMemberDetails(memberId);
+
+    // check to see if the member details call was executed successfully
+    if (response && !response.errorMessage && !response.errorType && response.data && response.data.length !== 0) {
+        // returns the response data with the member's external ID, to be mapped to Moonbeam's userId
+        return {
+            data: response.data
+        }
+    } else {
+        const errorMessage = `Unexpected response structure returned from the member details call!`;
+        console.log(errorMessage);
+
+        // if there are errors associated with the call, just return the error message and error type from the upstream client
+        return {
+            data: null,
+            errorType: TransactionsErrorType.ValidationError,
+            errorMessage: errorMessage
+        }
+    }
+}
+
+/**
+ * Function used to retrieve the brand details, which mainly include the name, logo and description
+ * of the brand that the transaction was executed at, to be used when storing the transaction in the DB.
+ *
+ * @param oliveClient client used to make Olive API calls
+ * @param transaction the transaction object obtained from Olive through the transaction message,
+ * which brand details obtained through this call are appended to
+ *
+ * @returns a {@link Promise} of {@link TransactionResponse} representing the transaction information passed
+ * in through the SQS message, alongside the brand details retrieved through this call.
+ */
+const getBrandDetails = async (oliveClient: OliveClient, transaction: Transaction): Promise<TransactionResponse> => {
+    // execute the brand details retrieval call, in order to get the brand details for the incoming transaction
+    const response: TransactionResponse = await oliveClient.getBrandDetails(transaction);
+
+    // check to see if the brand details call was executed successfully
+    if (response && !response.errorMessage && !response.errorType && response.data &&
+        response.data.transactionBrandName && response.data.transactionBrandName.length !== 0 &&
+        response.data.transactionBrandLogoUrl && response.data.transactionBrandLogoUrl.length !== 0 &&
+        response.data.transactionBrandDescription && response.data.transactionBrandDescription.length !== 0) {
+        // returns the updated transaction data
+        return {
+            data: response.data
+        }
+    } else {
+        const errorMessage = `Unexpected response structure returned from the brand details call!`;
+        console.log(errorMessage);
+
+        // if there are errors associated with the call, just return the error message and error type from the upstream client
+        return {
+            data: null,
+            errorType: TransactionsErrorType.ValidationError,
+            errorMessage: errorMessage
+        }
+    }
+}
+
+/**
+ * Function used to retrieve the store details, which mainly include the address of the store, associated
+ * with the brand that the transaction was executed at, to be used when storing the transaction in the DB.
+ *
+ * @param oliveClient client used to make Olive API calls
+ * @param transaction the transaction object obtained from Olive through the transaction message,
+ * which store details obtained through this call are appended to
+ *
+ * @returns a {@link Promise} of {@link TransactionResponse} representing the transaction information passed
+ * in through the SQS message, alongside the store details retrieved through this call.
+ */
+const getStoreDetails = async (oliveClient: OliveClient, transaction: Transaction): Promise<TransactionResponse> => {
+    // execute the brand details retrieval call, in order to get the store details for the incoming transaction
+    const response: TransactionResponse = await oliveClient.getStoreDetails(transaction);
+
+    // check to see if the store details call was executed successfully
+    if (response && !response.errorMessage && !response.errorType && response.data &&
+        response.data.transactionBrandDescription && response.data.transactionBrandDescription.length !== 0) {
+        // returns the updated transaction data
+        return {
+            data: response.data
+        }
+    } else {
+        const errorMessage = `Unexpected response structure returned from the store details call!`;
+        console.log(errorMessage);
+
+        // if there are errors associated with the call, just return the error message and error type from the upstream client
+        return {
+            data: null,
+            errorType: TransactionsErrorType.ValidationError,
+            errorMessage: errorMessage
         }
     }
 }

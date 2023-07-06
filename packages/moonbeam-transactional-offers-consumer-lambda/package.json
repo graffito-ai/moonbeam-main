@@ -12,9 +12,7 @@
     "clean": "rm -rf build/ lib/ node_modules/"
   },
   "devDependencies": {
-    "@aws-sdk/client-dynamodb": "^3.338.0",
     "@aws-sdk/types": "^3.272.0",
-    "@aws-sdk/util-dynamodb": "^3.284.0",
     "@moonbeam/moonbeam-models": "*",
     "@moonbeam/moonbeam-tsconfig": "*",
     "@types/aws-lambda": "^8.10.119"

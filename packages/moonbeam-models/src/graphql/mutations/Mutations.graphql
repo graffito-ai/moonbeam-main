@@ -1,5 +1,34 @@
 # graphql/Mutations.graphql
 # Mutations Schema File
+mutation CreateTransaction($createTransactionInput: CreateTransactionInput!) {
+    createTransaction(createTransactionInput: $createTransactionInput) {
+        errorType
+        errorMessage
+        data {
+            id
+            timestamp
+            transactionId
+            transactionStatus
+            transactionType
+            createdAt
+            updatedAt
+            memberId
+            cardId
+            brandId
+            storeId
+            category
+            currencyCode
+            rewardAmount
+            totalAmount
+            pendingCashbackAmount
+            creditedCashbackAmount
+            transactionBrandName
+            transactionBrandDescription
+            transactionBrandAddress
+            transactionBrandLogoUrl
+        }
+    }
+}
 mutation CreateCardLink($createCardLinkInput: CreateCardLinkInput!) {
     createCardLink(createCardLinkInput: $createCardLinkInput) {
         errorType

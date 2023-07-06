@@ -12,10 +12,11 @@ import {QuandisClient} from "../clients/QuandisClient";
 /**
  * CreateMilitaryVerification resolver
  *
+ * @param fieldName name of the resolver path from the AppSync event
  * @param createMilitaryVerificationInput military verification object to be created
  * @returns {@link Promise} of {@link CreateMilitaryVerificationResponse}
  */
-export const createMilitaryVerification = async (createMilitaryVerificationInput: CreateMilitaryVerificationInput): Promise<CreateMilitaryVerificationResponse> => {
+export const createMilitaryVerification = async (fieldName: string, createMilitaryVerificationInput: CreateMilitaryVerificationInput): Promise<CreateMilitaryVerificationResponse> => {
     try {
         // retrieving the current function region
         const region = process.env.AWS_REGION!;
@@ -105,7 +106,7 @@ export const createMilitaryVerification = async (createMilitaryVerificationInput
             } as MilitaryVerificationInformation
         }
     } catch (err) {
-        const errorMessage = `Unexpected error while executing createMilitaryVerification mutation ${err}`;
+        const errorMessage = `Unexpected error while executing ${fieldName} mutation ${err}`;
         console.log(errorMessage);
         return {
             errorMessage: errorMessage,

@@ -8,6 +8,7 @@ type Query {
 
 type Mutation {
     addCard(addCardInput: AddCardInput!): CardLinkResponse! @aws_cognito_user_pools
+    createTransaction(createTransactionInput: CreateTransactionInput!): MoonbeamTransactionResponse! @aws_cognito_user_pools @aws_api_key
     createCardLink(createCardLinkInput: CreateCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
     deleteCard(deleteCardInput: DeleteCardInput!): CardResponse! @aws_cognito_user_pools
     updateMilitaryVerificationStatus(updateMilitaryVerificationInput: UpdateMilitaryVerificationInput!): UpdateMilitaryVerificationResponse! @aws_cognito_user_pools

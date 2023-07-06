@@ -10,11 +10,11 @@ type AppSyncEvent = {
     },
     arguments: {
         getStorageInput: GetStorageInput
+    },
+    identity: {
+        sub : string;
+        username : string;
     }
-    // identity: {
-    //     sub : string;
-    //     username : string;
-    // }
 }
 
 /**
@@ -28,7 +28,7 @@ exports.handler = async (event: AppSyncEvent): Promise<StorageResponse> => {
     console.log(`Received new storage event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
         case "getStorage":
-            return await getStorage(event.arguments.getStorageInput);
+            return await getStorage(event.info.fieldName, event.arguments.getStorageInput);
         default:
             const errorMessage = `Unexpected field name: ${event.info.fieldName}`;
             console.log(errorMessage);

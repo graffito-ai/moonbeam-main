@@ -145,76 +145,90 @@ export class StorageResolverStack extends Stack {
                 sourceMapMode: aws_lambda_nodejs.SourceMapMode.BOTH, // defaults to SourceMapMode.DEFAULT
                 sourcesContent: false, // do not include original source into source map, defaults to true
                 target: 'esnext', // target environment for the generated JavaScript code
-            },
-            initialPolicy: [
-                new PolicyStatement({
-                    effect: Effect.ALLOW,
-                    actions: [
-                        "s3:GetObject",
-                        "s3:PutObject",
-                        "s3:DeleteObject"
-                    ],
-                    resources: [
-                        `arn:aws:s3:::${mainFilesBucketName}/public/*`,
-                        `arn:aws:s3:::${mainFilesBucketName}/protected/*`,
-                        `arn:aws:s3:::${mainFilesBucketName}/private/*`
-                    ]
-                }),
-                new PolicyStatement({
-                    effect: Effect.ALLOW,
-                    actions: [
-                        "s3:PutObject"
-                    ],
-                    resources: [
-                        `arn:aws:s3:::${mainFilesBucketName}/uploads/*`
-                    ],
-                }),
-                new PolicyStatement({
-                    effect: Effect.ALLOW,
-                    actions: [
-                        "s3:GetObject"
-                    ],
-                    resources: [
-                        `arn:aws:s3:::${mainFilesBucketName}/protected/*`
-                    ],
-                }),
-                new PolicyStatement({
-                    effect: Effect.ALLOW,
-                    actions: [
-                        "s3:ListBucket"
-                    ],
-                    resources: [
-                        `arn:aws:s3:::${mainFilesBucketName}`
-                    ],
-                    conditions: {
-                        "StringLike": {
-                            "s3:prefix": [
-                                "public/",
-                                "public/*",
-                                "protected/",
-                                "protected/*",
-                                'private/',
-                                'private/*',
-
-                            ]
-                        }
-                    }
-                }),
-                // this policy enables the Lambda resolver to retrieve the private key from Secrets Manager
-                new PolicyStatement({
-                    effect: Effect.ALLOW,
-                    actions: [
-                        "secretsmanager:GetSecretValue"
-                    ],
-                    resources: [
-                        "arn:aws:secretsmanager:us-west-2:963863720257:secret:main-files-cloudfront-pair-dev-us-west-2-1ve4pZ" // this ARN is retrieved post secret creation
-                    ]
-                })
-            ]
+            }
         });
 
-        // Note that the following policy statements need to be added to the Amplify created roles, after their creation
-        // add the appropriate storage policies, to the auth role, used by Amplify
+        /**
+         * Add the appropriate s3 permissions to the Lambda function
+         */
+        storageLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "s3:GetObject",
+                    "s3:PutObject",
+                    "s3:DeleteObject"
+                ],
+                resources: [
+                    `arn:aws:s3:::${mainFilesBucketName}/public/*`,
+                    `arn:aws:s3:::${mainFilesBucketName}/protected/*`,
+                    `arn:aws:s3:::${mainFilesBucketName}/private/*`
+                ]
+            })
+        );
+        storageLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "s3:PutObject"
+                ],
+                resources: [
+                    `arn:aws:s3:::${mainFilesBucketName}/uploads/*`
+                ],
+            })
+        );
+        storageLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "s3:GetObject"
+                ],
+                resources: [
+                    `arn:aws:s3:::${mainFilesBucketName}/protected/*`
+                ],
+            })
+        );
+        storageLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "s3:ListBucket"
+                ],
+                resources: [
+                    `arn:aws:s3:::${mainFilesBucketName}`
+                ],
+                conditions: {
+                    "StringLike": {
+                        "s3:prefix": [
+                            "public/",
+                            "public/*",
+                            "protected/",
+                            "protected/*",
+                            'private/',
+                            'private/*',
+
+                        ]
+                    }
+                }
+            })
+        );
+        // enable the Lambda resolver to retrieve the private key from Secrets Manager
+        storageLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "secretsmanager:GetSecretValue"
+                ],
+                resources: [
+                    "arn:aws:secretsmanager:us-west-2:963863720257:secret:main-files-cloudfront-pair-dev-us-west-2-1ve4pZ" // this ARN is retrieved post secret creation
+                ]
+            })
+        );
+
+        /**
+         * Note that the following policy statements need to be added to the Amplify created roles, after their creation
+         * add the appropriate storage policies, to the auth role, used by Amplify
+         */
         authenticatedRole.addToPrincipalPolicy(new PolicyStatement({
             effect: Effect.ALLOW,
             actions: [

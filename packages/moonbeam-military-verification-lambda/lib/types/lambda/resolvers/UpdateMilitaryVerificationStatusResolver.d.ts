@@ -2,7 +2,8 @@ import { UpdateMilitaryVerificationInput, UpdateMilitaryVerificationResponse } f
 /**
  * UpdateMilitaryVerificationStatus resolver
  *
+ * @param fieldName name of the resolver path from the AppSync event
  * @param updateMilitaryVerificationInput military verification input, used to update an existent one
  * @returns {@link Promise} of {@link UpdateMilitaryVerificationResponse}
  */
-export declare const updateMilitaryVerificationStatus: (updateMilitaryVerificationInput: UpdateMilitaryVerificationInput) => Promise<UpdateMilitaryVerificationResponse>;
+export declare const updateMilitaryVerificationStatus: (fieldName: string, updateMilitaryVerificationInput: UpdateMilitaryVerificationInput) => Promise<UpdateMilitaryVerificationResponse>;

@@ -7,4 +7,5 @@ export * from './graphql/queries/Queries';
 export * from './graphql/mutations/Mutations';
 export * from './graphql/subscriptions/Subscriptions';
 export * from './common/clients/BaseAPIClient';
+export * from './common/clients/MoonbeamClient';
 export * from './common/clients/OliveClient';

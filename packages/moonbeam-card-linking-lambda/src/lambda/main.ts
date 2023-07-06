@@ -41,13 +41,13 @@ exports.handler = async (event: AppSyncEvent): Promise<CardLinkResponse | CardRe
     console.log(`Received new storage event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
         case "addCard":
-            return await addCard(event.arguments.addCardInput);
+            return await addCard(event.info.fieldName, event.arguments.addCardInput);
         case "getCardLink":
-            return await getCardLink(event.arguments.getCardLinkInput);
+            return await getCardLink(event.info.fieldName, event.arguments.getCardLinkInput);
         case "createCardLink":
-            return await createCardLink(event.arguments.createCardLinkInput);
+            return await createCardLink(event.info.fieldName, event.arguments.createCardLinkInput);
         case "deleteCard":
-            return await deleteCard(event.arguments.deleteCardInput);
+            return await deleteCard(event.info.fieldName, event.arguments.deleteCardInput);
         default:
             const errorMessage = `Unexpected field name: ${event.info.fieldName}`;
             console.log(errorMessage);

@@ -123,6 +123,30 @@ export type CreateMilitaryVerificationResponse = {
   errorType?: Maybe<MilitaryVerificationErrorType>;
 };
 
+export type CreateTransactionInput = {
+  brandId: Scalars['ID'];
+  cardId: Scalars['ID'];
+  category: Scalars['String'];
+  createdAt: Scalars['AWSDateTime'];
+  creditedCashbackAmount: Scalars['Float'];
+  currencyCode: CurrencyCodeType;
+  id: Scalars['ID'];
+  memberId: Scalars['ID'];
+  pendingCashbackAmount: Scalars['Float'];
+  rewardAmount: Scalars['Float'];
+  storeId: Scalars['ID'];
+  timestamp: Scalars['AWSTimestamp'];
+  totalAmount: Scalars['Float'];
+  transactionBrandAddress: Scalars['String'];
+  transactionBrandDescription: Scalars['String'];
+  transactionBrandLogoUrl: Scalars['String'];
+  transactionBrandName: Scalars['String'];
+  transactionId: Scalars['ID'];
+  transactionStatus: TransactionsStatus;
+  transactionType: TransactionType;
+  updatedAt: Scalars['AWSDateTime'];
+};
+
 export enum CurrencyCodeType {
   Usd = 'USD'
 }
@@ -254,11 +278,44 @@ export enum MilitaryVerificationStatusType {
   Verified = 'VERIFIED'
 }
 
+export type MoonbeamTransaction = {
+  __typename?: 'MoonbeamTransaction';
+  brandId: Scalars['ID'];
+  cardId: Scalars['ID'];
+  category: Scalars['String'];
+  createdAt: Scalars['AWSDateTime'];
+  creditedCashbackAmount: Scalars['Float'];
+  currencyCode: CurrencyCodeType;
+  id: Scalars['ID'];
+  memberId: Scalars['ID'];
+  pendingCashbackAmount: Scalars['Float'];
+  rewardAmount: Scalars['Float'];
+  storeId: Scalars['ID'];
+  timestamp: Scalars['AWSTimestamp'];
+  totalAmount: Scalars['Float'];
+  transactionBrandAddress: Scalars['String'];
+  transactionBrandDescription: Scalars['String'];
+  transactionBrandLogoUrl: Scalars['String'];
+  transactionBrandName: Scalars['String'];
+  transactionId: Scalars['ID'];
+  transactionStatus: TransactionsStatus;
+  transactionType: TransactionType;
+  updatedAt: Scalars['AWSDateTime'];
+};
+
+export type MoonbeamTransactionResponse = {
+  __typename?: 'MoonbeamTransactionResponse';
+  data?: Maybe<MoonbeamTransaction>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<TransactionsErrorType>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addCard: CardLinkResponse;
   createCardLink: CardLinkResponse;
   createMilitaryVerification: CreateMilitaryVerificationResponse;
+  createTransaction: MoonbeamTransactionResponse;
   deleteCard: CardResponse;
   updateMilitaryVerificationStatus: UpdateMilitaryVerificationResponse;
 };
@@ -276,6 +333,11 @@ export type MutationCreateCardLinkArgs = {
 
 export type MutationCreateMilitaryVerificationArgs = {
   createMilitaryVerificationInput: CreateMilitaryVerificationInput;
+};
+
+
+export type MutationCreateTransactionArgs = {
+  createTransactionInput: CreateTransactionInput;
 };
 
 
@@ -346,14 +408,13 @@ export type Transaction = {
   __typename?: 'Transaction';
   brandId: Scalars['ID'];
   cardId: Scalars['ID'];
-  cardLast4?: Maybe<Scalars['String']>;
   category: Scalars['String'];
   createdAt: Scalars['AWSDateTime'];
-  creditedCashbackAmount?: Maybe<Scalars['String']>;
+  creditedCashbackAmount?: Maybe<Scalars['Float']>;
   currencyCode: CurrencyCodeType;
-  id: Scalars['ID'];
+  id?: Maybe<Scalars['ID']>;
   memberId: Scalars['ID'];
-  pendingCashbackAmount?: Maybe<Scalars['String']>;
+  pendingCashbackAmount?: Maybe<Scalars['Float']>;
   rewardAmount?: Maybe<Scalars['Float']>;
   storeId: Scalars['ID'];
   timestamp: Scalars['AWSTimestamp'];
@@ -365,7 +426,7 @@ export type Transaction = {
   transactionId: Scalars['ID'];
   transactionStatus: TransactionsStatus;
   transactionType: TransactionType;
-  updatedAt: Scalars['AWSDateTime'];
+  updatedAt?: Maybe<Scalars['AWSDateTime']>;
 };
 
 export type TransactionResponse = {
@@ -392,7 +453,8 @@ export enum TransactionsErrorType {
 export enum TransactionsStatus {
   Credited = 'CREDITED',
   Pending = 'PENDING',
-  Processed = 'PROCESSED'
+  Processed = 'PROCESSED',
+  Rejected = 'REJECTED'
 }
 
 export type UpdateMilitaryVerificationInput = {
@@ -408,6 +470,13 @@ export type UpdateMilitaryVerificationResponse = {
   id?: Maybe<Scalars['ID']>;
   militaryVerificationStatus?: Maybe<MilitaryVerificationStatusType>;
 };
+
+export type CreateTransactionMutationVariables = Exact<{
+  createTransactionInput: CreateTransactionInput;
+}>;
+
+
+export type CreateTransactionMutation = { __typename?: 'Mutation', createTransaction: { __typename?: 'MoonbeamTransactionResponse', errorType?: TransactionsErrorType | null, errorMessage?: string | null, data?: { __typename?: 'MoonbeamTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt: string, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount: number, totalAmount: number, pendingCashbackAmount: number, creditedCashbackAmount: number, transactionBrandName: string, transactionBrandDescription: string, transactionBrandAddress: string, transactionBrandLogoUrl: string } | null } };
 
 export type CreateCardLinkMutationVariables = Exact<{
   createCardLinkInput: CreateCardLinkInput;

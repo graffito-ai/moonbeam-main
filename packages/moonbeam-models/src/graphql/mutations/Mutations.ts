@@ -1,5 +1,38 @@
 // This is a file used to define the all GraphQL query constants
 
+// Mutation used to create a new transaction, based on an incoming transaction message/event.
+export const createTransaction = /* GraphQL */ `
+    mutation CreateTransaction($createTransactionInput: CreateTransactionInput!) {
+        createTransaction(createTransactionInput: $createTransactionInput) {
+            errorType
+            errorMessage
+            data {
+                id
+                timestamp
+                transactionId
+                transactionStatus
+                transactionType
+                createdAt
+                updatedAt
+                memberId
+                cardId
+                brandId
+                storeId
+                category
+                currencyCode
+                rewardAmount
+                totalAmount
+                pendingCashbackAmount
+                creditedCashbackAmount
+                transactionBrandName
+                transactionBrandDescription
+                transactionBrandAddress
+                transactionBrandLogoUrl
+            }
+        }
+    }
+`;
+
 // Mutation used to create a new card link for a brand-new user, with a new card.
 export const createCardLink = /* GraphQL */ `
     mutation CreateCardLink($createCardLinkInput: CreateCardLinkInput!) {

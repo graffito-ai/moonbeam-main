@@ -13,11 +13,12 @@ import {v4 as uuidv4} from 'uuid';
 /**
  * AddCard resolver
  *
+ * @param fieldName name of the resolver path from the AppSync event
  * @param addCardInput add card input object, used to add/link a card object to an existing user/
  * card linked object.
  * @returns {@link Promise} of {@link CardResponse}
  */
-export const addCard = async (addCardInput: AddCardInput): Promise<CardLinkResponse> => {
+export const addCard = async (fieldName: string, addCardInput: AddCardInput): Promise<CardLinkResponse> => {
     try {
         // retrieving the current function region
         const region = process.env.AWS_REGION!;
@@ -35,6 +36,17 @@ export const addCard = async (addCardInput: AddCardInput): Promise<CardLinkRespo
                 id: {
                     S: addCardInput.id
                 }
+            },
+            /**
+             * we're not interested in getting all the data for this call, just the minimum for us to determine whether this is a duplicate or not
+             *
+             * @link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ReservedWords.html
+             * @link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.ExpressionAttributeNames.html
+             */
+            ProjectionExpression: '#idf, cards',
+            ExpressionAttributeNames: {
+                '#idf': 'id',
+                '#c': 'cards'
             }
         }));
 
@@ -54,7 +66,7 @@ export const addCard = async (addCardInput: AddCardInput): Promise<CardLinkRespo
             // generate a unique application identifier for the card, to be passed in to Olive as the "referenceAppId"
             addCardInput.card.applicationID = uuidv4();
 
-            // call the Olive Client API here, in order to call the appropriate endpoints for this resolver
+            // initialize the Olive Client API here, in order to call the appropriate endpoints for this resolver
             const oliveClient = new OliveClient(process.env.ENV_NAME!, region);
 
             // first execute the member update call, to re-activate the member
@@ -163,7 +175,7 @@ export const addCard = async (addCardInput: AddCardInput): Promise<CardLinkRespo
         }
 
     } catch (err) {
-        const errorMessage = `Unexpected error while executing addCard mutation ${err}`;
+        const errorMessage = `Unexpected error while executing ${fieldName} mutation ${err}`;
         console.log(errorMessage);
         return {
             errorMessage: errorMessage,

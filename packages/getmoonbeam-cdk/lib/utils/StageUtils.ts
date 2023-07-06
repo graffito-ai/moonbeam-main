@@ -8,6 +8,7 @@ import {MilitaryVerificationResolverStack} from "../stacks/MilitaryVerificationR
 import {CardLinkingResolverStack} from "../stacks/CardLinkingResolverStack";
 import {APIGatewayServiceStack} from "../stacks/CardLinkingServiceStack";
 import {TransactionsProducerConsumerStack} from "../stacks/TransactionsProducerConsumerStack";
+import {TransactionsResolverStack} from "../stacks/TransactionsResolverStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -94,6 +95,7 @@ export class StageUtils {
                     userPoolId: amplifyStack.userPoolId,
                     userPoolName: `${stageConfiguration.amplifyConfig.amplifyAuthConfig.userPoolName}-${stageKey}-${stageEnv.region}`,
                     appSyncConfig: {
+                        internalApiKeyName: stageConfiguration.appSyncConfig.internalApiKeyName,
                         graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName
                     },
                     environmentVariables: stageConfiguration.environmentVariables
@@ -140,6 +142,19 @@ export class StageUtils {
                 });
                 cardLinkingStack.addDependency(appSyncStack);
 
+                // create the Transaction resolver stack && add it to the CDK app
+                const transactionsStack = new TransactionsResolverStack(this.app, `moonbeam-transactions-resolver-${stageKey}`, {
+                    stackName: `moonbeam-transactions-resolver-${stageKey}`,
+                    description: 'This stack will contain all the AppSync related resources needed by the Lambda transactions resolver',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    graphqlApiId: appSyncStack.graphqlApiId,
+                    graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
+                    transactionsConfig: stageConfiguration.transactionsConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                transactionsStack.addDependency(appSyncStack);
+
                 // create the Transaction Producer Consumer stack && add it to the CDK app
                 const transactionsProducerConsumerStack = new TransactionsProducerConsumerStack(this.app, `moonbeam-transactions-producer-consumer-${stageKey}`, {
                     stackName: `moonbeam-transactions-producer-consumer-${stageKey}`,
@@ -149,6 +164,7 @@ export class StageUtils {
                     transactionsProducerConsumerConfig: stageConfiguration.transactionsProducerConsumerConfig,
                     environmentVariables: stageConfiguration.environmentVariables
                 });
+                transactionsProducerConsumerStack.addDependency(appSyncStack);
 
                 // create the Card Linking service API stack && add it to the CDK app
                 const apiGatewayStack = new APIGatewayServiceStack(this.app, `moonbeam-api-gateway-${stageKey}`, {

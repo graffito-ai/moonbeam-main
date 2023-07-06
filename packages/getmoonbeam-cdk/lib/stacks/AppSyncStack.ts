@@ -1,4 +1,4 @@
-import {CfnOutput, Stack, StackProps} from "aws-cdk-lib";
+import {CfnOutput, Duration, Expiration, Stack, StackProps} from "aws-cdk-lib";
 import {Construct} from "constructs";
 import {StageConfiguration} from "../models/StageConfiguration";
 import path from "path";
@@ -15,6 +15,9 @@ export class AppSyncStack extends Stack {
 
     // the created AppSync API id, to be used in retrieving the AppSync API in dependent Lambda resolver stacks
     readonly graphqlApiId: string;
+
+    // the create AppSync API endpoint URL, to be used in calling this AppSync API in dependent Lambda stacks
+    readonly graphqlApiEndpoint: string;
 
     /**
      * Constructor for the app sync stack.
@@ -42,10 +45,29 @@ export class AppSyncStack extends Stack {
                             props.userPoolId
                         )
                     }
-                }
+                },
+                /**
+                 * for some specific use-case, such as the transaction consumer, we will need to allow access via an API Key instead
+                 *
+                 * ToDo: in the future we will need to make a AWS::SecretsManager::Secret and a AWS::SecretsManager::RotationSchedule.
+                 *       The RotationSchedule will let us use a lambda to automatically rotate the ApiKey and store it in the Secret.
+                 *       For now we will rotate this key manually.
+                 */
+                additionalAuthorizationModes: [
+                    {
+                        authorizationType: AuthorizationType.API_KEY,
+                        apiKeyConfig: {
+                            name: `${props.appSyncConfig.internalApiKeyName}-${props.stage}-${props.env!.region}`,
+                            description: 'API Key to be used internally, in order to access the AppSync endpoints.',
+                            expires: Expiration.after(Duration.days(365))
+                        }
+                    }
+                ]
             },
         });
+
         this.graphqlApiId = appSyncApi.apiId;
+        this.graphqlApiEndpoint = appSyncApi.graphqlUrl;
 
         // creates the Cfn Outputs, to be added to the resulting file, which will be used by the Amplify frontend
         new CfnOutput(this, Constants.AppSyncConstants.APPSYNC_ENDPOINT, {

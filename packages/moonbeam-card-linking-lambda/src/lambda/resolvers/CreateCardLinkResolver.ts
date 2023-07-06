@@ -13,11 +13,12 @@ import {v4 as uuidv4} from 'uuid';
 /**
  * CreateCardLink resolver
  *
+ * @param fieldName name of the resolver path from the AppSync event
  * @param createCardLinkInput card link input object, used to create a card link object and/or add a new card to
  * an existing linking object
  * @returns {@link Promise} of {@link CardLinkResponse}
  */
-export const createCardLink = async (createCardLinkInput: CreateCardLinkInput): Promise<CardLinkResponse> => {
+export const createCardLink = async (fieldName: string, createCardLinkInput: CreateCardLinkInput): Promise<CardLinkResponse> => {
     try {
         // retrieving the current function region
         const region = process.env.AWS_REGION!;
@@ -49,6 +50,16 @@ export const createCardLink = async (createCardLinkInput: CreateCardLinkInput): 
                 id: {
                     S: createCardLinkInput.id
                 }
+            },
+            /**
+             * we're not interested in getting all the data for this call, just the minimum for us to determine whether this is a duplicate or not
+             *
+             * @link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ReservedWords.html
+             * @link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.ExpressionAttributeNames.html
+             */
+            ProjectionExpression: '#idf',
+            ExpressionAttributeNames: {
+                '#idf': 'id'
             }
         }));
 
@@ -68,7 +79,7 @@ export const createCardLink = async (createCardLinkInput: CreateCardLinkInput): 
             // generate a unique application identifier for the card, to be passed in to Olive as the "referenceAppId"
             createCardLinkInput.card.applicationID = uuidv4();
 
-            // call the Olive Client API here, in order to call the appropriate endpoints for this resolver
+            // initialize the Olive Client API here, in order to call the appropriate endpoints for this resolver
             const oliveClient = new OliveClient(process.env.ENV_NAME!, region);
 
             // execute the member linking/enrollment call
@@ -140,14 +151,14 @@ export const createCardLink = async (createCardLinkInput: CreateCardLinkInput): 
                     }
                 }
             } else {
-                console.log(`Unexpected response structure returned from the linking call!`);
+                console.log(`Unexpected error returned from the linking call!`);
 
                 // if there are errors associated with the call, just return the error message and error type from the upstream client
                 return response;
             }
         }
     } catch (err) {
-        const errorMessage = `Unexpected error while executing createCardLink mutation ${err}`;
+        const errorMessage = `Unexpected error while executing ${fieldName} mutation ${err}`;
         console.log(errorMessage);
         return {
             errorMessage: errorMessage,

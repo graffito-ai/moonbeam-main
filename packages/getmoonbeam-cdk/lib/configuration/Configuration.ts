@@ -21,6 +21,7 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 },
             },
             appSyncConfig: {
+                internalApiKeyName: 'moonbeamInternalApiKey',
                 graphqlApiName: 'getMoonbeamGraphqlApi'
             },
             storageConfig: {
@@ -58,10 +59,6 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             },
             transactionsProducerConsumerConfig: {
                 transactionsProducerFunctionName: 'transactionsProducerLambdaFunction',
-                transactionsTableName: 'transactionsTable',
-                transactionsPrimaryKey: 'transactionsPrimaryKey',
-                transactionsIdGlobalIndex: 'transactionsIdGlobalIndex',
-                transactionsStatusLocalIndex: 'transactionsStatusLocalIndex',
                 transactionalOffersConsumerFunctionName: 'transactionalOffersConsumerLambdaFunction',
                 transactionsFanOutConfig: {
                     transactionsProcessingTopicName: 'transactionsProcessingTopic',
@@ -70,6 +67,14 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     transactionsProcessingTopicDLQName: 'transactionsProcessingTopicDLQ',
                     transactionalOffersProcessingEventSourceMapping: 'transactionalOffersProcessingEventSourceMapping'
                 }
+            },
+            transactionsConfig: {
+                transactionsFunctionName: 'transactionsLambdaFunction',
+                transactionsTableName: 'transactionsTable',
+                transactionsPrimaryKey: 'transactionsPrimaryKey',
+                transactionsIdGlobalIndex: 'transactionsIdGlobalIndex',
+                transactionsStatusLocalIndex: 'transactionsStatusLocalIndex',
+                createTransactionResolverName: 'createTransaction'
             },
             sesConfig: {
                 emailAddress: `noreply-${Stages.DEV}@moonbeam.vet`,

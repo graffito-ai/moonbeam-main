@@ -40,11 +40,11 @@ exports.handler = async (event: AppSyncEvent): Promise<CreateMilitaryVerificatio
     console.log(`Received new storage event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
         case "getMilitaryVerificationStatus":
-            return await getMilitaryVerificationStatus(event.arguments.getMilitaryVerificationInput);
+            return await getMilitaryVerificationStatus(event.info.fieldName, event.arguments.getMilitaryVerificationInput);
         case "updateMilitaryVerificationStatus":
-            return await updateMilitaryVerificationStatus(event.arguments.updateMilitaryVerificationInput);
+            return await updateMilitaryVerificationStatus(event.info.fieldName, event.arguments.updateMilitaryVerificationInput);
         case "createMilitaryVerification":
-            return await createMilitaryVerification(event.arguments.createMilitaryVerificationInput);
+            return await createMilitaryVerification(event.info.fieldName, event.arguments.createMilitaryVerificationInput);
         default:
             const errorMessage = `Unexpected field name: ${event.info.fieldName}`;
             console.log(errorMessage);

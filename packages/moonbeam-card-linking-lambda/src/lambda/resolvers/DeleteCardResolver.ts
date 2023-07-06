@@ -11,11 +11,12 @@ import {DynamoDBClient, GetItemCommand, UpdateItemCommand} from "@aws-sdk/client
 /**
  * DeleteCard resolver
  *
+ * @param fieldName name of the resolver path from the AppSync event
  * @param deleteCardInput delete card input object, used to delete/unlink a card object from an existing user/
  * card linked object.
  * @returns {@link Promise} of {@link CardResponse}
  */
-export const deleteCard = async (deleteCardInput: DeleteCardInput): Promise<CardResponse> => {
+export const deleteCard = async (fieldName: string, deleteCardInput: DeleteCardInput): Promise<CardResponse> => {
     try {
         // retrieving the current function region
         const region = process.env.AWS_REGION!;
@@ -40,7 +41,7 @@ export const deleteCard = async (deleteCardInput: DeleteCardInput): Promise<Card
         if (retrievedData && retrievedData.Item) {
             // check if there is a card with the requested ID, in the retrieved object, to be deleted/unlinked
             if (retrievedData.Item.cards.L!.length !== 0 && retrievedData.Item.cards.L![0].M!.id.S! === deleteCardInput.cardId) {
-                // call the Olive Client API here, in order to call the appropriate endpoints for this resolver
+                // initialize the Olive Client API here, in order to call the appropriate endpoints for this resolver
                 const oliveClient = new OliveClient(process.env.ENV_NAME!, region);
 
                 // first execute the member update call, to deactivate the member
@@ -126,7 +127,7 @@ export const deleteCard = async (deleteCardInput: DeleteCardInput): Promise<Card
         }
 
     } catch (err) {
-        const errorMessage = `Unexpected error while executing deleteCard mutation ${err}`;
+        const errorMessage = `Unexpected error while executing ${fieldName} mutation ${err}`;
         console.log(errorMessage);
         return {
             errorMessage: errorMessage,

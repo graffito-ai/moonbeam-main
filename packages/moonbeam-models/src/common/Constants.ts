@@ -70,6 +70,9 @@ export namespace Constants {
     // AWS Secrets Manager (pair-based constants)
     export namespace AWSPairConstants {
         export const MAIN_FILES_CLOUDFRONT_DISTRIBUTION_SECRET_NAME = `main-files-cloudfront-pair`;
+        export const MOONBEAM_INTERNAL_SECRET_NAME = `moonbeam-internal-secret-pair`;
+        export const MOONBEAM_INTERNAL_API_KEY = `MOONBEAM_INTERNAL_API_KEY`;
+        export const MOONBEAM_INTERNAL_BASE_URL = `MOONBEAM_INTERNAL_BASE_URL`;
         export const QUANDIS_SECRET_NAME = `quandis-secret-pair`;
         export const QUANDIS_API_KEY = `QUANDIS-API-KEY`;
         export const QUANDIS_BASE_URL = `QUANDIS-BASE-URL`;

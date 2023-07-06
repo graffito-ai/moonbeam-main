@@ -737,8 +737,7 @@ export class OliveClient extends BaseAPIClient {
                 if (storeDetailsResponse.data && storeDetailsResponse.data["address1"] && storeDetailsResponse.data["city"] && storeDetailsResponse.data["postcode"] &&
                     storeDetailsResponse.data["state"] && storeDetailsResponse.data["countryCode"]) {
                     // set the store details for the transaction object, from the response
-                    transaction.transactionBrandAddress = `${storeDetailsResponse.data["address1"]}, ${storeDetailsResponse.data["city"]},
-                     ${storeDetailsResponse.data["state"]}, ${storeDetailsResponse.data["postcode"]}, ${storeDetailsResponse.data["countryCode"]}`;
+                    transaction.transactionBrandAddress = `${storeDetailsResponse.data["address1"]}, ${storeDetailsResponse.data["city"]}, ${storeDetailsResponse.data["state"]}, ${storeDetailsResponse.data["postcode"]}, ${storeDetailsResponse.data["countryCode"]}`;
 
                     return {
                         data: transaction

@@ -6,7 +6,7 @@ import {
     CardLinkingServiceConfiguration,
     MilitaryVerificationConfiguration,
     SESConfiguration,
-    StorageConfiguration,
+    StorageConfiguration, TransactionsConfiguration,
     TransactionsProducerConsumerConfiguration
 } from "./ServiceConfiguration";
 
@@ -24,5 +24,6 @@ export interface StageConfiguration {
     readonly cardLinkingConfig: CardLinkingConfiguration;
     readonly cardLinkingServiceConfig: CardLinkingServiceConfiguration;
     readonly transactionsProducerConsumerConfig: TransactionsProducerConsumerConfiguration;
+    readonly transactionsConfig: TransactionsConfiguration;
     readonly environmentVariables: Map<string, string>;
 }

@@ -21,7 +21,7 @@ exports.handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyRe
             return acknowledgeTransaction(route, event.body);
         default:
             // return a 405, and log the unknown/unsupported routing via the HTTP Method and Verb combination accordingly
-            console.log(`Unknown HTTP Method and Path combination ${event.httpMethod}${event.path}`);
+            console.log(`Unknown HTTP Method and Path combination ${route}`);
 
             // return the error accordingly
             return {

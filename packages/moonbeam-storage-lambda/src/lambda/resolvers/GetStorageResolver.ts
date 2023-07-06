@@ -13,12 +13,13 @@ import {getSignedUrl} from "@aws-sdk/cloudfront-signer";
 /**
  * GetStorage resolver
  *
+ * @param fieldName name of the resolver path from the AppSync event
  * @param getStorageInput input, based on which the appropriate file is retrieved from storage, through
  * a CloudFront distribution
  *
  * @returns {@link Promise} of {@link StorageResponse}
  */
-export const getStorage = async (getStorageInput: GetStorageInput): Promise<StorageResponse> => {
+export const getStorage = async (fieldName: string, getStorageInput: GetStorageInput): Promise<StorageResponse> => {
     try {
         // retrieving the current function region
         const region = process.env.AWS_REGION!;
@@ -121,7 +122,7 @@ export const getStorage = async (getStorageInput: GetStorageInput): Promise<Stor
                 }
         }
     } catch (err) {
-        const errorMessage = `Unexpected error while executing getStorage query ${err}`;
+        const errorMessage = `Unexpected error while executing ${fieldName} query ${err}`;
         console.log(errorMessage);
         // @ts-ignore
         if (err && err.name && err.name === 'NotFound') {

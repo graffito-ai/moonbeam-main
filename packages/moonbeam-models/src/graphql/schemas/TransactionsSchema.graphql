@@ -33,7 +33,47 @@ enum CurrencyCodeType {
     USD
 }
 
+# this type is mainly used to define and/or work with the Transaction object before it is stored
+# in the DB, as obtained from Olive.
 type Transaction @aws_cognito_user_pools {
+    id: ID # this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    transactionId: ID!
+    transactionStatus: TransactionsStatus!
+    transactionType: TransactionType!
+    createdAt: AWSDateTime! # this will be the same as the "timestamp" value above, only represented in a date time format
+    updatedAt: AWSDateTime
+    memberId: ID! # this will be obtained from Olive (and it is the Olive member id)
+    cardId: ID!
+    brandId: ID!
+    storeId: ID!
+    category: String!
+    currencyCode: CurrencyCodeType!,
+    rewardAmount: Float,
+    totalAmount: Float,
+    pendingCashbackAmount: Float # this amount should be the total reward amount that's pending reimbursement to the customer
+    creditedCashbackAmount: Float # this amount should be the total reward amount that's reimbursed/credited to the customer
+    transactionBrandName: String,
+    transactionBrandDescription: String,
+    transactionBrandAddress: String,
+    transactionBrandLogoUrl: String
+}
+
+# this type is mainly used to define and/or work with the TransactionResponse object before it is stored
+# in the DB, as obtained from Olive.
+type TransactionResponse @aws_cognito_user_pools @aws_api_key {
+    data: Transaction
+    errorType: TransactionsErrorType
+    errorMessage: String
+}
+
+type MemberDetailsResponse @aws_cognito_user_pools @aws_api_key {
+    data: String
+    errorType: TransactionsErrorType
+    errorMessage: String
+}
+
+type MoonbeamTransaction @aws_cognito_user_pools @aws_api_key {
     id: ID! # this represents the userID which the transaction belongs to/was made by
     timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
     transactionId: ID!
@@ -47,27 +87,42 @@ type Transaction @aws_cognito_user_pools {
     storeId: ID!
     category: String!
     currencyCode: CurrencyCodeType!,
-    rewardAmount: Float,
-    totalAmount: Float,
-    cardLast4: String,
-    pendingCashbackAmount: String # this amount should be the total reward amount that's pending reimbursement to the customer
-    creditedCashbackAmount: String # this amount should be the total reward amount that's reimbursed/credited to the customer
-    transactionBrandName: String,
-    transactionBrandDescription: String,
-    transactionBrandAddress: String,
-    transactionBrandLogoUrl: String
+    rewardAmount: Float!,
+    totalAmount: Float!,
+    pendingCashbackAmount: Float! # this amount should be the total reward amount that's pending reimbursement to the customer
+    creditedCashbackAmount: Float! # this amount should be the total reward amount that's reimbursed/credited to the customer
+    transactionBrandName: String!,
+    transactionBrandDescription: String!,
+    transactionBrandAddress: String!,
+    transactionBrandLogoUrl: String!
 }
 
-type TransactionResponse @aws_cognito_user_pools {
-    data: Transaction
+type MoonbeamTransactionResponse @aws_cognito_user_pools @aws_api_key {
+    data: MoonbeamTransaction
     errorType: TransactionsErrorType
     errorMessage: String
 }
 
-type MemberDetailsResponse @aws_cognito_user_pools {
-    data: String
-    errorType: TransactionsErrorType
-    errorMessage: String
+input CreateTransactionInput {
+    id: ID! # this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    transactionId: ID!
+    transactionStatus: TransactionsStatus!
+    transactionType: TransactionType!
+    createdAt: AWSDateTime! # this will be the same as the "timestamp" value above, only represented in a date time format
+    updatedAt: AWSDateTime!
+    memberId: ID! # this will be obtained from Olive (and it is the Olive member id)
+    cardId: ID!
+    brandId: ID!
+    storeId: ID!
+    category: String!
+    currencyCode: CurrencyCodeType!,
+    rewardAmount: Float!,
+    totalAmount: Float!,
+    pendingCashbackAmount: Float! # this amount should be the total reward amount that's pending reimbursement to the customer
+    creditedCashbackAmount: Float! # this amount should be the total reward amount that's reimbursed/credited to the customer
+    transactionBrandName: String!,
+    transactionBrandDescription: String!,
+    transactionBrandAddress: String!,
+    transactionBrandLogoUrl: String!
 }
-
-# TBD on inputs for various AppSync resolver Queries, Mutations and/or Subscriptions

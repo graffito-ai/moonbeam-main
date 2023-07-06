@@ -35,19 +35,7 @@ export class CardLinkingResolverStack extends Stack {
                 sourceMapMode: aws_lambda_nodejs.SourceMapMode.BOTH, // defaults to SourceMapMode.DEFAULT
                 sourcesContent: false, // do not include original source into source map, defaults to true
                 target: 'esnext', // target environment for the generated JavaScript code
-            },
-            initialPolicy: [
-                // policy used to allow the retrieval of the Olive API secrets
-                new PolicyStatement({
-                    effect: Effect.ALLOW,
-                    actions: [
-                        "secretsmanager:GetSecretValue"
-                    ],
-                    resources: [
-                        "arn:aws:secretsmanager:us-west-2:963863720257:secret:olive-secret-pair-dev-us-west-2-OTgCOk" // this ARN is retrieved post secret creation
-                    ]
-                })
-            ]
+            }
         });
 
         // retrieve the GraphQL API created by the other stack
@@ -87,28 +75,34 @@ export class CardLinkingResolverStack extends Stack {
         });
 
         // enable the Lambda function to access the DynamoDB table (using IAM)
-        cardLinkingTable.grantFullAccess(cardLinkingLambdaDataSource);
         cardLinkingLambda.addToRolePolicy(
-            /**
-             * policy used to allow full Dynamo DB access for the Lambda, added again on top of the lines above, since they sometimes don't work
-             * Note: by "they" meaning "grantFullAccess" above.
-             */
-            new PolicyStatement(
-                new PolicyStatement({
-                        effect: Effect.ALLOW,
-                        actions: [
-                            "dynamodb:GetItem",
-                            "dynamodb:PutItem",
-                            "dynamodb:Query",
-                            "dynamodb:UpdateItem",
-                            "dynamodb:DeleteItem"
-                        ],
-                        resources: [
-                            `${cardLinkingTable.tableArn}`
-                        ]
-                    }
-                )
-            ));
+            new PolicyStatement({
+                    effect: Effect.ALLOW,
+                    actions: [
+                        "dynamodb:GetItem",
+                        "dynamodb:PutItem",
+                        "dynamodb:Query",
+                        "dynamodb:UpdateItem",
+                        "dynamodb:DeleteItem"
+                    ],
+                    resources: [
+                        `${cardLinkingTable.tableArn}`
+                    ]
+                }
+            )
+        );
+        // enable the Lambda function the retrieval of the Olive API secrets
+        cardLinkingLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "secretsmanager:GetSecretValue"
+                ],
+                resources: [
+                    "arn:aws:secretsmanager:us-west-2:963863720257:secret:olive-secret-pair-dev-us-west-2-OTgCOk" // this ARN is retrieved post secret creation
+                ]
+            })
+        );
 
         // Create environment variables that we will use in the function code
         cardLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.CARD_LINKING_TABLE}`, cardLinkingTable.tableName);

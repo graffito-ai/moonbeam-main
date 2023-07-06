@@ -4,10 +4,11 @@ import {Card, CardLinkErrorType, CardLinkResponse, CardType, GetCardLinkInput} f
 /**
  * GetCardLink resolver
  *
+ * @param fieldName name of the resolver path from the AppSync event
  * @param getCardLinkInput card link input used for the linking object to be retrieved
  * @returns {@link Promise} of {@link CardLinkResponse}
  */
-export const getCardLink = async (getCardLinkInput: GetCardLinkInput): Promise<CardLinkResponse> => {
+export const getCardLink = async (fieldName: string, getCardLinkInput: GetCardLinkInput): Promise<CardLinkResponse> => {
     try {
         // retrieving the current function region
         const region = process.env.AWS_REGION!;
@@ -60,7 +61,7 @@ export const getCardLink = async (getCardLinkInput: GetCardLinkInput): Promise<C
         }
 
     } catch (err) {
-        const errorMessage = `Unexpected error while executing getCardLink query ${err}`;
+        const errorMessage = `Unexpected error while executing ${fieldName} query ${err}`;
         console.log(errorMessage);
         return {
             errorMessage: errorMessage,

@@ -8,10 +8,11 @@ import {
 /**
  * UpdateMilitaryVerificationStatus resolver
  *
+ * @param fieldName name of the resolver path from the AppSync event
  * @param updateMilitaryVerificationInput military verification input, used to update an existent one
  * @returns {@link Promise} of {@link UpdateMilitaryVerificationResponse}
  */
-export const updateMilitaryVerificationStatus = async (updateMilitaryVerificationInput: UpdateMilitaryVerificationInput): Promise<UpdateMilitaryVerificationResponse> => {
+export const updateMilitaryVerificationStatus = async (fieldName: string, updateMilitaryVerificationInput: UpdateMilitaryVerificationInput): Promise<UpdateMilitaryVerificationResponse> => {
     try {
         // retrieving the current function region
         const region = process.env.AWS_REGION!;
@@ -74,7 +75,7 @@ export const updateMilitaryVerificationStatus = async (updateMilitaryVerificatio
             }
         }
     } catch (err) {
-        const errorMessage = `Unexpected error while executing createMilitaryVerification mutation ${err}`;
+        const errorMessage = `Unexpected error while executing ${fieldName} mutation ${err}`;
         console.log(errorMessage);
         return {
             errorMessage: errorMessage,

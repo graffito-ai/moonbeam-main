@@ -37,6 +37,7 @@ export interface SESConfiguration {
  * Interface used to define the configuration for AppSync
  */
 export interface AppSyncConfiguration {
+    readonly internalApiKeyName: string;
     readonly graphqlApiName: string;
 }
 
@@ -112,10 +113,19 @@ export interface TransactionsFanOutConfiguration {
  */
 export interface TransactionsProducerConsumerConfiguration {
     readonly transactionsProducerFunctionName: string;
+    readonly transactionalOffersConsumerFunctionName: string;
+    readonly transactionsFanOutConfig: TransactionsFanOutConfiguration;
+}
+
+/**
+ * Interface used to define the configuration for the transactions service resolvers
+ * (GraphQL based), and other afferent data stores.
+ */
+export interface TransactionsConfiguration {
+    readonly transactionsFunctionName: string;
+    readonly createTransactionResolverName: string;
     readonly transactionsTableName: string;
     readonly transactionsPrimaryKey: string;
     readonly transactionsIdGlobalIndex: string;
     readonly transactionsStatusLocalIndex: string;
-    readonly transactionalOffersConsumerFunctionName: string;
-    readonly transactionsFanOutConfig: TransactionsFanOutConfiguration;
 }

@@ -24,9 +24,9 @@ export const acknowledgeTransaction = async (route: string, requestBody: string 
             // perform some validations based on what is expected in terms of the incoming data model and its mapping
             if (requestBodyParsed["data"] && requestBodyParsed["timestamp"] && requestData &&
                 requestData["cardId"] && requestData["memberId"] && requestData["transaction"] &&
-                requestData["transaction"]["cardId"] && requestData["transaction"]["created"] &&
-                requestData["transaction"]["currencyCode"] && requestData["transaction"]["created"] &&
-                requestData["transaction"]["merchantCategoryCode"]) {
+                requestData["transaction"]["id"] && requestData["transaction"]["cardId"] &&
+                requestData["transaction"]["created"] && requestData["transaction"]["currencyCode"] &&
+                requestData["transaction"]["created"] && requestData["transaction"]["merchantCategoryCode"]) {
 
                 // filter based on whether an incoming transaction is a redeemable offer or not
                 if (requestData["transaction"]["amount"] && requestData["transaction"]["brandId"] &&
@@ -39,14 +39,13 @@ export const acknowledgeTransaction = async (route: string, requestBody: string 
                          * the transaction id, is represented by the userId of the associated Moonbeam user, to be obtained during processing
                          * through the GET member details call
                          */
-                        id: '',
                         memberId: requestData["memberId"],
                         storeId: requestData["transaction"]["storeId"],
                         brandId: requestData["transaction"]["brandId"],
                         cardId: requestData["transaction"]["cardId"],
                         category: requestData["transaction"]["merchantCategoryCode"],
                         currencyCode: requestData["transaction"]["currencyCode"],
-                        transactionId: requestData["transaction"]["created"],
+                        transactionId: requestData["transaction"]["id"],
                         // set the status of all incoming transactions to be pending, until we get a status change and/or until the cashback is reimbursed to the customer
                         transactionStatus: TransactionsStatus.Pending,
                         // the type of this transaction will be an offer redeemed type for now. In the future when we process different types of transactions, this might change
@@ -58,11 +57,10 @@ export const acknowledgeTransaction = async (route: string, requestBody: string 
                          */
                         timestamp: 0,
                         createdAt: requestData["transaction"]["created"],
-                        updatedAt: '',
                         rewardAmount: requestData["transaction"]["rewardAmount"],
                         totalAmount: requestData["transaction"]["amount"],
                         // we start with 0 dollars credited to the customer, since the whole reward amount is pending credit at transaction creation time
-                        creditedCashbackAmount: "0",
+                        creditedCashbackAmount: 0,
                         pendingCashbackAmount: requestData["transaction"]["rewardAmount"]
                     }
 

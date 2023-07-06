@@ -9,10 +9,11 @@ import {
 /**
  * GetMilitaryVerificationStatus resolver
  *
+ * @param fieldName name of the resolver path from the AppSync event
  * @param getMilitaryVerificationInput military verification input used for the verification status to be retrieved
  * @returns {@link Promise} of {@link GetMilitaryVerificationResponse}
  */
-export const getMilitaryVerificationStatus = async (getMilitaryVerificationInput: GetMilitaryVerificationInput): Promise<GetMilitaryVerificationResponse> => {
+export const getMilitaryVerificationStatus = async (fieldName: string, getMilitaryVerificationInput: GetMilitaryVerificationInput): Promise<GetMilitaryVerificationResponse> => {
     try {
         // retrieving the current function region
         const region = process.env.AWS_REGION!;
@@ -50,7 +51,7 @@ export const getMilitaryVerificationStatus = async (getMilitaryVerificationInput
         }
 
     } catch (err) {
-        const errorMessage = `Unexpected error while executing getMilitaryVerificationStatus query ${err}`;
+        const errorMessage = `Unexpected error while executing ${fieldName} query ${err}`;
         console.log(errorMessage);
         return {
             errorMessage: errorMessage,

@@ -1,11 +1,16 @@
 import {GetSecretValueCommand, SecretsManagerClient} from "@aws-sdk/client-secrets-manager";
-import { Constants } from "../Constants";
+import {Constants} from "../Constants";
 import {
-    MemberResponse,
+    Card,
     CardLinkResponse,
+    MemberDetailsResponse,
+    MemberResponse,
     MilitaryVerificationStatusType,
+    MoonbeamTransaction,
+    MoonbeamTransactionResponse,
     RemoveCardResponse,
-    Card, Transaction, TransactionResponse, MemberDetailsResponse
+    Transaction,
+    TransactionResponse
 } from "../GraphqlExports";
 
 /**
@@ -56,6 +61,8 @@ export abstract class BaseAPIClient {
 
                 // filter out and set the necessary API Client API credentials, depending on the client secret name passed in
                 switch (verificationClientSecretsName) {
+                    case Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME:
+                        return [clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_API_KEY]]
                     case Constants.AWSPairConstants.QUANDIS_SECRET_NAME:
                         return [clientPairAsJson[Constants.AWSPairConstants.QUANDIS_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.QUANDIS_API_KEY]];
                     case Constants.AWSPairConstants.LIGHTHOUSE_SECRET_NAME:
@@ -78,6 +85,19 @@ export abstract class BaseAPIClient {
             throw new Error(errorMessage);
         }
     }
+
+    /**
+     * Function used to create a new transaction internally, from an incoming transaction
+     * obtained from the SQS message/event
+     *
+     * @param transaction transaction passed in from the SQS message/event
+     *
+     * @return a {link Promise} of {@link MoonbeamTransactionResponse} representing the transaction
+     * details that were stored in Dynamo DB
+     *
+     * @protected
+     */
+    protected createTransaction?(transaction: MoonbeamTransaction): Promise<MoonbeamTransactionResponse>;
 
     /**
      * Function used to verify an individuals military service status.

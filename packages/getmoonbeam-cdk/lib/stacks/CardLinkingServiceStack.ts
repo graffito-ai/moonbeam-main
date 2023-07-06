@@ -66,6 +66,10 @@ export class APIGatewayServiceStack extends Stack {
         /**
          * create an API Key, to be specifically shared with Olive, so that they can use any of the REST methods configured below,
          * and adds it to the API.
+         *
+         * ToDo: in the future we will need to make a AWS::SecretsManager::Secret and a AWS::SecretsManager::RotationSchedule.
+         *       The RotationSchedule will let us use a lambda to automatically rotate the ApiKey and store it in the Secret.
+         *       For now we will rotate this key manually
          */
         const oliveAPIKey = new aws_apigateway.ApiKey(this, `${props.cardLinkingServiceConfig.oliveSharedAPIKeyName}-${props.stage}-${props.env!.region}`, {
             apiKeyName: `${props.cardLinkingServiceConfig.oliveSharedAPIKeyName}-${props.stage}-${props.env!.region}`,
