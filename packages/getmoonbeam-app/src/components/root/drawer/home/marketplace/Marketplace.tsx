@@ -25,7 +25,7 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
      * included in here.
      */
     useEffect(() => {
-        // set the app drawer status accordingly,custom banner visibility and drawer swipe actions accordingly
+        // set the app drawer status accordingly ,custom banner visibility and drawer swipe actions accordingly
         if (navigation.getState().index === 1) {
             setAppDrawerHeaderShown(false);
             setBannerShown(true);

@@ -161,7 +161,7 @@ export class OliveClient extends BaseAPIClient {
                     };
                 } else {
                     // Something happened in setting up the request that triggered an Error
-                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${error.message}`;
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${(error && error.message) && error.message}`;
                     console.log(errorMessage);
 
                     return {
@@ -305,7 +305,7 @@ export class OliveClient extends BaseAPIClient {
                     };
                 } else {
                     // Something happened in setting up the request that triggered an Error
-                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${error.message}`;
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${(error && error.message) && error.message}`;
                     console.log(errorMessage);
 
                     return {
@@ -432,7 +432,7 @@ export class OliveClient extends BaseAPIClient {
                     };
                 } else {
                     // Something happened in setting up the request that triggered an Error
-                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${error.message}`;
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${(error && error.message) && error.message}`;
                     console.log(errorMessage);
 
                     return {
@@ -542,7 +542,7 @@ export class OliveClient extends BaseAPIClient {
                     };
                 } else {
                     // Something happened in setting up the request that triggered an Error
-                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${error.message}`;
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${(error && error.message) && error.message}`;
                     console.log(errorMessage);
 
                     return {
@@ -660,7 +660,7 @@ export class OliveClient extends BaseAPIClient {
                     };
                 } else {
                     // Something happened in setting up the request that triggered an Error
-                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${error.message}`;
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${(error && error.message) && error.message}`;
                     console.log(errorMessage);
 
                     return {
@@ -777,7 +777,7 @@ export class OliveClient extends BaseAPIClient {
                     };
                 } else {
                     // Something happened in setting up the request that triggered an Error
-                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${error.message}`;
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${(error && error.message) && error.message}`;
                     console.log(errorMessage);
 
                     return {
@@ -890,7 +890,7 @@ export class OliveClient extends BaseAPIClient {
                     };
                 } else {
                     // Something happened in setting up the request that triggered an Error
-                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${error.message}`;
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${(error && error.message) && error.message}`;
                     console.log(errorMessage);
 
                     return {

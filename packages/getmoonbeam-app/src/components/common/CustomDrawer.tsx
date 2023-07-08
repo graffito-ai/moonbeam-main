@@ -48,15 +48,17 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
      * included in here.
      */
     useEffect(() => {
-        // check to see if the user information object has been populated accordingly
-        if (userInformation && userInformation["given_name"] && userInformation["family_name"]) {
-            //set the title of the user's avatar in the dashboard, based on the user's information
-            setCurrentUserTitle(`${Array.from(userInformation["given_name"].split(" ")[0])[0] as string}${Array.from(userInformation["family_name"].split(" ")[0])[0] as string}`);
-            setCurrentUserName(`${userInformation["given_name"]} ${userInformation["family_name"]}`);
+        if (userInformation["custom:userId"]) {
+            // check to see if the user information object has been populated accordingly
+            if (userInformation["given_name"] && userInformation["family_name"]) {
+                //set the title of the user's avatar in the dashboard, based on the user's information
+                setCurrentUserTitle(`${Array.from(userInformation["given_name"].split(" ")[0])[0] as string}${Array.from(userInformation["family_name"].split(" ")[0])[0] as string}`);
+                setCurrentUserName(`${userInformation["given_name"]} ${userInformation["family_name"]}`);
+            }
+            // retrieve the profile picture (if existent)
+            (!profilePictureURI || profilePictureURI === "") && retrieveProfilePicture();
         }
-        // retrieve the profile picture (if existent)
-        (!profilePictureURI || profilePictureURI === "") && retrieveProfilePicture();
-    }, [userInformation["given_name"], userInformation["family_name"], profilePictureURI]);
+    }, [userInformation["custom:userId"], userInformation["given_name"], userInformation["family_name"], profilePictureURI]);
 
     /**
      * Function used to retrieve the new profile picture, after picking a picture through
@@ -112,7 +114,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                             <ImageBackground
                                 resizeMethod={"scale"}
                                 imageStyle={{
-                                    resizeMode: 'cover'
+                                    resizeMode: 'stretch'
                                 }}
                                 source={SideBarImage}>
                                 <Avatar
@@ -139,7 +141,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                     containerStyle={styles.avatarStyle}
                                     onPress={async () => {
                                         // go to the Profile screen
-                                        await Linking.openURL(Linking.createURL(`main/settings/profile`));
+                                        await Linking.openURL(Linking.createURL(`settings/profile`));
                                     }}
                                 >
                                     <Avatar.Accessory
@@ -148,7 +150,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                         color={'#F2FF5D'}
                                         onPress={async () => {
                                             // go to the Profile screen
-                                            await Linking.openURL(Linking.createURL(`main/settings/profile`));
+                                            await Linking.openURL(Linking.createURL(`settings/profile`));
                                         }}
                                     />
                                 </Avatar>

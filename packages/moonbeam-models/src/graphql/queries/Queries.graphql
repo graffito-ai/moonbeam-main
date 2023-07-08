@@ -21,6 +21,15 @@ query GetCardLink($getCardLinkInput: GetCardLinkInput!) {
         }
     }
 }
+query GetStorage($getStorageInput: GetStorageInput!) {
+    getStorage(getStorageInput: $getStorageInput) {
+        errorMessage
+        errorType
+        data {
+            url
+        }
+    }
+}
 query GetMilitaryVerificationStatus($getMilitaryVerificationInput: GetMilitaryVerificationInput!) {
     getMilitaryVerificationStatus(getMilitaryVerificationInput: $getMilitaryVerificationInput) {
         errorMessage

@@ -407,11 +407,20 @@ const cardLinkingRegistrationStatusState = atom({
     default: false
 });
 
+/**
+ * Atom used to keep track of the initial app URL, after the authentication passed, as well as
+ * any of its state changes.
+ */
+const appLinkedURLState = atom({
+    key: "appLinkedURLState",
+    default: ""
+});
 
 /**
  * Export all atoms and/or selectors
  */
 export {
+    appLinkedURLState,
     cardLinkingRegistrationStatusState,
     additionalDocumentationErrors,
     additionalDocumentationNeeded,

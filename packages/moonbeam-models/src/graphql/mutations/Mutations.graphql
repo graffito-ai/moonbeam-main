@@ -4,6 +4,7 @@ mutation CreateTransaction($createTransactionInput: CreateTransactionInput!) {
     createTransaction(createTransactionInput: $createTransactionInput) {
         errorType
         errorMessage
+        id
         data {
             id
             timestamp

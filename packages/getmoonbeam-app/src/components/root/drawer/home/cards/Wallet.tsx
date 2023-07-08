@@ -148,7 +148,7 @@ export const Wallet = ({navigation}: CardsProps) => {
                 bannerVisibilityState: cardLinkingStatusState,
                 bannerMessage: "You currently do not have a linked card to your Moonbeam account. Get started now!",
                 bannerButtonLabel: "Link Now",
-                bannerButtonLabelActionSource: "/main/wallet",
+                bannerButtonLabelActionSource: "home/wallet",
                 bannerArtSource: CardLinkingImage,
                 dismissing: false
             });

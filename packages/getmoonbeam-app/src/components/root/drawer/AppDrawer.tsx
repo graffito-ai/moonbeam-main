@@ -10,6 +10,7 @@ import {
     appDrawerHeaderShownState,
     cardLinkingStatusState,
     customBannerShown,
+    drawerDashboardState,
     drawerSwipeState
 } from "../../../recoil/AppDrawerAtom";
 import {Home} from "./home/Home";
@@ -28,7 +29,7 @@ import {API, graphqlOperation} from "aws-amplify";
 import {Observable} from "zen-observable-ts";
 import {currentUserInformation} from "../../../recoil/AuthAtom";
 import {Spinner} from "../../common/Spinner";
-import {IconButton, Modal, Portal} from "react-native-paper";
+import {Dialog, IconButton, Portal} from "react-native-paper";
 import {commonStyles} from "../../../styles/common.module";
 import {AppWall} from "./home/wall/AppWall";
 import {getCardLink} from "@moonbeam/moonbeam-models/lib";
@@ -62,6 +63,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
     const [drawerSwipeEnabled,] = useRecoilState(drawerSwipeState);
     const [, setBannerState] = useRecoilState(customBannerState);
     const [, setBannerShown] = useRecoilState(customBannerShown);
+    const [drawerInDashboard,] = useRecoilState(drawerDashboardState);
 
     /**
      * create a drawer navigator, to be used for our sidebar navigation, which is the main driving
@@ -73,9 +75,9 @@ export const AppDrawer = ({}: AppDrawerProps) => {
     const config = {
         screens: {
             Home: {
-                path: 'main',
+                path: 'home',
                 screens: {
-                    Dashboard: {
+                    DashboardController: {
                         path: 'dashboard'
                     },
                     Marketplace: {
@@ -87,10 +89,10 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                 }
             },
             Documents: {
-                path: 'main/documents'
+                path: 'documents'
             },
             Settings: {
-                path: 'main/settings',
+                path: 'settings',
                 screens: {
                     SettingsList: {
                         path: 'list'
@@ -101,7 +103,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                 }
             },
             Support: {
-                path: 'main/support'
+                path: 'support'
             }
         },
     };
@@ -125,21 +127,23 @@ export const AppDrawer = ({}: AppDrawerProps) => {
      * included in here.
      */
     useEffect(() => {
-        // check and set the type of device, to be used throughout the app
-        Device.getDeviceTypeAsync().then(deviceType => {
-            setDeviceType(deviceType);
-        })
-        // subscribe to receiving military status updates
-        if (!militaryStatusUpdatesSubscribed && userInformation && userInformation["custom:userId"]) {
-            setMilitaryStatusUpdatesSubscribed(true);
-            subscribeToMilitaryStatusUpdates(userInformation["custom:userId"]);
+        if (userInformation["custom:userId"]) {
+            // check and set the type of device, to be used throughout the app
+            Device.getDeviceTypeAsync().then(deviceType => {
+                setDeviceType(deviceType);
+            })
+            // subscribe to receiving military status updates
+            if (!militaryStatusUpdatesSubscribed && userInformation["custom:userId"]) {
+                setMilitaryStatusUpdatesSubscribed(true);
+                subscribeToMilitaryStatusUpdates(userInformation["custom:userId"]);
+            }
+            // retrieve an application wall accordingly (if needed)
+            Object.keys(userInformation).length !== 0 && !userInformation["militaryStatus"] && retrieveMilitaryVerification(userInformation["custom:userId"]);
+            // retrieve a custom banner accordingly (if needed)
+            !cardLinkingStatus && userInformation["militaryStatus"] && !userInformation["linkedCard"]
+            && userInformation["militaryStatus"] === MilitaryVerificationStatusType.Verified
+            && retrieveLinkedCard(userInformation["custom:userId"]);
         }
-        // retrieve an application wall accordingly (if needed)
-        !userInformation["militaryStatus"] && retrieveMilitaryVerification(userInformation["custom:userId"]);
-        // retrieve a custom banner accordingly (if needed)
-        !cardLinkingStatus && userInformation["militaryStatus"] && !userInformation["linkedCard"]
-        && userInformation["militaryStatus"] === MilitaryVerificationStatusType.Verified
-        && retrieveLinkedCard(userInformation["custom:userId"]);
     }, [militaryStatusUpdatesSubscription, userInformation["custom:userId"], userInformation["militaryStatus"],
         cardLinkingStatus, deviceType]);
 
@@ -183,7 +187,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                         bannerVisibilityState: cardLinkingStatusState,
                         bannerMessage: "You currently do not have a linked card to your Moonbeam account. Get started now!",
                         bannerButtonLabel: "Link Now",
-                        bannerButtonLabelActionSource: "/main/wallet",
+                        bannerButtonLabelActionSource: "home/wallet",
                         bannerArtSource: CardLinkingImage,
                         dismissing: false
                     });
@@ -233,7 +237,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                         bannerVisibilityState: cardLinkingStatusState,
                         bannerMessage: "You currently do not have a linked card to your Moonbeam account. Get started now!",
                         bannerButtonLabel: "Link Now",
-                        bannerButtonLabelActionSource: "/main/wallet",
+                        bannerButtonLabelActionSource: "home/wallet",
                         bannerArtSource: CardLinkingImage,
                         dismissing: false
                     });
@@ -376,12 +380,17 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     :
                     <>
                         <Portal>
-                            <Modal dismissable={false} visible={modalVisible} onDismiss={() => setModalVisible(false)}
-                                   contentContainerStyle={commonStyles.modalContainer}>
-                                <Text
-                                    style={commonStyles.modalParagraph}>{`Unexpected error while loading application!`}</Text>
-                            </Modal>
+                            <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
+                                    onDismiss={() => setModalVisible(false)}>
+                                <Dialog.Icon icon="alert" color={"#F2FF5D"}
+                                             size={Dimensions.get('window').height / 14}/>
+                                <Dialog.Content>
+                                    <Text
+                                        style={commonStyles.dialogParagraph}>{`Unexpected error while loading application!`}</Text>
+                                </Dialog.Content>
+                            </Dialog>
                         </Portal>
+                        {/*@ts-ignore*/}
                         <NavigationContainer independent={true} linking={linking} fallback={<Text>Loading...</Text>}>
                             <ApplicationDrawer.Navigator
                                 drawerContent={
@@ -390,8 +399,16 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                 }
                                 initialRouteName={"Home"}
                                 screenOptions={({navigation}) => ({
-                                    headerLeft: () => <IconButton icon={'menu'} iconColor={'#FFFFFF'} size={30}
+                                    headerLeft: () => <IconButton icon={'menu'} iconColor={'#FFFFFF'}
+                                                                  size={deviceType === DeviceType.TABLET ? Dimensions.get('window').height / 38 : Dimensions.get('window').height / 28}
                                                                   onPress={navigation.toggleDrawer}/>,
+                                    ...(drawerInDashboard && {
+                                        headerRight: () => <IconButton icon={'bell'} iconColor={'#FFFFFF'}
+                                                                       size={deviceType === DeviceType.TABLET ? Dimensions.get('window').height / 38 : Dimensions.get('window').height / 28}
+                                                                       onPress={() => {
+                                                                           // ToDo: need to go to the notifications screen
+                                                                       }}/>,
+                                    }),
                                     headerTitle: () =>
                                         <Image resizeMode={"contain"}
                                                style={[{alignSelf: 'center'},
@@ -406,7 +423,11 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                                        }]}
                                                source={MoonbeamNavigationLogo}
                                         />,
-                                    headerStyle: {
+                                    headerStyle: drawerInDashboard ? {
+                                        backgroundColor: '#5B5A5A',
+                                        shadowColor: 'transparent', // this covers iOS
+                                        elevation: 0, // this covers Android
+                                    } : {
                                         backgroundColor: '#313030'
                                     },
                                     drawerLabelStyle: {

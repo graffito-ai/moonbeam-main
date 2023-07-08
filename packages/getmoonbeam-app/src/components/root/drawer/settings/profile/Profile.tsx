@@ -1,5 +1,5 @@
 import {Dimensions, Platform, SafeAreaView, StyleSheet, TouchableOpacity, View} from "react-native";
-import {Modal, Portal, Text, TextInput} from "react-native-paper";
+import {Dialog, Portal, Text, TextInput} from "react-native-paper";
 import React, {useEffect, useRef, useState} from "react";
 import {commonStyles} from "../../../../../styles/common.module";
 import {styles} from "../../../../../styles/profile.module";
@@ -15,20 +15,19 @@ import {appDrawerHeaderShownState, drawerSwipeState, profilePictureURIState} fro
 import {LinearGradient} from "expo-linear-gradient";
 import * as Device from "expo-device";
 import {DeviceType} from "expo-device";
-import {Avatar} from "@rneui/base";
+import {Avatar, Button} from "@rneui/base";
 import {deviceTypeState} from "../../../../../recoil/RootAtom";
 import DropDownPicker from "react-native-dropdown-picker";
 import {CodeVerificationType, dutyStatusItems} from "../../../../../models/Constants";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 import * as ImagePicker from "expo-image-picker";
 import {MediaTypeOptions, UIImagePickerPresentationStyle} from "expo-image-picker";
-import {fetchFile, isValidSize, uploadFile} from "../../../../../utils/File";
+import {isValidSize, uploadFile} from "../../../../../utils/File";
 import * as FileSystem from "expo-file-system";
 import {Auth} from "aws-amplify";
 import {FieldValidator} from "../../../../../utils/FieldValidator";
 import BottomSheet from "@gorhom/bottom-sheet";
 import {CodeVerificationBottomSheet} from "./CodeVerificationBottomSheet";
-import * as Linking from "expo-linking";
 import {codeVerificationSheetShown, codeVerifiedState} from "../../../../../recoil/CodeVerificationAtom";
 import {CognitoUser} from "amazon-cognito-identity-js";
 
@@ -94,105 +93,108 @@ export const Profile = ({navigation}: ProfileProps) => {
      * included in here.
      */
     useEffect(() => {
-        // if the code has been successfully verified from the code verification component
-        if (codeVerified) {
-            // reset the editing flag
-            setEditingFlag(false);
+        if (userInformation["custom:userId"]) {
+            // if the code has been successfully verified from the code verification component
+            if (codeVerified) {
+                // reset the editing flag
+                setEditingFlag(false);
 
-            // un-focus all elements accordingly
-            setIsEmailFocus(false);
-            setIsPhoneNumberFocus(false);
-            setIsAddressLineFocus(false);
-            setIsAddressCityFocus(false);
-            setIsAddressStateFocus(false);
-            setIsAddressZipFocus(false);
+                // un-focus all elements accordingly
+                setIsEmailFocus(false);
+                setIsPhoneNumberFocus(false);
+                setIsAddressLineFocus(false);
+                setIsAddressCityFocus(false);
+                setIsAddressStateFocus(false);
+                setIsAddressZipFocus(false);
 
-            // show a success modal
-            const message = `Profile information successfully updated!`;
-            console.log(message);
+                // show a success modal
+                const message = `Profile information successfully updated!`;
+                console.log(message);
 
-            setModalCustomMessage(message);
-            setModalButtonMessage('Ok');
-            setModalVisible(true);
+                setModalCustomMessage(message);
+                setModalButtonMessage('Ok');
+                setModalVisible(true);
 
-            // reset the flag
-            setCodeVerified(false);
+                // reset the flag
+                setCodeVerified(false);
+            }
+
+            // check and set the type of device, to be used throughout the app
+            Device.getDeviceTypeAsync().then(deviceType => {
+                setDeviceType(deviceType);
+            });
+
+            // disable the swipe for the drawer
+            setDrawerSwipeEnabled(false);
+
+            // hide the app drawer header on load
+            setAppDrawerHeaderShown(false);
+
+            // populate the information from the information object
+            birthday === "" && email === "" && phoneNumber === "" && addressLine === "" &&
+            addressCity === "" && addressState === "" && addressZip === "" && enlistingYear === "" &&
+            dutyStatus === "" && retrieveUserInfo();
+
+            // manipulate the bottom sheet
+            if (!showBottomSheet && bottomSheetRef) {
+                // @ts-ignore
+                bottomSheetRef.current?.close?.();
+            }
+            if (showBottomSheet && bottomSheetRef) {
+                // @ts-ignore
+                bottomSheetRef.current?.expand?.();
+            }
+
+            // if the editing flag is off, make sure that no fields are focused
+            if (!editingFlag &&
+                (emailFocus || phoneNumberFocus || addressLineFocus ||
+                    addressCityFocus || addressStateFocus || addressZipFocus)) {
+                setIsEmailFocus(false);
+                setIsPhoneNumberFocus(false);
+                setIsAddressLineFocus(false);
+                setIsAddressCityFocus(false);
+                setIsAddressStateFocus(false);
+                setIsAddressZipFocus(false);
+            }
+
+            // perform field validations on every state change, for the specific field that is being validated
+            if (emailFocus && email !== "") {
+                fieldValidator.validateField(email, "email", setEmailErrors);
+            }
+            email === "" && setEmailErrors([]);
+
+            if (phoneNumberFocus && phoneNumber !== "") {
+                fieldValidator.validateField(phoneNumber, "phoneNumber", setPhoneErrors);
+            }
+            phoneNumber === "" && setPhoneErrors([]);
+
+            if (dutyStatus !== "") {
+                fieldValidator.validateField(dutyStatus, "dutyStatus", setDutyStatusErrors);
+            }
+            dutyStatus === "" && setDutyStatusErrors([]);
+
+            if (addressLineFocus && addressLine !== "") {
+                fieldValidator.validateField(addressLine, "addressLine", setAddressLineErrors);
+            }
+            addressLine === "" && setAddressLineErrors([]);
+
+            if (addressCityFocus && addressCity !== "") {
+                fieldValidator.validateField(addressCity, "addressCity", setAddressCityErrors);
+            }
+            addressCity === "" && setAddressCityErrors([]);
+
+            if (addressStateFocus && addressState !== "") {
+                fieldValidator.validateField(addressState, "addressState", setAddressStateErrors);
+            }
+            addressState === "" && setAddressStateErrors([]);
+
+            if (addressZipFocus && addressZip !== "") {
+                fieldValidator.validateField(addressZip, "addressZip", setAddressZipErrors);
+            }
+            addressZip === "" && setAddressZipErrors([]);
         }
-
-        // check and set the type of device, to be used throughout the app
-        Device.getDeviceTypeAsync().then(deviceType => {
-            setDeviceType(deviceType);
-        });
-
-        // disable the swipe for the drawer
-        setDrawerSwipeEnabled(false);
-
-        // hide the app drawer header on load
-        setAppDrawerHeaderShown(false);
-
-        // populate the information from the information object
-        birthday === "" && email === "" && phoneNumber === "" && addressLine === "" &&
-        addressCity === "" && addressState === "" && addressZip === "" && enlistingYear === "" &&
-        dutyStatus === "" && retrieveUserInfo();
-
-        // manipulate the bottom sheet
-        if (!showBottomSheet && bottomSheetRef) {
-            // @ts-ignore
-            bottomSheetRef.current?.close?.();
-        }
-        if (showBottomSheet && bottomSheetRef) {
-            // @ts-ignore
-            bottomSheetRef.current?.expand?.();
-        }
-
-        // if the editing flag is off, make sure that no fields are focused
-        if (!editingFlag &&
-            (emailFocus || phoneNumberFocus || addressLineFocus ||
-                addressCityFocus || addressStateFocus || addressZipFocus)) {
-            setIsEmailFocus(false);
-            setIsPhoneNumberFocus(false);
-            setIsAddressLineFocus(false);
-            setIsAddressCityFocus(false);
-            setIsAddressStateFocus(false);
-            setIsAddressZipFocus(false);
-        }
-
-        // perform field validations on every state change, for the specific field that is being validated
-        if (emailFocus && email !== "") {
-            fieldValidator.validateField(email, "email", setEmailErrors);
-        }
-        email === "" && setEmailErrors([]);
-
-        if (phoneNumberFocus && phoneNumber !== "") {
-            fieldValidator.validateField(phoneNumber, "phoneNumber", setPhoneErrors);
-        }
-        phoneNumber === "" && setPhoneErrors([]);
-
-        if (dutyStatus !== "") {
-            fieldValidator.validateField(dutyStatus, "dutyStatus", setDutyStatusErrors);
-        }
-        dutyStatus === "" && setDutyStatusErrors([]);
-
-        if (addressLineFocus && addressLine !== "") {
-            fieldValidator.validateField(addressLine, "addressLine", setAddressLineErrors);
-        }
-        addressLine === "" && setAddressLineErrors([]);
-
-        if (addressCityFocus && addressCity !== "") {
-            fieldValidator.validateField(addressCity, "addressCity", setAddressCityErrors);
-        }
-        addressCity === "" && setAddressCityErrors([]);
-
-        if (addressStateFocus && addressState !== "") {
-            fieldValidator.validateField(addressState, "addressState", setAddressStateErrors);
-        }
-        addressState === "" && setAddressStateErrors([]);
-
-        if (addressZipFocus && addressZip !== "") {
-            fieldValidator.validateField(addressZip, "addressZip", setAddressZipErrors);
-        }
-        addressZip === "" && setAddressZipErrors([]);
-    }, [appDrawerHeaderShown, userInformation, profilePictureURI,
+    }, [userInformation["custom:userId"], appDrawerHeaderShown,
+        userInformation, profilePictureURI,
         email, emailFocus, phoneNumber, phoneNumberFocus, dutyStatus,
         addressLine, addressLineFocus, addressCity, addressCityFocus,
         addressState, addressStateFocus, addressZip, addressZipFocus,
@@ -208,7 +210,7 @@ export const Profile = ({navigation}: ProfileProps) => {
         setIsReady(false);
 
         // check to see if the user information object has been populated accordingly
-        if (userInformation && userInformation["given_name"] &&
+        if (userInformation["given_name"] &&
             userInformation["family_name"] && userInformation["birthdate"] &&
             userInformation["email"] && userInformation["phone_number"] &&
             userInformation["address"] && userInformation["address"]["formatted"] &&
@@ -255,50 +257,50 @@ export const Profile = ({navigation}: ProfileProps) => {
         }
     }
 
-    /**
-     * Function used to retrieve the new profile picture, after picking a picture through
-     * the photo picker and uploading it into storage.
-     */
-    const retrieveProfilePicture = async (): Promise<void> => {
-        try {
-            // set the loader on button press
-            setIsReady(false);
-
-            // retrieve the identity id for the current user
-            const userCredentials = await Auth.currentUserCredentials();
-
-            // fetch the profile picture URI from storage and/or cache
-            const [returnFlag, profilePictureURI] = await fetchFile('profile_picture.png', true,
-                true, false, userCredentials["identityId"]);
-            if (!returnFlag || profilePictureURI === null) {
-                // release the loader on button press
-                setIsReady(true);
-
-                const errorMessage = `Unable to retrieve new profile picture!`;
-                console.log(errorMessage);
-
-                setModalCustomMessage(errorMessage);
-                setModalButtonMessage('Ok');
-                setModalVisible(true);
-            } else {
-                // update the global profile picture state
-                setProfilePictureURI(profilePictureURI);
-
-                // release the loader on button press
-                setIsReady(true);
-            }
-        } catch (error) {
-            const errorMessage = `Error while retrieving profile picture!`;
-            console.log(`${errorMessage} - ${error}`);
-
-            setModalCustomMessage(errorMessage);
-            setModalButtonMessage('Try Again!');
-            setModalVisible(true);
-
-            // release the loader on button press
-            setIsReady(true);
-        }
-    }
+    // /**
+    //  * Function used to retrieve the new profile picture, after picking a picture through
+    //  * the photo picker and uploading it into storage.
+    //  */
+    // const retrieveProfilePicture = async (): Promise<void> => {
+    //     try {
+    //         // set the loader on button press
+    //         setIsReady(false);
+    //
+    //         // retrieve the identity id for the current user
+    //         const userCredentials = await Auth.currentUserCredentials();
+    //
+    //         // fetch the profile picture URI from storage and/or cache
+    //         const [returnFlag, profilePictureURI] = await fetchFile('profile_picture.png', true,
+    //             true, false, userCredentials["identityId"]);
+    //         if (!returnFlag || profilePictureURI === null) {
+    //             // release the loader on button press
+    //             setIsReady(true);
+    //
+    //             const errorMessage = `Unable to retrieve new profile picture!`;
+    //             console.log(errorMessage);
+    //
+    //             setModalCustomMessage(errorMessage);
+    //             setModalButtonMessage('Ok');
+    //             setModalVisible(true);
+    //         } else {
+    //             // update the global profile picture state
+    //             setProfilePictureURI(profilePictureURI);
+    //
+    //             // release the loader on button press
+    //             setIsReady(true);
+    //         }
+    //     } catch (error) {
+    //         const errorMessage = `Error while retrieving profile picture!`;
+    //         console.log(`${errorMessage} - ${error}`);
+    //
+    //         setModalCustomMessage(errorMessage);
+    //         setModalButtonMessage('Try Again!');
+    //         setModalVisible(true);
+    //
+    //         // release the loader on button press
+    //         setIsReady(true);
+    //     }
+    // }
 
     /**
      * Function used to pick a profile picture, based on the photo library storage,
@@ -360,6 +362,9 @@ export const Profile = ({navigation}: ProfileProps) => {
                                 // release the loader on button press
                                 setIsReady(true);
                                 console.log("Profile picture successfully uploaded!");
+
+                                // update the global profile picture state
+                                setProfilePictureURI(photoAsset.uri);
 
                                 return true;
                             }
@@ -462,7 +467,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                     // update the userInformation object with the appropriate updated info
                     setUserInformation({
                         ...userInformation,
-                       address: {
+                        address: {
                             formatted: formattedAddress
                         },
                         phone_number: formattedPhoneNumber,
@@ -493,8 +498,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                 // release the loader on button press
                 setIsReady(true);
 
-                // re-direct to the Login screen
-                await Linking.openURL(Linking.createURL(`/authenticate`));
+                // ToDO: re-direct to the Login screen and logout
             }
         } catch (error) {
             const errorMessage = `Error updating profile information!`;
@@ -517,30 +521,35 @@ export const Profile = ({navigation}: ProfileProps) => {
                 :
                 <>
                     <Portal>
-                        <Modal dismissable={false} visible={modalVisible} onDismiss={() => setModalVisible(false)}
-                               contentContainerStyle={commonStyles.modalContainer}>
-                            <Text
-                                style={commonStyles.modalParagraph}>{modalCustomMessage}</Text>
-                            <TouchableOpacity
-                                style={commonStyles.modalButton}
-                                onPress={() => {
-                                    setModalVisible(false);
+                        <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
+                                onDismiss={() => setModalVisible(false)}>
+                            <Dialog.Icon icon="alert" color={"#F2FF5D"}
+                                         size={Dimensions.get('window').height / 14}/>
+                            <Dialog.Content>
+                                <Text
+                                    style={commonStyles.dialogParagraph}>{modalCustomMessage}</Text>
+                            </Dialog.Content>
+                            <Dialog.Actions>
+                                <Button buttonStyle={commonStyles.dialogButton}
+                                        titleStyle={commonStyles.dialogButtonText}
+                                        onPress={() => {
+                                            setModalVisible(false);
 
-                                    // depending on the button action, act accordingly
-                                    if (modalButtonMessage === 'Dismiss') {
-                                        // go back
-                                        navigation.goBack();
+                                            // depending on the button action, act accordingly
+                                            if (modalButtonMessage === 'Dismiss') {
+                                                // go back
+                                                navigation.goBack();
 
-                                        // make the app drawer header visible
-                                        setAppDrawerHeaderShown(true);
-                                    }
-                                    // close the bottom sheet if open
-                                    showBottomSheet && setShowBottomSheet(false);
-                                }}
-                            >
-                                <Text style={commonStyles.modalButtonText}>{modalButtonMessage}</Text>
-                            </TouchableOpacity>
-                        </Modal>
+                                                // make the app drawer header visible
+                                                setAppDrawerHeaderShown(true);
+                                            }
+                                            // close the bottom sheet if open
+                                            showBottomSheet && setShowBottomSheet(false);
+                                        }}>
+                                    {modalButtonMessage}
+                                </Button>
+                            </Dialog.Actions>
+                        </Dialog>
                     </Portal>
                     <SafeAreaView style={styles.mainContainer}>
                         <View style={[styles.topContainer, StyleSheet.absoluteFill]}>
@@ -580,12 +589,12 @@ export const Profile = ({navigation}: ProfileProps) => {
                                             containerStyle={styles.avatarStyle}
                                             onPress={async () => {
                                                 // first pick and upload a photo to storage
-                                                const uploadPictureFlag = await pickPhoto();
+                                                await pickPhoto();
 
-                                                // check the upload flag, and decide whether we need to replace the profile picture or not
-                                                if (uploadPictureFlag) {
-                                                    await retrieveProfilePicture();
-                                                }
+                                                // // check the upload flag, and decide whether we need to replace the profile picture or not
+                                                // if (uploadPictureFlag) {
+                                                //     await retrieveProfilePicture();
+                                                // }
                                             }}
                                         >
                                             <Avatar.Accessory
@@ -597,12 +606,12 @@ export const Profile = ({navigation}: ProfileProps) => {
                                                 }}
                                                 onPress={async () => {
                                                     // first pick and upload a photo to storage
-                                                    const uploadPictureFlag = await pickPhoto();
+                                                    await pickPhoto();
 
-                                                    // check the upload flag, and decide whether we need to replace the profile picture or not
-                                                    if (uploadPictureFlag) {
-                                                        await retrieveProfilePicture();
-                                                    }
+                                                    // // check the upload flag, and decide whether we need to replace the profile picture or not
+                                                    // if (uploadPictureFlag) {
+                                                    //     await retrieveProfilePicture();
+                                                    // }
                                                 }}
                                             />
                                         </Avatar>
@@ -1022,7 +1031,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                             setShowBottomSheet(index !== -1);
                         }}
                     >
-                        { showBottomSheet &&
+                        {showBottomSheet &&
                             <CodeVerificationBottomSheet
                                 verificationType={CodeVerificationType.EMAIL}
                                 email={email.toLowerCase()}

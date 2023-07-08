@@ -27,7 +27,7 @@ export const createTransaction = async (fieldName: string, createTransactionInpu
          * check to see if the transaction already exists in the DB. Although this is a very rare situation, since we have so many resilient
          * methods (such as Dead-Letter-Queue, retries, etc.) we want to put a safeguard around duplicates even here.
          */
-        const preExistingCardForLink = await dynamoDbClient.send(new GetItemCommand({
+        const preExistingTransaction = await dynamoDbClient.send(new GetItemCommand({
             TableName: process.env.TRANSACTIONS_TABLE!,
             Key: {
                 id: {
@@ -51,7 +51,7 @@ export const createTransaction = async (fieldName: string, createTransactionInpu
         }));
 
         // if there is an item retrieved, then we need to check its contents
-        if (preExistingCardForLink && preExistingCardForLink.Item) {
+        if (preExistingTransaction && preExistingTransaction.Item) {
             /**
              * if there is a pre-existing transaction with the same composite primary key (userId/id, timestamp) combination,
              * then we cannot duplicate that, so we will return an error.
@@ -133,6 +133,7 @@ export const createTransaction = async (fieldName: string, createTransactionInpu
 
             // return the transaction object
             return {
+                id: createTransactionInput.id,
                 data: createTransactionInput as MoonbeamTransaction
             }
         }

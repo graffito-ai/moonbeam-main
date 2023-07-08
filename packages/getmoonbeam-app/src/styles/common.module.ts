@@ -72,36 +72,36 @@ export const commonStyles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     },
-    modalButton: {
-        backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width/3,
-        height: Dimensions.get('window').height/20,
-        marginTop: Dimensions.get('window').height/50,
-        alignSelf: 'center',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'center'
+    dialogStyle: {
+        backgroundColor: '#5B5A5A',
+        borderRadius: 15
     },
-    modalButtonText: {
+    dialogParagraph: {
+        color: '#FFFFFF',
+        fontFamily: 'Raleway-Regular',
+        fontSize: Dimensions.get('window').height/60,
+        textAlign: 'left'
+    },
+    dialogTitle: {
+        color: '#F2FF5D',
+        fontFamily: 'Raleway-Bold',
+        fontSize: Dimensions.get('window').height/50
+    },
+    dialogButton: {
+        backgroundColor: '#F2FF5D'
+    },
+    dialogButtonText: {
         color: '#313030',
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').height/50,
-        marginTop: Dimensions.get('window').height / 90
     },
-    modalParagraph: {
-        textAlign: 'center',
-        alignSelf: 'center',
-        fontFamily: 'Raleway-Regular',
-        fontSize: Dimensions.get('window').height/50,
-        color: '#313030'
+    dialogParagraphBold: {
+        fontWeight: "bold",
+        color: '#FFFFFF'
     },
-    modalContainer: {
-        alignSelf: 'center',
-        backgroundColor: '#D9D9D9',
-        height: Dimensions.get('window').height/5,
-        width: Dimensions.get('window').width/1.3,
-        borderRadius: 15,
-        padding: 20
+    dialogParagraphNumbered: {
+        color: '#F2FF5D'
+    },
+    dialogIcon: {
+        alignSelf: 'flex-start'
     }
 });

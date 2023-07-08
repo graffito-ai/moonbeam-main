@@ -22,7 +22,7 @@ export const uploadFile = async (uri: string, privacyFlag: boolean, optionalFile
         const fileName = optionalFileName ? optionalFileName : uriSplit[uriSplit.length - 1];
 
         // retrieve the file blob to upload from passed in URI
-        const fileBlob = await (await(fetch(fileInfo.uri))).blob();
+        const fileBlob = await (await (fetch(fileInfo.uri))).blob();
 
         // if the file exists in local storage, upload it, and then remove it
         if (fileInfo.exists) {
@@ -50,7 +50,6 @@ export const uploadFile = async (uri: string, privacyFlag: boolean, optionalFile
         return [false, null];
     }
 }
-
 
 /**
  * Function used to fetch a file from CloudFront, given its name, and privacy level,
@@ -108,7 +107,7 @@ export const fetchFile = async (name: string, privacyFlag: boolean, expires: boo
                 const fileDownloadResult = await FileSystem.downloadAsync(retrievedURI, fileUri);
 
                 // file did not exist or was force not cached, downloaded the file and return the appropriate URI
-                return [true, cached ? fileDownloadResult.uri: retrievedURI];
+                return [true, cached ? fileDownloadResult.uri : retrievedURI];
             } else {
                 console.log(`Unexpected error while fetching file ${name} ${JSON.stringify(fetchFileResult)}`);
                 return [false, null];

@@ -12,9 +12,10 @@ import {MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
 import {CustomBanner} from "../../../common/CustomBanner";
 import {customBannerState} from "../../../../recoil/CustomBannerAtom";
 import {Wallet} from "./cards/Wallet";
-import {Dashboard} from "./dashboard/Dashboard";
+import {DashboardController} from "./dashboard/DashboardController";
 import {Marketplace} from "./marketplace/Marketplace";
 import * as Linking from "expo-linking";
+import {drawerDashboardState} from "../../../../recoil/AppDrawerAtom";
 
 /**
  * Home component. This is where the bottom bar components will reside, as well
@@ -28,6 +29,7 @@ export const Home = ({navigation}: HomeProps) => {
     const [bottomTabShown,] = useRecoilState(bottomTabShownState);
     const [userInformation,] = useRecoilState(currentUserInformation);
     const [bannerState,] = useRecoilState(customBannerState);
+    const [, setIsDrawerInDashboard] = useRecoilState(drawerDashboardState);
 
     // create a bottom navigator, to be used for our Home bottom bar navigation
     const HomeTabStack = createMaterialBottomTabNavigator<HomeStackParamList>();
@@ -35,14 +37,14 @@ export const Home = ({navigation}: HomeProps) => {
     // enabling the linking configuration for creating links to the application screens, based on the navigator
     const config = {
         screens: {
-            Dashboard: {
-                path: 'main/dashboard'
+            DashboardController: {
+                path: 'home/dashboard'
             },
             Marketplace: {
-                path: 'main/marketplace'
+                path: 'home/marketplace'
             },
             Cards: {
-                path: 'main/wallet'
+                path: 'home/wallet'
             }
         },
     };
@@ -66,11 +68,15 @@ export const Home = ({navigation}: HomeProps) => {
      * included in here.
      */
     useEffect(() => {
+        // set the custom drawer header style accordingly
+        if (navigation.getState().index === 0) {
+            setIsDrawerInDashboard(true);
+        }
         // show the application wall accordingly
         if (userInformation["militaryStatus"] !== MilitaryVerificationStatusType.Verified) {
             navigation.navigate('AppWall', {});
         }
-    }, [userInformation["militaryStatus"]]);
+    }, [userInformation["militaryStatus"], navigation.getState()]);
 
     // return the component for the Home page
     return (
@@ -84,7 +90,7 @@ export const Home = ({navigation}: HomeProps) => {
             />
             <NavigationContainer independent={true} linking={linking} fallback={<Text>Loading...</Text>}>
                 <HomeTabStack.Navigator
-                    initialRouteName={"Dashboard"}
+                    initialRouteName={"DashboardController"}
                     shifting={true}
                     labeled={true}
                     activeColor={'white'}
@@ -92,15 +98,15 @@ export const Home = ({navigation}: HomeProps) => {
                         borderTopWidth: Dimensions.get('window').width / 1000,
                         borderTopColor: '#FFFFFF',
                         backgroundColor: '#313030',
-                        ...(!bottomTabShown && {display: 'none'})
+                        ...(!bottomTabShown && {display: 'none'}),
                     }}
                     screenOptions={({route}) => ({
-                        tabBarLabel: route.name === 'Dashboard' ? 'Home' : route.name,
+                        tabBarLabel: route.name === 'DashboardController' ? 'Home' : route.name,
                         tabBarIcon: ({focused}) => {
                             let iconName: string;
                             let iconColor: string;
 
-                            if (route.name === 'Dashboard') {
+                            if (route.name === 'DashboardController') {
                                 iconName = focused ? 'home-variant' : 'home-variant-outline';
                                 iconColor = !focused ? 'white' : '#F2FF5D';
 
@@ -121,8 +127,8 @@ export const Home = ({navigation}: HomeProps) => {
                         }
                     })}
                 >
-                    <HomeTabStack.Screen name="Dashboard"
-                                         component={Dashboard}
+                    <HomeTabStack.Screen name="DashboardController"
+                                         component={DashboardController}
                                          initialParams={{}}
                     />
                     <HomeTabStack.Screen name="Marketplace"

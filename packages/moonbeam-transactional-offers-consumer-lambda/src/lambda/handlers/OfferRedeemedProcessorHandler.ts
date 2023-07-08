@@ -86,20 +86,14 @@ export const processOfferRedeemedTransactions = async (event: SQSEvent): Promise
                         const response: MoonbeamTransactionResponse = await moonbeamClient.createTransaction(transaction as MoonbeamTransaction);
 
                         // check to see if the card linking call was executed successfully
-                        if (response && !response.errorMessage && !response.errorType && response.data) {
-                            // convert the incoming linked data into a CardLink object
-                            const transactionResponse = response.data as MoonbeamTransaction;
-
-                            console.log(JSON.stringify(transactionResponse));
-                        } else {
-                            console.log(`Unexpected error returned from the createTransaction call!`);
+                        if (!response || response.errorMessage || response.errorType || !response.data || !response.id) {
+                            console.log(`Unexpected error and/or response structure returned from the createTransaction call ${JSON.stringify(response)}!`);
 
                             // adds an item failure, for the SQS message which failed processing, as part of the incoming event
                             itemFailures.push({
                                 itemIdentifier: transactionalRecord.messageId
                             });
                         }
-
                     } else {
                         console.log(`Store Details mapping through GET store details call failed`);
 

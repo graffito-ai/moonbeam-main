@@ -17,6 +17,7 @@ type Mutation {
 
 type Subscription {
     updatedMilitaryVerificationStatus(id: ID!): UpdateMilitaryVerificationResponse @aws_cognito_user_pools @aws_subscribe(mutations: ["updateMilitaryVerificationStatus"])
+    createdTransaction(id: ID!): MoonbeamTransactionResponse @aws_cognito_user_pools @aws_subscribe(mutations: ["createTransaction"])
 }
 # graphql/AccountLinkSchema.graphql
 # Storage Schema File
@@ -374,6 +375,7 @@ type MoonbeamTransaction @aws_cognito_user_pools @aws_api_key {
 }
 
 type MoonbeamTransactionResponse @aws_cognito_user_pools @aws_api_key {
+    id: ID # this represents the userID of the transaction, and the reason we repeat it in the parent response is for the subscription filtering to work properly
     data: MoonbeamTransaction
     errorType: TransactionsErrorType
     errorMessage: String

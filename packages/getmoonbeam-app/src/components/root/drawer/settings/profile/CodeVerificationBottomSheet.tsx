@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
-import {Image, Platform, SafeAreaView, TouchableOpacity, View} from "react-native";
-import {Modal, Portal, Text, TextInput} from "react-native-paper";
+import {Dimensions, Image, Platform, SafeAreaView, TouchableOpacity, View} from "react-native";
+import {Dialog, Portal, Text, TextInput} from "react-native-paper";
 import {commonStyles} from '../../../../../styles/common.module';
 import {styles} from '../../../../../styles/codeVerification.module';
 import {Spinner} from "../../../../common/Spinner";
@@ -14,10 +14,10 @@ import {DeviceType} from "expo-device";
 import {useRecoilState} from "recoil";
 import {deviceTypeState} from "../../../../../recoil/RootAtom";
 import {codeVerificationSheetShown, codeVerifiedState} from "../../../../../recoil/CodeVerificationAtom";
-import { Auth } from "aws-amplify";
-import * as Linking from "expo-linking";
+import {Auth} from "aws-amplify";
 import {currentUserInformation} from "../../../../../recoil/AuthAtom";
 import {CognitoUser} from "amazon-cognito-identity-js";
+import {Button} from "@rneui/base";
 
 /**
  * CodVerificationBottomSheet component.
@@ -168,9 +168,7 @@ export const CodeVerificationBottomSheet = (props: {
                 // release the loader on button press
                 setIsReady(true);
 
-                // re-direct to the Login screen
-                await Linking.openURL(Linking.createURL(`/authenticate`));
-
+                // ToDO: re-direct to the Login screen and logout
                 return false;
             }
         } catch (error) {
@@ -237,8 +235,7 @@ export const CodeVerificationBottomSheet = (props: {
                 // release the loader on button press
                 setIsReady(true);
 
-                // re-direct to the Login screen
-                await Linking.openURL(Linking.createURL(`/authenticate`));
+                // ToDO: re-direct to the Login screen and logout
 
                 return false;
             }
@@ -275,26 +272,31 @@ export const CodeVerificationBottomSheet = (props: {
                 :
                 <>
                     <Portal>
-                        <Modal dismissable={false} visible={modalVisible} onDismiss={() => setModalVisible(false)}
-                               contentContainerStyle={commonStyles.modalContainer}>
-                            <Text
-                                style={commonStyles.modalParagraph}>{modalCustomMessage}</Text>
-                            <TouchableOpacity
-                                style={commonStyles.modalButton}
-                                onPress={() => {
-                                    // hide the modal
-                                    setModalVisible(false);
+                        <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
+                                onDismiss={() => setModalVisible(false)}>
+                            <Dialog.Icon icon="alert" color={"#F2FF5D"}
+                                         size={Dimensions.get('window').height / 14}/>
+                            <Dialog.Content>
+                                <Text
+                                    style={commonStyles.dialogParagraph}>{modalCustomMessage}</Text>
+                            </Dialog.Content>
+                            <Dialog.Actions>
+                                <Button buttonStyle={commonStyles.dialogButton}
+                                        titleStyle={commonStyles.dialogButtonText}
+                                        onPress={() => {
+                                            // hide the modal
+                                            setModalVisible(false);
 
-                                    // depending on whether the modal is an error modal or not, act on the code verification sheet
-                                    if (modalButtonMessage === 'Ok') {
-                                        // close the code verification sheet
-                                        setShowBottomSheet(false);
-                                    }
-                                }}
-                            >
-                                <Text style={commonStyles.modalButtonText}>{modalButtonMessage}</Text>
-                            </TouchableOpacity>
-                        </Modal>
+                                            // depending on whether the modal is an error modal or not, act on the code verification sheet
+                                            if (modalButtonMessage === 'Ok') {
+                                                // close the code verification sheet
+                                                setShowBottomSheet(false);
+                                            }
+                                        }}>
+                                    {modalButtonMessage}
+                                </Button>
+                            </Dialog.Actions>
+                        </Dialog>
                     </Portal>
                     <SafeAreaView style={commonStyles.rowContainer}>
                         <KeyboardAwareScrollView

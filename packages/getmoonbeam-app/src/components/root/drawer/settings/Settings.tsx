@@ -8,7 +8,7 @@ import {SettingsList} from "./SettingsList";
 import * as Linking from "expo-linking";
 import {Profile} from './profile/Profile';
 import {useRecoilState} from "recoil";
-import {appDrawerHeaderShownState, drawerSwipeState} from "../../../../recoil/AppDrawerAtom";
+import {appDrawerHeaderShownState, drawerDashboardState, drawerSwipeState} from "../../../../recoil/AppDrawerAtom";
 import {deviceTypeState} from "../../../../recoil/RootAtom";
 import * as Device from "expo-device";
 import {DeviceType} from "expo-device";
@@ -18,13 +18,15 @@ import {styles} from "../../../../styles/settingsList.module";
 /**
  * Settings component
  *
+ * @param navigation navigation object passed in from the parent navigator.
  * @constructor constructor for the component.
  */
-export const Settings = ({}: SettingsProps) => {
+export const Settings = ({navigation}: SettingsProps) => {
     // constants used to keep track of shared states
     const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
     const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
     const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
+    const [, setIsDrawerInDashboard] = useRecoilState(drawerDashboardState);
 
     // create a native stack navigator, to be used for our Settings navigation
     const Stack = createNativeStackNavigator<SettingsStackParamList>();
@@ -37,20 +39,24 @@ export const Settings = ({}: SettingsProps) => {
      * included in here.
      */
     useEffect(() => {
+        // set the custom drawer header style accordingly
+        if (navigation.getState().index === 2) {
+            setIsDrawerInDashboard(false);
+        }
         // check and set the type of device, to be used throughout the app
         Device.getDeviceTypeAsync().then(deviceType => {
             setDeviceType(deviceType);
         });
-    }, [deviceType]);
+    }, [deviceType, navigation.getState()]);
 
     // enabling the linking configuration for creating links to the application screens, based on the navigator
     const config = {
         screens: {
             SettingsList: {
-                path: 'main/settings/list'
+                path: 'settings/list'
             },
             Profile: {
-                path: 'main/settings/profile'
+                path: 'settings/profile'
             }
         },
     };

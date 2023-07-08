@@ -17,4 +17,5 @@ type Mutation {
 
 type Subscription {
     updatedMilitaryVerificationStatus(id: ID!): UpdateMilitaryVerificationResponse @aws_cognito_user_pools @aws_subscribe(mutations: ["updateMilitaryVerificationStatus"])
+    createdTransaction(id: ID!): MoonbeamTransactionResponse @aws_cognito_user_pools @aws_subscribe(mutations: ["createTransaction"])
 }

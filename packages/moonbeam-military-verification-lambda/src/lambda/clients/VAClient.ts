@@ -110,7 +110,7 @@ export class VAClient extends BaseAPIClient {
                     return MilitaryVerificationStatusType.Pending;
                 } else {
                     // Something happened in setting up the request that triggered an Error
-                    const errorMessage = `Unexpected error while setting up the request for the Lighthouse API, ${error.message}`;
+                    const errorMessage = `Unexpected error while setting up the request for the Lighthouse API, ${(error && error.message) && error.message}`;
                     console.log(errorMessage);
 
                     return MilitaryVerificationStatusType.Pending;

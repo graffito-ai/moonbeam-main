@@ -47,7 +47,7 @@ export const CustomBanner = (props: {
     return (
         <SafeAreaView style={{backgroundColor: '#313030'}}>
             <Banner
-                style={{backgroundColor: '#5B5A5A'}}
+                style={!bannerVisibile && bannerShown && styles.bannerStyle}
                 visible={!bannerVisibile && bannerShown}
                 actions={[
                     {

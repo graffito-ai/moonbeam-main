@@ -4,13 +4,14 @@ import {commonStyles} from '../../../styles/common.module';
 import {AccountRecoveryProps} from "../../../models/props/AuthenticationProps";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 import {styles} from "../../../styles/accountRecovery.module";
-import {Modal, Portal, Text, TextInput} from "react-native-paper";
+import {Dialog, Portal, Text, TextInput} from "react-native-paper";
 import {accountRecoverySteps} from "../../../models/Constants";
 import {FieldValidator} from "../../../utils/FieldValidator";
 import {Auth} from "aws-amplify";
 import {Spinner} from "../../common/Spinner";
 // @ts-ignore
 import AuthenticationGradientPicture from '../../../../assets/backgrounds/authentication-gradient.png'
+import {Button} from "@rneui/base";
 
 /**
  * AccountRecoveryComponent component.
@@ -225,19 +226,24 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                         }}
                         source={AuthenticationGradientPicture}>
                         <Portal>
-                            <Modal dismissable={false} visible={modalVisible} onDismiss={() => setModalVisible(false)}
-                                   contentContainerStyle={commonStyles.modalContainer}>
-                                <Text style={commonStyles.modalParagraph}>Thanks for confirming the code! Your password
-                                    is now changed!</Text>
-                                <TouchableOpacity
-                                    style={[commonStyles.modalButton]}
-                                    onPress={() => {
-                                        navigation.navigate('SignIn', {});
-                                    }}
-                                >
-                                    <Text style={commonStyles.modalButtonText}>Sign In</Text>
-                                </TouchableOpacity>
-                            </Modal>
+                            <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
+                                    onDismiss={() => setModalVisible(false)}>
+                                <Dialog.Icon icon="alert" color={"#F2FF5D"}
+                                             size={Dimensions.get('window').height / 14}/>
+                                <Dialog.Content>
+                                    <Text
+                                        style={commonStyles.dialogParagraph}>{`Thanks for confirming the code! Your password is now changed!`}</Text>
+                                </Dialog.Content>
+                                <Dialog.Actions>
+                                    <Button buttonStyle={commonStyles.dialogButton}
+                                            titleStyle={commonStyles.dialogButtonText}
+                                            onPress={() => {
+                                                navigation.navigate('SignIn', {});
+                                            }}>
+                                        Sign In
+                                    </Button>
+                                </Dialog.Actions>
+                            </Dialog>
                         </Portal>
                         <KeyboardAwareScrollView
                             enableOnAndroid={true}

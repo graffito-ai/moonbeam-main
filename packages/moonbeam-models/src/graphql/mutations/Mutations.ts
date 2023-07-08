@@ -6,6 +6,7 @@ export const createTransaction = /* GraphQL */ `
         createTransaction(createTransactionInput: $createTransactionInput) {
             errorType
             errorMessage
+            id
             data {
                 id
                 timestamp

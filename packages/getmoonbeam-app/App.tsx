@@ -4,7 +4,6 @@ import {initialize} from './src/utils/Setup';
 import React, {useCallback, useEffect, useState} from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native';
-import * as Linking from 'expo-linking';
 import * as Font from 'expo-font';
 import * as FileSystem from "expo-file-system";
 import {StatusBar} from 'expo-status-bar';
@@ -16,7 +15,8 @@ import {PaperProvider, Text, useTheme} from "react-native-paper";
 import {Hub} from "aws-amplify";
 
 // keep the splash screen visible while we fetch resources
-SplashScreen.preventAutoHideAsync().then(() => {});
+SplashScreen.preventAutoHideAsync().then(() => {
+});
 
 // initialize the application according to the current Amplify environment
 initialize();
@@ -128,83 +128,12 @@ export default function App() {
         // create a native stack navigator, to be used for our root application navigation
         const RootStack = createNativeStackNavigator<RootStackParamList>();
 
-        // enabling the linking configuration for creating links to the application screens, based on the navigator
-        const config = {
-            screens: {
-                AppOverview: {
-                    path: '*'
-                },
-                Authentication: {
-                    path: '',
-                    screens: {
-                        SignIn: {
-                            path: 'authenticate'
-                        },
-                        Registration: {
-                            path: 'registration'
-                        },
-                        AccountRecovery: {
-                            path: 'recovery'
-                        },
-                        AppDrawer: {
-                            path: 'main',
-                            screens: {
-                                Home: {
-                                    path: '',
-                                    screens: {
-                                        Dashboard: {
-                                            path: 'dashboard'
-                                        },
-                                        Marketplace: {
-                                            path: 'marketplace'
-                                        },
-                                        Cards: {
-                                            path: 'wallet'
-                                        }
-                                    }
-                                },
-                                Documents: {
-                                    path: 'documents'
-                                },
-                                Settings: {
-                                    path: 'settings',
-                                    screens: {
-                                        SettingsList: {
-                                            path: 'list'
-                                        },
-                                        Profile: {
-                                            path: 'profile'
-                                        }
-                                    }
-                                },
-                                Support: {
-                                    path: 'support'
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-        };
-
-        /**
-         * configuring the navigation linking, based on the types of prefixes that the application supports, given
-         * the environment that we deployed the application in.
-         * @see https://docs.expo.dev/guides/linking/?redirected
-         * @see https://reactnavigation.org/docs/deep-linking/
-         */
-        const linking = {
-            prefixes: [Linking.createURL('/')],
-            config,
-        };
-
-
         // return the main component for the application stack
         return (
             <RecoilRoot>
                 <PaperProvider>
                     <StatusBar style="light" animated={true}/>
-                    <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
+                    <NavigationContainer fallback={<Text>Loading...</Text>}>
                         <RootStack.Navigator
                             initialRouteName={"AppOverview"}
                             screenOptions={{

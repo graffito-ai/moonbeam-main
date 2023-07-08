@@ -62,6 +62,7 @@ export class MoonbeamClient extends BaseAPIClient {
              * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
              * error for a better customer experience.
              */
+            console.log(`Moonbeam AppSync API request Object: ${JSON.stringify(transaction as CreateTransactionInput)}`);
             return axios.post(`${moonbeamBaseURL}`, {
                 query: createTransaction,
                 variables: {
@@ -77,24 +78,23 @@ export class MoonbeamClient extends BaseAPIClient {
             }).then(createTransactionResponse => {
                 console.log(`${endpointInfo} response ${JSON.stringify(createTransactionResponse.data)}`);
 
-                return {
-                    data: transaction
+                // retrieve the data block from the response
+                const responseData = (createTransactionResponse && createTransactionResponse.data) ? createTransactionResponse.data.data : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.createTransaction.errorMessage === null) {
+                    // returned the successfully stored transaction, as well as its ID in the parent object, for subscription purposes
+                    return {
+                        id: transaction.id,
+                        data: transaction
+                    }
+                } else {
+                    // return the error response indicating an invalid structure returned
+                    return {
+                        errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                        errorType: TransactionsErrorType.ValidationError
+                    }
                 }
-                // /**
-                //  * if we reached this, then we assume that a 2xx response code was returned.
-                //  * check the contents of the response, and act appropriately.
-                //  */
-                // if (memberDetailsResponse.data && memberDetailsResponse.data["extMemberId"]) {
-                //     // return the external member id (extMemberId)
-                //     return {
-                //         data: memberDetailsResponse.data["extMemberId"]
-                //     }
-                // } else {
-                //     return {
-                //         errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
-                //         errorType: TransactionsErrorType.ValidationError
-                //     }
-                // }
             }).catch(error => {
                 if (error.response) {
                     /**
@@ -124,7 +124,7 @@ export class MoonbeamClient extends BaseAPIClient {
                     };
                 } else {
                     // Something happened in setting up the request that triggered an Error
-                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${error.message}`;
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
                     console.log(errorMessage);
 
                     return {

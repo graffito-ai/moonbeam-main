@@ -1,5 +1,5 @@
-import {Dimensions, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View} from "react-native";
-import {Divider, List, Modal, Portal, Text} from "react-native-paper";
+import {Dimensions, SafeAreaView, ScrollView, StyleSheet, View} from "react-native";
+import {Dialog, Divider, List, Portal, Text} from "react-native-paper";
 import React, {useEffect, useState} from "react";
 import {SettingsListProps} from "../../../../models/props/SettingsProps";
 import {commonStyles} from "../../../../styles/common.module";
@@ -7,7 +7,7 @@ import {styles} from "../../../../styles/settingsList.module";
 // @ts-ignore
 import FaceIDIcon from '../../../../../assets/face-id-icon.png';
 import {useRecoilState} from "recoil";
-import {currentUserInformation} from "../../../../recoil/AuthAtom";
+import {appLinkedURLState, currentUserInformation} from "../../../../recoil/AuthAtom";
 import {Spinner} from "../../../common/Spinner";
 import {API, graphqlOperation} from "aws-amplify";
 import {deleteCard} from "@moonbeam/moonbeam-models";
@@ -19,13 +19,15 @@ import {customBannerState} from "../../../../recoil/CustomBannerAtom";
 import {deviceTypeState} from "../../../../recoil/RootAtom";
 import * as Device from "expo-device";
 import {DeviceType} from "expo-device";
+import {Button} from "@rneui/base";
 
 /**
  * SettingsList component
  *
+ * @param navigation navigation object passed in from the parent navigator.
  * @constructor constructor for the component
  */
-export const SettingsList = ({}: SettingsListProps) => {
+export const SettingsList = ({navigation}: SettingsListProps) => {
     // constants used to keep track of local component state
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
@@ -41,6 +43,7 @@ export const SettingsList = ({}: SettingsListProps) => {
     const [, setBannerState] = useRecoilState(customBannerState);
     const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
     const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
+    const [appURL,] = useRecoilState(appLinkedURLState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -50,6 +53,11 @@ export const SettingsList = ({}: SettingsListProps) => {
      * included in here.
      */
     useEffect(() => {
+        // since deep-linking sometimes does not work on first-render, use the global App URL to re-route to appropriate screen
+        if (appURL.length !== 0 && appURL.includes('profile')) {
+            navigation.navigate('Profile', {});
+        }
+
         // check and set the type of device, to be used throughout the app
         Device.getDeviceTypeAsync().then(deviceType => {
             setDeviceType(deviceType);
@@ -70,7 +78,7 @@ export const SettingsList = ({}: SettingsListProps) => {
             setOptionDescription("You can re-opt to the available cashback programs, by linking your favorite Visa or MasterCard card!");
             setOptionIcon('credit-card-plus-outline');
         }
-    }, [userInformation["linkedCard"], deviceType]);
+    }, [userInformation["linkedCard"], deviceType, appURL]);
 
     /**
      * Function used to handle the opt-out action, from the settings list
@@ -120,7 +128,7 @@ export const SettingsList = ({}: SettingsListProps) => {
                     bannerVisibilityState: cardLinkingStatusState,
                     bannerMessage: "You currently do not have a linked card to your Moonbeam account. Get started now!",
                     bannerButtonLabel: "Link Now",
-                    bannerButtonLabelActionSource: "/main/wallet",
+                    bannerButtonLabelActionSource: "home/wallet",
                     bannerArtSource: CardLinkingImage,
                     dismissing: false
                 });
@@ -160,19 +168,24 @@ export const SettingsList = ({}: SettingsListProps) => {
                 :
                 <>
                     <Portal>
-                        <Modal dismissable={false} visible={modalVisible} onDismiss={() => setModalVisible(false)}
-                               contentContainerStyle={commonStyles.modalContainer}>
-                            <Text
-                                style={commonStyles.modalParagraph}>{`${modalCustomMessage}`}</Text>
-                            <TouchableOpacity
-                                style={commonStyles.modalButton}
-                                onPress={() => {
-                                    setModalVisible(false);
-                                }}
-                            >
-                                <Text style={commonStyles.modalButtonText}>{modalButtonMessage}</Text>
-                            </TouchableOpacity>
-                        </Modal>
+                        <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
+                                onDismiss={() => setModalVisible(false)}>
+                            <Dialog.Icon icon="alert" color={"#F2FF5D"}
+                                         size={Dimensions.get('window').height / 14}/>
+                            <Dialog.Content>
+                                <Text
+                                    style={commonStyles.dialogParagraph}>{modalCustomMessage}</Text>
+                            </Dialog.Content>
+                            <Dialog.Actions>
+                                <Button buttonStyle={commonStyles.dialogButton}
+                                        titleStyle={commonStyles.dialogButtonText}
+                                        onPress={() => {
+                                            setModalVisible(false);
+                                        }}>
+                                    {modalButtonMessage}
+                                </Button>
+                            </Dialog.Actions>
+                        </Dialog>
                     </Portal>
                     <SafeAreaView style={commonStyles.rowContainer}>
                         <View style={[styles.settingsContentView, StyleSheet.absoluteFill]}>
@@ -181,7 +194,9 @@ export const SettingsList = ({}: SettingsListProps) => {
                                         showsVerticalScrollIndicator={false}
                                         keyboardShouldPersistTaps={'handled'}>
                                 <List.Section style={styles.listSectionView}>
-                                    <List.Subheader style={deviceType === DeviceType.TABLET ? styles.subHeaderTitleTablet : styles.subHeaderTitle}>Account Management</List.Subheader>
+                                    <List.Subheader
+                                        style={deviceType === DeviceType.TABLET ? styles.subHeaderTitleTablet : styles.subHeaderTitle}>Account
+                                        Management</List.Subheader>
                                     <Divider style={styles.divider}/>
                                     <Divider style={styles.divider}/>
                                     <List.Item
@@ -193,10 +208,11 @@ export const SettingsList = ({}: SettingsListProps) => {
                                         title="Edit Profile"
                                         description='View and edit your basic information, such as email, phone number, name or address.'
                                         left={() => <List.Icon color={'#F2FF5D'} icon="clipboard-account-outline"/>}
-                                        right={() => <List.Icon style={{left: Dimensions.get('window').width/60}} color={'#F2FF5D'} icon="chevron-right"/>}
+                                        right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
+                                                                color={'#F2FF5D'} icon="chevron-right"/>}
                                         onPress={async () => {
                                             // go to the Profile screen
-                                            await Linking.openURL(Linking.createURL(`/main/settings/profile`));
+                                            await Linking.openURL(Linking.createURL(`settings/profile`));
                                         }}
                                     />
                                     <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>
@@ -210,11 +226,14 @@ export const SettingsList = ({}: SettingsListProps) => {
                                         title="Change Password"
                                         description='Forgot your password? Change it so you can continue to securely access your account.'
                                         left={() => <List.Icon color={'#F2FF5D'} icon="lock-check"/>}
-                                        right={() => <List.Icon style={{left: Dimensions.get('window').width/60}} color={'#F2FF5D'} icon={FaceIDIcon}/>}
+                                        right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
+                                                                color={'#F2FF5D'} icon={FaceIDIcon}/>}
                                     />
                                 </List.Section>
                                 <List.Section style={styles.listSectionView}>
-                                    <List.Subheader style={deviceType === DeviceType.TABLET ? styles.subHeaderTitleTablet : styles.subHeaderTitle}>Wallet Management</List.Subheader>
+                                    <List.Subheader
+                                        style={deviceType === DeviceType.TABLET ? styles.subHeaderTitleTablet : styles.subHeaderTitle}>Wallet
+                                        Management</List.Subheader>
                                     <Divider style={styles.divider}/>
                                     <Divider style={styles.divider}/>
                                     <List.Item
@@ -226,7 +245,8 @@ export const SettingsList = ({}: SettingsListProps) => {
                                         title={optionTitle}
                                         description={optionDescription}
                                         left={() => <List.Icon color={'#F2FF5D'} icon={optionIcon}/>}
-                                        right={() => <List.Icon style={{left: Dimensions.get('window').width/60}} color={'#F2FF5D'} icon={FaceIDIcon}/>}
+                                        right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
+                                                                color={'#F2FF5D'} icon={FaceIDIcon}/>}
                                         onPress={async () => {
                                             // check if a member has already been deactivated or never completed the linked card process
                                             if (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0) {
@@ -238,13 +258,15 @@ export const SettingsList = ({}: SettingsListProps) => {
                                                 );
                                             } else {
                                                 // there's no need for deactivation, so go to the Card linking screen
-                                                await Linking.openURL(Linking.createURL(`/main/wallet`));
+                                                await Linking.openURL(Linking.createURL(`home/wallet`));
                                             }
                                         }}
                                     />
                                 </List.Section>
                                 <List.Section style={styles.listSectionView}>
-                                    <List.Subheader style={deviceType === DeviceType.TABLET ? styles.subHeaderTitleTablet : styles.subHeaderTitle}>Security and Privacy</List.Subheader>
+                                    <List.Subheader
+                                        style={deviceType === DeviceType.TABLET ? styles.subHeaderTitleTablet : styles.subHeaderTitle}>Security
+                                        and Privacy</List.Subheader>
                                     <Divider style={styles.divider}/>
                                     <Divider style={styles.divider}/>
                                     <List.Item
@@ -256,7 +278,8 @@ export const SettingsList = ({}: SettingsListProps) => {
                                         title="Face ID"
                                         description='Enhance your login experience, by enabling Face ID.'
                                         left={() => <List.Icon color={'#F2FF5D'} icon="emoticon"/>}
-                                        right={() => <List.Icon style={{left: Dimensions.get('window').width/60}} color={'#F2FF5D'} icon="chevron-right"/>}
+                                        right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
+                                                                color={'#F2FF5D'} icon="chevron-right"/>}
                                     />
                                     <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>
                                     <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>
@@ -269,7 +292,8 @@ export const SettingsList = ({}: SettingsListProps) => {
                                         title="Two-Factor Authentication"
                                         description='Secure your account even further, with two-step verification.'
                                         left={() => <List.Icon color={'#F2FF5D'} icon="lock"/>}
-                                        right={() => <List.Icon style={{left: Dimensions.get('window').width/60}} color={'#F2FF5D'} icon="chevron-right"/>}
+                                        right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
+                                                                color={'#F2FF5D'} icon="chevron-right"/>}
                                     />
                                     <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>
                                     <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>
@@ -282,7 +306,8 @@ export const SettingsList = ({}: SettingsListProps) => {
                                         title="Notification Preferences"
                                         description='Manage your notification and marketing settings.'
                                         left={() => <List.Icon color={'#F2FF5D'} icon="bell-alert"/>}
-                                        right={() => <List.Icon style={{left: Dimensions.get('window').width/60}} color={'#F2FF5D'} icon="chevron-right"/>}
+                                        right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
+                                                                color={'#F2FF5D'} icon="chevron-right"/>}
                                     />
                                 </List.Section>
                             </ScrollView>

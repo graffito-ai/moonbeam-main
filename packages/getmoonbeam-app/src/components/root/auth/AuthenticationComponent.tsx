@@ -14,7 +14,8 @@ import {
     addressStateState,
     addressZipState,
     amplifySignUpProcessErrorsState,
-    birthdayState,
+    appLinkedURLState,
+    birthdayState, currentUserInformation,
     dutyStatusValueState,
     emailState,
     enlistingYearState,
@@ -46,6 +47,8 @@ export const AuthenticationComponent = ({}: AuthenticationProps) => {
         // constants used to keep track of shared states
         const [, setRegistrationMainError] = useRecoilState(registrationMainErrorState);
         const [, setStepNumber] = useRecoilState(registrationStepNumber);
+        const [, setAppURL] = useRecoilState(appLinkedURLState);
+        const [userInformation, ] = useRecoilState(currentUserInformation);
         // step 1
         const [, setFirstName] = useRecoilState(firstNameState);
         const [, setLastName] = useRecoilState(lastNameState);
@@ -67,64 +70,8 @@ export const AuthenticationComponent = ({}: AuthenticationProps) => {
         const [, setAmplifySignUpErrors] = useRecoilState(amplifySignUpProcessErrorsState);
         // do not need to clear further steps because back button won't be shown for subsequent ones
 
-        // enabling the linking configuration for creating links to the application screens, based on the navigator
-        const config = {
-            screens: {
-                SignIn: {
-                    path: 'authenticate'
-                },
-                Registration: {
-                    path: 'registration'
-                },
-                AccountRecovery: {
-                    path: 'recovery'
-                },
-                AppDrawer: {
-                    path: 'main',
-                    screens: {
-                        Home: {
-                            path: '',
-                            screens: {
-                                Dashboard: {
-                                    path: 'dashboard'
-                                },
-                                Marketplace: {
-                                    path: 'marketplace'
-                                },
-                                Cards: {
-                                    path: 'wallet'
-                                }
-                            }
-                        },
-                        Documents: {
-                            path: 'documents'
-                        },
-                        Settings: {
-                            path: 'settings',
-                            screens: {
-                                SettingsList: {
-                                    path: 'list'
-                                }
-                            }
-                        },
-                        Support: {
-                            path: 'support'
-                        }
-                    }
-                }
-            },
-        };
-
-        /**
-         * configuring the navigation linking, based on the types of prefixes that the application supports, given
-         * the environment that we deployed the application in.
-         * @see https://docs.expo.dev/guides/linking/?redirected
-         * @see https://reactnavigation.org/docs/deep-linking/
-         */
-        const linking = {
-            prefixes: [Linking.createURL('/')],
-            config,
-        };
+        // initial app URL followed by any subsequent changes to the URL.
+        const appURL = Linking.useURL();
 
         /**
          * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -134,12 +81,17 @@ export const AuthenticationComponent = ({}: AuthenticationProps) => {
          * included in here.
          */
         useEffect(() => {
-        }, []);
+            /**
+             * set the App URL as well as any state changes accordingly, once the user is authenticated
+             * since we don't want to track and deep links in the app prior to when the authorization occurred
+             */
+            appURL && Object.keys(userInformation).length !== 0 && setAppURL(appURL);
+        }, [appURL]);
 
         // return the component for the Authentication stack
         return (
             <>
-                <NavigationContainer independent={true} linking={linking} fallback={<Text>Loading...</Text>}>
+                <NavigationContainer independent={true} fallback={<Text>Loading...</Text>}>
                     <Stack.Navigator
                         initialRouteName={useRecoilValue(initialAuthenticationScreen) == 'SignIn' ? "SignIn" : 'Registration'}
                         screenOptions={{

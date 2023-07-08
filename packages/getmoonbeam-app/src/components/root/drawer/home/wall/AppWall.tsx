@@ -3,7 +3,7 @@ import 'react-native-get-random-values';
 import {Dimensions, Image, ImageBackground, Platform, TouchableOpacity, View} from "react-native";
 import {commonStyles} from '../../../../../styles/common.module';
 import {styles} from '../../../../../styles/appWall.module';
-import {IconButton, Modal, Portal, Text} from "react-native-paper";
+import {Dialog, IconButton, Portal, Text} from "react-native-paper";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 import {useRecoilState} from "recoil";
 import {currentUserInformation} from '../../../../../recoil/AuthAtom';
@@ -38,6 +38,7 @@ import MilitaryApprovalImage from '../../../../../../assets/art/military-approva
 import RegistrationBackgroundImage from '../../../../../../assets/backgrounds/registration-background.png';
 // @ts-ignore
 import MilitaryVerificationImage from '../../../../../../assets/art/military-verification.png';
+import {Button} from "@rneui/base";
 
 /**
  * AppWall Component.
@@ -303,19 +304,24 @@ export const AppWall = () => {
                         }}
                         source={RegistrationBackgroundImage}>
                         <Portal>
-                            <Modal dismissable={false} visible={supportModalVisible}
-                                   onDismiss={() => setSupportModalVisible(false)}
-                                   contentContainerStyle={commonStyles.modalContainer}>
-                                <Text style={commonStyles.modalParagraph}>{supportModalMessage}</Text>
-                                <TouchableOpacity
-                                    style={[commonStyles.modalButton]}
-                                    onPress={() => {
-                                        setSupportModalVisible(false);
-                                    }}
-                                >
-                                    <Text style={commonStyles.modalButtonText}>{supportModalButtonMessage}</Text>
-                                </TouchableOpacity>
-                            </Modal>
+                            <Dialog style={commonStyles.dialogStyle} visible={supportModalVisible}
+                                    onDismiss={() => setSupportModalVisible(false)}>
+                                <Dialog.Icon icon="alert" color={"#F2FF5D"}
+                                             size={Dimensions.get('window').height / 14}/>
+                                <Dialog.Content>
+                                    <Text
+                                        style={commonStyles.dialogParagraph}>{supportModalMessage}</Text>
+                                </Dialog.Content>
+                                <Dialog.Actions>
+                                    <Button buttonStyle={commonStyles.dialogButton}
+                                            titleStyle={commonStyles.dialogButtonText}
+                                            onPress={() => {
+                                                setSupportModalVisible(false);
+                                            }}>
+                                        {supportModalButtonMessage}
+                                    </Button>
+                                </Dialog.Actions>
+                            </Dialog>
                         </Portal>
                         <KeyboardAwareScrollView
                             scrollEnabled={true}
@@ -414,7 +420,7 @@ export const AppWall = () => {
                                         (stepNumber === 3)
                                         && {
                                             marginBottom: Dimensions.get('window').height / 4,
-                                            marginLeft :Dimensions.get('window').width / 10
+                                            marginLeft: Dimensions.get('window').width / 10
                                         }
                                     ]}
                                     onPress={

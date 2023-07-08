@@ -71,9 +71,19 @@ const profilePictureURIState = atom({
 });
 
 /**
+ * Atom used to keep track of whether a custom app drawer style should be activated for when
+ * the dashboard screen is active.
+ */
+const drawerDashboardState = atom({
+    key: 'drawerDashboardState',
+    default: false
+});
+
+/**
  * Export all atoms and/or selectors
  */
 export {
+    drawerDashboardState,
     appDrawerHeaderShownState,
     appWallStepNumber,
     additionalAppWallDocumentationNeeded,

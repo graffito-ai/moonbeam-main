@@ -2,6 +2,13 @@ import {Dimensions, StyleSheet} from "react-native";
 
 // styles to be used within the CustomBanner component
 export const styles = StyleSheet.create({
+    bannerStyle: {
+        backgroundColor: '#5B5A5A',
+        borderTopWidth: Dimensions.get('window').width / 1000,
+        borderTopColor: '#FFFFFF',
+        borderBottomColor: '#FFFFFF',
+        borderBottomWidth: Dimensions.get('window').width / 1000
+    },
     buttonLabel: {
         fontFamily: 'Saira-Bold',
         color: '#F2FF5D',

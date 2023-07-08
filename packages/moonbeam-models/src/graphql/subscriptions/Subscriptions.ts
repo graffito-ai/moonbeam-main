@@ -11,3 +11,37 @@ export const updatedMilitaryVerificationStatus = /* GraphQL */ `
         }
     }
 `;
+
+// Subscription used to subscribe to a transaction creation for a particular user id.
+export const createdTransaction = /* GraphQL */ `
+    subscription CreatedTransaction($id: ID!) {
+        createdTransaction(id: $id) {
+            errorType
+            errorMessage
+            id
+            data {
+                id
+                timestamp
+                transactionId
+                transactionStatus
+                transactionType
+                createdAt
+                updatedAt
+                memberId
+                cardId
+                brandId
+                storeId
+                category
+                currencyCode
+                rewardAmount
+                totalAmount
+                pendingCashbackAmount
+                creditedCashbackAmount
+                transactionBrandName
+                transactionBrandDescription
+                transactionBrandAddress
+                transactionBrandLogoUrl
+            }
+        }
+    }
+`;

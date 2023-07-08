@@ -1,14 +1,15 @@
 import React, {useEffect, useState} from "react";
-import {SafeAreaView, StyleSheet, TouchableOpacity} from "react-native";
+import {Dimensions, SafeAreaView, StyleSheet} from "react-native";
 import WebView from "react-native-webview";
 import {useRecoilState} from "recoil";
 import {cardLinkingRegistrationStatusState, currentUserInformation} from "../../../../recoil/AuthAtom";
-import {Modal, Portal, Text} from "react-native-paper";
+import {Dialog, Portal, Text} from "react-native-paper";
 import {commonStyles} from '../../../../styles/common.module';
 import {styles} from '../../../../styles/registration.module';
 import {Spinner} from "../../../common/Spinner";
 import {API, graphqlOperation} from "aws-amplify";
 import {CardLinkErrorType, CardType, createCardLink} from "@moonbeam/moonbeam-models";
+import {Button} from "@rneui/base";
 
 /**
  * CardLinkingStep component.
@@ -237,19 +238,23 @@ export const CardLinkingStep = () => {
                 :
                 <>
                     <Portal>
-                        <Modal dismissable={false} visible={modalVisible} onDismiss={() => setModalVisible(false)}
-                               contentContainerStyle={commonStyles.modalContainer}>
-                            <Text
-                                style={commonStyles.modalParagraph}>{`Error while linking your card! ${modalCustomMessage}`}</Text>
-                            <TouchableOpacity
-                                style={commonStyles.modalButton}
-                                onPress={() => {
-                                    setModalVisible(false);
-                                }}
-                            >
-                                <Text style={commonStyles.modalButtonText}>Try again!</Text>
-                            </TouchableOpacity>
-                        </Modal>
+                        <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
+                                onDismiss={() => setModalVisible(false)}>
+                            <Dialog.Icon icon="alert" color={"#F2FF5D"} size={Dimensions.get('window').height / 14}/>
+                            <Dialog.Content>
+                                <Text
+                                    style={commonStyles.dialogParagraph}>{`Error while linking your card! ${modalCustomMessage}`}</Text>
+                            </Dialog.Content>
+                            <Dialog.Actions>
+                                <Button buttonStyle={commonStyles.dialogButton}
+                                        titleStyle={commonStyles.dialogButtonText}
+                                        onPress={() => {
+                                            setModalVisible(false);
+                                        }}>
+                                    Try Again!
+                                </Button>
+                            </Dialog.Actions>
+                        </Dialog>
                     </Portal>
                     <SafeAreaView
                         style={[StyleSheet.absoluteFill, styles.cardLinkingParentView]}>
