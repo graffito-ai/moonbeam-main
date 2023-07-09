@@ -13,7 +13,7 @@ export const styles = StyleSheet.create({
         backgroundColor: '#313030'
     },
     topDashboardView: {
-        flex: 0.50,
+        flex: 1,
         width: '100%',
         alignContent: 'center',
         alignItems: 'center',
@@ -162,10 +162,69 @@ export const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     bottomView: {
+        flex: 1,
         top: Dimensions.get('window').height/45,
     },
     segmentedButtons: {
         width: Dimensions.get('window').width/1.15,
         alignSelf: 'center'
+    },
+    subHeaderTitle: {
+        alignSelf: 'center',
+        color: '#FFFFFF',
+        fontSize: 18,
+        fontFamily: 'Saira-SemiBold'
+    },
+    individualTransactionContainer: {
+        paddingBottom: Dimensions.get('window').height/30
+    },
+
+    listItemTitle: {
+        left: Dimensions.get('window').width/20,
+        color: '#FFFFFF',
+        fontFamily: 'Saira-ExtraBold'
+    },
+    listItemDescription: {
+        left: Dimensions.get('window').width/20,
+        color: '#FFFFFF',
+        fontFamily: 'Raleway-Regular'
+    },
+    itemRightView: {
+        flexDirection: 'row'
+    },
+    itemRightDetailsView: {
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+        flexDirection: 'column'
+    },
+    itemRightDetailTop: {
+        fontSize: Dimensions.get('window').height/55,
+        fontFamily: 'Changa-Bold',
+        color: '#F2FF5D',
+    },
+    itemRightDetailBottom: {
+        marginTop: '5%',
+        fontSize: Dimensions.get('window').height/60,
+        fontFamily: 'Raleway-Bold',
+        color: '#FFFFFF'
+    },
+    rightItemIcon: {
+        left: Dimensions.get('window').width/40,
+        alignItems: 'flex-end',
+        justifyContent: 'center'
+    },
+    leftItemIcon: {
+        left: Dimensions.get('window').width/30
+    },
+    mainDivider: {
+        height: Dimensions.get('window').height/550,
+        width: Dimensions.get('window').width,
+        backgroundColor: '#FFFFFF'
+    },
+    divider: {
+        height: Dimensions.get('window').height/750,
+        alignSelf: 'flex-end',
+        width: Dimensions.get('window').width/1.15,
+        backgroundColor: '#5B5A5A'
     }
 });
