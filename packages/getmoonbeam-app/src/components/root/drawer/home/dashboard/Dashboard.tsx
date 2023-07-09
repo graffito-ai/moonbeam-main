@@ -16,6 +16,8 @@ import {profilePictureURIState} from "../../../../../recoil/AppDrawerAtom";
 import * as Linking from "expo-linking";
 import {Avatar, Button, Divider, Icon} from "@rneui/base";
 import {commonStyles} from "../../../../../styles/common.module";
+import {CustomBanner} from "../../../../common/CustomBanner";
+import {customBannerState} from "../../../../../recoil/CustomBannerAtom";
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -36,6 +38,8 @@ export const Dashboard = ({}) => {
     const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
     const [userInformation,] = useRecoilState(currentUserInformation);
     const [profilePictureURI, setProfilePictureURI] = useRecoilState(profilePictureURIState);
+    const [bannerState,] = useRecoilState(customBannerState);
+    const [bannerVisibile, ] = useRecoilState(bannerState.bannerVisibilityState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -119,7 +123,8 @@ export const Dashboard = ({}) => {
                                                     <Text style={commonStyles.dialogParagraphBold}> Lifetime Savings</Text> and <Text style={commonStyles.dialogParagraphBold}>Available Balance</Text> amounts.
                                                     In order to understand how the <Text style={commonStyles.dialogParagraphBold}>Lifetime Savings</Text> category works, please note the following:{"\n\n\n"}
                                                     <Text style={commonStyles.dialogParagraphNumbered}>➊</Text> Your <Text style={commonStyles.dialogParagraphBold}>Lifetime Savings</Text> amount includes cashback already credited to your account,
-                                                    as well as the one currently available.
+                                                    as well as the one currently available.{"\n\n"}
+                                                    <Text style={commonStyles.dialogParagraphNumbered}>➋</Text> Moonbeam transfers your cashback to the linked card, on a <Text style={commonStyles.dialogParagraphBold}>monthly</Text> basis.
                                                 </> :
                                                 <>
                                                     Your Moonbeam <Text style={commonStyles.dialogParagraphBold}>Cashback</Text>, is split in two main categories,
@@ -131,6 +136,7 @@ export const Dashboard = ({}) => {
                                                     credits, to be reflected in your linked-card's statement balance.{"\n\n"}
                                                     <Text style={commonStyles.dialogParagraphNumbered}>➌</Text> Moonbeam will automatically transfer the <Text style={commonStyles.dialogParagraphBold}>Available Balance</Text> amount, once
                                                     it reaches <Text style={commonStyles.dialogParagraphBold}>$20</Text>, in processed cashback amount.{"\n\n"}
+                                                    <Text style={commonStyles.dialogParagraphNumbered}>➍</Text> Moonbeam transfers your cashback to the linked card, on a <Text style={commonStyles.dialogParagraphBold}>monthly</Text> basis.
                                                 </>
                                         }
                                     </Text>
@@ -201,7 +207,7 @@ export const Dashboard = ({}) => {
                                     <View style={styles.statisticsView}>
                                         <View style={styles.statLeftView}>
                                             <View style={styles.statInfoViewLeft}>
-                                                <Text style={styles.statNumberCenterLeft}>$ 100,000</Text>
+                                                <Text style={styles.statNumberCenterLeft}>$ 1,238.76</Text>
                                                 <Text style={styles.statTitleLeft}>
                                                     Lifetime <Text style={styles.statTitleRegular}>Savings</Text>
                                                 </Text>
@@ -216,7 +222,7 @@ export const Dashboard = ({}) => {
                                         <View style={styles.verticalLine}/>
                                         <View style={styles.statRightView}>
                                             <View style={styles.statInfoViewRight}>
-                                                <Text style={styles.statNumberCenterRight}>$ 1.38</Text>
+                                                <Text style={styles.statNumberCenterRight}>$ 10.38</Text>
                                                 <Text style={styles.statTitleRight}>
                                                     Available <Text style={styles.statTitleRegular}>Balance</Text>
                                                 </Text>
@@ -230,207 +236,217 @@ export const Dashboard = ({}) => {
                                         </View>
                                     </View>
                                 </ImageBackground>
-                            </View>
-                            <View style={styles.bottomView}>
-                                <SegmentedButtons
-                                    density={'small'}
-                                    style={[styles.segmentedButtons]}
-                                    value={segmentedValue}
-                                    onValueChange={(value) => {
-                                        setSegmentedValue(value);
-                                    }}
-                                    buttons={[
-                                        {
-                                            value: 'transactions',
-                                            label: 'Transactions',
-                                            checkedColor: 'black',
-                                            uncheckedColor: 'white',
-                                            style: {
-                                                backgroundColor: segmentedValue === 'transactions' ? '#F2FF5D' : '#5B5A5A',
-                                                borderColor: segmentedValue === 'transactions' ? '#F2FF5D' : '#5B5A5A',
-                                            }
-                                        },
-                                        {
-                                            value: 'cashback',
-                                            label: 'Cashback',
-                                            checkedColor: 'black',
-                                            uncheckedColor: 'white',
-                                            style: {
-                                                backgroundColor: segmentedValue === 'cashback' ? '#F2FF5D' : '#5B5A5A',
-                                                borderColor: segmentedValue === 'cashback' ? '#F2FF5D' : '#5B5A5A'
-                                            }
-                                        }
-                                    ]}
+                                <CustomBanner bannerVisibilityState={bannerState.bannerVisibilityState}
+                                              bannerMessage={bannerState.bannerMessage}
+                                              bannerButtonLabel={bannerState.bannerButtonLabel}
+                                              bannerButtonLabelActionSource={bannerState.bannerButtonLabelActionSource}
+                                              bannerArtSource={bannerState.bannerArtSource}
+                                              dismissing={bannerState.dismissing}
                                 />
-                                <ScrollView
-                                    scrollEnabled={true}
-                                    persistentScrollbar={false}
-                                    showsVerticalScrollIndicator={false}
-                                    keyboardShouldPersistTaps={'handled'}
-                                    contentContainerStyle={styles.individualTransactionContainer}
-                                >
-                                    {segmentedValue === 'transactions' ?
-                                        <List.Section>
-                                            <List.Subheader style={styles.subHeaderTitle}>
-                                                Recent Transactions
-                                            </List.Subheader>
-                                            <Divider style={[styles.mainDivider, {backgroundColor: '#FFFFFF'}]}/>
-                                            <List.Item
-                                                titleStyle={styles.listItemTitle}
-                                                descriptionStyle={styles.listItemDescription}
-                                                titleNumberOfLines={2}
-                                                descriptionNumberOfLines={2}
-                                                title="Oakley"
-                                                description='Phoenix, AZ - 8m ago'
-                                                left={() => <List.Icon color={'#F2FF5D'} icon="store" style={styles.leftItemIcon}/>}
-                                                right={() =>
-                                                    <View style={styles.itemRightView}>
-                                                        <View style={styles.itemRightDetailsView}>
-                                                            <Text style={styles.itemRightDetailTop}>+ $5.50</Text>
-                                                            <Text style={styles.itemRightDetailBottom}>Pending</Text>
-                                                        </View>
-                                                        <View style={styles.rightItemIcon}>
-                                                            <List.Icon color={'#F2FF5D'} icon="chevron-right"/>
-                                                        </View>
-                                                    </View>
-                                                }
-                                            />
-                                            <Divider style={styles.divider}/>
-                                            <List.Item
-                                                titleStyle={styles.listItemTitle}
-                                                descriptionStyle={styles.listItemDescription}
-                                                titleNumberOfLines={2}
-                                                descriptionNumberOfLines={2}
-                                                title="Oakley"
-                                                description='Phoenix, AZ - 8m ago'
-                                                left={() => <List.Icon color={'#F2FF5D'} icon="store" style={styles.leftItemIcon}/>}
-                                                right={() =>
-                                                    <View style={styles.itemRightView}>
-                                                        <View style={styles.itemRightDetailsView}>
-                                                            <Text style={styles.itemRightDetailTop}>+ $5.50</Text>
-                                                            <Text style={styles.itemRightDetailBottom}>Pending</Text>
-                                                        </View>
-                                                        <View style={styles.rightItemIcon}>
-                                                            <List.Icon color={'#F2FF5D'} icon="chevron-right"/>
-                                                        </View>
-                                                    </View>
-                                                }
-                                            />
-                                            <Divider style={styles.divider}/>
-                                            <List.Item
-                                                titleStyle={styles.listItemTitle}
-                                                descriptionStyle={styles.listItemDescription}
-                                                titleNumberOfLines={2}
-                                                descriptionNumberOfLines={2}
-                                                title="Oakley"
-                                                description='Phoenix, AZ - 8m ago'
-                                                left={() => <List.Icon color={'#F2FF5D'} icon="store" style={styles.leftItemIcon}/>}
-                                                right={() =>
-                                                    <View style={styles.itemRightView}>
-                                                        <View style={styles.itemRightDetailsView}>
-                                                            <Text style={styles.itemRightDetailTop}>+ $5.50</Text>
-                                                            <Text style={styles.itemRightDetailBottom}>Pending</Text>
-                                                        </View>
-                                                        <View style={styles.rightItemIcon}>
-                                                            <List.Icon color={'#F2FF5D'} icon="chevron-right"/>
-                                                        </View>
-                                                    </View>
-                                                }
-                                            />
-                                            <Divider style={styles.divider}/>
-                                            <List.Item
-                                                titleStyle={styles.listItemTitle}
-                                                descriptionStyle={styles.listItemDescription}
-                                                titleNumberOfLines={2}
-                                                descriptionNumberOfLines={2}
-                                                title="Oakley"
-                                                description='Phoenix, AZ - 8m ago'
-                                                left={() => <List.Icon color={'#F2FF5D'} icon="store" style={styles.leftItemIcon}/>}
-                                                right={() =>
-                                                    <View style={styles.itemRightView}>
-                                                        <View style={styles.itemRightDetailsView}>
-                                                            <Text style={styles.itemRightDetailTop}>+ $5.50</Text>
-                                                            <Text style={styles.itemRightDetailBottom}>Pending</Text>
-                                                        </View>
-                                                        <View style={styles.rightItemIcon}>
-                                                            <List.Icon color={'#F2FF5D'} icon="chevron-right"/>
-                                                        </View>
-                                                    </View>
-                                                }
-                                            />
-                                            <Divider style={styles.divider}/>
-                                            <List.Item
-                                                titleStyle={styles.listItemTitle}
-                                                descriptionStyle={styles.listItemDescription}
-                                                titleNumberOfLines={2}
-                                                descriptionNumberOfLines={2}
-                                                title="Oakley"
-                                                description='Phoenix, AZ - 8m ago'
-                                                left={() => <List.Icon color={'#F2FF5D'} icon="store" style={styles.leftItemIcon}/>}
-                                                right={() =>
-                                                    <View style={styles.itemRightView}>
-                                                        <View style={styles.itemRightDetailsView}>
-                                                            <Text style={styles.itemRightDetailTop}>+ $5.50</Text>
-                                                            <Text style={styles.itemRightDetailBottom}>Pending</Text>
-                                                        </View>
-                                                        <View style={styles.rightItemIcon}>
-                                                            <List.Icon color={'#F2FF5D'} icon="chevron-right"/>
-                                                        </View>
-                                                    </View>
-                                                }
-                                            />
-                                            <Divider style={styles.divider}/>
-                                            <List.Item
-                                                titleStyle={styles.listItemTitle}
-                                                descriptionStyle={styles.listItemDescription}
-                                                titleNumberOfLines={2}
-                                                descriptionNumberOfLines={2}
-                                                title="Oakley"
-                                                description='Phoenix, AZ - 8m ago'
-                                                left={() => <List.Icon color={'#F2FF5D'} icon="store" style={styles.leftItemIcon}/>}
-                                                right={() =>
-                                                    <View style={styles.itemRightView}>
-                                                        <View style={styles.itemRightDetailsView}>
-                                                            <Text style={styles.itemRightDetailTop}>+ $5.50</Text>
-                                                            <Text style={styles.itemRightDetailBottom}>Pending</Text>
-                                                        </View>
-                                                        <View style={styles.rightItemIcon}>
-                                                            <List.Icon color={'#F2FF5D'} icon="chevron-right"/>
-                                                        </View>
-                                                    </View>
-                                                }
-                                            />
-                                            <Divider style={styles.divider}/>
-                                        </List.Section>
-                                        : <List.Section>
-                                            <List.Subheader style={styles.subHeaderTitle}>
-                                                Recent Cashback
-                                            </List.Subheader>
-                                            <Divider style={styles.mainDivider}/>
-                                            <List.Item
-                                                titleStyle={styles.listItemTitle}
-                                                descriptionStyle={styles.listItemDescription}
-                                                titleNumberOfLines={2}
-                                                descriptionNumberOfLines={2}
-                                                title="Cashback Credit"
-                                                description={"VISA ••••3922"}
-                                                left={() => <List.Icon color={'#F2FF5D'} icon="currency-usd" style={styles.leftItemIcon}/>}
-                                                right={() =>
-                                                    <View style={styles.itemRightView}>
-                                                        <View style={styles.itemRightDetailsView}>
-                                                            <Text style={styles.itemRightDetailTop}>+ $25.98</Text>
-                                                            <Text style={styles.itemRightDetailBottom}>June 2023</Text>
-                                                        </View>
-                                                        <View style={styles.rightItemIcon}>
-                                                            <List.Icon color={'#F2FF5D'} icon="chevron-right"/>
-                                                        </View>
-                                                    </View>
-                                                }
-                                            />
-                                            <Divider style={styles.divider}/>
-                                        </List.Section>}
-                                </ScrollView>
                             </View>
+                            {
+                                bannerVisibile &&
+                                <View style={styles.bottomView}>
+                                    <SegmentedButtons
+                                        density={'small'}
+                                        style={[styles.segmentedButtons]}
+                                        value={segmentedValue}
+                                        onValueChange={(value) => {
+                                            setSegmentedValue(value);
+                                        }}
+                                        buttons={[
+                                            {
+                                                value: 'transactions',
+                                                label: 'Transactions',
+                                                checkedColor: 'black',
+                                                uncheckedColor: 'white',
+                                                style: {
+                                                    backgroundColor: segmentedValue === 'transactions' ? '#F2FF5D' : '#5B5A5A',
+                                                    borderColor: segmentedValue === 'transactions' ? '#F2FF5D' : '#5B5A5A',
+                                                },
+                                            },
+                                            {
+                                                value: 'cashback',
+                                                label: 'Cashback',
+                                                checkedColor: 'black',
+                                                uncheckedColor: 'white',
+                                                style: {
+                                                    backgroundColor: segmentedValue === 'cashback' ? '#F2FF5D' : '#5B5A5A',
+                                                    borderColor: segmentedValue === 'cashback' ? '#F2FF5D' : '#5B5A5A'
+                                                }
+                                            }
+                                        ]}
+                                    />
+                                    <ScrollView
+                                        scrollEnabled={true}
+                                        persistentScrollbar={false}
+                                        showsVerticalScrollIndicator={false}
+                                        keyboardShouldPersistTaps={'handled'}
+                                        contentContainerStyle={styles.individualTransactionContainer}
+                                    >
+                                        {segmentedValue === 'transactions' ?
+                                            <List.Section>
+                                                <List.Subheader style={styles.subHeaderTitle}>
+                                                    Recent Transactions
+                                                </List.Subheader>
+                                                <Divider style={[styles.mainDivider, {backgroundColor: '#FFFFFF'}]}/>
+                                                <List.Item
+                                                    titleStyle={styles.listItemTitle}
+                                                    descriptionStyle={styles.listItemDescription}
+                                                    titleNumberOfLines={2}
+                                                    descriptionNumberOfLines={2}
+                                                    title="Oakley"
+                                                    description='Phoenix, AZ - 8m ago'
+                                                    left={() => <List.Icon color={'#F2FF5D'} icon="store" style={styles.leftItemIcon}/>}
+                                                    right={() =>
+                                                        <View style={styles.itemRightView}>
+                                                            <View style={styles.itemRightDetailsView}>
+                                                                <Text style={styles.itemRightDetailTop}>+ $5.50</Text>
+                                                                <Text style={styles.itemRightDetailBottom}>Pending</Text>
+                                                            </View>
+                                                            <View style={styles.rightItemIcon}>
+                                                                <List.Icon color={'#F2FF5D'} icon="chevron-right"/>
+                                                            </View>
+                                                        </View>
+                                                    }
+                                                />
+                                                <Divider style={styles.divider}/>
+                                                <List.Item
+                                                    titleStyle={styles.listItemTitle}
+                                                    descriptionStyle={styles.listItemDescription}
+                                                    titleNumberOfLines={2}
+                                                    descriptionNumberOfLines={2}
+                                                    title="Oakley"
+                                                    description='Phoenix, AZ - 8m ago'
+                                                    left={() => <List.Icon color={'#F2FF5D'} icon="store" style={styles.leftItemIcon}/>}
+                                                    right={() =>
+                                                        <View style={styles.itemRightView}>
+                                                            <View style={styles.itemRightDetailsView}>
+                                                                <Text style={styles.itemRightDetailTop}>+ $5.50</Text>
+                                                                <Text style={styles.itemRightDetailBottom}>Pending</Text>
+                                                            </View>
+                                                            <View style={styles.rightItemIcon}>
+                                                                <List.Icon color={'#F2FF5D'} icon="chevron-right"/>
+                                                            </View>
+                                                        </View>
+                                                    }
+                                                />
+                                                <Divider style={styles.divider}/>
+                                                <List.Item
+                                                    titleStyle={styles.listItemTitle}
+                                                    descriptionStyle={styles.listItemDescription}
+                                                    titleNumberOfLines={2}
+                                                    descriptionNumberOfLines={2}
+                                                    title="Oakley"
+                                                    description='Phoenix, AZ - 8m ago'
+                                                    left={() => <List.Icon color={'#F2FF5D'} icon="store" style={styles.leftItemIcon}/>}
+                                                    right={() =>
+                                                        <View style={styles.itemRightView}>
+                                                            <View style={styles.itemRightDetailsView}>
+                                                                <Text style={styles.itemRightDetailTop}>+ $5.50</Text>
+                                                                <Text style={styles.itemRightDetailBottom}>Pending</Text>
+                                                            </View>
+                                                            <View style={styles.rightItemIcon}>
+                                                                <List.Icon color={'#F2FF5D'} icon="chevron-right"/>
+                                                            </View>
+                                                        </View>
+                                                    }
+                                                />
+                                                <Divider style={styles.divider}/>
+                                                <List.Item
+                                                    titleStyle={styles.listItemTitle}
+                                                    descriptionStyle={styles.listItemDescription}
+                                                    titleNumberOfLines={2}
+                                                    descriptionNumberOfLines={2}
+                                                    title="Oakley"
+                                                    description='Phoenix, AZ - 8m ago'
+                                                    left={() => <List.Icon color={'#F2FF5D'} icon="store" style={styles.leftItemIcon}/>}
+                                                    right={() =>
+                                                        <View style={styles.itemRightView}>
+                                                            <View style={styles.itemRightDetailsView}>
+                                                                <Text style={styles.itemRightDetailTop}>+ $5.50</Text>
+                                                                <Text style={styles.itemRightDetailBottom}>Pending</Text>
+                                                            </View>
+                                                            <View style={styles.rightItemIcon}>
+                                                                <List.Icon color={'#F2FF5D'} icon="chevron-right"/>
+                                                            </View>
+                                                        </View>
+                                                    }
+                                                />
+                                                <Divider style={styles.divider}/>
+                                                <List.Item
+                                                    titleStyle={styles.listItemTitle}
+                                                    descriptionStyle={styles.listItemDescription}
+                                                    titleNumberOfLines={2}
+                                                    descriptionNumberOfLines={2}
+                                                    title="Oakley"
+                                                    description='Phoenix, AZ - 8m ago'
+                                                    left={() => <List.Icon color={'#F2FF5D'} icon="store" style={styles.leftItemIcon}/>}
+                                                    right={() =>
+                                                        <View style={styles.itemRightView}>
+                                                            <View style={styles.itemRightDetailsView}>
+                                                                <Text style={styles.itemRightDetailTop}>+ $5.50</Text>
+                                                                <Text style={styles.itemRightDetailBottom}>Pending</Text>
+                                                            </View>
+                                                            <View style={styles.rightItemIcon}>
+                                                                <List.Icon color={'#F2FF5D'} icon="chevron-right"/>
+                                                            </View>
+                                                        </View>
+                                                    }
+                                                />
+                                                <Divider style={styles.divider}/>
+                                                <List.Item
+                                                    titleStyle={styles.listItemTitle}
+                                                    descriptionStyle={styles.listItemDescription}
+                                                    titleNumberOfLines={2}
+                                                    descriptionNumberOfLines={2}
+                                                    title="Oakley"
+                                                    description='Phoenix, AZ - 8m ago'
+                                                    left={() => <List.Icon color={'#F2FF5D'} icon="store" style={styles.leftItemIcon}/>}
+                                                    right={() =>
+                                                        <View style={styles.itemRightView}>
+                                                            <View style={styles.itemRightDetailsView}>
+                                                                <Text style={styles.itemRightDetailTop}>+ $5.50</Text>
+                                                                <Text style={styles.itemRightDetailBottom}>Pending</Text>
+                                                            </View>
+                                                            <View style={styles.rightItemIcon}>
+                                                                <List.Icon color={'#F2FF5D'} icon="chevron-right"/>
+                                                            </View>
+                                                        </View>
+                                                    }
+                                                />
+                                                <Divider style={styles.divider}/>
+                                            </List.Section>
+                                            : <List.Section>
+                                                <List.Subheader style={styles.subHeaderTitle}>
+                                                    Recent Cashback
+                                                </List.Subheader>
+                                                <Divider style={styles.mainDivider}/>
+                                                <List.Item
+                                                    titleStyle={styles.listItemTitle}
+                                                    descriptionStyle={styles.listItemDescription}
+                                                    titleNumberOfLines={2}
+                                                    descriptionNumberOfLines={2}
+                                                    title="Cashback Credit"
+                                                    description={"VISA ••••3922"}
+                                                    left={() => <List.Icon color={'#F2FF5D'} icon="currency-usd" style={styles.leftItemIcon}/>}
+                                                    right={() =>
+                                                        <View style={styles.itemRightView}>
+                                                            <View style={styles.itemRightDetailsView}>
+                                                                <Text style={styles.itemRightDetailTop}>+ $25.98</Text>
+                                                                <Text style={styles.itemRightDetailBottom}>June 2023</Text>
+                                                            </View>
+                                                            <View style={styles.rightItemIcon}>
+                                                                <List.Icon color={'#F2FF5D'} icon="chevron-right"/>
+                                                            </View>
+                                                        </View>
+                                                    }
+                                                />
+                                                <Divider style={styles.divider}/>
+                                            </List.Section>}
+                                    </ScrollView>
+                                </View>
+                            }
                         </SafeAreaView>
                     </>
             }

@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {Image, ImageSourcePropType, SafeAreaView} from "react-native";
+import {Image, ImageSourcePropType} from "react-native";
 import {Banner, Text} from 'react-native-paper';
 import {RecoilState, useRecoilState} from "recoil";
 import {styles} from '../../styles/customBanner.module';
@@ -25,7 +25,7 @@ export const CustomBanner = (props: {
     dismissing: boolean
 }) => {
     // constants used to keep track of shared states
-    const [bannerShown, ] = useRecoilState(customBannerShown);
+    const [bannerShown,] = useRecoilState(customBannerShown);
     const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
     const [bannerVisibile, setBannerVisible] = useRecoilState(props.bannerVisibilityState);
 
@@ -45,39 +45,37 @@ export const CustomBanner = (props: {
 
     // return the component for the Custom Banner page
     return (
-        <SafeAreaView style={{backgroundColor: '#313030'}}>
-            <Banner
-                style={!bannerVisibile && bannerShown && styles.bannerStyle}
-                visible={!bannerVisibile && bannerShown}
-                actions={[
-                    {
-                        label: props.bannerButtonLabel,
-                        labelStyle: deviceType === DeviceType.TABLET ? styles.buttonLabelTablet : styles.buttonLabel,
-                        onPress: async () => {
-                            // go to a specific URL within the application
-                            await Linking.openURL(Linking.createURL(props.bannerButtonLabelActionSource));
-                        },
+        <Banner
+            style={!bannerVisibile && bannerShown && styles.bannerStyle}
+            visible={!bannerVisibile && bannerShown}
+            actions={[
+                {
+                    label: props.bannerButtonLabel,
+                    labelStyle: deviceType === DeviceType.TABLET ? styles.buttonLabelTablet : styles.buttonLabel,
+                    onPress: async () => {
+                        // go to a specific URL within the application
+                        await Linking.openURL(Linking.createURL(props.bannerButtonLabelActionSource));
                     },
-                    ...props.dismissing ? [{
-                        labelStyle: deviceType === DeviceType.TABLET ? styles.buttonLabelTablet : styles.buttonLabel,
-                        label: 'Dismiss',
-                        onPress: () => {
-                            // hide banner
-                            setBannerVisible(false);
-                        },
-                    }] : []
-                ]}
-                icon={({}) => (
-                    <Image
-                        source={props.bannerArtSource}
-                        style={deviceType === DeviceType.TABLET ? styles.bannerImageTablet: styles.bannerImage}
-                    />
-                )}>
-                <Text style={deviceType === DeviceType.TABLET ? styles.bannerDescriptionTablet : styles.bannerDescription}>
-                    {props.bannerMessage}
-                </Text>
-            </Banner>
-        </SafeAreaView>
+                },
+                ...props.dismissing ? [{
+                    labelStyle: deviceType === DeviceType.TABLET ? styles.buttonLabelTablet : styles.buttonLabel,
+                    label: 'Dismiss',
+                    onPress: () => {
+                        // hide banner
+                        setBannerVisible(false);
+                    },
+                }] : []
+            ]}
+            icon={({}) => (
+                <Image
+                    source={props.bannerArtSource}
+                    style={deviceType === DeviceType.TABLET ? styles.bannerImageTablet : styles.bannerImage}
+                />
+            )}>
+            <Text style={deviceType === DeviceType.TABLET ? styles.bannerDescriptionTablet : styles.bannerDescription}>
+                {props.bannerMessage}
+            </Text>
+        </Banner>
     );
 };
 

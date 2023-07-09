@@ -9,8 +9,6 @@ import {bottomTabShownState} from "../../../../recoil/HomeAtom";
 import {Dimensions, Text} from 'react-native';
 import {currentUserInformation} from "../../../../recoil/AuthAtom";
 import {MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
-import {CustomBanner} from "../../../common/CustomBanner";
-import {customBannerState} from "../../../../recoil/CustomBannerAtom";
 import {Wallet} from "./cards/Wallet";
 import {DashboardController} from "./dashboard/DashboardController";
 import {Marketplace} from "./marketplace/Marketplace";
@@ -28,7 +26,6 @@ export const Home = ({navigation}: HomeProps) => {
     // constants used to keep track of shared states
     const [bottomTabShown,] = useRecoilState(bottomTabShownState);
     const [userInformation,] = useRecoilState(currentUserInformation);
-    const [bannerState,] = useRecoilState(customBannerState);
     const [, setIsDrawerInDashboard] = useRecoilState(drawerDashboardState);
 
     // create a bottom navigator, to be used for our Home bottom bar navigation
@@ -81,13 +78,6 @@ export const Home = ({navigation}: HomeProps) => {
     // return the component for the Home page
     return (
         <>
-            <CustomBanner bannerVisibilityState={bannerState.bannerVisibilityState}
-                          bannerMessage={bannerState.bannerMessage}
-                          bannerButtonLabel={bannerState.bannerButtonLabel}
-                          bannerButtonLabelActionSource={bannerState.bannerButtonLabelActionSource}
-                          bannerArtSource={bannerState.bannerArtSource}
-                          dismissing={bannerState.dismissing}
-            />
             <NavigationContainer independent={true} linking={linking} fallback={<Text>Loading...</Text>}>
                 <HomeTabStack.Navigator
                     initialRouteName={"DashboardController"}
