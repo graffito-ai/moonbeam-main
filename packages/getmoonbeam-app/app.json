@@ -15,16 +15,7 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true,
-      "infoPlist": {
-        "UIBackgroundModes": [
-          "location",
-          "fetch"
-        ],
-        "NSLocationWhenInUseUsageDescription": "$(PRODUCT_NAME) uses your location in order to be able to find the best deals near you.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "$(PRODUCT_NAME) uses your location in order to be able to find the best deals near you.",
-        "NSLocationAlwaysUsageDescription": "$(PRODUCT_NAME) uses your location in order to be able to find the best deals near you."
-      }
+      "supportsTablet": true
     },
     "android": {
       "softwareKeyboardLayoutMode": "pan",
@@ -46,9 +37,7 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location.",
-          "locationAlwaysPermission": "Allow $(PRODUCT_NAME) to use your location.",
-          "locationWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location.",
+          "locationWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location when the app is in use.",
           "isIosBackgroundLocationEnabled": true,
           "isAndroidBackgroundLocationEnabled": true
         }

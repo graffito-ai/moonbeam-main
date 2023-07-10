@@ -58,7 +58,8 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             // retrieve the profile picture (if existent)
             (!profilePictureURI || profilePictureURI === "") && retrieveProfilePicture();
         }
-    }, [userInformation["custom:userId"], userInformation["given_name"], userInformation["family_name"], profilePictureURI]);
+    }, [userInformation["custom:userId"], userInformation["given_name"],
+        userInformation["family_name"], profilePictureURI]);
 
     /**
      * Function used to retrieve the new profile picture, after picking a picture through

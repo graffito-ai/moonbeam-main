@@ -144,8 +144,8 @@ export const AppDrawer = ({}: AppDrawerProps) => {
             && userInformation["militaryStatus"] === MilitaryVerificationStatusType.Verified
             && retrieveLinkedCard(userInformation["custom:userId"]);
         }
-    }, [militaryStatusUpdatesSubscription, userInformation["custom:userId"], userInformation["militaryStatus"],
-        cardLinkingStatus, deviceType]);
+    }, [militaryStatusUpdatesSubscription, userInformation["custom:userId"],
+        userInformation["militaryStatus"], cardLinkingStatus, deviceType]);
 
     /**
      * Function used to retrieve an individual's card linked object.

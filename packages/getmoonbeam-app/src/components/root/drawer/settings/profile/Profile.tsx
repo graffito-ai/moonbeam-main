@@ -193,8 +193,8 @@ export const Profile = ({navigation}: ProfileProps) => {
             }
             addressZip === "" && setAddressZipErrors([]);
         }
-    }, [userInformation["custom:userId"], appDrawerHeaderShown,
-        userInformation, profilePictureURI,
+    }, [userInformation["custom:userId"],
+        appDrawerHeaderShown, userInformation, profilePictureURI,
         email, emailFocus, phoneNumber, phoneNumberFocus, dutyStatus,
         addressLine, addressLineFocus, addressCity, addressCityFocus,
         addressState, addressStateFocus, addressZip, addressZipFocus,

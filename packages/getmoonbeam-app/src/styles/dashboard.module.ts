@@ -226,5 +226,182 @@ export const styles = StyleSheet.create({
         alignSelf: 'flex-end',
         width: Dimensions.get('window').width/1.15,
         backgroundColor: '#5B5A5A'
-    }
+    },
+    bottomSheet: {
+        backgroundColor: '#5B5A5A'
+    },
+    transactionParentView: {
+        flex: 1,
+        width: '100%',
+        height: '100%',
+        flexDirection: 'column',
+        alignContent: 'center',
+        alignSelf: 'center',
+        alignItems: 'center',
+        backgroundColor: '#5B5A5A',
+
+    },
+    transactionMapView: {
+        height: Dimensions.get('window').height/4,
+        width: Dimensions.get('window').width/1.05,
+        position: 'absolute',
+        bottom: 20
+    },
+    mapTooltip: {
+        zIndex: 500,
+        backgroundColor: "transparent",
+    },
+    mapTooltipSquare: {
+        zIndex: 600,
+        height: Dimensions.get('window').height / 25,
+        width: Dimensions.get('window').width / 4.5,
+        backgroundColor: "#313030",
+        borderRadius: 10,
+        borderColor: '#F2FF5D',
+        borderWidth: 4
+    },
+    mapTooltipArrow: {
+        zIndex: 700,
+        position: "absolute",
+        top: -Dimensions.get('window').height / 100,
+        right: Dimensions.get('window').width / 17.4,
+        width: 0,
+        height: 0,
+        borderStyle: "solid",
+        borderLeftWidth: Dimensions.get('window').height / 45,
+        borderRightWidth: Dimensions.get('window').height / 45,
+        borderBottomWidth: Dimensions.get('window').height / 35,
+        borderLeftColor: "transparent",
+        borderRightColor: "transparent",
+        borderBottomColor: "#313030"
+    },
+    mapTooltipArrowOverlay: {
+        position: "absolute",
+        top: -Dimensions.get('window').height / 60,
+        right: Dimensions.get('window').width / 17.4,
+        width: 0,
+        height: 0,
+        borderStyle: "solid",
+        borderLeftWidth: Dimensions.get('window').height / 45,
+        borderRightWidth: Dimensions.get('window').height / 45,
+        borderBottomWidth: Dimensions.get('window').height / 35,
+        borderLeftColor: "transparent",
+        borderRightColor: "transparent",
+        borderBottomColor: "#F2FF5D"
+    },
+    toolTipDetailsView: {
+        backgroundColor: "transparent",
+        flexDirection: 'row',
+        alignSelf: 'center',
+        alignItems: 'center',
+        alignContent: 'center',
+        justifyContent: 'center',
+        bottom: Dimensions.get('window').height/30,
+        zIndex: 1000
+    },
+    toolTipImageDetail: {
+        alignSelf: 'center',
+        right: Dimensions.get('window').width / 55
+    },
+    toolTipImagePrice: {
+        left: Dimensions.get('window').width / 50,
+        top: Dimensions.get('window').width / 500,
+        alignSelf: 'center',
+        fontFamily: 'Raleway-ExtraBold',
+        fontSize: Dimensions.get('window').width / 24,
+        textAlign: 'center',
+        color: '#F2FF5D'
+    },
+    transactionBrandDetailsView: {
+        flexDirection: 'column',
+        alignSelf: 'center',
+        alignItems: 'center',
+        alignContent: 'center',
+        justifyContent: 'center',
+        width: Dimensions.get('window').width
+    },
+    transactionBrandName: {
+        alignSelf: 'flex-start',
+        left: Dimensions.get('window').width / 20,
+        fontFamily: 'Saira-Bold',
+        fontSize: Dimensions.get('window').width / 18,
+        color: '#FFFFFF'
+    },
+    transactionDetailsView: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        width: Dimensions.get('window').width,
+        left: Dimensions.get('window').width / 20,
+    },
+    transactionBrandImage: {
+        alignSelf: 'flex-start',
+        borderRadius: 10
+    },
+    transactionAmountsView: {
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        width: Dimensions.get('window').width/1.5,
+        bottom: Dimensions.get('window').height/33,
+        right: Dimensions.get('window').width / 8,
+    },
+    brandDetailsView: {
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        width: Dimensions.get('window').width/1.5,
+        bottom: Dimensions.get('window').height/200,
+        left: Dimensions.get('window').width / 20,
+    },
+    transactionAmountLabel: {
+        fontSize: Dimensions.get('window').width / 23,
+        fontFamily: 'Changa-Medium',
+        color: '#FFFFFF'
+    },
+    transactionStatusLabel: {
+        fontSize: Dimensions.get('window').width / 23,
+        fontFamily: 'Changa-Medium',
+        color: '#F2FF5D'
+    },
+    transactionTimestamp: {
+        alignSelf: 'flex-start',
+        fontSize: Dimensions.get('window').width / 28,
+        fontFamily: 'Changa-Light',
+        textAlign: 'justify',
+        width: Dimensions.get('window').width/3,
+        lineHeight: Dimensions.get('window').height/45,
+        color: '#FFFFFF'
+    },
+    transactionAddress: {
+        alignSelf: 'flex-start',
+        fontSize: Dimensions.get('window').width / 28,
+        fontFamily: 'Changa-Light',
+        textAlign: 'justify',
+        width: Dimensions.get('window').width/3,
+        lineHeight: Dimensions.get('window').height/45,
+        color: '#FFFFFF'
+    },
+    transactionDiscountAmount: {
+        alignSelf: 'flex-start',
+        fontSize: Dimensions.get('window').width / 20,
+        fontFamily: 'Changa-Bold',
+        color: '#F2FF5D'
+    },
+    transactionDiscountPercentage: {
+        alignSelf: 'flex-start',
+        bottom: Dimensions.get('window').height/50,
+        fontSize: Dimensions.get('window').width / 20,
+        fontFamily: 'Changa-Bold',
+        color: '#F2FF5D'
+    },
+    transactionStatus: {
+        alignSelf: 'flex-start',
+        left: Dimensions.get('window').width / 20,
+        fontFamily: 'Changa-Bold',
+        color: '#FFFFFF'
+    },
+    transactionLocation: {
+        alignSelf: 'flex-start',
+        left: Dimensions.get('window').width / 20,
+        fontFamily: 'Changa-Bold',
+        color: '#FFFFFF'
+    },
 });

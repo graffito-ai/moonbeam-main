@@ -59,7 +59,7 @@ export const Wallet = ({navigation}: CardsProps) => {
     const [, setBannerState] = useRecoilState(customBannerState);
     const [, setBannerShown] = useRecoilState(customBannerShown);
     const [appDrawerHeaderShown, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
-    const [bannerShown, setBottomTabShown] = useRecoilState(bottomTabShownState);
+    const [bottomTabShown, setBottomTabShown] = useRecoilState(bottomTabShownState);
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
     const [splashState, setSplashState] = useRecoilState(splashStatusState);
     const [cardLinkingBottomSheet, setCardLinkingBottomSheet] = useRecoilState(cardLinkingBottomSheetState);
@@ -410,7 +410,7 @@ export const Wallet = ({navigation}: CardsProps) => {
                             }
                         </View>
                         {
-                            !cardLinkingBottomSheet && !appDrawerHeaderShown && !bannerShown &&
+                            !cardLinkingBottomSheet && !appDrawerHeaderShown && !bottomTabShown &&
                             <BottomSheet
                                 ref={bottomSheetRef}
                                 backgroundStyle={styles.bottomSheet}

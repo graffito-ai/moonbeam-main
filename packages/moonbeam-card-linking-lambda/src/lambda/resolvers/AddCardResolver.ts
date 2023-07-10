@@ -43,7 +43,7 @@ export const addCard = async (fieldName: string, addCardInput: AddCardInput): Pr
              * @link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ReservedWords.html
              * @link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.ExpressionAttributeNames.html
              */
-            ProjectionExpression: '#idf, cards',
+            ProjectionExpression: '#idf, #c',
             ExpressionAttributeNames: {
                 '#idf': 'id',
                 '#c': 'cards'
