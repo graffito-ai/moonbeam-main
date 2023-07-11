@@ -1,14 +1,13 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Dimensions, ImageBackground, SafeAreaView, ScrollView, View} from "react-native";
+import {Dimensions, Image, ImageBackground, SafeAreaView, ScrollView, View} from "react-native";
 import {Dialog, List, Portal, SegmentedButtons, Text} from "react-native-paper";
 import {styles} from "../../../../../styles/dashboard.module";
-import {useRecoilState} from "recoil";
+import {useRecoilState, useRecoilValue} from "recoil";
 import {currentUserInformation} from "../../../../../recoil/AuthAtom";
 import * as Device from "expo-device";
 import {DeviceType} from "expo-device";
 import {deviceTypeState} from "../../../../../recoil/RootAtom";
-import {Auth} from "aws-amplify";
-import {fetchFile} from "../../../../../utils/File";
+import {API, graphqlOperation} from "aws-amplify";
 import {Spinner} from "../../../../common/Spinner";
 // @ts-ignore
 import DashboardBackgroundImage from "../../../../../../assets/backgrounds/dashboard-background.png";
@@ -21,6 +20,12 @@ import {customBannerState} from "../../../../../recoil/CustomBannerAtom";
 import BottomSheet from '@gorhom/bottom-sheet';
 import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
 import {TransactionsBottomSheet} from "./transactions/TransactionsBottomSheet";
+import {getTransaction, MoonbeamTransaction, TransactionsErrorType} from "@moonbeam/moonbeam-models";
+import {
+    sortedTransactionDataState,
+    transactionalDataRetrievedState,
+    transactionDataState
+} from "../../../../../recoil/DashboardAtom";
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -30,6 +35,7 @@ import {TransactionsBottomSheet} from "./transactions/TransactionsBottomSheet";
  */
 export const Dashboard = ({}) => {
     // constants used to keep track of local component state
+    const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [statsDialogVisible, setStatsDialogVisible] = useState(false);
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
@@ -39,14 +45,17 @@ export const Dashboard = ({}) => {
     const [segmentedValue, setSegmentedValue] = useState<string>('cashback');
     const [showBottomSheet, setShowBottomSheet] = useState<boolean>(false);
     const bottomSheetRef = useRef(null);
-    const [isTransactionOnline, setIsTransactionOnline] = useState<boolean>(true);
+    const [selectedTransaction, setSelectedTransaction] = useState<MoonbeamTransaction | null>(null);
     // constants used to keep track of shared states
     const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
     const [userInformation,] = useRecoilState(currentUserInformation);
-    const [profilePictureURI, setProfilePictureURI] = useRecoilState(profilePictureURIState);
+    const [profilePictureURI,] = useRecoilState(profilePictureURIState);
     const [bannerState,] = useRecoilState(customBannerState);
     const [bannerVisible,] = useRecoilState(bannerState.bannerVisibilityState);
     const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
+    const [transactionData, setTransactionData] = useRecoilState(transactionDataState);
+    const sortedTransactionData = useRecoilValue(sortedTransactionDataState);
+    const [transactionsRetrieved, setTransactionsRetrieved] = useRecoilState(transactionalDataRetrievedState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -66,11 +75,14 @@ export const Dashboard = ({}) => {
                 setCurrentUserTitle(`${Array.from(userInformation["given_name"].split(" ")[0])[0] as string}${Array.from(userInformation["family_name"].split(" ")[0])[0] as string}`);
                 setCurrentUserName(`${userInformation["given_name"]} ${userInformation["family_name"]}`);
             }
-            // retrieve the profile picture (if existent)
-            (!profilePictureURI || profilePictureURI === "") && retrieveProfilePicture();
+            // retrieve the transactional data for the user (if not already retrieved)
+            !transactionsRetrieved && retrieveTransactionalData(userInformation["custom:userId"]);
         }
         // manipulate the bottom sheet
         if (!showBottomSheet && bottomSheetRef) {
+            // reset the selected transaction on bottom sheet close
+            setSelectedTransaction(null);
+
             // @ts-ignore
             bottomSheetRef.current?.close?.();
         }
@@ -84,45 +96,206 @@ export const Dashboard = ({}) => {
         } else {
             setBottomTabShown(false);
         }
-    }, [deviceType, userInformation["given_name"],
+    }, [deviceType, userInformation["given_name"], transactionsRetrieved,
         userInformation["family_name"], userInformation["custom:userId"],
-        profilePictureURI, showBottomSheet, bottomSheetRef]);
+        showBottomSheet, bottomSheetRef]);
 
     /**
-     * Function used to retrieve the new profile picture, after picking a picture through
-     * the photo picker and uploading it into storage.
+     * Function used to convert a number of milliseconds to a particular time
+     * (seconds, minutes, days, weeks, years), in order to help display how much
+     * time elapsed since a transaction was made.
+     *
+     * @param milliseconds milliseconds to convert, to be passed in
+     * @return a {@link string} representing the elapsed timeframe.
      */
-    const retrieveProfilePicture = async (): Promise<void> => {
+    function convertMSToTimeframe(milliseconds: number): string {
+        let seconds = Math.floor(milliseconds / 1000);
+        let minutes = Math.floor(seconds / 60);
+        let hours = Math.floor(minutes / 60);
+        let days = Math.floor(hours / 24);
+        let months = Math.floor(days / 30);
+        let years = Math.floor(months / 12);
+
+        seconds = seconds % 60;
+        minutes = minutes % 60;
+        hours = hours % 24;
+        days = days % 30
+        months = months % 12;
+
+        // return the elapsed time accordingly
+        if (years !== 0) {
+            return years !== 1 ? `${years} years ago` : `${years} year ago`;
+        } else if (months !== 0) {
+            return months !== 1 ? `${months} months ago` : `${months} month ago`;
+        } else if (days !== 0) {
+            return days !== 1 ? `${days} days ago` : `${days} day ago`;
+        } else if (hours !== 0) {
+            return hours !== 1 ? `${hours} hours ago` : `${hours} hour ago`;
+        } else if (minutes !== 0) {
+            return minutes !== 1 ? `${minutes} minutes ago` : `${minutes} minute ago`;
+        } else if (seconds !== 0) {
+            return seconds !== 1 ? `${seconds} seconds ago` : `${seconds} second ago`;
+        } else {
+            return ''
+        }
+    }
+    
+    /**
+     * Function used to filter transactional data and return the transactions.
+     *
+     * @return {@link React.ReactNode} or {@link React.ReactNode[]}
+     */
+    const filterTransactions = (): React.ReactNode | React.ReactNode[] => {
+        let results: React.ReactNode[] = [];
+
+        // check if there's no transactional data to be retrieved for the current user
+        if (sortedTransactionData.length === 0) {
+            results.push(
+                <>
+                    <List.Item
+                        titleStyle={styles.emptyTransactionsListItemTitle}
+                        descriptionStyle={styles.listItemDescription}
+                        titleNumberOfLines={2}
+                        descriptionNumberOfLines={2}
+                        title={"No transactions available!"}
+                        description=''
+                    />
+                </>
+            );
+        } else {
+            /**
+             * sort the transactional data from most to least recent
+             * loop through the transactional data object, and populate each transaction accordingly
+             */
+            sortedTransactionData.forEach(transaction => {
+
+                // get the transaction location (city and state for in person, and online for online purchases)
+                let transactionPurchaseLocation;
+                if (transaction.transactionIsOnline) {
+                    transactionPurchaseLocation = 'Online';
+                } else {
+                    // get the store city and state, for cases where we have in person purchases
+                    const transactionBrandAddressContents = transaction.transactionBrandAddress.split(',');
+
+                    // check if we have a unit number
+                    if (transactionBrandAddressContents.length === 6) {
+                        transactionPurchaseLocation = `${transactionBrandAddressContents[2].trim()}, ${transactionBrandAddressContents[3].trim()}`;
+                    } else {
+                        transactionPurchaseLocation = `${transactionBrandAddressContents[1].trim()}, ${transactionBrandAddressContents[2].trim()}`;
+                    }
+                }
+
+                results.push(
+                    <>
+                        <List.Item
+                            titleStyle={styles.listItemTitle}
+                            descriptionStyle={styles.listItemDescription}
+                            titleNumberOfLines={2}
+                            descriptionNumberOfLines={2}
+                            title={transaction.transactionBrandName}
+                            description={`${transactionPurchaseLocation}\n${convertMSToTimeframe(Date.parse(new Date().toISOString()) - transaction.timestamp)}`}
+                            left={() => <Image source={{
+                                uri: transaction.transactionBrandLogoUrl
+                            }}
+                                               resizeMethod={"scale"}
+                                               resizeMode={"contain"}
+                                               style={styles.leftItemIcon}/>}
+                            right={() =>
+                                <View style={styles.itemRightView}>
+                                    <View style={styles.itemRightDetailsView}>
+                                        <Text style={styles.itemRightDetailTop}>{`+ ${transaction.rewardAmount}`}</Text>
+                                        <Text
+                                            style={styles.itemRightDetailBottom}>{transaction.transactionStatus}</Text>
+                                    </View>
+                                    <View style={styles.rightItemIcon}>
+                                        <List.Icon color={'#F2FF5D'} icon="chevron-right"/>
+                                    </View>
+                                </View>
+                            }
+                            onPress={() => {
+                                setSelectedTransaction(sortedTransactionData.filter((filteredTransaction) => filteredTransaction.transactionId === transaction.transactionId)[0]);
+                                // show the bottom sheet with the appropriate transaction details
+                                setShowBottomSheet(true);
+                            }}
+                        />
+                        <Divider style={styles.divider}/>
+                    </>
+                );
+            });
+        }
+        return results;
+    }
+
+    /**
+     * Function used to retrieve the individual's transactional data. This data will represent
+     * all the user's transactions, from the current time, since they've created an account with
+     * us.
+     *
+     * @param userId userID generated through previous steps during the sign-up process
+     */
+    const retrieveTransactionalData = async (userId: string): Promise<void> => {
         try {
-            // set the loader on button press
+            // set the loader
             setIsReady(false);
 
-            // retrieve the identity id for the current user
-            const userCredentials = await Auth.currentUserCredentials();
+            // call the get transaction API
+            const retrievedTransactionsResult = await API.graphql(graphqlOperation(getTransaction, {
+                getTransactionInput: {
+                    id: userId,
+                    // retrieve the current date and time to filter transactions by
+                    endDate: new Date().toISOString()
+                }
+            }));
 
-            // fetch the profile picture URI from storage and/or cache
-            const [returnFlag, profilePictureURI] = await fetchFile('profile_picture.png', true,
-                true, false, userCredentials["identityId"]);
-            if (!returnFlag || profilePictureURI === null) {
-                // release the loader on button press
+            // retrieve the data block from the response
+            // @ts-ignore
+            const responseData = retrievedTransactionsResult ? retrievedTransactionsResult.data : null;
+
+            // check if there are any errors in the returned response
+            if (responseData && responseData.getTransaction.errorMessage === null) {
+                // release the loader
                 setIsReady(true);
 
-                // for any error we just want to print them out, and not set any profile picture, and show the default avatar instead
-                console.log(`Unable to retrieve new profile picture!`);
+                /**
+                 * concatenating the incoming transactional data to the existing one and
+                 * adding the user's transactions to the transactional object
+                 */
+                const updatedTransactionalData = transactionData.concat(responseData.getTransaction.data);
+                setTransactionData(updatedTransactionalData);
+
+                // set the retrieval flag of transactions accordingly
+                setTransactionsRetrieved(true);
             } else {
-                // release the loader on button press
-                setIsReady(true);
+                /**
+                 * if there is are no transactions found for the user, then there won't be any displayed in the dashboard,
+                 * since the transactionData array will be empty.
+                 */
+                if (responseData.getTransaction.errorType === TransactionsErrorType.NoneOrAbsent) {
+                    // release the loader
+                    setIsReady(true);
 
-                // update the global profile picture state
-                setProfilePictureURI(profilePictureURI);
+                    // set the retrieval flag of transactions accordingly
+                    setTransactionsRetrieved(true);
+                } else {
+                    // release the loader
+                    setIsReady(true);
+
+                    console.log(`Unexpected error while retrieving transactional data through the API ${JSON.stringify(retrievedTransactionsResult)}`);
+                    setModalVisible(true);
+
+                    // set the retrieval flag of transactions accordingly
+                    setTransactionsRetrieved(true);
+                }
             }
         } catch (error) {
-            // release the loader on button press
+            // release the loader
             setIsReady(true);
 
-            // for any error we just want to print them out, and not set any profile picture, and show the default avatar instead
-            const errorMessage = `Error while retrieving profile picture!`;
-            console.log(`${errorMessage} - ${error}`);
+            console.log(`Unexpected error while attempting to retrieve transactional data ${JSON.stringify(error)} ${error}`);
+            setModalVisible(true);
+
+            // set the retrieval flag of transactions accordingly
+            setTransactionsRetrieved(true);
         }
     }
 
@@ -134,6 +307,17 @@ export const Dashboard = ({}) => {
                     <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                     :
                     <>
+                        <Portal>
+                            <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
+                                    onDismiss={() => setModalVisible(false)}>
+                                <Dialog.Icon icon="alert" color={"#F2FF5D"}
+                                             size={Dimensions.get('window').height / 14}/>
+                                <Dialog.Content>
+                                    <Text
+                                        style={commonStyles.dialogParagraph}>{`Unexpected error while loading dashboard!`}</Text>
+                                </Dialog.Content>
+                            </Dialog>
+                        </Portal>
                         <Portal>
                             <Dialog style={commonStyles.dialogStyle} visible={statsDialogVisible} onDismiss={() => {
                                 setStatsDialogVisible(false)
@@ -349,32 +533,7 @@ export const Dashboard = ({}) => {
                                                     Recent Cashback
                                                 </List.Subheader>
                                                 <Divider style={[styles.mainDivider, {backgroundColor: '#FFFFFF'}]}/>
-                                                <List.Item
-                                                    titleStyle={styles.listItemTitle}
-                                                    descriptionStyle={styles.listItemDescription}
-                                                    titleNumberOfLines={2}
-                                                    descriptionNumberOfLines={2}
-                                                    title="Oakley"
-                                                    description='Phoenix, AZ - 8m ago'
-                                                    left={() => <List.Icon color={'#F2FF5D'} icon="store"
-                                                                           style={styles.leftItemIcon}/>}
-                                                    right={() =>
-                                                        <View style={styles.itemRightView}>
-                                                            <View style={styles.itemRightDetailsView}>
-                                                                <Text style={styles.itemRightDetailTop}>+ $5.50</Text>
-                                                                <Text
-                                                                    style={styles.itemRightDetailBottom}>Pending</Text>
-                                                            </View>
-                                                            <View style={styles.rightItemIcon}>
-                                                                <List.Icon color={'#F2FF5D'} icon="chevron-right"/>
-                                                            </View>
-                                                        </View>
-                                                    }
-                                                    onPress={() => {
-                                                        setShowBottomSheet(true);
-                                                    }}
-                                                />
-                                                <Divider style={styles.divider}/>
+                                                {filterTransactions()}
                                             </List.Section>
                                             : <List.Section>
                                                 <List.Subheader style={styles.subHeaderTitle}>
@@ -382,54 +541,46 @@ export const Dashboard = ({}) => {
                                                 </List.Subheader>
                                                 <Divider style={styles.mainDivider}/>
                                                 <List.Item
-                                                    titleStyle={styles.listItemTitle}
+                                                    titleStyle={styles.emptyPayoutListItemTitle}
                                                     descriptionStyle={styles.listItemDescription}
                                                     titleNumberOfLines={2}
                                                     descriptionNumberOfLines={2}
-                                                    title="Cashback Payout"
-                                                    description={"VISA ••••3922"}
-                                                    left={() => <List.Icon color={'#F2FF5D'} icon="currency-usd"
-                                                                           style={styles.leftItemIcon}/>}
-                                                    right={() =>
-                                                        <View style={styles.itemRightView}>
-                                                            <View style={styles.itemRightDetailsView}>
-                                                                <Text style={styles.itemRightDetailTop}>+ $25.98</Text>
-                                                                <Text style={styles.itemRightDetailBottom}>June
-                                                                    2023</Text>
-                                                            </View>
-                                                        </View>
-                                                    }
+                                                    title={"No payouts available!"}
+                                                    description=''
                                                 />
-                                                <Divider style={styles.divider}/>
                                             </List.Section>}
                                     </ScrollView>
                                 </View>
                             }
+
                             <BottomSheet
                                 handleIndicatorStyle={{backgroundColor: '#F2FF5D'}}
                                 ref={bottomSheetRef}
-                                backgroundStyle={[styles.bottomSheet, isTransactionOnline && {backgroundColor: '#5B5A5A'}]}
+                                backgroundStyle={[styles.bottomSheet, selectedTransaction && selectedTransaction.transactionIsOnline && {backgroundColor: '#5B5A5A'}]}
                                 enablePanDownToClose={true}
                                 index={showBottomSheet ? 0 : -1}
-                                snapPoints={!isTransactionOnline ? ['55%', '55%'] : ['23%', '23%']}
+                                snapPoints={selectedTransaction && !selectedTransaction.transactionIsOnline ? ['55%', '55%'] : ['23%', '23%']}
                                 onChange={(index) => {
                                     setShowBottomSheet(index !== -1);
                                 }}
                             >
-                                <TransactionsBottomSheet
-                                    brandName={'Amigo Provisions Co.'}
-                                    brandImage={'https://olivecustomerportalsand.blob.core.windows.net/brand-logos/b090ad72-84da-4edc-d82c-08db6f54fba7-sm.jpg'}
-                                    {...isTransactionOnline && {
-                                        transactionOnlineAddress: 'amigoprovisions.com'
-                                    }}
-                                    {...!isTransactionOnline && {
-                                        transactionStoreAddress: '11414 W Nadine Way, Peoria, AZ, 85383'
-                                    }}
-                                    transactionAmount={'29.29'}
-                                    transactionDiscountAmount={'4.39'}
-                                    transactionTimestamp={'09/13/2023'}
-                                    transactionStatus={'Pending'}
-                                />
+                                {
+                                    selectedTransaction &&
+                                    <TransactionsBottomSheet
+                                        brandName={selectedTransaction.transactionBrandName}
+                                        brandImage={selectedTransaction.transactionBrandLogoUrl}
+                                        {...selectedTransaction.transactionIsOnline && {
+                                            transactionOnlineAddress: selectedTransaction.transactionBrandURLAddress
+                                        }}
+                                        {...!selectedTransaction.transactionIsOnline && {
+                                            transactionStoreAddress: selectedTransaction.transactionBrandAddress
+                                        }}
+                                        transactionAmount={selectedTransaction.totalAmount.toString()}
+                                        transactionDiscountAmount={selectedTransaction.rewardAmount.toString()}
+                                        transactionTimestamp={selectedTransaction.timestamp.toString()}
+                                        transactionStatus={selectedTransaction.transactionStatus.toString()}
+                                    />
+                                }
                             </BottomSheet>
                         </SafeAreaView>
                     </>

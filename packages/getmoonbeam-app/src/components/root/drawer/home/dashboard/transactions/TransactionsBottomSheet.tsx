@@ -128,7 +128,7 @@ export const TransactionsBottomSheet = (props: {
                                 {props.transactionStatus}
                             </Text>
                             <Text style={styles.transactionTimestamp}>
-                                {props.transactionTimestamp}
+                                {new Date(Number(props.transactionTimestamp)).toLocaleDateString()}
                             </Text>
                         </View>
                     </View>

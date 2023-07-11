@@ -178,18 +178,33 @@ export const styles = StyleSheet.create({
     individualTransactionContainer: {
         paddingBottom: Dimensions.get('window').height/30
     },
-
+    emptyPayoutListItemTitle: {
+        left: Dimensions.get('window').width/4,
+        fontSize: Dimensions.get('window').height/50,
+        color: '#F2FF5D',
+        fontFamily: 'Saira-Medium',
+        width: Dimensions.get('window').width/1.15
+    },
+    emptyTransactionsListItemTitle: {
+        left: Dimensions.get('window').width/5,
+        fontSize: Dimensions.get('window').height/50,
+        color: '#F2FF5D',
+        fontFamily: 'Saira-Medium',
+        width: Dimensions.get('window').width/1.15
+    },
     listItemTitle: {
         left: Dimensions.get('window').width/20,
         fontSize: Dimensions.get('window').height/50,
         color: '#FFFFFF',
-        fontFamily: 'Saira-ExtraBold'
+        fontFamily: 'Saira-ExtraBold',
+        width: Dimensions.get('window').width/2
     },
     listItemDescription: {
         left: Dimensions.get('window').width/20,
         fontSize: Dimensions.get('window').height/55,
         color: '#FFFFFF',
-        fontFamily: 'Raleway-Regular'
+        fontFamily: 'Raleway-Regular',
+        width: Dimensions.get('window').width/2
     },
     itemRightView: {
         flexDirection: 'row'
@@ -206,8 +221,8 @@ export const styles = StyleSheet.create({
     },
     itemRightDetailBottom: {
         marginTop: '5%',
-        fontSize: Dimensions.get('window').height/55,
-        fontFamily: 'Raleway-Bold',
+        fontSize: Dimensions.get('window').height/60,
+        fontFamily: 'Raleway-Medium',
         color: '#FFFFFF'
     },
     rightItemIcon: {
@@ -216,7 +231,9 @@ export const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     leftItemIcon: {
-        left: Dimensions.get('window').width/30
+        left: Dimensions.get('window').width/30,
+        height: Dimensions.get('window').height/10,
+        width: Dimensions.get('window').width/10,
     },
     mainDivider: {
         height: Dimensions.get('window').height/550,
@@ -375,7 +392,6 @@ export const styles = StyleSheet.create({
         alignSelf: 'flex-start',
         fontSize: Dimensions.get('window').width / 30,
         fontFamily: 'Changa-Light',
-        textAlign: 'justify',
         width: Dimensions.get('window').width/3,
         lineHeight: Dimensions.get('window').height/43,
         color: '#FFFFFF'
