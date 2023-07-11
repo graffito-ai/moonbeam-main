@@ -1,5 +1,39 @@
 // This is a file used to define the all GraphQL query constants
 
+// Query used to retrieve transactions for a particular user, within a specific timeframe
+export const getTransaction = /* GraphQL */ `
+    query GetTransaction($getTransactionInput: GetTransactionInput!) {
+        getTransaction(getTransactionInput: $getTransactionInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                timestamp
+                transactionId
+                transactionStatus
+                transactionType
+                createdAt
+                updatedAt
+                memberId
+                cardId
+                brandId
+                storeId
+                category
+                currencyCode
+                rewardAmount
+                totalAmount
+                pendingCashbackAmount
+                creditedCashbackAmount
+                transactionBrandName
+                transactionBrandAddress
+                transactionBrandLogoUrl
+                transactionBrandURLAddress
+                transactionIsOnline
+            }
+        }
+    }
+`;
+
 // Query used to retrieve a card link for a particular user
 export const getCardLink = /* GraphQL */ `
     query GetCardLink($getCardLinkInput: GetCardLinkInput!) {
@@ -21,7 +55,6 @@ export const getCardLink = /* GraphQL */ `
                 createdAt
                 updatedAt
             }
-            
         }
     }
 `;

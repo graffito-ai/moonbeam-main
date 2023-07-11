@@ -1,6 +1,7 @@
 # graphql/Root.graphql
 # Main Schema File
 type Query {
+    getTransaction(getTransactionInput: GetTransactionInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools
     getCardLink(getCardLinkInput: GetCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
     getStorage(getStorageInput: GetStorageInput!): StorageResponse! @aws_cognito_user_pools
     getMilitaryVerificationStatus(getMilitaryVerificationInput: GetMilitaryVerificationInput!): GetMilitaryVerificationResponse! @aws_cognito_user_pools
@@ -331,9 +332,10 @@ type Transaction @aws_cognito_user_pools {
     pendingCashbackAmount: Float # this amount should be the total reward amount that's pending reimbursement to the customer
     creditedCashbackAmount: Float # this amount should be the total reward amount that's reimbursed/credited to the customer
     transactionBrandName: String,
-    transactionBrandDescription: String,
     transactionBrandAddress: String,
-    transactionBrandLogoUrl: String
+    transactionBrandLogoUrl: String,
+    transactionBrandURLAddress: String,
+    transactionIsOnline: Boolean
 }
 
 # this type is mainly used to define and/or work with the TransactionResponse object before it is stored
@@ -369,9 +371,10 @@ type MoonbeamTransaction @aws_cognito_user_pools @aws_api_key {
     pendingCashbackAmount: Float! # this amount should be the total reward amount that's pending reimbursement to the customer
     creditedCashbackAmount: Float! # this amount should be the total reward amount that's reimbursed/credited to the customer
     transactionBrandName: String!,
-    transactionBrandDescription: String!,
     transactionBrandAddress: String!,
-    transactionBrandLogoUrl: String!
+    transactionBrandLogoUrl: String!,
+    transactionBrandURLAddress: String!,
+    transactionIsOnline: Boolean!
 }
 
 type MoonbeamTransactionResponse @aws_cognito_user_pools @aws_api_key {
@@ -379,6 +382,19 @@ type MoonbeamTransactionResponse @aws_cognito_user_pools @aws_api_key {
     data: MoonbeamTransaction
     errorType: TransactionsErrorType
     errorMessage: String
+}
+
+type MoonbeamTransactionsResponse @aws_cognito_user_pools {
+    data: [MoonbeamTransaction]
+    errorType: TransactionsErrorType
+    errorMessage: String
+}
+
+input GetTransactionInput {
+    id: ID! #this represents the userID which the transactions should be retrieved for
+    startDate: AWSDateTime # the start time to filter transactions for
+    endDate: AWSDateTime! # the end time to filter transactions for
+    # TBD on adding more filters for getting transactions - for now we only need the above
 }
 
 input CreateTransactionInput {
@@ -400,7 +416,8 @@ input CreateTransactionInput {
     pendingCashbackAmount: Float! # this amount should be the total reward amount that's pending reimbursement to the customer
     creditedCashbackAmount: Float! # this amount should be the total reward amount that's reimbursed/credited to the customer
     transactionBrandName: String!,
-    transactionBrandDescription: String!,
     transactionBrandAddress: String!,
-    transactionBrandLogoUrl: String!
+    transactionBrandLogoUrl: String!,
+    transactionBrandURLAddress: String!,
+    transactionIsOnline: Boolean!
 }

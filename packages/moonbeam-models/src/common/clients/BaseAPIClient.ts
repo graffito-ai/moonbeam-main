@@ -207,4 +207,17 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected getMemberDetails?(memberId: string): Promise<MemberDetailsResponse>;
+
+    /**
+     * Function used to retrieve the transaction details, given a transaction ID.
+     *
+     * @param transaction the transaction object, populated by the initial details
+     * passed in by Olive. This object will be used to set even more information for
+     * it, obtained from this transaction details call.
+     *
+     * @return a {@link Promise} of {@link TransactionResponse} representing the
+     * transaction object, populated with the additional transaction details that
+     * we retrieved.
+     */
+    protected getTransactionDetails?(transaction: Transaction): Promise<TransactionResponse>
 }

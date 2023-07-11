@@ -74,7 +74,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 transactionsPrimaryKey: 'transactionsPrimaryKey',
                 transactionsIdGlobalIndex: 'transactionsIdGlobalIndex',
                 transactionsStatusLocalIndex: 'transactionsStatusLocalIndex',
-                createTransactionResolverName: 'createTransaction'
+                createTransactionResolverName: 'createTransaction',
+                getTransactionResolverName: 'getTransaction'
             },
             sesConfig: {
                 emailAddress: `noreply-${Stages.DEV}@moonbeam.vet`,

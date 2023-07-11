@@ -1,4 +1,4 @@
-import {aws_appsync, aws_dynamodb, aws_lambda, aws_lambda_nodejs, Stack, StackProps} from "aws-cdk-lib";
+import {aws_appsync, aws_dynamodb, aws_lambda, aws_lambda_nodejs, Duration, Stack, StackProps} from "aws-cdk-lib";
 import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
 import path from "path";
@@ -27,6 +27,8 @@ export class TransactionsResolverStack extends Stack {
             entry: path.resolve(path.join(__dirname, '../../../moonbeam-transactions-lambda/src/lambda/main.ts')),
             handler: 'handler',
             runtime: aws_lambda.Runtime.NODEJS_18_X,
+            // we add a timeout here different from the default of 3 seconds, since we expect queries and filtering calls to take longer
+            timeout: Duration.seconds(20),
             memorySize: 512,
             bundling: {
                 minify: true, // minify code, defaults to false
@@ -62,6 +64,10 @@ export class TransactionsResolverStack extends Stack {
         transactionsLambdaSource.createResolver(`${props.transactionsConfig.createTransactionResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Mutation",
             fieldName: `${props.transactionsConfig.createTransactionResolverName}`
+        });
+        transactionsLambdaSource.createResolver(`${props.transactionsConfig.getTransactionResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Query",
+            fieldName: `${props.transactionsConfig.getTransactionResolverName}`
         });
 
         // create a new table to be used for Transactions purposes

@@ -32,9 +32,10 @@ subscription CreatedTransaction($id: ID!) {
             pendingCashbackAmount
             creditedCashbackAmount
             transactionBrandName
-            transactionBrandDescription
             transactionBrandAddress
             transactionBrandLogoUrl
+            transactionBrandURLAddress
+            transactionIsOnline
         }
     }
 }

@@ -358,7 +358,7 @@ export class OliveClient extends BaseAPIClient {
             }
 
             /**
-             * POST /members/{id}
+             * PUT /members/{id}
              * @link https://developer.oliveltd.com/reference/edit-member
              *
              * build the Olive API request body to be passed in, and perform a PUT to it with the appropriate information
@@ -594,10 +594,10 @@ export class OliveClient extends BaseAPIClient {
             }
 
             /**
-             * POST /brands/{id}
+             * GET /brands/{id}
              * @link https://developer.oliveltd.com/reference/get-brand
              *
-             * build the Olive API request body to be passed in, and perform a POST to it with the appropriate information
+             * build the Olive API request body to be passed in, and perform a GET to it with the appropriate information
              * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
              * error for a better customer experience.
              */
@@ -616,12 +616,12 @@ export class OliveClient extends BaseAPIClient {
                  * if we reached this, then we assume that a 2xx response code was returned.
                  * check the contents of the response, and act appropriately.
                  */
-                if (brandDetailsResponse.data && brandDetailsResponse.data["dba"] && brandDetailsResponse.data["logoUrl"] && brandDetailsResponse.data["stubCopy"]) {
+                if (brandDetailsResponse.data && brandDetailsResponse.data["dba"] && brandDetailsResponse.data["logoUrl"] &&
+                    brandDetailsResponse.data["website"]) {
                     // set the brand details for the transaction object, from the response
                     transaction.transactionBrandName = brandDetailsResponse.data["dba"];
                     transaction.transactionBrandLogoUrl = brandDetailsResponse.data["logoUrl"];
-                    transaction.transactionBrandDescription = brandDetailsResponse.data["stubCopy"];
-
+                    transaction.transactionBrandURLAddress = brandDetailsResponse.data["website"];
                     return {
                         data: transaction
                     }
@@ -712,10 +712,10 @@ export class OliveClient extends BaseAPIClient {
             }
 
             /**
-             * POST /stores/{id}
+             * GET /stores/{id}
              * @link https://developer.oliveltd.com/reference/get-store
              *
-             * build the Olive API request body to be passed in, and perform a POST to it with the appropriate information
+             * build the Olive API request body to be passed in, and perform a GET to it with the appropriate information
              * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
              * error for a better customer experience.
              */
@@ -735,8 +735,9 @@ export class OliveClient extends BaseAPIClient {
                  * check the contents of the response, and act appropriately.
                  */
                 if (storeDetailsResponse.data && storeDetailsResponse.data["address1"] && storeDetailsResponse.data["city"] && storeDetailsResponse.data["postcode"] &&
-                    storeDetailsResponse.data["state"] && storeDetailsResponse.data["countryCode"]) {
+                    storeDetailsResponse.data["state"] && storeDetailsResponse.data["countryCode"] && storeDetailsResponse.data["isOnline"] !== null) {
                     // set the store details for the transaction object, from the response
+                    transaction.transactionIsOnline = storeDetailsResponse.data["isOnline"];
                     transaction.transactionBrandAddress = `${storeDetailsResponse.data["address1"]}, ${storeDetailsResponse.data["city"]}, ${storeDetailsResponse.data["state"]}, ${storeDetailsResponse.data["postcode"]}, ${storeDetailsResponse.data["countryCode"]}`;
 
                     return {
@@ -828,10 +829,10 @@ export class OliveClient extends BaseAPIClient {
             }
 
             /**
-             * POST /members/{id}
+             * GET /members/{id}
              * @link https://developer.oliveltd.com/reference/get-member
              *
-             * build the Olive API request body to be passed in, and perform a POST to it with the appropriate information
+             * build the Olive API request body to be passed in, and perform a GET to it with the appropriate information
              * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
              * error for a better customer experience.
              */
@@ -901,6 +902,122 @@ export class OliveClient extends BaseAPIClient {
             });
         } catch (err) {
             const errorMessage = `Unexpected error while initiating the member details retrieval through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: TransactionsErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
+     * Function used to retrieve the transaction details, given a transaction ID.
+     *
+     * @param transaction the transaction object, populated by the initial details
+     * passed in by Olive. This object will be used to set even more information for
+     * it, obtained from this transaction details call.
+     *
+     * @return a {@link Promise} of {@link TransactionResponse} representing the
+     * transaction object, populated with the additional transaction details that
+     * we retrieved.
+     */
+    async getTransactionDetails(transaction: Transaction): Promise<TransactionResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'GET /transactions/{id} Olive API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the card linking call through the client
+            const [oliveBaseURL, olivePublicKey, olivePrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.OLIVE_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (oliveBaseURL === null || oliveBaseURL.length === 0 ||
+                olivePublicKey === null || olivePublicKey.length === 0 ||
+                olivePrivateKey === null || olivePrivateKey!.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Olive API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: TransactionsErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * GET /transactions/{id}
+             * @link https://developer.oliveltd.com/reference/show-transaction-details
+             *
+             * build the Olive API request body to be passed in, and perform a GET to it with the appropriate information
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            // for this call we know for sure that at client initialization time, a card ID will be passed in
+            return axios.get(`${oliveBaseURL}/transactions/${transaction.transactionId}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Olive-Key": olivePrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Olive API timed out after 15000ms!'
+            }).then(transactionDetailsResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(transactionDetailsResponse.data)}`);
+
+                /**
+                 * if we reached this, then we assume that a 2xx response code was returned.
+                 * check the contents of the response, and act appropriately.
+                 */
+                if (transactionDetailsResponse.data && transactionDetailsResponse.data["purchaseDateTime"]) {
+                    // set the transaction details for the transaction object, from the response, and convert any information accordingly
+                    transaction.timestamp = Date.parse(new Date(transactionDetailsResponse.data["purchaseDateTime"]).toISOString());
+                    return {
+                        data: transaction
+                    }
+                } else {
+                    return {
+                        errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                        errorType: TransactionsErrorType.ValidationError
+                    }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Olive API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Olive API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while initiating the brand details retrieval through ${endpointInfo}`;
             console.log(`${errorMessage} ${err}`);
 
             return {

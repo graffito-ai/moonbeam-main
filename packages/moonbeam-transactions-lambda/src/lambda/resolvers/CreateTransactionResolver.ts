@@ -1,6 +1,5 @@
 import {DynamoDBClient, GetItemCommand, PutItemCommand} from "@aws-sdk/client-dynamodb";
 import {
-    CardLinkResponse,
     CreateTransactionInput,
     MoonbeamTransaction,
     MoonbeamTransactionResponse,
@@ -11,9 +10,9 @@ import {
  * CreateTransaction resolver
  *
  * @param fieldName name of the resolver path from the AppSync event
- * @param createTransactionInput transaction input object, used to create a transaction based on an incoming
- * transaction event/message from SQS.
- * @returns {@link Promise} of {@link CardLinkResponse}
+ * @param createTransactionInput create transaction input object, used to create a transaction
+ * based on an incoming transaction event/message from SQS.
+ * @returns {@link Promise} of {@link MoonbeamTransactionResponse}
  */
 export const createTransaction = async (fieldName: string, createTransactionInput: CreateTransactionInput): Promise<MoonbeamTransactionResponse> => {
     try {
@@ -89,6 +88,9 @@ export const createTransaction = async (fieldName: string, createTransactionInpu
                     updatedAt: {
                         S: createTransactionInput.updatedAt
                     },
+                    cardId: {
+                        S: createTransactionInput.cardId
+                    },
                     memberId: {
                         S: createTransactionInput.memberId
                     },
@@ -119,14 +121,17 @@ export const createTransaction = async (fieldName: string, createTransactionInpu
                     transactionBrandName: {
                         S: createTransactionInput.transactionBrandName
                     },
-                    transactionBrandDescription: {
-                        S: createTransactionInput.transactionBrandDescription
-                    },
                     transactionBrandAddress: {
                         S: createTransactionInput.transactionBrandAddress
                     },
                     transactionBrandLogoUrl: {
                         S: createTransactionInput.transactionBrandLogoUrl
+                    },
+                    transactionBrandURLAddress: {
+                        S: createTransactionInput.transactionBrandURLAddress
+                    },
+                    transactionIsOnline: {
+                        BOOL: createTransactionInput.transactionIsOnline
                     }
                 },
             }));

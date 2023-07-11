@@ -24,9 +24,10 @@ mutation CreateTransaction($createTransactionInput: CreateTransactionInput!) {
             pendingCashbackAmount
             creditedCashbackAmount
             transactionBrandName
-            transactionBrandDescription
             transactionBrandAddress
             transactionBrandLogoUrl
+            transactionBrandURLAddress
+            transactionIsOnline
         }
     }
 }

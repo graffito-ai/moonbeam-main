@@ -1,5 +1,35 @@
 # graphql/Queries.graphql
 # Queries Schema File
+query GetTransaction($getTransactionInput: GetTransactionInput!) {
+    getTransaction(getTransactionInput: $getTransactionInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            timestamp
+            transactionId
+            transactionStatus
+            transactionType
+            createdAt
+            updatedAt
+            memberId
+            cardId
+            brandId
+            storeId
+            category
+            currencyCode
+            rewardAmount
+            totalAmount
+            pendingCashbackAmount
+            creditedCashbackAmount
+            transactionBrandName
+            transactionBrandAddress
+            transactionBrandLogoUrl
+            transactionBrandURLAddress
+            transactionIsOnline
+        }
+    }
+}
 query GetCardLink($getCardLinkInput: GetCardLinkInput!) {
     getCardLink(getCardLinkInput: $getCardLinkInput) {
         errorMessage

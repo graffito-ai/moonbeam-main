@@ -181,11 +181,13 @@ export const styles = StyleSheet.create({
 
     listItemTitle: {
         left: Dimensions.get('window').width/20,
+        fontSize: Dimensions.get('window').height/50,
         color: '#FFFFFF',
         fontFamily: 'Saira-ExtraBold'
     },
     listItemDescription: {
         left: Dimensions.get('window').width/20,
+        fontSize: Dimensions.get('window').height/55,
         color: '#FFFFFF',
         fontFamily: 'Raleway-Regular'
     },
@@ -198,13 +200,13 @@ export const styles = StyleSheet.create({
         flexDirection: 'column'
     },
     itemRightDetailTop: {
-        fontSize: Dimensions.get('window').height/55,
+        fontSize: Dimensions.get('window').height/50,
         fontFamily: 'Changa-Bold',
         color: '#F2FF5D',
     },
     itemRightDetailBottom: {
         marginTop: '5%',
-        fontSize: Dimensions.get('window').height/60,
+        fontSize: Dimensions.get('window').height/55,
         fontFamily: 'Raleway-Bold',
         color: '#FFFFFF'
     },
@@ -228,7 +230,7 @@ export const styles = StyleSheet.create({
         backgroundColor: '#5B5A5A'
     },
     bottomSheet: {
-        backgroundColor: '#5B5A5A'
+        backgroundColor: '#313030',
     },
     transactionParentView: {
         flex: 1,
@@ -238,14 +240,13 @@ export const styles = StyleSheet.create({
         alignContent: 'center',
         alignSelf: 'center',
         alignItems: 'center',
-        backgroundColor: '#5B5A5A',
-
+        backgroundColor: '#313030',
     },
     transactionMapView: {
         height: Dimensions.get('window').height/4,
         width: Dimensions.get('window').width/1.05,
         position: 'absolute',
-        bottom: 20
+        bottom: Dimensions.get('window').height/30
     },
     mapTooltip: {
         zIndex: 500,
@@ -341,7 +342,7 @@ export const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'flex-end',
         width: Dimensions.get('window').width/1.5,
-        bottom: Dimensions.get('window').height/33,
+        bottom: Dimensions.get('window').height/37,
         right: Dimensions.get('window').width / 8,
     },
     brandDetailsView: {
@@ -367,16 +368,16 @@ export const styles = StyleSheet.create({
         fontFamily: 'Changa-Light',
         textAlign: 'justify',
         width: Dimensions.get('window').width/3,
-        lineHeight: Dimensions.get('window').height/45,
+        lineHeight: Dimensions.get('window').height/40,
         color: '#FFFFFF'
     },
     transactionAddress: {
         alignSelf: 'flex-start',
-        fontSize: Dimensions.get('window').width / 28,
+        fontSize: Dimensions.get('window').width / 30,
         fontFamily: 'Changa-Light',
         textAlign: 'justify',
         width: Dimensions.get('window').width/3,
-        lineHeight: Dimensions.get('window').height/45,
+        lineHeight: Dimensions.get('window').height/43,
         color: '#FFFFFF'
     },
     transactionDiscountAmount: {

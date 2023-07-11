@@ -39,7 +39,7 @@ export const Dashboard = ({}) => {
     const [segmentedValue, setSegmentedValue] = useState<string>('cashback');
     const [showBottomSheet, setShowBottomSheet] = useState<boolean>(false);
     const bottomSheetRef = useRef(null);
-    const [isTransactionOnline, setIsTransactionOnline] = useState<boolean>(false);
+    const [isTransactionOnline, setIsTransactionOnline] = useState<boolean>(true);
     // constants used to keep track of shared states
     const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
     const [userInformation,] = useRecoilState(currentUserInformation);
@@ -406,11 +406,12 @@ export const Dashboard = ({}) => {
                                 </View>
                             }
                             <BottomSheet
+                                handleIndicatorStyle={{backgroundColor: '#F2FF5D'}}
                                 ref={bottomSheetRef}
-                                backgroundStyle={styles.bottomSheet}
+                                backgroundStyle={[styles.bottomSheet, isTransactionOnline && {backgroundColor: '#5B5A5A'}]}
                                 enablePanDownToClose={true}
                                 index={showBottomSheet ? 0 : -1}
-                                snapPoints={!isTransactionOnline ? ['50%', '50%'] : ['20%', '20%']}
+                                snapPoints={!isTransactionOnline ? ['55%', '55%'] : ['23%', '23%']}
                                 onChange={(index) => {
                                     setShowBottomSheet(index !== -1);
                                 }}

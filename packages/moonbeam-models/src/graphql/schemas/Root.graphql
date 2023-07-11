@@ -1,6 +1,7 @@
 # graphql/Root.graphql
 # Main Schema File
 type Query {
+    getTransaction(getTransactionInput: GetTransactionInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools
     getCardLink(getCardLinkInput: GetCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
     getStorage(getStorageInput: GetStorageInput!): StorageResponse! @aws_cognito_user_pools
     getMilitaryVerificationStatus(getMilitaryVerificationInput: GetMilitaryVerificationInput!): GetMilitaryVerificationResponse! @aws_cognito_user_pools

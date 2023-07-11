@@ -42,8 +42,9 @@ export const processOfferRedeemedTransactions = async (event: SQSEvent): Promise
              * 1) Call the GET member details Olive API to retrieve the member details (extMemberID) for member
              * 2) Call the GET brand details Olive API to retrieve the brand name for incoming transaction
              * 3) Call the GET store details Olive API to retrieve the brand store address for incoming transaction
-             * 4) Convert any necessary timestamps and created/updated at times to appropriate formats
-             * 5) Call the createTransaction Moonbeam AppSync API endpoint, to store transaction in Dynamo DB
+             * 4) Call the GET transaction details Olive API to retrieve the actual purchase date/time for an incoming transaction
+             * 5) Convert any necessary timestamps and created/updated at times to appropriate formats
+             * 6) Call the createTransaction Moonbeam AppSync API endpoint, to store transaction in Dynamo DB
              */
                 // first, convert the incoming event message body, into a transaction object
             const transaction: Transaction = JSON.parse(transactionalRecord.body) as Transaction;
@@ -69,25 +70,37 @@ export const processOfferRedeemedTransactions = async (event: SQSEvent): Promise
 
                     // check to see if the store details call was successful or not
                     if (storeDetailsResponse && !storeDetailsResponse.errorMessage && !storeDetailsResponse.errorType && storeDetailsResponse.data) {
-                        // 4) Convert any necessary timestamps and created/updated at times to appropriate formats
-                        const createdAtFormatted = new Date(transaction.createdAt).toISOString();
-                        transaction.createdAt = createdAtFormatted;
-                        transaction.updatedAt = createdAtFormatted;
-                        transaction.timestamp = Date.parse(createdAtFormatted);
+                        // 4) Call the GET transaction details Olive API to retrieve the actual purchase date/time for an incoming transaction
+                        const transactionDetailsResponse: TransactionResponse = await getTransactionDetails(oliveClient, transaction);
 
-                        /**
-                         * 5) Call the createTransaction Moonbeam AppSync API endpoint, to store transaction in Dynamo DB
-                         *
-                         * first initialize the Olive Client API here, in order to call the appropriate endpoints for this resolver
-                         */
-                        const moonbeamClient = new MoonbeamClient(process.env.ENV_NAME!, region);
+                        // check to see if the transaction details call was successful or not
+                        if (transactionDetailsResponse && !transactionDetailsResponse.errorMessage && !transactionDetailsResponse.errorType && transactionDetailsResponse.data) {
+                            // 5) Convert any necessary timestamps and created/updated at times to appropriate formats
+                            const createdAtFormatted = new Date(transaction.createdAt).toISOString();
+                            transaction.createdAt = createdAtFormatted;
+                            transaction.updatedAt = createdAtFormatted;
 
-                        // execute the createTransaction call
-                        const response: MoonbeamTransactionResponse = await moonbeamClient.createTransaction(transaction as MoonbeamTransaction);
+                            /**
+                             * 6) Call the createTransaction Moonbeam AppSync API endpoint, to store transaction in Dynamo DB
+                             *
+                             * first initialize the Olive Client API here, in order to call the appropriate endpoints for this resolver
+                             */
+                            const moonbeamClient = new MoonbeamClient(process.env.ENV_NAME!, region);
 
-                        // check to see if the card linking call was executed successfully
-                        if (!response || response.errorMessage || response.errorType || !response.data || !response.id) {
-                            console.log(`Unexpected error and/or response structure returned from the createTransaction call ${JSON.stringify(response)}!`);
+                            // execute the createTransaction call
+                            const response: MoonbeamTransactionResponse = await moonbeamClient.createTransaction(transaction as MoonbeamTransaction);
+
+                            // check to see if the card linking call was executed successfully
+                            if (!response || response.errorMessage || response.errorType || !response.data || !response.id) {
+                                console.log(`Unexpected error and/or response structure returned from the createTransaction call ${JSON.stringify(response)}!`);
+
+                                // adds an item failure, for the SQS message which failed processing, as part of the incoming event
+                                itemFailures.push({
+                                    itemIdentifier: transactionalRecord.messageId
+                                });
+                            }
+                        } else {
+                            console.log(`Transaction Details mapping through GET transaction details call failed`);
 
                             // adds an item failure, for the SQS message which failed processing, as part of the incoming event
                             itemFailures.push({
@@ -200,7 +213,7 @@ const getBrandDetails = async (oliveClient: OliveClient, transaction: Transactio
     if (response && !response.errorMessage && !response.errorType && response.data &&
         response.data.transactionBrandName && response.data.transactionBrandName.length !== 0 &&
         response.data.transactionBrandLogoUrl && response.data.transactionBrandLogoUrl.length !== 0 &&
-        response.data.transactionBrandDescription && response.data.transactionBrandDescription.length !== 0) {
+        response.data.transactionBrandURLAddress && response.data.transactionBrandURLAddress.length !== 0) {
         // returns the updated transaction data
         return {
             data: response.data
@@ -235,13 +248,49 @@ const getStoreDetails = async (oliveClient: OliveClient, transaction: Transactio
 
     // check to see if the store details call was executed successfully
     if (response && !response.errorMessage && !response.errorType && response.data &&
-        response.data.transactionBrandDescription && response.data.transactionBrandDescription.length !== 0) {
+        response.data.transactionBrandAddress && response.data.transactionBrandAddress.length !== 0 &&
+        response.data.transactionIsOnline !== null) {
         // returns the updated transaction data
         return {
             data: response.data
         }
     } else {
         const errorMessage = `Unexpected response structure returned from the store details call!`;
+        console.log(errorMessage);
+
+        // if there are errors associated with the call, just return the error message and error type from the upstream client
+        return {
+            data: null,
+            errorType: TransactionsErrorType.ValidationError,
+            errorMessage: errorMessage
+        }
+    }
+}
+
+/**
+ * Function used to retrieve the transaction details, which mainly include the time of purchase, associated
+ * with the transaction event, to be used when storing the transaction in the DB.
+ *
+ * @param oliveClient client used to make Olive API calls
+ * @param transaction the transaction object obtained from Olive through the transaction message,
+ * which additional transaction details obtained through this call are appended to
+ *
+ * @returns a {@link Promise} of {@link TransactionResponse} representing the transaction information passed
+ * in through the SQS message, alongside the additional transaction details retrieved through this call.
+ */
+const getTransactionDetails = async (oliveClient: OliveClient, transaction: Transaction): Promise<TransactionResponse> => {
+    // execute the transaction details retrieval call, in order to get additional transaction details for the incoming transaction
+    const response: TransactionResponse = await oliveClient.getTransactionDetails(transaction);
+
+    // check to see if the transaction details call was executed successfully
+    if (response && !response.errorMessage && !response.errorType && response.data &&
+        response.data.timestamp && response.data.timestamp !== 0) {
+        // returns the updated transaction data
+        return {
+            data: response.data
+        }
+    } else {
+        const errorMessage = `Unexpected response structure returned from the transaction details call!`;
         console.log(errorMessage);
 
         // if there are errors associated with the call, just return the error message and error type from the upstream client

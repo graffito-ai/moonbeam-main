@@ -138,10 +138,11 @@ export type CreateTransactionInput = {
   timestamp: Scalars['AWSTimestamp'];
   totalAmount: Scalars['Float'];
   transactionBrandAddress: Scalars['String'];
-  transactionBrandDescription: Scalars['String'];
   transactionBrandLogoUrl: Scalars['String'];
   transactionBrandName: Scalars['String'];
+  transactionBrandURLAddress: Scalars['String'];
   transactionId: Scalars['ID'];
+  transactionIsOnline: Scalars['Boolean'];
   transactionStatus: TransactionsStatus;
   transactionType: TransactionType;
   updatedAt: Scalars['AWSDateTime'];
@@ -194,6 +195,12 @@ export type GetStorageInput = {
   level: FileAccessLevel;
   name: Scalars['String'];
   type: FileType;
+};
+
+export type GetTransactionInput = {
+  endDate: Scalars['AWSDateTime'];
+  id: Scalars['ID'];
+  startDate?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
 export type Member = {
@@ -294,10 +301,11 @@ export type MoonbeamTransaction = {
   timestamp: Scalars['AWSTimestamp'];
   totalAmount: Scalars['Float'];
   transactionBrandAddress: Scalars['String'];
-  transactionBrandDescription: Scalars['String'];
   transactionBrandLogoUrl: Scalars['String'];
   transactionBrandName: Scalars['String'];
+  transactionBrandURLAddress: Scalars['String'];
   transactionId: Scalars['ID'];
+  transactionIsOnline: Scalars['Boolean'];
   transactionStatus: TransactionsStatus;
   transactionType: TransactionType;
   updatedAt: Scalars['AWSDateTime'];
@@ -309,6 +317,13 @@ export type MoonbeamTransactionResponse = {
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<TransactionsErrorType>;
   id?: Maybe<Scalars['ID']>;
+};
+
+export type MoonbeamTransactionsResponse = {
+  __typename?: 'MoonbeamTransactionsResponse';
+  data?: Maybe<Array<Maybe<MoonbeamTransaction>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<TransactionsErrorType>;
 };
 
 export type Mutation = {
@@ -356,6 +371,7 @@ export type Query = {
   getCardLink: CardLinkResponse;
   getMilitaryVerificationStatus: GetMilitaryVerificationResponse;
   getStorage: StorageResponse;
+  getTransaction: MoonbeamTransactionsResponse;
 };
 
 
@@ -371,6 +387,11 @@ export type QueryGetMilitaryVerificationStatusArgs = {
 
 export type QueryGetStorageArgs = {
   getStorageInput: GetStorageInput;
+};
+
+
+export type QueryGetTransactionArgs = {
+  getTransactionInput: GetTransactionInput;
 };
 
 export type RemoveCardResponse = {
@@ -427,10 +448,11 @@ export type Transaction = {
   timestamp: Scalars['AWSTimestamp'];
   totalAmount?: Maybe<Scalars['Float']>;
   transactionBrandAddress?: Maybe<Scalars['String']>;
-  transactionBrandDescription?: Maybe<Scalars['String']>;
   transactionBrandLogoUrl?: Maybe<Scalars['String']>;
   transactionBrandName?: Maybe<Scalars['String']>;
+  transactionBrandURLAddress?: Maybe<Scalars['String']>;
   transactionId: Scalars['ID'];
+  transactionIsOnline?: Maybe<Scalars['Boolean']>;
   transactionStatus: TransactionsStatus;
   transactionType: TransactionType;
   updatedAt?: Maybe<Scalars['AWSDateTime']>;
@@ -483,7 +505,7 @@ export type CreateTransactionMutationVariables = Exact<{
 }>;
 
 
-export type CreateTransactionMutation = { __typename?: 'Mutation', createTransaction: { __typename?: 'MoonbeamTransactionResponse', errorType?: TransactionsErrorType | null, errorMessage?: string | null, id?: string | null, data?: { __typename?: 'MoonbeamTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt: string, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount: number, totalAmount: number, pendingCashbackAmount: number, creditedCashbackAmount: number, transactionBrandName: string, transactionBrandDescription: string, transactionBrandAddress: string, transactionBrandLogoUrl: string } | null } };
+export type CreateTransactionMutation = { __typename?: 'Mutation', createTransaction: { __typename?: 'MoonbeamTransactionResponse', errorType?: TransactionsErrorType | null, errorMessage?: string | null, id?: string | null, data?: { __typename?: 'MoonbeamTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt: string, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount: number, totalAmount: number, pendingCashbackAmount: number, creditedCashbackAmount: number, transactionBrandName: string, transactionBrandAddress: string, transactionBrandLogoUrl: string, transactionBrandURLAddress: string, transactionIsOnline: boolean } | null } };
 
 export type CreateCardLinkMutationVariables = Exact<{
   createCardLinkInput: CreateCardLinkInput;
@@ -520,6 +542,13 @@ export type UpdateMilitaryVerificationStatusMutationVariables = Exact<{
 
 export type UpdateMilitaryVerificationStatusMutation = { __typename?: 'Mutation', updateMilitaryVerificationStatus: { __typename?: 'UpdateMilitaryVerificationResponse', errorType?: MilitaryVerificationErrorType | null, errorMessage?: string | null, id?: string | null, militaryVerificationStatus?: MilitaryVerificationStatusType | null } };
 
+export type GetTransactionQueryVariables = Exact<{
+  getTransactionInput: GetTransactionInput;
+}>;
+
+
+export type GetTransactionQuery = { __typename?: 'Query', getTransaction: { __typename?: 'MoonbeamTransactionsResponse', errorMessage?: string | null, errorType?: TransactionsErrorType | null, data?: Array<{ __typename?: 'MoonbeamTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt: string, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount: number, totalAmount: number, pendingCashbackAmount: number, creditedCashbackAmount: number, transactionBrandName: string, transactionBrandAddress: string, transactionBrandLogoUrl: string, transactionBrandURLAddress: string, transactionIsOnline: boolean } | null> | null } };
+
 export type GetCardLinkQueryVariables = Exact<{
   getCardLinkInput: GetCardLinkInput;
 }>;
@@ -553,4 +582,4 @@ export type CreatedTransactionSubscriptionVariables = Exact<{
 }>;
 
 
-export type CreatedTransactionSubscription = { __typename?: 'Subscription', createdTransaction?: { __typename?: 'MoonbeamTransactionResponse', errorType?: TransactionsErrorType | null, errorMessage?: string | null, id?: string | null, data?: { __typename?: 'MoonbeamTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt: string, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount: number, totalAmount: number, pendingCashbackAmount: number, creditedCashbackAmount: number, transactionBrandName: string, transactionBrandDescription: string, transactionBrandAddress: string, transactionBrandLogoUrl: string } | null } | null };
+export type CreatedTransactionSubscription = { __typename?: 'Subscription', createdTransaction?: { __typename?: 'MoonbeamTransactionResponse', errorType?: TransactionsErrorType | null, errorMessage?: string | null, id?: string | null, data?: { __typename?: 'MoonbeamTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt: string, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount: number, totalAmount: number, pendingCashbackAmount: number, creditedCashbackAmount: number, transactionBrandName: string, transactionBrandAddress: string, transactionBrandLogoUrl: string, transactionBrandURLAddress: string, transactionIsOnline: boolean } | null } | null };

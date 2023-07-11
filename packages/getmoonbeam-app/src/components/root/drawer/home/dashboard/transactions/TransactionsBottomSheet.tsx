@@ -1,12 +1,9 @@
 import React, {useEffect, useRef, useState} from "react";
 import {Dimensions, Image, SafeAreaView, StyleSheet, TouchableOpacity, View} from "react-native";
 import {useRecoilState} from "recoil";
-import {Dialog, Portal, Text} from "react-native-paper";
-import {commonStyles} from '../../../../../../styles/common.module';
-import {Spinner} from "../../../../../common/Spinner";
+import {Text} from "react-native-paper";
 import {deviceTypeState} from "../../../../../../recoil/RootAtom";
 import * as Device from "expo-device";
-import {Button} from "@rneui/base";
 import {styles} from "../../../../../../styles/dashboard.module";
 import MapView, {Marker} from "react-native-maps";
 import * as Location from 'expo-location';
@@ -39,7 +36,6 @@ export const TransactionsBottomSheet = (props: {
     transactionTimestamp: string
 }) => {
     // constants used to keep track of local component state
-    const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [transactionStoreGeoLocation, setTransactionStoreGeoLocation] = useState<TransactionStoreLocation | null>(null);
     const mapViewRef = useRef(null);
     const discountPercentage = `${Math.round((Number(props.transactionDiscountAmount) / Number(props.transactionAmount)) * 100)}%`;
@@ -97,29 +93,9 @@ export const TransactionsBottomSheet = (props: {
     // return the component for the TransactionsBottomSheet, part of the Dashboard page
     return (
         <>
-
-            <Portal>
-                <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
-                        onDismiss={() => setModalVisible(false)}>
-                    <Dialog.Icon icon="alert" color={"#F2FF5D"}
-                                 size={Dimensions.get('window').height / 14}/>
-                    <Dialog.Content>
-                        <Text
-                            style={commonStyles.dialogParagraph}>{`Error while loading your transaction details!`}</Text>
-                    </Dialog.Content>
-                    <Dialog.Actions>
-                        <Button buttonStyle={commonStyles.dialogButton}
-                                titleStyle={commonStyles.dialogButtonText}
-                                onPress={() => {
-                                    setModalVisible(false);
-                                }}>
-                            Try Again!
-                        </Button>
-                    </Dialog.Actions>
-                </Dialog>
-            </Portal>
             <SafeAreaView
-                style={[StyleSheet.absoluteFill, styles.transactionParentView]}>
+                // @ts-ignore
+                style={[StyleSheet.absoluteFill, styles.transactionParentView, props.transactionOnlineAddress && {backgroundColor: '#5B5A5A'}]}>
                 <View style={styles.transactionBrandDetailsView}>
                     <Text style={styles.transactionBrandName}>
                         {props.brandName}

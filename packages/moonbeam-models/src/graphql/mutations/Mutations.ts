@@ -26,9 +26,10 @@ export const createTransaction = /* GraphQL */ `
                 pendingCashbackAmount
                 creditedCashbackAmount
                 transactionBrandName
-                transactionBrandDescription
                 transactionBrandAddress
                 transactionBrandLogoUrl
+                transactionBrandURLAddress
+                transactionIsOnline
             }
         }
     }

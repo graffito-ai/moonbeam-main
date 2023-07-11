@@ -124,6 +124,7 @@ export interface TransactionsProducerConsumerConfiguration {
 export interface TransactionsConfiguration {
     readonly transactionsFunctionName: string;
     readonly createTransactionResolverName: string;
+    readonly getTransactionResolverName: string;
     readonly transactionsTableName: string;
     readonly transactionsPrimaryKey: string;
     readonly transactionsIdGlobalIndex: string;
