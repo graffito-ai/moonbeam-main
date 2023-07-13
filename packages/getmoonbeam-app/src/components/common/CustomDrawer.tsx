@@ -18,8 +18,6 @@ import {currentUserInformation} from '../../recoil/AuthAtom';
 import SideBarImage from '../../../assets/art/sidebar.png';
 import {profilePictureURIState} from "../../recoil/AppDrawerAtom";
 import * as Linking from "expo-linking";
-import {Auth} from "aws-amplify";
-import {fetchFile} from "../../utils/File";
 import {Spinner} from "./Spinner";
 
 /**
@@ -33,11 +31,11 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     // constants used to keep track of local component state
     const [currentUserTitle, setCurrentUserTitle] = useState<string>("N/A");
     const [currentUserName, setCurrentUserName] = useState<string>("N/A");
-    const [isReady, setIsReady] = useState<boolean>(true);
+    const [isReady,] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
     const [userInformation,] = useRecoilState(currentUserInformation);
-    const [profilePictureURI, setProfilePictureURI] = useRecoilState(profilePictureURIState);
+    const [profilePictureURI,] = useRecoilState(profilePictureURIState);
     const [deviceType,] = useRecoilState(deviceTypeState);
 
     /**
@@ -55,49 +53,9 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                 setCurrentUserTitle(`${Array.from(userInformation["given_name"].split(" ")[0])[0] as string}${Array.from(userInformation["family_name"].split(" ")[0])[0] as string}`);
                 setCurrentUserName(`${userInformation["given_name"]} ${userInformation["family_name"]}`);
             }
-            // retrieve the profile picture (if existent)
-            (!profilePictureURI || profilePictureURI === "") && retrieveProfilePicture();
         }
     }, [userInformation["custom:userId"], userInformation["given_name"],
         userInformation["family_name"], profilePictureURI]);
-
-    /**
-     * Function used to retrieve the new profile picture, after picking a picture through
-     * the photo picker and uploading it into storage.
-     */
-    const retrieveProfilePicture = async (): Promise<void> => {
-        try {
-            // set the loader on button press
-            setIsReady(false);
-
-            // retrieve the identity id for the current user
-            const userCredentials = await Auth.currentUserCredentials();
-
-            // fetch the profile picture URI from storage and/or cache
-            const [returnFlag, profilePictureURI] = await fetchFile('profile_picture.png', true,
-                true, false, userCredentials["identityId"]);
-            if (!returnFlag || profilePictureURI === null) {
-                // release the loader on button press
-                setIsReady(true);
-
-                // for any error we just want to print them out, and not set any profile picture, and show the default avatar instead
-                console.log(`Unable to retrieve new profile picture!`);
-            } else {
-                // release the loader on button press
-                setIsReady(true);
-
-                // update the global profile picture state
-                setProfilePictureURI(profilePictureURI);
-            }
-        } catch (error) {
-            // release the loader on button press
-            setIsReady(true);
-
-            // for any error we just want to print them out, and not set any profile picture, and show the default avatar instead
-            const errorMessage = `Error while retrieving profile picture!`;
-            console.log(`${errorMessage} - ${error}`);
-        }
-    }
 
     // return the component for the CustomDrawer component, part of the AppDrawer pages.
     return (

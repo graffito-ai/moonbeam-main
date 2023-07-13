@@ -84,7 +84,7 @@ export const TransactionsBottomSheet = (props: {
                 longitude: transactionStoreGeoLocation.longitude,
                 latitudeDelta: transactionStoreGeoLocation.latitudeDelta,
                 longitudeDelta: transactionStoreGeoLocation.longitudeDelta,
-            }, 500);
+            }, 0);
         }
         setTransactionStoreGeoLocation(transactionStoreGeoLocation);
     }
@@ -102,7 +102,7 @@ export const TransactionsBottomSheet = (props: {
                     </Text>
                     <View style={styles.transactionDetailsView}>
                         <Image resizeMethod={"scale"}
-                               resizeMode={'cover'}
+                               resizeMode={'contain'}
                                style={styles.transactionBrandImage}
                                source={{
                                    uri: props.brandImage,

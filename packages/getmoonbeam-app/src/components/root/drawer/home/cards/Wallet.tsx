@@ -38,6 +38,7 @@ import RegistrationBackgroundImage from '../../../../../../assets/backgrounds/re
 import {deviceTypeState} from "../../../../../recoil/RootAtom";
 import * as Device from "expo-device";
 import {DeviceType} from "expo-device";
+import {showWalletBottomSheetState} from "../../../../../recoil/DashboardAtom";
 
 /**
  * Wallet component. This component will be used as a place where users can manager their
@@ -52,19 +53,19 @@ export const Wallet = ({navigation}: CardsProps) => {
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [splashShown, setSplashShown] = useState<boolean>(false);
-    const [showBottomSheet, setShowBottomSheet] = useState<boolean>(false);
     const bottomSheetRef = useRef(null);
     // constants used to keep track of shared states
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
     const [, setBannerState] = useRecoilState(customBannerState);
     const [, setBannerShown] = useRecoilState(customBannerShown);
     const [appDrawerHeaderShown, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
-    const [bottomTabShown, setBottomTabShown] = useRecoilState(bottomTabShownState);
+    const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
     const [splashState, setSplashState] = useRecoilState(splashStatusState);
     const [cardLinkingBottomSheet, setCardLinkingBottomSheet] = useRecoilState(cardLinkingBottomSheetState);
     const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
     const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
+    const [showBottomSheet, setShowBottomSheet] = useRecoilState(showWalletBottomSheetState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -83,12 +84,6 @@ export const Wallet = ({navigation}: CardsProps) => {
             setAppDrawerHeaderShown(false);
             setBannerShown(false);
             setDrawerSwipeEnabled(false);
-        }
-        // manipulate the bottom bar navigation accordingly, depending on the bottom sheet being shown or not
-        if (!showBottomSheet && !splashShown) {
-            setBottomTabShown(true);
-        } else {
-            setBottomTabShown(false);
         }
         // manipulate the card linking success splash screen, with an external action coming from the Olive enrollment form
         if (cardLinkingBottomSheet) {
@@ -410,8 +405,10 @@ export const Wallet = ({navigation}: CardsProps) => {
                             }
                         </View>
                         {
-                            !cardLinkingBottomSheet && !appDrawerHeaderShown && !bottomTabShown &&
+                            !cardLinkingBottomSheet && !appDrawerHeaderShown &&
                             <BottomSheet
+                                handleIndicatorStyle={{backgroundColor: '#F2FF5D'}}
+                                enableHandlePanningGesture={true}
                                 ref={bottomSheetRef}
                                 backgroundStyle={styles.bottomSheet}
                                 enablePanDownToClose={true}
@@ -419,7 +416,7 @@ export const Wallet = ({navigation}: CardsProps) => {
                                 snapPoints={
                                     (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0)
                                         ? ['40%', '40%']
-                                        : ['80%', '80%']
+                                        : ['70%', '70%']
                                 }
                                 onChange={(index) => {
                                     setShowBottomSheet(index !== -1);

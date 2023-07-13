@@ -23,9 +23,9 @@ import {Button} from "@rneui/base";
  */
 export const CardLinkingBottomSheet = () => {
     // constants used to keep track of local component state
+    const [isReady, setIsReady] = useState<boolean>(true);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [modalCustomMessage, setModalCustomMessage] = useState<string>("");
-    const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
@@ -330,7 +330,6 @@ export const CardLinkingBottomSheet = () => {
         <body>
                 <div id="olive-sdk-container" 
                      style="display: grid;
-                            grid-template-columns: repeat(auto-fill, calc(100vw*0.50));
                             grid-template-rows: repeat(auto-fit, calc(100vh));
                      "
                  />
@@ -345,10 +344,13 @@ export const CardLinkingBottomSheet = () => {
                 </script>
                 <script type="application/javascript"
                         id="olive-link-card-form"
-                        src="https://moonbeam-public-files-bucket-dev-us-west-2.s3.us-west-2.amazonaws.com/olive-custom-script-version2.js"
+                        src="https://oliveaddcardsdkjs.blob.core.windows.net/script/olive-add-card-sdk.js"
                         data-public-key=Zlltp0W5jB09Us0kkOPN6edVwfy1JYGO
                         data-container-div="olive-sdk-container"
                         data-environment="sandbox"
+                        data-include-header="false"
+                        data-form-background-color="#5B5A5A"
+                        data-background-color="#5B5A5A"
                         data-auto-open=true>
                 </script>
         </body>    
@@ -367,6 +369,7 @@ export const CardLinkingBottomSheet = () => {
                                 onDismiss={() => setModalVisible(false)}>
                             <Dialog.Icon icon="alert" color={"#F2FF5D"}
                                          size={Dimensions.get('window').height / 14}/>
+                            <Dialog.Title style={commonStyles.dialogTitle}>We hit a snag!</Dialog.Title>
                             <Dialog.Content>
                                 <Text
                                     style={commonStyles.dialogParagraph}>{`Error while linking your card! ${modalCustomMessage}`}</Text>

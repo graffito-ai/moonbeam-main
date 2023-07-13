@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {NavigationContainer} from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import {HomeProps} from "../../../../models/props/AppDrawerProps";
@@ -6,7 +6,7 @@ import {createMaterialBottomTabNavigator} from "@react-navigation/material-botto
 import {HomeStackParamList} from "../../../../models/props/HomeProps";
 import {useRecoilState} from "recoil";
 import {bottomTabShownState} from "../../../../recoil/HomeAtom";
-import {Dimensions, Text} from 'react-native';
+import {Dimensions} from 'react-native';
 import {currentUserInformation} from "../../../../recoil/AuthAtom";
 import {MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
 import {Wallet} from "./cards/Wallet";
@@ -14,6 +14,7 @@ import {DashboardController} from "./dashboard/DashboardController";
 import {Marketplace} from "./marketplace/Marketplace";
 import * as Linking from "expo-linking";
 import {drawerDashboardState} from "../../../../recoil/AppDrawerAtom";
+import {Spinner} from "../../../common/Spinner";
 
 /**
  * Home component. This is where the bottom bar components will reside, as well
@@ -23,6 +24,8 @@ import {drawerDashboardState} from "../../../../recoil/AppDrawerAtom";
  * @constructor constructor for the component.
  */
 export const Home = ({navigation}: HomeProps) => {
+    // constants used to keep track of local component state
+    const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
     const [bottomTabShown,] = useRecoilState(bottomTabShownState);
     const [userInformation,] = useRecoilState(currentUserInformation);
@@ -78,7 +81,12 @@ export const Home = ({navigation}: HomeProps) => {
     // return the component for the Home page
     return (
         <>
-            <NavigationContainer independent={true} linking={linking} fallback={<Text>Loading...</Text>}>
+            <NavigationContainer independent={true}
+                                 linking={linking}
+                                 fallback={
+                                     <Spinner loadingSpinnerShown={loadingSpinnerShown}
+                                              setLoadingSpinnerShown={setLoadingSpinnerShown}/>
+                                 }>
                 <HomeTabStack.Navigator
                     initialRouteName={"DashboardController"}
                     shifting={true}

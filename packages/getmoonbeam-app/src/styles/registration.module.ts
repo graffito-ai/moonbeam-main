@@ -396,9 +396,8 @@ export const styles = StyleSheet.create({
         alignItems: 'center'
     },
     cardLinkingIframeView: {
-        left: Dimensions.get('window').width / 2.03,
         backgroundColor: 'transparent',
-        width: Dimensions.get('window').width*2,
+        width: Dimensions.get('window').width*1.3,
         flexGrow: 1
     }
 });

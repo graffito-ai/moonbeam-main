@@ -33,10 +33,10 @@ export const CodeVerificationBottomSheet = (props: {
     dutyStatus: string
 }) => {
     // constants used to keep track of local component state
+    const [isReady, setIsReady] = useState<boolean>(true);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [modalCustomMessage, setModalCustomMessage] = useState<string>("");
     const [modalButtonMessage, setModalButtonMessage] = useState<string>("");
-    const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [stepNumber, setStepNumber] = useState<number>(0);
     // constants used to keep track of shared states
@@ -276,6 +276,7 @@ export const CodeVerificationBottomSheet = (props: {
                                 onDismiss={() => setModalVisible(false)}>
                             <Dialog.Icon icon="alert" color={"#F2FF5D"}
                                          size={Dimensions.get('window').height / 14}/>
+                            <Dialog.Title style={commonStyles.dialogTitle}>{'We hit a snag!'}</Dialog.Title>
                             <Dialog.Content>
                                 <Text
                                     style={commonStyles.dialogParagraph}>{modalCustomMessage}</Text>

@@ -263,7 +263,7 @@ export const styles = StyleSheet.create({
         height: Dimensions.get('window').height/4,
         width: Dimensions.get('window').width/1.05,
         position: 'absolute',
-        bottom: Dimensions.get('window').height/30
+        bottom: Dimensions.get('window').height/100
     },
     mapTooltip: {
         zIndex: 500,
@@ -350,6 +350,7 @@ export const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         width: Dimensions.get('window').width,
         left: Dimensions.get('window').width / 20,
+        top: Dimensions.get('window').height/60
     },
     transactionBrandImage: {
         alignSelf: 'flex-start',

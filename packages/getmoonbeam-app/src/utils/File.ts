@@ -9,10 +9,11 @@ import {FileAccessLevel, FileType, getStorage} from "@moonbeam/moonbeam-models";
  * @param uri uri of the document to upload
  * @param privacyFlag privacy level flag
  * @param optionalFileName optional file name to be passed in, for cases where that's needed
+ * @param notCached flag to indicate whether file will be cached or not
  *
  * @return an instance of {@link Promise} of a tuple containing a {@link boolean} and a {@link string}
  */
-export const uploadFile = async (uri: string, privacyFlag: boolean, optionalFileName?: string): Promise<[boolean, (string | null)]> => {
+export const uploadFile = async (uri: string, privacyFlag: boolean, optionalFileName?: string, notCached?: boolean): Promise<[boolean, (string | null)]> => {
     try {
         // first retrieve file information from local storage
         const fileInfo = await FileSystem.getInfoAsync(uri);
@@ -36,7 +37,7 @@ export const uploadFile = async (uri: string, privacyFlag: boolean, optionalFile
                 console.log(`File ${fileName} uploaded successfully!`);
 
                 // delete the file from local storage given its URI, before returning
-                await FileSystem.deleteAsync(fileInfo.uri);
+                notCached !== undefined && notCached && await FileSystem.deleteAsync(fileInfo.uri);
 
                 return [true, fileName];
             }

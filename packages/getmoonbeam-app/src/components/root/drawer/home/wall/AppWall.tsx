@@ -285,7 +285,7 @@ export const AppWall = () => {
             // there's no SMS available on this device
             console.log('no SMS available');
             setSupportModalMessage('Messaging not available on this platform!');
-            setSupportModalButtonMessage('Dismiss');
+            setSupportModalButtonMessage('Retry');
             setSupportModalVisible(true);
         }
     }
@@ -294,7 +294,7 @@ export const AppWall = () => {
     return (
         <>
             {
-                !isReady ?
+                !isReady || (splashState.splashTitle === "" && splashState.splashDescription === "" && splashState.splashButtonText === "") ?
                     <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                     :
                     <ImageBackground
@@ -308,6 +308,7 @@ export const AppWall = () => {
                                     onDismiss={() => setSupportModalVisible(false)}>
                                 <Dialog.Icon icon="alert" color={"#F2FF5D"}
                                              size={Dimensions.get('window').height / 14}/>
+                                <Dialog.Title style={commonStyles.dialogTitle}>{supportModalButtonMessage === 'Retry' ? 'We hit a snag!': 'Great'}</Dialog.Title>
                                 <Dialog.Content>
                                     <Text
                                         style={commonStyles.dialogParagraph}>{supportModalMessage}</Text>
@@ -365,7 +366,8 @@ export const AppWall = () => {
                                         <>
                                             {appWallError
                                                 ?
-                                                <Text style={styles.errorMessage}>Unexpected error while verifying military
+                                                <Text style={styles.errorMessage}>Unexpected error while verifying
+                                                    military
                                                     status. Try again!</Text>
                                                 : <></>
                                             }

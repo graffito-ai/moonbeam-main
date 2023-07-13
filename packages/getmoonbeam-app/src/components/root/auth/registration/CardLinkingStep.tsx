@@ -205,7 +205,6 @@ export const CardLinkingStep = () => {
         <body>
                 <div id="olive-sdk-container" 
                      style="display: grid;
-                            grid-template-columns: repeat(auto-fill, calc(100vw*0.50));
                             grid-template-rows: repeat(auto-fit, calc(100vh));
                      "
                  />
@@ -241,6 +240,7 @@ export const CardLinkingStep = () => {
                         <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
                                 onDismiss={() => setModalVisible(false)}>
                             <Dialog.Icon icon="alert" color={"#F2FF5D"} size={Dimensions.get('window').height / 14}/>
+                            <Dialog.Title style={commonStyles.dialogTitle}>We hit a snag!</Dialog.Title>
                             <Dialog.Content>
                                 <Text
                                     style={commonStyles.dialogParagraph}>{`Error while linking your card! ${modalCustomMessage}`}</Text>

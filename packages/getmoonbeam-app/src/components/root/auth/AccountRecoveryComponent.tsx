@@ -230,6 +230,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                     onDismiss={() => setModalVisible(false)}>
                                 <Dialog.Icon icon="alert" color={"#F2FF5D"}
                                              size={Dimensions.get('window').height / 14}/>
+                                <Dialog.Title style={commonStyles.dialogTitle}>Great!</Dialog.Title>
                                 <Dialog.Content>
                                     <Text
                                         style={commonStyles.dialogParagraph}>{`Thanks for confirming the code! Your password is now changed!`}</Text>

@@ -1,12 +1,13 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {DashboardProps} from "../../../../../models/props/HomeProps";
-import {Text} from "react-native-paper";
 import {useRecoilState} from "recoil";
 import {appDrawerHeaderShownState, customBannerShown, drawerSwipeState} from "../../../../../recoil/AppDrawerAtom";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {NavigationContainer} from "@react-navigation/native";
 import {DashboardControllerStackParamList} from "../../../../../models/props/DashboardControllerProps";
 import {Dashboard} from "./Dashboard";
+import {showTransactionBottomSheetState, showWalletBottomSheetState} from "../../../../../recoil/DashboardAtom";
+import {Spinner} from "../../../../common/Spinner";
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -16,10 +17,14 @@ import {Dashboard} from "./Dashboard";
  * @constructor constructor for the component.
  */
 export const DashboardController = ({navigation}: DashboardProps) => {
+    // constants used to keep track of local component state
+    const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
     const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
     const [, setBannerShown] = useRecoilState(customBannerShown);
     const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
+    const [, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
+    const [, setShowWalletBottomSheet] = useRecoilState(showWalletBottomSheetState);
 
     // create a native stack navigator, to be used for our Dashboard Controller application navigation
     const DashboardStack = createNativeStackNavigator<DashboardControllerStackParamList>();
@@ -37,6 +42,8 @@ export const DashboardController = ({navigation}: DashboardProps) => {
             setAppDrawerHeaderShown(true)
             setBannerShown(true);
             setDrawerSwipeEnabled(true);
+            setShowTransactionsBottomSheet(false);
+            setShowWalletBottomSheet(false);
         }
     }, [navigation.getState()]);
 
@@ -53,7 +60,11 @@ export const DashboardController = ({navigation}: DashboardProps) => {
      */
     return (
         <>
-            <NavigationContainer independent={true} fallback={<Text>Loading...</Text>}>
+            <NavigationContainer independent={true}
+                                 fallback={
+                                     <Spinner loadingSpinnerShown={loadingSpinnerShown}
+                                              setLoadingSpinnerShown={setLoadingSpinnerShown}/>
+                                 }>
                 <DashboardStack.Navigator
                     initialRouteName={'Dashboard'}
                     screenOptions={{

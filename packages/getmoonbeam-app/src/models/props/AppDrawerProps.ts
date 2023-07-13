@@ -8,7 +8,8 @@ export type AppDrawerStackParamList = {
     Documents: {},
     Settings: {},
     Support: {},
-    AppWall: {}
+    AppWall: {},
+    Loading: {}
 };
 
 /**
@@ -27,3 +28,5 @@ export type SettingsProps = NativeStackScreenProps<AppDrawerStackParamList, 'Set
 export type BankAccountsProps = NativeStackScreenProps<AppDrawerStackParamList, 'Support'>
 // the AppWall component props, within the AppDrawer stack
 export type AppWallProps = NativeStackScreenProps<AppDrawerStackParamList, 'AppWall'>
+// the Loading component props, within the AppDrawer stack
+export type LoadingProps = NativeStackScreenProps<AppDrawerStackParamList, 'Loading'>

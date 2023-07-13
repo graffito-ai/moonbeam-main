@@ -7,25 +7,18 @@ import {currentUserInformation} from "../../../../../recoil/AuthAtom";
 import * as Device from "expo-device";
 import {DeviceType} from "expo-device";
 import {deviceTypeState} from "../../../../../recoil/RootAtom";
-import {API, graphqlOperation} from "aws-amplify";
 import {Spinner} from "../../../../common/Spinner";
 // @ts-ignore
 import DashboardBackgroundImage from "../../../../../../assets/backgrounds/dashboard-background.png";
 import {profilePictureURIState} from "../../../../../recoil/AppDrawerAtom";
-import * as Linking from "expo-linking";
 import {Avatar, Button, Divider, Icon} from "@rneui/base";
 import {commonStyles} from "../../../../../styles/common.module";
 import {CustomBanner} from "../../../../common/CustomBanner";
 import {customBannerState} from "../../../../../recoil/CustomBannerAtom";
 import BottomSheet from '@gorhom/bottom-sheet';
-import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
 import {TransactionsBottomSheet} from "./transactions/TransactionsBottomSheet";
-import {getTransaction, MoonbeamTransaction, TransactionsErrorType} from "@moonbeam/moonbeam-models";
-import {
-    sortedTransactionDataState,
-    transactionalDataRetrievedState,
-    transactionDataState
-} from "../../../../../recoil/DashboardAtom";
+import {MoonbeamTransaction} from "@moonbeam/moonbeam-models";
+import {showTransactionBottomSheetState, sortedTransactionDataState} from "../../../../../recoil/DashboardAtom";
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -35,15 +28,14 @@ import {
  */
 export const Dashboard = ({}) => {
     // constants used to keep track of local component state
+    const [isReady,] = useState<boolean>(true);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [statsDialogVisible, setStatsDialogVisible] = useState(false);
-    const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [currentUserTitle, setCurrentUserTitle] = useState<string>("N/A");
     const [currentUserName, setCurrentUserName] = useState<string>("N/A");
     const [lifetimeSavingsDialog, setIsLifetimeSavingsDialog] = useState<boolean>(false);
     const [segmentedValue, setSegmentedValue] = useState<string>('cashback');
-    const [showBottomSheet, setShowBottomSheet] = useState<boolean>(false);
     const bottomSheetRef = useRef(null);
     const [selectedTransaction, setSelectedTransaction] = useState<MoonbeamTransaction | null>(null);
     // constants used to keep track of shared states
@@ -52,10 +44,8 @@ export const Dashboard = ({}) => {
     const [profilePictureURI,] = useRecoilState(profilePictureURIState);
     const [bannerState,] = useRecoilState(customBannerState);
     const [bannerVisible,] = useRecoilState(bannerState.bannerVisibilityState);
-    const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
-    const [transactionData, setTransactionData] = useRecoilState(transactionDataState);
     const sortedTransactionData = useRecoilValue(sortedTransactionDataState);
-    const [transactionsRetrieved, setTransactionsRetrieved] = useRecoilState(transactionalDataRetrievedState);
+    const [showTransactionsBottomSheet, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -65,40 +55,31 @@ export const Dashboard = ({}) => {
      * included in here.
      */
     useEffect(() => {
-        // check and set the type of device, to be used throughout the app
-        Device.getDeviceTypeAsync().then(deviceType => {
-            setDeviceType(deviceType);
-        });
         if (userInformation["custom:userId"]) {
+            // check and set the type of device, to be used throughout the app
+            Device.getDeviceTypeAsync().then(deviceType => {
+                setDeviceType(deviceType);
+            });
             // check to see if the user information object has been populated accordingly
             if (userInformation["given_name"] && userInformation["family_name"]) {
                 setCurrentUserTitle(`${Array.from(userInformation["given_name"].split(" ")[0])[0] as string}${Array.from(userInformation["family_name"].split(" ")[0])[0] as string}`);
                 setCurrentUserName(`${userInformation["given_name"]} ${userInformation["family_name"]}`);
             }
-            // retrieve the transactional data for the user (if not already retrieved)
-            !transactionsRetrieved && retrieveTransactionalData(userInformation["custom:userId"]);
-        }
-        // manipulate the bottom sheet
-        if (!showBottomSheet && bottomSheetRef) {
-            // reset the selected transaction on bottom sheet close
-            setSelectedTransaction(null);
+            // manipulate the bottom sheet
+            if (!showTransactionsBottomSheet && bottomSheetRef) {
+                // reset the selected transaction on bottom sheet close
+                setSelectedTransaction(null);
 
-            // @ts-ignore
-            bottomSheetRef.current?.close?.();
+                // @ts-ignore
+                bottomSheetRef.current?.close?.();
+            }
+            if (showTransactionsBottomSheet && bottomSheetRef) {
+                // @ts-ignore
+                bottomSheetRef.current?.expand?.();
+            }
         }
-        if (showBottomSheet && bottomSheetRef) {
-            // @ts-ignore
-            bottomSheetRef.current?.expand?.();
-        }
-        // manipulate the bottom bar navigation accordingly, depending on the bottom sheet being shown or not
-        if (!showBottomSheet) {
-            setBottomTabShown(true);
-        } else {
-            setBottomTabShown(false);
-        }
-    }, [deviceType, userInformation["given_name"], transactionsRetrieved,
-        userInformation["family_name"], userInformation["custom:userId"],
-        showBottomSheet, bottomSheetRef]);
+    }, [deviceType, userInformation["given_name"], userInformation["family_name"],
+        userInformation["custom:userId"], showTransactionsBottomSheet, bottomSheetRef]);
 
     /**
      * Function used to convert a number of milliseconds to a particular time
@@ -139,7 +120,7 @@ export const Dashboard = ({}) => {
             return ''
         }
     }
-    
+
     /**
      * Function used to filter transactional data and return the transactions.
      *
@@ -157,7 +138,7 @@ export const Dashboard = ({}) => {
                         descriptionStyle={styles.listItemDescription}
                         titleNumberOfLines={2}
                         descriptionNumberOfLines={2}
-                        title={"No transactions available!"}
+                        title={"No transactions available"}
                         description=''
                     />
                 </>
@@ -203,7 +184,8 @@ export const Dashboard = ({}) => {
                             right={() =>
                                 <View style={styles.itemRightView}>
                                     <View style={styles.itemRightDetailsView}>
-                                        <Text style={styles.itemRightDetailTop}>{`+ ${transaction.rewardAmount}`}</Text>
+                                        <Text
+                                            style={styles.itemRightDetailTop}>{`+ $${transaction.rewardAmount}`}</Text>
                                         <Text
                                             style={styles.itemRightDetailBottom}>{transaction.transactionStatus}</Text>
                                     </View>
@@ -215,7 +197,7 @@ export const Dashboard = ({}) => {
                             onPress={() => {
                                 setSelectedTransaction(sortedTransactionData.filter((filteredTransaction) => filteredTransaction.transactionId === transaction.transactionId)[0]);
                                 // show the bottom sheet with the appropriate transaction details
-                                setShowBottomSheet(true);
+                                setShowTransactionsBottomSheet(true);
                             }}
                         />
                         <Divider style={styles.divider}/>
@@ -224,79 +206,6 @@ export const Dashboard = ({}) => {
             });
         }
         return results;
-    }
-
-    /**
-     * Function used to retrieve the individual's transactional data. This data will represent
-     * all the user's transactions, from the current time, since they've created an account with
-     * us.
-     *
-     * @param userId userID generated through previous steps during the sign-up process
-     */
-    const retrieveTransactionalData = async (userId: string): Promise<void> => {
-        try {
-            // set the loader
-            setIsReady(false);
-
-            // call the get transaction API
-            const retrievedTransactionsResult = await API.graphql(graphqlOperation(getTransaction, {
-                getTransactionInput: {
-                    id: userId,
-                    // retrieve the current date and time to filter transactions by
-                    endDate: new Date().toISOString()
-                }
-            }));
-
-            // retrieve the data block from the response
-            // @ts-ignore
-            const responseData = retrievedTransactionsResult ? retrievedTransactionsResult.data : null;
-
-            // check if there are any errors in the returned response
-            if (responseData && responseData.getTransaction.errorMessage === null) {
-                // release the loader
-                setIsReady(true);
-
-                /**
-                 * concatenating the incoming transactional data to the existing one and
-                 * adding the user's transactions to the transactional object
-                 */
-                const updatedTransactionalData = transactionData.concat(responseData.getTransaction.data);
-                setTransactionData(updatedTransactionalData);
-
-                // set the retrieval flag of transactions accordingly
-                setTransactionsRetrieved(true);
-            } else {
-                /**
-                 * if there is are no transactions found for the user, then there won't be any displayed in the dashboard,
-                 * since the transactionData array will be empty.
-                 */
-                if (responseData.getTransaction.errorType === TransactionsErrorType.NoneOrAbsent) {
-                    // release the loader
-                    setIsReady(true);
-
-                    // set the retrieval flag of transactions accordingly
-                    setTransactionsRetrieved(true);
-                } else {
-                    // release the loader
-                    setIsReady(true);
-
-                    console.log(`Unexpected error while retrieving transactional data through the API ${JSON.stringify(retrievedTransactionsResult)}`);
-                    setModalVisible(true);
-
-                    // set the retrieval flag of transactions accordingly
-                    setTransactionsRetrieved(true);
-                }
-            }
-        } catch (error) {
-            // release the loader
-            setIsReady(true);
-
-            console.log(`Unexpected error while attempting to retrieve transactional data ${JSON.stringify(error)} ${error}`);
-            setModalVisible(true);
-
-            // set the retrieval flag of transactions accordingly
-            setTransactionsRetrieved(true);
-        }
     }
 
     // return the component for the Dashboard page
@@ -312,6 +221,7 @@ export const Dashboard = ({}) => {
                                     onDismiss={() => setModalVisible(false)}>
                                 <Dialog.Icon icon="alert" color={"#F2FF5D"}
                                              size={Dimensions.get('window').height / 14}/>
+                                <Dialog.Title style={commonStyles.dialogTitle}>We hit a snag!</Dialog.Title>
                                 <Dialog.Content>
                                     <Text
                                         style={commonStyles.dialogParagraph}>{`Unexpected error while loading dashboard!`}</Text>
@@ -334,7 +244,7 @@ export const Dashboard = ({}) => {
                                                     in two main categories,
                                                     <Text style={commonStyles.dialogParagraphBold}> Lifetime
                                                         Savings</Text> and <Text
-                                                    style={commonStyles.dialogParagraphBold}>Available
+                                                    style={commonStyles.dialogParagraphBold}>Current
                                                     Balance</Text> amounts.
                                                     In order to understand how the <Text
                                                     style={commonStyles.dialogParagraphBold}>Lifetime
@@ -355,14 +265,14 @@ export const Dashboard = ({}) => {
                                                     in two main categories,
                                                     <Text style={commonStyles.dialogParagraphBold}> Lifetime
                                                         Savings</Text> and <Text
-                                                    style={commonStyles.dialogParagraphBold}>Available
+                                                    style={commonStyles.dialogParagraphBold}>Current
                                                     Balance</Text> amounts.
                                                     In order to understand how the <Text
-                                                    style={commonStyles.dialogParagraphBold}>Available
+                                                    style={commonStyles.dialogParagraphBold}>Current
                                                     Balance</Text> category works, please note the following:{"\n\n\n"}
                                                     <Text
                                                         style={commonStyles.dialogParagraphNumbered}>➊</Text> The <Text
-                                                    style={commonStyles.dialogParagraphBold}>Available
+                                                    style={commonStyles.dialogParagraphBold}>Current
                                                     Balance</Text> amount, includes any
                                                     pending and processed cashback, redeemed through transactions made
                                                     at qualifying merchant locations (in-store or online).{"\n\n"}
@@ -373,7 +283,7 @@ export const Dashboard = ({}) => {
                                                     balance.{"\n\n"}
                                                     <Text style={commonStyles.dialogParagraphNumbered}>➌</Text> Moonbeam
                                                     will automatically transfer the <Text
-                                                    style={commonStyles.dialogParagraphBold}>Available
+                                                    style={commonStyles.dialogParagraphBold}>Current
                                                     Balance</Text> amount, once
                                                     it reaches <Text style={commonStyles.dialogParagraphBold}>$20</Text>,
                                                     in processed cashback amount.{"\n\n"}
@@ -414,7 +324,7 @@ export const Dashboard = ({}) => {
                                         {...profilePictureURI && profilePictureURI !== "" && {
                                             source: {
                                                 uri: profilePictureURI,
-                                                cache: 'reload'
+                                                cache: 'force-cache'
                                             }
                                         }
                                         }
@@ -433,24 +343,12 @@ export const Dashboard = ({}) => {
                                         }}
                                         containerStyle={deviceType === DeviceType.TABLET ? styles.avatarStyleTablet : styles.avatarStyle}
                                         onPress={async () => {
-                                            // go to the Profile screen
-                                            await Linking.openURL(Linking.createURL(`settings/profile`));
                                         }}
-                                    >
-                                        <Avatar.Accessory
-                                            size={deviceType == DeviceType.TABLET ? 55 : Dimensions.get('window').width / 15}
-                                            style={styles.avatarAccessoryStyle}
-                                            color={'#F2FF5D'}
-                                            onPress={async () => {
-                                                // go to the Profile screen
-                                                await Linking.openURL(Linking.createURL(`settings/profile`));
-                                            }}
-                                        />
-                                    </Avatar>
+                                    />
                                     <View style={styles.statisticsView}>
                                         <View style={styles.statLeftView}>
                                             <View style={styles.statInfoViewLeft}>
-                                                <Text style={styles.statNumberCenterLeft}>$ 1,238.76</Text>
+                                                <Text style={styles.statNumberCenterLeft}>$1,238.76</Text>
                                                 <Text style={styles.statTitleLeft}>
                                                     Lifetime <Text style={styles.statTitleRegular}>Savings</Text>
                                                 </Text>
@@ -465,9 +363,9 @@ export const Dashboard = ({}) => {
                                         <View style={styles.verticalLine}/>
                                         <View style={styles.statRightView}>
                                             <View style={styles.statInfoViewRight}>
-                                                <Text style={styles.statNumberCenterRight}>$ 10.38</Text>
+                                                <Text style={styles.statNumberCenterRight}>$10.38</Text>
                                                 <Text style={styles.statTitleRight}>
-                                                    Available <Text style={styles.statTitleRegular}>Balance</Text>
+                                                    Current <Text style={styles.statTitleRegular}>Balance</Text>
                                                 </Text>
                                                 <Icon name={'info'}
                                                       color={'#F2FF5D'}
@@ -545,23 +443,22 @@ export const Dashboard = ({}) => {
                                                     descriptionStyle={styles.listItemDescription}
                                                     titleNumberOfLines={2}
                                                     descriptionNumberOfLines={2}
-                                                    title={"No payouts available!"}
+                                                    title={"No payouts available"}
                                                     description=''
                                                 />
                                             </List.Section>}
                                     </ScrollView>
                                 </View>
                             }
-
                             <BottomSheet
                                 handleIndicatorStyle={{backgroundColor: '#F2FF5D'}}
                                 ref={bottomSheetRef}
                                 backgroundStyle={[styles.bottomSheet, selectedTransaction && selectedTransaction.transactionIsOnline && {backgroundColor: '#5B5A5A'}]}
                                 enablePanDownToClose={true}
-                                index={showBottomSheet ? 0 : -1}
-                                snapPoints={selectedTransaction && !selectedTransaction.transactionIsOnline ? ['55%', '55%'] : ['23%', '23%']}
+                                index={showTransactionsBottomSheet ? 0 : -1}
+                                snapPoints={selectedTransaction && !selectedTransaction.transactionIsOnline ? ['60%', '60%'] : ['30%', '30%']}
                                 onChange={(index) => {
-                                    setShowBottomSheet(index !== -1);
+                                    setShowTransactionsBottomSheet(index !== -1);
                                 }}
                             >
                                 {

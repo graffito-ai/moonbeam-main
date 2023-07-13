@@ -172,6 +172,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                 onDismiss={() => setModalVisible(false)}>
                             <Dialog.Icon icon="alert" color={"#F2FF5D"}
                                          size={Dimensions.get('window').height / 14}/>
+                            <Dialog.Title style={commonStyles.dialogTitle}>{modalButtonMessage === 'Try Again' ? 'We hit a snag!': 'Great'}</Dialog.Title>
                             <Dialog.Content>
                                 <Text
                                     style={commonStyles.dialogParagraph}>{modalCustomMessage}</Text>

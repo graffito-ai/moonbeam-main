@@ -252,55 +252,10 @@ export const Profile = ({navigation}: ProfileProps) => {
             console.log(`Invalid user information structure retrieved!`);
 
             setModalCustomMessage(`Unexpected error while loading user information!`);
-            setModalButtonMessage(`Dismiss!`);
+            setModalButtonMessage(`Try Again!`);
             setModalVisible(true);
         }
     }
-
-    // /**
-    //  * Function used to retrieve the new profile picture, after picking a picture through
-    //  * the photo picker and uploading it into storage.
-    //  */
-    // const retrieveProfilePicture = async (): Promise<void> => {
-    //     try {
-    //         // set the loader on button press
-    //         setIsReady(false);
-    //
-    //         // retrieve the identity id for the current user
-    //         const userCredentials = await Auth.currentUserCredentials();
-    //
-    //         // fetch the profile picture URI from storage and/or cache
-    //         const [returnFlag, profilePictureURI] = await fetchFile('profile_picture.png', true,
-    //             true, false, userCredentials["identityId"]);
-    //         if (!returnFlag || profilePictureURI === null) {
-    //             // release the loader on button press
-    //             setIsReady(true);
-    //
-    //             const errorMessage = `Unable to retrieve new profile picture!`;
-    //             console.log(errorMessage);
-    //
-    //             setModalCustomMessage(errorMessage);
-    //             setModalButtonMessage('Ok');
-    //             setModalVisible(true);
-    //         } else {
-    //             // update the global profile picture state
-    //             setProfilePictureURI(profilePictureURI);
-    //
-    //             // release the loader on button press
-    //             setIsReady(true);
-    //         }
-    //     } catch (error) {
-    //         const errorMessage = `Error while retrieving profile picture!`;
-    //         console.log(`${errorMessage} - ${error}`);
-    //
-    //         setModalCustomMessage(errorMessage);
-    //         setModalButtonMessage('Try Again!');
-    //         setModalVisible(true);
-    //
-    //         // release the loader on button press
-    //         setIsReady(true);
-    //     }
-    // }
 
     /**
      * Function used to pick a profile picture, based on the photo library storage,
@@ -345,7 +300,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                                 to: uri
                             });
                             // upload the photo to Cloud storage, under the `profile_picture.png` name, so it can easily be retrieved
-                            const [uploadFlag, fileName] = await uploadFile(uri, true, `profile_picture.png`);
+                            const [uploadFlag, fileName] = await uploadFile(uri, true, `profile_picture.png`, true);
                             if (!uploadFlag || fileName === null) {
                                 const errorMessage = "Error while picking a photo as profile picture!";
                                 console.log(errorMessage);
@@ -525,6 +480,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                                 onDismiss={() => setModalVisible(false)}>
                             <Dialog.Icon icon="alert" color={"#F2FF5D"}
                                          size={Dimensions.get('window').height / 14}/>
+                            <Dialog.Title style={commonStyles.dialogTitle}>{modalButtonMessage === 'Ok' ? 'Great': 'We hit a snag!'}</Dialog.Title>
                             <Dialog.Content>
                                 <Text
                                     style={commonStyles.dialogParagraph}>{modalCustomMessage}</Text>
@@ -569,7 +525,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                                             {...(profilePictureURI && profilePictureURI !== "") && {
                                                 source: {
                                                     uri: profilePictureURI,
-                                                    cache: 'reload'
+                                                    cache: 'force-cache'
                                                 }
                                             }
                                             }
@@ -590,11 +546,6 @@ export const Profile = ({navigation}: ProfileProps) => {
                                             onPress={async () => {
                                                 // first pick and upload a photo to storage
                                                 await pickPhoto();
-
-                                                // // check the upload flag, and decide whether we need to replace the profile picture or not
-                                                // if (uploadPictureFlag) {
-                                                //     await retrieveProfilePicture();
-                                                // }
                                             }}
                                         >
                                             <Avatar.Accessory
@@ -607,11 +558,6 @@ export const Profile = ({navigation}: ProfileProps) => {
                                                 onPress={async () => {
                                                     // first pick and upload a photo to storage
                                                     await pickPhoto();
-
-                                                    // // check the upload flag, and decide whether we need to replace the profile picture or not
-                                                    // if (uploadPictureFlag) {
-                                                    //     await retrieveProfilePicture();
-                                                    // }
                                                 }}
                                             />
                                         </Avatar>
