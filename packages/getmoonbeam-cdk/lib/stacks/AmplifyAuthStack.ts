@@ -12,6 +12,7 @@ import {
 import {IdentityPool, UserPoolAuthenticationProvider} from "@aws-cdk/aws-cognito-identitypool-alpha";
 import {FederatedPrincipal, Role} from "aws-cdk-lib/aws-iam";
 import {AmplifyConfiguration} from "../models/ServiceConfiguration";
+import {Stages} from "@moonbeam/moonbeam-models";
 
 /**
  * File used to define the Auth stack, used by Amplify.
@@ -164,7 +165,12 @@ export class AmplifyAuthStack extends NestedStack {
                 {
                     "StringEquals": {
                         // this identity pool id has to be hardcoded because it cannot be retrieved until after it's created
-                        "cognito-identity.amazonaws.com:aud": `us-west-2:d634a1d9-f3e9-429a-9984-a9da8f95ac16`
+                        ...(props.stage === Stages.DEV && {
+                            "cognito-identity.amazonaws.com:aud": `us-west-2:d634a1d9-f3e9-429a-9984-a9da8f95ac16`
+                        }),
+                        ...(props.stage === Stages.PROD && {
+                            "cognito-identity.amazonaws.com:aud": `us-west-2:63fdfd4b-9068-42f4-a8c6-02b7aa88a347`
+                        })
                     },
                     "ForAnyValue:StringLike": {
                         "cognito-identity.amazonaws.com:amr": "authenticated"
@@ -182,7 +188,12 @@ export class AmplifyAuthStack extends NestedStack {
                 {
                     "StringEquals": {
                         // this identity pool id has to be hardcoded because it cannot be retrieved until after it's created
-                        "cognito-identity.amazonaws.com:aud": `us-west-2:d634a1d9-f3e9-429a-9984-a9da8f95ac16`
+                        ...(props.stage === Stages.DEV && {
+                            "cognito-identity.amazonaws.com:aud": `us-west-2:d634a1d9-f3e9-429a-9984-a9da8f95ac16`
+                        }),
+                        ...(props.stage === Stages.PROD && {
+                            "cognito-identity.amazonaws.com:aud": `us-west-2:63fdfd4b-9068-42f4-a8c6-02b7aa88a347`
+                        })
                     },
                     "ForAnyValue:StringLike": {
                         "cognito-identity.amazonaws.com:amr": "unauthenticated"

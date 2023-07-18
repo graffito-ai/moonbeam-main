@@ -1,7 +1,7 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
-import {IconButton, Text} from "react-native-paper";
+import {IconButton} from "react-native-paper";
 import {SettingsProps} from "../../../../models/props/AppDrawerProps";
 import {SettingsStackParamList} from "../../../../models/props/SettingsProps";
 import {SettingsList} from "./SettingsList";
@@ -14,6 +14,7 @@ import * as Device from "expo-device";
 import {DeviceType} from "expo-device";
 import {Dimensions} from "react-native";
 import {styles} from "../../../../styles/settingsList.module";
+import {Spinner} from "../../../common/Spinner";
 
 /**
  * Settings component
@@ -22,6 +23,8 @@ import {styles} from "../../../../styles/settingsList.module";
  * @constructor constructor for the component.
  */
 export const Settings = ({navigation}: SettingsProps) => {
+    // constants used to keep track of local component state
+    const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
     const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
     const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
@@ -74,7 +77,12 @@ export const Settings = ({navigation}: SettingsProps) => {
 
     // return the component for the Settings page
     return (
-        <NavigationContainer independent={true} linking={linking} fallback={<Text>Loading...</Text>}>
+        <NavigationContainer independent={true}
+                             linking={linking}
+                             fallback={
+                                 <Spinner loadingSpinnerShown={loadingSpinnerShown}
+                                          setLoadingSpinnerShown={setLoadingSpinnerShown}/>
+                             }>
             <Stack.Navigator
                 initialRouteName={"SettingsList"}
                 screenOptions={({navigation}) => {

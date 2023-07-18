@@ -2,7 +2,7 @@ import {aws_appsync, aws_dynamodb, aws_lambda, aws_lambda_nodejs, Duration, Stac
 import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
 import path from "path";
-import {Constants} from "@moonbeam/moonbeam-models";
+import {Constants, Stages} from "@moonbeam/moonbeam-models";
 import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
 
 /**
@@ -94,7 +94,9 @@ export class MilitaryVerificationResolverStack extends Stack {
                     "secretsmanager:GetSecretValue"
                 ],
                 resources: [
-                    "arn:aws:secretsmanager:us-west-2:963863720257:secret:quandis-secret-pair-dev-us-west-2-mJ84LF" // this ARN is retrieved post secret creation
+                    // this ARN is retrieved post secret creation
+                    ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:quandis-secret-pair-dev-us-west-2-mJ84LF"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:quandis-secret-pair-prod-us-west-2-ebWbNz"] : []
                 ]
             })
         );
@@ -106,7 +108,9 @@ export class MilitaryVerificationResolverStack extends Stack {
                     "secretsmanager:GetSecretValue"
                 ],
                 resources: [
-                    "arn:aws:secretsmanager:us-west-2:963863720257:secret:lighthouse-secret-pair-dev-us-west-2-UxNuez" // this ARN is retrieved post secret creation
+                    // this ARN is retrieved post secret creation
+                    ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:lighthouse-secret-pair-dev-us-west-2-UxNuez"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:lighthouse-secret-pair-prod-us-west-2-Ga4Ski"] : []
                 ]
             }),
         );

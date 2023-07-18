@@ -26,11 +26,6 @@ export interface AmplifyAuthConfig {
 export interface SESConfiguration {
     readonly emailAddress: string;
     readonly removalPolicy?: RemovalPolicy;
-    /**
-     * this flag will need to be updated once the email address has been verified,
-     * and/or any time we want to verify another email address
-     */
-    readonly created: boolean;
 }
 
 /**

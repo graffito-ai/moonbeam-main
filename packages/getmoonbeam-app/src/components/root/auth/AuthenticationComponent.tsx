@@ -1,9 +1,9 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {AuthenticationProps} from "../../../models/props/RootProps";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {AuthenticationStackParamList} from "../../../models/props/AuthenticationProps";
 import {NavigationContainer} from "@react-navigation/native";
-import {IconButton, Text} from "react-native-paper";
+import {IconButton} from "react-native-paper";
 import {SignInComponent} from "./SignInComponent";
 import {RegistrationComponent} from "./registration/RegistrationComponent";
 import {useRecoilState, useRecoilValue} from "recoil";
@@ -15,7 +15,8 @@ import {
     addressZipState,
     amplifySignUpProcessErrorsState,
     appLinkedURLState,
-    birthdayState, currentUserInformation,
+    birthdayState,
+    currentUserInformation,
     dutyStatusValueState,
     emailState,
     enlistingYearState,
@@ -35,6 +36,7 @@ import {Dimensions} from "react-native";
 import {commonStyles} from "../../../styles/common.module";
 import {AppDrawer} from "../drawer/AppDrawer";
 import * as Linking from "expo-linking";
+import {Spinner} from "../../common/Spinner";
 
 /**
  * Authentication component.
@@ -42,13 +44,15 @@ import * as Linking from "expo-linking";
  * @constructor constructor for the component.
  */
 export const AuthenticationComponent = ({}: AuthenticationProps) => {
+        // constants used to keep track of local component state
+        const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
         // create a native stack navigator, to be used for our Authentication application navigation
         const Stack = createNativeStackNavigator<AuthenticationStackParamList>();
         // constants used to keep track of shared states
         const [, setRegistrationMainError] = useRecoilState(registrationMainErrorState);
         const [, setStepNumber] = useRecoilState(registrationStepNumber);
         const [, setAppURL] = useRecoilState(appLinkedURLState);
-        const [userInformation, ] = useRecoilState(currentUserInformation);
+        const [userInformation,] = useRecoilState(currentUserInformation);
         // step 1
         const [, setFirstName] = useRecoilState(firstNameState);
         const [, setLastName] = useRecoilState(lastNameState);
@@ -91,7 +95,11 @@ export const AuthenticationComponent = ({}: AuthenticationProps) => {
         // return the component for the Authentication stack
         return (
             <>
-                <NavigationContainer independent={true} fallback={<Text>Loading...</Text>}>
+                <NavigationContainer independent={true}
+                                     fallback={
+                                         <Spinner loadingSpinnerShown={loadingSpinnerShown}
+                                                  setLoadingSpinnerShown={setLoadingSpinnerShown}/>
+                                     }>
                     <Stack.Navigator
                         initialRouteName={useRecoilValue(initialAuthenticationScreen) == 'SignIn' ? "SignIn" : 'Registration'}
                         screenOptions={{

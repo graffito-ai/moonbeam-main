@@ -12,7 +12,7 @@ import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
 import {ApiKeySourceType, EndpointType, LogGroupLogDestination, Period} from "aws-cdk-lib/aws-apigateway";
 import {LogGroup, RetentionDays} from "aws-cdk-lib/aws-logs";
-import {Constants} from "@moonbeam/moonbeam-models";
+import {Constants, Stages} from "@moonbeam/moonbeam-models";
 
 /**
  * File used to define the APIGatewayServiceStack stack, used to create various API Gateway based services.
@@ -42,11 +42,22 @@ export class APIGatewayServiceStack extends Stack {
             apiKeySourceType: ApiKeySourceType.HEADER,
             cloudWatchRole: true,
             domainName: {
-                domainName: 'api.moonbeam.vet', // our domain for incoming requests, to point to an Edge Cloudfront endpoint, that will then point to the actual API Gateway distribution endpoint
+                // our domain for incoming requests, to point to an Edge Cloudfront endpoint, that will then point to the actual API Gateway distribution endpoint
+                domainName:
+                    props.stage === Stages.DEV
+                        ? 'api-dev.moonbeam.vet'
+                        : props.stage === Stages.PROD
+                            ? 'api.moonbeam.vet'
+                            : '',
                 endpointType: EndpointType.EDGE,
+                // ARN retrieved after its creation, has to be in us-east-1
                 certificate: aws_certificatemanager.Certificate
                     .fromCertificateArn(this, `${props.cardLinkingServiceConfig.cardLinkingServiceAPIName}-certificate-${props.stage}-${props.env!.region}`,
-                        `arn:aws:acm:us-east-1:963863720257:certificate/3c73d13c-5c11-4f62-b00c-bc4880d23e1a`) // ARN retrieved after its creation, has to be in us-east-1
+                        props.stage === Stages.DEV
+                            ? `arn:aws:acm:us-east-1:963863720257:certificate/2c3b8814-e4a4-46ea-80a5-a5ee3be69615`
+                            : props.stage === Stages.PROD
+                                ? `arn:aws:acm:us-east-1:251312580862:certificate/bea62d97-9fdd-42f2-98dc-a65681e62c68`
+                                : ``)
             },
             deployOptions: {
                 accessLogDestination: new LogGroupLogDestination(new LogGroup(this, `${props.cardLinkingServiceConfig.apiDeploymentGroupName}-${props.stage}-${props.env!.region}`, {

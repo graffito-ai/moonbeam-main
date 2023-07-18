@@ -8,6 +8,7 @@ import {DashboardControllerStackParamList} from "../../../../../models/props/Das
 import {Dashboard} from "./Dashboard";
 import {showTransactionBottomSheetState, showWalletBottomSheetState} from "../../../../../recoil/DashboardAtom";
 import {Spinner} from "../../../../common/Spinner";
+import * as Linking from "expo-linking";
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -17,82 +18,110 @@ import {Spinner} from "../../../../common/Spinner";
  * @constructor constructor for the component.
  */
 export const DashboardController = ({navigation}: DashboardProps) => {
-    // constants used to keep track of local component state
-    const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
-    // constants used to keep track of shared states
-    const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
-    const [, setBannerShown] = useRecoilState(customBannerShown);
-    const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
-    const [, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
-    const [, setShowWalletBottomSheet] = useRecoilState(showWalletBottomSheetState);
+        // constants used to keep track of local component state
+        const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
+        // constants used to keep track of shared states
+        const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
+        const [, setBannerShown] = useRecoilState(customBannerShown);
+        const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
+        const [, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
+        const [, setShowWalletBottomSheet] = useRecoilState(showWalletBottomSheetState);
 
-    // create a native stack navigator, to be used for our Dashboard Controller application navigation
-    const DashboardStack = createNativeStackNavigator<DashboardControllerStackParamList>();
+        // create a native stack navigator, to be used for our Dashboard Controller application navigation
+        const DashboardStack = createNativeStackNavigator<DashboardControllerStackParamList>();
 
-    /**
-     * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
-     * auth-related functionality for example), as well as any afferent API calls.
-     *
-     * Generally speaking, any functionality imperative prior to the full page-load should be
-     * included in here.
-     */
-    useEffect(() => {
-        // set the app drawer status accordingly,custom banner visibility and drawer swipe actions accordingly
-        if (navigation.getState().index === 0) {
-            setAppDrawerHeaderShown(true)
-            setBannerShown(true);
-            setDrawerSwipeEnabled(true);
-            setShowTransactionsBottomSheet(false);
-            setShowWalletBottomSheet(false);
-        }
-    }, [navigation.getState()]);
+        // enabling the linking configuration for creating links to the application screens, based on the navigator
+        const config = {
+            screens: {
+                Dashboard: {
+                    path: 'home/control/dashboard'
+                },
+                TransactionsController: {
+                    path: 'home/control/transactions'
+                },
+                CashbackController: {
+                    path: 'home/control/cashback'
+                }
+            }
+        };
 
-    /**
-     * return the component for the DashboardController page
-     *
-     * in the future we will have to implement the TransactionsController and CashbackController
-     * in order to account for transaction and cashback statements. For now, we will load all
-     * transactions and credits/cashback amounts in the Dashboard component, without allowing users to have
-     * a detailed list-based view for them, split by week/month/year.
-     *
-     * (we will need to address this ASAP after release, because as transactions and cashback list sizes grow,
-     * it will be harder and harder for us to load them in a timely manner)
-     */
-    return (
-        <>
-            <NavigationContainer independent={true}
-                                 fallback={
-                                     <Spinner loadingSpinnerShown={loadingSpinnerShown}
-                                              setLoadingSpinnerShown={setLoadingSpinnerShown}/>
-                                 }>
-                <DashboardStack.Navigator
-                    initialRouteName={'Dashboard'}
-                    screenOptions={{
-                        headerShown: false,
-                        gestureEnabled: false
-                    }}
-                >
-                    <DashboardStack.Screen
-                        name="Dashboard"
-                        component={Dashboard}
-                        initialParams={{}}
-                    />
-                    <DashboardStack.Screen
-                        name="TransactionsController"
-                        component={() => {
-                            return (<></>)
+        /**
+         * configuring the navigation linking, based on the types of prefixes that the application supports, given
+         * the environment that we deployed the application in.
+         * @see https://docs.expo.dev/guides/linking/?redirected
+         * @see https://reactnavigation.org/docs/deep-linking/
+         */
+        const linking = {
+            prefixes: [Linking.createURL('/')],
+            config,
+        };
+
+        /**
+         * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
+         * auth-related functionality for example), as well as any afferent API calls.
+         *
+         * Generally speaking, any functionality imperative prior to the full page-load should be
+         * included in here.
+         */
+        useEffect(() => {
+            // set the app drawer status accordingly,custom banner visibility and drawer swipe actions accordingly
+            if (navigation.getState().index === 0) {
+                setAppDrawerHeaderShown(true)
+                setBannerShown(true);
+                setDrawerSwipeEnabled(true);
+                setShowTransactionsBottomSheet(false);
+                setShowWalletBottomSheet(false);
+            }
+        }, [navigation.getState()]);
+
+        /**
+         * return the component for the DashboardController page
+         *
+         * in the future we will have to implement the TransactionsController and CashbackController
+         * in order to account for transaction and cashback statements. For now, we will load all
+         * transactions and credits/cashback amounts in the Dashboard component, without allowing users to have
+         * a detailed list-based view for them, split by week/month/year.
+         *
+         * (we will need to address this ASAP after release, because as transactions and cashback list sizes grow,
+         * it will be harder and harder for us to load them in a timely manner)
+         */
+        return (
+            <>
+                <NavigationContainer independent={true}
+                                     linking={linking}
+                                     fallback={
+                                         <Spinner loadingSpinnerShown={loadingSpinnerShown}
+                                                  setLoadingSpinnerShown={setLoadingSpinnerShown}/>
+                                     }>
+                    <DashboardStack.Navigator
+                        initialRouteName={'Dashboard'}
+                        screenOptions={{
+                            headerShown: false,
+                            gestureEnabled: false
                         }}
-                        initialParams={{}}
-                    />
-                    <DashboardStack.Screen
-                        name="CashbackController"
-                        component={() => {
-                            return (<></>)
-                        }}
-                        initialParams={{}}
-                    />
-                </DashboardStack.Navigator>
-            </NavigationContainer>
-        </>
-    );
-};
+                    >
+                        <DashboardStack.Screen
+                            name="Dashboard"
+                            component={Dashboard}
+                            initialParams={{}}
+                        />
+                        <DashboardStack.Screen
+                            name="TransactionsController"
+                            component={() => {
+                                return (<></>)
+                            }}
+                            initialParams={{}}
+                        />
+                        <DashboardStack.Screen
+                            name="CashbackController"
+                            component={() => {
+                                return (<></>)
+                            }}
+                            initialParams={{}}
+                        />
+                    </DashboardStack.Navigator>
+                </NavigationContainer>
+            </>
+        );
+    }
+;

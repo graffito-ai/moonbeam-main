@@ -28,9 +28,12 @@ export class AmplifyStack extends Stack {
         super(scope, id, props);
 
         /**
-         * we check against the DEV stage so that we only create
-         * the Amplify app (as well as the deployment) once.
+         * We will have one Amplify app per environment/stage. This Amplify application
+         * will have a single back-end environment associated with it corresponding to the
+         * same environment/stage.
          *
+         * In order words, for example, for the PROD stage, we will have a PROD Amplify application
+         * which will contain a PROD Amplify environment.
          */
         const amplifyApp = new aws_amplify.CfnApp(this, `${props.amplifyConfig.amplifyAppName}`, {
             name: `${props.amplifyConfig.amplifyAppName}`,

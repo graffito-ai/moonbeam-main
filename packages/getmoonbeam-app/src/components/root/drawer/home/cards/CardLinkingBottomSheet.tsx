@@ -397,12 +397,6 @@ export const CardLinkingBottomSheet = () => {
                             setSupportMultipleWindows={false}
                             nestedScrollEnabled={true}
                             startInLoadingState={true}
-                            renderLoading={() => {
-                                return (
-                                    <Spinner loadingSpinnerShown={loadingSpinnerShown}
-                                             setLoadingSpinnerShown={setLoadingSpinnerShown}/>
-                                )
-                            }}
                         />
                     </SafeAreaView>
                 </>

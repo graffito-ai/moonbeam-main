@@ -38,7 +38,18 @@ export const Home = ({navigation}: HomeProps) => {
     const config = {
         screens: {
             DashboardController: {
-                path: 'home/dashboard'
+                path: 'home/control',
+                screens: {
+                    Dashboard: {
+                        path: 'dashboard'
+                    },
+                    TransactionsController: {
+                        path: 'transactions'
+                    },
+                    CashbackController: {
+                        path: 'cashback'
+                    }
+                }
             },
             Marketplace: {
                 path: 'home/marketplace'

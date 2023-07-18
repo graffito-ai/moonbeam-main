@@ -78,12 +78,83 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 getTransactionResolverName: 'getTransaction'
             },
             sesConfig: {
-                emailAddress: `noreply-${Stages.DEV}@moonbeam.vet`,
-                /**
-                 * this flag will need to be updated to true once the email address has been verified,
-                 * and/or to false, any time we want to re-verify, or verify another email address
-                 */
-                created: true
+                emailAddress: `noreply-${Stages.DEV}@moonbeam.vet`
+            },
+            environmentVariables: new Map<string, string>([])
+        },
+        [`${Stages.PROD}-${Regions.PDX}`]: {
+            stage: Stages.PROD,
+            awsAccountId: '251312580862',
+            amplifyConfig: {
+                amplifyAppName: 'getmoonbeamapp',
+                amplifyServiceRoleName: 'getmoonbeam-application-service-role',
+                amplifyAuthConfig: {
+                    userPoolName: 'getmoonbeam-application-pool',
+                    userPoolFrontendClientName: 'getmoonbeam-application-pool-client',
+                    userPoolIdentityFrontendPoolName: 'getmoonbeam-application-frontend-pool-identity',
+                    authenticatedRoleName: 'amplify-getmoonbeamapp-prod-authRole', // this role's policies needs to be translated into the role created by amplify via the app
+                    unauthenticatedRoleName: 'amplify-getmoonbeamapp-prod-unauthRole' // this role's policies needs to be translated into the role created by amplify via the app
+                },
+            },
+            appSyncConfig: {
+                internalApiKeyName: 'moonbeamInternalApiKey',
+                graphqlApiName: 'getMoonbeamGraphqlApi'
+            },
+            storageConfig: {
+                publicFilesBucketName: Constants.StorageConstants.MOONBEAM_PUBLIC_FILES_BUCKET_NAME,
+                mainFilesBucketName: Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME,
+                mainFilesCloudFrontDistributionName: `cloudfront-distribution-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
+                mainFilesCloudFrontTrustedPublicKeyName: `cloudfront-public-key-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
+                mainFilesCloudFrontTrustedKeyGroupName: `cloudfront-key-group-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
+                mainFilesCloudFrontAccessIdentityName: `cloudfront-access-identity-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
+                mainFilesCloudFrontCachePolicyName: `cloudfront-cache-policy-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
+                storageFunctionName: 'storageLambdaFunction',
+                getResolverName: 'getStorage'
+            },
+            militaryVerificationConfig: {
+                militaryVerificationFunctionName: 'militaryVerificationLambdaFunction',
+                militaryVerificationTableName: 'militaryVerificationTable',
+                getMilitaryVerificationStatusResolverName: 'getMilitaryVerificationStatus',
+                updateMilitaryVerificationStatusResolverName: 'updateMilitaryVerificationStatus',
+                createMilitaryVerificationResolverName: 'createMilitaryVerification'
+            },
+            cardLinkingConfig: {
+                cardLinkingFunctionName: 'cardLinkingLambdaFunction',
+                cardLinkingTableName: 'cardLinkingTable',
+                getCardLinkResolverName: 'getCardLink',
+                createCardLinkResolverName: 'createCardLink',
+                deleteCardResolverName: 'deleteCard',
+                addCardResolverName: 'addCard'
+            },
+            cardLinkingServiceConfig: {
+                cardLinkingServiceAPIName: 'cardLinkingServiceAPI',
+                apiDeploymentGroupName: 'cardLinkingAPILogGroup',
+                oliveSharedAPIKeyName: 'cardLinkingOliveSharedAPIKey',
+                oliveUsagePlan: `cardLinkingOliveUsagePlan`,
+                transactionsAcknowledgmentMethodName: `transactionsAcknowledgment`
+            },
+            transactionsProducerConsumerConfig: {
+                transactionsProducerFunctionName: 'transactionsProducerLambdaFunction',
+                transactionalOffersConsumerFunctionName: 'transactionalOffersConsumerLambdaFunction',
+                transactionsFanOutConfig: {
+                    transactionsProcessingTopicName: 'transactionsProcessingTopic',
+                    transactionalOffersProcessingQueueName: 'transactionalOffersProcessingQueue',
+                    transactionalOffersProcessingDLQName: 'transactionalOffersProcessingDLQ',
+                    transactionsProcessingTopicDLQName: 'transactionsProcessingTopicDLQ',
+                    transactionalOffersProcessingEventSourceMapping: 'transactionalOffersProcessingEventSourceMapping'
+                }
+            },
+            transactionsConfig: {
+                transactionsFunctionName: 'transactionsLambdaFunction',
+                transactionsTableName: 'transactionsTable',
+                transactionsPrimaryKey: 'transactionsPrimaryKey',
+                transactionsIdGlobalIndex: 'transactionsIdGlobalIndex',
+                transactionsStatusLocalIndex: 'transactionsStatusLocalIndex',
+                createTransactionResolverName: 'createTransaction',
+                getTransactionResolverName: 'getTransaction'
+            },
+            sesConfig: {
+                emailAddress: `noreply@moonbeam.vet`
             },
             environmentVariables: new Map<string, string>([])
         },

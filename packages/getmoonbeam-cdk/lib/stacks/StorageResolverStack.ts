@@ -17,7 +17,7 @@ import {
     ViewerProtocolPolicy
 } from "aws-cdk-lib/aws-cloudfront";
 import {S3Origin} from "aws-cdk-lib/aws-cloudfront-origins";
-import {Constants} from "@moonbeam/moonbeam-models";
+import {Constants, Stages} from "@moonbeam/moonbeam-models";
 import {Effect, PolicyStatement, Role} from "aws-cdk-lib/aws-iam";
 
 /**
@@ -93,15 +93,29 @@ export class StorageResolverStack extends Stack {
          */
         const mainFilesBucketPublicKey = new PublicKey(this, `${props.storageConfig.mainFilesCloudFrontTrustedPublicKeyName}-${props.stage}-${props.env!.region}`, {
             publicKeyName: `${props.storageConfig!.mainFilesCloudFrontTrustedPublicKeyName}-${props.stage}-${props.env!.region}`,
-            encodedKey: '-----BEGIN PUBLIC KEY-----\n' +
-                'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsRsGBlh0F0b43JAmP3Xq\n' +
-                'BoJnchRrIVxnDZyuW6l3YdIqmrtvLRSyubQvBsL19HPIDGoakaDBleZPdSoytmOk\n' +
-                '82FuhI3TpN1uXyGpf7sg7GqgazLDpWLu26hrAYxep2LMqIyHkooS/ako536lXzSr\n' +
-                '4bcshw8gAJjcFkYHauEcK39pOr2xmUKaMPfLY6mu4U7R9QOK1Vxa0XwakPbJKLcH\n' +
-                '6MsSxGXwarttasf+AC52vpBONCuB25lyAU/qerG0gCc6dBa3PFWS7xx0nkR0HfCf\n' +
-                'arC+ChSRC6O7KluWJKmBWCRZqUqYs6ng5Q5PFnG3a2A19ZXk3b4IwGz84Qs6Fpu3\n' +
-                'JwIDAQAB\n' +
-                '-----END PUBLIC KEY-----'
+            // this encoded key has to be hardcoded because it cannot be retrieved until after it's created
+            encodedKey:
+                props.stage === Stages.DEV
+                    ? '-----BEGIN PUBLIC KEY-----\n' +
+                    'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsRsGBlh0F0b43JAmP3Xq\n' +
+                    'BoJnchRrIVxnDZyuW6l3YdIqmrtvLRSyubQvBsL19HPIDGoakaDBleZPdSoytmOk\n' +
+                    '82FuhI3TpN1uXyGpf7sg7GqgazLDpWLu26hrAYxep2LMqIyHkooS/ako536lXzSr\n' +
+                    '4bcshw8gAJjcFkYHauEcK39pOr2xmUKaMPfLY6mu4U7R9QOK1Vxa0XwakPbJKLcH\n' +
+                    '6MsSxGXwarttasf+AC52vpBONCuB25lyAU/qerG0gCc6dBa3PFWS7xx0nkR0HfCf\n' +
+                    'arC+ChSRC6O7KluWJKmBWCRZqUqYs6ng5Q5PFnG3a2A19ZXk3b4IwGz84Qs6Fpu3\n' +
+                    'JwIDAQAB\n' +
+                    '-----END PUBLIC KEY-----'
+                    : props.stage === Stages.PROD
+                        ? '-----BEGIN PUBLIC KEY-----\n' +
+                        'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAr8wyS/HJGtpVPUtRGRhO\n' +
+                        'SsAdOH6UrK8ste2YNKluTBw+geYDExO2Bjegb7cl9viGoLCz5HDwUYX1rdVWDdpu\n' +
+                        'BnjGpKQ+PsKHtMfchGutiK06OGNdEes8gMPGHVhdI6t4kXyzlG1xW+uLgN9+pihP\n' +
+                        'cvp7KLlmwK+XKokKOi7U++TBVuEXBU+tq0p7jeE1UP1lBG8Aj+vaOWK1QpMIAiGX\n' +
+                        'uXb9RMU8v0I1WC0MSlUJEJYFqY/toM3V1hHyVmXzga6QoZE31Bsgj6dRMR9zUgXl\n' +
+                        'MHsBzkjI39CsMw9jixp0ZtNwNOuupTHlUfwC5Bh8DwW5SyeRxw0aS6avsCreL4qm\n' +
+                        '3QIDAQAB\n' +
+                        '-----END PUBLIC KEY-----'
+                        : ''
         });
         const mainFilesBucketTrustedKeyGroup = new KeyGroup(this, `${props.storageConfig.mainFilesCloudFrontTrustedKeyGroupName}-${props.stage}-${props.env!.region}`, {
             items: [mainFilesBucketPublicKey]
@@ -220,7 +234,9 @@ export class StorageResolverStack extends Stack {
                     "secretsmanager:GetSecretValue"
                 ],
                 resources: [
-                    "arn:aws:secretsmanager:us-west-2:963863720257:secret:main-files-cloudfront-pair-dev-us-west-2-1ve4pZ" // this ARN is retrieved post secret creation
+                    // this ARN is retrieved post secret creation
+                    ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:main-files-cloudfront-pair-dev-us-west-2-1ve4pZ"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:main-files-cloudfront-pair-prod-us-west-2-xJ5QJw"] : []
                 ]
             })
         );

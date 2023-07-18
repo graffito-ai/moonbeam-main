@@ -3,7 +3,7 @@ import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
 import path from "path";
 import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
-import {Constants} from "@moonbeam/moonbeam-models";
+import {Constants, Stages} from "@moonbeam/moonbeam-models";
 import {SqsSubscription} from "aws-cdk-lib/aws-sns-subscriptions";
 import {EventSourceMapping} from "aws-cdk-lib/aws-lambda";
 
@@ -80,7 +80,9 @@ export class TransactionsProducerConsumerStack extends Stack {
                     "secretsmanager:GetSecretValue"
                 ],
                 resources: [
-                    "arn:aws:secretsmanager:us-west-2:963863720257:secret:olive-secret-pair-dev-us-west-2-OTgCOk" // this ARN is retrieved post secret creation
+                    // this ARN is retrieved post secret creation
+                    ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:olive-secret-pair-dev-us-west-2-OTgCOk"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:olive-secret-pair-prod-us-west-2-gIvRt8"] : []
                 ]
             })
         );
@@ -92,7 +94,9 @@ export class TransactionsProducerConsumerStack extends Stack {
                     "secretsmanager:GetSecretValue"
                 ],
                 resources: [
-                    "arn:aws:secretsmanager:us-west-2:963863720257:secret:moonbeam-internal-secret-pair-dev-us-west-2-vgMpp2" // this ARN is retrieved post secret creation
+                    // this ARN is retrieved post secret creation
+                    ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:moonbeam-internal-secret-pair-dev-us-west-2-vgMpp2"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:moonbeam-internal-secret-pair-prod-us-west-2-9xP6tj"] : []
                 ]
             })
         );
@@ -104,7 +108,9 @@ export class TransactionsProducerConsumerStack extends Stack {
                     "appsync:GraphQL"
                 ],
                 resources: [
-                    "arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Mutation/*" // this ARN is retrieved post AppSync creation
+                    // this ARN is retrieved post secret creation
+                    ...props.stage === Stages.DEV ? ["arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Mutation/*"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Mutation/*"] : []
                 ]
             })
         );
@@ -115,7 +121,9 @@ export class TransactionsProducerConsumerStack extends Stack {
                     "appsync:GraphQL"
                 ],
                 resources: [
-                    "arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Query/*" // this ARN is retrieved post AppSync creation
+                    // this ARN is retrieved post secret creation
+                    ...props.stage === Stages.DEV ? [ "arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Query/*"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Query/*"] : []
                 ]
             })
         );

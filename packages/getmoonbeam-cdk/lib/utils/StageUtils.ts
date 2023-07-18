@@ -6,9 +6,9 @@ import {AppSyncStack} from "../stacks/AppSyncStack";
 import {StorageResolverStack} from "../stacks/StorageResolverStack";
 import {MilitaryVerificationResolverStack} from "../stacks/MilitaryVerificationResolverStack";
 import {CardLinkingResolverStack} from "../stacks/CardLinkingResolverStack";
-import {APIGatewayServiceStack} from "../stacks/CardLinkingServiceStack";
-import {TransactionsProducerConsumerStack} from "../stacks/TransactionsProducerConsumerStack";
 import {TransactionsResolverStack} from "../stacks/TransactionsResolverStack";
+import {TransactionsProducerConsumerStack} from "../stacks/TransactionsProducerConsumerStack";
+import {APIGatewayServiceStack} from "../stacks/CardLinkingServiceStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -59,8 +59,7 @@ export class StageUtils {
                     env: stageEnv,
                     stage: stageConfiguration.stage,
                     sesConfig: {
-                        emailAddress: stageConfiguration.sesConfig.emailAddress,
-                        created: stageConfiguration.sesConfig.created
+                        emailAddress: stageConfiguration.sesConfig.emailAddress
                     },
                     environmentVariables: stageConfiguration.environmentVariables
                 });

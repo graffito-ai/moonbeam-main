@@ -23,7 +23,7 @@ export class SESStack extends Stack {
          * sends a verification email to the desired email address. This means the owner of the email address
          * still needs to act by clicking the link in the verification email.
          */
-        !props.sesConfig!.created && new AwsCustomResource(this, 'VerifyEmailIdentity-' + props.sesConfig!.emailAddress, {
+        new AwsCustomResource(this, 'VerifyEmailIdentity-' + props.sesConfig!.emailAddress, {
             onCreate: {
                 service: 'SES',
                 action: 'verifyEmailIdentity',

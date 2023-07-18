@@ -17,12 +17,11 @@ export const initialize = () => {
             // cannot string interpolate the environment name in here for some reason, so left it hardcoded
             cdkExport = require('../../../getmoonbeam-cdk/exports/cdk-exports-dev.json');
             break;
-        case Stages.STAGING:
-            break;
-        case Stages.PREVIEW:
-            break;
         case Stages.PROD:
+            // cannot string interpolate the environment name in here for some reason, so left it hardcoded
+            cdkExport = require('../../../getmoonbeam-cdk/exports/cdk-exports-prod.json');
             break;
+        // ToDo: add more environments representing our stages in here
         default:
             throw new Error(`Invalid environment passed in from Amplify ${envInfo.envName}`);
     }

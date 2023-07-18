@@ -11,8 +11,9 @@ import {RecoilRoot} from 'recoil';
 import {AppOverviewComponent} from './src/components/root/AppOverviewComponent';
 import {AuthenticationComponent} from "./src/components/root/auth/AuthenticationComponent";
 import {RootStackParamList} from "./src/models/props/RootProps";
-import {PaperProvider, Text, useTheme} from "react-native-paper";
+import {PaperProvider, useTheme} from "react-native-paper";
 import {Hub} from "aws-amplify";
+import {Spinner} from "./src/components/common/Spinner";
 
 // keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync().then(() => {
@@ -35,6 +36,7 @@ export default function App() {
     theme.colors.secondaryContainer = 'transparent';
 
     // constants used to keep track of local component state
+    const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [appIsReady, setAppIsReady] = useState<boolean>(false);
 
     /**
@@ -133,7 +135,11 @@ export default function App() {
             <RecoilRoot>
                 <PaperProvider>
                     <StatusBar style="light" animated={true}/>
-                    <NavigationContainer fallback={<Text>Loading...</Text>}>
+                    <NavigationContainer
+                        fallback={
+                            <Spinner loadingSpinnerShown={loadingSpinnerShown}
+                                     setLoadingSpinnerShown={setLoadingSpinnerShown}/>
+                        }>
                         <RootStack.Navigator
                             initialRouteName={"AppOverview"}
                             screenOptions={{

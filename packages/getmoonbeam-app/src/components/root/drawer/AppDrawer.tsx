@@ -101,7 +101,18 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     path: 'home',
                     screens: {
                         DashboardController: {
-                            path: 'dashboard'
+                            path: 'control',
+                            screens: {
+                                Dashboard: {
+                                    path: 'dashboard'
+                                },
+                                TransactionsController: {
+                                    path: 'transactions'
+                                },
+                                CashbackController: {
+                                    path: 'cashback'
+                                }
+                            }
                         },
                         Marketplace: {
                             path: 'marketplace'
@@ -127,7 +138,8 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                 },
                 Support: {
                     path: 'support'
-                }
+                },
+                AppWall: {}
             },
         };
 
