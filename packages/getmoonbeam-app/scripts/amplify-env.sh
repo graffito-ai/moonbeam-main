@@ -67,13 +67,13 @@ PROVIDERS="{\
 \"awscloudformation\":$AWSCLOUDFORMATIONCONFIG}"
 
 AUTHCONFIG="{\
-\"userPoolId\": $USER_POOL_ID,\
-\"webClientId\": $COGNITO_WEB_CLIENT_ID,\
-\"identityPoolId\": $COGNITO_IDENTITY_POOL_ID}"
+\"userPoolId\":$USER_POOL_ID,\
+\"webClientId\":$COGNITO_WEB_CLIENT_ID,\
+\"identityPoolId\":$COGNITO_IDENTITY_POOL_ID}"
 
 STORAGECONFIG="{\
-  \"region\": $REGION,\
-  \"bucketName\": $DEPLOYMENT_BUCKET\
+\"region\":$REGION,\
+\"bucketName\":$DEPLOYMENT_BUCKET\
 }"
 
 CATEGORIES="{\
