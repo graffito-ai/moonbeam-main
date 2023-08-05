@@ -54,6 +54,7 @@ export type CardLink = {
   createdAt: Scalars['AWSDateTime'];
   id: Scalars['ID'];
   memberId: Scalars['ID'];
+  status: CardLinkingStatus;
   updatedAt: Scalars['AWSDateTime'];
 };
 
@@ -71,6 +72,11 @@ export type CardLinkResponse = {
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<CardLinkErrorType>;
 };
+
+export enum CardLinkingStatus {
+  Linked = 'LINKED',
+  NotLinked = 'NOT_LINKED'
+}
 
 export type CardResponse = {
   __typename?: 'CardResponse';
@@ -123,6 +129,24 @@ export type CreateMilitaryVerificationResponse = {
   errorType?: Maybe<MilitaryVerificationErrorType>;
 };
 
+export type CreateReimbursementInput = {
+  cardId: Scalars['ID'];
+  clientId?: InputMaybe<Scalars['ID']>;
+  createdAt: Scalars['AWSDateTime'];
+  creditedCashbackAmount: Scalars['Float'];
+  currencyCode: CurrencyCodeType;
+  id: Scalars['ID'];
+  paymentGatewayId?: InputMaybe<Scalars['ID']>;
+  pendingCashbackAmount: Scalars['Float'];
+  processingMessage?: InputMaybe<Scalars['String']>;
+  reimbursementId: Scalars['ID'];
+  reimbursementStatus: ReimbursementStatus;
+  succeeded?: InputMaybe<Scalars['Boolean']>;
+  timestamp: Scalars['AWSTimestamp'];
+  transactions: Array<InputMaybe<ReimbursementTransactionInput>>;
+  updatedAt: Scalars['AWSDateTime'];
+};
+
 export type CreateTransactionInput = {
   brandId: Scalars['ID'];
   cardId: Scalars['ID'];
@@ -157,6 +181,20 @@ export type DeleteCardInput = {
   id: Scalars['ID'];
   memberId: Scalars['ID'];
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
+export type EligibleLinkedUser = {
+  __typename?: 'EligibleLinkedUser';
+  cardId: Scalars['ID'];
+  id: Scalars['ID'];
+  memberId: Scalars['ID'];
+};
+
+export type EligibleLinkedUsersResponse = {
+  __typename?: 'EligibleLinkedUsersResponse';
+  data?: Maybe<Array<Maybe<EligibleLinkedUser>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<CardLinkErrorType>;
 };
 
 export type File = {
@@ -195,6 +233,11 @@ export type GetStorageInput = {
   level: FileAccessLevel;
   name: Scalars['String'];
   type: FileType;
+};
+
+export type GetTransactionByStatusInput = {
+  id: Scalars['ID'];
+  status: TransactionsStatus;
 };
 
 export type GetTransactionInput = {
@@ -311,12 +354,27 @@ export type MoonbeamTransaction = {
   updatedAt: Scalars['AWSDateTime'];
 };
 
+export type MoonbeamTransactionByStatus = {
+  __typename?: 'MoonbeamTransactionByStatus';
+  id: Scalars['ID'];
+  timestamp: Scalars['AWSTimestamp'];
+  transactionId: Scalars['ID'];
+  transactionStatus: TransactionsStatus;
+};
+
 export type MoonbeamTransactionResponse = {
   __typename?: 'MoonbeamTransactionResponse';
   data?: Maybe<MoonbeamTransaction>;
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<TransactionsErrorType>;
   id?: Maybe<Scalars['ID']>;
+};
+
+export type MoonbeamTransactionsByStatusResponse = {
+  __typename?: 'MoonbeamTransactionsByStatusResponse';
+  data?: Maybe<Array<Maybe<MoonbeamTransactionByStatus>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<TransactionsErrorType>;
 };
 
 export type MoonbeamTransactionsResponse = {
@@ -326,14 +384,34 @@ export type MoonbeamTransactionsResponse = {
   errorType?: Maybe<TransactionsErrorType>;
 };
 
+export type MoonbeamUpdatedTransaction = {
+  __typename?: 'MoonbeamUpdatedTransaction';
+  id: Scalars['ID'];
+  timestamp: Scalars['AWSTimestamp'];
+  transactionId: Scalars['ID'];
+  transactionStatus: TransactionsStatus;
+  updatedAt: Scalars['AWSDateTime'];
+};
+
+export type MoonbeamUpdatedTransactionResponse = {
+  __typename?: 'MoonbeamUpdatedTransactionResponse';
+  data?: Maybe<MoonbeamUpdatedTransaction>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<TransactionsErrorType>;
+  id?: Maybe<Scalars['ID']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addCard: CardLinkResponse;
   createCardLink: CardLinkResponse;
   createMilitaryVerification: CreateMilitaryVerificationResponse;
+  createReimbursement: ReimbursementResponse;
   createTransaction: MoonbeamTransactionResponse;
   deleteCard: CardResponse;
   updateMilitaryVerificationStatus: UpdateMilitaryVerificationResponse;
+  updateReimbursement: ReimbursementResponse;
+  updateTransaction: MoonbeamUpdatedTransactionResponse;
 };
 
 
@@ -352,6 +430,11 @@ export type MutationCreateMilitaryVerificationArgs = {
 };
 
 
+export type MutationCreateReimbursementArgs = {
+  createReimbursementInput: CreateReimbursementInput;
+};
+
+
 export type MutationCreateTransactionArgs = {
   createTransactionInput: CreateTransactionInput;
 };
@@ -366,12 +449,24 @@ export type MutationUpdateMilitaryVerificationStatusArgs = {
   updateMilitaryVerificationInput: UpdateMilitaryVerificationInput;
 };
 
+
+export type MutationUpdateReimbursementArgs = {
+  updateReimbursementInput: UpdateReimbursementInput;
+};
+
+
+export type MutationUpdateTransactionArgs = {
+  updateTransactionInput: UpdateTransactionInput;
+};
+
 export type Query = {
   __typename?: 'Query';
   getCardLink: CardLinkResponse;
+  getEligibleLinkedUsers: EligibleLinkedUsersResponse;
   getMilitaryVerificationStatus: GetMilitaryVerificationResponse;
   getStorage: StorageResponse;
   getTransaction: MoonbeamTransactionsResponse;
+  getTransactionByStatus: MoonbeamTransactionsByStatusResponse;
 };
 
 
@@ -393,6 +488,67 @@ export type QueryGetStorageArgs = {
 export type QueryGetTransactionArgs = {
   getTransactionInput: GetTransactionInput;
 };
+
+
+export type QueryGetTransactionByStatusArgs = {
+  getTransactionByStatusInput: GetTransactionByStatusInput;
+};
+
+export type Reimbursement = {
+  __typename?: 'Reimbursement';
+  cardId: Scalars['ID'];
+  clientId?: Maybe<Scalars['ID']>;
+  createdAt: Scalars['AWSDateTime'];
+  creditedCashbackAmount: Scalars['Float'];
+  currencyCode: CurrencyCodeType;
+  id: Scalars['ID'];
+  paymentGatewayId?: Maybe<Scalars['ID']>;
+  pendingCashbackAmount: Scalars['Float'];
+  processingMessage?: Maybe<Scalars['String']>;
+  reimbursementId: Scalars['ID'];
+  reimbursementStatus: ReimbursementStatus;
+  succeeded?: Maybe<Scalars['Boolean']>;
+  timestamp: Scalars['AWSTimestamp'];
+  transactions: Array<Maybe<ReimbursementTransaction>>;
+  updatedAt: Scalars['AWSDateTime'];
+};
+
+export type ReimbursementResponse = {
+  __typename?: 'ReimbursementResponse';
+  data?: Maybe<Reimbursement>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<ReimbursementsErrorType>;
+  id?: Maybe<Scalars['ID']>;
+};
+
+export enum ReimbursementStatus {
+  Failed = 'FAILED',
+  Pending = 'PENDING',
+  Processed = 'PROCESSED'
+}
+
+export type ReimbursementTransaction = {
+  __typename?: 'ReimbursementTransaction';
+  id: Scalars['ID'];
+  timestamp: Scalars['AWSTimestamp'];
+  transactionId: Scalars['ID'];
+  transactionStatus: TransactionsStatus;
+};
+
+export type ReimbursementTransactionInput = {
+  id: Scalars['ID'];
+  timestamp: Scalars['AWSTimestamp'];
+  transactionId: Scalars['ID'];
+  transactionStatus: TransactionsStatus;
+};
+
+export enum ReimbursementsErrorType {
+  DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  Unprocessable = 'UNPROCESSABLE',
+  ValidationError = 'VALIDATION_ERROR'
+}
 
 export type RemoveCardResponse = {
   __typename?: 'RemoveCardResponse';
@@ -500,6 +656,42 @@ export type UpdateMilitaryVerificationResponse = {
   militaryVerificationStatus?: Maybe<MilitaryVerificationStatusType>;
 };
 
+export type UpdateReimbursementInput = {
+  clientId?: InputMaybe<Scalars['ID']>;
+  creditedCashbackAmount?: InputMaybe<Scalars['Float']>;
+  id: Scalars['ID'];
+  paymentGatewayId?: InputMaybe<Scalars['ID']>;
+  pendingCashbackAmount?: InputMaybe<Scalars['Float']>;
+  processingMessage?: InputMaybe<Scalars['String']>;
+  reimbursementStatus?: InputMaybe<ReimbursementStatus>;
+  succeeded?: InputMaybe<Scalars['Boolean']>;
+  timestamp: Scalars['AWSTimestamp'];
+  transactions?: InputMaybe<Array<InputMaybe<ReimbursementTransactionInput>>>;
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
+export type UpdateTransactionInput = {
+  id: Scalars['ID'];
+  timestamp: Scalars['AWSTimestamp'];
+  transactionId: Scalars['ID'];
+  transactionStatus: TransactionsStatus;
+  updatedAt: Scalars['AWSDateTime'];
+};
+
+export type CreateReimbursementMutationVariables = Exact<{
+  createReimbursementInput: CreateReimbursementInput;
+}>;
+
+
+export type CreateReimbursementMutation = { __typename?: 'Mutation', createReimbursement: { __typename?: 'ReimbursementResponse', errorType?: ReimbursementsErrorType | null, errorMessage?: string | null, id?: string | null, data?: { __typename?: 'Reimbursement', id: string, timestamp: number, reimbursementId: string, clientId?: string | null, paymentGatewayId?: string | null, succeeded?: boolean | null, processingMessage?: string | null, cardId: string, reimbursementStatus: ReimbursementStatus, pendingCashbackAmount: number, creditedCashbackAmount: number, currencyCode: CurrencyCodeType, createdAt: string, updatedAt: string, transactions: Array<{ __typename?: 'ReimbursementTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus } | null> } | null } };
+
+export type UpdateReimbursementMutationVariables = Exact<{
+  updateReimbursementInput: UpdateReimbursementInput;
+}>;
+
+
+export type UpdateReimbursementMutation = { __typename?: 'Mutation', updateReimbursement: { __typename?: 'ReimbursementResponse', errorType?: ReimbursementsErrorType | null, errorMessage?: string | null, id?: string | null, data?: { __typename?: 'Reimbursement', id: string, timestamp: number, reimbursementId: string, clientId?: string | null, paymentGatewayId?: string | null, succeeded?: boolean | null, processingMessage?: string | null, cardId: string, reimbursementStatus: ReimbursementStatus, pendingCashbackAmount: number, creditedCashbackAmount: number, currencyCode: CurrencyCodeType, createdAt: string, updatedAt: string, transactions: Array<{ __typename?: 'ReimbursementTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus } | null> } | null } };
+
 export type CreateTransactionMutationVariables = Exact<{
   createTransactionInput: CreateTransactionInput;
 }>;
@@ -507,19 +699,26 @@ export type CreateTransactionMutationVariables = Exact<{
 
 export type CreateTransactionMutation = { __typename?: 'Mutation', createTransaction: { __typename?: 'MoonbeamTransactionResponse', errorType?: TransactionsErrorType | null, errorMessage?: string | null, id?: string | null, data?: { __typename?: 'MoonbeamTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt: string, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount: number, totalAmount: number, pendingCashbackAmount: number, creditedCashbackAmount: number, transactionBrandName: string, transactionBrandAddress: string, transactionBrandLogoUrl: string, transactionBrandURLAddress: string, transactionIsOnline: boolean } | null } };
 
+export type UpdateTransactionMutationVariables = Exact<{
+  updateTransactionInput: UpdateTransactionInput;
+}>;
+
+
+export type UpdateTransactionMutation = { __typename?: 'Mutation', updateTransaction: { __typename?: 'MoonbeamUpdatedTransactionResponse', errorType?: TransactionsErrorType | null, errorMessage?: string | null, id?: string | null, data?: { __typename?: 'MoonbeamUpdatedTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, updatedAt: string } | null } };
+
 export type CreateCardLinkMutationVariables = Exact<{
   createCardLinkInput: CreateCardLinkInput;
 }>;
 
 
-export type CreateCardLinkMutation = { __typename?: 'Mutation', createCardLink: { __typename?: 'CardLinkResponse', errorType?: CardLinkErrorType | null, errorMessage?: string | null, data?: { __typename?: 'CardLink', id: string, memberId: string, createdAt: string, updatedAt: string, cards: Array<{ __typename?: 'Card', id: string, applicationID: string, token: string, type: CardType, name: string, last4: string, additionalProgramID?: string | null } | null> } | null } };
+export type CreateCardLinkMutation = { __typename?: 'Mutation', createCardLink: { __typename?: 'CardLinkResponse', errorType?: CardLinkErrorType | null, errorMessage?: string | null, data?: { __typename?: 'CardLink', id: string, memberId: string, createdAt: string, updatedAt: string, status: CardLinkingStatus, cards: Array<{ __typename?: 'Card', id: string, applicationID: string, token: string, type: CardType, name: string, last4: string, additionalProgramID?: string | null } | null> } | null } };
 
 export type AddCardMutationVariables = Exact<{
   addCardInput: AddCardInput;
 }>;
 
 
-export type AddCardMutation = { __typename?: 'Mutation', addCard: { __typename?: 'CardLinkResponse', errorType?: CardLinkErrorType | null, errorMessage?: string | null, data?: { __typename?: 'CardLink', id: string, memberId: string, createdAt: string, updatedAt: string, cards: Array<{ __typename?: 'Card', id: string, applicationID: string, token: string, type: CardType, name: string, last4: string, additionalProgramID?: string | null } | null> } | null } };
+export type AddCardMutation = { __typename?: 'Mutation', addCard: { __typename?: 'CardLinkResponse', errorType?: CardLinkErrorType | null, errorMessage?: string | null, data?: { __typename?: 'CardLink', id: string, memberId: string, createdAt: string, updatedAt: string, status: CardLinkingStatus, cards: Array<{ __typename?: 'Card', id: string, applicationID: string, token: string, type: CardType, name: string, last4: string, additionalProgramID?: string | null } | null> } | null } };
 
 export type DeleteCardMutationVariables = Exact<{
   deleteCardInput: DeleteCardInput;
@@ -549,12 +748,24 @@ export type GetTransactionQueryVariables = Exact<{
 
 export type GetTransactionQuery = { __typename?: 'Query', getTransaction: { __typename?: 'MoonbeamTransactionsResponse', errorMessage?: string | null, errorType?: TransactionsErrorType | null, data?: Array<{ __typename?: 'MoonbeamTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt: string, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount: number, totalAmount: number, pendingCashbackAmount: number, creditedCashbackAmount: number, transactionBrandName: string, transactionBrandAddress: string, transactionBrandLogoUrl: string, transactionBrandURLAddress: string, transactionIsOnline: boolean } | null> | null } };
 
+export type GetTransactionByStatusQueryVariables = Exact<{
+  getTransactionByStatusInput: GetTransactionByStatusInput;
+}>;
+
+
+export type GetTransactionByStatusQuery = { __typename?: 'Query', getTransactionByStatus: { __typename?: 'MoonbeamTransactionsByStatusResponse', errorMessage?: string | null, errorType?: TransactionsErrorType | null, data?: Array<{ __typename?: 'MoonbeamTransactionByStatus', id: string, transactionStatus: TransactionsStatus } | null> | null } };
+
 export type GetCardLinkQueryVariables = Exact<{
   getCardLinkInput: GetCardLinkInput;
 }>;
 
 
-export type GetCardLinkQuery = { __typename?: 'Query', getCardLink: { __typename?: 'CardLinkResponse', errorMessage?: string | null, errorType?: CardLinkErrorType | null, data?: { __typename?: 'CardLink', id: string, memberId: string, createdAt: string, updatedAt: string, cards: Array<{ __typename?: 'Card', id: string, applicationID: string, token: string, type: CardType, name: string, last4: string, additionalProgramID?: string | null } | null> } | null } };
+export type GetCardLinkQuery = { __typename?: 'Query', getCardLink: { __typename?: 'CardLinkResponse', errorMessage?: string | null, errorType?: CardLinkErrorType | null, data?: { __typename?: 'CardLink', id: string, memberId: string, createdAt: string, updatedAt: string, status: CardLinkingStatus, cards: Array<{ __typename?: 'Card', id: string, applicationID: string, token: string, type: CardType, name: string, last4: string, additionalProgramID?: string | null } | null> } | null } };
+
+export type GetEligibleLinkedUsersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetEligibleLinkedUsersQuery = { __typename?: 'Query', getEligibleLinkedUsers: { __typename?: 'EligibleLinkedUsersResponse', errorMessage?: string | null, errorType?: CardLinkErrorType | null, data?: Array<{ __typename?: 'EligibleLinkedUser', id: string, cardId: string, memberId: string } | null> | null } };
 
 export type GetStorageQueryVariables = Exact<{
   getStorageInput: GetStorageInput;

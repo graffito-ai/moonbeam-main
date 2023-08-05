@@ -71,10 +71,12 @@ export interface MilitaryVerificationConfiguration {
 export interface CardLinkingConfiguration {
     readonly cardLinkingFunctionName: string;
     readonly cardLinkingTableName: string;
+    readonly cardLinkingStatusGlobalIndex: string;
     readonly getCardLinkResolverName: string;
     readonly createCardLinkResolverName: string;
     readonly deleteCardResolverName: string;
     readonly addCardResolverName: string;
+    readonly getEligibleLinkedUsersResolverName: string;
 }
 
 /**
@@ -82,12 +84,53 @@ export interface CardLinkingConfiguration {
  * API (REST based), which will handle incoming requests for Olive-based events,
  * such as: transactions, offers, reimbursements/credits, etc.
  */
-export interface CardLinkingServiceConfiguration {
+export interface APIGatewayServiceConfiguration {
     readonly cardLinkingServiceAPIName: string;
     readonly apiDeploymentGroupName: string;
     readonly oliveSharedAPIKeyName: string;
     readonly oliveUsagePlan: string;
+    readonly internallySharedAPIKeyName: string;
+    readonly internalUsagePlan: string;
     readonly transactionsAcknowledgmentMethodName: string;
+    readonly reimbursementsAcknowledgmentMethodName: string;
+}
+
+/**
+ * Interface used to define the configuration for the reimbursements-related fan-out pattern, composed
+ * of an event-based process, driven by SNS and SQS.
+ */
+export interface ReimbursementsFanOutConfiguration {
+    readonly reimbursementsProcessingTopicName: string;
+    readonly reimbursementsProcessingQueueName: string;
+    readonly reimbursementsProcessingDLQName: string;
+    readonly reimbursementsProcessingTopicDLQName: string;
+    readonly reimbursementsProcessingEventSourceMapping: string;
+}
+
+/**
+ * Interface used to define all the resources for the producer and consumers, taking advantage
+ * of the async reimbursements related data.
+ */
+export interface ReimbursementsProducerConsumerConfiguration {
+    readonly reimbursementsCronTriggerFunctionName: string;
+    readonly reimbursementsProducerFunctionName: string;
+    readonly reimbursementsConsumerFunctionName: string;
+    readonly reimbursementsCronRuleName: string;
+    readonly reimbursementsFanOutConfig: ReimbursementsFanOutConfiguration;
+}
+
+/**
+ * Interface used to define the configuration for the reimbursements service resolvers
+ * (GraphQL based), and other afferent data stores.
+ */
+export interface ReimbursementsConfiguration {
+    readonly reimbursementsFunctionName: string;
+    readonly createReimbursementResolverName: string;
+    readonly updateReimbursementResolverName: string;
+    readonly reimbursementsTableName: string;
+    readonly reimbursementsPrimaryKey: string;
+    readonly reimbursementsIdGlobalIndex: string;
+    readonly reimbursementsStatusLocalIndex: string;
 }
 
 /**
@@ -120,6 +163,8 @@ export interface TransactionsConfiguration {
     readonly transactionsFunctionName: string;
     readonly createTransactionResolverName: string;
     readonly getTransactionResolverName: string;
+    readonly getTransactionByStatusResolverName: string;
+    readonly updateTransactionResolverName: string;
     readonly transactionsTableName: string;
     readonly transactionsPrimaryKey: string;
     readonly transactionsIdGlobalIndex: string;

@@ -106,6 +106,9 @@ export const createCardLink = async (fieldName: string, createCardLinkInput: Cre
                         updatedAt: {
                             S: createCardLinkInput.updatedAt!
                         },
+                        status: {
+                            S: cardLinkedResponse.status
+                        },
                         cards: {
                             L: [
                                 {
@@ -147,7 +150,8 @@ export const createCardLink = async (fieldName: string, createCardLinkInput: Cre
                         memberId: cardLinkedResponse.memberId,
                         createdAt: createCardLinkInput.createdAt!,
                         updatedAt: createCardLinkInput.updatedAt!,
-                        cards: [cardLinkedResponse.cards[0]! as Card]
+                        cards: [cardLinkedResponse.cards[0]! as Card],
+                        status: cardLinkedResponse.status
                     }
                 }
             } else {

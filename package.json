@@ -13,10 +13,10 @@
     "release": "f() { if [ -d \"node_modules/lerna\" ]; then yarn run clean && yarn run bootstrap && yarn run build; else yarn run bootstrap && yarn run build; fi; }; f"
   },
   "devDependencies": {
-    "@nrwl/nx-cloud": "^15.1.1",
+    "@nrwl/nx-cloud": "16.2.0",
     "husky": "^8.0.3",
     "lerna": "latest",
-    "nx": "15.8.1",
+    "nx": "15.9.4",
     "typescript": "^4.9.4"
   },
   "workspaces": {
@@ -32,3 +32,4 @@
   },
   "private": true
 }
+

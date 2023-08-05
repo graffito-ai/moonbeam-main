@@ -12,7 +12,7 @@ import {
  *
  * @param fieldName name of the resolver path from the AppSync event
  * @param getTransactionInput get transaction input object, used to retrieve transactional information,
- * based on particular filters.
+ *
  * @returns {@link Promise} of {@link MoonbeamTransactionResponse}
  */
 export const getTransaction = async (fieldName: string, getTransactionInput: GetTransactionInput): Promise<MoonbeamTransactionsResponse> => {
@@ -47,7 +47,7 @@ export const getTransaction = async (fieldName: string, getTransactionInput: Get
             /**
              * retrieve the transactional data, given the get transactional input filtering/information
              *
-             * Limit of 1 MB per response data. An average size for an Item is about 500 KB, which means that we won't
+             * Limit of 1 MB per paginated response data (in our case 1,500 items). An average size for an Item is about 500 bytes, which means that we won't
              * need to do pagination, until we actually decide to display transactions in a statement format.
              *
              * @link {https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.Pagination.html}
@@ -56,7 +56,7 @@ export const getTransaction = async (fieldName: string, getTransactionInput: Get
             retrievedData = await dynamoDbClient.send(new QueryCommand({
                 TableName: process.env.TRANSACTIONS_TABLE!,
                 ...(exclusiveStartKey && {ExclusiveStartKey: exclusiveStartKey}),
-                Limit: 100,
+                Limit: 1500, // 1,500 * 500 bytes = 750,000 bytes = 0.75 MB (leave a margin of error here up to 1 MB)
                 ExpressionAttributeNames: {
                     '#idf': 'id',
                     '#t': 'timestamp'

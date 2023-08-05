@@ -8,7 +8,9 @@ import {MilitaryVerificationResolverStack} from "../stacks/MilitaryVerificationR
 import {CardLinkingResolverStack} from "../stacks/CardLinkingResolverStack";
 import {TransactionsResolverStack} from "../stacks/TransactionsResolverStack";
 import {TransactionsProducerConsumerStack} from "../stacks/TransactionsProducerConsumerStack";
-import {APIGatewayServiceStack} from "../stacks/CardLinkingServiceStack";
+import {APIGatewayServiceStack} from "../stacks/APIGatewayServiceStack";
+import {ReimbursementsProducerConsumerStack} from "../stacks/ReimbursementsProducerConsumerStack";
+import {ReimbursementsResolverStack} from "../stacks/ReimbursementsResolverStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -141,7 +143,7 @@ export class StageUtils {
                 });
                 cardLinkingStack.addDependency(appSyncStack);
 
-                // create the Transaction resolver stack && add it to the CDK app
+                // create the Transactions resolver stack && add it to the CDK app
                 const transactionsStack = new TransactionsResolverStack(this.app, `moonbeam-transactions-resolver-${stageKey}`, {
                     stackName: `moonbeam-transactions-resolver-${stageKey}`,
                     description: 'This stack will contain all the AppSync related resources needed by the Lambda transactions resolver',
@@ -165,17 +167,43 @@ export class StageUtils {
                 });
                 transactionsProducerConsumerStack.addDependency(appSyncStack);
 
-                // create the Card Linking service API stack && add it to the CDK app
+                // create the Reimbursements resolver stack && add it to the CDK app
+                const reimbursementsStack = new ReimbursementsResolverStack(this.app, `moonbeam-reimbursements-resolver-${stageKey}`, {
+                    stackName: `moonbeam-reimbursements-resolver-${stageKey}`,
+                    description: 'This stack will contain all the AppSync related resources needed by the Lambda reimbursements resolver',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    graphqlApiId: appSyncStack.graphqlApiId,
+                    graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
+                    reimbursementsConfig: stageConfiguration.reimbursementsConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                reimbursementsStack.addDependency(appSyncStack);
+
+                // create the Reimbursements Producer Consumer stack && add it to the CDK app
+                const reimbursementsProducerConsumerStack = new ReimbursementsProducerConsumerStack(this.app, `moonbeam-reimbursements-producer-consumer-${stageKey}`, {
+                    stackName: `moonbeam-reimbursements-producer-consumer-${stageKey}`,
+                    description: 'This stack will contain all the resources needed for the async reimbursements consumers, as well as producers',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    reimbursementsProducerConsumerConfig: stageConfiguration.reimbursementsProducerConsumerConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                transactionsProducerConsumerStack.addDependency(appSyncStack);
+
+                // create the API Gateway Service API stack && add it to the CDK app
                 const apiGatewayStack = new APIGatewayServiceStack(this.app, `moonbeam-api-gateway-${stageKey}`, {
                     stackName: `moonbeam-api-gateway-${stageKey}`,
                     description: 'This stack will contain all the API Gateway related resources for the GetMoonbeam Application',
                     env: stageEnv,
                     stage: stageConfiguration.stage,
                     transactionsProducerLambda: transactionsProducerConsumerStack.transactionsProducerLambda,
-                    cardLinkingServiceConfig: stageConfiguration.cardLinkingServiceConfig,
+                    reimbursementsProducerLambda: reimbursementsProducerConsumerStack.reimbursementsProducerLambda,
+                    apiGatewayServiceConfig: stageConfiguration.apiGatewayServiceConfig,
                     environmentVariables: stageConfiguration.environmentVariables,
                 });
                 apiGatewayStack.addDependency(transactionsProducerConsumerStack);
+                apiGatewayStack.addDependency(reimbursementsProducerConsumerStack);
             }
         }
     };

@@ -3,15 +3,25 @@ import {Constants} from "../Constants";
 import {
     Card,
     CardLinkResponse,
+    CreateReimbursementInput,
+    EligibleLinkedUser,
+    EligibleLinkedUsersResponse,
+    GetTransactionByStatusInput,
     MemberDetailsResponse,
     MemberResponse,
     MilitaryVerificationStatusType,
     MoonbeamTransaction,
     MoonbeamTransactionResponse,
+    MoonbeamTransactionsByStatusResponse,
+    MoonbeamUpdatedTransactionResponse,
+    ReimbursementResponse,
     RemoveCardResponse,
     Transaction,
-    TransactionResponse
+    TransactionResponse,
+    UpdateReimbursementInput,
+    UpdateTransactionInput
 } from "../GraphqlExports";
+import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 
 /**
  * Class used as the base/generic client for all API clients that
@@ -45,10 +55,12 @@ export abstract class BaseAPIClient {
      * Secrets Manager client.
      *
      * @param verificationClientSecretsName the name of the API client's secrets pair
+     * @param internalRestBased optional flag indicating whether the key is REST or GraphQL/AppSync based
+     *                          in case of internal-used based keys
      *
      * @return a {@link Promise} of a {@link string} pair, containing the baseURL and apiKey to be used
      */
-    protected async retrieveServiceCredentials(verificationClientSecretsName: string): Promise<[string | null, string | null, (string | null)?]> {
+    protected async retrieveServiceCredentials(verificationClientSecretsName: string, internalRestBased?: boolean): Promise<[string | null, string | null, (string | null)?]> {
         try {
             // retrieve the secrets pair for the API client, depending on the current environment and region
             const verificationClientAPIPair = await this.secretsClient
@@ -62,7 +74,9 @@ export abstract class BaseAPIClient {
                 // filter out and set the necessary API Client API credentials, depending on the client secret name passed in
                 switch (verificationClientSecretsName) {
                     case Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME:
-                        return [clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_API_KEY]]
+                        return internalRestBased !== undefined && internalRestBased
+                            ? [clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_REST_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_REST_API_KEY]]
+                            : [clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_API_KEY]]
                     case Constants.AWSPairConstants.QUANDIS_SECRET_NAME:
                         return [clientPairAsJson[Constants.AWSPairConstants.QUANDIS_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.QUANDIS_API_KEY]];
                     case Constants.AWSPairConstants.LIGHTHOUSE_SECRET_NAME:
@@ -87,17 +101,97 @@ export abstract class BaseAPIClient {
     }
 
     /**
+     * Function used to get all transactions, for a particular user, filtered
+     * by their status.
+     *
+     * @param getTransactionByStatusInput the transaction by status input object ot be passed in,
+     * containing all the necessary filtering for retrieving the transactions.
+     *
+     * @returns a {@link MoonbeamTransactionsByStatusResponse} representing the transactional data,
+     * filtered by status response
+     *
+     * @protected
+     */
+    protected getTransactionByStatus?(getTransactionByStatusInput: GetTransactionByStatusInput): Promise<MoonbeamTransactionsByStatusResponse>;
+
+    /**
+     * Function used to update an existing transaction's details.
+     *
+     * @param updateTransactionInput the transaction details to be passed in, in order to update
+     * an existing transaction
+     *
+     * @returns a {@link MoonbeamUpdatedTransactionResponse} representing the update transaction's
+     * data
+     *
+     * @protected
+     */
+    protected updateTransaction?(updateTransactionInput: UpdateTransactionInput): Promise<MoonbeamUpdatedTransactionResponse>;
+
+    /**
+     * Function used to create a reimbursement internally, from an incoming trigger obtained from the
+     * reimbursements trigger Lambda.
+     *
+     * @param createReimbursementInput the reimbursement input passed in from the cron Lambda trigger
+     *
+     * @returns a {@link ReimbursementResponse} representing the reimbursement details that were stored
+     * in Dynamo DB
+     *
+     * @protected
+     */
+    protected createReimbursement?(createReimbursementInput: CreateReimbursementInput): Promise<ReimbursementResponse>;
+
+    /**
+     * Function used to update an existing reimbursement's details, from an incoming trigger obtained from the
+     * reimbursements trigger Lambda.
+     *
+     * @param updateReimbursementInput the reimbursement input passed in from the cron Lambda trigger, to be used
+     * while updating an existent reimbursement's details
+     *
+     * @returns a {@link ReimbursementResponse} representing the reimbursement details that were updated
+     * in Dynamo DB
+     *
+     * @protected
+     */
+    protected updateReimbursement?(updateReimbursementInput: UpdateReimbursementInput): Promise<ReimbursementResponse>;
+
+    /**
+     * Function used to send a new reimbursement acknowledgment, for an eligible user with
+     * a linked card, so we can kick-start the reimbursement process through the reimbursement
+     * producer
+     *
+     * @param eligibleLinkedUser eligible linked user object to be passed in
+     *
+     * @return a {@link Promise} of {@link APIGatewayProxyResult} representing the API Gateway result
+     * sent by the reimbursement producer Lambda, to validate whether the reimbursement process was
+     * kick-started or not
+     *
+     * @protected
+     */
+    protected reimbursementsAcknowledgment?(eligibleLinkedUser: EligibleLinkedUser): Promise<APIGatewayProxyResult>;
+
+    /**
      * Function used to create a new transaction internally, from an incoming transaction
      * obtained from the SQS message/event
      *
      * @param transaction transaction passed in from the SQS message/event
      *
-     * @return a {link Promise} of {@link MoonbeamTransactionResponse} representing the transaction
+     * @return a {@link Promise} of {@link MoonbeamTransactionResponse} representing the transaction
      * details that were stored in Dynamo DB
      *
      * @protected
      */
     protected createTransaction?(transaction: MoonbeamTransaction): Promise<MoonbeamTransactionResponse>;
+
+    /**
+     * Function used to retrieve the list of eligible linked users, to be user during the reimbursements
+     * process.
+     *
+     * @return a {link Promise} of {@link EligibleLinkedUsersResponse} representing the list of eligible
+     * users
+     *
+     * @protected
+     */
+    protected getEligibleLinkedUsers?(): Promise<EligibleLinkedUsersResponse>;
 
     /**
      * Function used to verify an individuals military service status.

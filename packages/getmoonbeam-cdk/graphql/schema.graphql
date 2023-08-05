@@ -2,14 +2,19 @@
 # Main Schema File
 type Query {
     getTransaction(getTransactionInput: GetTransactionInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools
+    getTransactionByStatus(getTransactionByStatusInput: GetTransactionByStatusInput!): MoonbeamTransactionsByStatusResponse! @aws_cognito_user_pools @aws_api_key
     getCardLink(getCardLinkInput: GetCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
     getStorage(getStorageInput: GetStorageInput!): StorageResponse! @aws_cognito_user_pools
     getMilitaryVerificationStatus(getMilitaryVerificationInput: GetMilitaryVerificationInput!): GetMilitaryVerificationResponse! @aws_cognito_user_pools
+    getEligibleLinkedUsers: EligibleLinkedUsersResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Mutation {
     addCard(addCardInput: AddCardInput!): CardLinkResponse! @aws_cognito_user_pools
+    createReimbursement(createReimbursementInput: CreateReimbursementInput!): ReimbursementResponse! @aws_cognito_user_pools @aws_api_key
+    updateReimbursement(updateReimbursementInput: UpdateReimbursementInput!): ReimbursementResponse! @aws_cognito_user_pools @aws_api_key
     createTransaction(createTransactionInput: CreateTransactionInput!): MoonbeamTransactionResponse! @aws_cognito_user_pools @aws_api_key
+    updateTransaction(updateTransactionInput: UpdateTransactionInput!): MoonbeamUpdatedTransactionResponse! @aws_cognito_user_pools @aws_api_key
     createCardLink(createCardLinkInput: CreateCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
     deleteCard(deleteCardInput: DeleteCardInput!): CardResponse! @aws_cognito_user_pools
     updateMilitaryVerificationStatus(updateMilitaryVerificationInput: UpdateMilitaryVerificationInput!): UpdateMilitaryVerificationResponse! @aws_cognito_user_pools
@@ -189,6 +194,17 @@ enum CardType {
     INVALID
 }
 
+enum CardLinkingStatus {
+    LINKED
+    NOT_LINKED
+}
+
+type EligibleLinkedUser @aws_cognito_user_pools @aws_api_key {
+    id: ID!
+    memberId: ID!
+    cardId: ID!
+}
+
 type Card @aws_cognito_user_pools {
     id: ID! # this will be obtained from Olive (and it is the Olive card id)
     applicationID: ID! # this will be passed on to Olive as the enrollment ID (referenceAppId)
@@ -205,6 +221,7 @@ type CardLink @aws_cognito_user_pools {
     cards: [Card]!
     createdAt: AWSDateTime!
     updatedAt: AWSDateTime!
+    status: CardLinkingStatus! # to keep track of whether a card is linked or not, for faster fetching purposes
 }
 
 type Member @aws_cognito_user_pools {
@@ -273,6 +290,12 @@ type MemberResponse @aws_cognito_user_pools {
 
 type RemoveCardResponse @aws_cognito_user_pools {
     data: Boolean
+    errorType: CardLinkErrorType
+    errorMessage: String
+}
+
+type EligibleLinkedUsersResponse @aws_cognito_user_pools @aws_api_key {
+    data: [EligibleLinkedUser]
     errorType: CardLinkErrorType
     errorMessage: String
 }
@@ -377,6 +400,21 @@ type MoonbeamTransaction @aws_cognito_user_pools @aws_api_key {
     transactionIsOnline: Boolean!
 }
 
+type MoonbeamUpdatedTransaction @aws_cognito_user_pools @aws_api_key {
+    id: ID! # this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    transactionId: ID!
+    transactionStatus: TransactionsStatus!
+    updatedAt: AWSDateTime!
+}
+
+type MoonbeamTransactionByStatus @aws_cognito_user_pools @aws_api_key {
+    id: ID! # this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp!
+    transactionId: ID!
+    transactionStatus: TransactionsStatus!
+}
+
 type MoonbeamTransactionResponse @aws_cognito_user_pools @aws_api_key {
     id: ID # this represents the userID of the transaction, and the reason we repeat it in the parent response is for the subscription filtering to work properly
     data: MoonbeamTransaction
@@ -390,11 +428,36 @@ type MoonbeamTransactionsResponse @aws_cognito_user_pools {
     errorMessage: String
 }
 
+type MoonbeamTransactionsByStatusResponse @aws_cognito_user_pools @aws_api_key {
+    data: [MoonbeamTransactionByStatus]
+    errorType: TransactionsErrorType
+    errorMessage: String
+}
+
+type MoonbeamUpdatedTransactionResponse @aws_cognito_user_pools @aws_api_key {
+    id: ID # this represents the userID of the transaction, and the reason we repeat it in the parent response is for the subscription filtering to work properly
+    data: MoonbeamUpdatedTransaction
+    errorType: TransactionsErrorType
+    errorMessage: String
+}
+
 input GetTransactionInput {
     id: ID! #this represents the userID which the transactions should be retrieved for
     startDate: AWSDateTime # the start time to filter transactions for
     endDate: AWSDateTime! # the end time to filter transactions for
-    # TBD on adding more filters for getting transactions - for now we only need the above
+}
+
+input GetTransactionByStatusInput {
+    id: ID! # this represents the userID which the transactions should be retrieved for
+    status: TransactionsStatus! # the transactions status to filter transactions for
+}
+
+input UpdateTransactionInput {
+    id: ID! # this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    transactionId: ID!
+    transactionStatus: TransactionsStatus!
+    updatedAt: AWSDateTime!
 }
 
 input CreateTransactionInput {
@@ -420,4 +483,94 @@ input CreateTransactionInput {
     transactionBrandLogoUrl: String!,
     transactionBrandURLAddress: String!,
     transactionIsOnline: Boolean!
+}
+# graphql/ReimbursementsSchema.graphql
+# Reimbursements Schema File
+enum ReimbursementsErrorType {
+    DUPLICATE_OBJECT_FOUND
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+    UNPROCESSABLE
+}
+
+# Defines the types of the statuses for a reimbursement, during its lifecycle. Although these
+# statuses might not match Olive's statuses 1:1, they represent what our customers see in their
+# dashboard, and how we translate incoming Olive information, and communicate it to our end
+# users.
+enum ReimbursementStatus {
+    PENDING
+    PROCESSED
+    FAILED
+}
+
+type ReimbursementTransaction @aws_cognito_user_pools @aws_api_key {
+    id: ID! # this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    transactionId: ID!
+    transactionStatus: TransactionsStatus!
+}
+
+type Reimbursement @aws_cognito_user_pools @aws_api_key {
+    id: ID! # this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    reimbursementId: ID!, # Olive specific
+    clientId: ID, # Olive specific
+    paymentGatewayId: ID, # Olive specific
+    succeeded: Boolean, # this will only be applicable is the status is PROCESSED or FAILED
+    processingMessage: String # this will only be applicable is the status is PROCESSED or FAILED so we know why something failed or succeeded
+    cardId: ID!,
+    reimbursementStatus: ReimbursementStatus!
+    pendingCashbackAmount: Float! # this amount should be the total reward amount that's pending reimbursement to the customer
+    creditedCashbackAmount: Float! # this amount should be the total reward amount that's reimbursed/credited to the customer
+    currencyCode: CurrencyCodeType!,
+    transactions:  [ReimbursementTransaction]! # this array associates particular transactions to a reimbursement object, so we know what was reimbursed to customers
+    createdAt: AWSDateTime! # this will be the same as the "timestamp" value above, only represented in a date time format
+    updatedAt: AWSDateTime!
+}
+
+type ReimbursementResponse @aws_cognito_user_pools @aws_api_key {
+    id: ID # this represents the userID of the reimbursement, and the reason we repeat it in the parent response is for the subscription filtering to work properly
+    data: Reimbursement
+    errorType: ReimbursementsErrorType
+    errorMessage: String
+}
+
+input ReimbursementTransactionInput {
+    id: ID! # this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    transactionId: ID!
+    transactionStatus: TransactionsStatus!
+}
+
+input CreateReimbursementInput {
+    id: ID! # this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    reimbursementId: ID!, # Olive specific
+    clientId: ID, # Olive specific
+    paymentGatewayId: ID, # Olive specific
+    succeeded: Boolean, # this will only be applicable is the status is PROCESSED or FAILED
+    processingMessage: String # this will only be applicable is the status is PROCESSED or FAILED so we know why something failed or succeeded
+    cardId: ID!,
+    reimbursementStatus: ReimbursementStatus!
+    pendingCashbackAmount: Float! # this amount should be the total reward amount that's pending reimbursement to the customer
+    creditedCashbackAmount: Float! # this amount should be the total reward amount that's reimbursed/credited to the customer
+    currencyCode: CurrencyCodeType!,
+    transactions:  [ReimbursementTransactionInput]! # this array associates particular transactions to a reimbursement object, so we know what was reimbursed to customers
+    createdAt: AWSDateTime! # this will be the same as the "timestamp" value above, only represented in a date time format
+    updatedAt: AWSDateTime!
+}
+
+input UpdateReimbursementInput {
+    id: ID! # this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    clientId: ID, # Olive specific
+    paymentGatewayId: ID, # Olive specific
+    succeeded: Boolean, # this will only be applicable is the status is PROCESSED or FAILED
+    processingMessage: String # this will only be applicable is the status is PROCESSED or FAILED so we know why something failed or succeeded
+    reimbursementStatus: ReimbursementStatus
+    pendingCashbackAmount: Float # this amount should be the total reward amount that's pending reimbursement to the customer
+    creditedCashbackAmount: Float # this amount should be the total reward amount that's reimbursed/credited to the customer
+    transactions: [ReimbursementTransactionInput] # this array associates particular transactions to a reimbursement object, so we know what was reimbursed to customers
+    updatedAt: AWSDateTime
 }

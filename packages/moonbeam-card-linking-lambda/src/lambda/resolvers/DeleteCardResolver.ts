@@ -1,5 +1,5 @@
 import {
-    CardLinkErrorType,
+    CardLinkErrorType, CardLinkingStatus,
     CardResponse,
     DeleteCardInput,
     MemberResponse,
@@ -67,7 +67,8 @@ export const deleteCard = async (fieldName: string, deleteCardInput: DeleteCardI
                             },
                             ExpressionAttributeNames: {
                                 "#CA": "cards",
-                                "#UA": "updatedAt"
+                                "#UA": "updatedAt",
+                                "#ST": "status"
                             },
                             ExpressionAttributeValues: {
                                 ":list": {
@@ -75,9 +76,12 @@ export const deleteCard = async (fieldName: string, deleteCardInput: DeleteCardI
                                 },
                                 ":ua": {
                                     S: deleteCardInput.updatedAt!
+                                },
+                                ":st": {
+                                    S: CardLinkingStatus.NotLinked
                                 }
                             },
-                            UpdateExpression: "SET #CA = :list, #UA = :ua",
+                            UpdateExpression: "SET #CA = :list, #UA = :ua, #ST = :st",
                             ReturnValues: "UPDATED_NEW"
                         }));
 

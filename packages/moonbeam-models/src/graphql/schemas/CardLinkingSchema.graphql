@@ -14,6 +14,17 @@ enum CardType {
     INVALID
 }
 
+enum CardLinkingStatus {
+    LINKED
+    NOT_LINKED
+}
+
+type EligibleLinkedUser @aws_cognito_user_pools @aws_api_key {
+    id: ID!
+    memberId: ID!
+    cardId: ID!
+}
+
 type Card @aws_cognito_user_pools {
     id: ID! # this will be obtained from Olive (and it is the Olive card id)
     applicationID: ID! # this will be passed on to Olive as the enrollment ID (referenceAppId)
@@ -30,6 +41,7 @@ type CardLink @aws_cognito_user_pools {
     cards: [Card]!
     createdAt: AWSDateTime!
     updatedAt: AWSDateTime!
+    status: CardLinkingStatus! # to keep track of whether a card is linked or not, for faster fetching purposes
 }
 
 type Member @aws_cognito_user_pools {
@@ -98,6 +110,12 @@ type MemberResponse @aws_cognito_user_pools {
 
 type RemoveCardResponse @aws_cognito_user_pools {
     data: Boolean
+    errorType: CardLinkErrorType
+    errorMessage: String
+}
+
+type EligibleLinkedUsersResponse @aws_cognito_user_pools @aws_api_key {
+    data: [EligibleLinkedUser]
     errorType: CardLinkErrorType
     errorMessage: String
 }

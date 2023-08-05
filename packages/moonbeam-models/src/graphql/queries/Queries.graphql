@@ -30,6 +30,16 @@ query GetTransaction($getTransactionInput: GetTransactionInput!) {
         }
     }
 }
+query GetTransactionByStatus($getTransactionByStatusInput: GetTransactionByStatusInput!) {
+    getTransactionByStatus(getTransactionByStatusInput: $getTransactionByStatusInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            transactionStatus
+        }
+    }
+}
 query GetCardLink($getCardLinkInput: GetCardLinkInput!) {
     getCardLink(getCardLinkInput: $getCardLinkInput) {
         errorMessage
@@ -48,6 +58,18 @@ query GetCardLink($getCardLinkInput: GetCardLinkInput!) {
             }
             createdAt
             updatedAt
+            status
+        }
+    }
+}
+query GetEligibleLinkedUsers {
+    getEligibleLinkedUsers {
+        errorMessage
+        errorType
+        data {
+            id
+            cardId
+            memberId
         }
     }
 }

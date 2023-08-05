@@ -4,7 +4,8 @@ import {
     CardLink,
     CardLinkErrorType,
     CardLinkResponse,
-    CardResponse, MemberResponse,
+    CardResponse,
+    MemberResponse,
     OliveClient
 } from "@moonbeam/moonbeam-models";
 import {DynamoDBClient, GetItemCommand, UpdateItemCommand} from "@aws-sdk/client-dynamodb";
@@ -30,7 +31,7 @@ export const addCard = async (fieldName: string, addCardInput: AddCardInput): Pr
         addCardInput.updatedAt = addCardInput.updatedAt ? addCardInput.updatedAt : new Date().toISOString();
 
         // retrieve the card linking object, given the add card input object
-        const retrievedData =  await dynamoDbClient.send(new GetItemCommand({
+        const retrievedData = await dynamoDbClient.send(new GetItemCommand({
             TableName: process.env.CARD_LINKING_TABLE!,
             Key: {
                 id: {
@@ -95,7 +96,8 @@ export const addCard = async (fieldName: string, addCardInput: AddCardInput): Pr
                         },
                         ExpressionAttributeNames: {
                             "#CA": "cards",
-                            "#UA": "updatedAt"
+                            "#UA": "updatedAt",
+                            "#ST": "status"
                         },
                         ExpressionAttributeValues: {
                             ":list": {
@@ -131,9 +133,12 @@ export const addCard = async (fieldName: string, addCardInput: AddCardInput): Pr
                             },
                             ":ua": {
                                 S: addCardInput.updatedAt!
+                            },
+                            ":st": {
+                                S: cardLinkedResponse.status
                             }
                         },
-                        UpdateExpression: "SET #CA = :list, #UA = :ua",
+                        UpdateExpression: "SET #CA = :list, #UA = :ua, #ST = :st",
                         ReturnValues: "UPDATED_NEW"
                     }));
 
@@ -150,7 +155,8 @@ export const addCard = async (fieldName: string, addCardInput: AddCardInput): Pr
                             updatedAt: cardLinkedResponse.updatedAt,
                             cards: [
                                 cardLinkedResponse.cards[0]
-                            ]
+                            ],
+                            status: cardLinkedResponse.status
                         }
                     }
 

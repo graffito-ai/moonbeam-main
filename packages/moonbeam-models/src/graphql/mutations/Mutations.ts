@@ -1,5 +1,71 @@
 // This is a file used to define the all GraphQL query constants
 
+// Mutation used to create a new reimbursement.
+export const createReimbursement = /* GraphQL */ `
+    mutation CreateReimbursement($createReimbursementInput: CreateReimbursementInput!) {
+        createReimbursement(createReimbursementInput: $createReimbursementInput) {
+            errorType
+            errorMessage
+            id
+            data {
+                id
+                timestamp
+                reimbursementId
+                clientId
+                paymentGatewayId
+                succeeded
+                processingMessage
+                cardId
+                reimbursementStatus
+                pendingCashbackAmount
+                creditedCashbackAmount
+                currencyCode
+                transactions {
+                    id
+                    timestamp
+                    transactionId
+                    transactionStatus
+                }
+                createdAt
+                updatedAt
+            }
+        }
+    }
+`;
+
+// Mutation used to create a reimbursement's details.
+export const updateReimbursement = /* GraphQL */ `
+    mutation UpdateReimbursement($updateReimbursementInput: UpdateReimbursementInput!) {
+        updateReimbursement(updateReimbursementInput: $updateReimbursementInput) {
+            errorType
+            errorMessage
+            id
+            data {
+                id
+                timestamp
+                reimbursementId
+                clientId
+                paymentGatewayId
+                succeeded
+                processingMessage
+                cardId
+                reimbursementStatus
+                pendingCashbackAmount
+                creditedCashbackAmount
+                currencyCode
+                transactions {
+                    id
+                    timestamp
+                    transactionId
+                    transactionStatus
+                }
+                createdAt
+                updatedAt
+            }
+        }
+    }
+`;
+
 // Mutation used to create a new transaction, based on an incoming transaction message/event.
 export const createTransaction = /* GraphQL */ `
     mutation CreateTransaction($createTransactionInput: CreateTransactionInput!) {
@@ -35,6 +101,24 @@ export const createTransaction = /* GraphQL */ `
     }
 `;
 
+// Mutation used to update a transaction's details.
+export const updateTransaction = /* GraphQL */ `
+    mutation UpdateTransaction($updateTransactionInput: UpdateTransactionInput!) {
+        updateTransaction(updateTransactionInput: $updateTransactionInput) {
+            errorType
+            errorMessage
+            id
+            data {
+                id
+                timestamp
+                transactionId
+                transactionStatus
+                updatedAt
+            }
+        }
+    }
+`;
+
 // Mutation used to create a new card link for a brand-new user, with a new card.
 export const createCardLink = /* GraphQL */ `
     mutation CreateCardLink($createCardLinkInput: CreateCardLinkInput!) {
@@ -55,6 +139,7 @@ export const createCardLink = /* GraphQL */ `
                 }
                 createdAt
                 updatedAt
+                status
             }
         }
     }
@@ -80,6 +165,7 @@ export const addCard = /* GraphQL */ `
                 }
                 createdAt
                 updatedAt
+                status
             }
         }
     }

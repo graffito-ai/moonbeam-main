@@ -25,8 +25,10 @@ packages/moonbeam-card-linking-lambda/lib/**/*
 packages/moonbeam-military-verification-lambda/lib/**/*
 packages/moonbeam-storage-lambda/lib/**/*
 packages/moonbeam-transactional-offers-consumer-lambda/lib/**/*
+packages/moonbeam-reimbursements-consumer-lambda/lib/**/*
 packages/moonbeam-transactions-lambda/lib/**/*
 packages/moonbeam-transactions-producer-lambda/lib/**/*
+packages/moonbeam-reimbursements-producer-lambda/lib/**/*
 packages/getmoonbeam-cdk/*.jsg
 packages/getmoonbeam-cdk/*.d.ts
 packages/getmoonbeam-app/amplify/**/*

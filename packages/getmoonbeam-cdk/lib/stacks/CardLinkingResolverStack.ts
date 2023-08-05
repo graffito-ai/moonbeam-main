@@ -63,6 +63,10 @@ export class CardLinkingResolverStack extends Stack {
             typeName: "Query",
             fieldName: `${props.cardLinkingConfig.getCardLinkResolverName}`
         });
+        cardLinkingLambdaDataSource.createResolver(`${props.cardLinkingConfig.getEligibleLinkedUsersResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Query",
+            fieldName: `${props.cardLinkingConfig.getEligibleLinkedUsersResolverName}`
+        });
 
         // create a new table to be used for the Card Linking purposes
         const cardLinkingTable = new aws_dynamodb.Table(this, `${props.cardLinkingConfig.cardLinkingTableName}-${props.stage}-${props.env!.region}`, {
@@ -73,24 +77,42 @@ export class CardLinkingResolverStack extends Stack {
                 type: aws_dynamodb.AttributeType.STRING,
             },
         });
+        /**
+         * creates a global secondary index for the table, so we can retrieve card linked objects by status.
+         * {@link https://www.dynamodbguide.com/key-concepts/}
+         * {@link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html}
+         */
+        cardLinkingTable.addGlobalSecondaryIndex({
+            indexName: `${props.cardLinkingConfig.cardLinkingStatusGlobalIndex}-${props.stage}-${props.env!.region}`,
+            partitionKey: {
+                name: 'status',
+                type: aws_dynamodb.AttributeType.STRING
+            }
+        });
 
         // enable the Lambda function to access the DynamoDB table (using IAM)
+        cardLinkingTable.grantFullAccess(cardLinkingLambda);
         cardLinkingLambda.addToRolePolicy(
-            new PolicyStatement({
-                    effect: Effect.ALLOW,
-                    actions: [
-                        "dynamodb:GetItem",
-                        "dynamodb:PutItem",
-                        "dynamodb:Query",
-                        "dynamodb:UpdateItem",
-                        "dynamodb:DeleteItem"
-                    ],
-                    resources: [
-                        `${cardLinkingTable.tableArn}`
-                    ]
-                }
-            )
-        );
+            /**
+             * policy used to allow full Dynamo DB access for the Lambda, added again on top of the lines above, since they sometimes don't work
+             * Note: by "they" meaning "grantFullAccess" above.
+             */
+            new PolicyStatement(
+                new PolicyStatement({
+                        effect: Effect.ALLOW,
+                        actions: [
+                            "dynamodb:GetItem",
+                            "dynamodb:PutItem",
+                            "dynamodb:Query",
+                            "dynamodb:UpdateItem",
+                            "dynamodb:DeleteItem"
+                        ],
+                        resources: [
+                            `${cardLinkingTable.tableArn}`
+                        ]
+                    }
+                )
+            ));
         // enable the Lambda function the retrieval of the Olive API secrets
         cardLinkingLambda.addToRolePolicy(
             new PolicyStatement({
@@ -108,6 +130,7 @@ export class CardLinkingResolverStack extends Stack {
 
         // Create environment variables that we will use in the function code
         cardLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.CARD_LINKING_TABLE}`, cardLinkingTable.tableName);
+        cardLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.CARD_LINKING_STATUS_GLOBAL_INDEX}`, props.cardLinkingConfig.cardLinkingStatusGlobalIndex);
         cardLinkingLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
     }
 }

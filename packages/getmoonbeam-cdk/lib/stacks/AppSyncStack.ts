@@ -47,11 +47,11 @@ export class AppSyncStack extends Stack {
                     }
                 },
                 /**
-                 * for some specific use-case, such as the transaction consumer, we will need to allow access via an API Key instead
+                 * for some specific use-cases, such as the transaction consumer, we will need to allow access via an API Key instead.
                  *
                  * ToDo: in the future we will need to make a AWS::SecretsManager::Secret and a AWS::SecretsManager::RotationSchedule.
                  *       The RotationSchedule will let us use a lambda to automatically rotate the ApiKey and store it in the Secret.
-                 *       For now we will rotate this key manually.
+                 *       For now, we will rotate this key manually.
                  */
                 additionalAuthorizationModes: [
                     {

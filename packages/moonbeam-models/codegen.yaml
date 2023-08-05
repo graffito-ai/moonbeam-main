@@ -6,6 +6,7 @@ schema:
   - ./src/graphql/schemas/MilitaryVerificationSchema.graphql
   - ./src/graphql/schemas/CardLinkingSchema.graphql
   - ./src/graphql/schemas/TransactionsSchema.graphql
+  - ./src/graphql/schemas/ReimbursementsSchema.graphql
 documents:
   - ./src/graphql/queries/Queries.graphql
   - ./src/graphql/mutations/Mutations.graphql

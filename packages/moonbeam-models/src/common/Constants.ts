@@ -57,7 +57,12 @@ export namespace Constants {
         export const MILITARY_VERIFICATION_TABLE: string = 'MILITARY_VERIFICATION_TABLE';
         export const PARTNER_MERCHANT_TABLE: string = 'PARTNER_MERCHANT_TABLE';
         export const CARD_LINKING_TABLE: string = 'CARD_LINKING_TABLE';
+        export const CARD_LINKING_STATUS_GLOBAL_INDEX: string = 'CARD_LINKING_STATUS_GLOBAL_INDEX';
         export const TRANSACTIONS_TABLE: string = 'TRANSACTIONS_TABLE';
+        export const REIMBURSEMENTS_TABLE: string = 'REIMBURSEMENTS_TABLE';
+        export const REIMBURSEMENTS_PROCESSING_TOPIC_ARN: string = 'REIMBURSEMENTS_PROCESSING_TOPIC_ARN';
+        export const REIMBURSEMENTS_ID_GLOBAL_INDEX: string = 'REIMBURSEMENTS_ID_GLOBAL_INDEX';
+        export const REIMBURSEMENTS_STATUS_LOCAL_INDEX: string = 'REIMBURSEMENTS_STATUS_LOCAL_INDEX';
         export const TRANSACTIONS_PROCESSING_TOPIC_ARN: string = 'TRANSACTIONS_PROCESSING_TOPIC_ARN';
         export const TRANSACTIONS_ID_GLOBAL_INDEX: string = 'TRANSACTIONS_ID_GLOBAL_INDEX';
         export const TRANSACTIONS_STATUS_LOCAL_INDEX: string = 'TRANSACTIONS_STATUS_LOCAL_INDEX';
@@ -73,6 +78,8 @@ export namespace Constants {
         export const MOONBEAM_INTERNAL_SECRET_NAME = `moonbeam-internal-secret-pair`;
         export const MOONBEAM_INTERNAL_API_KEY = `MOONBEAM_INTERNAL_API_KEY`;
         export const MOONBEAM_INTERNAL_BASE_URL = `MOONBEAM_INTERNAL_BASE_URL`;
+        export const MOONBEAM_INTERNAL_REST_BASE_URL = `MOONBEAM_INTERNAL_REST_BASE_URL`;
+        export const MOONBEAM_INTERNAL_REST_API_KEY = `MOONBEAM_INTERNAL_REST_API_KEY`;
         export const QUANDIS_SECRET_NAME = `quandis-secret-pair`;
         export const QUANDIS_API_KEY = `QUANDIS-API-KEY`;
         export const QUANDIS_BASE_URL = `QUANDIS-BASE-URL`;

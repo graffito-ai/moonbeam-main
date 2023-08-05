@@ -18,7 +18,7 @@ export class TransactionsProducerConsumerStack extends Stack {
     /**
      * the webhook transactions Lambda Function, acting as the acknowledgment service/producer,
      * to be used in configuring REST API Gateway endpoints in dependent stacks, as well as setting up
-     * the fan-out mechanism form transactions.
+     * the fan-out mechanism for transactions.
      */
     readonly transactionsProducerLambda: aws_lambda_nodejs.NodejsFunction;
 

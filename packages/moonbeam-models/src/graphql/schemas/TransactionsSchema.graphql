@@ -99,6 +99,21 @@ type MoonbeamTransaction @aws_cognito_user_pools @aws_api_key {
     transactionIsOnline: Boolean!
 }
 
+type MoonbeamUpdatedTransaction @aws_cognito_user_pools @aws_api_key {
+    id: ID! # this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    transactionId: ID!
+    transactionStatus: TransactionsStatus!
+    updatedAt: AWSDateTime!
+}
+
+type MoonbeamTransactionByStatus @aws_cognito_user_pools @aws_api_key {
+    id: ID! # this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp!
+    transactionId: ID!
+    transactionStatus: TransactionsStatus!
+}
+
 type MoonbeamTransactionResponse @aws_cognito_user_pools @aws_api_key {
     id: ID # this represents the userID of the transaction, and the reason we repeat it in the parent response is for the subscription filtering to work properly
     data: MoonbeamTransaction
@@ -112,11 +127,36 @@ type MoonbeamTransactionsResponse @aws_cognito_user_pools {
     errorMessage: String
 }
 
+type MoonbeamTransactionsByStatusResponse @aws_cognito_user_pools @aws_api_key {
+    data: [MoonbeamTransactionByStatus]
+    errorType: TransactionsErrorType
+    errorMessage: String
+}
+
+type MoonbeamUpdatedTransactionResponse @aws_cognito_user_pools @aws_api_key {
+    id: ID # this represents the userID of the transaction, and the reason we repeat it in the parent response is for the subscription filtering to work properly
+    data: MoonbeamUpdatedTransaction
+    errorType: TransactionsErrorType
+    errorMessage: String
+}
+
 input GetTransactionInput {
     id: ID! #this represents the userID which the transactions should be retrieved for
     startDate: AWSDateTime # the start time to filter transactions for
     endDate: AWSDateTime! # the end time to filter transactions for
-    # TBD on adding more filters for getting transactions - for now we only need the above
+}
+
+input GetTransactionByStatusInput {
+    id: ID! # this represents the userID which the transactions should be retrieved for
+    status: TransactionsStatus! # the transactions status to filter transactions for
+}
+
+input UpdateTransactionInput {
+    id: ID! # this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    transactionId: ID!
+    transactionStatus: TransactionsStatus!
+    updatedAt: AWSDateTime!
 }
 
 input CreateTransactionInput {

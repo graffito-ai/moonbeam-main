@@ -1,5 +1,12 @@
 import {DynamoDBClient, GetItemCommand} from "@aws-sdk/client-dynamodb";
-import {Card, CardLinkErrorType, CardLinkResponse, CardType, GetCardLinkInput} from "@moonbeam/moonbeam-models";
+import {
+    Card,
+    CardLinkErrorType,
+    CardLinkingStatus,
+    CardLinkResponse,
+    CardType,
+    GetCardLinkInput
+} from "@moonbeam/moonbeam-models";
 
 /**
  * GetCardLink resolver
@@ -47,7 +54,8 @@ export const getCardLink = async (fieldName: string, getCardLinkInput: GetCardLi
                     memberId: retrievedData.Item.memberId.S!,
                     createdAt: retrievedData.Item.createdAt.S!,
                     updatedAt: retrievedData.Item.updatedAt.S!,
-                    cards: cards
+                    cards: cards,
+                    status: retrievedData.Item.status.S! as CardLinkingStatus
                 }
             }
         } else {

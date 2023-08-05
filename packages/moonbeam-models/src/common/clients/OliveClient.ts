@@ -1,11 +1,14 @@
 import {
     Card,
     CardLinkErrorType,
-    CardLinkResponse, MemberDetailsResponse,
+    CardLinkingStatus,
+    CardLinkResponse,
+    MemberDetailsResponse,
     MemberResponse,
     RemoveCardResponse,
     Transaction,
-    TransactionResponse, TransactionsErrorType
+    TransactionResponse,
+    TransactionsErrorType
 } from "../GraphqlExports";
 import {BaseAPIClient} from "./BaseAPIClient";
 import {Constants} from "../Constants";
@@ -113,7 +116,9 @@ export class OliveClient extends BaseAPIClient {
                             cards: [{
                                 ...card,
                                 id: cardLinkedResponse.data["card"]["id"]
-                            }]
+                            }],
+                            // whenever we create a new member, then we automatically put the card linking object in a Linked status
+                            status: CardLinkingStatus.Linked
                         }
                     }
                 } else {
@@ -257,7 +262,9 @@ export class OliveClient extends BaseAPIClient {
                             cards: [{
                                 ...card,
                                 id: addCardResponse.data["id"]
-                            }]
+                            }],
+                            // whenever add a card to an existing member, then we automatically put the card linking object in a Linked status
+                            status: CardLinkingStatus.Linked
                         }
                     }
                 } else {

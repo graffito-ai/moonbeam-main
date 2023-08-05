@@ -45,17 +45,44 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             cardLinkingConfig: {
                 cardLinkingFunctionName: 'cardLinkingLambdaFunction',
                 cardLinkingTableName: 'cardLinkingTable',
+                cardLinkingStatusGlobalIndex: 'cardLinkingStatusGlobalIndex',
                 getCardLinkResolverName: 'getCardLink',
                 createCardLinkResolverName: 'createCardLink',
                 deleteCardResolverName: 'deleteCard',
-                addCardResolverName: 'addCard'
+                addCardResolverName: 'addCard',
+                getEligibleLinkedUsersResolverName: 'getEligibleLinkedUsers'
             },
-            cardLinkingServiceConfig: {
+            apiGatewayServiceConfig: {
                 cardLinkingServiceAPIName: 'cardLinkingServiceAPI',
                 apiDeploymentGroupName: 'cardLinkingAPILogGroup',
                 oliveSharedAPIKeyName: 'cardLinkingOliveSharedAPIKey',
                 oliveUsagePlan: `cardLinkingOliveUsagePlan`,
-                transactionsAcknowledgmentMethodName: `transactionsAcknowledgment`
+                internallySharedAPIKeyName: `internallySharedAPIKey`,
+                internalUsagePlan: `internalUsagePlan`,
+                transactionsAcknowledgmentMethodName: `transactionsAcknowledgment`,
+                reimbursementsAcknowledgmentMethodName: `reimbursementsAcknowledgment`
+            },
+            reimbursementsProducerConsumerConfig: {
+                reimbursementsProducerFunctionName: 'reimbursementsProducerLambdaFunction',
+                reimbursementsConsumerFunctionName: 'reimbursementsConsumerLambdaFunction',
+                reimbursementsCronRuleName: 'reimbursementsCronRule',
+                reimbursementsCronTriggerFunctionName: 'reimbursementsCronTriggerFunction',
+                reimbursementsFanOutConfig: {
+                    reimbursementsProcessingTopicName: 'reimbursementsProcessingTopic',
+                    reimbursementsProcessingQueueName: 'reimbursementsProcessingQueue',
+                    reimbursementsProcessingDLQName: 'reimbursementsProcessingDLQ',
+                    reimbursementsProcessingTopicDLQName: 'reimbursementsProcessingTopicDLQ',
+                    reimbursementsProcessingEventSourceMapping: 'reimbursementsProcessingEventSourceMapping'
+                }
+            },
+            reimbursementsConfig: {
+                reimbursementsFunctionName: 'reimbursementsLambdaFunction',
+                reimbursementsTableName: 'reimbursementsTable',
+                reimbursementsPrimaryKey: 'reimbursementsPrimaryKey',
+                reimbursementsIdGlobalIndex: 'reimbursementsIdGlobalIndex',
+                reimbursementsStatusLocalIndex: 'reimbursementsStatusLocalIndex',
+                createReimbursementResolverName: 'createReimbursement',
+                updateReimbursementResolverName: 'updateReimbursement'
             },
             transactionsProducerConsumerConfig: {
                 transactionsProducerFunctionName: 'transactionsProducerLambdaFunction',
@@ -75,7 +102,9 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 transactionsIdGlobalIndex: 'transactionsIdGlobalIndex',
                 transactionsStatusLocalIndex: 'transactionsStatusLocalIndex',
                 createTransactionResolverName: 'createTransaction',
-                getTransactionResolverName: 'getTransaction'
+                getTransactionResolverName: 'getTransaction',
+                getTransactionByStatusResolverName: 'getTransactionByStatus',
+                updateTransactionResolverName: 'updateTransaction'
             },
             sesConfig: {
                 emailAddress: `noreply-${Stages.DEV}@moonbeam.vet`
@@ -121,17 +150,44 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             cardLinkingConfig: {
                 cardLinkingFunctionName: 'cardLinkingLambdaFunction',
                 cardLinkingTableName: 'cardLinkingTable',
+                cardLinkingStatusGlobalIndex: 'cardLinkingStatusGlobalIndex',
                 getCardLinkResolverName: 'getCardLink',
                 createCardLinkResolverName: 'createCardLink',
                 deleteCardResolverName: 'deleteCard',
-                addCardResolverName: 'addCard'
+                addCardResolverName: 'addCard',
+                getEligibleLinkedUsersResolverName: 'getEligibleLinkedUsers'
             },
-            cardLinkingServiceConfig: {
+            apiGatewayServiceConfig: {
                 cardLinkingServiceAPIName: 'cardLinkingServiceAPI',
                 apiDeploymentGroupName: 'cardLinkingAPILogGroup',
                 oliveSharedAPIKeyName: 'cardLinkingOliveSharedAPIKey',
                 oliveUsagePlan: `cardLinkingOliveUsagePlan`,
-                transactionsAcknowledgmentMethodName: `transactionsAcknowledgment`
+                internallySharedAPIKeyName: `internallySharedAPIKey`,
+                internalUsagePlan: `internalUsagePlan`,
+                transactionsAcknowledgmentMethodName: `transactionsAcknowledgment`,
+                reimbursementsAcknowledgmentMethodName: `reimbursementsAcknowledgment`
+            },
+            reimbursementsProducerConsumerConfig: {
+                reimbursementsProducerFunctionName: 'reimbursementsProducerLambdaFunction',
+                reimbursementsConsumerFunctionName: 'reimbursementsConsumerLambdaFunction',
+                reimbursementsCronRuleName: 'reimbursementsCronRule',
+                reimbursementsCronTriggerFunctionName: 'reimbursementsCronTriggerFunction',
+                reimbursementsFanOutConfig: {
+                    reimbursementsProcessingTopicName: 'reimbursementsProcessingTopic',
+                    reimbursementsProcessingQueueName: 'reimbursementsProcessingQueue',
+                    reimbursementsProcessingDLQName: 'reimbursementsProcessingDLQ',
+                    reimbursementsProcessingTopicDLQName: 'reimbursementsProcessingTopicDLQ',
+                    reimbursementsProcessingEventSourceMapping: 'reimbursementsProcessingEventSourceMapping'
+                }
+            },
+            reimbursementsConfig: {
+                reimbursementsFunctionName: 'reimbursementsLambdaFunction',
+                reimbursementsTableName: 'reimbursementsTable',
+                reimbursementsPrimaryKey: 'reimbursementsPrimaryKey',
+                reimbursementsIdGlobalIndex: 'reimbursementsIdGlobalIndex',
+                reimbursementsStatusLocalIndex: 'reimbursementsStatusLocalIndex',
+                createReimbursementResolverName: 'createReimbursement',
+                updateReimbursementResolverName: 'updateReimbursement'
             },
             transactionsProducerConsumerConfig: {
                 transactionsProducerFunctionName: 'transactionsProducerLambdaFunction',
@@ -151,7 +207,9 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 transactionsIdGlobalIndex: 'transactionsIdGlobalIndex',
                 transactionsStatusLocalIndex: 'transactionsStatusLocalIndex',
                 createTransactionResolverName: 'createTransaction',
-                getTransactionResolverName: 'getTransaction'
+                getTransactionResolverName: 'getTransaction',
+                getTransactionByStatusResolverName: 'getTransactionByStatus',
+                updateTransactionResolverName: 'updateTransaction'
             },
             sesConfig: {
                 emailAddress: `noreply@moonbeam.vet`

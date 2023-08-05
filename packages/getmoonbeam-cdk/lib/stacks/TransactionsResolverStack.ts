@@ -2,8 +2,8 @@ import {aws_appsync, aws_dynamodb, aws_lambda, aws_lambda_nodejs, Duration, Stac
 import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
 import path from "path";
-import {Constants, Stages} from "@moonbeam/moonbeam-models";
-import {Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
+import {Constants} from "@moonbeam/moonbeam-models";
+import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
 
 /**
  * File used to define the Transactions resolver stack, used by Amplify, as well
@@ -39,21 +39,6 @@ export class TransactionsResolverStack extends Stack {
             }
         });
 
-        // enable the Lambda function the retrieval of the Olive API secrets
-        transactionsLambda.addToRolePolicy(
-            new PolicyStatement({
-                effect: Effect.ALLOW,
-                actions: [
-                    "secretsmanager:GetSecretValue"
-                ],
-                resources: [
-                    // this ARN is retrieved post secret creation
-                    ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:olive-secret-pair-dev-us-west-2-OTgCOk"] : [],
-                    ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:olive-secret-pair-prod-us-west-2-gIvRt8"] : []
-                ]
-            })
-        );
-
         // retrieve the GraphQL API created by the other stack
         const graphqlApi = aws_appsync.GraphqlApi.fromGraphqlApiAttributes(this, `${props.graphqlApiName}-${props.stage}-${props.env!.region}`,
             {graphqlApiId: props.graphqlApiId});
@@ -67,9 +52,17 @@ export class TransactionsResolverStack extends Stack {
             typeName: "Mutation",
             fieldName: `${props.transactionsConfig.createTransactionResolverName}`
         });
+        transactionsLambdaSource.createResolver(`${props.transactionsConfig.updateTransactionResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Mutation",
+            fieldName: `${props.transactionsConfig.updateTransactionResolverName}`
+        });
         transactionsLambdaSource.createResolver(`${props.transactionsConfig.getTransactionResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Query",
             fieldName: `${props.transactionsConfig.getTransactionResolverName}`
+        });
+        transactionsLambdaSource.createResolver(`${props.transactionsConfig.getTransactionByStatusResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Query",
+            fieldName: `${props.transactionsConfig.getTransactionByStatusResolverName}`
         });
 
         // create a new table to be used for Transactions purposes
@@ -114,7 +107,7 @@ export class TransactionsResolverStack extends Stack {
         transactionsTable.addLocalSecondaryIndex({
             indexName: `${props.transactionsConfig.transactionsStatusLocalIndex}-${props.stage}-${props.env!.region}`,
             sortKey: {
-                name: 'status',
+                name: 'transactionStatus',
                 type: aws_dynamodb.AttributeType.STRING
             }
         });

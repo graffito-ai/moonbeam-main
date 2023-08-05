@@ -34,6 +34,20 @@ export const getTransaction = /* GraphQL */ `
     }
 `;
 
+// Query used to retrieve transactions for a particular user, in a particular status
+export const getTransactionByStatus = /* GraphQL */ `
+    query GetTransactionByStatus($getTransactionByStatusInput: GetTransactionByStatusInput!) {
+        getTransactionByStatus(getTransactionByStatusInput: $getTransactionByStatusInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                transactionStatus
+            }
+        }
+    }
+`;
+
 // Query used to retrieve a card link for a particular user
 export const getCardLink = /* GraphQL */ `
     query GetCardLink($getCardLinkInput: GetCardLinkInput!) {
@@ -54,10 +68,27 @@ export const getCardLink = /* GraphQL */ `
                 }
                 createdAt
                 updatedAt
+                status
             }
         }
     }
 `;
+
+// Query used to retrieve all users with linked cards, eligible for reimbursements
+export const getEligibleLinkedUsers = /* GraphQL */ `
+    query GetEligibleLinkedUsers {
+        getEligibleLinkedUsers {
+            errorMessage
+            errorType
+            data {
+                id
+                cardId
+                memberId
+            }
+        }
+    }
+`;
+
 
 // Query used to retrieve a file from storage
 export const getStorage = /* GraphQL */ `

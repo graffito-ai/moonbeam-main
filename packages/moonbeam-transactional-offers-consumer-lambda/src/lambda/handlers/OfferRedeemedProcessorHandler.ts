@@ -83,7 +83,7 @@ export const processOfferRedeemedTransactions = async (event: SQSEvent): Promise
                             /**
                              * 6) Call the createTransaction Moonbeam AppSync API endpoint, to store transaction in Dynamo DB
                              *
-                             * first initialize the Olive Client API here, in order to call the appropriate endpoints for this resolver
+                             * first initialize the Moonbeam Client API here, in order to call the appropriate endpoints for this resolver
                              */
                             const moonbeamClient = new MoonbeamClient(process.env.ENV_NAME!, region);
 

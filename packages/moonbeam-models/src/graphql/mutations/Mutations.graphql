@@ -1,5 +1,63 @@
 # graphql/Mutations.graphql
 # Mutations Schema File
+mutation CreateReimbursement($createReimbursementInput: CreateReimbursementInput!) {
+    createReimbursement(createReimbursementInput: $createReimbursementInput) {
+        errorType
+        errorMessage
+        id
+        data {
+            id
+            timestamp
+            reimbursementId
+            clientId
+            paymentGatewayId
+            succeeded
+            processingMessage
+            cardId
+            reimbursementStatus
+            pendingCashbackAmount
+            creditedCashbackAmount
+            currencyCode
+            transactions {
+                id
+                timestamp
+                transactionId
+                transactionStatus
+            }
+            createdAt
+            updatedAt
+        }
+    }
+}
+mutation UpdateReimbursement($updateReimbursementInput: UpdateReimbursementInput!) {
+    updateReimbursement(updateReimbursementInput: $updateReimbursementInput) {
+        errorType
+        errorMessage
+        id
+        data {
+            id
+            timestamp
+            reimbursementId
+            clientId
+            paymentGatewayId
+            succeeded
+            processingMessage
+            cardId
+            reimbursementStatus
+            pendingCashbackAmount
+            creditedCashbackAmount
+            currencyCode
+            transactions {
+                id
+                timestamp
+                transactionId
+                transactionStatus
+            }
+            createdAt
+            updatedAt
+        }
+    }
+}
 mutation CreateTransaction($createTransactionInput: CreateTransactionInput!) {
     createTransaction(createTransactionInput: $createTransactionInput) {
         errorType
@@ -31,6 +89,20 @@ mutation CreateTransaction($createTransactionInput: CreateTransactionInput!) {
         }
     }
 }
+mutation UpdateTransaction($updateTransactionInput: UpdateTransactionInput!) {
+    updateTransaction(updateTransactionInput: $updateTransactionInput) {
+        errorType
+        errorMessage
+        id
+        data {
+            id
+            timestamp
+            transactionId
+            transactionStatus
+            updatedAt
+        }
+    }
+}
 mutation CreateCardLink($createCardLinkInput: CreateCardLinkInput!) {
     createCardLink(createCardLinkInput: $createCardLinkInput) {
         errorType
@@ -49,6 +121,7 @@ mutation CreateCardLink($createCardLinkInput: CreateCardLinkInput!) {
             }
             createdAt
             updatedAt
+            status
         }
     }
 }
@@ -70,6 +143,7 @@ mutation AddCard($addCardInput: AddCardInput!) {
             }
             createdAt
             updatedAt
+            status
         }
     }
 }
