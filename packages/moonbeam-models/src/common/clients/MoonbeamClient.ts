@@ -2,10 +2,11 @@ import {BaseAPIClient} from "./BaseAPIClient";
 import {Constants} from "../Constants";
 import {
     CardLinkErrorType,
+    CreateReimbursementEligibilityInput,
     CreateReimbursementInput,
     CreateTransactionInput,
     EligibleLinkedUser,
-    EligibleLinkedUsersResponse,
+    EligibleLinkedUsersResponse, GetReimbursementByStatusInput,
     GetTransactionByStatusInput,
     MoonbeamTransaction,
     MoonbeamTransactionByStatus,
@@ -13,10 +14,13 @@ import {
     MoonbeamTransactionsByStatusResponse,
     MoonbeamUpdatedTransaction,
     MoonbeamUpdatedTransactionResponse,
-    Reimbursement,
+    Reimbursement, ReimbursementByStatusResponse,
+    ReimbursementEligibility,
+    ReimbursementEligibilityResponse,
     ReimbursementResponse,
     ReimbursementsErrorType,
     TransactionsErrorType,
+    UpdateReimbursementEligibilityInput,
     UpdateReimbursementInput,
     UpdateTransactionInput
 } from "../GraphqlExports";
@@ -25,9 +29,10 @@ import {
     createReimbursement,
     createTransaction,
     updateReimbursement,
+    updateReimbursementEligibility,
     updateTransaction
 } from "../../graphql/mutations/Mutations";
-import {getEligibleLinkedUsers, getTransactionByStatus} from "../../graphql/queries/Queries";
+import {getEligibleLinkedUsers, getTransactionByStatus, getReimbursementByStatus} from "../../graphql/queries/Queries";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 
 /**
@@ -927,6 +932,378 @@ export class MoonbeamClient extends BaseAPIClient {
             });
         } catch (err) {
             const errorMessage = `Unexpected error while updating a reimbursement, through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: ReimbursementsErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
+     * Function used to create a reimbursement eligibility.
+     *
+     * @param createReimbursementEligibilityInput the reimbursement eligibility details to be passed in,
+     * in order to create a new reimbursement eligibility
+     *
+     * @returns a {@link ReimbursementEligibilityResponse} representing the newly created reimbursement eligibility
+     * data
+     */
+    async createReimbursementEligibility(createReimbursementEligibilityInput: CreateReimbursementEligibilityInput): Promise<ReimbursementEligibilityResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'createReimbursementEligibility Mutation Moonbeam GraphQL API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make a reimbursement eligibility creation call through the client
+            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
+                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: ReimbursementsErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * createReimbursementEligibility Query
+             *
+             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
+             * with the appropriate information.
+             *
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.post(`${moonbeamBaseURL}`, {
+                query: updateReimbursementEligibility,
+                variables: {
+                    createReimbursementEligibilityInput: createReimbursementEligibilityInput
+                }
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": moonbeamPrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
+            }).then(createReimbursementEligibilityResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(createReimbursementEligibilityResponse.data)}`);
+
+                // retrieve the data block from the response
+                const responseData = (createReimbursementEligibilityResponse && createReimbursementEligibilityResponse.data) ? createReimbursementEligibilityResponse.data.data : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.createReimbursementEligibility.errorMessage === null) {
+                    // returned the successfully created reimbursement eligibility
+                    return {
+                        id: responseData.createReimbursement.id,
+                        data: responseData.createReimbursementEligibility.data as ReimbursementEligibility
+                    }
+                } else {
+                    return responseData ?
+                        // return the error message and type, from the original AppSync call
+                        {
+                            errorMessage: responseData.createReimbursementEligibility.errorMessage,
+                            errorType: responseData.createcreateReimbursementEligibility.errorType
+                        } :
+                        // return the error response indicating an invalid structure returned
+                        {
+                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                            errorType: ReimbursementsErrorType.ValidationError
+                        }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: ReimbursementsErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: ReimbursementsErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: ReimbursementsErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while creating a reimbursement eligibility, through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: ReimbursementsErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
+     * Function used to update an existent reimbursement eligibility's details.
+     *
+     * @param updateReimbursementEligibilityInput the reimbursement eligibility details to be passed in,
+     * in order to update an existing reimbursement eligibility
+     *
+     * @returns a {@link ReimbursementEligibilityResponse} representing the updated reimbursement eligibility
+     * data
+     */
+    async updateReimbursementEligibility(updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput): Promise<ReimbursementEligibilityResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'updateReimbursementEligibility Mutation Moonbeam GraphQL API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make a reimbursement eligibility update call through the client
+            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
+                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: ReimbursementsErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * updateReimbursementEligibility Query
+             *
+             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
+             * with the appropriate information.
+             *
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.post(`${moonbeamBaseURL}`, {
+                query: updateReimbursementEligibility,
+                variables: {
+                    updateReimbursementEligibilityInput: updateReimbursementEligibilityInput
+                }
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": moonbeamPrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
+            }).then(updateReimbursementEligibilityResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(updateReimbursementEligibilityResponse.data)}`);
+
+                // retrieve the data block from the response
+                const responseData = (updateReimbursementEligibilityResponse && updateReimbursementEligibilityResponse.data) ? updateReimbursementEligibilityResponse.data.data : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.updateReimbursementEligibility.errorMessage === null) {
+                    // returned the successfully updated reimbursement eligibility
+                    return {
+                        id: responseData.updateReimbursementEligibility.id,
+                        data: responseData.updateReimbursementEligibility.data as ReimbursementEligibility
+                    }
+                } else {
+                    return responseData ?
+                        // return the error message and type, from the original AppSync call
+                        {
+                            errorMessage: responseData.updateReimbursementEligibility.errorMessage,
+                            errorType: responseData.updateReimbursementEligibility.errorType
+                        } :
+                        // return the error response indicating an invalid structure returned
+                        {
+                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                            errorType: ReimbursementsErrorType.ValidationError
+                        }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: ReimbursementsErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: ReimbursementsErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: ReimbursementsErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while updating a reimbursement eligibility, through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: ReimbursementsErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
+     * Function used to get reimbursements for a particular user, filtered by their status.
+     *
+     * @param getReimbursementByStatusInput the reimbursement by status input, containing the filtering status
+     *
+     * @returns a {@link ReimbursementByStatusResponse} representing the matched reimbursement information, filtered by status
+     */
+    async getReimbursementByStatus(getReimbursementByStatusInput: GetReimbursementByStatusInput): Promise<ReimbursementByStatusResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'getReimbursementByStatus Query Moonbeam GraphQL API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the reimbursement by status retrieval call through the client
+            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
+                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: ReimbursementsErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * getReimbursementByStatus Query
+             *
+             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
+             * with the appropriate information.
+             *
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.post(`${moonbeamBaseURL}`, {
+                query: getReimbursementByStatus,
+                variables: {
+                    getReimbursementByStatusInput: getReimbursementByStatusInput
+                }
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": moonbeamPrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
+            }).then(getReimbursementByStatusResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(getReimbursementByStatusResponse.data)}`);
+
+                // retrieve the data block from the response
+                const responseData = (getReimbursementByStatusResponse && getReimbursementByStatusResponse.data) ? getReimbursementByStatusResponse.data.data : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.getReimbursementByStatus.errorMessage === null) {
+                    // returned the successfully retrieved reimbursements for a given user, filtered by their status
+                    return {
+                        data: responseData.getReimbursementByStatus.data as Reimbursement[]
+                    }
+                } else {
+                    return responseData ?
+                        // return the error message and type, from the original AppSync call
+                        {
+                            errorMessage: responseData.getReimbursementByStatus.errorMessage,
+                            errorType: responseData.getReimbursementByStatus.errorType
+                        } :
+                        // return the error response indicating an invalid structure returned
+                        {
+                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                            errorType: ReimbursementsErrorType.ValidationError
+                        }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: ReimbursementsErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: ReimbursementsErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: ReimbursementsErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while retrieving reimbursements for a particular user, filtered by their status through ${endpointInfo}`;
             console.log(`${errorMessage} ${err}`);
 
             return {

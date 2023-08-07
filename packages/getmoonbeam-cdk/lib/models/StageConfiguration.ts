@@ -7,7 +7,7 @@ import {
     MilitaryVerificationConfiguration, ReimbursementsConfiguration, ReimbursementsProducerConsumerConfiguration,
     SESConfiguration,
     StorageConfiguration, TransactionsConfiguration,
-    TransactionsProducerConsumerConfiguration
+    TransactionsProducerConsumerConfiguration, ReimbursementEligibilityConfiguration
 } from "./ServiceConfiguration";
 
 /**
@@ -25,6 +25,7 @@ export interface StageConfiguration {
     readonly apiGatewayServiceConfig: APIGatewayServiceConfiguration;
     readonly reimbursementsProducerConsumerConfig: ReimbursementsProducerConsumerConfiguration;
     readonly reimbursementsConfig: ReimbursementsConfiguration;
+    readonly reimbursementEligibilityConfig: ReimbursementEligibilityConfiguration;
     readonly transactionsProducerConsumerConfig: TransactionsProducerConsumerConfiguration;
     readonly transactionsConfig: TransactionsConfiguration;
     readonly environmentVariables: Map<string, string>;

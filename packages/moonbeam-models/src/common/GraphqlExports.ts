@@ -129,10 +129,17 @@ export type CreateMilitaryVerificationResponse = {
   errorType?: Maybe<MilitaryVerificationErrorType>;
 };
 
+export type CreateReimbursementEligibilityInput = {
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+  eligibilityStatus: ReimbursementEligibilityStatus;
+  id: Scalars['ID'];
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
 export type CreateReimbursementInput = {
   cardId: Scalars['ID'];
   clientId?: InputMaybe<Scalars['ID']>;
-  createdAt: Scalars['AWSDateTime'];
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
   creditedCashbackAmount: Scalars['Float'];
   currencyCode: CurrencyCodeType;
   id: Scalars['ID'];
@@ -142,9 +149,9 @@ export type CreateReimbursementInput = {
   reimbursementId: Scalars['ID'];
   reimbursementStatus: ReimbursementStatus;
   succeeded?: InputMaybe<Scalars['Boolean']>;
-  timestamp: Scalars['AWSTimestamp'];
+  timestamp?: InputMaybe<Scalars['AWSTimestamp']>;
   transactions: Array<InputMaybe<ReimbursementTransactionInput>>;
-  updatedAt: Scalars['AWSDateTime'];
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
 export type CreateTransactionInput = {
@@ -225,6 +232,11 @@ export type GetMilitaryVerificationResponse = {
   data?: Maybe<MilitaryVerificationStatus>;
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<MilitaryVerificationErrorType>;
+};
+
+export type GetReimbursementByStatusInput = {
+  id: Scalars['ID'];
+  reimbursementStatus: ReimbursementStatus;
 };
 
 export type GetStorageInput = {
@@ -407,10 +419,12 @@ export type Mutation = {
   createCardLink: CardLinkResponse;
   createMilitaryVerification: CreateMilitaryVerificationResponse;
   createReimbursement: ReimbursementResponse;
+  createReimbursementEligibility: ReimbursementEligibilityResponse;
   createTransaction: MoonbeamTransactionResponse;
   deleteCard: CardResponse;
   updateMilitaryVerificationStatus: UpdateMilitaryVerificationResponse;
   updateReimbursement: ReimbursementResponse;
+  updateReimbursementEligibility: ReimbursementEligibilityResponse;
   updateTransaction: MoonbeamUpdatedTransactionResponse;
 };
 
@@ -435,6 +449,11 @@ export type MutationCreateReimbursementArgs = {
 };
 
 
+export type MutationCreateReimbursementEligibilityArgs = {
+  createReimbursementEligibilityInput: CreateReimbursementEligibilityInput;
+};
+
+
 export type MutationCreateTransactionArgs = {
   createTransactionInput: CreateTransactionInput;
 };
@@ -455,6 +474,11 @@ export type MutationUpdateReimbursementArgs = {
 };
 
 
+export type MutationUpdateReimbursementEligibilityArgs = {
+  updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput;
+};
+
+
 export type MutationUpdateTransactionArgs = {
   updateTransactionInput: UpdateTransactionInput;
 };
@@ -464,6 +488,7 @@ export type Query = {
   getCardLink: CardLinkResponse;
   getEligibleLinkedUsers: EligibleLinkedUsersResponse;
   getMilitaryVerificationStatus: GetMilitaryVerificationResponse;
+  getReimbursementByStatus: ReimbursementByStatusResponse;
   getStorage: StorageResponse;
   getTransaction: MoonbeamTransactionsResponse;
   getTransactionByStatus: MoonbeamTransactionsByStatusResponse;
@@ -477,6 +502,11 @@ export type QueryGetCardLinkArgs = {
 
 export type QueryGetMilitaryVerificationStatusArgs = {
   getMilitaryVerificationInput: GetMilitaryVerificationInput;
+};
+
+
+export type QueryGetReimbursementByStatusArgs = {
+  getReimbursementByStatusInput: GetReimbursementByStatusInput;
 };
 
 
@@ -512,6 +542,34 @@ export type Reimbursement = {
   transactions: Array<Maybe<ReimbursementTransaction>>;
   updatedAt: Scalars['AWSDateTime'];
 };
+
+export type ReimbursementByStatusResponse = {
+  __typename?: 'ReimbursementByStatusResponse';
+  data?: Maybe<Array<Maybe<Reimbursement>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<ReimbursementsErrorType>;
+};
+
+export type ReimbursementEligibility = {
+  __typename?: 'ReimbursementEligibility';
+  createdAt?: Maybe<Scalars['AWSDateTime']>;
+  eligibilityStatus: ReimbursementEligibilityStatus;
+  id: Scalars['ID'];
+  updatedAt: Scalars['AWSDateTime'];
+};
+
+export type ReimbursementEligibilityResponse = {
+  __typename?: 'ReimbursementEligibilityResponse';
+  data?: Maybe<ReimbursementEligibility>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<ReimbursementsErrorType>;
+  id?: Maybe<Scalars['ID']>;
+};
+
+export enum ReimbursementEligibilityStatus {
+  Eligible = 'ELIGIBLE',
+  Ineligible = 'INELIGIBLE'
+}
 
 export type ReimbursementResponse = {
   __typename?: 'ReimbursementResponse';
@@ -621,6 +679,13 @@ export type TransactionResponse = {
   errorType?: Maybe<TransactionsErrorType>;
 };
 
+export type TransactionStatusResponse = {
+  __typename?: 'TransactionStatusResponse';
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<TransactionsErrorType>;
+  oliveTransactionStatus?: Maybe<Scalars['String']>;
+};
+
 export enum TransactionType {
   Contribution = 'CONTRIBUTION',
   OfferRedeemed = 'OFFER_REDEEMED',
@@ -656,6 +721,12 @@ export type UpdateMilitaryVerificationResponse = {
   militaryVerificationStatus?: Maybe<MilitaryVerificationStatusType>;
 };
 
+export type UpdateReimbursementEligibilityInput = {
+  eligibilityStatus: ReimbursementEligibilityStatus;
+  id: Scalars['ID'];
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
 export type UpdateReimbursementInput = {
   clientId?: InputMaybe<Scalars['ID']>;
   creditedCashbackAmount?: InputMaybe<Scalars['Float']>;
@@ -677,6 +748,20 @@ export type UpdateTransactionInput = {
   transactionStatus: TransactionsStatus;
   updatedAt: Scalars['AWSDateTime'];
 };
+
+export type CreateReimbursementEligibilityMutationVariables = Exact<{
+  createReimbursementEligibilityInput: CreateReimbursementEligibilityInput;
+}>;
+
+
+export type CreateReimbursementEligibilityMutation = { __typename?: 'Mutation', createReimbursementEligibility: { __typename?: 'ReimbursementEligibilityResponse', errorType?: ReimbursementsErrorType | null, errorMessage?: string | null, id?: string | null, data?: { __typename?: 'ReimbursementEligibility', id: string, eligibilityStatus: ReimbursementEligibilityStatus, createdAt?: string | null, updatedAt: string } | null } };
+
+export type UpdateReimbursementEligibilityMutationVariables = Exact<{
+  updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput;
+}>;
+
+
+export type UpdateReimbursementEligibilityMutation = { __typename?: 'Mutation', updateReimbursementEligibility: { __typename?: 'ReimbursementEligibilityResponse', errorType?: ReimbursementsErrorType | null, errorMessage?: string | null, id?: string | null, data?: { __typename?: 'ReimbursementEligibility', id: string, eligibilityStatus: ReimbursementEligibilityStatus, updatedAt: string } | null } };
 
 export type CreateReimbursementMutationVariables = Exact<{
   createReimbursementInput: CreateReimbursementInput;
@@ -747,6 +832,13 @@ export type GetTransactionQueryVariables = Exact<{
 
 
 export type GetTransactionQuery = { __typename?: 'Query', getTransaction: { __typename?: 'MoonbeamTransactionsResponse', errorMessage?: string | null, errorType?: TransactionsErrorType | null, data?: Array<{ __typename?: 'MoonbeamTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt: string, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount: number, totalAmount: number, pendingCashbackAmount: number, creditedCashbackAmount: number, transactionBrandName: string, transactionBrandAddress: string, transactionBrandLogoUrl: string, transactionBrandURLAddress: string, transactionIsOnline: boolean } | null> | null } };
+
+export type GetReimbursementByStatusQueryVariables = Exact<{
+  getReimbursementByStatusInput: GetReimbursementByStatusInput;
+}>;
+
+
+export type GetReimbursementByStatusQuery = { __typename?: 'Query', getReimbursementByStatus: { __typename?: 'ReimbursementByStatusResponse', errorMessage?: string | null, errorType?: ReimbursementsErrorType | null, data?: Array<{ __typename?: 'Reimbursement', id: string, timestamp: number, reimbursementId: string, clientId?: string | null, paymentGatewayId?: string | null, succeeded?: boolean | null, processingMessage?: string | null, cardId: string, reimbursementStatus: ReimbursementStatus, pendingCashbackAmount: number, creditedCashbackAmount: number, currencyCode: CurrencyCodeType, createdAt: string, updatedAt: string, transactions: Array<{ __typename?: 'ReimbursementTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus } | null> } | null> | null } };
 
 export type GetTransactionByStatusQueryVariables = Exact<{
   getTransactionByStatusInput: GetTransactionByStatusInput;

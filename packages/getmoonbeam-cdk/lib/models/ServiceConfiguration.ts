@@ -127,10 +127,23 @@ export interface ReimbursementsConfiguration {
     readonly reimbursementsFunctionName: string;
     readonly createReimbursementResolverName: string;
     readonly updateReimbursementResolverName: string;
+    readonly getReimbursementByStatusResolverName: string;
     readonly reimbursementsTableName: string;
     readonly reimbursementsPrimaryKey: string;
     readonly reimbursementsIdGlobalIndex: string;
     readonly reimbursementsStatusLocalIndex: string;
+}
+
+/**
+ * Interface used to define the configuration for the reimbursement eligibility service resolvers
+ * (GraphQL based), and other afferent data stores.
+ */
+export interface ReimbursementEligibilityConfiguration {
+    readonly reimbursementEligibilityFunctionName: string;
+    readonly createReimbursementEligibilityResolverName: string;
+    readonly updateReimbursementEligibilityResolverName: string;
+    readonly reimbursementEligibilityTableName: string;
+    readonly reimbursementEligibilityPrimaryKey: string;
 }
 
 /**

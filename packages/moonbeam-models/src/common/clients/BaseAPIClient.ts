@@ -2,10 +2,10 @@ import {GetSecretValueCommand, SecretsManagerClient} from "@aws-sdk/client-secre
 import {Constants} from "../Constants";
 import {
     Card,
-    CardLinkResponse,
+    CardLinkResponse, CreateReimbursementEligibilityInput,
     CreateReimbursementInput,
     EligibleLinkedUser,
-    EligibleLinkedUsersResponse,
+    EligibleLinkedUsersResponse, GetReimbursementByStatusInput,
     GetTransactionByStatusInput,
     MemberDetailsResponse,
     MemberResponse,
@@ -13,11 +13,11 @@ import {
     MoonbeamTransaction,
     MoonbeamTransactionResponse,
     MoonbeamTransactionsByStatusResponse,
-    MoonbeamUpdatedTransactionResponse,
+    MoonbeamUpdatedTransactionResponse, ReimbursementByStatusResponse, ReimbursementEligibilityResponse,
     ReimbursementResponse,
     RemoveCardResponse,
     Transaction,
-    TransactionResponse,
+    TransactionResponse, TransactionStatusResponse, UpdateReimbursementEligibilityInput,
     UpdateReimbursementInput,
     UpdateTransactionInput
 } from "../GraphqlExports";
@@ -101,6 +101,32 @@ export abstract class BaseAPIClient {
     }
 
     /**
+     * Function used to create a reimbursement eligibility.
+     *
+     * @param createReimbursementEligibilityInput the reimbursement eligibility details to be passed in,
+     * in order to create a new reimbursement eligibility
+     *
+     * @returns a {@link ReimbursementEligibilityResponse} representing the newly created reimbursement eligibility
+     * data
+     *
+     * @protected
+     */
+    protected createReimbursementEligibility?(createReimbursementEligibilityInput: CreateReimbursementEligibilityInput): Promise<ReimbursementEligibilityResponse>;
+
+    /**
+     * Function used to update an existent reimbursement eligibility's details.
+     *
+     * @param updateReimbursementEligibilityInput the reimbursement eligibility details to be passed in,
+     * in order to update an existing reimbursement eligibility
+     *
+     * @returns a {@link ReimbursementEligibilityResponse} representing the updated reimbursement eligibility
+     * data
+     *
+     * @protected
+     */
+    protected updateReimbursementEligibility?(updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput): Promise<ReimbursementEligibilityResponse>;
+
+    /**
      * Function used to get all transactions, for a particular user, filtered
      * by their status.
      *
@@ -120,12 +146,23 @@ export abstract class BaseAPIClient {
      * @param updateTransactionInput the transaction details to be passed in, in order to update
      * an existing transaction
      *
-     * @returns a {@link MoonbeamUpdatedTransactionResponse} representing the update transaction's
+     * @returns a {@link MoonbeamUpdatedTransactionResponse} representing the updated transaction
      * data
      *
      * @protected
      */
     protected updateTransaction?(updateTransactionInput: UpdateTransactionInput): Promise<MoonbeamUpdatedTransactionResponse>;
+
+    /**
+     * Function used to get reimbursements for a particular user, filtered by their status.
+     *
+     * @param getReimbursementByStatusInput the reimbursement by status input, containing the filtering status
+     *
+     * @returns a {@link ReimbursementByStatusResponse} representing the matched reimbursement information, filtered by status
+     *
+     * @protected
+     */
+    protected getReimbursementByStatus?(getReimbursementByStatusInput: GetReimbursementByStatusInput): Promise<ReimbursementByStatusResponse>;
 
     /**
      * Function used to create a reimbursement internally, from an incoming trigger obtained from the
@@ -303,7 +340,8 @@ export abstract class BaseAPIClient {
     protected getMemberDetails?(memberId: string): Promise<MemberDetailsResponse>;
 
     /**
-     * Function used to retrieve the transaction details, given a transaction ID.
+     * Function used to retrieve the transaction details, given a transaction ID
+     * (used for transactional purposes).
      *
      * @param transaction the transaction object, populated by the initial details
      * passed in by Olive. This object will be used to set even more information for
@@ -312,6 +350,22 @@ export abstract class BaseAPIClient {
      * @return a {@link Promise} of {@link TransactionResponse} representing the
      * transaction object, populated with the additional transaction details that
      * we retrieved.
+     *
+     * @protected
      */
     protected getTransactionDetails?(transaction: Transaction): Promise<TransactionResponse>
+
+    /**
+     * Function used to retrieve the transaction status, given a transaction ID
+     * (used for reimbursements purposes).
+     *
+     * @param transactionId the transaction id, to be passed in, in order to retrieve
+     * the status necessary for reimbursement-related purposes.
+     *
+     * @return a {@link Promise} of {@link TransactionStatusResponse} representing the
+     * transaction status object, populated with the transaction status that we retrieved.
+     *
+     * @protected
+     */
+    protected getTransactionStatus?(transactionId: string): Promise<TransactionStatusResponse>
 }

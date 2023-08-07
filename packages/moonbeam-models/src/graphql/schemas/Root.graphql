@@ -2,6 +2,7 @@
 # Main Schema File
 type Query {
     getTransaction(getTransactionInput: GetTransactionInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools
+    getReimbursementByStatus(getReimbursementByStatusInput: GetReimbursementByStatusInput!): ReimbursementByStatusResponse! @aws_cognito_user_pools @aws_api_key
     getTransactionByStatus(getTransactionByStatusInput: GetTransactionByStatusInput!): MoonbeamTransactionsByStatusResponse! @aws_cognito_user_pools @aws_api_key
     getCardLink(getCardLinkInput: GetCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
     getStorage(getStorageInput: GetStorageInput!): StorageResponse! @aws_cognito_user_pools
@@ -11,6 +12,8 @@ type Query {
 
 type Mutation {
     addCard(addCardInput: AddCardInput!): CardLinkResponse! @aws_cognito_user_pools
+    createReimbursementEligibility(createReimbursementEligibilityInput: CreateReimbursementEligibilityInput!): ReimbursementEligibilityResponse! @aws_cognito_user_pools @aws_api_key
+    updateReimbursementEligibility(updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput!): ReimbursementEligibilityResponse! @aws_cognito_user_pools @aws_api_key
     createReimbursement(createReimbursementInput: CreateReimbursementInput!): ReimbursementResponse! @aws_cognito_user_pools @aws_api_key
     updateReimbursement(updateReimbursementInput: UpdateReimbursementInput!): ReimbursementResponse! @aws_cognito_user_pools @aws_api_key
     createTransaction(createTransactionInput: CreateTransactionInput!): MoonbeamTransactionResponse! @aws_cognito_user_pools @aws_api_key

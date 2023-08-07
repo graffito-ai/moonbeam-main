@@ -56,6 +56,10 @@ export class ReimbursementsResolverStack extends Stack {
             typeName: "Mutation",
             fieldName: `${props.reimbursementsConfig.updateReimbursementResolverName}`
         });
+        reimbursementsLambdaSource.createResolver(`${props.reimbursementsConfig.getReimbursementByStatusResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Query",
+            fieldName: `${props.reimbursementsConfig.getReimbursementByStatusResolverName}`
+        });
 
         // create a new table to be used for Reimbursements purposes
         const reimbursementsTable = new aws_dynamodb.Table(this, `${props.reimbursementsConfig.reimbursementsTableName}-${props.stage}-${props.env!.region}`, {

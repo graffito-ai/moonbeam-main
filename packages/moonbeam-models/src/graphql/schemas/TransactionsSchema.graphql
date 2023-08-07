@@ -61,9 +61,17 @@ type Transaction @aws_cognito_user_pools {
 }
 
 # this type is mainly used to define and/or work with the TransactionResponse object before it is stored
-# in the DB, as obtained from Olive.
+# in the DB, as obtained from Olive's get transaction details call - used for transactional purposes.
 type TransactionResponse @aws_cognito_user_pools @aws_api_key {
     data: Transaction
+    errorType: TransactionsErrorType
+    errorMessage: String
+}
+
+# this type is mainly used to define and/or work with the TransactionStatusResponse object before it is stored
+# in the DB, as obtained from Olive's get transaction details call - used for reimbursement purposes.
+type TransactionStatusResponse @aws_cognito_user_pools @aws_api_key {
+    oliveTransactionStatus: String
     errorType: TransactionsErrorType
     errorMessage: String
 }

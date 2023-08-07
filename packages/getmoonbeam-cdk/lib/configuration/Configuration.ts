@@ -82,7 +82,15 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 reimbursementsIdGlobalIndex: 'reimbursementsIdGlobalIndex',
                 reimbursementsStatusLocalIndex: 'reimbursementsStatusLocalIndex',
                 createReimbursementResolverName: 'createReimbursement',
-                updateReimbursementResolverName: 'updateReimbursement'
+                updateReimbursementResolverName: 'updateReimbursement',
+                getReimbursementByStatusResolverName: 'getReimbursementByStatus'
+            },
+            reimbursementEligibilityConfig: {
+                reimbursementEligibilityFunctionName: 'reimbursementEligibilityLambdaFunction',
+                reimbursementEligibilityTableName: 'reimbursementEligibilityTable',
+                reimbursementEligibilityPrimaryKey: 'reimbursementEligibilityPrimaryKey',
+                createReimbursementEligibilityResolverName: 'createReimbursementEligibility',
+                updateReimbursementEligibilityResolverName: 'updateReimbursementEligibility'
             },
             transactionsProducerConsumerConfig: {
                 transactionsProducerFunctionName: 'transactionsProducerLambdaFunction',
@@ -187,7 +195,15 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 reimbursementsIdGlobalIndex: 'reimbursementsIdGlobalIndex',
                 reimbursementsStatusLocalIndex: 'reimbursementsStatusLocalIndex',
                 createReimbursementResolverName: 'createReimbursement',
-                updateReimbursementResolverName: 'updateReimbursement'
+                updateReimbursementResolverName: 'updateReimbursement',
+                getReimbursementByStatusResolverName: 'getReimbursementByStatus'
+            },
+            reimbursementEligibilityConfig: {
+                reimbursementEligibilityFunctionName: 'reimbursementEligibilityLambdaFunction',
+                reimbursementEligibilityTableName: 'reimbursementEligibilityTable',
+                reimbursementEligibilityPrimaryKey: 'reimbursementEligibilityPrimaryKey',
+                createReimbursementEligibilityResolverName: 'createReimbursementEligibility',
+                updateReimbursementEligibilityResolverName: 'updateReimbursementEligibility'
             },
             transactionsProducerConsumerConfig: {
                 transactionsProducerFunctionName: 'transactionsProducerLambdaFunction',

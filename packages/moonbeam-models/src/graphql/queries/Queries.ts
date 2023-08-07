@@ -34,6 +34,38 @@ export const getTransaction = /* GraphQL */ `
     }
 `;
 
+// Query used to retrieve reimbursements for a particular user, in a particular status
+export const getReimbursementByStatus = /* GraphQL */ `
+    query GetReimbursementByStatus($getReimbursementByStatusInput: GetReimbursementByStatusInput!) {
+        getReimbursementByStatus(getReimbursementByStatusInput: $getReimbursementByStatusInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                timestamp
+                reimbursementId
+                clientId
+                paymentGatewayId
+                succeeded
+                processingMessage
+                cardId
+                reimbursementStatus
+                pendingCashbackAmount
+                creditedCashbackAmount
+                currencyCode
+                transactions {
+                    id
+                    timestamp
+                    transactionId
+                    transactionStatus
+                }
+                createdAt
+                updatedAt
+            }
+        }
+    }
+`;
+
 // Query used to retrieve transactions for a particular user, in a particular status
 export const getTransactionByStatus = /* GraphQL */ `
     query GetTransactionByStatus($getTransactionByStatusInput: GetTransactionByStatusInput!) {

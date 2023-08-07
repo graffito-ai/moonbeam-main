@@ -11,6 +11,7 @@ import {TransactionsProducerConsumerStack} from "../stacks/TransactionsProducerC
 import {APIGatewayServiceStack} from "../stacks/APIGatewayServiceStack";
 import {ReimbursementsProducerConsumerStack} from "../stacks/ReimbursementsProducerConsumerStack";
 import {ReimbursementsResolverStack} from "../stacks/ReimbursementsResolverStack";
+import {ReimbursementEligibilityResolverStack} from "../stacks/ReimbursementEligibilityResolverStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -179,6 +180,19 @@ export class StageUtils {
                     environmentVariables: stageConfiguration.environmentVariables
                 });
                 reimbursementsStack.addDependency(appSyncStack);
+
+                // create the Reimbursement Eligibility resolver stack && add it to the CDK app
+                const reimbursementEligibilityStack = new ReimbursementEligibilityResolverStack(this.app, `moonbeam-reimbursement-eligibility-resolver-${stageKey}`, {
+                    stackName: `moonbeam-reimbursement-eligibility-resolver-${stageKey}`,
+                    description: 'This stack will contain all the AppSync related resources needed by the Lambda reimbursement eligibility resolver',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    graphqlApiId: appSyncStack.graphqlApiId,
+                    graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
+                    reimbursementEligibilityConfig: stageConfiguration.reimbursementEligibilityConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                reimbursementEligibilityStack.addDependency(appSyncStack);
 
                 // create the Reimbursements Producer Consumer stack && add it to the CDK app
                 const reimbursementsProducerConsumerStack = new ReimbursementsProducerConsumerStack(this.app, `moonbeam-reimbursements-producer-consumer-${stageKey}`, {

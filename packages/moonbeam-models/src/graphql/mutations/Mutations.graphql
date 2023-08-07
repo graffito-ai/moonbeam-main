@@ -1,5 +1,30 @@
 # graphql/Mutations.graphql
 # Mutations Schema File
+mutation CreateReimbursementEligibility($createReimbursementEligibilityInput: CreateReimbursementEligibilityInput!) {
+    createReimbursementEligibility(createReimbursementEligibilityInput: $createReimbursementEligibilityInput) {
+        errorType
+        errorMessage
+        id
+        data {
+            id
+            eligibilityStatus
+            createdAt
+            updatedAt
+        }
+    }
+}
+mutation UpdateReimbursementEligibility($updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput!) {
+    updateReimbursementEligibility(updateReimbursementEligibilityInput: $updateReimbursementEligibilityInput) {
+        errorType
+        errorMessage
+        id
+        data {
+            id
+            eligibilityStatus
+            updatedAt
+        }
+    }
+}
 mutation CreateReimbursement($createReimbursementInput: CreateReimbursementInput!) {
     createReimbursement(createReimbursementInput: $createReimbursementInput) {
         errorType

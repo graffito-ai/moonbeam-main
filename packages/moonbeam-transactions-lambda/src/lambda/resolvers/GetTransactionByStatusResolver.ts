@@ -78,7 +78,7 @@ export const getTransactionByStatus = async (fieldName: string, getTransactionBy
         retrievedData.Items.length && retrievedData.Count !== 0 &&
         retrievedData.Items.length !== 0 && retrievedData.LastEvaluatedKey);
 
-        // if there are eligible users retrieved, then return them accordingly
+        // if there are eligible transactions retrieved, then return them accordingly
         if (result && result.length !== 0) {
             // convert the Dynamo DB data from Dynamo DB JSON format to a Moonbeam transaction by status object
             const moonbeamTransactionByStatusData: MoonbeamTransactionByStatus[] = [];
@@ -96,7 +96,7 @@ export const getTransactionByStatus = async (fieldName: string, getTransactionBy
                 data: moonbeamTransactionByStatusData
             }
         } else {
-            const errorMessage = `Transactions with status ${getTransactionByStatusInput.status} not found!`;
+            const errorMessage = `Transactions with status ${getTransactionByStatusInput.status} for user ${getTransactionByStatusInput.id}  not found!`;
             console.log(errorMessage);
 
             return {

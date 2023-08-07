@@ -26,6 +26,27 @@ export const processReimbursements = async (event: SQSEvent): Promise<SQSBatchRe
             /**
              * The overall reimbursement processing, will be made up of the following steps:
              *
+             * 1) Call the getTransactionByStatus Moonbeam AppSync API endpoint, to retrieve all PENDING transactions,
+             *    for each member corresponding to an incoming message.
+             * 2) Call the GET transaction details Olive API to retrieve the updated transaction status from Olive,
+             *    for each transaction that's PENDING on the Moonbeam side:
+             *    - if status == rejected, then call the updateTransaction Moonbeam AppSync API endpoint, to internally
+             *       update this transaction's status.
+             *    - if status == distributed_to_publisher (funds have been sent to our bank account for distribution to the member),
+             *      then add transaction amount (pending) to a GLOBAL AMOUNT to keep track of
+             *    - if status not changed/applicable (meaning not the ones above), then do nothing with transaction as we don't care
+             *      about other statuses
+             * 3) If there is a GLOBAL AMOUNT (> 0), then there are several transactions which can qualify as part of a reimbursement.
+             *    Therefore, proceed to the steps below.
+             * 4) Call the getReimbursementByStatus Moonbeam AppSync API endpoint, to check if there is an existing PENDING reimbursement,
+             *    for the member corresponding to the incoming message.
+             *    - If existing PENDING, call the updateReimbursement Moonbeam AppSync API endpoint, to add all transactions making up the
+             *       global amount to it, and update reimbursement's amounts.
+             *    - If non-existing PENDING, call the createReimbursement Moonbeam AppSync API endpoint, to create a new PENDING reimbursement,
+             *       with all transactions making up the global amount, and the appropriate amounts.
+             * 5) If reimbursement (created or updated) pending amount + the global amount >= $20 then:
+             *    - call the createReimbursementEligibility and (if applicable) the updateReimbursementEligibility Moonbeam AppSync API endpoint accordingly, in
+             *      order to manipulate the member's reimbursement eligibility flag.
              */
             break;
         }

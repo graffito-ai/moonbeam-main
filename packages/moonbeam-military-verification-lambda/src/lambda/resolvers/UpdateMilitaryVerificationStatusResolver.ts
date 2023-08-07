@@ -31,6 +31,16 @@ export const updateMilitaryVerificationStatus = async (fieldName: string, update
                 id: {
                     S: updateMilitaryVerificationInput.id
                 }
+            },
+            /**
+             * we're not interested in getting all the data for this call, just the minimum for us to determine whether this is a duplicate or not
+             *
+             * @link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ReservedWords.html
+             * @link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.ExpressionAttributeNames.html
+             */
+            ProjectionExpression: '#idf',
+            ExpressionAttributeNames: {
+                '#idf': 'id'
             }
         }));
 

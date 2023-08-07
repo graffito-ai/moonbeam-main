@@ -1,5 +1,38 @@
 // This is a file used to define the all GraphQL query constants
 
+// Mutation used to create a new reimbursement eligibility.
+export const createReimbursementEligibility = /* GraphQL */ `
+    mutation CreateReimbursementEligibility($createReimbursementEligibilityInput: CreateReimbursementEligibilityInput!) {
+        createReimbursementEligibility(createReimbursementEligibilityInput: $createReimbursementEligibilityInput) {
+            errorType
+            errorMessage
+            id
+            data {
+                id
+                eligibilityStatus
+                createdAt
+                updatedAt
+            }
+        }
+    }
+`;
+
+// Mutation used to update a reimbursement eligibility's details.
+export const updateReimbursementEligibility = /* GraphQL */ `
+    mutation UpdateReimbursementEligibility($updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput!) {
+        updateReimbursementEligibility(updateReimbursementEligibilityInput: $updateReimbursementEligibilityInput) {
+            errorType
+            errorMessage
+            id
+            data {
+                id
+                eligibilityStatus
+                updatedAt
+            }
+        }
+    }
+`;
+
 // Mutation used to create a new reimbursement.
 export const createReimbursement = /* GraphQL */ `
     mutation CreateReimbursement($createReimbursementInput: CreateReimbursementInput!) {
@@ -33,7 +66,7 @@ export const createReimbursement = /* GraphQL */ `
     }
 `;
 
-// Mutation used to create a reimbursement's details.
+// Mutation used to update a reimbursement's details.
 export const updateReimbursement = /* GraphQL */ `
     mutation UpdateReimbursement($updateReimbursementInput: UpdateReimbursementInput!) {
         updateReimbursement(updateReimbursementInput: $updateReimbursementInput) {
@@ -186,7 +219,7 @@ export const deleteCard = /* GraphQL */ `
     }
 `;
 
-// Mutation used to create an individual's military verification object
+// Mutation used to create an individual's military verification object.
 export const createMilitaryVerification = /* GraphQL */ `
     mutation CreateMilitaryVerification($createMilitaryVerificationInput: CreateMilitaryVerificationInput!) {
         createMilitaryVerification(createMilitaryVerificationInput: $createMilitaryVerificationInput) {
@@ -213,7 +246,7 @@ export const createMilitaryVerification = /* GraphQL */ `
     }
 `;
 
-// Mutation used to update an individual's military verification status
+// Mutation used to update an individual's military verification status.
 export const updateMilitaryVerificationStatus = /* GraphQL */ `
     mutation UpdateMilitaryVerificationStatus($updateMilitaryVerificationInput: UpdateMilitaryVerificationInput!) {
         updateMilitaryVerificationStatus(updateMilitaryVerificationInput: $updateMilitaryVerificationInput) {

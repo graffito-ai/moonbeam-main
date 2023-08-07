@@ -2,6 +2,7 @@
 # Main Schema File
 type Query {
     getTransaction(getTransactionInput: GetTransactionInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools
+    getReimbursementByStatus(getReimbursementByStatusInput: GetReimbursementByStatusInput!): ReimbursementByStatusResponse! @aws_cognito_user_pools @aws_api_key
     getTransactionByStatus(getTransactionByStatusInput: GetTransactionByStatusInput!): MoonbeamTransactionsByStatusResponse! @aws_cognito_user_pools @aws_api_key
     getCardLink(getCardLinkInput: GetCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
     getStorage(getStorageInput: GetStorageInput!): StorageResponse! @aws_cognito_user_pools
@@ -11,6 +12,8 @@ type Query {
 
 type Mutation {
     addCard(addCardInput: AddCardInput!): CardLinkResponse! @aws_cognito_user_pools
+    createReimbursementEligibility(createReimbursementEligibilityInput: CreateReimbursementEligibilityInput!): ReimbursementEligibilityResponse! @aws_cognito_user_pools @aws_api_key
+    updateReimbursementEligibility(updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput!): ReimbursementEligibilityResponse! @aws_cognito_user_pools @aws_api_key
     createReimbursement(createReimbursementInput: CreateReimbursementInput!): ReimbursementResponse! @aws_cognito_user_pools @aws_api_key
     updateReimbursement(updateReimbursementInput: UpdateReimbursementInput!): ReimbursementResponse! @aws_cognito_user_pools @aws_api_key
     createTransaction(createTransactionInput: CreateTransactionInput!): MoonbeamTransactionResponse! @aws_cognito_user_pools @aws_api_key
@@ -362,9 +365,17 @@ type Transaction @aws_cognito_user_pools {
 }
 
 # this type is mainly used to define and/or work with the TransactionResponse object before it is stored
-# in the DB, as obtained from Olive.
+# in the DB, as obtained from Olive's get transaction details call - used for transactional purposes.
 type TransactionResponse @aws_cognito_user_pools @aws_api_key {
     data: Transaction
+    errorType: TransactionsErrorType
+    errorMessage: String
+}
+
+# this type is mainly used to define and/or work with the TransactionStatusResponse object before it is stored
+# in the DB, as obtained from Olive's get transaction details call - used for reimbursement purposes.
+type TransactionStatusResponse @aws_cognito_user_pools @aws_api_key {
+    oliveTransactionStatus: String
     errorType: TransactionsErrorType
     errorMessage: String
 }
@@ -504,11 +515,24 @@ enum ReimbursementStatus {
     FAILED
 }
 
+# Defines the status for a user's reimbursement eligibility.
+enum ReimbursementEligibilityStatus {
+    ELIGIBLE
+    INELIGIBLE
+}
+
 type ReimbursementTransaction @aws_cognito_user_pools @aws_api_key {
     id: ID! # this represents the userID which the transaction belongs to/was made by
     timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
     transactionId: ID!
     transactionStatus: TransactionsStatus!
+}
+
+type ReimbursementEligibility @aws_cognito_user_pools @aws_api_key {
+    id: ID! # this represents the userID which the transaction belongs to/was made by
+    eligibilityStatus: ReimbursementEligibilityStatus!
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime!
 }
 
 type Reimbursement @aws_cognito_user_pools @aws_api_key {
@@ -529,9 +553,22 @@ type Reimbursement @aws_cognito_user_pools @aws_api_key {
     updatedAt: AWSDateTime!
 }
 
+type ReimbursementByStatusResponse @aws_cognito_user_pools @aws_api_key {
+    data: [Reimbursement]
+    errorType: ReimbursementsErrorType
+    errorMessage: String
+}
+
 type ReimbursementResponse @aws_cognito_user_pools @aws_api_key {
     id: ID # this represents the userID of the reimbursement, and the reason we repeat it in the parent response is for the subscription filtering to work properly
     data: Reimbursement
+    errorType: ReimbursementsErrorType
+    errorMessage: String
+}
+
+type ReimbursementEligibilityResponse @aws_cognito_user_pools @aws_api_key {
+    id: ID # this represents the userID of the reimbursement eligibility, and the reason we repeat it in the parent response is for the subscription filtering to work properly
+    data: ReimbursementEligibility
     errorType: ReimbursementsErrorType
     errorMessage: String
 }
@@ -543,9 +580,27 @@ input ReimbursementTransactionInput {
     transactionStatus: TransactionsStatus!
 }
 
+input CreateReimbursementEligibilityInput {
+    id: ID! # this represents the userID which the transaction belongs to/was made by
+    eligibilityStatus: ReimbursementEligibilityStatus!
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+}
+
+input UpdateReimbursementEligibilityInput {
+    id: ID! # this represents the userID which the transaction belongs to/was made by
+    eligibilityStatus: ReimbursementEligibilityStatus!
+    updatedAt: AWSDateTime
+}
+
+input GetReimbursementByStatusInput {
+    id: ID! # this represents the userID which the transaction belongs to/was made by
+    reimbursementStatus: ReimbursementStatus!
+}
+
 input CreateReimbursementInput {
     id: ID! # this represents the userID which the transaction belongs to/was made by
-    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    timestamp: AWSTimestamp # this represents the timestamp, in a Number epoch based format (for sorting purposes)
     reimbursementId: ID!, # Olive specific
     clientId: ID, # Olive specific
     paymentGatewayId: ID, # Olive specific
@@ -557,8 +612,8 @@ input CreateReimbursementInput {
     creditedCashbackAmount: Float! # this amount should be the total reward amount that's reimbursed/credited to the customer
     currencyCode: CurrencyCodeType!,
     transactions:  [ReimbursementTransactionInput]! # this array associates particular transactions to a reimbursement object, so we know what was reimbursed to customers
-    createdAt: AWSDateTime! # this will be the same as the "timestamp" value above, only represented in a date time format
-    updatedAt: AWSDateTime!
+    createdAt: AWSDateTime # this will be the same as the "timestamp" value above, only represented in a date time format
+    updatedAt: AWSDateTime
 }
 
 input UpdateReimbursementInput {

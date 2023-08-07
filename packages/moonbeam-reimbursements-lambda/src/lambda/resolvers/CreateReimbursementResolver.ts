@@ -22,6 +22,12 @@ export const createReimbursement = async (fieldName: string, createReimbursement
         // initializing the DynamoDB document client
         const dynamoDbClient = new DynamoDBClient({region: region});
 
+        // update the timestamps accordingly
+        const createdAt = new Date().toISOString();
+        createReimbursementInput.timestamp = createReimbursementInput.timestamp ? createReimbursementInput.timestamp : Date.parse(createdAt);
+        createReimbursementInput.createdAt = createReimbursementInput.createdAt ? createReimbursementInput.createdAt : createdAt;
+        createReimbursementInput.updatedAt = createReimbursementInput.updatedAt ? createReimbursementInput.updatedAt : createdAt;
+
         /**
          * check to see if the reimbursement already exists in the DB. Although this is a very rare situation, since we have so many resilient
          * methods (such as Dead-Letter-Queue, retries, etc.) we want to put a safeguard around duplicates even here.
