@@ -2,10 +2,12 @@ import {GetSecretValueCommand, SecretsManagerClient} from "@aws-sdk/client-secre
 import {Constants} from "../Constants";
 import {
     Card,
-    CardLinkResponse, CreateReimbursementEligibilityInput,
+    CardLinkResponse,
+    CreateReimbursementEligibilityInput,
     CreateReimbursementInput,
     EligibleLinkedUser,
-    EligibleLinkedUsersResponse, GetReimbursementByStatusInput,
+    EligibleLinkedUsersResponse,
+    GetReimbursementByStatusInput,
     GetTransactionByStatusInput,
     MemberDetailsResponse,
     MemberResponse,
@@ -13,11 +15,14 @@ import {
     MoonbeamTransaction,
     MoonbeamTransactionResponse,
     MoonbeamTransactionsByStatusResponse,
-    MoonbeamUpdatedTransactionResponse, ReimbursementByStatusResponse, ReimbursementEligibilityResponse,
+    MoonbeamUpdatedTransactionResponse,
+    ReimbursementByStatusResponse,
+    ReimbursementEligibilityResponse,
     ReimbursementResponse,
     RemoveCardResponse,
     Transaction,
-    TransactionResponse, TransactionStatusResponse, UpdateReimbursementEligibilityInput,
+    TransactionResponse, TransactionStatusDetailsResponse,
+    UpdateReimbursementEligibilityInput,
     UpdateReimbursementInput,
     UpdateTransactionInput
 } from "../GraphqlExports";
@@ -356,16 +361,16 @@ export abstract class BaseAPIClient {
     protected getTransactionDetails?(transaction: Transaction): Promise<TransactionResponse>
 
     /**
-     * Function used to retrieve the transaction status, given a transaction ID
+     * Function used to retrieve the transaction status details, given a transaction ID
      * (used for reimbursements purposes).
      *
      * @param transactionId the transaction id, to be passed in, in order to retrieve
-     * the status necessary for reimbursement-related purposes.
+     * the status details necessary for reimbursement-related purposes.
      *
-     * @return a {@link Promise} of {@link TransactionStatusResponse} representing the
-     * transaction status object, populated with the transaction status that we retrieved.
+     * @return a {@link Promise} of {@link TransactionStatusDetailsResponse} representing the
+     * transaction status details object, populated with the transaction status details that we retrieved.
      *
      * @protected
      */
-    protected getTransactionStatus?(transactionId: string): Promise<TransactionStatusResponse>
+    protected getTransactionStatus?(transactionId: string): Promise<TransactionStatusDetailsResponse>
 }

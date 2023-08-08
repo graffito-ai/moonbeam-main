@@ -60,6 +60,15 @@ type Transaction @aws_cognito_user_pools {
     transactionIsOnline: Boolean
 }
 
+# the details obtained from the Olive transaction details call, after a transaction is stores - used for reimbursement purposes.
+type TransactionStatusDetails @aws_cognito_user_pools @aws_api_key {
+    totalAmount: Float!,
+    rewardAmount: Float!,
+    creditedCashbackAmount: Float!,
+    pendingCashbackAmount: Float!,
+    oliveTransactionStatus: String!
+}
+
 # this type is mainly used to define and/or work with the TransactionResponse object before it is stored
 # in the DB, as obtained from Olive's get transaction details call - used for transactional purposes.
 type TransactionResponse @aws_cognito_user_pools @aws_api_key {
@@ -70,8 +79,8 @@ type TransactionResponse @aws_cognito_user_pools @aws_api_key {
 
 # this type is mainly used to define and/or work with the TransactionStatusResponse object before it is stored
 # in the DB, as obtained from Olive's get transaction details call - used for reimbursement purposes.
-type TransactionStatusResponse @aws_cognito_user_pools @aws_api_key {
-    oliveTransactionStatus: String
+type TransactionStatusDetailsResponse @aws_cognito_user_pools @aws_api_key {
+    data: TransactionStatusDetails
     errorType: TransactionsErrorType
     errorMessage: String
 }
@@ -120,6 +129,10 @@ type MoonbeamTransactionByStatus @aws_cognito_user_pools @aws_api_key {
     timestamp: AWSTimestamp!
     transactionId: ID!
     transactionStatus: TransactionsStatus!
+    creditedCashbackAmount: Float!
+    pendingCashbackAmount: Float!
+    rewardAmount: Float!
+    totalAmount: Float!
 }
 
 type MoonbeamTransactionResponse @aws_cognito_user_pools @aws_api_key {
@@ -164,7 +177,7 @@ input UpdateTransactionInput {
     timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
     transactionId: ID!
     transactionStatus: TransactionsStatus!
-    updatedAt: AWSDateTime!
+    updatedAt: AWSDateTime
 }
 
 input CreateTransactionInput {

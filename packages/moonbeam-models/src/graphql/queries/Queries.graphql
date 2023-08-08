@@ -64,7 +64,13 @@ query GetTransactionByStatus($getTransactionByStatusInput: GetTransactionByStatu
         errorType
         data {
             id
+            timestamp
+            transactionId
             transactionStatus
+            creditedCashbackAmount
+            pendingCashbackAmount
+            rewardAmount
+            totalAmount
         }
     }
 }

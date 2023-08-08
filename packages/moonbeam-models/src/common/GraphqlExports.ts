@@ -368,8 +368,12 @@ export type MoonbeamTransaction = {
 
 export type MoonbeamTransactionByStatus = {
   __typename?: 'MoonbeamTransactionByStatus';
+  creditedCashbackAmount: Scalars['Float'];
   id: Scalars['ID'];
+  pendingCashbackAmount: Scalars['Float'];
+  rewardAmount: Scalars['Float'];
   timestamp: Scalars['AWSTimestamp'];
+  totalAmount: Scalars['Float'];
   transactionId: Scalars['ID'];
   transactionStatus: TransactionsStatus;
 };
@@ -679,11 +683,20 @@ export type TransactionResponse = {
   errorType?: Maybe<TransactionsErrorType>;
 };
 
-export type TransactionStatusResponse = {
-  __typename?: 'TransactionStatusResponse';
+export type TransactionStatusDetails = {
+  __typename?: 'TransactionStatusDetails';
+  creditedCashbackAmount: Scalars['Float'];
+  oliveTransactionStatus: Scalars['String'];
+  pendingCashbackAmount: Scalars['Float'];
+  rewardAmount: Scalars['Float'];
+  totalAmount: Scalars['Float'];
+};
+
+export type TransactionStatusDetailsResponse = {
+  __typename?: 'TransactionStatusDetailsResponse';
+  data?: Maybe<TransactionStatusDetails>;
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<TransactionsErrorType>;
-  oliveTransactionStatus?: Maybe<Scalars['String']>;
 };
 
 export enum TransactionType {
@@ -746,7 +759,7 @@ export type UpdateTransactionInput = {
   timestamp: Scalars['AWSTimestamp'];
   transactionId: Scalars['ID'];
   transactionStatus: TransactionsStatus;
-  updatedAt: Scalars['AWSDateTime'];
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
 export type CreateReimbursementEligibilityMutationVariables = Exact<{
@@ -845,7 +858,7 @@ export type GetTransactionByStatusQueryVariables = Exact<{
 }>;
 
 
-export type GetTransactionByStatusQuery = { __typename?: 'Query', getTransactionByStatus: { __typename?: 'MoonbeamTransactionsByStatusResponse', errorMessage?: string | null, errorType?: TransactionsErrorType | null, data?: Array<{ __typename?: 'MoonbeamTransactionByStatus', id: string, transactionStatus: TransactionsStatus } | null> | null } };
+export type GetTransactionByStatusQuery = { __typename?: 'Query', getTransactionByStatus: { __typename?: 'MoonbeamTransactionsByStatusResponse', errorMessage?: string | null, errorType?: TransactionsErrorType | null, data?: Array<{ __typename?: 'MoonbeamTransactionByStatus', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, creditedCashbackAmount: number, pendingCashbackAmount: number, rewardAmount: number, totalAmount: number } | null> | null } };
 
 export type GetCardLinkQueryVariables = Exact<{
   getCardLinkInput: GetCardLinkInput;

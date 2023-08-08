@@ -8,7 +8,8 @@ import {
     RemoveCardResponse,
     Transaction,
     TransactionResponse,
-    TransactionsErrorType, TransactionStatusResponse
+    TransactionsErrorType,
+    TransactionStatusDetailsResponse
 } from "../GraphqlExports";
 import {BaseAPIClient} from "./BaseAPIClient";
 import {Constants} from "../Constants";
@@ -1030,16 +1031,16 @@ export class OliveClient extends BaseAPIClient {
     }
 
     /**
-     * Function used to retrieve the transaction status, given a transaction ID
+     * Function used to retrieve the transaction status details, given a transaction ID
      * (used for reimbursements purposes).
      *
      * @param transactionId the transaction id, to be passed in, in order to retrieve
-     * the status necessary for reimbursement-related purposes.
+     * the status details necessary for reimbursement-related purposes.
      *
-     * @return a {@link Promise} of {@link TransactionStatusResponse} representing the
-     * transaction status object, populated with the transaction status that we retrieved.
+     * @return a {@link Promise} of {@link TransactionStatusDetailsResponse} representing the
+     * transaction status details object, populated with the transaction status details that we retrieved.
      */
-    async getTransactionStatus(transactionId: string): Promise<TransactionStatusResponse> {
+    async getTransactionStatus(transactionId: string): Promise<TransactionStatusDetailsResponse> {
         // easily identifiable API endpoint information
         const endpointInfo = 'GET /transactions/{id} Olive API for status';
 
@@ -1082,10 +1083,18 @@ export class OliveClient extends BaseAPIClient {
                  * if we reached this, then we assume that a 2xx response code was returned.
                  * check the contents of the response, and act appropriately.
                  */
-                if (transactionDetailsResponse.data && transactionDetailsResponse.data["reward"] && transactionDetailsResponse.data["reward"]["status"]) {
+                if (transactionDetailsResponse.data && transactionDetailsResponse.data["reward"] && transactionDetailsResponse.data["reward"]["status"] &&
+                    transactionDetailsResponse.data["reward"]["cumulativePurchaseAmount"] && transactionDetailsResponse.data["reward"]["amount"] &&
+                    transactionDetailsResponse.data["reward"]["owedToMemberAmount"] && transactionDetailsResponse.data["reward"]["distributedToMemberAmount"]) {
                     // set the transaction status for the transaction object, from the response, and convert any information accordingly
                     return {
-                        oliveTransactionStatus: transactionDetailsResponse.data["reward"]["status"]
+                        data: {
+                            creditedCashbackAmount: transactionDetailsResponse.data["reward"]["distributedToMemberAmount"],
+                            oliveTransactionStatus: transactionDetailsResponse.data["reward"]["status"],
+                            pendingCashbackAmount: transactionDetailsResponse.data["reward"]["owedToMemberAmount"],
+                            rewardAmount: transactionDetailsResponse.data["reward"]["amount"],
+                            totalAmount: transactionDetailsResponse.data["reward"]["cumulativePurchaseAmount"]
+                        }
                     }
                 } else {
                     return {

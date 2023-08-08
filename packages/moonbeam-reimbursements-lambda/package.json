@@ -17,10 +17,8 @@
     "@moonbeam/moonbeam-models": "*",
     "@moonbeam/moonbeam-tsconfig": "*",
     "axios": "^1.4.0",
+    "@aws-sdk/util-dynamodb": "^3.382.0",
     "uuid": "^9.0.0"
   },
-  "private": true,
-  "dependencies": {
-    "@aws-sdk/util-dynamodb": "^3.382.0"
-  }
+  "private": true
 }

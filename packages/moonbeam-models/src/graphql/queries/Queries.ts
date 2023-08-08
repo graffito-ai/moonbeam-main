@@ -74,7 +74,13 @@ export const getTransactionByStatus = /* GraphQL */ `
             errorType
             data {
                 id
+                timestamp
+                transactionId
                 transactionStatus
+                creditedCashbackAmount
+                pendingCashbackAmount
+                rewardAmount
+                totalAmount
             }
         }
     }

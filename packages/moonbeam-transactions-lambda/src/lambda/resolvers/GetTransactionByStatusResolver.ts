@@ -36,7 +36,7 @@ export const getTransactionByStatus = async (fieldName: string, getTransactionBy
             /**
              * retrieve all the transactions with a specific status, given the global secondary index
              *
-             * Limit of 1 MB per paginated response data (in our case 7,000 items). An average size for an Item is about 111 bytes, which means that we won't
+             * Limit of 1 MB per paginated response data (in our case 3,800 items). An average size for an Item is about 205 bytes, which means that we won't
              * need to do pagination here, since we actually retrieve all users in a looped format, and we account for
              * paginated responses.
              *
@@ -47,19 +47,23 @@ export const getTransactionByStatus = async (fieldName: string, getTransactionBy
                 TableName: process.env.TRANSACTIONS_TABLE!,
                 IndexName: `${process.env.TRANSACTIONS_STATUS_LOCAL_INDEX!}-${process.env.ENV_NAME!}-${region}`,
                 ...(exclusiveStartKey && {ExclusiveStartKey: exclusiveStartKey}),
-                Limit: 7000, // 7,000 * 111 bytes = 777,000 bytes = 0.7777 MB (leave a margin of error here up to 1 MB)
+                Limit: 3800, // 3800 * 111 bytes = 779,000 bytes = 0.779 MB (leave a margin of error here up to 1 MB)
                 /**
                  * we're not interested in getting all the data for this call, just the minimum for us to return the necessary information
                  *
                  * @link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ReservedWords.html
                  * @link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.ExpressionAttributeNames.html
                  */
-                ProjectionExpression: '#id, #time, #idt, #st',
+                ProjectionExpression: '#id, #time, #idt, #st, #ccamt, #pcamt, #rwamt, #total',
                 ExpressionAttributeNames: {
                     '#id': 'id',
                     '#idt': 'transactionId',
                     '#time': 'timestamp',
-                    '#st': 'transactionStatus'
+                    '#st': 'transactionStatus',
+                    '#ccamt': 'creditedCashbackAmount',
+                    '#pcamt': 'pendingCashbackAmount',
+                    '#rwamt': 'rewardAmount',
+                    '#total': 'totalAmount'
                 },
                 ExpressionAttributeValues: {
                     ":id": {
@@ -87,7 +91,11 @@ export const getTransactionByStatus = async (fieldName: string, getTransactionBy
                     id: moonbeamTransactionByStatusResult.id.S!,
                     timestamp: Number(moonbeamTransactionByStatusResult.timestamp.N!),
                     transactionId: moonbeamTransactionByStatusResult.transactionId.S!,
-                    transactionStatus: moonbeamTransactionByStatusResult.transactionStatus.S! as TransactionsStatus
+                    transactionStatus: moonbeamTransactionByStatusResult.transactionStatus.S! as TransactionsStatus,
+                    creditedCashbackAmount: Number(moonbeamTransactionByStatusResult.creditedCashbackAmount.N!),
+                    pendingCashbackAmount: Number(moonbeamTransactionByStatusResult.pendingCashbackAmount.N!),
+                    rewardAmount: Number(moonbeamTransactionByStatusResult.rewardAmount.N!),
+                    totalAmount: Number(moonbeamTransactionByStatusResult.totalAmount.N!)
                 };
                 moonbeamTransactionByStatusData.push(moonbeamTransactionByStatus);
             });

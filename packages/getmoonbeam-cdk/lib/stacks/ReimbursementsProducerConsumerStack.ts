@@ -97,26 +97,12 @@ export class ReimbursementsProducerConsumerStack extends Stack {
             description: "Schedule the Reimbursements Trigger Lambda which initiates the reimbursement process daily, at 11PM",
             // the timezone for this cron expression is in UTC.
             schedule: Schedule.cron({
-                minute: '02',
-                hour: '23'
+                minute: '30',
+                hour: '08'
             }),
             targets: [new LambdaFunction(reimbursementsCronTriggerLambda)],
         });
 
-        // enable the Lambda function the retrieval of the Olive API secrets
-        this.reimbursementsProducerLambda.addToRolePolicy(
-            new PolicyStatement({
-                effect: Effect.ALLOW,
-                actions: [
-                    "secretsmanager:GetSecretValue"
-                ],
-                resources: [
-                    // this ARN is retrieved post secret creation
-                    ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:olive-secret-pair-dev-us-west-2-OTgCOk"] : [],
-                    ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:olive-secret-pair-prod-us-west-2-gIvRt8"] : []
-                ]
-            })
-        );
         // enable the Lambda function the retrieval of the Moonbeam internal API secrets
         reimbursementsCronTriggerLambda.addToRolePolicy(
             new PolicyStatement({
@@ -155,6 +141,20 @@ export class ReimbursementsProducerConsumerStack extends Stack {
                     // this ARN is retrieved post secret creation
                     ...props.stage === Stages.DEV ? ["arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Query/*"] : [],
                     ...props.stage === Stages.PROD ? ["arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Query/*"] : []
+                ]
+            })
+        );
+        // enable the Lambda function the retrieval of the Olive API secrets
+        this.reimbursementsConsumerLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "secretsmanager:GetSecretValue"
+                ],
+                resources: [
+                    // this ARN is retrieved post secret creation
+                    ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:olive-secret-pair-dev-us-west-2-OTgCOk"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:olive-secret-pair-prod-us-west-2-gIvRt8"] : []
                 ]
             })
         );
