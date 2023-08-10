@@ -66,7 +66,10 @@ import {API, Auth, graphqlOperation} from "aws-amplify";
 import {
     createMilitaryVerification,
     MilitaryAffiliation,
-    MilitaryVerificationStatusType
+    MilitaryVerificationStatusType,
+    NotificationChannelType,
+    NotificationStatus,
+    NotificationType
 } from "@moonbeam/moonbeam-models";
 import {v4 as uuidv4} from 'uuid';
 import {MilitaryStatusSplashStep} from "./MilitaryStatusSplashStep";
@@ -83,6 +86,7 @@ import {CardLinkingStep} from "./CardLinkingStep";
 import CardLinkedSuccessImage from '../../../../../assets/art/card-linked-success.png';
 // @ts-ignore
 import RegistrationBackgroundImage from '../../../../../assets/backgrounds/registration-background.png';
+import {sendNotification} from "../../../../utils/Notification";
 
 /**
  * RegistrationComponent component.
@@ -375,6 +379,24 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                         ...userInformation,
                         ...userInfo
                     });
+
+                    // once we have an account created for the user, we can send them a welcome notification
+                    const createNotificationFlag = await sendNotification({
+                        id: userInformation["userId"],
+                        channelType: NotificationChannelType.Email,
+                        type: NotificationType.NewUserSignup,
+                        status: NotificationStatus.Sent,
+                        emailDestination: userInfo["email"],
+                        userFullName: `${userInfo["given_name"]} ${userInfo["family_name"]}`
+                    });
+                    /**
+                     * if the notification was successfully sent, then we log it for sanity purposes. Otherwise,
+                     * the error is already logged in the sendNotification() call, and we don't want to interrupt
+                     * our user's experience due to this failure.
+                     */
+                    if (createNotificationFlag) {
+                        console.log(`User registration notification successfully sent!`);
+                    }
 
                     // release the loader on button press
                     setIsReady(true);

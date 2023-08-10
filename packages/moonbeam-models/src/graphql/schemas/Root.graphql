@@ -12,6 +12,7 @@ type Query {
 
 type Mutation {
     addCard(addCardInput: AddCardInput!): CardLinkResponse! @aws_cognito_user_pools
+    createNotification(createNotificationInput: CreateNotificationInput!): CreateNotificationResponse! @aws_cognito_user_pools @aws_api_key
     createReimbursementEligibility(createReimbursementEligibilityInput: CreateReimbursementEligibilityInput!): ReimbursementEligibilityResponse! @aws_cognito_user_pools @aws_api_key
     updateReimbursementEligibility(updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput!): ReimbursementEligibilityResponse! @aws_cognito_user_pools @aws_api_key
     createReimbursement(createReimbursementInput: CreateReimbursementInput!): ReimbursementResponse! @aws_cognito_user_pools @aws_api_key

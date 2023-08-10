@@ -129,6 +129,31 @@ export type CreateMilitaryVerificationResponse = {
   errorType?: Maybe<MilitaryVerificationErrorType>;
 };
 
+export type CreateNotificationInput = {
+  actionUrl?: InputMaybe<Scalars['String']>;
+  channelType: NotificationChannelType;
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+  emailDestination?: InputMaybe<Scalars['String']>;
+  id: Scalars['ID'];
+  message?: InputMaybe<Scalars['String']>;
+  notificationId?: InputMaybe<Scalars['ID']>;
+  status: NotificationStatus;
+  subject?: InputMaybe<Scalars['String']>;
+  timestamp?: InputMaybe<Scalars['AWSTimestamp']>;
+  title?: InputMaybe<Scalars['String']>;
+  type: NotificationType;
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+  userFullName?: InputMaybe<Scalars['String']>;
+};
+
+export type CreateNotificationResponse = {
+  __typename?: 'CreateNotificationResponse';
+  data?: Maybe<Notification>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<NotificationsErrorType>;
+  id?: Maybe<Scalars['ID']>;
+};
+
 export type CreateReimbursementEligibilityInput = {
   createdAt?: InputMaybe<Scalars['AWSDateTime']>;
   eligibilityStatus: ReimbursementEligibilityStatus;
@@ -422,6 +447,7 @@ export type Mutation = {
   addCard: CardLinkResponse;
   createCardLink: CardLinkResponse;
   createMilitaryVerification: CreateMilitaryVerificationResponse;
+  createNotification: CreateNotificationResponse;
   createReimbursement: ReimbursementResponse;
   createReimbursementEligibility: ReimbursementEligibilityResponse;
   createTransaction: MoonbeamTransactionResponse;
@@ -445,6 +471,11 @@ export type MutationCreateCardLinkArgs = {
 
 export type MutationCreateMilitaryVerificationArgs = {
   createMilitaryVerificationInput: CreateMilitaryVerificationInput;
+};
+
+
+export type MutationCreateNotificationArgs = {
+  createNotificationInput: CreateNotificationInput;
 };
 
 
@@ -486,6 +517,59 @@ export type MutationUpdateReimbursementEligibilityArgs = {
 export type MutationUpdateTransactionArgs = {
   updateTransactionInput: UpdateTransactionInput;
 };
+
+export type Notification = {
+  __typename?: 'Notification';
+  actionUrl?: Maybe<Scalars['String']>;
+  channelType: NotificationChannelType;
+  createdAt: Scalars['AWSDateTime'];
+  emailDestination?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  message?: Maybe<Scalars['String']>;
+  notificationId: Scalars['ID'];
+  status: NotificationStatus;
+  subject?: Maybe<Scalars['String']>;
+  timestamp: Scalars['AWSTimestamp'];
+  title?: Maybe<Scalars['String']>;
+  type: NotificationType;
+  updatedAt: Scalars['AWSDateTime'];
+  userFullName?: Maybe<Scalars['String']>;
+};
+
+export enum NotificationChannelType {
+  Email = 'EMAIL',
+  Push = 'PUSH',
+  Sms = 'SMS'
+}
+
+export type NotificationResponse = {
+  __typename?: 'NotificationResponse';
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<NotificationsErrorType>;
+  requestId?: Maybe<Scalars['ID']>;
+};
+
+export enum NotificationStatus {
+  Acknowledged = 'ACKNOWLEDGED',
+  Sent = 'SENT'
+}
+
+export enum NotificationType {
+  EligibleForReimbursement = 'ELIGIBLE_FOR_REIMBURSEMENT',
+  ExpirationLinkedCardNotice = 'EXPIRATION_LINKED_CARD_NOTICE',
+  ExpiredLinkedCard = 'EXPIRED_LINKED_CARD',
+  MarketingRelated = 'MARKETING_RELATED',
+  NewQualifyingOfferAvailable = 'NEW_QUALIFYING_OFFER_AVAILABLE',
+  NewUserSignup = 'NEW_USER_SIGNUP',
+  QualifyingOffer = 'QUALIFYING_OFFER'
+}
+
+export enum NotificationsErrorType {
+  DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  ValidationError = 'VALIDATION_ERROR'
+}
 
 export type Query = {
   __typename?: 'Query';
@@ -617,6 +701,14 @@ export type RemoveCardResponse = {
   data?: Maybe<Scalars['Boolean']>;
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<CardLinkErrorType>;
+};
+
+export type SendEmailNotificationInput = {
+  emailDestination: Scalars['String'];
+  message?: InputMaybe<Scalars['String']>;
+  subject?: InputMaybe<Scalars['String']>;
+  title?: InputMaybe<Scalars['String']>;
+  userFullName: Scalars['String'];
 };
 
 export enum StorageErrorType {
@@ -761,6 +853,13 @@ export type UpdateTransactionInput = {
   transactionStatus: TransactionsStatus;
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
+
+export type CreateNotificationMutationVariables = Exact<{
+  createNotificationInput: CreateNotificationInput;
+}>;
+
+
+export type CreateNotificationMutation = { __typename?: 'Mutation', createNotification: { __typename?: 'CreateNotificationResponse', errorType?: NotificationsErrorType | null, errorMessage?: string | null, id?: string | null, data?: { __typename?: 'Notification', id: string, timestamp: number, notificationId: string, title?: string | null, subject?: string | null, emailDestination?: string | null, userFullName?: string | null, message?: string | null, type: NotificationType, channelType: NotificationChannelType, status: NotificationStatus, actionUrl?: string | null, createdAt: string, updatedAt: string } | null } };
 
 export type CreateReimbursementEligibilityMutationVariables = Exact<{
   createReimbursementEligibilityInput: CreateReimbursementEligibilityInput;

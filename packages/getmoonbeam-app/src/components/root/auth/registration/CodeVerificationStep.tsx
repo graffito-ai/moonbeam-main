@@ -79,7 +79,7 @@ export const CodeVerificationStep = () => {
         try {
             const resendSignUpCode = await Auth.resendSignUp(email);
             if (resendSignUpCode) {
-                // this is not an actual error, but we will treat is an alerting message
+                // this is not an actual error, but we will treat it as an alerting message
                 // @ts-ignore
                 setVerificationCodeErrors([RESEND_CODE_ALERT_MESSAGE]);
 

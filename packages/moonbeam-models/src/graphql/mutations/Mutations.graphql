@@ -1,5 +1,28 @@
 # graphql/Mutations.graphql
 # Mutations Schema File
+mutation CreateNotification($createNotificationInput: CreateNotificationInput!) {
+    createNotification(createNotificationInput: $createNotificationInput) {
+        errorType
+        errorMessage
+        id
+        data {
+            id
+            timestamp
+            notificationId
+            title
+            subject
+            emailDestination
+            userFullName
+            message
+            type
+            channelType
+            status
+            actionUrl
+            createdAt
+            updatedAt
+        }
+    }
+}
 mutation CreateReimbursementEligibility($createReimbursementEligibilityInput: CreateReimbursementEligibilityInput!) {
     createReimbursementEligibility(createReimbursementEligibilityInput: $createReimbursementEligibilityInput) {
         errorType

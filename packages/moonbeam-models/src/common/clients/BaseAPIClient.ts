@@ -1,8 +1,9 @@
 import {GetSecretValueCommand, SecretsManagerClient} from "@aws-sdk/client-secrets-manager";
+import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 import {Constants} from "../Constants";
 import {
     Card,
-    CardLinkResponse,
+    CardLinkResponse, CreateNotificationInput, CreateNotificationResponse,
     CreateReimbursementEligibilityInput,
     CreateReimbursementInput,
     EligibleLinkedUser,
@@ -15,18 +16,17 @@ import {
     MoonbeamTransaction,
     MoonbeamTransactionResponse,
     MoonbeamTransactionsByStatusResponse,
-    MoonbeamUpdatedTransactionResponse,
+    MoonbeamUpdatedTransactionResponse, NotificationResponse, NotificationType,
     ReimbursementByStatusResponse,
     ReimbursementEligibilityResponse,
     ReimbursementResponse,
-    RemoveCardResponse,
+    RemoveCardResponse, SendEmailNotificationInput,
     Transaction,
     TransactionResponse, TransactionStatusDetailsResponse,
     UpdateReimbursementEligibilityInput,
     UpdateReimbursementInput,
     UpdateTransactionInput
 } from "../GraphqlExports";
-import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 
 /**
  * Class used as the base/generic client for all API clients that
@@ -56,16 +56,18 @@ export abstract class BaseAPIClient {
     }
 
     /**
-     * Function used to retrieve an API Key and a base URL, used by a API client, through the
+     * Function used to retrieve various service credentials, used by any API clients, through the
      * Secrets Manager client.
      *
      * @param verificationClientSecretsName the name of the API client's secrets pair
      * @param internalRestBased optional flag indicating whether the key is REST or GraphQL/AppSync based
      *                          in case of internal-used based keys
+     * @param notificationType  optional type indicating the type of notification, for which we are retrieving
+     *                          specific secret configuration for
      *
      * @return a {@link Promise} of a {@link string} pair, containing the baseURL and apiKey to be used
      */
-    protected async retrieveServiceCredentials(verificationClientSecretsName: string, internalRestBased?: boolean): Promise<[string | null, string | null, (string | null)?]> {
+    protected async retrieveServiceCredentials(verificationClientSecretsName: string, internalRestBased?: boolean, notificationType?: NotificationType): Promise<[string | null, string | null, (string | null)?]> {
         try {
             // retrieve the secrets pair for the API client, depending on the current environment and region
             const verificationClientAPIPair = await this.secretsClient
@@ -81,7 +83,23 @@ export abstract class BaseAPIClient {
                     case Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME:
                         return internalRestBased !== undefined && internalRestBased
                             ? [clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_REST_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_REST_API_KEY]]
-                            : [clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_API_KEY]]
+                            : [clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_API_KEY]];
+                    case Constants.AWSPairConstants.COURIER_INTERNAL_SECRET_NAME:
+                        // return the appropriate secrets, depending on the type of notification passed in
+                        if (!notificationType) {
+                            console.log(`Invalid notification type to retrieve secrets in ${verificationClientSecretsName}`);
+                            return [null, null];
+                        } else {
+                            switch (notificationType) {
+                                case NotificationType.NewUserSignup:
+                                    return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                        clientPairAsJson[Constants.AWSPairConstants.NEW_USER_SIGNUP_NOTIFICATION_AUTH_TOKEN],
+                                        clientPairAsJson[Constants.AWSPairConstants.NEW_USER_SIGNUP_NOTIFICATION_TEMPLATE_ID]];
+                                default:
+                                    console.log(`Unknown notifications type to retrieve secrets in ${verificationClientSecretsName}`);
+                                    return [null, null];
+                            }
+                        }
                     case Constants.AWSPairConstants.QUANDIS_SECRET_NAME:
                         return [clientPairAsJson[Constants.AWSPairConstants.QUANDIS_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.QUANDIS_API_KEY]];
                     case Constants.AWSPairConstants.LIGHTHOUSE_SECRET_NAME:
@@ -104,6 +122,30 @@ export abstract class BaseAPIClient {
             throw new Error(errorMessage);
         }
     }
+
+    /**
+     * Function used to send an email notification.
+     *
+     * @param sendEmailNotificationInput the notification input details to be passed in, in order to send
+     * an email notification
+     *
+     * @returns a {@link NotificationResponse} representing the Courier notification response
+     *
+     * @protected
+     */
+    protected sendEmailNotification?(sendEmailNotificationInput: SendEmailNotificationInput): Promise<NotificationResponse>;
+
+    /**
+     * Function used to create a notification.
+     *
+     * @param createNotificationInput the notification details to be passed in, in order to create a new
+     * notification
+     *
+     * @returns a {@link CreateNotificationResponse} representing the newly created notification data
+     *
+     * @protected
+     */
+    protected createNotification?(createNotificationInput: CreateNotificationInput): Promise<CreateNotificationResponse>;
 
     /**
      * Function used to create a reimbursement eligibility.

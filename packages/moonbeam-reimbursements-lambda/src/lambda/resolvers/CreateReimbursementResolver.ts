@@ -55,7 +55,7 @@ export const createReimbursement = async (fieldName: string, createReimbursement
             }
         }));
 
-        // if there is an item retrieved, then we need to check its contents
+        // if there is an item retrieved, then we return an error
         if (preExistingReimbursement && preExistingReimbursement.Item) {
             /**
              * if there is a pre-existing reimbursement with the same composite primary key (userId/id, timestamp) combination,

@@ -1,5 +1,32 @@
 // This is a file used to define the all GraphQL query constants
 
+// Mutation used to create a new notification.
+export const createNotification = /* GraphQL */ `
+    mutation CreateNotification($createNotificationInput: CreateNotificationInput!) {
+        createNotification(createNotificationInput: $createNotificationInput) {
+            errorType
+            errorMessage
+            id
+            data {
+                id
+                timestamp
+                notificationId
+                title
+                subject
+                emailDestination
+                userFullName
+                message
+                type
+                channelType
+                status
+                actionUrl
+                createdAt
+                updatedAt
+            }
+        }
+    }
+`;
+
 // Mutation used to create a new reimbursement eligibility.
 export const createReimbursementEligibility = /* GraphQL */ `
     mutation CreateReimbursementEligibility($createReimbursementEligibilityInput: CreateReimbursementEligibilityInput!) {

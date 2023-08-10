@@ -19,6 +19,7 @@ import {
     TransactionsStatus,
     TransactionStatusDetailsResponse
 } from "@moonbeam/moonbeam-models";
+import {v4 as uuidv4} from 'uuid';
 
 /**
  * ReimbursementProcessorHandler handler
@@ -317,7 +318,7 @@ const processReimbursement = async (itemFailures: SQSBatchItemFailure[], moonbea
                  * create a new temporary reimbursement ID, which will have to be modified at the time of customer credit to an Olive credit id,
                  * so we can correlate between our internal system and Olive's
                  */
-                reimbursementId: 'temp_reimbursement_id',
+                reimbursementId: uuidv4(),
                 reimbursementStatus: ReimbursementStatus.Pending,
                 transactions: transactionsForReimbursement
             });

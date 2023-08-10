@@ -2,11 +2,14 @@ import {BaseAPIClient} from "./BaseAPIClient";
 import {Constants} from "../Constants";
 import {
     CardLinkErrorType,
+    CreateNotificationInput,
+    CreateNotificationResponse,
     CreateReimbursementEligibilityInput,
     CreateReimbursementInput,
     CreateTransactionInput,
     EligibleLinkedUser,
-    EligibleLinkedUsersResponse, GetReimbursementByStatusInput,
+    EligibleLinkedUsersResponse,
+    GetReimbursementByStatusInput,
     GetTransactionByStatusInput,
     MoonbeamTransaction,
     MoonbeamTransactionByStatus,
@@ -14,7 +17,10 @@ import {
     MoonbeamTransactionsByStatusResponse,
     MoonbeamUpdatedTransaction,
     MoonbeamUpdatedTransactionResponse,
-    Reimbursement, ReimbursementByStatusResponse,
+    Notification,
+    NotificationsErrorType,
+    Reimbursement,
+    ReimbursementByStatusResponse,
     ReimbursementEligibility,
     ReimbursementEligibilityResponse,
     ReimbursementResponse,
@@ -26,13 +32,14 @@ import {
 } from "../GraphqlExports";
 import axios from "axios";
 import {
+    createNotification,
     createReimbursement,
     createTransaction,
     updateReimbursement,
     updateReimbursementEligibility,
     updateTransaction
 } from "../../graphql/mutations/Mutations";
-import {getEligibleLinkedUsers, getTransactionByStatus, getReimbursementByStatus} from "../../graphql/queries/Queries";
+import {getEligibleLinkedUsers, getReimbursementByStatus, getTransactionByStatus} from "../../graphql/queries/Queries";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 
 /**
@@ -1009,7 +1016,7 @@ export class MoonbeamClient extends BaseAPIClient {
                         // return the error message and type, from the original AppSync call
                         {
                             errorMessage: responseData.createReimbursementEligibility.errorMessage,
-                            errorType: responseData.createcreateReimbursementEligibility.errorType
+                            errorType: responseData.createReimbursementEligibility.errorType
                         } :
                         // return the error response indicating an invalid structure returned
                         {
@@ -1309,6 +1316,130 @@ export class MoonbeamClient extends BaseAPIClient {
             return {
                 errorMessage: errorMessage,
                 errorType: ReimbursementsErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
+     * Function used to create a notification.
+     *
+     * @param createNotificationInput the notification details to be passed in, in order to create a new
+     * notification
+     *
+     * @returns a {@link CreateNotificationResponse} representing the newly created notification data
+     */
+    async createNotification(createNotificationInput: CreateNotificationInput): Promise<CreateNotificationResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'createNotification Mutation Moonbeam GraphQL API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make a notification creation call through the client
+            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
+                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: NotificationsErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * createNotification Query
+             *
+             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
+             * with the appropriate information.
+             *
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.post(`${moonbeamBaseURL}`, {
+                query: createNotification,
+                variables: {
+                    createNotificationInput: createNotificationInput
+                }
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": moonbeamPrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
+            }).then(createNotificationResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(createNotificationResponse.data)}`);
+
+                // retrieve the data block from the response
+                const responseData = (createNotificationResponse && createNotificationResponse.data) ? createNotificationResponse.data.data : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.createNotification.errorMessage === null) {
+                    // returned the successfully created notification
+                    return {
+                        id: responseData.createNotification.id,
+                        data: responseData.createNotification.data as Notification
+                    }
+                } else {
+                    return responseData ?
+                        // return the error message and type, from the original AppSync call
+                        {
+                            errorMessage: responseData.createNotification.errorMessage,
+                            errorType: responseData.createNotification.errorType
+                        } :
+                        // return the error response indicating an invalid structure returned
+                        {
+                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                            errorType: NotificationsErrorType.ValidationError
+                        }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: NotificationsErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: NotificationsErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: NotificationsErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while creating a notification, through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: NotificationsErrorType.UnexpectedError
             };
         }
     }

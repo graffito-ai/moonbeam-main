@@ -59,6 +59,10 @@ export namespace Constants {
         export const CARD_LINKING_TABLE: string = 'CARD_LINKING_TABLE';
         export const CARD_LINKING_STATUS_GLOBAL_INDEX: string = 'CARD_LINKING_STATUS_GLOBAL_INDEX';
         export const TRANSACTIONS_TABLE: string = 'TRANSACTIONS_TABLE';
+        export const NOTIFICATIONS_TABLE: string = 'NOTIFICATIONS_TABLE';
+        export const NOTIFICATIONS_CHANNEL_TYPE_LOCAL_INDEX: string = 'NOTIFICATIONS_CHANNEL_TYPE_LOCAL_INDEX';
+        export const NOTIFICATIONS_TYPE_LOCAL_INDEX: string = 'NOTIFICATIONS_TYPE_LOCAL_INDEX';
+        export const NOTIFICATIONS_STATUS_LOCAL_INDEX: string = 'NOTIFICATIONS_STATUS_LOCAL_INDEX';
         export const REIMBURSEMENT_ELIGIBILITY_TABLE: string = 'REIMBURSEMENT_ELIGIBILITY_TABLE';
         export const REIMBURSEMENTS_TABLE: string = 'REIMBURSEMENTS_TABLE';
         export const REIMBURSEMENTS_PROCESSING_TOPIC_ARN: string = 'REIMBURSEMENTS_PROCESSING_TOPIC_ARN';
@@ -75,6 +79,10 @@ export namespace Constants {
     }
     // AWS Secrets Manager (pair-based constants)
     export namespace AWSPairConstants {
+        export const COURIER_INTERNAL_SECRET_NAME = `courier-internal-secret-pair`;
+        export const COURIER_BASE_URL = `COURIER_BASE_URL`;
+        export const NEW_USER_SIGNUP_NOTIFICATION_AUTH_TOKEN = `NEW_USER_SIGNUP_NOTIFICATION_AUTH_TOKEN`;
+        export const NEW_USER_SIGNUP_NOTIFICATION_TEMPLATE_ID = `NEW_USER_SIGNUP_NOTIFICATION_TEMPLATE_ID`;
         export const MAIN_FILES_CLOUDFRONT_DISTRIBUTION_SECRET_NAME = `main-files-cloudfront-pair`;
         export const MOONBEAM_INTERNAL_SECRET_NAME = `moonbeam-internal-secret-pair`;
         export const MOONBEAM_INTERNAL_API_KEY = `MOONBEAM_INTERNAL_API_KEY`;

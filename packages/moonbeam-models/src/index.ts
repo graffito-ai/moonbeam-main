@@ -9,3 +9,4 @@ export * from './graphql/subscriptions/Subscriptions';
 export * from './common/clients/BaseAPIClient';
 export * from './common/clients/MoonbeamClient';
 export * from './common/clients/OliveClient';
+export * from './common/clients/CourierClient';

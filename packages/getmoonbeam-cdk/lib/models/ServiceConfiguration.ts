@@ -129,7 +129,6 @@ export interface ReimbursementsConfiguration {
     readonly updateReimbursementResolverName: string;
     readonly getReimbursementByStatusResolverName: string;
     readonly reimbursementsTableName: string;
-    readonly reimbursementsPrimaryKey: string;
     readonly reimbursementsIdGlobalIndex: string;
     readonly reimbursementsStatusLocalIndex: string;
 }
@@ -143,7 +142,6 @@ export interface ReimbursementEligibilityConfiguration {
     readonly createReimbursementEligibilityResolverName: string;
     readonly updateReimbursementEligibilityResolverName: string;
     readonly reimbursementEligibilityTableName: string;
-    readonly reimbursementEligibilityPrimaryKey: string;
 }
 
 /**
@@ -179,7 +177,19 @@ export interface TransactionsConfiguration {
     readonly getTransactionByStatusResolverName: string;
     readonly updateTransactionResolverName: string;
     readonly transactionsTableName: string;
-    readonly transactionsPrimaryKey: string;
     readonly transactionsIdGlobalIndex: string;
     readonly transactionsStatusLocalIndex: string;
+}
+
+/**
+ * Interface used to define the configuration for the notifications service resolvers
+ * (GraphQL based), and other afferent data stores.
+ */
+export interface NotificationsConfiguration {
+    readonly notificationsFunctionName: string;
+    readonly createNotificationResolverName: string;
+    readonly notificationsTableName: string;
+    readonly notificationsChannelTypeLocalIndex: string;
+    readonly notificationsTypeLocalIndex: string;
+    readonly notificationsStatusLocalIndex: string;
 }

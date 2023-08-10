@@ -12,6 +12,7 @@ import {APIGatewayServiceStack} from "../stacks/APIGatewayServiceStack";
 import {ReimbursementsProducerConsumerStack} from "../stacks/ReimbursementsProducerConsumerStack";
 import {ReimbursementsResolverStack} from "../stacks/ReimbursementsResolverStack";
 import {ReimbursementEligibilityResolverStack} from "../stacks/ReimbursementEligibilityResolverStack";
+import {NotificationsResolverStack} from "../stacks/NotificationsResolverStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -193,6 +194,19 @@ export class StageUtils {
                     environmentVariables: stageConfiguration.environmentVariables
                 });
                 reimbursementEligibilityStack.addDependency(appSyncStack);
+
+                // create the Notifications resolver stack && add it to the CDK app
+                const notificationsStack = new NotificationsResolverStack(this.app, `moonbeam-notifications-resolver-${stageKey}`, {
+                    stackName: `moonbeam-notifications-resolver-${stageKey}`,
+                    description: 'This stack will contain all the AppSync related resources needed by the Lambda notifications resolver',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    graphqlApiId: appSyncStack.graphqlApiId,
+                    graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
+                    notificationsConfig: stageConfiguration.notificationsConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                notificationsStack.addDependency(appSyncStack);
 
                 // create the Reimbursements Producer Consumer stack && add it to the CDK app
                 const reimbursementsProducerConsumerStack = new ReimbursementsProducerConsumerStack(this.app, `moonbeam-reimbursements-producer-consumer-${stageKey}`, {

@@ -7,7 +7,7 @@ import {
     MilitaryVerificationConfiguration, ReimbursementsConfiguration, ReimbursementsProducerConsumerConfiguration,
     SESConfiguration,
     StorageConfiguration, TransactionsConfiguration,
-    TransactionsProducerConsumerConfiguration, ReimbursementEligibilityConfiguration
+    TransactionsProducerConsumerConfiguration, ReimbursementEligibilityConfiguration, NotificationsConfiguration
 } from "./ServiceConfiguration";
 
 /**
@@ -28,5 +28,6 @@ export interface StageConfiguration {
     readonly reimbursementEligibilityConfig: ReimbursementEligibilityConfiguration;
     readonly transactionsProducerConsumerConfig: TransactionsProducerConsumerConfiguration;
     readonly transactionsConfig: TransactionsConfiguration;
+    readonly notificationsConfig: NotificationsConfiguration;
     readonly environmentVariables: Map<string, string>;
 }

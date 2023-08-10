@@ -12,6 +12,7 @@ type Query {
 
 type Mutation {
     addCard(addCardInput: AddCardInput!): CardLinkResponse! @aws_cognito_user_pools
+    createNotification(createNotificationInput: CreateNotificationInput!): CreateNotificationResponse! @aws_cognito_user_pools @aws_api_key
     createReimbursementEligibility(createReimbursementEligibilityInput: CreateReimbursementEligibilityInput!): ReimbursementEligibilityResponse! @aws_cognito_user_pools @aws_api_key
     updateReimbursementEligibility(updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput!): ReimbursementEligibilityResponse! @aws_cognito_user_pools @aws_api_key
     createReimbursement(createReimbursementInput: CreateReimbursementInput!): ReimbursementResponse! @aws_cognito_user_pools @aws_api_key
@@ -641,4 +642,90 @@ input UpdateReimbursementInput {
     creditedCashbackAmount: Float # this amount should be the total reward amount that's reimbursed/credited to the customer
     transactions: [ReimbursementTransactionInput] # this array associates particular transactions to a reimbursement object, so we know what was reimbursed to customers
     updatedAt: AWSDateTime
+}
+# graphql/NotificationsSchema.graphql
+# Notifications Schema File
+enum NotificationsErrorType {
+    DUPLICATE_OBJECT_FOUND
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+}
+
+enum NotificationType {
+    NEW_USER_SIGNUP
+    QUALIFYING_OFFER
+    EXPIRATION_LINKED_CARD_NOTICE
+    EXPIRED_LINKED_CARD
+    NEW_QUALIFYING_OFFER_AVAILABLE
+    ELIGIBLE_FOR_REIMBURSEMENT
+    MARKETING_RELATED
+}
+
+enum NotificationChannelType {
+    EMAIL
+    SMS
+    PUSH
+}
+
+enum NotificationStatus {
+    SENT
+    ACKNOWLEDGED
+}
+
+type Notification @aws_cognito_user_pools @aws_api_key {
+    id: ID! # this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    notificationId: ID! # representing Courier's request ID, so we can link between our internal system and Courier's (obtained from Courier call)
+    title: String # the title of the notification (optional since for some notifications we will have templates to take care of this)
+    subject: String # mostly applicable to email based notifications (optional since for some notifications we will have templates to take care of this)
+    emailDestination: String # mostly applicable to email based notifications
+    userFullName: String # mostly applicable to email based notifications
+    message: String # the actual message/description of the notification (optional since for some notifications we will have templates to take care of this)
+    type: NotificationType!
+    channelType: NotificationChannelType!
+    status: NotificationStatus!
+    actionUrl: String # mostly applicable to push based notifications (to indicate what happens when a user taps on the notification)
+    createdAt: AWSDateTime! # this will be the same as the "timestamp" value above, only represented in a date time format
+    updatedAt: AWSDateTime!
+}
+
+input CreateNotificationInput {
+    id: ID! # this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    notificationId: ID # representing Courier's request ID, so we can link between our internal system and Courier's (obtained from Courier call)
+    title: String # the title of the notification (optional since for some notifications we will have templates to take care of this)
+    subject: String # mostly applicable to email based notifications (optional since for some notifications we will have templates to take care of this)
+    emailDestination: String # mostly applicable to email based notifications
+    userFullName: String # mostly applicable to email based notifications
+    message: String # the actual message/description of the notification (optional since for some notifications we will have templates to take care of this)
+    type: NotificationType!
+    channelType: NotificationChannelType!
+    status: NotificationStatus!
+    actionUrl: String # mostly applicable to push based notifications (to indicate what happens when a user taps on the notification)
+    createdAt: AWSDateTime # this will be the same as the "timestamp" value above, only represented in a date time format
+    updatedAt: AWSDateTime
+}
+
+# this input is specific for sending email notifications and will be used solely as an input object, outside of any AppSync related queries and/or mutations
+input SendEmailNotificationInput {
+    title: String # (optional since for some notifications we will have templates to take care of this)
+    subject: String # (optional since for some notifications we will have templates to take care of this)
+    message: String # (optional since for some notifications we will have templates to take care of this)
+    emailDestination: String!
+    userFullName: String!
+}
+
+# this type is a specific response for sending notifications and will be used solely as an input object, outside of any AppSync related queries and/or mutations
+type NotificationResponse @aws_cognito_user_pools @aws_api_key {
+    requestId: ID # Courier specific request ID
+    errorType: NotificationsErrorType
+    errorMessage: String
+}
+
+type CreateNotificationResponse @aws_cognito_user_pools @aws_api_key {
+    id: ID # this represents the userID of the notification, and the reason we repeat it in the parent response is for the subscription filtering to work properly
+    data: Notification
+    errorType: NotificationsErrorType
+    errorMessage: String
 }

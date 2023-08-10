@@ -78,7 +78,6 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             reimbursementsConfig: {
                 reimbursementsFunctionName: 'reimbursementsLambdaFunction',
                 reimbursementsTableName: 'reimbursementsTable',
-                reimbursementsPrimaryKey: 'reimbursementsPrimaryKey',
                 reimbursementsIdGlobalIndex: 'reimbursementsIdGlobalIndex',
                 reimbursementsStatusLocalIndex: 'reimbursementsStatusLocalIndex',
                 createReimbursementResolverName: 'createReimbursement',
@@ -88,7 +87,6 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             reimbursementEligibilityConfig: {
                 reimbursementEligibilityFunctionName: 'reimbursementEligibilityLambdaFunction',
                 reimbursementEligibilityTableName: 'reimbursementEligibilityTable',
-                reimbursementEligibilityPrimaryKey: 'reimbursementEligibilityPrimaryKey',
                 createReimbursementEligibilityResolverName: 'createReimbursementEligibility',
                 updateReimbursementEligibilityResolverName: 'updateReimbursementEligibility'
             },
@@ -106,13 +104,20 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             transactionsConfig: {
                 transactionsFunctionName: 'transactionsLambdaFunction',
                 transactionsTableName: 'transactionsTable',
-                transactionsPrimaryKey: 'transactionsPrimaryKey',
                 transactionsIdGlobalIndex: 'transactionsIdGlobalIndex',
                 transactionsStatusLocalIndex: 'transactionsStatusLocalIndex',
                 createTransactionResolverName: 'createTransaction',
                 getTransactionResolverName: 'getTransaction',
                 getTransactionByStatusResolverName: 'getTransactionByStatus',
                 updateTransactionResolverName: 'updateTransaction'
+            },
+            notificationsConfig: {
+                notificationsFunctionName: 'notificationsLambdaFunction',
+                notificationsTableName: 'notificationsTable',
+                createNotificationResolverName: 'createNotification',
+                notificationsChannelTypeLocalIndex: 'notificationsChannelTypeLocalIndex',
+                notificationsTypeLocalIndex: 'notificationsTypeLocalIndex',
+                notificationsStatusLocalIndex: 'notificationsStatusLocalIndex'
             },
             sesConfig: {
                 emailAddress: `noreply-${Stages.DEV}@moonbeam.vet`
@@ -191,7 +196,6 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             reimbursementsConfig: {
                 reimbursementsFunctionName: 'reimbursementsLambdaFunction',
                 reimbursementsTableName: 'reimbursementsTable',
-                reimbursementsPrimaryKey: 'reimbursementsPrimaryKey',
                 reimbursementsIdGlobalIndex: 'reimbursementsIdGlobalIndex',
                 reimbursementsStatusLocalIndex: 'reimbursementsStatusLocalIndex',
                 createReimbursementResolverName: 'createReimbursement',
@@ -201,7 +205,6 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             reimbursementEligibilityConfig: {
                 reimbursementEligibilityFunctionName: 'reimbursementEligibilityLambdaFunction',
                 reimbursementEligibilityTableName: 'reimbursementEligibilityTable',
-                reimbursementEligibilityPrimaryKey: 'reimbursementEligibilityPrimaryKey',
                 createReimbursementEligibilityResolverName: 'createReimbursementEligibility',
                 updateReimbursementEligibilityResolverName: 'updateReimbursementEligibility'
             },
@@ -219,13 +222,20 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             transactionsConfig: {
                 transactionsFunctionName: 'transactionsLambdaFunction',
                 transactionsTableName: 'transactionsTable',
-                transactionsPrimaryKey: 'transactionsPrimaryKey',
                 transactionsIdGlobalIndex: 'transactionsIdGlobalIndex',
                 transactionsStatusLocalIndex: 'transactionsStatusLocalIndex',
                 createTransactionResolverName: 'createTransaction',
                 getTransactionResolverName: 'getTransaction',
                 getTransactionByStatusResolverName: 'getTransactionByStatus',
                 updateTransactionResolverName: 'updateTransaction'
+            },
+            notificationsConfig: {
+                notificationsFunctionName: 'notificationsLambdaFunction',
+                notificationsTableName: 'notificationsTable',
+                createNotificationResolverName: 'createNotification',
+                notificationsChannelTypeLocalIndex: 'notificationsChannelTypeLocalIndex',
+                notificationsTypeLocalIndex: 'notificationsTypeLocalIndex',
+                notificationsStatusLocalIndex: 'notificationsStatusLocalIndex'
             },
             sesConfig: {
                 emailAddress: `noreply@moonbeam.vet`
