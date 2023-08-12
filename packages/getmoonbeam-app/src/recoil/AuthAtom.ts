@@ -1,5 +1,18 @@
 import {atom} from "recoil";
 import {MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
+import {ExpoPushToken} from "expo-notifications";
+
+/**
+ * Atom used to keep track of the expo push token for a
+ * particular/curren user's device.
+ */
+const expoPushTokenState = atom<ExpoPushToken>({
+    key: 'expoPushToken',
+    default: {
+        type: 'expo',
+        data: ''
+    }
+});
 
 /**
  * Atom used to keep track of the information for the current authenticated
@@ -22,7 +35,7 @@ const initialAuthenticationScreen = atom({
 /**
  * Atom used to keep track of the registration main error
  */
-const registrationMainErrorState = atom({
+const registrationMainErrorState = atom<boolean>({
     key: "registrationMainErrorState",
     default: false
 });
@@ -420,6 +433,7 @@ const appLinkedURLState = atom({
  * Export all atoms and/or selectors
  */
 export {
+    expoPushTokenState,
     appLinkedURLState,
     cardLinkingRegistrationStatusState,
     additionalDocumentationErrors,

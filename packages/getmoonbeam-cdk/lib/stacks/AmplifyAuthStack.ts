@@ -117,6 +117,15 @@ export class AmplifyAuthStack extends NestedStack {
                     maxLen: 36,
                     mutable: false
                 }),
+                /**
+                 * currently, custom attributes cannot be removed (AWS sometimes sucks, we know). This attribute does not apply anymore,
+                 * since we favor a custom implementation for push tokens where we can manage multiple user devices at the same time.
+                 */
+                expoPushToken: new StringAttribute({
+                   minLen: 20,
+                   maxLen: 100,
+                   mutable: false
+                }),
                 enlistmentYear: new StringAttribute({
                     minLen: 4,
                     maxLen: 4,

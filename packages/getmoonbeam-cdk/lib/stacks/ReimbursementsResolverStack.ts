@@ -66,7 +66,7 @@ export class ReimbursementsResolverStack extends Stack {
             tableName: `${props.reimbursementsConfig.reimbursementsTableName}-${props.stage}-${props.env!.region}`,
             billingMode: aws_dynamodb.BillingMode.PAY_PER_REQUEST,
             /**
-             * the primary key of this table, will be a composite key [id, createdAt], where the id represents the user id,
+             * the primary key of this table, will be a composite key [id, timestamp], where the id represents the user id,
              * and the timestamp represents the creation time of a reimbursement (in a UNIX format).
              * The timestamp will be the same as `createdAt` property, only that the `createdAt` will be in EPOCH time format
              * instead.

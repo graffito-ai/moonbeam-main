@@ -13,6 +13,7 @@ import {ReimbursementsProducerConsumerStack} from "../stacks/ReimbursementsProdu
 import {ReimbursementsResolverStack} from "../stacks/ReimbursementsResolverStack";
 import {ReimbursementEligibilityResolverStack} from "../stacks/ReimbursementEligibilityResolverStack";
 import {NotificationsResolverStack} from "../stacks/NotificationsResolverStack";
+import {PhysicalDevicesResolverStack} from "../stacks/PhysicalDevicesResolverStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -207,6 +208,19 @@ export class StageUtils {
                     environmentVariables: stageConfiguration.environmentVariables
                 });
                 notificationsStack.addDependency(appSyncStack);
+
+                // create the Physical Devices resolver stack && add it to the CDK app
+                const physicalDevicesStack = new PhysicalDevicesResolverStack(this.app, `moonbeam-physical-devices-resolver-${stageKey}`, {
+                    stackName: `moonbeam-physical-devices-resolver-${stageKey}`,
+                    description: 'This stack will contain all the AppSync related resources needed by the Lambda physical devices resolver',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    graphqlApiId: appSyncStack.graphqlApiId,
+                    graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
+                    physicalDevicesConfig: stageConfiguration.physicalDevicesConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                physicalDevicesStack.addDependency(appSyncStack);
 
                 // create the Reimbursements Producer Consumer stack && add it to the CDK app
                 const reimbursementsProducerConsumerStack = new ReimbursementsProducerConsumerStack(this.app, `moonbeam-reimbursements-producer-consumer-${stageKey}`, {

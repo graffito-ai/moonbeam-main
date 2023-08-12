@@ -1,13 +1,17 @@
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {ExpoPushToken} from "expo-notifications";
 
 /**
  * The default list of params, to be used across all Root stack props.
  */
 export type RootStackParamList = {
     AppOverview: {
+        expoPushToken: ExpoPushToken;
         onLayoutRootView: () => Promise<void>;
     }
-    Authentication: {}
+    Authentication: {
+        expoPushToken: ExpoPushToken;
+    }
 };
 
 // the AppOverview component props, within the Root stack

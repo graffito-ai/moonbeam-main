@@ -1,13 +1,15 @@
 import {GetSecretValueCommand, SecretsManagerClient} from "@aws-sdk/client-secrets-manager";
-import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
+import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {Constants} from "../Constants";
 import {
     Card,
-    CardLinkResponse, CreateNotificationInput, CreateNotificationResponse,
+    CardLinkResponse,
+    CreateNotificationInput,
+    CreateNotificationResponse,
     CreateReimbursementEligibilityInput,
     CreateReimbursementInput,
     EligibleLinkedUser,
-    EligibleLinkedUsersResponse,
+    EligibleLinkedUsersResponse, GetDevicesForUserInput,
     GetReimbursementByStatusInput,
     GetTransactionByStatusInput,
     MemberDetailsResponse,
@@ -16,16 +18,21 @@ import {
     MoonbeamTransaction,
     MoonbeamTransactionResponse,
     MoonbeamTransactionsByStatusResponse,
-    MoonbeamUpdatedTransactionResponse, NotificationResponse, NotificationType,
+    MoonbeamUpdatedTransactionResponse,
+    NotificationResponse,
+    NotificationType,
     ReimbursementByStatusResponse,
     ReimbursementEligibilityResponse,
     ReimbursementResponse,
-    RemoveCardResponse, SendEmailNotificationInput,
+    RemoveCardResponse,
+    SendEmailNotificationInput,
+    SendMobilePushNotificationInput,
     Transaction,
-    TransactionResponse, TransactionStatusDetailsResponse,
+    TransactionResponse,
+    TransactionStatusDetailsResponse,
     UpdateReimbursementEligibilityInput,
     UpdateReimbursementInput,
-    UpdateTransactionInput
+    UpdateTransactionInput, UserDevicesResponse
 } from "../GraphqlExports";
 
 /**
@@ -95,6 +102,10 @@ export abstract class BaseAPIClient {
                                     return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
                                         clientPairAsJson[Constants.AWSPairConstants.NEW_USER_SIGNUP_NOTIFICATION_AUTH_TOKEN],
                                         clientPairAsJson[Constants.AWSPairConstants.NEW_USER_SIGNUP_NOTIFICATION_TEMPLATE_ID]];
+                                case NotificationType.NewQualifyingOfferAvailable:
+                                    return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                        clientPairAsJson[Constants.AWSPairConstants.NEW_QUALIFYING_OFFER_NOTIFICATION_AUTH_TOKEN],
+                                        clientPairAsJson[Constants.AWSPairConstants.NEW_QUALIFYING_OFFER_NOTIFICATION_TEMPLATE_ID]];
                                 default:
                                     console.log(`Unknown notifications type to retrieve secrets in ${verificationClientSecretsName}`);
                                     return [null, null];
@@ -122,6 +133,30 @@ export abstract class BaseAPIClient {
             throw new Error(errorMessage);
         }
     }
+
+    /**
+     * Function used to get all the physical devices associated with a particular user.
+     *
+     * @param getDevicesForUserInput the devices for user input, containing the filtering information
+     * used to retrieve all the physical devices for a particular user.
+     *
+     * @returns a {@link UserDevicesResponse} representing the matched physical devices' information.
+     *
+     * @protected
+     */
+    protected getDevicesForUser?(getDevicesForUserInput: GetDevicesForUserInput): Promise<UserDevicesResponse>;
+
+    /**
+     * Function used to send a mobile push notification.
+     *
+     * @param sendMobilePushNotificationInput the notification input details to be passed in, in order to send
+     * a mobile push notification
+     *
+     * @returns a {@link NotificationResponse} representing the Courier notification response
+     *
+     * @protected
+     */
+    protected sendMobilePushNotification?(sendMobilePushNotificationInput: SendMobilePushNotificationInput): Promise<NotificationResponse>;
 
     /**
      * Function used to send an email notification.

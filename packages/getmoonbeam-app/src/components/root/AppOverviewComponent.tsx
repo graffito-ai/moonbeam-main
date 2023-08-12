@@ -87,7 +87,9 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
                                      * in order to display the right subcomponent for Authentication.
                                      */
                                     setAuthScreen('Registration');
-                                    navigation.navigate("Authentication", {});
+                                    navigation.navigate("Authentication", {
+                                        expoPushToken: route.params.expoPushToken
+                                    });
                                 }
                             }
                         >
@@ -102,7 +104,9 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
                                      * in order to display the right subcomponent for Authentication.
                                      */
                                     setAuthScreen('SignIn');
-                                    navigation.navigate("Authentication", {});
+                                    navigation.navigate("Authentication", {
+                                        expoPushToken: route.params.expoPushToken
+                                    });
                                 }
                             }
                         >

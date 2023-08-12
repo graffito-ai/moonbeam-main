@@ -264,7 +264,6 @@ export const AppDrawer = ({}: AppDrawerProps) => {
          * user's profile picture URI if applicable, to be used when updating the current user information.
          */
         const loadAppData = async (militaryStatusAlreadyVerified: boolean): Promise<[Object, MoonbeamTransaction[], string]> => {
-            console.log('in this bitch');
             setIsReady(false);
             setIsLoaded(true);
 

@@ -105,6 +105,13 @@ export type CreateCardLinkInput = {
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
+export type CreateDeviceInput = {
+  deviceState: UserDeviceState;
+  id: Scalars['ID'];
+  lastLoginDate?: InputMaybe<Scalars['AWSDateTime']>;
+  tokenId: Scalars['ID'];
+};
+
 export type CreateMilitaryVerificationInput = {
   addressLine: Scalars['String'];
   city: Scalars['String'];
@@ -134,13 +141,13 @@ export type CreateNotificationInput = {
   channelType: NotificationChannelType;
   createdAt?: InputMaybe<Scalars['AWSDateTime']>;
   emailDestination?: InputMaybe<Scalars['String']>;
+  expoPushTokens?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   id: Scalars['ID'];
-  message?: InputMaybe<Scalars['String']>;
+  merchantName?: InputMaybe<Scalars['String']>;
   notificationId?: InputMaybe<Scalars['ID']>;
+  pendingCashback?: InputMaybe<Scalars['Float']>;
   status: NotificationStatus;
-  subject?: InputMaybe<Scalars['String']>;
   timestamp?: InputMaybe<Scalars['AWSTimestamp']>;
-  title?: InputMaybe<Scalars['String']>;
   type: NotificationType;
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
   userFullName?: InputMaybe<Scalars['String']>;
@@ -245,6 +252,19 @@ export enum FileType {
 }
 
 export type GetCardLinkInput = {
+  id: Scalars['ID'];
+};
+
+export type GetDeviceByTokenInput = {
+  tokenId: Scalars['ID'];
+};
+
+export type GetDeviceInput = {
+  id: Scalars['ID'];
+  tokenId: Scalars['ID'];
+};
+
+export type GetDevicesForUserInput = {
   id: Scalars['ID'];
 };
 
@@ -446,12 +466,14 @@ export type Mutation = {
   __typename?: 'Mutation';
   addCard: CardLinkResponse;
   createCardLink: CardLinkResponse;
+  createDevice: UserDeviceResponse;
   createMilitaryVerification: CreateMilitaryVerificationResponse;
   createNotification: CreateNotificationResponse;
   createReimbursement: ReimbursementResponse;
   createReimbursementEligibility: ReimbursementEligibilityResponse;
   createTransaction: MoonbeamTransactionResponse;
   deleteCard: CardResponse;
+  updateDevice: UserDeviceResponse;
   updateMilitaryVerificationStatus: UpdateMilitaryVerificationResponse;
   updateReimbursement: ReimbursementResponse;
   updateReimbursementEligibility: ReimbursementEligibilityResponse;
@@ -466,6 +488,11 @@ export type MutationAddCardArgs = {
 
 export type MutationCreateCardLinkArgs = {
   createCardLinkInput: CreateCardLinkInput;
+};
+
+
+export type MutationCreateDeviceArgs = {
+  createDeviceInput: CreateDeviceInput;
 };
 
 
@@ -499,6 +526,11 @@ export type MutationDeleteCardArgs = {
 };
 
 
+export type MutationUpdateDeviceArgs = {
+  updateDeviceInput: UpdateDeviceInput;
+};
+
+
 export type MutationUpdateMilitaryVerificationStatusArgs = {
   updateMilitaryVerificationInput: UpdateMilitaryVerificationInput;
 };
@@ -524,13 +556,13 @@ export type Notification = {
   channelType: NotificationChannelType;
   createdAt: Scalars['AWSDateTime'];
   emailDestination?: Maybe<Scalars['String']>;
+  expoPushTokens?: Maybe<Array<Maybe<Scalars['String']>>>;
   id: Scalars['ID'];
-  message?: Maybe<Scalars['String']>;
+  merchantName?: Maybe<Scalars['String']>;
   notificationId: Scalars['ID'];
+  pendingCashback?: Maybe<Scalars['Float']>;
   status: NotificationStatus;
-  subject?: Maybe<Scalars['String']>;
   timestamp: Scalars['AWSTimestamp'];
-  title?: Maybe<Scalars['String']>;
   type: NotificationType;
   updatedAt: Scalars['AWSDateTime'];
   userFullName?: Maybe<Scalars['String']>;
@@ -571,9 +603,20 @@ export enum NotificationsErrorType {
   ValidationError = 'VALIDATION_ERROR'
 }
 
+export type PushDevice = {
+  __typename?: 'PushDevice';
+  deviceState: UserDeviceState;
+  id: Scalars['ID'];
+  lastLoginDate: Scalars['AWSDateTime'];
+  tokenId: Scalars['ID'];
+};
+
 export type Query = {
   __typename?: 'Query';
   getCardLink: CardLinkResponse;
+  getDevice: UserDeviceResponse;
+  getDeviceByToken: UserDeviceResponse;
+  getDevicesForUser: UserDevicesResponse;
   getEligibleLinkedUsers: EligibleLinkedUsersResponse;
   getMilitaryVerificationStatus: GetMilitaryVerificationResponse;
   getReimbursementByStatus: ReimbursementByStatusResponse;
@@ -585,6 +628,21 @@ export type Query = {
 
 export type QueryGetCardLinkArgs = {
   getCardLinkInput: GetCardLinkInput;
+};
+
+
+export type QueryGetDeviceArgs = {
+  getDeviceInput: GetDeviceInput;
+};
+
+
+export type QueryGetDeviceByTokenArgs = {
+  getDeviceByTokenInput: GetDeviceByTokenInput;
+};
+
+
+export type QueryGetDevicesForUserArgs = {
+  getDevicesForUserInput: GetDevicesForUserInput;
 };
 
 
@@ -705,10 +763,13 @@ export type RemoveCardResponse = {
 
 export type SendEmailNotificationInput = {
   emailDestination: Scalars['String'];
-  message?: InputMaybe<Scalars['String']>;
-  subject?: InputMaybe<Scalars['String']>;
-  title?: InputMaybe<Scalars['String']>;
   userFullName: Scalars['String'];
+};
+
+export type SendMobilePushNotificationInput = {
+  expoPushTokens: Array<InputMaybe<Scalars['String']>>;
+  merchantName: Scalars['String'];
+  pendingCashback: Scalars['Float'];
 };
 
 export enum StorageErrorType {
@@ -812,6 +873,13 @@ export enum TransactionsStatus {
   Rejected = 'REJECTED'
 }
 
+export type UpdateDeviceInput = {
+  deviceState: UserDeviceState;
+  id: Scalars['ID'];
+  lastLoginDate?: InputMaybe<Scalars['AWSDateTime']>;
+  tokenId: Scalars['ID'];
+};
+
 export type UpdateMilitaryVerificationInput = {
   id: Scalars['ID'];
   militaryVerificationStatus: MilitaryVerificationStatusType;
@@ -854,12 +922,52 @@ export type UpdateTransactionInput = {
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
+export enum UserDeviceErrorType {
+  DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  ValidationError = 'VALIDATION_ERROR'
+}
+
+export type UserDeviceResponse = {
+  __typename?: 'UserDeviceResponse';
+  data?: Maybe<PushDevice>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<UserDeviceErrorType>;
+};
+
+export enum UserDeviceState {
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE'
+}
+
+export type UserDevicesResponse = {
+  __typename?: 'UserDevicesResponse';
+  data?: Maybe<Array<Maybe<PushDevice>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<UserDeviceErrorType>;
+};
+
+export type CreateDeviceMutationVariables = Exact<{
+  createDeviceInput: CreateDeviceInput;
+}>;
+
+
+export type CreateDeviceMutation = { __typename?: 'Mutation', createDevice: { __typename?: 'UserDeviceResponse', errorType?: UserDeviceErrorType | null, errorMessage?: string | null, data?: { __typename?: 'PushDevice', id: string, tokenId: string, deviceState: UserDeviceState, lastLoginDate: string } | null } };
+
+export type UpdateDeviceMutationVariables = Exact<{
+  updateDeviceInput: UpdateDeviceInput;
+}>;
+
+
+export type UpdateDeviceMutation = { __typename?: 'Mutation', updateDevice: { __typename?: 'UserDeviceResponse', errorType?: UserDeviceErrorType | null, errorMessage?: string | null, data?: { __typename?: 'PushDevice', id: string, tokenId: string, deviceState: UserDeviceState, lastLoginDate: string } | null } };
+
 export type CreateNotificationMutationVariables = Exact<{
   createNotificationInput: CreateNotificationInput;
 }>;
 
 
-export type CreateNotificationMutation = { __typename?: 'Mutation', createNotification: { __typename?: 'CreateNotificationResponse', errorType?: NotificationsErrorType | null, errorMessage?: string | null, id?: string | null, data?: { __typename?: 'Notification', id: string, timestamp: number, notificationId: string, title?: string | null, subject?: string | null, emailDestination?: string | null, userFullName?: string | null, message?: string | null, type: NotificationType, channelType: NotificationChannelType, status: NotificationStatus, actionUrl?: string | null, createdAt: string, updatedAt: string } | null } };
+export type CreateNotificationMutation = { __typename?: 'Mutation', createNotification: { __typename?: 'CreateNotificationResponse', errorType?: NotificationsErrorType | null, errorMessage?: string | null, id?: string | null, data?: { __typename?: 'Notification', id: string, timestamp: number, notificationId: string, emailDestination?: string | null, userFullName?: string | null, type: NotificationType, channelType: NotificationChannelType, status: NotificationStatus, expoPushTokens?: Array<string | null> | null, pendingCashback?: number | null, merchantName?: string | null, actionUrl?: string | null, createdAt: string, updatedAt: string } | null } };
 
 export type CreateReimbursementEligibilityMutationVariables = Exact<{
   createReimbursementEligibilityInput: CreateReimbursementEligibilityInput;
@@ -937,6 +1045,27 @@ export type UpdateMilitaryVerificationStatusMutationVariables = Exact<{
 
 
 export type UpdateMilitaryVerificationStatusMutation = { __typename?: 'Mutation', updateMilitaryVerificationStatus: { __typename?: 'UpdateMilitaryVerificationResponse', errorType?: MilitaryVerificationErrorType | null, errorMessage?: string | null, id?: string | null, militaryVerificationStatus?: MilitaryVerificationStatusType | null } };
+
+export type GetDevicesForUserQueryVariables = Exact<{
+  getDevicesForUserInput: GetDevicesForUserInput;
+}>;
+
+
+export type GetDevicesForUserQuery = { __typename?: 'Query', getDevicesForUser: { __typename?: 'UserDevicesResponse', errorMessage?: string | null, errorType?: UserDeviceErrorType | null, data?: Array<{ __typename?: 'PushDevice', id: string, tokenId: string, deviceState: UserDeviceState, lastLoginDate: string } | null> | null } };
+
+export type GetDeviceQueryVariables = Exact<{
+  getDeviceInput: GetDeviceInput;
+}>;
+
+
+export type GetDeviceQuery = { __typename?: 'Query', getDevice: { __typename?: 'UserDeviceResponse', errorMessage?: string | null, errorType?: UserDeviceErrorType | null, data?: { __typename?: 'PushDevice', id: string, tokenId: string, deviceState: UserDeviceState, lastLoginDate: string } | null } };
+
+export type GetDeviceByTokenQueryVariables = Exact<{
+  getDeviceByTokenInput: GetDeviceByTokenInput;
+}>;
+
+
+export type GetDeviceByTokenQuery = { __typename?: 'Query', getDeviceByToken: { __typename?: 'UserDeviceResponse', errorMessage?: string | null, errorType?: UserDeviceErrorType | null, data?: { __typename?: 'PushDevice', id: string, tokenId: string, deviceState: UserDeviceState, lastLoginDate: string } | null } };
 
 export type GetTransactionQueryVariables = Exact<{
   getTransactionInput: GetTransactionInput;

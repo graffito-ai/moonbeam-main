@@ -150,9 +150,13 @@ export interface ReimbursementEligibilityConfiguration {
  */
 export interface TransactionsFanOutConfiguration {
     readonly transactionsProcessingTopicName: string;
+    readonly notificationsTransactionalOffersProcessingQueueName: string;
+    readonly notificationsTransactionalOffersProcessingDLQName: string;
     readonly transactionalOffersProcessingQueueName: string;
     readonly transactionalOffersProcessingDLQName: string;
+    readonly notificationTransactionsProcessingTopicDLQName: string;
     readonly transactionsProcessingTopicDLQName: string;
+    readonly notificationsTransactionalOffersProcessingEventSourceMapping: string;
     readonly transactionalOffersProcessingEventSourceMapping: string;
 }
 
@@ -163,6 +167,7 @@ export interface TransactionsFanOutConfiguration {
 export interface TransactionsProducerConsumerConfiguration {
     readonly transactionsProducerFunctionName: string;
     readonly transactionalOffersConsumerFunctionName: string;
+    readonly transactionalOffersNotificationsConsumerFunctionName: string;
     readonly transactionsFanOutConfig: TransactionsFanOutConfiguration;
 }
 
@@ -192,4 +197,20 @@ export interface NotificationsConfiguration {
     readonly notificationsChannelTypeLocalIndex: string;
     readonly notificationsTypeLocalIndex: string;
     readonly notificationsStatusLocalIndex: string;
+}
+
+/**
+ * Interface used to define the configuration for the user physical devices service resolvers
+ * (GraphQL based), and other afferent data stores.
+ */
+export interface PhysicalDevicesConfiguration {
+    readonly devicesFunctionName: string;
+    readonly createDeviceResolverName: string;
+    readonly updateDeviceResolverName: string;
+    readonly getDevicesForUserResolverName: string;
+    readonly getDeviceByTokenResolverName: string;
+    readonly getDeviceResolverName: string;
+    readonly devicesTableName: string;
+    readonly devicesIdGlobalIndex: string;
+    readonly deviceTokenIdGlobalIndex: string;
 }

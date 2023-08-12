@@ -8,7 +8,7 @@ import {
     CreateReimbursementInput,
     CreateTransactionInput,
     EligibleLinkedUser,
-    EligibleLinkedUsersResponse,
+    EligibleLinkedUsersResponse, GetDevicesForUserInput,
     GetReimbursementByStatusInput,
     GetTransactionByStatusInput,
     MoonbeamTransaction,
@@ -18,7 +18,7 @@ import {
     MoonbeamUpdatedTransaction,
     MoonbeamUpdatedTransactionResponse,
     Notification,
-    NotificationsErrorType,
+    NotificationsErrorType, PushDevice,
     Reimbursement,
     ReimbursementByStatusResponse,
     ReimbursementEligibility,
@@ -28,7 +28,7 @@ import {
     TransactionsErrorType,
     UpdateReimbursementEligibilityInput,
     UpdateReimbursementInput,
-    UpdateTransactionInput
+    UpdateTransactionInput, UserDeviceErrorType, UserDevicesResponse
 } from "../GraphqlExports";
 import axios from "axios";
 import {
@@ -39,7 +39,7 @@ import {
     updateReimbursementEligibility,
     updateTransaction
 } from "../../graphql/mutations/Mutations";
-import {getEligibleLinkedUsers, getReimbursementByStatus, getTransactionByStatus} from "../../graphql/queries/Queries";
+import {getEligibleLinkedUsers, getReimbursementByStatus, getTransactionByStatus, getDevicesForUser} from "../../graphql/queries/Queries";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 
 /**
@@ -1440,6 +1440,129 @@ export class MoonbeamClient extends BaseAPIClient {
             return {
                 errorMessage: errorMessage,
                 errorType: NotificationsErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
+     * Function used to get all the physical devices associated with a particular user.
+     *
+     * @param getDevicesForUserInput the devices for user input, containing the filtering information
+     * used to retrieve all the physical devices for a particular user.
+     *
+     * @returns a {@link UserDevicesResponse} representing the matched physical devices' information.
+     */
+    async getDevicesForUser(getDevicesForUserInput: GetDevicesForUserInput): Promise<UserDevicesResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'getDevicesForUser Query Moonbeam GraphQL API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the devices for user retrieval call through the client
+            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
+                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: UserDeviceErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * getDevicesForUser Query
+             *
+             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
+             * with the appropriate information.
+             *
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.post(`${moonbeamBaseURL}`, {
+                query: getDevicesForUser,
+                variables: {
+                    getDevicesForUserInput: getDevicesForUserInput
+                }
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": moonbeamPrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
+            }).then(getDevicesForUserResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(getDevicesForUserResponse.data)}`);
+
+                // retrieve the data block from the response
+                const responseData = (getDevicesForUserResponse && getDevicesForUserResponse.data) ? getDevicesForUserResponse.data.data : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.getDevicesForUser.errorMessage === null) {
+                    // returned the successfully retrieved physical devices for a given user
+                    return {
+                        data: responseData.getDevicesForUser.data as PushDevice[]
+                    }
+                } else {
+                    return responseData ?
+                        // return the error message and type, from the original AppSync call
+                        {
+                            errorMessage: responseData.getDevicesForUser.errorMessage,
+                            errorType: responseData.getDevicesForUser.errorType
+                        } :
+                        // return the error response indicating an invalid structure returned
+                        {
+                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                            errorType: UserDeviceErrorType.ValidationError
+                        }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: UserDeviceErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: UserDeviceErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: UserDeviceErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while retrieving physical devices for a particular user, through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: UserDeviceErrorType.UnexpectedError
             };
         }
     }

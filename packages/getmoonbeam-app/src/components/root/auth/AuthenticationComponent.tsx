@@ -19,7 +19,7 @@ import {
     currentUserInformation,
     dutyStatusValueState,
     emailState,
-    enlistingYearState,
+    enlistingYearState, expoPushTokenState,
     firstNameState,
     initialAuthenticationScreen,
     lastNameState,
@@ -43,7 +43,7 @@ import {Spinner} from "../../common/Spinner";
  *
  * @constructor constructor for the component.
  */
-export const AuthenticationComponent = ({}: AuthenticationProps) => {
+export const AuthenticationComponent = ({route, }: AuthenticationProps) => {
         // constants used to keep track of local component state
         const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
         // create a native stack navigator, to be used for our Authentication application navigation
@@ -53,6 +53,7 @@ export const AuthenticationComponent = ({}: AuthenticationProps) => {
         const [, setStepNumber] = useRecoilState(registrationStepNumber);
         const [, setAppURL] = useRecoilState(appLinkedURLState);
         const [userInformation,] = useRecoilState(currentUserInformation);
+        const [, setExpoPushToken] = useRecoilState(expoPushTokenState);
         // step 1
         const [, setFirstName] = useRecoilState(firstNameState);
         const [, setLastName] = useRecoilState(lastNameState);
@@ -90,6 +91,9 @@ export const AuthenticationComponent = ({}: AuthenticationProps) => {
              * since we don't want to track and deep links in the app prior to when the authorization occurred
              */
             appURL && Object.keys(userInformation).length !== 0 && setAppURL(appURL);
+
+            // set the expo push token accordingly, to be used in later stages, as part of the current user information object
+            setExpoPushToken(route.params.expoPushToken);
         }, [appURL]);
 
         // return the component for the Authentication stack

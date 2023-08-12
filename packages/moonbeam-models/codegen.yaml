@@ -8,6 +8,7 @@ schema:
   - ./src/graphql/schemas/TransactionsSchema.graphql
   - ./src/graphql/schemas/ReimbursementsSchema.graphql
   - ./src/graphql/schemas/NotificationsSchema.graphql
+  - ./src/graphql/schemas/PhysicalDevicesSchema.graphql
 documents:
   - ./src/graphql/queries/Queries.graphql
   - ./src/graphql/mutations/Mutations.graphql

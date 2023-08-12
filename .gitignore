@@ -33,3 +33,5 @@ packages/getmoonbeam-cdk/*.jsg
 packages/getmoonbeam-cdk/*.d.ts
 packages/getmoonbeam-app/amplify/**/*
 packages/getmoonbeam-app/src/aws-exports.js
+packages/getmoonbeam-app/credentials.json
+packages/getmoonbeam-app/credentials/**/*

@@ -277,7 +277,7 @@ export const AppWall = () => {
                 case 'cancelled':
                     console.log('Message was cancelled!');
                     setSupportModalMessage('It looks like you cancelled your inquiry to our team! If you do need help, please ensure that you send your message beforehand!');
-                    setSupportModalButtonMessage('Dismiss');
+                    setSupportModalButtonMessage('Ok');
                     setSupportModalVisible(true);
                     break;
             }
@@ -308,7 +308,7 @@ export const AppWall = () => {
                                     onDismiss={() => setSupportModalVisible(false)}>
                                 <Dialog.Icon icon="alert" color={"#F2FF5D"}
                                              size={Dimensions.get('window').height / 14}/>
-                                <Dialog.Title style={commonStyles.dialogTitle}>{supportModalButtonMessage === 'Retry' ? 'We hit a snag!': 'Great'}</Dialog.Title>
+                                <Dialog.Title style={commonStyles.dialogTitle}>{supportModalButtonMessage === 'Retry' ? 'We hit a snag!': ('Dismiss' ? 'Great' : 'Heads up')}</Dialog.Title>
                                 <Dialog.Content>
                                     <Text
                                         style={commonStyles.dialogParagraph}>{supportModalMessage}</Text>

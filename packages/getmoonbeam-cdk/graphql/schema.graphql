@@ -1,6 +1,9 @@
 # graphql/Root.graphql
 # Main Schema File
 type Query {
+    getDevicesForUser(getDevicesForUserInput: GetDevicesForUserInput!): UserDevicesResponse! @aws_cognito_user_pools @aws_api_key
+    getDevice(getDeviceInput: GetDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
+    getDeviceByToken(getDeviceByTokenInput: GetDeviceByTokenInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     getTransaction(getTransactionInput: GetTransactionInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools
     getReimbursementByStatus(getReimbursementByStatusInput: GetReimbursementByStatusInput!): ReimbursementByStatusResponse! @aws_cognito_user_pools @aws_api_key
     getTransactionByStatus(getTransactionByStatusInput: GetTransactionByStatusInput!): MoonbeamTransactionsByStatusResponse! @aws_cognito_user_pools @aws_api_key
@@ -12,6 +15,8 @@ type Query {
 
 type Mutation {
     addCard(addCardInput: AddCardInput!): CardLinkResponse! @aws_cognito_user_pools
+    createDevice(createDeviceInput: CreateDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
+    updateDevice(updateDeviceInput: UpdateDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     createNotification(createNotificationInput: CreateNotificationInput!): CreateNotificationResponse! @aws_cognito_user_pools @aws_api_key
     createReimbursementEligibility(createReimbursementEligibilityInput: CreateReimbursementEligibilityInput!): ReimbursementEligibilityResponse! @aws_cognito_user_pools @aws_api_key
     updateReimbursementEligibility(updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput!): ReimbursementEligibilityResponse! @aws_cognito_user_pools @aws_api_key
@@ -677,14 +682,14 @@ type Notification @aws_cognito_user_pools @aws_api_key {
     id: ID! # this represents the userID which the transaction belongs to/was made by
     timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
     notificationId: ID! # representing Courier's request ID, so we can link between our internal system and Courier's (obtained from Courier call)
-    title: String # the title of the notification (optional since for some notifications we will have templates to take care of this)
-    subject: String # mostly applicable to email based notifications (optional since for some notifications we will have templates to take care of this)
     emailDestination: String # mostly applicable to email based notifications
     userFullName: String # mostly applicable to email based notifications
-    message: String # the actual message/description of the notification (optional since for some notifications we will have templates to take care of this)
     type: NotificationType!
     channelType: NotificationChannelType!
     status: NotificationStatus!
+    expoPushTokens: [String] # the push tokens for the user devices that we should send the notification to (applicable only to push notifications)
+    pendingCashback: Float, # mostly applicable to push based notifications, representing the pending cashback for a qualifying transactional offer
+    merchantName: String # mostly applicable to push based notifications, representing the name of the merchant for a qualifying transactional offer
     actionUrl: String # mostly applicable to push based notifications (to indicate what happens when a user taps on the notification)
     createdAt: AWSDateTime! # this will be the same as the "timestamp" value above, only represented in a date time format
     updatedAt: AWSDateTime!
@@ -694,14 +699,14 @@ input CreateNotificationInput {
     id: ID! # this represents the userID which the transaction belongs to/was made by
     timestamp: AWSTimestamp # this represents the timestamp, in a Number epoch based format (for sorting purposes)
     notificationId: ID # representing Courier's request ID, so we can link between our internal system and Courier's (obtained from Courier call)
-    title: String # the title of the notification (optional since for some notifications we will have templates to take care of this)
-    subject: String # mostly applicable to email based notifications (optional since for some notifications we will have templates to take care of this)
     emailDestination: String # mostly applicable to email based notifications
     userFullName: String # mostly applicable to email based notifications
-    message: String # the actual message/description of the notification (optional since for some notifications we will have templates to take care of this)
     type: NotificationType!
     channelType: NotificationChannelType!
     status: NotificationStatus!
+    expoPushTokens: [String] # the push tokens for the user devices that we should send the notification to (applicable only to push notifications)
+    pendingCashback: Float, # mostly applicable to push based notifications, representing the pending cashback for a qualifying transactional offer
+    merchantName: String # mostly applicable to push based notifications, representing the name of the merchant for a qualifying transactional offer
     actionUrl: String # mostly applicable to push based notifications (to indicate what happens when a user taps on the notification)
     createdAt: AWSDateTime # this will be the same as the "timestamp" value above, only represented in a date time format
     updatedAt: AWSDateTime
@@ -709,11 +714,15 @@ input CreateNotificationInput {
 
 # this input is specific for sending email notifications and will be used solely as an input object, outside of any AppSync related queries and/or mutations
 input SendEmailNotificationInput {
-    title: String # (optional since for some notifications we will have templates to take care of this)
-    subject: String # (optional since for some notifications we will have templates to take care of this)
-    message: String # (optional since for some notifications we will have templates to take care of this)
     emailDestination: String!
     userFullName: String!
+}
+
+# this input is specific for sending mobile push notifications and will be used solely as an input object, outside of any AppSync related queries and/or mutations
+input SendMobilePushNotificationInput {
+    expoPushTokens: [String]!
+    pendingCashback: Float!
+    merchantName: String!
 }
 
 # this type is a specific response for sending notifications and will be used solely as an input object, outside of any AppSync related queries and/or mutations
@@ -728,4 +737,64 @@ type CreateNotificationResponse @aws_cognito_user_pools @aws_api_key {
     data: Notification
     errorType: NotificationsErrorType
     errorMessage: String
+}
+# graphql/PhysicalDevicesSchema.graphql
+# Physical Devices Schema File
+enum UserDeviceErrorType {
+    DUPLICATE_OBJECT_FOUND
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+}
+
+# signals whether a user is actively using a device or not (if they are signed out, device deleted/replaced etc.)
+enum UserDeviceState {
+    ACTIVE
+    INACTIVE
+}
+
+type PushDevice @aws_cognito_user_pools @aws_api_key {
+    id: ID! # this represents the userID which the devices belongs to
+    tokenId: ID! # this represents the Expo push token ID for a particular physical device
+    deviceState: UserDeviceState!
+    lastLoginDate: AWSDateTime!
+}
+
+type UserDeviceResponse @aws_cognito_user_pools @aws_api_key {
+    data: PushDevice
+    errorType: UserDeviceErrorType
+    errorMessage: String
+}
+
+type UserDevicesResponse @aws_cognito_user_pools @aws_api_key {
+    data: [PushDevice]
+    errorType: UserDeviceErrorType
+    errorMessage: String
+}
+
+input GetDevicesForUserInput {
+    id: ID!
+}
+
+input GetDeviceInput {
+    id: ID!,
+    tokenId: ID!
+}
+
+input GetDeviceByTokenInput {
+    tokenId: ID!
+}
+
+input CreateDeviceInput {
+    id: ID! # this represents the userID which the devices belongs to
+    tokenId: ID! # this represents the Expo push token ID for a particular physical device
+    deviceState: UserDeviceState!
+    lastLoginDate: AWSDateTime
+}
+
+input UpdateDeviceInput {
+    id: ID! # this represents the userID which the devices belongs to
+    tokenId: ID! # this represents the Expo push token ID for a particular physical device
+    deviceState: UserDeviceState!
+    lastLoginDate: AWSDateTime
 }

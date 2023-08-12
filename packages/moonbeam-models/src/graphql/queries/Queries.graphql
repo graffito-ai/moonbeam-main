@@ -1,5 +1,41 @@
 # graphql/Queries.graphql
 # Queries Schema File
+query GetDevicesForUser($getDevicesForUserInput: GetDevicesForUserInput!) {
+    getDevicesForUser(getDevicesForUserInput: $getDevicesForUserInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            tokenId
+            deviceState
+            lastLoginDate
+        }
+    }
+}
+query GetDevice($getDeviceInput: GetDeviceInput!) {
+    getDevice(getDeviceInput: $getDeviceInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            tokenId
+            deviceState
+            lastLoginDate
+        }
+    }
+}
+query GetDeviceByToken($getDeviceByTokenInput: GetDeviceByTokenInput!) {
+    getDeviceByToken(getDeviceByTokenInput: $getDeviceByTokenInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            tokenId
+            deviceState
+            lastLoginDate
+        }
+    }
+}
 query GetTransaction($getTransactionInput: GetTransactionInput!) {
     getTransaction(getTransactionInput: $getTransactionInput) {
         errorMessage

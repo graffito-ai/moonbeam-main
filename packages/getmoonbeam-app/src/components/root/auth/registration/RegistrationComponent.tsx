@@ -29,7 +29,7 @@ import {
     emailErrorsState,
     emailState,
     enlistingYearErrorsState,
-    enlistingYearState,
+    enlistingYearState, expoPushTokenState,
     firstNameErrorsState,
     firstNameState,
     lastNameErrorsState,
@@ -86,7 +86,7 @@ import {CardLinkingStep} from "./CardLinkingStep";
 import CardLinkedSuccessImage from '../../../../../assets/art/card-linked-success.png';
 // @ts-ignore
 import RegistrationBackgroundImage from '../../../../../assets/backgrounds/registration-background.png';
-import {sendNotification} from "../../../../utils/Notification";
+import {createPhysicalDevice, proceedWithDeviceCreation, sendNotification} from "../../../../utils/AppSync";
 
 /**
  * RegistrationComponent component.
@@ -104,6 +104,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [, setIsBackButtonShown] = useRecoilState(registrationBackButtonShown);
     const [stepNumber, setStepNumber] = useRecoilState(registrationStepNumber);
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
+    const [expoPushToken, ] = useRecoilState(expoPushTokenState);
     // step 1
     const [firstName,] = useRecoilState(firstNameState);
     const [firstNameErrors,] = useRecoilState(firstNameErrorsState);
@@ -211,7 +212,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
      * Function used to verify an individual's eligibility by checking their
      * military verification status.
      *
-     * @params userId generated through previous steps during the sign-up process
+     * @param userId generated through previous steps during the sign-up process
      * @return a {@link Promise} of a pair, containing a {@link Boolean} and {@link MilitaryVerificationStatusType},
      * representing whether eligibility was verified successfully or not, and implicitly, the verification status.
      */
@@ -309,6 +310,8 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                     'custom:branch': militaryBranch,
                     'custom:duty_status': dutyStatus,
                     'custom:userId': userId,
+                    // we sign up the user with a single expo push token, representing the token of the physical device that they signed up from
+                    'custom:expoPushToken': expoPushToken.data,
                     'custom:enlistmentYear': enlistingYear
                 }
             });
@@ -396,6 +399,22 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                      */
                     if (createNotificationFlag) {
                         console.log(`User registration notification successfully sent!`);
+                    }
+
+                    /**
+                     * we then check whether we should proceed with the creation of a new physical device, or not
+                     */
+                    const proceedWithDeviceCreationFlag = await proceedWithDeviceCreation(userInformation["userId"], expoPushToken.data);
+                    if (proceedWithDeviceCreationFlag) {
+                        // if so, we create the physical device accordingly (and associated to the new user)
+                        const physicalDeviceCreationFlag = await createPhysicalDevice(userInformation["userId"], expoPushToken.data);
+                        if (physicalDeviceCreationFlag) {
+                            console.log(`Successfully created a physical device for user!`);
+                        } else {
+                            console.log(`Unable to create a physical device for user!`);
+                        }
+                    } else {
+                        console.log(`Not necessary to create a physical device for user!`);
                     }
 
                     // release the loader on button press

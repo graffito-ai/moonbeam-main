@@ -1,5 +1,56 @@
 // This is a file used to define the all GraphQL query constants
 
+// getDevicesForUser(getDevicesForUserInput: GetDevicesForUserInput!): UserDevicesResponse! @aws_cognito_user_pools @aws_api_key
+// getDevice(getDeviceByTokenInput: GetDeviceByTokenInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
+
+// Query used to retrieve a particular physical device for a user, based on a user ID and device token.
+export const getDevicesForUser = /* GraphQL */ `
+    query GetDevicesForUser($getDevicesForUserInput: GetDevicesForUserInput!) {
+        getDevicesForUser(getDevicesForUserInput: $getDevicesForUserInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                tokenId
+                deviceState
+                lastLoginDate
+            }
+        }
+    }
+`;
+
+// Query used to retrieve a particular physical device for a user, based on a user ID and device token.
+export const getDevice = /* GraphQL */ `
+    query GetDevice($getDeviceInput: GetDeviceInput!) {
+        getDevice(getDeviceInput: $getDeviceInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                tokenId
+                deviceState
+                lastLoginDate
+            }
+        }
+    }
+`;
+
+// Query used to retrieve a particular physical device, based its token.
+export const getDeviceByToken = /* GraphQL */ `
+    query GetDeviceByToken($getDeviceByTokenInput: GetDeviceByTokenInput!) {
+        getDeviceByToken(getDeviceByTokenInput: $getDeviceByTokenInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                tokenId
+                deviceState
+                lastLoginDate
+            }
+        }
+    }
+`;
+
 // Query used to retrieve transactions for a particular user, within a specific timeframe
 export const getTransaction = /* GraphQL */ `
     query GetTransaction($getTransactionInput: GetTransactionInput!) {

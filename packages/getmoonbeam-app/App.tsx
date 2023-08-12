@@ -1,7 +1,7 @@
 import * as SplashScreen from 'expo-splash-screen';
 import {Logs} from "expo";
-import {initialize} from './src/utils/Setup';
-import React, {useCallback, useEffect, useState} from 'react';
+import {initialize} from './Setup';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native';
 import * as Font from 'expo-font';
@@ -14,6 +14,69 @@ import {RootStackParamList} from "./src/models/props/RootProps";
 import {PaperProvider, useTheme} from "react-native-paper";
 import {Hub} from "aws-amplify";
 import {Spinner} from "./src/components/common/Spinner";
+import * as Notifications from 'expo-notifications';
+import {AndroidNotificationPriority, ExpoPushToken} from "expo-notifications";
+import Constants from "expo-constants";
+import {Platform} from "react-native";
+import * as Device from 'expo-device';
+
+// this handler determines how your app handles notifications that come in while the app is foregrounded.
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+        priority: AndroidNotificationPriority.MAX
+    }),
+});
+
+/**
+ * Function used to register the app for async push notifications, and return
+ * an expo push token, associated to this user's physical device.
+ *
+ * @returns a {@link ExpoPushToken} expo push token to be return for this user's
+ * physical device.
+ */
+async function registerForPushNotificationsAsync(): Promise<ExpoPushToken> {
+    // expo push token to be returned
+    let token: ExpoPushToken = {
+        type: 'expo',
+        data: ''
+    };
+    // check to see if this is a physical device first
+    if (Device.isDevice) {
+        const {status: existingStatus} = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+        if (existingStatus !== 'granted') {
+            const {status} = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+        }
+        if (finalStatus !== 'granted') {
+            console.log('Failed to get push token for push notification!');
+            return token;
+        }
+        token = (
+            await Notifications.getExpoPushTokenAsync({
+                projectId: Constants.expoConfig && Constants.expoConfig.extra ? Constants.expoConfig.extra.eas.projectId : '',
+            })
+        );
+    } else {
+        console.log('Must use physical device for Push Notifications');
+    }
+    // further configure the push notification for Android only
+    if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('default', {
+            name: 'default',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+            sound: 'default',
+            showBadge: true,
+            enableVibrate: true
+        });
+    }
+    return token;
+}
 
 // keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync().then(() => {
@@ -38,6 +101,12 @@ export default function App() {
     // constants used to keep track of local component state
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [appIsReady, setAppIsReady] = useState<boolean>(false);
+    const [expoPushToken, setExpoPushToken] = useState<ExpoPushToken>({
+        type: 'expo',
+        data: ''
+    })
+    const notificationListener = useRef<Notifications.Subscription>();
+    const responseListener = useRef<Notifications.Subscription>();
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -77,40 +146,60 @@ export default function App() {
             } catch (e) {
                 console.warn(e);
             } finally {
+                // clean the file system cache
+                await FileSystem.deleteAsync(`${FileSystem.documentDirectory!}` + `files`, {
+                    idempotent: true
+                });
+
+                // prepare the application for notifications
+                setExpoPushToken(await registerForPushNotificationsAsync());
+
+                // This listener is fired whenever a notification is received while the app is foregrounded.
+                notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+                    // Do something with the notification
+                    console.log(`Incoming push notification received ${notification}`);
+                });
+
+                // This listener is fired whenever a user taps on or interacts with a notification (works when an app is foregrounded, backgrounded, or killed).
+                responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+                    // Do something with the notification/response
+                    console.log(`Incoming notification and/or notification response received ${response}`);
+                });
+
                 // tell the application to render
                 setAppIsReady(true);
+
+                return () => {
+                    notificationListener.current && Notifications.removeNotificationSubscription(notificationListener.current!);
+                    responseListener.current && Notifications.removeNotificationSubscription(responseListener.current!);
+
+                    /**
+                     * initialize the Amplify Hub, and start listening to various events, that would help in capturing important metrics,
+                     * and/or making specific decisions.
+                     */
+                    Hub.listen('auth', (data) => {
+                        switch (data.payload.event) {
+                            case 'signIn':
+                                console.log(`user signed in`);
+                                break;
+                            case 'signOut':
+                                /**
+                                 * Amplify automatically manages the sessions, and when the session token expires, it will log out the user and send an event
+                                 * here. What we do then is intercept that event, and since the user Sign-Out has already happened, we will perform the cleanup that
+                                 * we usually do in our Sign-Out functionality, without actually signing the user out.
+                                 */
+                                console.log(`user signed out ${JSON.stringify(data.payload)}`);
+                                console.log(`user signed out ${JSON.stringify(data)}`);
+                                break;
+                            case 'configured':
+                                console.log('the Auth module is successfully configured!');
+                                break;
+                        }
+                    });
+                };
             }
         }
-        prepare().then(async () => {
-            // clean the file system cache
-            await FileSystem.deleteAsync(`${FileSystem.documentDirectory!}` + `files`, {
-                idempotent: true
-            });
-
-            /**
-             * initialize the Amplify Hub, and start listening to various events, that would help in capturing important metrics,
-             * and/or making specific decisions.
-             */
-            return Hub.listen('auth', (data) => {
-                switch (data.payload.event) {
-                    case 'signIn':
-                        console.log(`user signed in`);
-                        break;
-                    case 'signOut':
-                        /**
-                         * Amplify automatically manages the sessions, and when the session token expires, it will log out the user and send an event
-                         * here. What we do then is intercept that event, and since the user Sign-Out has already happened, we will perform the cleanup that
-                         * we usually do in our Sign-Out functionality, without actually signing the user out.
-                         */
-                        console.log(`user signed out ${JSON.stringify(data.payload)}`);
-                        console.log(`user signed out ${JSON.stringify(data)}`);
-                        break;
-                    case 'configured':
-                        console.log('the Auth module is successfully configured!');
-                        break;
-                }
-            });
-        });
+        prepare().then(() => {});
     }, []);
 
     /**
@@ -150,12 +239,12 @@ export default function App() {
                             <RootStack.Screen
                                 name="AppOverview"
                                 component={AppOverviewComponent}
-                                initialParams={{onLayoutRootView: onLayoutRootView}}
+                                initialParams={{onLayoutRootView: onLayoutRootView, expoPushToken: expoPushToken}}
                             />
                             <RootStack.Screen
                                 name="Authentication"
                                 component={AuthenticationComponent}
-                                initialParams={{}}
+                                initialParams={{expoPushToken: expoPushToken}}
                             />
                         </RootStack.Navigator>
                     </NavigationContainer>

@@ -1,0 +1,60 @@
+# graphql/PhysicalDevicesSchema.graphql
+# Physical Devices Schema File
+enum UserDeviceErrorType {
+    DUPLICATE_OBJECT_FOUND
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+}
+
+# signals whether a user is actively using a device or not (if they are signed out, device deleted/replaced etc.)
+enum UserDeviceState {
+    ACTIVE
+    INACTIVE
+}
+
+type PushDevice @aws_cognito_user_pools @aws_api_key {
+    id: ID! # this represents the userID which the devices belongs to
+    tokenId: ID! # this represents the Expo push token ID for a particular physical device
+    deviceState: UserDeviceState!
+    lastLoginDate: AWSDateTime!
+}
+
+type UserDeviceResponse @aws_cognito_user_pools @aws_api_key {
+    data: PushDevice
+    errorType: UserDeviceErrorType
+    errorMessage: String
+}
+
+type UserDevicesResponse @aws_cognito_user_pools @aws_api_key {
+    data: [PushDevice]
+    errorType: UserDeviceErrorType
+    errorMessage: String
+}
+
+input GetDevicesForUserInput {
+    id: ID!
+}
+
+input GetDeviceInput {
+    id: ID!,
+    tokenId: ID!
+}
+
+input GetDeviceByTokenInput {
+    tokenId: ID!
+}
+
+input CreateDeviceInput {
+    id: ID! # this represents the userID which the devices belongs to
+    tokenId: ID! # this represents the Expo push token ID for a particular physical device
+    deviceState: UserDeviceState!
+    lastLoginDate: AWSDateTime
+}
+
+input UpdateDeviceInput {
+    id: ID! # this represents the userID which the devices belongs to
+    tokenId: ID! # this represents the Expo push token ID for a particular physical device
+    deviceState: UserDeviceState!
+    lastLoginDate: AWSDateTime
+}

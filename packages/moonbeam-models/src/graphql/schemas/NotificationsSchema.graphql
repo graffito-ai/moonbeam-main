@@ -32,14 +32,14 @@ type Notification @aws_cognito_user_pools @aws_api_key {
     id: ID! # this represents the userID which the transaction belongs to/was made by
     timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
     notificationId: ID! # representing Courier's request ID, so we can link between our internal system and Courier's (obtained from Courier call)
-    title: String # the title of the notification (optional since for some notifications we will have templates to take care of this)
-    subject: String # mostly applicable to email based notifications (optional since for some notifications we will have templates to take care of this)
     emailDestination: String # mostly applicable to email based notifications
     userFullName: String # mostly applicable to email based notifications
-    message: String # the actual message/description of the notification (optional since for some notifications we will have templates to take care of this)
     type: NotificationType!
     channelType: NotificationChannelType!
     status: NotificationStatus!
+    expoPushTokens: [String] # the push tokens for the user devices that we should send the notification to (applicable only to push notifications)
+    pendingCashback: Float, # mostly applicable to push based notifications, representing the pending cashback for a qualifying transactional offer
+    merchantName: String # mostly applicable to push based notifications, representing the name of the merchant for a qualifying transactional offer
     actionUrl: String # mostly applicable to push based notifications (to indicate what happens when a user taps on the notification)
     createdAt: AWSDateTime! # this will be the same as the "timestamp" value above, only represented in a date time format
     updatedAt: AWSDateTime!
@@ -49,14 +49,14 @@ input CreateNotificationInput {
     id: ID! # this represents the userID which the transaction belongs to/was made by
     timestamp: AWSTimestamp # this represents the timestamp, in a Number epoch based format (for sorting purposes)
     notificationId: ID # representing Courier's request ID, so we can link between our internal system and Courier's (obtained from Courier call)
-    title: String # the title of the notification (optional since for some notifications we will have templates to take care of this)
-    subject: String # mostly applicable to email based notifications (optional since for some notifications we will have templates to take care of this)
     emailDestination: String # mostly applicable to email based notifications
     userFullName: String # mostly applicable to email based notifications
-    message: String # the actual message/description of the notification (optional since for some notifications we will have templates to take care of this)
     type: NotificationType!
     channelType: NotificationChannelType!
     status: NotificationStatus!
+    expoPushTokens: [String] # the push tokens for the user devices that we should send the notification to (applicable only to push notifications)
+    pendingCashback: Float, # mostly applicable to push based notifications, representing the pending cashback for a qualifying transactional offer
+    merchantName: String # mostly applicable to push based notifications, representing the name of the merchant for a qualifying transactional offer
     actionUrl: String # mostly applicable to push based notifications (to indicate what happens when a user taps on the notification)
     createdAt: AWSDateTime # this will be the same as the "timestamp" value above, only represented in a date time format
     updatedAt: AWSDateTime
@@ -64,11 +64,15 @@ input CreateNotificationInput {
 
 # this input is specific for sending email notifications and will be used solely as an input object, outside of any AppSync related queries and/or mutations
 input SendEmailNotificationInput {
-    title: String # (optional since for some notifications we will have templates to take care of this)
-    subject: String # (optional since for some notifications we will have templates to take care of this)
-    message: String # (optional since for some notifications we will have templates to take care of this)
     emailDestination: String!
     userFullName: String!
+}
+
+# this input is specific for sending mobile push notifications and will be used solely as an input object, outside of any AppSync related queries and/or mutations
+input SendMobilePushNotificationInput {
+    expoPushTokens: [String]!
+    pendingCashback: Float!
+    merchantName: String!
 }
 
 # this type is a specific response for sending notifications and will be used solely as an input object, outside of any AppSync related queries and/or mutations

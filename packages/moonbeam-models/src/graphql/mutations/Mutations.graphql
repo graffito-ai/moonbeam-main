@@ -1,5 +1,29 @@
 # graphql/Mutations.graphql
 # Mutations Schema File
+mutation CreateDevice($createDeviceInput: CreateDeviceInput!) {
+    createDevice(createDeviceInput: $createDeviceInput) {
+        errorType
+        errorMessage
+        data {
+            id
+            tokenId
+            deviceState
+            lastLoginDate
+        }
+    }
+}
+mutation UpdateDevice($updateDeviceInput: UpdateDeviceInput!) {
+    updateDevice(updateDeviceInput: $updateDeviceInput) {
+        errorType
+        errorMessage
+        data {
+            id
+            tokenId
+            deviceState
+            lastLoginDate
+        }
+    }
+}
 mutation CreateNotification($createNotificationInput: CreateNotificationInput!) {
     createNotification(createNotificationInput: $createNotificationInput) {
         errorType
@@ -9,14 +33,14 @@ mutation CreateNotification($createNotificationInput: CreateNotificationInput!) 
             id
             timestamp
             notificationId
-            title
-            subject
             emailDestination
             userFullName
-            message
             type
             channelType
             status
+            expoPushTokens
+            pendingCashback
+            merchantName
             actionUrl
             createdAt
             updatedAt

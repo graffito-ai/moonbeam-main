@@ -1,5 +1,37 @@
 // This is a file used to define the all GraphQL query constants
 
+// Mutation used to create one or more physical devices for a user.
+export const createDevice = /* GraphQL */ `
+    mutation CreateDevice($createDeviceInput: CreateDeviceInput!) {
+        createDevice(createDeviceInput: $createDeviceInput) {
+            errorType
+            errorMessage
+            data {
+                id
+                tokenId
+                deviceState
+                lastLoginDate
+            }
+        }
+    }
+`;
+
+// Mutation used to update the physical devices' details, for a user.
+export const updateDevice = /* GraphQL */ `
+    mutation UpdateDevice($updateDeviceInput: UpdateDeviceInput!) {
+        updateDevice(updateDeviceInput: $updateDeviceInput) {
+            errorType
+            errorMessage
+            data {
+                id
+                tokenId
+                deviceState
+                lastLoginDate
+            }
+        }
+    }
+`;
+
 // Mutation used to create a new notification.
 export const createNotification = /* GraphQL */ `
     mutation CreateNotification($createNotificationInput: CreateNotificationInput!) {
@@ -11,14 +43,14 @@ export const createNotification = /* GraphQL */ `
                 id
                 timestamp
                 notificationId
-                title
-                subject
                 emailDestination
                 userFullName
-                message
                 type
                 channelType
                 status
+                expoPushTokens
+                pendingCashback
+                merchantName
                 actionUrl
                 createdAt
                 updatedAt

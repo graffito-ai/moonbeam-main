@@ -92,13 +92,18 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             },
             transactionsProducerConsumerConfig: {
                 transactionsProducerFunctionName: 'transactionsProducerLambdaFunction',
+                transactionalOffersNotificationsConsumerFunctionName: 'transactionalOffersNotificationsConsumerFunction',
                 transactionalOffersConsumerFunctionName: 'transactionalOffersConsumerLambdaFunction',
                 transactionsFanOutConfig: {
                     transactionsProcessingTopicName: 'transactionsProcessingTopic',
+                    notificationsTransactionalOffersProcessingQueueName: 'notificationsTransactionalOffersProcessingQueue',
+                    notificationsTransactionalOffersProcessingDLQName: 'notificationsTransactionalOffersProcessingDLQ',
                     transactionalOffersProcessingQueueName: 'transactionalOffersProcessingQueue',
+                    notificationTransactionsProcessingTopicDLQName: 'notificationTransactionsProcessingTopicDLQ',
                     transactionalOffersProcessingDLQName: 'transactionalOffersProcessingDLQ',
                     transactionsProcessingTopicDLQName: 'transactionsProcessingTopicDLQ',
-                    transactionalOffersProcessingEventSourceMapping: 'transactionalOffersProcessingEventSourceMapping'
+                    transactionalOffersProcessingEventSourceMapping: 'transactionalOffersProcessingEventSourceMapping',
+                    notificationsTransactionalOffersProcessingEventSourceMapping: 'notificationsTransactionalOffersProcessingEventSourceMapping'
                 }
             },
             transactionsConfig: {
@@ -118,6 +123,17 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 notificationsChannelTypeLocalIndex: 'notificationsChannelTypeLocalIndex',
                 notificationsTypeLocalIndex: 'notificationsTypeLocalIndex',
                 notificationsStatusLocalIndex: 'notificationsStatusLocalIndex'
+            },
+            physicalDevicesConfig: {
+                devicesFunctionName: 'devicesFunctionName',
+                createDeviceResolverName: 'createDevice',
+                updateDeviceResolverName: 'updateDevice',
+                getDevicesForUserResolverName: 'getDevicesForUser',
+                getDeviceByTokenResolverName: 'getDeviceByToken',
+                getDeviceResolverName: 'getDevice',
+                devicesTableName: 'physicalDevicesTable',
+                devicesIdGlobalIndex: 'devicesIdGlobalIndex',
+                deviceTokenIdGlobalIndex: 'deviceTokenIdGlobalIndex'
             },
             sesConfig: {
                 emailAddress: `noreply-${Stages.DEV}@moonbeam.vet`
@@ -210,13 +226,18 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             },
             transactionsProducerConsumerConfig: {
                 transactionsProducerFunctionName: 'transactionsProducerLambdaFunction',
+                transactionalOffersNotificationsConsumerFunctionName: 'transactionalOffersNotificationsConsumerFunction',
                 transactionalOffersConsumerFunctionName: 'transactionalOffersConsumerLambdaFunction',
                 transactionsFanOutConfig: {
                     transactionsProcessingTopicName: 'transactionsProcessingTopic',
+                    notificationsTransactionalOffersProcessingQueueName: 'notificationsTransactionalOffersProcessingQueue',
+                    notificationsTransactionalOffersProcessingDLQName: 'notificationsTransactionalOffersProcessingDLQ',
                     transactionalOffersProcessingQueueName: 'transactionalOffersProcessingQueue',
                     transactionalOffersProcessingDLQName: 'transactionalOffersProcessingDLQ',
+                    notificationTransactionsProcessingTopicDLQName: 'notificationTransactionsProcessingTopicDLQ',
                     transactionsProcessingTopicDLQName: 'transactionsProcessingTopicDLQ',
-                    transactionalOffersProcessingEventSourceMapping: 'transactionalOffersProcessingEventSourceMapping'
+                    transactionalOffersProcessingEventSourceMapping: 'transactionalOffersProcessingEventSourceMapping',
+                    notificationsTransactionalOffersProcessingEventSourceMapping: 'notificationsTransactionalOffersProcessingEventSourceMapping'
                 }
             },
             transactionsConfig: {
@@ -236,6 +257,17 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 notificationsChannelTypeLocalIndex: 'notificationsChannelTypeLocalIndex',
                 notificationsTypeLocalIndex: 'notificationsTypeLocalIndex',
                 notificationsStatusLocalIndex: 'notificationsStatusLocalIndex'
+            },
+            physicalDevicesConfig: {
+                devicesFunctionName: 'devicesFunctionName',
+                createDeviceResolverName: 'createDevice',
+                updateDeviceResolverName: 'updateDevice',
+                getDevicesForUserResolverName: 'getDevicesForUser',
+                getDeviceByTokenResolverName: 'getDeviceByToken',
+                getDeviceResolverName: 'getDevice',
+                devicesTableName: 'physicalDevicesTable',
+                devicesIdGlobalIndex: 'devicesIdGlobalIndex',
+                deviceTokenIdGlobalIndex: 'deviceTokenIdGlobalIndex'
             },
             sesConfig: {
                 emailAddress: `noreply@moonbeam.vet`

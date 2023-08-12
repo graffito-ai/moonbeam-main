@@ -1,4 +1,4 @@
-import * as envInfo from "../../amplify/.config/local-env-info.json";
+import * as envInfo from "./amplify/.config/local-env-info.json";
 import {Constants, Stages} from "@moonbeam/moonbeam-models";
 import {Amplify} from "aws-amplify";
 
@@ -13,13 +13,17 @@ export const initialize = () => {
     let baseStorageCDKStackName: string = `moonbeam-storage-resolver-${envInfo.envName}-us-west-2`;
     let cdkExport;
     switch (envInfo.envName) {
+        /**
+         * for internal development purposes we can point to the exports folder inside the getmoonbeam-cdk repo, however, at distribution
+         * build time, we need to ensure that the most recent copy of the exports folder is present inside the getmoonbeam-app repo.
+         */
         case Stages.DEV:
             // cannot string interpolate the environment name in here for some reason, so left it hardcoded
-            cdkExport = require('../../../getmoonbeam-cdk/exports/cdk-exports-dev.json');
+            cdkExport = require('./exports/cdk-exports-dev.json');
             break;
         case Stages.PROD:
             // cannot string interpolate the environment name in here for some reason, so left it hardcoded
-            cdkExport = require('../../../getmoonbeam-cdk/exports/cdk-exports-prod.json');
+            cdkExport = require('./exports/cdk-exports-prod.json');
             break;
         // ToDo: add more environments representing our stages in here
         default:

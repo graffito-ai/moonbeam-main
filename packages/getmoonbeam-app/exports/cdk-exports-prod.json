@@ -1,0 +1,27 @@
+{
+  "moonbeam-amplify-prod-us-west-2": {
+    "awsuserpoolsid": "us-west-2_zry0Qwmjh",
+    "amplifyappid": "d116111n160733",
+    "awsprojectregion": "us-west-2",
+    "ExportsOutputFnGetAttmoonbeamamplifyauthproduswest2NestedStackmoonbeamamplifyauthproduswest2NestedStackResource7578B853Outputsmoonbeamamplifyproduswest2moonbeamamplifyauthproduswest2getmoonbeamapplicationpoolproduswest283EE6488Ref52316A37": "us-west-2_zry0Qwmjh",
+    "awscognitoregion": "us-west-2",
+    "awsuserpoolswebclientid": "6d4dkg86huk6v2sfm2c2hre0b1",
+    "awscognitoidentitypoolid": "us-west-2:63fdfd4b-9068-42f4-a8c6-02b7aa88a347"
+  },
+  "moonbeam-appsync-prod-us-west-2": {
+    "ExportsOutputFnGetAttgetMoonbeamGraphqlApiproduswest2068051D0ApiId124491E6": "p3a4pwssi5dejox33pvznpvz4u",
+    "awsappsyncauthenticationType": "AMAZON_COGNITO_USER_POOLS",
+    "awsappsyncregion": "us-west-2",
+    "awsappsyncgraphqlEndpoint": "https://6eflmnclyzh55bk7kjcn7a7xae.appsync-api.us-west-2.amazonaws.com/graphql"
+  },
+  "moonbeam-storage-resolver-prod-us-west-2": {
+    "awsuserfiless3bucketregion": "us-west-2",
+    "awsuserfiless3bucket": "moonbeam-files-bucket-prod-us-west-2"
+  },
+  "moonbeam-transactions-producer-consumer-prod-us-west-2": {
+    "ExportsOutputFnGetAtttransactionsProducerLambdaFunctionproduswest2A8F0CF3AArnC3E40773": "arn:aws:lambda:us-west-2:251312580862:function:transactionsProducerLambdaFunction-prod-us-west-2"
+  },
+  "moonbeam-api-gateway-prod-us-west-2": {
+    "cardLinkingServiceAPIproduswest2EndpointB6DECFD4": "https://0s3eh0g99f.execute-api.us-west-2.amazonaws.com/prod/"
+  }
+}
