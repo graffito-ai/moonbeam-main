@@ -107,6 +107,7 @@ export default function App() {
     })
     const notificationListener = useRef<Notifications.Subscription>();
     const responseListener = useRef<Notifications.Subscription>();
+    const lastNotificationResponse = Notifications.useLastNotificationResponse();
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -116,6 +117,16 @@ export default function App() {
      * included in here.
      */
     useEffect(() => {
+        /**
+         * we're favoring this over the notification listeners (since they don't always work)
+         * we left the listeners from the useEffect perspective temporarily until we do some deep
+         * dive.
+         */
+        if (lastNotificationResponse) {
+            // navigate to your desired screen
+            console.log('incoming notification and/or notification response received (last notification handle)');
+        }
+
         const prepare = async () => {
             try {
                 // preload fonts, make any API calls that we need in here
@@ -163,7 +174,7 @@ export default function App() {
                 // This listener is fired whenever a user taps on or interacts with a notification (works when an app is foregrounded, backgrounded, or killed).
                 responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
                     // Do something with the notification/response
-                    console.log(`Incoming notification and/or notification response received ${response}`);
+                    console.log(`Incoming notification interaction response received ${response}`);
                 });
 
                 // tell the application to render
@@ -200,7 +211,7 @@ export default function App() {
             }
         }
         prepare().then(() => {});
-    }, []);
+    }, [lastNotificationResponse]);
 
     /**
      * Invoked when the application is mounted and the layout changes

@@ -418,6 +418,7 @@ export const Dashboard = ({}) => {
                                             }
                                         ]}
                                     />
+                                    <View style={{height: Dimensions.get('window').height / 100, backgroundColor: '#313030'}}/>
                                     <ScrollView
                                         scrollEnabled={true}
                                         persistentScrollbar={false}

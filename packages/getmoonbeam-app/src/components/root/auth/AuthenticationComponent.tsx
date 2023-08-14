@@ -88,7 +88,7 @@ export const AuthenticationComponent = ({route, }: AuthenticationProps) => {
         useEffect(() => {
             /**
              * set the App URL as well as any state changes accordingly, once the user is authenticated
-             * since we don't want to track and deep links in the app prior to when the authorization occurred
+             * since we don't want to track any deep links in the app prior to when the authorization occurred
              */
             appURL && Object.keys(userInformation).length !== 0 && setAppURL(appURL);
 

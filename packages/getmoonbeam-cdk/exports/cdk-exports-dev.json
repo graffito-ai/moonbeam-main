@@ -1,5 +1,1 @@
-{
-  "moonbeam-transactions-producer-consumer-dev-us-west-2": {
-    "ExportsOutputFnGetAtttransactionsProducerLambdaFunctiondevuswest2F0428334ArnD5FB2711": "arn:aws:lambda:us-west-2:963863720257:function:transactionsProducerLambdaFunction-dev-us-west-2"
-  }
-}
+{}

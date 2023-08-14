@@ -57,7 +57,7 @@ export const TransactionsBottomSheet = (props: {
         mapViewRef && mapViewRef.current && !transactionStoreGeoLocation && props.transactionStoreAddress && retrieveStoreGeolocation();
     }, [deviceType, transactionStoreGeoLocation, mapViewRef]);
 
-    // retrieve the geolocation (latitude and longitude ofr the store which the transaction was made at
+    // retrieve the geolocation (latitude and longitude of the store which the transaction was made at)
     const retrieveStoreGeolocation = async (): Promise<void> => {
         const geoLocationArray = await Location.geocodeAsync(props.transactionStoreAddress!);
         /**
