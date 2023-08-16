@@ -25,8 +25,11 @@ export const createCardLink = async (fieldName: string, createCardLinkInput: Cre
 
         // check if an invalid card type is passed in, then return an error accordingly
         if (createCardLinkInput.card.type === CardType.Invalid) {
+            const errorMessage = `Unsupported card scheme.`;
+            console.log(errorMessage);
+
             return {
-                errorMessage: `Unsupported card scheme.`,
+                errorMessage: errorMessage,
                 errorType: CardLinkErrorType.InvalidCardScheme
             }
         }

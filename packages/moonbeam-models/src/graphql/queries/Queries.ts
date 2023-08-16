@@ -1,7 +1,142 @@
 // This is a file used to define the all GraphQL query constants
 
-// getDevicesForUser(getDevicesForUserInput: GetDevicesForUserInput!): UserDevicesResponse! @aws_cognito_user_pools @aws_api_key
-// getDevice(getDeviceByTokenInput: GetDeviceByTokenInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
+// Query used to retrieve all the Fidelis partner offers, filtered by brand/partner (so we can display them as featured in the store)
+export const getFidelisPartners = /* GraphQL */ `
+    query GetFidelisPartners {
+        getFidelisPartners {
+            errorMessage
+            errorType
+            data {
+                brandName
+                numberOfOffers
+                offers {
+                    id
+                    corporateId
+                    created
+                    offerState
+                    availability
+                    brandId
+                    brandDba
+                    brandLogo
+                    brandLogoSm
+                    brandBanner
+                    brandParentCategory
+                    brandStubCopy
+                    storeDetails {
+                        id
+                        name
+                        phone
+                        address1
+                        city
+                        state
+                        countryCode
+                        postCode
+                        geoLocation {
+                            latitude
+                            longitude
+                        }
+                        isOnline
+                        distance
+                    }
+                    description
+                    reach
+                    title
+                    qualifier
+                    tile
+                    startDate
+                    endDate
+                    currency
+                    extOfferId
+                    supplierOfferKey
+                    redemptionType
+                    redemptionInstructionUrl
+                    redemptionTrigger
+                    budget
+                    daysAvailability
+                    stores
+                    totalRedeemLimit
+                    redeemLimitPerUser
+                    purchaseAmount
+                    purchaseFrequency
+                    reward {
+                        type
+                        value
+                        maxValue
+                    }
+                }
+            }
+        }
+    }
+`;
+
+// Query used to retrieve available offers using certain filtering (this will pass through offers from Olive directly)
+export const getOffers = /* GraphQL */ `
+    query GetOffers($getOffersInput: GetOffersInput!) {
+        getOffers(getOffersInput: $getOffersInput) {
+            errorMessage
+            errorType
+            data {
+                totalNumberOfPages
+                totalNumberOfRecords
+                offers {
+                    id
+                    corporateId
+                    created
+                    offerState
+                    availability
+                    brandId
+                    brandDba
+                    brandLogo
+                    brandLogoSm
+                    brandBanner
+                    brandParentCategory
+                    brandStubCopy
+                    storeDetails {
+                        id
+                        name
+                        phone
+                        address1
+                        city
+                        state
+                        countryCode
+                        postCode
+                        geoLocation {
+                            latitude
+                            longitude
+                        }
+                        isOnline
+                        distance
+                    }
+                    description
+                    reach
+                    title
+                    qualifier
+                    tile
+                    startDate
+                    endDate
+                    currency
+                    extOfferId
+                    supplierOfferKey
+                    redemptionType
+                    redemptionInstructionUrl
+                    redemptionTrigger
+                    budget
+                    daysAvailability
+                    stores
+                    totalRedeemLimit
+                    redeemLimitPerUser
+                    purchaseAmount
+                    purchaseFrequency
+                    reward {
+                        type
+                        value
+                        maxValue
+                    }
+                }
+            }
+        }
+    }
+`;
 
 // Query used to retrieve a particular physical device for a user, based on a user ID and device token.
 export const getDevicesForUser = /* GraphQL */ `

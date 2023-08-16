@@ -1,0 +1,168 @@
+# graphql/OffersSchema.graphql
+# Offers Schema File
+enum OffersErrorType {
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+}
+
+enum OfferState {
+    pending
+    scheduled
+    active
+    expired
+    paused
+    archived
+}
+
+enum OfferAvailability {
+    client_only
+    global
+}
+
+enum OfferReach {
+    state
+    national
+    online_only
+}
+
+enum RedemptionType {
+    cardlinked
+    click
+    mobile
+}
+
+enum RedemptionTrigger {
+    minimum_purchase_amount,
+    purchase_frequency,
+    cumulative_purchase_amount
+}
+
+enum RewardType {
+    reward_amount
+    reward_percent
+}
+
+enum CountryCode {
+    US
+    CA
+}
+
+enum OfferFilter {
+    FIDELIS
+    ONLINE
+    NEARBY
+}
+
+# this is an Olive-based object, and therefore since their documentation lacks clarity on which fields are
+# required and which fields are not, we will make them all optional
+# https://developer.oliveltd.com/reference/the-offer-object
+type OfferStoreGeoLocation @aws_cognito_user_pools {
+    latitude: Float
+    longitude: Float
+}
+
+# this is an Olive-based object, and therefore since their documentation lacks clarity on which fields are
+# required and which fields are not, we will make them all optional
+# https://developer.oliveltd.com/reference/the-offer-object
+type OfferStore @aws_cognito_user_pools {
+    id: ID
+    name: String
+    phone: String
+    address1: String
+    city: String
+    state: String
+    countryCode: CountryCode
+    postCode: String
+    geoLocation: OfferStoreGeoLocation
+    isOnline: Boolean
+    distance: Float
+}
+
+# this is an Olive-based object, and therefore since their documentation lacks clarity on which fields are
+# required and which fields are not, we will make them all optional
+# https://developer.oliveltd.com/reference/the-offer-object
+type Reward @aws_cognito_user_pools {
+    type: RewardType
+    value: Float
+    maxValue: Float
+}
+
+# this is an Olive-based object, and therefore since their documentation lacks clarity on which fields are
+# required and which fields are not, we will make them all optional
+# https://developer.oliveltd.com/reference/the-offer-object
+type Offer @aws_cognito_user_pools {
+    id:	ID
+    corporateId: ID
+    created: AWSDateTime
+    offerState:	OfferState
+    availability: OfferAvailability
+    brandId: ID
+    brandDba: String
+    brandLogo: String
+    brandLogoSm: String
+    brandBanner: String
+    brandParentCategory: String
+    brandStubCopy: String
+    storeDetails: [OfferStore]
+    description: String
+    reach: OfferReach
+    title: String
+    qualifier: String
+    tile: String
+    startDate: AWSDateTime
+    endDate: AWSDateTime
+    currency: CurrencyCodeType
+    extOfferId: ID
+    supplierOfferKey: ID
+    redemptionType: RedemptionType
+    redemptionInstructionUrl: String
+    redemptionTrigger: RedemptionTrigger
+    budget: Float
+    daysAvailability: [Int]
+    stores: [ID]
+    totalRedeemLimit: Int
+    redeemLimitPerUser:	Int
+    purchaseAmount:	Int
+    purchaseFrequency: Int
+    reward: Reward
+}
+
+type OffersPaginatedResponse @aws_cognito_user_pools {
+    totalNumberOfPages: Int!
+    totalNumberOfRecords: Int!
+    offers: [Offer]!
+}
+
+type FidelisPartner @aws_cognito_user_pools {
+    brandName: String!
+    numberOfOffers: Int!
+    offers: [Offer]!
+}
+
+type OffersResponse @aws_cognito_user_pools {
+    data: OffersPaginatedResponse
+    errorType: OffersErrorType
+    errorMessage: String
+}
+
+type FidelisPartnerResponse @aws_cognito_user_pools {
+    data: [FidelisPartner]
+    errorType: OffersErrorType
+    errorMessage: String
+}
+
+input GetOffersInput {
+    filterType: OfferFilter!
+    availability: OfferAvailability!
+    offerStates: [OfferState]!
+    countryCode: CountryCode!
+    redemptionType: RedemptionType!
+    pageSize: Int!
+    pageNumber: Int!
+    radiusLatitude: Float # required only when the offer filter is NEARBY
+    radiusLongitude: Float # required only when the offer filter is NEARBY
+    radius: Int # required only when the offer filter is NEARBY
+    radiusIncludeOnlineStores: Boolean # required only when the offer filter is NEARBY
+}
+

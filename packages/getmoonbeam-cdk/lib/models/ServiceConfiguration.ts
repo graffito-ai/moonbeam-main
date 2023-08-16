@@ -214,3 +214,13 @@ export interface PhysicalDevicesConfiguration {
     readonly devicesIdGlobalIndex: string;
     readonly deviceTokenIdGlobalIndex: string;
 }
+
+/**
+ * Interface used to define the configuration for the offers service resolvers
+ * (GraphQL based), and other afferent data stores.
+ */
+export interface OffersConfiguration {
+    readonly offersFunctionName: string;
+    readonly getOffersResolverName: string;
+    readonly getFidelisPartnersResolverName: string;
+}

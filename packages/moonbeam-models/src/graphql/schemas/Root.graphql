@@ -1,6 +1,8 @@
 # graphql/Root.graphql
 # Main Schema File
 type Query {
+    getOffers(getOffersInput: GetOffersInput!): OffersResponse! @aws_cognito_user_pools
+    getFidelisPartners: FidelisPartnerResponse! @aws_cognito_user_pools
     getDevicesForUser(getDevicesForUserInput: GetDevicesForUserInput!): UserDevicesResponse! @aws_cognito_user_pools @aws_api_key
     getDevice(getDeviceInput: GetDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     getDeviceByToken(getDeviceByTokenInput: GetDeviceByTokenInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key

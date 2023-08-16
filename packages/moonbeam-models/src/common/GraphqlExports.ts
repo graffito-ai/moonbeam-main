@@ -98,6 +98,11 @@ export type CardUpdate = {
   updatedAt: Scalars['AWSDateTime'];
 };
 
+export enum CountryCode {
+  Ca = 'CA',
+  Us = 'US'
+}
+
 export type CreateCardLinkInput = {
   card: CardInput;
   createdAt?: InputMaybe<Scalars['AWSDateTime']>;
@@ -236,6 +241,20 @@ export type EligibleLinkedUsersResponse = {
   errorType?: Maybe<CardLinkErrorType>;
 };
 
+export type FidelisPartner = {
+  __typename?: 'FidelisPartner';
+  brandName: Scalars['String'];
+  numberOfOffers: Scalars['Int'];
+  offers: Array<Maybe<Offer>>;
+};
+
+export type FidelisPartnerResponse = {
+  __typename?: 'FidelisPartnerResponse';
+  data?: Maybe<Array<Maybe<FidelisPartner>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<OffersErrorType>;
+};
+
 export type File = {
   __typename?: 'File';
   url: Scalars['String'];
@@ -277,6 +296,20 @@ export type GetMilitaryVerificationResponse = {
   data?: Maybe<MilitaryVerificationStatus>;
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<MilitaryVerificationErrorType>;
+};
+
+export type GetOffersInput = {
+  availability: OfferAvailability;
+  countryCode: CountryCode;
+  filterType: OfferFilter;
+  offerStates: Array<InputMaybe<OfferState>>;
+  pageNumber: Scalars['Int'];
+  pageSize: Scalars['Int'];
+  radius?: InputMaybe<Scalars['Int']>;
+  radiusIncludeOnlineStores?: InputMaybe<Scalars['Boolean']>;
+  radiusLatitude?: InputMaybe<Scalars['Float']>;
+  radiusLongitude?: InputMaybe<Scalars['Float']>;
+  redemptionType: RedemptionType;
 };
 
 export type GetReimbursementByStatusInput = {
@@ -603,6 +636,111 @@ export enum NotificationsErrorType {
   ValidationError = 'VALIDATION_ERROR'
 }
 
+export type Offer = {
+  __typename?: 'Offer';
+  availability?: Maybe<OfferAvailability>;
+  brandBanner?: Maybe<Scalars['String']>;
+  brandDba?: Maybe<Scalars['String']>;
+  brandId?: Maybe<Scalars['ID']>;
+  brandLogo?: Maybe<Scalars['String']>;
+  brandLogoSm?: Maybe<Scalars['String']>;
+  brandParentCategory?: Maybe<Scalars['String']>;
+  brandStubCopy?: Maybe<Scalars['String']>;
+  budget?: Maybe<Scalars['Float']>;
+  corporateId?: Maybe<Scalars['ID']>;
+  created?: Maybe<Scalars['AWSDateTime']>;
+  currency?: Maybe<CurrencyCodeType>;
+  daysAvailability?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  description?: Maybe<Scalars['String']>;
+  endDate?: Maybe<Scalars['AWSDateTime']>;
+  extOfferId?: Maybe<Scalars['ID']>;
+  id?: Maybe<Scalars['ID']>;
+  offerState?: Maybe<OfferState>;
+  purchaseAmount?: Maybe<Scalars['Int']>;
+  purchaseFrequency?: Maybe<Scalars['Int']>;
+  qualifier?: Maybe<Scalars['String']>;
+  reach?: Maybe<OfferReach>;
+  redeemLimitPerUser?: Maybe<Scalars['Int']>;
+  redemptionInstructionUrl?: Maybe<Scalars['String']>;
+  redemptionTrigger?: Maybe<RedemptionTrigger>;
+  redemptionType?: Maybe<RedemptionType>;
+  reward?: Maybe<Reward>;
+  startDate?: Maybe<Scalars['AWSDateTime']>;
+  storeDetails?: Maybe<Array<Maybe<OfferStore>>>;
+  stores?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  supplierOfferKey?: Maybe<Scalars['ID']>;
+  tile?: Maybe<Scalars['String']>;
+  title?: Maybe<Scalars['String']>;
+  totalRedeemLimit?: Maybe<Scalars['Int']>;
+};
+
+export enum OfferAvailability {
+  ClientOnly = 'client_only',
+  Global = 'global'
+}
+
+export enum OfferFilter {
+  Fidelis = 'FIDELIS',
+  Nearby = 'NEARBY',
+  Online = 'ONLINE'
+}
+
+export enum OfferReach {
+  National = 'national',
+  OnlineOnly = 'online_only',
+  State = 'state'
+}
+
+export enum OfferState {
+  Active = 'active',
+  Archived = 'archived',
+  Expired = 'expired',
+  Paused = 'paused',
+  Pending = 'pending',
+  Scheduled = 'scheduled'
+}
+
+export type OfferStore = {
+  __typename?: 'OfferStore';
+  address1?: Maybe<Scalars['String']>;
+  city?: Maybe<Scalars['String']>;
+  countryCode?: Maybe<CountryCode>;
+  distance?: Maybe<Scalars['Float']>;
+  geoLocation?: Maybe<OfferStoreGeoLocation>;
+  id?: Maybe<Scalars['ID']>;
+  isOnline?: Maybe<Scalars['Boolean']>;
+  name?: Maybe<Scalars['String']>;
+  phone?: Maybe<Scalars['String']>;
+  postCode?: Maybe<Scalars['String']>;
+  state?: Maybe<Scalars['String']>;
+};
+
+export type OfferStoreGeoLocation = {
+  __typename?: 'OfferStoreGeoLocation';
+  latitude?: Maybe<Scalars['Float']>;
+  longitude?: Maybe<Scalars['Float']>;
+};
+
+export enum OffersErrorType {
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  ValidationError = 'VALIDATION_ERROR'
+}
+
+export type OffersPaginatedResponse = {
+  __typename?: 'OffersPaginatedResponse';
+  offers: Array<Maybe<Offer>>;
+  totalNumberOfPages: Scalars['Int'];
+  totalNumberOfRecords: Scalars['Int'];
+};
+
+export type OffersResponse = {
+  __typename?: 'OffersResponse';
+  data?: Maybe<OffersPaginatedResponse>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<OffersErrorType>;
+};
+
 export type PushDevice = {
   __typename?: 'PushDevice';
   deviceState: UserDeviceState;
@@ -618,7 +756,9 @@ export type Query = {
   getDeviceByToken: UserDeviceResponse;
   getDevicesForUser: UserDevicesResponse;
   getEligibleLinkedUsers: EligibleLinkedUsersResponse;
+  getFidelisPartners: FidelisPartnerResponse;
   getMilitaryVerificationStatus: GetMilitaryVerificationResponse;
+  getOffers: OffersResponse;
   getReimbursementByStatus: ReimbursementByStatusResponse;
   getStorage: StorageResponse;
   getTransaction: MoonbeamTransactionsResponse;
@@ -651,6 +791,11 @@ export type QueryGetMilitaryVerificationStatusArgs = {
 };
 
 
+export type QueryGetOffersArgs = {
+  getOffersInput: GetOffersInput;
+};
+
+
 export type QueryGetReimbursementByStatusArgs = {
   getReimbursementByStatusInput: GetReimbursementByStatusInput;
 };
@@ -669,6 +814,18 @@ export type QueryGetTransactionArgs = {
 export type QueryGetTransactionByStatusArgs = {
   getTransactionByStatusInput: GetTransactionByStatusInput;
 };
+
+export enum RedemptionTrigger {
+  CumulativePurchaseAmount = 'cumulative_purchase_amount',
+  MinimumPurchaseAmount = 'minimum_purchase_amount',
+  PurchaseFrequency = 'purchase_frequency'
+}
+
+export enum RedemptionType {
+  Cardlinked = 'cardlinked',
+  Click = 'click',
+  Mobile = 'mobile'
+}
 
 export type Reimbursement = {
   __typename?: 'Reimbursement';
@@ -760,6 +917,18 @@ export type RemoveCardResponse = {
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<CardLinkErrorType>;
 };
+
+export type Reward = {
+  __typename?: 'Reward';
+  maxValue?: Maybe<Scalars['Float']>;
+  type?: Maybe<RewardType>;
+  value?: Maybe<Scalars['Float']>;
+};
+
+export enum RewardType {
+  RewardAmount = 'reward_amount',
+  RewardPercent = 'reward_percent'
+}
 
 export type SendEmailNotificationInput = {
   emailDestination: Scalars['String'];
@@ -1045,6 +1214,18 @@ export type UpdateMilitaryVerificationStatusMutationVariables = Exact<{
 
 
 export type UpdateMilitaryVerificationStatusMutation = { __typename?: 'Mutation', updateMilitaryVerificationStatus: { __typename?: 'UpdateMilitaryVerificationResponse', errorType?: MilitaryVerificationErrorType | null, errorMessage?: string | null, id?: string | null, militaryVerificationStatus?: MilitaryVerificationStatusType | null } };
+
+export type GetFidelisPartnersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetFidelisPartnersQuery = { __typename?: 'Query', getFidelisPartners: { __typename?: 'FidelisPartnerResponse', errorMessage?: string | null, errorType?: OffersErrorType | null, data?: Array<{ __typename?: 'FidelisPartner', brandName: string, numberOfOffers: number, offers: Array<{ __typename?: 'Offer', id?: string | null, corporateId?: string | null, created?: string | null, offerState?: OfferState | null, availability?: OfferAvailability | null, brandId?: string | null, brandDba?: string | null, brandLogo?: string | null, brandLogoSm?: string | null, brandBanner?: string | null, brandParentCategory?: string | null, brandStubCopy?: string | null, description?: string | null, reach?: OfferReach | null, title?: string | null, qualifier?: string | null, tile?: string | null, startDate?: string | null, endDate?: string | null, currency?: CurrencyCodeType | null, extOfferId?: string | null, supplierOfferKey?: string | null, redemptionType?: RedemptionType | null, redemptionInstructionUrl?: string | null, redemptionTrigger?: RedemptionTrigger | null, budget?: number | null, daysAvailability?: Array<number | null> | null, stores?: Array<string | null> | null, totalRedeemLimit?: number | null, redeemLimitPerUser?: number | null, purchaseAmount?: number | null, purchaseFrequency?: number | null, storeDetails?: Array<{ __typename?: 'OfferStore', id?: string | null, name?: string | null, phone?: string | null, address1?: string | null, city?: string | null, state?: string | null, countryCode?: CountryCode | null, postCode?: string | null, isOnline?: boolean | null, distance?: number | null, geoLocation?: { __typename?: 'OfferStoreGeoLocation', latitude?: number | null, longitude?: number | null } | null } | null> | null, reward?: { __typename?: 'Reward', type?: RewardType | null, value?: number | null, maxValue?: number | null } | null } | null> } | null> | null } };
+
+export type GetOffersQueryVariables = Exact<{
+  getOffersInput: GetOffersInput;
+}>;
+
+
+export type GetOffersQuery = { __typename?: 'Query', getOffers: { __typename?: 'OffersResponse', errorMessage?: string | null, errorType?: OffersErrorType | null, data?: { __typename?: 'OffersPaginatedResponse', totalNumberOfPages: number, totalNumberOfRecords: number, offers: Array<{ __typename?: 'Offer', id?: string | null, corporateId?: string | null, created?: string | null, offerState?: OfferState | null, availability?: OfferAvailability | null, brandId?: string | null, brandDba?: string | null, brandLogo?: string | null, brandLogoSm?: string | null, brandBanner?: string | null, brandParentCategory?: string | null, brandStubCopy?: string | null, description?: string | null, reach?: OfferReach | null, title?: string | null, qualifier?: string | null, tile?: string | null, startDate?: string | null, endDate?: string | null, currency?: CurrencyCodeType | null, extOfferId?: string | null, supplierOfferKey?: string | null, redemptionType?: RedemptionType | null, redemptionInstructionUrl?: string | null, redemptionTrigger?: RedemptionTrigger | null, budget?: number | null, daysAvailability?: Array<number | null> | null, stores?: Array<string | null> | null, totalRedeemLimit?: number | null, redeemLimitPerUser?: number | null, purchaseAmount?: number | null, purchaseFrequency?: number | null, storeDetails?: Array<{ __typename?: 'OfferStore', id?: string | null, name?: string | null, phone?: string | null, address1?: string | null, city?: string | null, state?: string | null, countryCode?: CountryCode | null, postCode?: string | null, isOnline?: boolean | null, distance?: number | null, geoLocation?: { __typename?: 'OfferStoreGeoLocation', latitude?: number | null, longitude?: number | null } | null } | null> | null, reward?: { __typename?: 'Reward', type?: RewardType | null, value?: number | null, maxValue?: number | null } | null } | null> } | null } };
 
 export type GetDevicesForUserQueryVariables = Exact<{
   getDevicesForUserInput: GetDevicesForUserInput;

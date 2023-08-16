@@ -5,7 +5,7 @@ import {
     AppSyncConfiguration,
     CardLinkingConfiguration,
     MilitaryVerificationConfiguration,
-    NotificationsConfiguration,
+    NotificationsConfiguration, OffersConfiguration,
     PhysicalDevicesConfiguration,
     ReimbursementEligibilityConfiguration,
     ReimbursementsConfiguration,
@@ -34,6 +34,7 @@ export interface StageConfiguration {
     readonly reimbursementEligibilityConfig: ReimbursementEligibilityConfiguration;
     readonly transactionsProducerConsumerConfig: TransactionsProducerConsumerConfiguration;
     readonly transactionsConfig: TransactionsConfiguration;
+    readonly offersConfig: OffersConfiguration;
     readonly notificationsConfig: NotificationsConfiguration;
     readonly physicalDevicesConfig: PhysicalDevicesConfiguration;
     readonly environmentVariables: Map<string, string>;

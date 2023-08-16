@@ -9,7 +9,7 @@ import {
     CreateReimbursementEligibilityInput,
     CreateReimbursementInput,
     EligibleLinkedUser,
-    EligibleLinkedUsersResponse, GetDevicesForUserInput,
+    EligibleLinkedUsersResponse, GetDevicesForUserInput, GetOffersInput,
     GetReimbursementByStatusInput,
     GetTransactionByStatusInput,
     MemberDetailsResponse,
@@ -20,7 +20,7 @@ import {
     MoonbeamTransactionsByStatusResponse,
     MoonbeamUpdatedTransactionResponse,
     NotificationResponse,
-    NotificationType,
+    NotificationType, OffersResponse,
     ReimbursementByStatusResponse,
     ReimbursementEligibilityResponse,
     ReimbursementResponse,
@@ -71,10 +71,14 @@ export abstract class BaseAPIClient {
      *                          in case of internal-used based keys
      * @param notificationType  optional type indicating the type of notification, for which we are retrieving
      *                          specific secret configuration for
+     * @param includeLoyaltyPrograms optional type indicating whether to include the loyalty program secret keys,
+     *                               used for Olive calls
      *
-     * @return a {@link Promise} of a {@link string} pair, containing the baseURL and apiKey to be used
+     * @return a {@link Promise} of a {@link string} pair, containing various secrets to be used
      */
-    protected async retrieveServiceCredentials(verificationClientSecretsName: string, internalRestBased?: boolean, notificationType?: NotificationType): Promise<[string | null, string | null, (string | null)?]> {
+    protected async retrieveServiceCredentials(verificationClientSecretsName: string, internalRestBased?: boolean,
+                                               notificationType?: NotificationType, includeLoyaltyPrograms?: boolean)
+        : Promise<[string | null, string | null, (string | null)?, (string | null)?, (string | null)?, (string | null)?]> {
         try {
             // retrieve the secrets pair for the API client, depending on the current environment and region
             const verificationClientAPIPair = await this.secretsClient
@@ -116,7 +120,16 @@ export abstract class BaseAPIClient {
                     case Constants.AWSPairConstants.LIGHTHOUSE_SECRET_NAME:
                         return [clientPairAsJson[Constants.AWSPairConstants.LIGHTHOUSE_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.LIGHTHOUSE_API_KEY]];
                     case Constants.AWSPairConstants.OLIVE_SECRET_NAME:
-                        return [clientPairAsJson[Constants.AWSPairConstants.OLIVE_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.OLIVE_PUBLIC_KEY], clientPairAsJson[Constants.AWSPairConstants.OLIVE_PRIVATE_KEY]];
+                        return includeLoyaltyPrograms !== undefined
+                            ? [
+                                clientPairAsJson[Constants.AWSPairConstants.OLIVE_BASE_URL],
+                                clientPairAsJson[Constants.AWSPairConstants.OLIVE_PUBLIC_KEY],
+                                clientPairAsJson[Constants.AWSPairConstants.OLIVE_PRIVATE_KEY],
+                                clientPairAsJson[Constants.AWSPairConstants.OLIVE_MOONBEAM_DEFAULT_LOYALTY],
+                                clientPairAsJson[Constants.AWSPairConstants.OLIVE_MOONBEAM_FIDELIS_DEFAULT_LOYALTY],
+                                clientPairAsJson[Constants.AWSPairConstants.OLIVE_MOONBEAM_ONLINE_LOYALTY]
+                            ]
+                            : [clientPairAsJson[Constants.AWSPairConstants.OLIVE_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.OLIVE_PUBLIC_KEY], clientPairAsJson[Constants.AWSPairConstants.OLIVE_PRIVATE_KEY]];
                     default:
                         console.log(`Unknown API client secrets name passed in ${verificationClientSecretsName}`);
                         return [null, null];
@@ -133,6 +146,18 @@ export abstract class BaseAPIClient {
             throw new Error(errorMessage);
         }
     }
+
+    /**
+     * Function used to get all the offers, given certain filters to be passed in.
+     *
+     * @param getOffersInput the offers input, containing the filtering information
+     * used to retrieve all the applicable/matching offers.
+     *
+     * @returns a {@link OffersResponse} representing the matched offers' information.
+     *
+     * @protected
+     */
+    protected getOffers?(getOffersInput: GetOffersInput): Promise<OffersResponse>;
 
     /**
      * Function used to get all the physical devices associated with a particular user.

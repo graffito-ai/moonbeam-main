@@ -125,7 +125,7 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 notificationsStatusLocalIndex: 'notificationsStatusLocalIndex'
             },
             physicalDevicesConfig: {
-                devicesFunctionName: 'devicesFunctionName',
+                devicesFunctionName: 'devicesLambdaFunction',
                 createDeviceResolverName: 'createDevice',
                 updateDeviceResolverName: 'updateDevice',
                 getDevicesForUserResolverName: 'getDevicesForUser',
@@ -134,6 +134,11 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 devicesTableName: 'physicalDevicesTable',
                 devicesIdGlobalIndex: 'devicesIdGlobalIndex',
                 deviceTokenIdGlobalIndex: 'deviceTokenIdGlobalIndex'
+            },
+            offersConfig: {
+                offersFunctionName: 'offersLambdaFunction',
+                getOffersResolverName: 'getOffers',
+                getFidelisPartnersResolverName: 'getFidelisPartners'
             },
             sesConfig: {
                 emailAddress: `noreply-${Stages.DEV}@moonbeam.vet`
@@ -259,7 +264,7 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 notificationsStatusLocalIndex: 'notificationsStatusLocalIndex'
             },
             physicalDevicesConfig: {
-                devicesFunctionName: 'devicesFunctionName',
+                devicesFunctionName: 'devicesLambdaFunction',
                 createDeviceResolverName: 'createDevice',
                 updateDeviceResolverName: 'updateDevice',
                 getDevicesForUserResolverName: 'getDevicesForUser',
@@ -268,6 +273,11 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 devicesTableName: 'physicalDevicesTable',
                 devicesIdGlobalIndex: 'devicesIdGlobalIndex',
                 deviceTokenIdGlobalIndex: 'deviceTokenIdGlobalIndex'
+            },
+            offersConfig: {
+                offersFunctionName: 'offersLambdaFunction',
+                getOffersResolverName: 'getOffers',
+                getFidelisPartnersResolverName: 'getFidelisPartners'
             },
             sesConfig: {
                 emailAddress: `noreply@moonbeam.vet`
