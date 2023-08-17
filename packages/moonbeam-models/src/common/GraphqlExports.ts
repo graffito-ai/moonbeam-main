@@ -656,7 +656,7 @@ export type Offer = {
   extOfferId?: Maybe<Scalars['ID']>;
   id?: Maybe<Scalars['ID']>;
   offerState?: Maybe<OfferState>;
-  purchaseAmount?: Maybe<Scalars['Int']>;
+  purchaseAmount?: Maybe<Scalars['Float']>;
   purchaseFrequency?: Maybe<Scalars['Int']>;
   qualifier?: Maybe<Scalars['String']>;
   reach?: Maybe<OfferReach>;

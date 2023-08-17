@@ -22,9 +22,16 @@
       "iosDisplayInForeground": true
     },
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "infoPlist": {
-        "NSContactsUsageDescription": "Allow $(PRODUCT_NAME) to access your contacts."
+        "UIBackgroundModes": [
+          "location",
+          "fetch"
+        ],
+        "NSContactsUsageDescription": "Allow $(PRODUCT_NAME) to access your contacts.",
+        "NSLocationWhenInUseUsageDescription": "Allow $(PRODUCT_NAME) to access your location once while using the app.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Allow $(PRODUCT_NAME) to always access your while using the app.",
+        "NSLocationAlwaysUsageDescription": "Allow $(PRODUCT_NAME) to always access your location."
       },
       "bundleIdentifier": "com.moonbeam.moonbeamfin"
     },

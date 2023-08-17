@@ -925,7 +925,7 @@ type Offer @aws_cognito_user_pools {
     stores: [ID]
     totalRedeemLimit: Int
     redeemLimitPerUser:	Int
-    purchaseAmount:	Int
+    purchaseAmount:	Float
     purchaseFrequency: Int
     reward: Reward
 }

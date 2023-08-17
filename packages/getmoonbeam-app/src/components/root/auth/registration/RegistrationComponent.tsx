@@ -87,6 +87,7 @@ import CardLinkedSuccessImage from '../../../../../assets/art/card-linked-succes
 // @ts-ignore
 import RegistrationBackgroundImage from '../../../../../assets/backgrounds/registration-background.png';
 import {createPhysicalDevice, proceedWithDeviceCreation, sendNotification} from "../../../../utils/AppSync";
+import * as ImagePicker from "expo-image-picker";
 
 /**
  * RegistrationComponent component.
@@ -506,6 +507,28 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     }
 
     /**
+     * Function used to add the necessary media library permissions, needed to upload pictures
+     * through the Image picker for various documentation purposes.
+     */
+    const requestMediaLibraryPermission = async () => {
+        const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            console.log('Permission for media library not granted!');
+        }
+    }
+
+    /**
+     * Function used to add the necessary camera permissions, needed to upload pictures
+     * through the Image picker for various documentation purposes.
+     */
+    const requestCameraPermission = async () => {
+        const {status} = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== 'granted') {
+            console.log('Permission for camera not granted!');
+        }
+    }
+
+    /**
      * Function used to add the support number to the user's contacts,
      * in order to ensure a better experience when they message support.
      *
@@ -794,10 +817,11 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                         setIsReady(false);
 
                                                         await addSupportToContacts();
-                                                        // ToDo: in the future fix these to allow for location tracking
-                                                        // await requestForegroundLocationPermission();
-                                                        // await requestBackgroundLocationPermission();
+                                                        await requestForegroundLocationPermission();
+                                                        await requestBackgroundLocationPermission();
                                                         await requestNotificationsPermission();
+                                                        await requestMediaLibraryPermission();
+                                                        await requestCameraPermission();
 
                                                         // release the loader
                                                         setIsReady(true);

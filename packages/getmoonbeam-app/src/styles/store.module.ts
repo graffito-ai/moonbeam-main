@@ -79,6 +79,12 @@ export const styles = StyleSheet.create({
     featuredPartnersView: {
         height: '100%'
     },
+    featuredPartnersTitleMain: {
+        fontSize: Dimensions.get('window').height / 45,
+        fontFamily: 'Changa-Medium',
+        left: '5%',
+        alignSelf: 'flex-start'
+    },
     featuredPartnersTitle: {
         fontSize: Dimensions.get('window').height / 45,
         fontFamily: 'Changa-Medium',
@@ -86,9 +92,12 @@ export const styles = StyleSheet.create({
         left: '5%',
         alignSelf: 'flex-start'
     },
+    featuredPartnersScrollView: {
+        bottom: Dimensions.get('window').height/100
+    },
     onlineOffersView: {
         height: '100%',
-        bottom: '122%',
+        bottom: '121%',
         left: '1.5%'
     },
     onlineOffersTitleView: {
@@ -98,6 +107,12 @@ export const styles = StyleSheet.create({
     },
     onlineOffersLeftTitleView: {
         flexDirection: 'column'
+    },
+    onlineOffersTitleMain: {
+        fontSize: Dimensions.get('window').height / 45,
+        fontFamily: 'Changa-Medium',
+        left: '10%',
+        alignSelf: 'flex-start'
     },
     onlineOffersTitle: {
         fontSize: Dimensions.get('window').height / 45,
@@ -115,7 +130,7 @@ export const styles = StyleSheet.create({
         alignSelf: 'flex-start'
     },
     onlineOffersTitleButton: {
-        right: Dimensions.get('window').width/25,
+        right: Dimensions.get('window').width / 25,
         fontSize: Dimensions.get('window').height / 55,
         fontFamily: 'Raleway-Bold',
         color: '#F2FF5D',
@@ -128,7 +143,7 @@ export const styles = StyleSheet.create({
         height: '50%'
     },
     onlineOfferCard: {
-        right: Dimensions.get('window').width / 30,
+        right: Dimensions.get('window').width / 40,
         backgroundColor: 'transparent',
         width: Dimensions.get('window').width / 3,
         height: Dimensions.get('window').height / 3.8,
@@ -156,16 +171,22 @@ export const styles = StyleSheet.create({
     },
     nearbyOffersView: {
         height: '100%',
-        bottom: '65%',
+        bottom: '62%',
         left: '1.5%'
     },
     nearbyOffersTitleView: {
         justifyContent: 'space-between',
         flexDirection: 'row',
-        bottom: '2%'
+        top: '1%'
     },
     nearbyOffersLeftTitleView: {
         flexDirection: 'column'
+    },
+    nearbyOffersTitleMain: {
+        fontSize: Dimensions.get('window').height / 45,
+        fontFamily: 'Changa-Medium',
+        left: '10%',
+        alignSelf: 'flex-start'
     },
     nearbyOffersTitle: {
         fontSize: Dimensions.get('window').height / 45,
@@ -183,7 +204,7 @@ export const styles = StyleSheet.create({
         alignSelf: 'flex-start'
     },
     nearbyOffersTitleButton: {
-        right: Dimensions.get('window').width/25,
+        right: Dimensions.get('window').width / 25,
         fontSize: Dimensions.get('window').height / 55,
         fontFamily: 'Raleway-Bold',
         color: '#F2FF5D',
@@ -192,15 +213,27 @@ export const styles = StyleSheet.create({
         top: '16%'
     },
     nearbyOffersScrollView: {
-        height: '50%',
-        bottom: '80%'
+        top: '2%',
+        height: '50%'
+    },
+    loadCard: {
+        top: '0.5%',
+        left: '2%',
+        backgroundColor: 'transparent',
+        width: Dimensions.get('window').width / 1.25,
+        height: Dimensions.get('window').height / 3.5,
+        shadowColor: 'black',
+        shadowOffset: {width: -2, height: 1},
+        shadowOpacity: 0.6,
+        shadowRadius: 2,
+        elevation: 15
     },
     featuredPartnerCard: {
         top: '0.5%',
         left: '2%',
         backgroundColor: '#5B5A5A',
         width: Dimensions.get('window').width / 1.15,
-        height: Dimensions.get('window').height / 4,
+        height: Dimensions.get('window').height / 3.5,
         shadowColor: 'black',
         shadowOffset: {width: -2, height: 1},
         shadowOpacity: 0.6,
@@ -215,6 +248,7 @@ export const styles = StyleSheet.create({
         height: Dimensions.get('window').width / 4,
     },
     featuredPartnerCardTitle: {
+        top: '15%',
         right: '5%',
         fontFamily: 'Raleway-Medium',
         fontSize: Dimensions.get('window').height / 48,
@@ -223,6 +257,7 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF'
     },
     featuredPartnerCardSubtitle: {
+        top: '15%',
         right: '5%',
         fontSize: Dimensions.get('window').height / 60,
         fontFamily: 'Raleway-SemiBold',
@@ -232,15 +267,30 @@ export const styles = StyleSheet.create({
         color: '#F2FF5D',
     },
     featuredPartnerCardParagraph: {
-        top: '10%',
+        top: '20%',
         padding: 8,
         textAlign: 'justify',
         fontFamily: 'Raleway-Bold',
+        width: Dimensions.get('window').width / 1.25,
         fontSize: Dimensions.get('window').height / 75,
         color: '#FFFFFF'
     },
+    loadNearbyCardActionButton: {
+        top: Dimensions.get('window').height/10,
+        right: Dimensions.get('window').width/30,
+        height: Dimensions.get('window').height / 25,
+        width: Dimensions.get('window').width / 1.5,
+        borderRadius: 5
+    },
+    loadOnlineCardActionButton: {
+        top: Dimensions.get('window').height/30,
+        right: Dimensions.get('window').width/60,
+        height: Dimensions.get('window').height / 25,
+        width: Dimensions.get('window').width / 4,
+        borderRadius: 5
+    },
     featuredPartnerCardActionButton: {
-        top: '10%',
+        top: '25%',
         left: '5%',
         height: Dimensions.get('window').height / 25,
         width: Dimensions.get('window').width / 3,
@@ -250,117 +300,69 @@ export const styles = StyleSheet.create({
         fontFamily: 'Saira-SemiBold',
         fontSize: Dimensions.get('window').height / 60
     },
+    nearbyOfferCardParagraph: {
+        top: '20%',
+        padding: 8,
+        textAlign: 'left',
+        fontFamily: 'Raleway-Bold',
+        width: Dimensions.get('window').width / 1.6,
+        fontSize: Dimensions.get('window').height / 65,
+        color: '#FFFFFF'
+    },
     nearbyOfferCard: {
-        top: '0.5%',
         left: '1.5%',
         backgroundColor: '#5B5A5A',
         width: Dimensions.get('window').width / 1.3,
-        height: Dimensions.get('window').height / 3.2,
+        height: Dimensions.get('window').height / 3.5,
         shadowColor: 'black',
         shadowOffset: {width: -2, height: 1},
         shadowOpacity: 0.6,
         shadowRadius: 2,
         elevation: 15
     },
+    nearbyOfferCardCover: {
+        alignSelf: 'flex-end',
+        top: '10%',
+        left: '30%',
+        width: Dimensions.get('window').width / 3.5,
+        height: Dimensions.get('window').width / 4,
+    },
     nearbyOfferCardTitle: {
-        bottom: '15%',
+        top: '15%',
         right: '5%',
         fontFamily: 'Raleway-Medium',
         fontSize: Dimensions.get('window').height / 48,
-        width: Dimensions.get('window').width / 1.3,
+        width: Dimensions.get('window').width / 2.5,
         alignSelf: 'flex-start',
         color: '#FFFFFF'
     },
     nearbyOfferCardSubtitle: {
+        top: '15%',
         right: '5%',
-        fontSize: Dimensions.get('window').height / 60,
+        fontSize: Dimensions.get('window').height / 55,
         fontFamily: 'Raleway-SemiBold',
         alignSelf: 'flex-start',
-        bottom: '20%',
+        bottom: '3%',
         width: Dimensions.get('window').width / 2,
         color: '#F2FF5D',
     },
     nearbyOfferCardActionButton: {
-        top: '2%',
-        alignSelf: 'flex-end',
+        top: '25%',
+        left: '5%',
         height: Dimensions.get('window').height / 25,
         width: Dimensions.get('window').width / 3,
         borderRadius: 5
     },
+    nearbyOfferCardLocationDistance: {
+        top: Dimensions.get('window').height/30,
+        left: Dimensions.get('window').width/2.7,
+        fontFamily: 'Raleway-Bold',
+        color: '#FFFFFF',
+        fontSize: Dimensions.get('window').height / 60
+    },
     nearbyOfferCardActionButtonLabel: {
         fontFamily: 'Saira-SemiBold',
         fontSize: Dimensions.get('window').height / 60
-    },
-    offerMapView: {
-        height: Dimensions.get('window').height/7,
-        width: Dimensions.get('window').width / 1.3,
-        bottom: Dimensions.get('window').height/55,
-        left: -Dimensions.get('window').width / 28
-    },
-    mapTooltip: {
-        zIndex: 500,
-        backgroundColor: "transparent",
-    },
-    mapTooltipSquare: {
-        zIndex: 600,
-        height: Dimensions.get('window').height / 25,
-        width: Dimensions.get('window').width / 4.5,
-        backgroundColor: "#313030",
-        borderRadius: 10,
-        borderColor: '#F2FF5D',
-        borderWidth: 4
-    },
-    mapTooltipArrow: {
-        zIndex: 700,
-        position: "absolute",
-        top: -Dimensions.get('window').height / 100,
-        right: Dimensions.get('window').width / 17.4,
-        width: 0,
-        height: 0,
-        borderStyle: "solid",
-        borderLeftWidth: Dimensions.get('window').height / 45,
-        borderRightWidth: Dimensions.get('window').height / 45,
-        borderBottomWidth: Dimensions.get('window').height / 35,
-        borderLeftColor: "transparent",
-        borderRightColor: "transparent",
-        borderBottomColor: "#313030"
-    },
-    mapTooltipArrowOverlay: {
-        position: "absolute",
-        top: -Dimensions.get('window').height / 60,
-        right: Dimensions.get('window').width / 17.4,
-        width: 0,
-        height: 0,
-        borderStyle: "solid",
-        borderLeftWidth: Dimensions.get('window').height / 45,
-        borderRightWidth: Dimensions.get('window').height / 45,
-        borderBottomWidth: Dimensions.get('window').height / 35,
-        borderLeftColor: "transparent",
-        borderRightColor: "transparent",
-        borderBottomColor: "#F2FF5D"
-    },
-    toolTipDetailsView: {
-        backgroundColor: "transparent",
-        flexDirection: 'row',
-        alignSelf: 'center',
-        alignItems: 'center',
-        alignContent: 'center',
-        justifyContent: 'center',
-        bottom: Dimensions.get('window').height/30,
-        zIndex: 1000
-    },
-    toolTipImageDetail: {
-        alignSelf: 'center',
-        right: Dimensions.get('window').width / 55
-    },
-    toolTipImagePrice: {
-        left: Dimensions.get('window').width / 50,
-        top: Dimensions.get('window').width / 500,
-        alignSelf: 'center',
-        fontFamily: 'Raleway-ExtraBold',
-        fontSize: Dimensions.get('window').width / 24,
-        textAlign: 'center',
-        color: '#F2FF5D'
     },
     verticalOfferBenefit: {
         fontFamily: 'Raleway-Bold',
@@ -376,5 +378,12 @@ export const styles = StyleSheet.create({
         fontFamily: 'Raleway-SemiBold',
         color: '#FFFFFF',
         fontSize: Dimensions.get('window').height / 50
+    },
+    emptyOfferListItemTitle: {
+        left: Dimensions.get('window').width / 4,
+        fontSize: Dimensions.get('window').height / 50,
+        color: '#F2FF5D',
+        fontFamily: 'Saira-Medium',
+        width: Dimensions.get('window').width / 1.15
     }
 });
