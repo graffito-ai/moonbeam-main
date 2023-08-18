@@ -22,17 +22,8 @@ import {
     RewardType
 } from "@moonbeam/moonbeam-models";
 import {API, graphqlOperation} from "aws-amplify";
-
-/**
- * Interface to be used for determining the location of a nearby
- * offer's store, to be used when displaying it on a map.
- */
-interface NearbyOfferStoreLocation {
-    latitude: number,
-    longitude: number,
-    latitudeDelta: number,
-    longitudeDelta: number
-}
+import {currentUserInformation} from "../../../../../recoil/AuthAtom";
+import {useRecoilState} from "recoil";
 
 /**
  * Store component.
@@ -44,17 +35,24 @@ export const Store = ({navigation}: StoreProps) => {
     // constants used to keep track of local component state
     const [isReady, setIsReady] = useState<boolean>(false);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
+    const [filteredOffersSpinnerShown, setFilteredOffersSpinnerShown] = useState<boolean>(false);
     const [onlineOffersSpinnerShown, setOnlineOffersSpinnerShown] = useState<boolean>(false);
     const [nearbyOffersSpinnerShown, setNearbyOffersSpinnerShown] = useState<boolean>(false);
     const [toggleViewPressed, setToggleViewPressed] = useState<'horizontal' | 'vertical'>('horizontal');
     const [searchQuery, setSearchQuery] = React.useState('');
+    const [offersNearUserLocationFlag, setOffersNearUserLocationFlag] = useState<boolean>(false);
+    const [noFilteredOffersAvailable, setNoFilteredOffersAvailable] = useState<boolean>(false);
     const [nearbyOfferList, setNearbyOfferList] = useState<Offer[]>([]);
     const [onlineOfferList, setOnlineOfferList] = useState<Offer[]>([]);
     const [fidelisPartnerList, setFidelisPartnerList] = useState<FidelisPartner[]>([]);
-    const [filteredOfferList, setFilteredOfferList] = useState<[]>([]);
+    const [filteredOfferList, setFilteredOfferList] = useState<Offer[]>([]);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [nearbyOffersPageNumber, setNearbyOffersPageNumber] = useState<number>(1);
     const [onlineOffersPageNumber, setOnlineOffersPageNumber] = useState<number>(1);
+    const [userLatitude, setUserLatitude] = useState<number>(1);
+    const [userLongitude, setUserLongitude] = useState<number>(1);
+    // constants used to keep track of shared states
+    const [userInformation,] = useRecoilState(currentUserInformation);
 
     /**
      * Function used to retrieve the list of preferred (Fidelis) partners
@@ -98,17 +96,28 @@ export const Store = ({navigation}: StoreProps) => {
     /**
      * Function used to populate the Fidelis partners.
      *
-     * @param marketplaceListType the type of marketplace list organization to return
-     *
      * @return a {@link React.ReactNode} or {@link React.ReactNode[]} representing the
      * React node and/or nodes, representing the Fidelis partners.
      */
-    const populateFidelisPartners = (marketplaceListType: 'horizontal' | 'vertical'): React.ReactNode | React.ReactNode[] => {
+    const populateFidelisPartners = (): React.ReactNode | React.ReactNode[] => {
         let results: React.ReactNode[] = [];
         let fidelisPartnerNumber = 0;
         if (fidelisPartnerList.length !== 0) {
             for (const fidelisPartner of fidelisPartnerList) {
-                results.push(
+                // retrieve appropriate offer for partner (everyday)
+                let offer: Offer | null = null;
+                for (const matchedOffer of fidelisPartner.offers) {
+                    if (matchedOffer!.title!.includes("Military Discount")) {
+                        offer = matchedOffer!;
+                        break;
+                    }
+                }
+                const subtitle =
+                  offer!.reward!.type! === RewardType.RewardPercent
+                        ? `Starting at ${offer!.reward!.value}% Off`
+                        : `Starting at $${offer!.reward!.value} Off`;
+
+                offer && results.push(
                     <>
                         <Card
                             style={styles.featuredPartnerCard}>
@@ -121,9 +130,7 @@ export const Store = ({navigation}: StoreProps) => {
                                         <View>
                                             <Card.Title
                                                 title={fidelisPartner.brandName}
-                                                subtitle={fidelisPartner.numberOfOffers === 1
-                                                    ? `${fidelisPartner.numberOfOffers} Offer Available`
-                                                    : `${fidelisPartner.numberOfOffers} Offers Available`}
+                                                subtitle={subtitle}
                                                 titleStyle={styles.featuredPartnerCardTitle}
                                                 subtitleStyle={styles.featuredPartnerCardSubtitle}
                                                 titleNumberOfLines={3}
@@ -148,7 +155,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                 imageProps={{
                                                     resizeMode: 'contain'
                                                 }}
-                                                source={{uri: fidelisPartner.offers[0]!.brandLogoSm!}}
+                                                source={{uri: fidelisPartner.offers[0]!.brandLogoSm!, cache: 'reload'}}
                                             />
                                         </View>
                                     </View>
@@ -188,7 +195,7 @@ export const Store = ({navigation}: StoreProps) => {
                     filterType: OfferFilter.Online,
                     offerStates: [OfferState.Active, OfferState.Scheduled],
                     pageNumber: onlineOffersPageNumber,
-                    pageSize: 5, // load 5 nearby offers at a time
+                    pageSize: 15, // load 15 nearby offers at a time
                     redemptionType: RedemptionType.Cardlinked
                 }
             }));
@@ -226,12 +233,10 @@ export const Store = ({navigation}: StoreProps) => {
     /**
      * Function used to populate the online offers.
      *
-     * @param marketplaceListType the type of marketplace list organization to return
-     *
      * @return a {@link React.ReactNode} or {@link React.ReactNode[]} representing the
      * React node and/or nodes, representing the online offers.
      */
-    const populateOnlineOffers = (marketplaceListType: 'horizontal' | 'vertical'): React.ReactNode | React.ReactNode[] => {
+    const populateOnlineOffers = (): React.ReactNode | React.ReactNode[] => {
         let results: React.ReactNode[] = [];
         let onlineOfferNumber = 0;
         if (onlineOfferList.length !== 0) {
@@ -253,7 +258,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                     resizeMode: 'stretch'
                                                 }}
                                                 size={25}
-                                                source={{uri: onlineOffer.brandLogoSm!}}
+                                                source={{uri: onlineOffer.brandLogoSm!, cache: 'reload'}}
                                             />
                                             <Paragraph
                                                 style={styles.onlineOfferCardTitle}>{onlineOffer.brandDba}
@@ -285,7 +290,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                         resizeMode: 'stretch'
                                                     }}
                                                     size={25}
-                                                    source={{uri: onlineOffer.brandLogoSm!}}
+                                                    source={{uri: onlineOffer.brandLogoSm!, cache: 'reload'}}
                                                 />
                                                 <Paragraph
                                                     style={styles.onlineOfferCardTitle}>{onlineOffer.brandDba}
@@ -348,6 +353,79 @@ export const Store = ({navigation}: StoreProps) => {
     }
 
     /**
+     * Function used to retrieve the list of offers near the user's home location, that we will
+     * display in the second category of the marketplace (to be used as a fallback to the nearby
+     * offers).
+     *
+     * @returns a {@link Promise} of {@link void} since this function will set the
+     * React state of the offers near the user's home location.
+     */
+    const retrieveOffersNearLocation = async (address: string): Promise<void> => {
+        try {
+            // first retrieve the necessary geolocation information based on the user's home address
+            const geoLocationArray = await Location.geocodeAsync(address);
+            /**
+             * get the first location point in the array of geolocation returned
+             */
+            const geoLocation = geoLocationArray && geoLocationArray.length !== 0 ? geoLocationArray[0] : null;
+            if (!geoLocation) {
+                console.log(`Unable to retrieve user's home location's geolocation ${address}`);
+            } else {
+                // call the getOffers API
+                const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
+                    getOffersInput: {
+                        availability: OfferAvailability.Global,
+                        countryCode: CountryCode.Us,
+                        filterType: OfferFilter.Nearby,
+                        offerStates: [OfferState.Active, OfferState.Scheduled],
+                        pageNumber: nearbyOffersPageNumber,
+                        pageSize: 15, // load 5 nearby offers at a time
+                        radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
+                        radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
+                        radiusLatitude: geoLocation.latitude,
+                        radiusLongitude: geoLocation.longitude,
+                        redemptionType: RedemptionType.Cardlinked
+                    }
+                }));
+
+                // retrieve the data block from the response
+                // @ts-ignore
+                const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.getOffers.errorMessage === null) {
+                    // retrieve the array of nearby offers from the API call
+                    const nearbyOffers: Offer[] = responseData.getOffers.data.offers;
+
+                    // ensure that there is at least one nearby offer in the list
+                    if (nearbyOffers.length > 0) {
+                        // increase page number
+                        setNearbyOffersPageNumber(nearbyOffersPageNumber + 1);
+
+                        // push any old offers into the list to return
+                        setNearbyOfferList(nearbyOfferList.concat(nearbyOffers));
+
+                        // set the nearby user location flag
+                        setOffersNearUserLocationFlag(true);
+
+                        // set the user geolocation information
+                        setUserLatitude(geoLocation.latitude);
+                        setUserLongitude(geoLocation.longitude);
+                    } else {
+                        console.log(`No offers near user's home location to display ${JSON.stringify(nearbyOffersResult)}`);
+                    }
+                } else {
+                    console.log(`Unexpected error while retrieving offers near user's home location ${JSON.stringify(nearbyOffersResult)}`);
+                    setModalVisible(true);
+                }
+            }
+        } catch (error) {
+            console.log(`Unexpected error while attempting to retrieve offers near user's home location ${JSON.stringify(error)} ${error}`);
+            setModalVisible(true);
+        }
+    }
+
+    /**
      * Function used to retrieve the list of offers nearby, that we will
      * display in the second category of the marketplace.
      *
@@ -373,7 +451,7 @@ export const Store = ({navigation}: StoreProps) => {
                             filterType: OfferFilter.Nearby,
                             offerStates: [OfferState.Active, OfferState.Scheduled],
                             pageNumber: nearbyOffersPageNumber,
-                            pageSize: 5, // load 5 nearby offers at a time
+                            pageSize: 15, // load 5 nearby offers at a time
                             radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
                             radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
                             radiusLatitude: currentUserLocation.coords.latitude,
@@ -397,9 +475,15 @@ export const Store = ({navigation}: StoreProps) => {
                             setNearbyOffersPageNumber(nearbyOffersPageNumber + 1);
 
                             // push any old offers into the list to return
-                            setNearbyOfferList(nearbyOfferList.concat(nearbyOffers))
+                            setNearbyOfferList(nearbyOfferList.concat(nearbyOffers));
+
+                            // set the user geolocation information
+                            setUserLatitude(currentUserLocation.coords.latitude);
+                            setUserLongitude(currentUserLocation.coords.longitude);
                         } else {
                             console.log(`No nearby offers to display ${JSON.stringify(nearbyOffersResult)}`);
+                            // fallback to offers near their home address
+                            userInformation["address"] && userInformation["address"]["formatted"] && await retrieveOffersNearLocation(userInformation["address"]["formatted"]);
                         }
                     } else {
                         console.log(`Unexpected error while retrieving nearby offers ${JSON.stringify(nearbyOffersResult)}`);
@@ -416,6 +500,9 @@ export const Store = ({navigation}: StoreProps) => {
             // @ts-ignore
             if (!error.code || error.code !== 'ERR_LOCATION_INFO_PLIST') {
                 setModalVisible(true);
+            } else {
+                // fallback to offers near their home address
+                userInformation["address"] && userInformation["address"]["formatted"] && await retrieveOffersNearLocation(userInformation["address"]["formatted"]);
             }
         }
     }
@@ -423,12 +510,10 @@ export const Store = ({navigation}: StoreProps) => {
     /**
      * Function used to populate the nearby offers.
      *
-     * @param marketplaceListType the type of marketplace list organization to return
-     *
      * @return a {@link React.ReactNode} or {@link React.ReactNode[]} representing the
      * React node and/or nodes, representing the nearby offers.
      */
-    const populateNearbyOffers = (marketplaceListType: 'horizontal' | 'vertical'): React.ReactNode | React.ReactNode[] => {
+    const populateNearbyOffers = (): React.ReactNode | React.ReactNode[] => {
         let results: React.ReactNode[] = [];
         let nearbyOffersNumber = 0;
         if (nearbyOfferList.length !== 0) {
@@ -444,12 +529,11 @@ export const Store = ({navigation}: StoreProps) => {
                                         <Card.Content>
                                             <View style={{flexDirection: 'column'}}>
                                                 <View style={{
-                                                    flexDirection: 'row',
-                                                    marginTop: -10
+                                                    flexDirection: 'row'
                                                 }}>
                                                     <View>
                                                         <Card.Title
-                                                            title={nearbyOffer.brandDba}
+                                                            title={`${nearbyOffer.brandDba}`}
                                                             subtitle={nearbyOffer.reward!.type! === RewardType.RewardPercent
                                                                 ? `${nearbyOffer.reward!.value}% Off`
                                                                 : `$${nearbyOffer.reward!.value} Off`}
@@ -471,13 +555,13 @@ export const Store = ({navigation}: StoreProps) => {
                                                             {'View Offer'}
                                                         </Button>
                                                     </View>
-                                                    <View>
+                                                    <View style={{left: Dimensions.get('window').width / 20}}>
                                                         <Avatar
                                                             containerStyle={styles.nearbyOfferCardCover}
                                                             imageProps={{
                                                                 resizeMode: 'contain'
                                                             }}
-                                                            source={{uri: nearbyOffer.brandLogoSm!}}
+                                                            source={{uri: nearbyOffer.brandLogoSm!, cache: 'reload'}}
                                                         />
                                                     </View>
                                                 </View>
@@ -499,12 +583,11 @@ export const Store = ({navigation}: StoreProps) => {
                                         <Card.Content>
                                             <View style={{flexDirection: 'column'}}>
                                                 <View style={{
-                                                    flexDirection: 'row',
-                                                    marginTop: -10
+                                                    flexDirection: 'row'
                                                 }}>
                                                     <View>
                                                         <Card.Title
-                                                            title={nearbyOffer.brandDba}
+                                                            title={`${nearbyOffer.brandDba}`}
                                                             subtitle={nearbyOffer.reward!.type! === RewardType.RewardPercent
                                                                 ? `${nearbyOffer.reward!.value}% Off`
                                                                 : `$${nearbyOffer.reward!.value} Off`}
@@ -526,13 +609,13 @@ export const Store = ({navigation}: StoreProps) => {
                                                             {'View Offer'}
                                                         </Button>
                                                     </View>
-                                                    <View>
+                                                    <View style={{left: Dimensions.get('window').width / 20}}>
                                                         <Avatar
                                                             containerStyle={styles.nearbyOfferCardCover}
                                                             imageProps={{
                                                                 resizeMode: 'contain'
                                                             }}
-                                                            source={{uri: nearbyOffer.brandLogoSm!}}
+                                                            source={{uri: nearbyOffer.brandLogoSm!, cache: 'reload'}}
                                                         />
                                                     </View>
                                                 </View>
@@ -562,8 +645,10 @@ export const Store = ({navigation}: StoreProps) => {
                                                                 // set the loader
                                                                 setNearbyOffersSpinnerShown(true);
 
-                                                                // retrieve additional offers
-                                                                await retrieveNearbyOffersList();
+                                                                // retrieve additional offers (either nearby, or near user's home location)
+                                                                !offersNearUserLocationFlag
+                                                                    ? await retrieveNearbyOffersList()
+                                                                    : await retrieveOffersNearLocation(userInformation["address"]["formatted"]);
 
                                                                 // release the loader
                                                                 setNearbyOffersSpinnerShown(false);
@@ -591,6 +676,385 @@ export const Store = ({navigation}: StoreProps) => {
     }
 
     /**
+     * Function used to populate the nearby offers.
+     *
+     * @param filtered flag indicating whether we are to display the filtered
+     * offers or not
+     *
+     * @return a {@link React.ReactNode} or {@link React.ReactNode[]} representing the
+     * React node and/or nodes, representing the vertical offers.
+     */
+    const populateVerticalOffers = (filtered: boolean): React.ReactNode | React.ReactNode[] => {
+        let results: React.ReactNode[] = [];
+        let verticalOffersNumber = 0;
+
+        // check which offer arrays to observe (filtered or all the other ones)
+        const offerList: Offer[] = filtered ? filteredOfferList : nearbyOfferList.concat(onlineOfferList);
+
+        // fidelis partner listing
+        if (!filtered && !noFilteredOffersAvailable) {
+            for (const fidelisPartner of fidelisPartnerList) {
+                // retrieve appropriate offer for partner (everyday)
+                let offer: Offer | null = null;
+                for (const matchedOffer of fidelisPartner.offers) {
+                    if (matchedOffer!.title!.includes("Military Discount")) {
+                        offer = matchedOffer!;
+                        break;
+                    }
+                }
+                offer && results.push(
+                    <>
+                        <List.Item
+                            onPress={() => {
+                                navigation.navigate('StoreOffer', {});
+                            }}
+                            style={{marginLeft: '3%'}}
+                            titleStyle={styles.verticalOfferName}
+                            descriptionStyle={styles.verticalOfferBenefits}
+                            titleNumberOfLines={1}
+                            descriptionNumberOfLines={1}
+                            title={fidelisPartner.brandName}
+                            description={
+                                <>
+                                    {"Starting at "}
+                                    <Text style={styles.verticalOfferBenefit}>
+                                        {offer!.reward!.type! === RewardType.RewardPercent
+                                            ? `${offer!.reward!.value}%`
+                                            : `$${offer!.reward!.value}`}
+                                    </Text>
+                                    {" Off "}
+                                </>
+                            }
+                            left={() =>
+                                <Avatar
+                                    containerStyle={{
+                                        marginRight: '5%'
+                                    }}
+                                    imageProps={{
+                                        resizeMode: 'stretch'
+                                    }}
+                                    size={60}
+                                    source={{uri: offer!.brandLogoSm!, cache: 'reload'}}
+                                />}
+                            right={() => <List.Icon color={'#F2FF5D'}
+                                                    icon="chevron-right"/>}
+                        />
+                    </>
+                )
+            }
+        }
+
+        // offer listing
+        if (offerList.length !== 0 && !noFilteredOffersAvailable) {
+            for (const verticalOffer of offerList) {
+                results.push(
+                    <>
+                        {
+                            verticalOffersNumber !== offerList.length - 1
+                                ?
+                                <>
+                                    <List.Item
+                                        onPress={() => {
+                                            navigation.navigate('StoreOffer', {});
+                                        }}
+                                        style={{marginLeft: '3%'}}
+                                        titleStyle={styles.verticalOfferName}
+                                        descriptionStyle={styles.verticalOfferBenefits}
+                                        titleNumberOfLines={1}
+                                        descriptionNumberOfLines={1}
+                                        title={verticalOffer.brandDba}
+                                        description={
+                                            <>
+                                                <Text style={styles.verticalOfferBenefit}>
+                                                    {verticalOffer.reward!.type! === RewardType.RewardPercent
+                                                        ? `${verticalOffer.reward!.value}%`
+                                                        : `$${verticalOffer.reward!.value}`}
+                                                </Text>
+                                                {" Off "}
+                                            </>
+                                        }
+                                        left={() =>
+                                            <Avatar
+                                                containerStyle={{
+                                                    marginRight: '5%'
+                                                }}
+                                                imageProps={{
+                                                    resizeMode: 'stretch'
+                                                }}
+                                                size={60}
+                                                source={{uri: verticalOffer.brandLogoSm!, cache: 'reload'}}
+                                            />}
+                                        right={() => <List.Icon color={'#F2FF5D'}
+                                                                icon="chevron-right"/>}
+                                    />
+                                </>
+                                :
+                                <>
+                                    <List.Item
+                                        onPress={() => {
+                                            navigation.navigate('StoreOffer', {});
+                                        }}
+                                        style={{marginLeft: '3%'}}
+                                        titleStyle={styles.verticalOfferName}
+                                        descriptionStyle={styles.verticalOfferBenefits}
+                                        titleNumberOfLines={1}
+                                        descriptionNumberOfLines={1}
+                                        title={verticalOffer.brandDba}
+                                        description={
+                                            <>
+                                                <Text style={styles.verticalOfferBenefit}>
+                                                    {verticalOffer.reward!.type! === RewardType.RewardPercent
+                                                        ? `${verticalOffer.reward!.value}%`
+                                                        : `$${verticalOffer.reward!.value}`}
+                                                </Text>
+                                                {" Off "}
+                                            </>
+                                        }
+                                        left={() =>
+                                            <Avatar
+                                                containerStyle={{
+                                                    marginRight: '5%'
+                                                }}
+                                                imageProps={{
+                                                    resizeMode: 'stretch'
+                                                }}
+                                                size={60}
+                                                source={{uri: verticalOffer.brandLogoSm!, cache: 'reload'}}
+                                            />}
+                                        right={() => <List.Icon color={'#F2FF5D'}
+                                                                icon="chevron-right"/>}
+                                    />
+                                    {!filtered &&
+                                        <List.Item
+                                            rippleColor={'transparent'}
+                                            onPress={async () => {
+                                                // set the loader
+                                                setFilteredOffersSpinnerShown(true);
+
+                                                // retrieve additional offers (either nearby, or near user's home location)
+                                                await retrieveOnlineOffersList();
+                                                !offersNearUserLocationFlag
+                                                    ? await retrieveNearbyOffersList()
+                                                    : await retrieveOffersNearLocation(userInformation["address"]["formatted"]);
+
+                                                // release the loader
+                                                setFilteredOffersSpinnerShown(false);
+                                            }}
+                                            style={{
+                                                marginLeft: Dimensions.get('window').width / 2.8,
+                                                top: Dimensions.get('window').height / 50
+                                            }}
+                                            titleStyle={[styles.verticalOfferName, {color: '#F2FF5D'}]}
+                                            titleNumberOfLines={1}
+                                            title={'See More'}
+                                        />
+                                    }
+                                    {
+                                        (searchQuery === 'sort by: online' || searchQuery ==='sort by: nearby locations') &&
+                                        <List.Item
+                                            rippleColor={'transparent'}
+                                            onPress={async () => {
+                                                // set the loader
+                                                setFilteredOffersSpinnerShown(true);
+
+                                                // retrieve additional offers (either nearby, or near user's home location)
+                                                await retrieveOnlineOffersList();
+                                                !offersNearUserLocationFlag
+                                                    ? await retrieveNearbyOffersList()
+                                                    : await retrieveOffersNearLocation(userInformation["address"]["formatted"]);
+
+                                                // release the loader
+                                                setFilteredOffersSpinnerShown(false);
+                                            }}
+                                            style={{
+                                                marginLeft: Dimensions.get('window').width / 2.8,
+                                                top: Dimensions.get('window').height / 50
+                                            }}
+                                            titleStyle={[styles.verticalOfferName, {color: '#F2FF5D'}]}
+                                            titleNumberOfLines={1}
+                                            title={'See More'}
+                                        />
+                                    }
+                                </>
+                        }
+                    </>
+                );
+                verticalOffersNumber += 1;
+            }
+        } else {
+            results.push(
+                <>
+                    <List.Item
+                        onPress={() => {
+                            navigation.navigate('StoreOffer', {});
+                        }}
+                        style={{marginLeft: Dimensions.get('window').width / 3.5, top: '1%'}}
+                        titleStyle={[styles.verticalOfferName, {color: '#F2FF5D'}]}
+                        titleNumberOfLines={1}
+                        title={'No offers found!'}
+                    />
+                </>
+            )
+        }
+        return results;
+    }
+
+    /**
+     * Function used to retrieve the list of online offers for a given brand name.
+     *
+     * @param brandName brand name to query for.
+     *
+     * @returns a {@link Promise} of {@link void} since this function will set the
+     * React state of the queried.
+     */
+    const retrieveOnlineOffersForBrand = async (brandName: string): Promise<void> => {
+        try {
+            // call the getOffers API
+            const onlineOffersResult = await API.graphql(graphqlOperation(getOffers, {
+                getOffersInput: {
+                    availability: OfferAvailability.Global,
+                    countryCode: CountryCode.Us,
+                    filterType: OfferFilter.Online,
+                    offerStates: [OfferState.Active, OfferState.Scheduled],
+                    pageNumber: 1,
+                    pageSize: 15, // load 15 nearby offers at a time
+                    redemptionType: RedemptionType.Cardlinked,
+                    brandName: brandName
+                }
+            }));
+
+            // retrieve the data block from the response
+            // @ts-ignore
+            const responseData = onlineOffersResult ? onlineOffersResult.data : null;
+
+            // check if there are any errors in the returned response
+            if (responseData && responseData.getOffers.errorMessage === null) {
+                // retrieve the array of online offers from the API call
+                const onlineOffers: Offer[] = responseData.getOffers.data.offers;
+
+                // ensure that there is at least one online offer in the list
+                if (onlineOffers.length > 0) {
+                    console.log(`Online offers found for brand ${brandName}`);
+
+                    // push any old offers into the list to return
+                    setFilteredOfferList(filteredOfferList.concat(onlineOffers));
+
+                    // set the no filtered offers available flag accordingly
+                    setNoFilteredOffersAvailable(false);
+                } else {
+                    console.log(`No online offers to display for brand name ${brandName} ${JSON.stringify(onlineOffersResult)}`);
+
+                    // set the no filtered offers available flag accordingly
+                    setNoFilteredOffersAvailable(true);
+                }
+            } else {
+                console.log(`Unexpected error while retrieving online offers ${JSON.stringify(onlineOffersResult)}`);
+                setModalVisible(true);
+            }
+        } catch (error) {
+            console.log(`Unexpected error while attempting to retrieve online offers ${JSON.stringify(error)} ${error}`);
+            setModalVisible(true);
+        }
+    }
+
+    /**
+     * Function used to retrieve the list of offers nearby for a given brand name.
+     *
+     * @param brandName brand name to query for.
+     *
+     * @returns a {@link Promise} of {@link void} since this function will set the
+     * React state of the queried offers.
+     */
+    const retrieveNearbyOffersListForBrand = async (brandName: string): Promise<void> => {
+        try {
+            // call the getOffers API
+            const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
+                getOffersInput: {
+                    availability: OfferAvailability.Global,
+                    countryCode: CountryCode.Us,
+                    filterType: OfferFilter.Nearby,
+                    offerStates: [OfferState.Active, OfferState.Scheduled],
+                    pageNumber: 1,
+                    pageSize: 15, // load 5 nearby offers at a time
+                    radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
+                    radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
+                    radiusLatitude: userLatitude,
+                    radiusLongitude: userLongitude,
+                    redemptionType: RedemptionType.Cardlinked,
+                    brandName: brandName
+                }
+            }));
+
+            // retrieve the data block from the response
+            // @ts-ignore
+            const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
+
+            // check if there are any errors in the returned response
+            if (responseData && responseData.getOffers.errorMessage === null) {
+                // retrieve the array of nearby offers from the API call
+                const nearbyOffers: Offer[] = responseData.getOffers.data.offers;
+
+                // ensure that there is at least one nearby offer in the list
+                if (nearbyOffers.length > 0) {
+                    console.log(`Nearby offers found for brand ${brandName}`);
+
+                    // push any old offers into the list to return
+                    setFilteredOfferList(filteredOfferList.concat(nearbyOffers));
+
+                    // set the no filtered offers available flag accordingly
+                    setNoFilteredOffersAvailable(false);
+                } else {
+                    console.log(`No nearby offers to display for brand name ${brandName} ${JSON.stringify(nearbyOffersResult)}`);
+
+                    // set the no filtered offers available flag accordingly
+                    setNoFilteredOffersAvailable(true);
+                }
+            } else {
+                console.log(`Unexpected error while attempting to retrieve nearby offers for brand name ${brandName} ${JSON.stringify(nearbyOffersResult)}`);
+                setModalVisible(true);
+            }
+        } catch (error) {
+            console.log(`Unexpected error while attempting to retrieve nearby offers for brand name ${brandName} ${JSON.stringify(error)} ${error}`);
+
+            setModalVisible(true);
+        }
+    }
+
+    /**
+     * Function used to retrieve the list of queried offers (by brand name), that we will
+     * display based on a search-based query in the marketplace.
+     *
+     * @returns a {@link Promise} of {@link void} since this function will set the
+     * React state of the queried offers (by brand name).
+     */
+    const retrieveQueriedOffers = async (query: string): Promise<void> => {
+        try {
+            /**
+             * check to see if we have valid latitude and longitude values
+             * then we need to first query for nearby offers for brand.
+             */
+            if (userLatitude !== 1 && userLongitude !== 1) {
+                await retrieveNearbyOffersListForBrand(query);
+                /**
+                 * if there are no available nearby offers for brand,
+                 * try retrieving online ones.
+                 */
+                if (filteredOfferList.length === 0) {
+                    await retrieveOnlineOffersForBrand(query);
+                }
+            } else {
+                /**
+                 * we will look up online offers for brand.
+                 */
+                await retrieveOnlineOffersForBrand(query);
+            }
+        } catch (error) {
+            console.log(`Unexpected error while attempting to retrieve queried offers ${JSON.stringify(error)} ${error}`);
+            setModalVisible(true);
+        }
+    }
+
+    /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
      * auth-related functionality for example), as well as any afferent API calls.
      *
@@ -607,7 +1071,27 @@ export const Store = ({navigation}: StoreProps) => {
             // release the loader on button press
             !isReady && setIsReady(true);
         });
-    }, [fidelisPartnerList, onlineOfferList, nearbyOfferList]);
+        // set the toggle view for filtered offers
+        filteredOfferList.length !== 0 && setToggleViewPressed('vertical');
+
+        // change the filtered list, based on the search query
+        if (searchQuery !== '') {
+            switch (searchQuery) {
+                case 'sort by: online':
+                    setFilteredOfferList(onlineOfferList);
+                    setToggleViewPressed('vertical');
+                    break;
+                case 'sort by: nearby locations':
+                    setFilteredOfferList(nearbyOfferList);
+                    setToggleViewPressed('vertical');
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    }, [fidelisPartnerList, onlineOfferList, nearbyOfferList,
+        filteredOfferList, searchQuery]);
 
     // return the component for the Store page
     return (
@@ -663,6 +1147,14 @@ export const Store = ({navigation}: StoreProps) => {
                                         onValueChange={(value) => {
                                             value === 'horizontal' && searchQuery !== '' && setSearchQuery('');
                                             value !== null && setToggleViewPressed(value);
+
+                                            // clear the filtered list and set appropriate flags
+                                            if (value === 'horizontal' && filteredOfferList.length !== 0) {
+                                                setFilteredOfferList([]);
+
+                                                // set the no filtered offers available flag accordingly
+                                                setNoFilteredOffersAvailable(false);
+                                            }
                                         }}
                                         value={toggleViewPressed}>
                                         <ToggleButton
@@ -687,38 +1179,55 @@ export const Store = ({navigation}: StoreProps) => {
                                     inputStyle={styles.searchBarInput}
                                     style={styles.searchBar}
                                     placeholder="Search for a merchant partner"
-                                    onSubmitEditing={(event) => {
+                                    onClearIconPress={(_) => {
+                                        // clear the filtered list and set appropriate flags
+                                        setFilteredOfferList([]);
+
+                                        // set the no filtered offers available flag accordingly
+                                        setNoFilteredOffersAvailable(false);
+                                    }}
+                                    onSubmitEditing={async (event) => {
                                         console.log("searching", event.nativeEvent.text);
+                                        // set the loader
+                                        setFilteredOffersSpinnerShown(true);
+
+                                        // retrieve additional offers
+                                        await retrieveQueriedOffers(event.nativeEvent.text);
+
+                                        // release the loader
+                                        setFilteredOffersSpinnerShown(false);
+
+                                        if (toggleViewPressed === 'horizontal') {
+                                            setToggleViewPressed('vertical');
+                                        }
                                     }}
                                     onChangeText={(query) => setSearchQuery(query)}
                                     value={searchQuery}
                                 />
                                 <View
-                                    style={[styles.filterChipView, nearbyOfferList.length === 0 && {right: Dimensions.get('window').width / 6.4}]}>
+                                    style={[styles.filterChipView, nearbyOfferList.length === 0 && {right: Dimensions.get('window').width / 3.3}]}>
                                     <Chip mode={'flat'}
-                                          style={[styles.filterChip, searchQuery === 'sort by: points' ? {backgroundColor: '#F2FF5D'} : {backgroundColor: '#5B5A5A'}]}
-                                          textStyle={[styles.filterChipText, searchQuery === 'sort by: points' ? {color: '#5B5A5A'} : {color: '#F2FF5D'}]}
+                                          style={[styles.filterChip, searchQuery === 'sort by: online' ? {backgroundColor: '#F2FF5D'} : {backgroundColor: '#5B5A5A'}]}
+                                          textStyle={[styles.filterChipText, searchQuery === 'sort by: online' ? {color: '#5B5A5A'} : {color: '#F2FF5D'}]}
                                           icon={() => (
                                               <Icon name="web"
                                                     type={'material-community'}
                                                     size={Dimensions.get('window').height / 40}
-                                                    color={searchQuery === 'sort by: points' ? '#5B5A5A' : '#F2FF5D'}/>
+                                                    color={searchQuery === 'sort by: online' ? '#5B5A5A' : '#F2FF5D'}/>
                                           )}
                                           onPress={() => {
-                                              searchQuery === 'sort by: points' ? setSearchQuery('') : setSearchQuery('sort by: points');
+                                              if (searchQuery === 'sort by: online') {
+                                                  // clear the filtered list and set appropriate flags
+                                                  setFilteredOfferList([]);
+
+                                                  // set the no filtered offers available flag accordingly
+                                                  setNoFilteredOffersAvailable(false);
+
+                                                  setSearchQuery('')
+                                              } else {
+                                                  setSearchQuery('sort by: online');
+                                              }
                                           }}>Online</Chip>
-                                    <Chip mode={'outlined'}
-                                          style={[styles.filterChip, searchQuery === 'sort by: discount percentage' ? {backgroundColor: '#F2FF5D'} : {backgroundColor: '#5B5A5A'}]}
-                                          textStyle={[styles.filterChipText, searchQuery === 'sort by: discount percentage' ? {color: '#5B5A5A'} : {color: '#F2FF5D'}]}
-                                          icon={() => (
-                                              <Icon name="percent-outline"
-                                                    type={'material-community'}
-                                                    size={Dimensions.get('window').height / 45}
-                                                    color={searchQuery === 'sort by: discount percentage' ? '#5B5A5A' : '#F2FF5D'}/>
-                                          )}
-                                          onPress={() => {
-                                              searchQuery === 'sort by: discount percentage' ? setSearchQuery('') : setSearchQuery('sort by: discount percentage');
-                                          }}>Discount</Chip>
                                     {nearbyOfferList.length !== 0 &&
                                         <Chip mode={'outlined'}
                                               style={[styles.filterChip, searchQuery === 'sort by: nearby locations' ? {backgroundColor: '#F2FF5D'} : {backgroundColor: '#5B5A5A'}]}
@@ -730,7 +1239,17 @@ export const Store = ({navigation}: StoreProps) => {
                                               )}
                                               textStyle={[styles.filterChipText, searchQuery === 'sort by: nearby locations' ? {color: '#5B5A5A'} : {color: '#F2FF5D'}]}
                                               onPress={() => {
-                                                  searchQuery === 'sort by: nearby locations' ? setSearchQuery('') : setSearchQuery('sort by: nearby locations');
+                                                  if (searchQuery === 'sort by: nearby locations') {
+                                                      // clear the filtered list and set appropriate flags
+                                                      setFilteredOfferList([]);
+
+                                                      // set the no filtered offers available flag accordingly
+                                                      setNoFilteredOffersAvailable(false);
+
+                                                      setSearchQuery('')
+                                                  } else {
+                                                      setSearchQuery('sort by: nearby locations');
+                                                  }
                                               }}>Nearby</Chip>
                                     }
                                 </View>
@@ -738,366 +1257,162 @@ export const Store = ({navigation}: StoreProps) => {
                                     height: Dimensions.get('window').height / 100,
                                     backgroundColor: '#313030'
                                 }}/>
-                                <View style={styles.content}>
-                                    <ScrollView
-                                        scrollEnabled={true}
-                                        persistentScrollbar={false}
-                                        showsVerticalScrollIndicator={false}
-                                        keyboardShouldPersistTaps={'handled'}
-                                        contentContainerStyle={{paddingBottom: Dimensions.get('window').height / 10}}
-                                    >
-                                        {
-                                            (toggleViewPressed === 'vertical' || filteredOfferList.length !== 0) &&
-                                            <>
-                                                <List.Section
-                                                    style={{width: Dimensions.get('window').width}}
-                                                >
-                                                    <List.Item
-                                                        onPress={() => {
-                                                            navigation.navigate('StoreOffer', {});
-                                                        }}
-                                                        style={{marginLeft: '2%'}}
-                                                        titleStyle={styles.verticalOfferName}
-                                                        descriptionStyle={styles.verticalOfferBenefits}
-                                                        titleNumberOfLines={1}
-                                                        descriptionNumberOfLines={1}
-                                                        title={'Amigo Provisions Co.'}
-                                                        description={
-                                                            <>
-                                                                <Text
-                                                                    style={styles.verticalOfferBenefit}>{'15'}%</Text>
-                                                                {" Discount "}
-                                                            </>
-                                                        }
-                                                        left={() =>
-                                                            <Avatar
-                                                                containerStyle={{
-                                                                    marginRight: '5%'
-                                                                }}
-                                                                imageProps={{
-                                                                    resizeMode: 'stretch'
-                                                                }}
-                                                                size={60}
-                                                                rounded
-                                                                source={{uri: 'https://www.flaticon.com/free-icon/facebook_5968764?term=logo&page=1&position=4&origin=search&related_id=5968764'}}
-                                                            />}
-                                                        right={() => <List.Icon color={'#F2FF5D'}
-                                                                                icon="chevron-right"/>}
-                                                    />
-                                                    <List.Item
-                                                        onPress={() => {
-                                                            navigation.navigate('StoreOffer', {});
-                                                        }}
-                                                        style={{marginLeft: '2%'}}
-                                                        titleStyle={styles.verticalOfferName}
-                                                        descriptionStyle={styles.verticalOfferBenefits}
-                                                        titleNumberOfLines={1}
-                                                        descriptionNumberOfLines={1}
-                                                        title={'Amigo Provisions Co.'}
-                                                        description={
-                                                            <>
-                                                                <Text
-                                                                    style={styles.verticalOfferBenefit}>{'15'}%</Text>
-                                                                {" Discount "}
-                                                            </>
-                                                        }
-                                                        left={() =>
-                                                            <Avatar
-                                                                containerStyle={{
-                                                                    marginRight: '5%'
-                                                                }}
-                                                                imageProps={{
-                                                                    resizeMode: 'stretch'
-                                                                }}
-                                                                size={60}
-                                                                rounded
-                                                                source={{uri: 'https://www.flaticon.com/free-icon/facebook_5968764?term=logo&page=1&position=4&origin=search&related_id=5968764'}}
-                                                            />}
-                                                        right={() => <List.Icon color={'#F2FF5D'}
-                                                                                icon="chevron-right"/>}
-                                                    />
-                                                    <List.Item
-                                                        onPress={() => {
-                                                            navigation.navigate('StoreOffer', {});
-                                                        }}
-                                                        style={{marginLeft: '2%'}}
-                                                        titleStyle={styles.verticalOfferName}
-                                                        descriptionStyle={styles.verticalOfferBenefits}
-                                                        titleNumberOfLines={1}
-                                                        descriptionNumberOfLines={1}
-                                                        title={'Amigo Provisions Co.'}
-                                                        description={
-                                                            <>
-                                                                <Text
-                                                                    style={styles.verticalOfferBenefit}>{'15'}%</Text>
-                                                                {" Discount "}
-                                                            </>
-                                                        }
-                                                        left={() =>
-                                                            <Avatar
-                                                                containerStyle={{
-                                                                    marginRight: '5%'
-                                                                }}
-                                                                imageProps={{
-                                                                    resizeMode: 'stretch'
-                                                                }}
-                                                                size={60}
-                                                                rounded
-                                                                source={{uri: 'https://www.flaticon.com/free-icon/facebook_5968764?term=logo&page=1&position=4&origin=search&related_id=5968764'}}
-                                                            />}
-                                                        right={() => <List.Icon color={'#F2FF5D'}
-                                                                                icon="chevron-right"/>}
-                                                    />
-                                                    <List.Item
-                                                        onPress={() => {
-                                                            navigation.navigate('StoreOffer', {});
-                                                        }}
-                                                        style={{marginLeft: '2%'}}
-                                                        titleStyle={styles.verticalOfferName}
-                                                        descriptionStyle={styles.verticalOfferBenefits}
-                                                        titleNumberOfLines={1}
-                                                        descriptionNumberOfLines={1}
-                                                        title={'Amigo Provisions Co.'}
-                                                        description={
-                                                            <>
-                                                                <Text
-                                                                    style={styles.verticalOfferBenefit}>{'15'}%</Text>
-                                                                {" Discount "}
-                                                            </>
-                                                        }
-                                                        left={() =>
-                                                            <Avatar
-                                                                containerStyle={{
-                                                                    marginRight: '5%'
-                                                                }}
-                                                                imageProps={{
-                                                                    resizeMode: 'stretch'
-                                                                }}
-                                                                size={60}
-                                                                rounded
-                                                                source={{uri: 'https://www.flaticon.com/free-icon/facebook_5968764?term=logo&page=1&position=4&origin=search&related_id=5968764'}}
-                                                            />}
-                                                        right={() => <List.Icon color={'#F2FF5D'}
-                                                                                icon="chevron-right"/>}
-                                                    />
-                                                    <List.Item
-                                                        onPress={() => {
-                                                            navigation.navigate('StoreOffer', {});
-                                                        }}
-                                                        style={{marginLeft: '2%'}}
-                                                        titleStyle={styles.verticalOfferName}
-                                                        descriptionStyle={styles.verticalOfferBenefits}
-                                                        titleNumberOfLines={1}
-                                                        descriptionNumberOfLines={1}
-                                                        title={'Amigo Provisions Co.'}
-                                                        description={
-                                                            <>
-                                                                <Text
-                                                                    style={styles.verticalOfferBenefit}>{'15'}%</Text>
-                                                                {" Discount "}
-                                                            </>
-                                                        }
-                                                        left={() =>
-                                                            <Avatar
-                                                                containerStyle={{
-                                                                    marginRight: '5%'
-                                                                }}
-                                                                imageProps={{
-                                                                    resizeMode: 'stretch'
-                                                                }}
-                                                                size={60}
-                                                                rounded
-                                                                source={{uri: 'https://www.flaticon.com/free-icon/facebook_5968764?term=logo&page=1&position=4&origin=search&related_id=5968764'}}
-                                                            />}
-                                                        right={() => <List.Icon color={'#F2FF5D'}
-                                                                                icon="chevron-right"/>}
-                                                    />
-                                                    <List.Item
-                                                        onPress={() => {
-                                                            navigation.navigate('StoreOffer', {});
-                                                        }}
-                                                        style={{marginLeft: '2%'}}
-                                                        titleStyle={styles.verticalOfferName}
-                                                        descriptionStyle={styles.verticalOfferBenefits}
-                                                        titleNumberOfLines={1}
-                                                        descriptionNumberOfLines={1}
-                                                        title={'Amigo Provisions Co.'}
-                                                        description={
-                                                            <>
-                                                                <Text
-                                                                    style={styles.verticalOfferBenefit}>{'15'}%</Text>
-                                                                {" Discount "}
-                                                            </>
-                                                        }
-                                                        left={() =>
-                                                            <Avatar
-                                                                containerStyle={{
-                                                                    marginRight: '5%'
-                                                                }}
-                                                                imageProps={{
-                                                                    resizeMode: 'stretch'
-                                                                }}
-                                                                size={60}
-                                                                rounded
-                                                                source={{uri: 'https://www.flaticon.com/free-icon/facebook_5968764?term=logo&page=1&position=4&origin=search&related_id=5968764'}}
-                                                            />}
-                                                        right={() => <List.Icon color={'#F2FF5D'}
-                                                                                icon="chevron-right"/>}
-                                                    />
-                                                    <List.Item
-                                                        onPress={() => {
-                                                            navigation.navigate('StoreOffer', {});
-                                                        }}
-                                                        style={{marginLeft: '2%'}}
-                                                        titleStyle={styles.verticalOfferName}
-                                                        descriptionStyle={styles.verticalOfferBenefits}
-                                                        titleNumberOfLines={1}
-                                                        descriptionNumberOfLines={1}
-                                                        title={'Amigo Provisions Co.'}
-                                                        description={
-                                                            <>
-                                                                <Text
-                                                                    style={styles.verticalOfferBenefit}>{'15'}%</Text>
-                                                                {" Discount "}
-                                                            </>
-                                                        }
-                                                        left={() =>
-                                                            <Avatar
-                                                                containerStyle={{
-                                                                    marginRight: '5%'
-                                                                }}
-                                                                imageProps={{
-                                                                    resizeMode: 'stretch'
-                                                                }}
-                                                                size={60}
-                                                                rounded
-                                                                source={{uri: 'https://www.flaticon.com/free-icon/facebook_5968764?term=logo&page=1&position=4&origin=search&related_id=5968764'}}
-                                                            />}
-                                                        right={() => <List.Icon color={'#F2FF5D'}
-                                                                                icon="chevron-right"/>}
-                                                    />
-                                                </List.Section>
-                                            </>
-                                        }
-                                        {
-                                            (toggleViewPressed === 'horizontal' && filteredOfferList.length === 0) &&
-                                            <>
-                                                <View style={styles.horizontalScrollView}>
-                                                    <View style={styles.featuredPartnersView}>
-                                                        <Text style={styles.featuredPartnersTitleMain}>
-                                                            <Text style={styles.featuredPartnersTitle}>
-                                                                Fidelis Partner Offers
-                                                            </Text>{`       🎖`}️
-                                                        </Text>
-                                                        <ScrollView
-                                                            style={[styles.featuredPartnersScrollView, nearbyOfferList.length === 0 && { left: Dimensions.get('window').width/40}]}
-                                                            horizontal={true}
-                                                            decelerationRate={"fast"}
-                                                            snapToInterval={Dimensions.get('window').width / 1.15 + Dimensions.get('window').width / 20}
-                                                            snapToAlignment={"center"}
-                                                            scrollEnabled={true}
-                                                            persistentScrollbar={false}
-                                                            showsHorizontalScrollIndicator={false}>
+                                <Portal.Host>
+                                    <Spinner loadingSpinnerShown={filteredOffersSpinnerShown}
+                                             setLoadingSpinnerShown={setFilteredOffersSpinnerShown}
+                                             fullScreen={false}
+                                    />
+                                    <View style={styles.content}>
+                                        <ScrollView
+                                            scrollEnabled={true}
+                                            persistentScrollbar={false}
+                                            showsVerticalScrollIndicator={false}
+                                            keyboardShouldPersistTaps={'handled'}
+                                            contentContainerStyle={{paddingBottom: Dimensions.get('window').height / 20}}
+                                        >
+                                            {
+                                                toggleViewPressed === 'vertical' &&
+                                                <>
+                                                    <List.Section
+                                                        style={{width: Dimensions.get('window').width}}
+                                                    >
+                                                        <>
                                                             {
-                                                                <>
-                                                                    {
-                                                                        populateFidelisPartners('horizontal')
-                                                                    }
-                                                                </>
+                                                                populateVerticalOffers(filteredOfferList.length !== 0)
                                                             }
-                                                        </ScrollView>
-                                                    </View>
-                                                    {nearbyOfferList.length > 0 &&
-                                                        <View style={styles.nearbyOffersView}>
-                                                            <View style={styles.nearbyOffersTitleView}>
-                                                                <View style={styles.nearbyOffersLeftTitleView}>
-                                                                    <Text style={styles.nearbyOffersTitleMain}>
-                                                                        <Text style={styles.nearbyOffersTitle}>
-                                                                            Offers near you
-                                                                        </Text>{`       📍️`}
-                                                                    </Text>
-                                                                    <Text style={styles.nearbyOffersTitleSub}>
-                                                                        (within 25 miles)
+                                                        </>
+                                                    </List.Section>
+                                                </>
+                                            }
+                                            {
+                                                toggleViewPressed === 'horizontal' &&
+                                                <>
+                                                    <View style={styles.horizontalScrollView}>
+                                                        <View style={styles.featuredPartnersView}>
+                                                            <Text style={styles.featuredPartnersTitleMain}>
+                                                                <Text style={styles.featuredPartnersTitle}>
+                                                                    Fidelis Partner Offers
+                                                                </Text>{`   🎖`}️
+                                                            </Text>
+                                                            <ScrollView
+                                                                style={[styles.featuredPartnersScrollView, nearbyOfferList.length === 0 && {left: Dimensions.get('window').width / 40}]}
+                                                                horizontal={true}
+                                                                decelerationRate={"fast"}
+                                                                snapToInterval={Dimensions.get('window').width / 1.15 + Dimensions.get('window').width / 20}
+                                                                snapToAlignment={"center"}
+                                                                scrollEnabled={true}
+                                                                persistentScrollbar={false}
+                                                                showsHorizontalScrollIndicator={false}>
+                                                                {
+                                                                    <>
+                                                                        {
+                                                                            populateFidelisPartners()
+                                                                        }
+                                                                    </>
+                                                                }
+                                                            </ScrollView>
+                                                        </View>
+                                                        {nearbyOfferList.length > 0 &&
+                                                            <View style={styles.nearbyOffersView}>
+                                                                <View style={styles.nearbyOffersTitleView}>
+                                                                    <View style={styles.nearbyOffersLeftTitleView}>
+                                                                        <Text
+                                                                            style={[styles.nearbyOffersTitleMain, offersNearUserLocationFlag && {left: '7%'}]}>
+                                                                            <Text
+                                                                                style={styles.nearbyOffersTitle}>
+                                                                                {!offersNearUserLocationFlag
+                                                                                    ? 'Offers near you'
+                                                                                    : `Offers in ${userInformation["address"]["formatted"].split(',')[1]},${userInformation["address"]["formatted"].split(',')[2]}`}
+                                                                            </Text>{`   📍️`}
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={[styles.nearbyOffersTitleSub, offersNearUserLocationFlag && {left: '7%'}]}>
+                                                                            (within 25 miles)
+                                                                        </Text>
+                                                                    </View>
+                                                                    <TouchableOpacity onPress={() => {
+                                                                        setToggleViewPressed('vertical');
+                                                                    }}>
+                                                                        <Text
+                                                                            style={styles.nearbyOffersTitleButton}>
+                                                                            See All
+                                                                        </Text>
+                                                                    </TouchableOpacity>
+                                                                </View>
+                                                                <Portal.Host>
+                                                                    <Spinner
+                                                                        loadingSpinnerShown={nearbyOffersSpinnerShown}
+                                                                        setLoadingSpinnerShown={setNearbyOffersSpinnerShown}
+                                                                        fullScreen={false}/>
+                                                                    <ScrollView
+                                                                        style={styles.nearbyOffersScrollView}
+                                                                        horizontal={true}
+                                                                        decelerationRate={"fast"}
+                                                                        snapToInterval={Dimensions.get('window').width / 1.3 + Dimensions.get('window').width / 20}
+                                                                        snapToAlignment={"start"}
+                                                                        scrollEnabled={true}
+                                                                        persistentScrollbar={false}
+                                                                        showsHorizontalScrollIndicator={false}>
+                                                                        {
+                                                                            <>
+                                                                                {
+                                                                                    populateNearbyOffers()
+                                                                                }
+                                                                            </>
+                                                                        }
+                                                                    </ScrollView>
+                                                                </Portal.Host>
+                                                            </View>
+                                                        }
+                                                        <View
+                                                            style={[styles.onlineOffersView, nearbyOfferList.length === 0 && {bottom: '40%'}]}>
+                                                            <View style={styles.onlineOffersTitleView}>
+                                                                <View style={styles.onlineOffersLeftTitleView}>
+                                                                    <Text style={styles.onlineOffersTitleMain}>
+                                                                        <Text style={styles.onlineOffersTitle}>
+                                                                            Shop Online at
+                                                                        </Text>{`   🛍️`}
                                                                     </Text>
                                                                 </View>
                                                                 <TouchableOpacity onPress={() => {
                                                                     setToggleViewPressed('vertical');
                                                                 }}>
-                                                                    <Text style={styles.nearbyOffersTitleButton}>
+                                                                    <Text style={styles.onlineOffersTitleButton}>
                                                                         See All
                                                                     </Text>
                                                                 </TouchableOpacity>
                                                             </View>
                                                             <Portal.Host>
-                                                                <Spinner loadingSpinnerShown={nearbyOffersSpinnerShown}
-                                                                         setLoadingSpinnerShown={setNearbyOffersSpinnerShown}
-                                                                         fullScreen={false}/>
+                                                                <Spinner
+                                                                    loadingSpinnerShown={onlineOffersSpinnerShown}
+                                                                    setLoadingSpinnerShown={setOnlineOffersSpinnerShown}
+                                                                    fullScreen={false}/>
                                                                 <ScrollView
-                                                                    style={styles.nearbyOffersScrollView}
+                                                                    style={[styles.onlineOffersScrollView, nearbyOfferList.length === 0 && {left: Dimensions.get('window').width / 500}]}
                                                                     horizontal={true}
                                                                     decelerationRate={"fast"}
-                                                                    snapToInterval={Dimensions.get('window').width / 1.3 + Dimensions.get('window').width / 20}
+                                                                    snapToInterval={Dimensions.get('window').width / 3 * 3}
                                                                     snapToAlignment={"start"}
                                                                     scrollEnabled={true}
                                                                     persistentScrollbar={false}
-                                                                    showsHorizontalScrollIndicator={false}>
+                                                                    showsHorizontalScrollIndicator={false}
+                                                                >
                                                                     {
                                                                         <>
                                                                             {
-                                                                                populateNearbyOffers('horizontal')
+                                                                                populateOnlineOffers()
                                                                             }
                                                                         </>
                                                                     }
                                                                 </ScrollView>
                                                             </Portal.Host>
                                                         </View>
-                                                    }
-                                                    <View style={[styles.onlineOffersView, nearbyOfferList.length === 0 && {bottom: '40%'}]}>
-                                                        <View style={styles.onlineOffersTitleView}>
-                                                            <View style={styles.onlineOffersLeftTitleView}>
-                                                                <Text style={styles.onlineOffersTitleMain}>
-                                                                    <Text style={styles.onlineOffersTitle}>
-                                                                        Shop Online at
-                                                                    </Text>{`       🛍️`}
-                                                                </Text>
-                                                            </View>
-                                                            <TouchableOpacity onPress={() => {
-                                                                setToggleViewPressed('vertical');
-                                                            }}>
-                                                                <Text style={styles.onlineOffersTitleButton}>
-                                                                    See All
-                                                                </Text>
-                                                            </TouchableOpacity>
-                                                        </View>
-                                                        <Portal.Host>
-                                                            <Spinner loadingSpinnerShown={onlineOffersSpinnerShown}
-                                                                     setLoadingSpinnerShown={setOnlineOffersSpinnerShown}
-                                                                     fullScreen={false}/>
-                                                            <ScrollView
-                                                                style={[styles.onlineOffersScrollView, nearbyOfferList.length === 0 && { left: Dimensions.get('window').width/500}]}
-                                                                horizontal={true}
-                                                                decelerationRate={"fast"}
-                                                                snapToInterval={Dimensions.get('window').width / 3 * 3}
-                                                                snapToAlignment={"start"}
-                                                                scrollEnabled={true}
-                                                                persistentScrollbar={false}
-                                                                showsHorizontalScrollIndicator={false}
-                                                            >
-                                                                {
-                                                                    <>
-                                                                        {
-                                                                            populateOnlineOffers("horizontal")
-                                                                        }
-                                                                    </>
-                                                                }
-                                                            </ScrollView>
-                                                        </Portal.Host>
                                                     </View>
-                                                </View>
-                                            </>
-                                        }
-                                    </ScrollView>
-                                </View>
+                                                </>
+                                            }
+                                        </ScrollView>
+                                    </View>
+                                </Portal.Host>
                             </SafeAreaView>
                         </KeyboardAwareScrollView>
                     </>

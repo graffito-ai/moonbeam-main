@@ -59,7 +59,7 @@ export const styles = StyleSheet.create({
         color: '#F2FF5D'
     },
     filterChipView: {
-        marginLeft: '2%',
+        right: '8%',
         alignSelf: 'center',
         marginTop: '3%',
         flexDirection: 'row',
@@ -302,7 +302,8 @@ export const styles = StyleSheet.create({
     },
     nearbyOfferCardParagraph: {
         top: '20%',
-        padding: 8,
+        alignSelf: 'flex-start',
+        left: '5%',
         textAlign: 'left',
         fontFamily: 'Raleway-Bold',
         width: Dimensions.get('window').width / 1.6,
@@ -321,14 +322,13 @@ export const styles = StyleSheet.create({
         elevation: 15
     },
     nearbyOfferCardCover: {
-        alignSelf: 'flex-end',
+        alignSelf: 'flex-start',
         top: '10%',
-        left: '30%',
+        left: '5%',
         width: Dimensions.get('window').width / 3.5,
         height: Dimensions.get('window').width / 4,
     },
     nearbyOfferCardTitle: {
-        top: '15%',
         right: '5%',
         fontFamily: 'Raleway-Medium',
         fontSize: Dimensions.get('window').height / 48,
@@ -337,7 +337,7 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF'
     },
     nearbyOfferCardSubtitle: {
-        top: '15%',
+        top: '4%',
         right: '5%',
         fontSize: Dimensions.get('window').height / 55,
         fontFamily: 'Raleway-SemiBold',
@@ -347,7 +347,8 @@ export const styles = StyleSheet.create({
         color: '#F2FF5D',
     },
     nearbyOfferCardActionButton: {
-        top: '25%',
+        top: '7%',
+        alignSelf: 'flex-start',
         left: '5%',
         height: Dimensions.get('window').height / 25,
         width: Dimensions.get('window').width / 3,

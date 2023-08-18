@@ -1216,7 +1216,11 @@ export class OliveClient extends BaseAPIClient {
             requestURL += getOffersInput.filterType === OfferFilter.Nearby
                 ? `&radiusLatitude=${getOffersInput.radiusLatitude!}&radiusLongitude=${getOffersInput.radiusLongitude!}&radius=${getOffersInput.radius!}&radiusIncludeOnlineStores=${getOffersInput.radiusIncludeOnlineStores!}`
                 : ``;
-
+            requestURL += getOffersInput.brandName
+                ? `&brandDba=${encodeURIComponent(getOffersInput.brandName)}`
+                : ``;
+            // log the request URL, since we are doing a lot of filtering, for sanity purposes
+            console.log(`Request URL for Olive ${requestURL}`);
             return axios.get(requestURL, {
                 headers: {
                     "Content-Type": "application/json",
@@ -1225,7 +1229,8 @@ export class OliveClient extends BaseAPIClient {
                 timeout: 15000, // in milliseconds here
                 timeoutErrorMessage: 'Olive API timed out after 15000ms!'
             }).then(getOffersResponse => {
-                console.log(`${endpointInfo} response ${JSON.stringify(getOffersResponse.data)}`);
+                // we don't want to log this in case of success responses, because the offer responses are very long (frugality)
+                // console.log(`${endpointInfo} response ${JSON.stringify(getOffersResponse.data)}`);
 
                 /**
                  * if we reached this, then we assume that a 2xx response code was returned.
@@ -1243,7 +1248,7 @@ export class OliveClient extends BaseAPIClient {
                     }
                 } else {
                     return {
-                        errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                        errorMessage: `Invalid response structure returned from ${endpointInfo} response ${JSON.stringify(getOffersResponse)}!`,
                         errorType: OffersErrorType.ValidationError
                     }
                 }

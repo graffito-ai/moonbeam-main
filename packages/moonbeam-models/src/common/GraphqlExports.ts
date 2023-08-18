@@ -300,6 +300,7 @@ export type GetMilitaryVerificationResponse = {
 
 export type GetOffersInput = {
   availability: OfferAvailability;
+  brandName?: InputMaybe<Scalars['String']>;
   countryCode: CountryCode;
   filterType: OfferFilter;
   offerStates: Array<InputMaybe<OfferState>>;

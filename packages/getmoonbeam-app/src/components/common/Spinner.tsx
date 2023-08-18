@@ -13,7 +13,7 @@ import {useValidation} from 'react-native-form-validator';
  * @param props component properties to be passed in.
  * @constructor constructor for the component.
  */
-export const Spinner = (props: { loadingSpinnerShown: boolean, setLoadingSpinnerShown: React.Dispatch<React.SetStateAction<boolean>>, fullScreen?: boolean }) => {
+export const Spinner = (props: { loadingSpinnerShown: boolean, setLoadingSpinnerShown: React.Dispatch<React.SetStateAction<boolean>>, fullScreen?: boolean}) => {
     // return the component for the Spinner/loading view
     return (
         <>

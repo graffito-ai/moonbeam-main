@@ -962,6 +962,7 @@ input GetOffersInput {
     redemptionType: RedemptionType!
     pageSize: Int!
     pageNumber: Int!
+    brandName: String
     radiusLatitude: Float # required only when the offer filter is NEARBY
     radiusLongitude: Float # required only when the offer filter is NEARBY
     radius: Int # required only when the offer filter is NEARBY
