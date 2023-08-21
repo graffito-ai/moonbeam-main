@@ -24,6 +24,7 @@ import {
 import {API, graphqlOperation} from "aws-amplify";
 import {currentUserInformation} from "../../../../../recoil/AuthAtom";
 import {useRecoilState} from "recoil";
+import {storeOfferState} from "../../../../../recoil/StoreOfferAtom";
 
 /**
  * Store component.
@@ -42,6 +43,7 @@ export const Store = ({navigation}: StoreProps) => {
     const [searchQuery, setSearchQuery] = React.useState('');
     const [offersNearUserLocationFlag, setOffersNearUserLocationFlag] = useState<boolean>(false);
     const [noFilteredOffersAvailable, setNoFilteredOffersAvailable] = useState<boolean>(false);
+    const [fidelisOfferList, ] = useState<Offer[]>([]);
     const [nearbyOfferList, setNearbyOfferList] = useState<Offer[]>([]);
     const [onlineOfferList, setOnlineOfferList] = useState<Offer[]>([]);
     const [fidelisPartnerList, setFidelisPartnerList] = useState<FidelisPartner[]>([]);
@@ -51,8 +53,10 @@ export const Store = ({navigation}: StoreProps) => {
     const [onlineOffersPageNumber, setOnlineOffersPageNumber] = useState<number>(1);
     const [userLatitude, setUserLatitude] = useState<number>(1);
     const [userLongitude, setUserLongitude] = useState<number>(1);
+    const [shouldCacheImages, setShouldCacheImages] = useState<boolean>(true);
     // constants used to keep track of shared states
     const [userInformation,] = useRecoilState(currentUserInformation);
+    const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
 
     /**
      * Function used to retrieve the list of preferred (Fidelis) partners
@@ -113,7 +117,7 @@ export const Store = ({navigation}: StoreProps) => {
                     }
                 }
                 const subtitle =
-                  offer!.reward!.type! === RewardType.RewardPercent
+                    offer!.reward!.type! === RewardType.RewardPercent
                         ? `Starting at ${offer!.reward!.value}% Off`
                         : `Starting at $${offer!.reward!.value} Off`;
 
@@ -139,6 +143,8 @@ export const Store = ({navigation}: StoreProps) => {
                                                 uppercase={false}
                                                 disabled={false}
                                                 onPress={() => {
+                                                    // set the clicked offer/partner accordingly
+                                                    setStoreOfferClicked(fidelisPartner);
                                                     navigation.navigate('StoreOffer', {})
                                                 }}
                                                 style={[styles.featuredPartnerCardActionButton]}
@@ -155,7 +161,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                 imageProps={{
                                                     resizeMode: 'contain'
                                                 }}
-                                                source={{uri: fidelisPartner.offers[0]!.brandLogoSm!, cache: 'reload'}}
+                                                source={{uri: fidelisPartner.offers[0]!.brandLogoSm!, cache: 'force-cache'}}
                                             />
                                         </View>
                                     </View>
@@ -247,6 +253,8 @@ export const Store = ({navigation}: StoreProps) => {
                             ?
                             <TouchableOpacity style={{left: '3%'}}
                                               onPress={() => {
+                                                  // set the clicked offer/partner accordingly
+                                                  setStoreOfferClicked(onlineOffer);
                                                   navigation.navigate('StoreOffer', {});
                                               }}>
                                 <Card style={styles.onlineOfferCard}>
@@ -258,7 +266,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                     resizeMode: 'stretch'
                                                 }}
                                                 size={25}
-                                                source={{uri: onlineOffer.brandLogoSm!, cache: 'reload'}}
+                                                source={{uri: onlineOffer.brandLogoSm!, cache: 'force-cache'}}
                                             />
                                             <Paragraph
                                                 style={styles.onlineOfferCardTitle}>{onlineOffer.brandDba}
@@ -279,6 +287,8 @@ export const Store = ({navigation}: StoreProps) => {
                             <>
                                 <TouchableOpacity style={{left: '3%'}}
                                                   onPress={() => {
+                                                      // set the clicked offer/partner accordingly
+                                                      setStoreOfferClicked(onlineOffer);
                                                       navigation.navigate('StoreOffer', {});
                                                   }}>
                                     <Card style={styles.onlineOfferCard}>
@@ -290,7 +300,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                         resizeMode: 'stretch'
                                                     }}
                                                     size={25}
-                                                    source={{uri: onlineOffer.brandLogoSm!, cache: 'reload'}}
+                                                    source={{uri: onlineOffer.brandLogoSm!, cache: 'force-cache'}}
                                                 />
                                                 <Paragraph
                                                     style={styles.onlineOfferCardTitle}>{onlineOffer.brandDba}
@@ -308,6 +318,8 @@ export const Store = ({navigation}: StoreProps) => {
                                 </TouchableOpacity>
                                 <TouchableOpacity style={{left: '3%'}}
                                                   onPress={() => {
+                                                      // set the clicked offer/partner accordingly
+                                                      setStoreOfferClicked(onlineOffer);
                                                       navigation.navigate('StoreOffer', {});
                                                   }}>
                                     <Card style={styles.onlineOfferCard}>
@@ -545,6 +557,8 @@ export const Store = ({navigation}: StoreProps) => {
                                                             uppercase={false}
                                                             disabled={false}
                                                             onPress={() => {
+                                                                // set the clicked offer/partner accordingly
+                                                                setStoreOfferClicked(nearbyOffer);
                                                                 navigation.navigate('StoreOffer', {})
                                                             }}
                                                             style={[styles.nearbyOfferCardActionButton]}
@@ -561,7 +575,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                             imageProps={{
                                                                 resizeMode: 'contain'
                                                             }}
-                                                            source={{uri: nearbyOffer.brandLogoSm!, cache: 'reload'}}
+                                                            source={{uri: nearbyOffer.brandLogoSm!, cache: 'force-cache'}}
                                                         />
                                                     </View>
                                                 </View>
@@ -599,6 +613,8 @@ export const Store = ({navigation}: StoreProps) => {
                                                             uppercase={false}
                                                             disabled={false}
                                                             onPress={() => {
+                                                                // set the clicked offer/partner accordingly
+                                                                setStoreOfferClicked(nearbyOffer);
                                                                 navigation.navigate('StoreOffer', {})
                                                             }}
                                                             style={[styles.nearbyOfferCardActionButton]}
@@ -615,7 +631,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                             imageProps={{
                                                                 resizeMode: 'contain'
                                                             }}
-                                                            source={{uri: nearbyOffer.brandLogoSm!, cache: 'reload'}}
+                                                            source={{uri: nearbyOffer.brandLogoSm!, cache: 'force-cache'}}
                                                         />
                                                     </View>
                                                 </View>
@@ -706,6 +722,8 @@ export const Store = ({navigation}: StoreProps) => {
                     <>
                         <List.Item
                             onPress={() => {
+                                // set the clicked offer/partner accordingly
+                                setStoreOfferClicked(fidelisPartner);
                                 navigation.navigate('StoreOffer', {});
                             }}
                             style={{marginLeft: '3%'}}
@@ -734,7 +752,7 @@ export const Store = ({navigation}: StoreProps) => {
                                         resizeMode: 'stretch'
                                     }}
                                     size={60}
-                                    source={{uri: offer!.brandLogoSm!, cache: 'reload'}}
+                                    source={{uri: offer!.brandLogoSm!, cache: !shouldCacheImages ? 'reload': 'force-cache'}}
                                 />}
                             right={() => <List.Icon color={'#F2FF5D'}
                                                     icon="chevron-right"/>}
@@ -755,6 +773,8 @@ export const Store = ({navigation}: StoreProps) => {
                                 <>
                                     <List.Item
                                         onPress={() => {
+                                            // set the clicked offer/partner accordingly
+                                            setStoreOfferClicked(verticalOffer);
                                             navigation.navigate('StoreOffer', {});
                                         }}
                                         style={{marginLeft: '3%'}}
@@ -782,7 +802,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                     resizeMode: 'stretch'
                                                 }}
                                                 size={60}
-                                                source={{uri: verticalOffer.brandLogoSm!, cache: 'reload'}}
+                                                source={{uri: verticalOffer.brandLogoSm!, cache: !shouldCacheImages ? 'reload': 'force-cache'}}
                                             />}
                                         right={() => <List.Icon color={'#F2FF5D'}
                                                                 icon="chevron-right"/>}
@@ -792,6 +812,8 @@ export const Store = ({navigation}: StoreProps) => {
                                 <>
                                     <List.Item
                                         onPress={() => {
+                                            // set the clicked offer/partner accordingly
+                                            setStoreOfferClicked(verticalOffer);
                                             navigation.navigate('StoreOffer', {});
                                         }}
                                         style={{marginLeft: '3%'}}
@@ -819,7 +841,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                     resizeMode: 'stretch'
                                                 }}
                                                 size={60}
-                                                source={{uri: verticalOffer.brandLogoSm!, cache: 'reload'}}
+                                                source={{uri: verticalOffer.brandLogoSm!, cache: !shouldCacheImages ? 'reload': 'force-cache'}}
                                             />}
                                         right={() => <List.Icon color={'#F2FF5D'}
                                                                 icon="chevron-right"/>}
@@ -850,7 +872,9 @@ export const Store = ({navigation}: StoreProps) => {
                                         />
                                     }
                                     {
-                                        (searchQuery === 'sort by: online' || searchQuery ==='sort by: nearby locations') &&
+                                        (searchQuery === 'sort by: online'
+                                            || searchQuery === 'sort by: nearby locations'
+                                            || searchQuery === 'sort by: discount percentage') &&
                                         <List.Item
                                             rippleColor={'transparent'}
                                             onPress={async () => {
@@ -885,9 +909,6 @@ export const Store = ({navigation}: StoreProps) => {
             results.push(
                 <>
                     <List.Item
-                        onPress={() => {
-                            navigation.navigate('StoreOffer', {});
-                        }}
                         style={{marginLeft: Dimensions.get('window').width / 3.5, top: '1%'}}
                         titleStyle={[styles.verticalOfferName, {color: '#F2FF5D'}]}
                         titleNumberOfLines={1}
@@ -975,7 +996,7 @@ export const Store = ({navigation}: StoreProps) => {
                     filterType: OfferFilter.Nearby,
                     offerStates: [OfferState.Active, OfferState.Scheduled],
                     pageNumber: 1,
-                    pageSize: 15, // load 5 nearby offers at a time
+                    pageSize: 15, // load 15 nearby offers at a time
                     radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
                     radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
                     radiusLatitude: userLatitude,
@@ -1008,6 +1029,8 @@ export const Store = ({navigation}: StoreProps) => {
 
                     // set the no filtered offers available flag accordingly
                     setNoFilteredOffersAvailable(true);
+
+                    await retrieveOnlineOffersForBrand(brandName);
                 }
             } else {
                 console.log(`Unexpected error while attempting to retrieve nearby offers for brand name ${brandName} ${JSON.stringify(nearbyOffersResult)}`);
@@ -1035,13 +1058,6 @@ export const Store = ({navigation}: StoreProps) => {
              */
             if (userLatitude !== 1 && userLongitude !== 1) {
                 await retrieveNearbyOffersListForBrand(query);
-                /**
-                 * if there are no available nearby offers for brand,
-                 * try retrieving online ones.
-                 */
-                if (filteredOfferList.length === 0) {
-                    await retrieveOnlineOffersForBrand(query);
-                }
             } else {
                 /**
                  * we will look up online offers for brand.
@@ -1071,8 +1087,6 @@ export const Store = ({navigation}: StoreProps) => {
             // release the loader on button press
             !isReady && setIsReady(true);
         });
-        // set the toggle view for filtered offers
-        filteredOfferList.length !== 0 && setToggleViewPressed('vertical');
 
         // change the filtered list, based on the search query
         if (searchQuery !== '') {
@@ -1085,13 +1099,25 @@ export const Store = ({navigation}: StoreProps) => {
                     setFilteredOfferList(nearbyOfferList);
                     setToggleViewPressed('vertical');
                     break;
+                case 'sort by: discount percentage':
+                    // get the Fidelis offers to filter
+                    for (const fidelisPartner of fidelisPartnerList) {
+                        for (const matchedOffer of fidelisPartner.offers) {
+                            // push the Fidelis offer in the list of Fidelis offers, later to be able to use in filtering
+                            fidelisOfferList.push(matchedOffer!);
+                        }
+                    }
+                    const offersToSort = nearbyOfferList.concat(onlineOfferList).concat(fidelisOfferList);
+                    setFilteredOfferList(offersToSort.sort((a, b) =>
+                        a.reward!.value! > b.reward!.value! ? -1 : a.reward!.value! < b.reward!.value! ? 1 : 0));
+                    setToggleViewPressed('vertical');
+                    break
                 default:
                     break;
             }
         }
 
-    }, [fidelisPartnerList, onlineOfferList, nearbyOfferList,
-        filteredOfferList, searchQuery]);
+    }, [fidelisPartnerList, onlineOfferList, nearbyOfferList, searchQuery]);
 
     // return the component for the Store page
     return (
@@ -1185,6 +1211,9 @@ export const Store = ({navigation}: StoreProps) => {
 
                                         // set the no filtered offers available flag accordingly
                                         setNoFilteredOffersAvailable(false);
+
+                                        // set the caching flag for images accordingly
+                                        setShouldCacheImages(false);
                                     }}
                                     onSubmitEditing={async (event) => {
                                         console.log("searching", event.nativeEvent.text);
@@ -1205,7 +1234,7 @@ export const Store = ({navigation}: StoreProps) => {
                                     value={searchQuery}
                                 />
                                 <View
-                                    style={[styles.filterChipView, nearbyOfferList.length === 0 && {right: Dimensions.get('window').width / 3.3}]}>
+                                    style={[styles.filterChipView]}>
                                     <Chip mode={'flat'}
                                           style={[styles.filterChip, searchQuery === 'sort by: online' ? {backgroundColor: '#F2FF5D'} : {backgroundColor: '#5B5A5A'}]}
                                           textStyle={[styles.filterChipText, searchQuery === 'sort by: online' ? {color: '#5B5A5A'} : {color: '#F2FF5D'}]}
@@ -1228,6 +1257,28 @@ export const Store = ({navigation}: StoreProps) => {
                                                   setSearchQuery('sort by: online');
                                               }
                                           }}>Online</Chip>
+                                    <Chip mode={'flat'}
+                                          style={[styles.filterChip, searchQuery === 'sort by: discount percentage' ? {backgroundColor: '#F2FF5D'} : {backgroundColor: '#5B5A5A'}]}
+                                          textStyle={[styles.filterChipText, searchQuery === 'sort by: discount percentage' ? {color: '#5B5A5A'} : {color: '#F2FF5D'}]}
+                                          icon={() => (
+                                              <Icon name="percent"
+                                                    type={'material-community'}
+                                                    size={Dimensions.get('window').height / 40}
+                                                    color={searchQuery === 'sort by: discount percentage' ? '#5B5A5A' : '#F2FF5D'}/>
+                                          )}
+                                          onPress={() => {
+                                              if (searchQuery === 'sort by: discount percentage') {
+                                                  // clear the filtered list and set appropriate flags
+                                                  setFilteredOfferList([]);
+
+                                                  // set the no filtered offers available flag accordingly
+                                                  setNoFilteredOffersAvailable(false);
+
+                                                  setSearchQuery('')
+                                              } else {
+                                                  setSearchQuery('sort by: discount percentage');
+                                              }
+                                          }}>Discount</Chip>
                                     {nearbyOfferList.length !== 0 &&
                                         <Chip mode={'outlined'}
                                               style={[styles.filterChip, searchQuery === 'sort by: nearby locations' ? {backgroundColor: '#F2FF5D'} : {backgroundColor: '#5B5A5A'}]}
@@ -1332,6 +1383,9 @@ export const Store = ({navigation}: StoreProps) => {
                                                                     </View>
                                                                     <TouchableOpacity onPress={() => {
                                                                         setToggleViewPressed('vertical');
+
+                                                                        // set the search query manually
+                                                                        setSearchQuery('sort by: nearby locations');
                                                                     }}>
                                                                         <Text
                                                                             style={styles.nearbyOffersTitleButton}>
@@ -1376,6 +1430,9 @@ export const Store = ({navigation}: StoreProps) => {
                                                                 </View>
                                                                 <TouchableOpacity onPress={() => {
                                                                     setToggleViewPressed('vertical');
+
+                                                                    // set the search query manually
+                                                                    setSearchQuery('sort by: online');
                                                                 }}>
                                                                     <Text style={styles.onlineOffersTitleButton}>
                                                                         See All

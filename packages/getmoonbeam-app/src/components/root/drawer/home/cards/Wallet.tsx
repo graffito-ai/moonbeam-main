@@ -303,6 +303,7 @@ export const Wallet = ({navigation}: CardsProps) => {
                     imageStyle={{
                         resizeMode: 'stretch'
                     }}
+                    resizeMethod={"scale"}
                     source={RegistrationBackgroundImage}>
                     <SafeAreaView style={styles.walletView}>
                         {

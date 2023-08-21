@@ -8,6 +8,9 @@ export const commonStyles = StyleSheet.create({
         borderColor: '#FFFFFF',
         borderRadius: 0
     },
+    backButtonDismiss: {
+        alignSelf: 'flex-start',
+    },
     container: {
         flex: 1,
         width: '100%',
@@ -40,7 +43,8 @@ export const commonStyles = StyleSheet.create({
         flexDirection: 'column'
     },
     image: {
-        flex: 1
+        flex: 1,
+        flexGrow: 1
     },
     divider: {
         backgroundColor: '#303030'

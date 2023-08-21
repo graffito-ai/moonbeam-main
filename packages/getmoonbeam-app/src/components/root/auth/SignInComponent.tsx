@@ -160,6 +160,7 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                         imageStyle={{
                             resizeMode: 'stretch'
                         }}
+                        resizeMethod={"scale"}
                         source={AuthenticationGradientImage}>
                         <KeyboardAwareScrollView
                             enableOnAndroid={true}

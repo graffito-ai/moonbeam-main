@@ -59,8 +59,8 @@ export const styles = StyleSheet.create({
         color: '#F2FF5D'
     },
     filterChipView: {
-        right: '8%',
-        alignSelf: 'center',
+        left: '2%',
+        alignSelf: 'flex-start',
         marginTop: '3%',
         flexDirection: 'row',
         flexWrap: 'wrap'

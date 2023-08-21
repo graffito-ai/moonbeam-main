@@ -224,6 +224,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                         imageStyle={{
                             resizeMode: 'stretch'
                         }}
+                        resizeMethod={"scale"}
                         source={AuthenticationGradientPicture}>
                         <Portal>
                             <Dialog style={commonStyles.dialogStyle} visible={modalVisible}

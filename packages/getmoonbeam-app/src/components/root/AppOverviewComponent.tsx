@@ -46,6 +46,7 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
                         imageStyle={{
                             resizeMode: 'contain'
                         }}
+                        resizeMethod={"scale"}
                         source={appOverviewSteps[stepNumber].stepImageSource}/>
                 </LinearGradient>
                 <GestureRecognizer

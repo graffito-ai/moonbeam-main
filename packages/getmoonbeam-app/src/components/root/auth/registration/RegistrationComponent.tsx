@@ -600,6 +600,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                         imageStyle={{
                             resizeMode: 'stretch'
                         }}
+                        resizeMethod={"scale"}
                         source={RegistrationBackgroundImage}>
                         <KeyboardAwareScrollView
                             scrollEnabled={stepNumber == 0 || stepNumber === 1 || stepNumber === 2 || stepNumber === 3}
