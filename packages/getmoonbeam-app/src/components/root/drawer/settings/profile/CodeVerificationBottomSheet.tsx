@@ -114,7 +114,7 @@ export const CodeVerificationBottomSheet = (props: {
      * the user a code to the new email that they provide
      *
      * @return a {@link Promise} containing a {@link Boolean} representing a flag of whether
-     * the profile information was successfully sent or not
+     * the profile information was successfully updated or not
      */
     const updateProfile = async (): Promise<boolean> => {
         try {

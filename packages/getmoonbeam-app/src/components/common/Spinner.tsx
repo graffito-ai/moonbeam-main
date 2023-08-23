@@ -2,8 +2,6 @@ import React from 'react';
 import {Dimensions, SafeAreaView} from 'react-native';
 import {ActivityIndicator, Modal, Portal} from 'react-native-paper';
 // @ts-ignore
-import LoginLogo from '../../../assets/login-logo.png';
-// @ts-ignore
 import {useValidation} from 'react-native-form-validator';
 
 /**

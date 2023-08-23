@@ -58,7 +58,7 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                     ? 'Birthdays'
                     : (retrievedPartnerOffer!.title!.includes(`Veterans Day`)
                         ? `Veteran's Day`
-                        : `Purchases`)
+                        : `Everyday`)
 
                 // build the participating locations object
                 const participatingLocations: React.ReactNode[] = [];
@@ -125,7 +125,7 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                                                 <Text style={styles.offerItemTitle}>Additional Restrictions{"\n"}</Text>
                                                 <Text>
                                                     {
-                                                        offerType == `Purchases`
+                                                        offerType == `Everyday`
                                                             ? "• Offer applicable to every purchase, subject to the discounts aforementioned.\n• No limits on the minimum or maximum amount for purchase.\n• Offer available only at participating merchant locations."
                                                             : (offerType === `Birthdays`
                                                                     ? "• Offer limited to one purchase for your birthday, subject to the discounts aforementioned.\n• No limits on the minimum or maximum amount for purchase.\n• Offer available at merchant participant locations."
@@ -193,7 +193,7 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                         titleStyle={styles.offerAccordionTitle}
                         titleNumberOfLines={2}
                         descriptionNumberOfLines={5}
-                        title={'Purchases'}
+                        title={'Everyday'}
                         right={() =>
                             <Icon style={styles.offerRightIcon}
                                   color={'#F2FF5D'}
@@ -291,21 +291,19 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                             resizeMethod={"scale"}
                             source={StoreDetailsBackgroundImage}>
                             <ScrollView
-                                scrollEnabled={offerIdExpanded !== null}
                                 persistentScrollbar={false}
                                 showsVerticalScrollIndicator={false}
                                 keyboardShouldPersistTaps={'handled'}
                             >
                                 {/*@ts-ignore*/}
-                                <View style={{height: storeOfferClicked!.numberOfOffers! === 2 ? Dimensions.get('window').height * 1.1 : (storeOfferClicked!.numberOfOffers! !== 1 ? Dimensions.get('window').height*1.12: Dimensions.get('window').height / 1.15)}}>
+                                <View style={[{height: storeOfferClicked!.numberOfOffers! === 2 ? Dimensions.get('window').height * 1.1 : (storeOfferClicked!.numberOfOffers! !== 1 ? Dimensions.get('window').height*1.12: Dimensions.get('window').height / 1.1)}, offerIdExpanded === null && {height: Dimensions.get('window').height/4}]}>
                                     <List.Section style={styles.offerListView}>
                                         {
                                             populateOffersList()
                                         }
                                     </List.Section>
                                     {/*@ts-ignore*/}
-                                    <View style={{top: offerIdExpanded === null ? (storeOfferClicked!.numberOfOffers! === 2 ? Dimensions.get('window').height / 5.2 : (storeOfferClicked!.numberOfOffers! !== 1 ? Dimensions.get('window').height / 7.2: Dimensions.get('window').height / 3)):
-                                            (storeOfferClicked!.numberOfOffers! === 2 ? Dimensions.get('window').height / 6.2 : (storeOfferClicked!.numberOfOffers! !== 1 ? Dimensions.get('window').height / 15: Dimensions.get('window').height / 25)), alignSelf: 'center'
+                                    <View style={{top: offerIdExpanded === null ? (storeOfferClicked!.numberOfOffers! === 2 ? Dimensions.get('window').height / 5.2 : (storeOfferClicked!.numberOfOffers! !== 1 ? Dimensions.get('window').height / 7.2: Dimensions.get('window').height / 3)): (storeOfferClicked!.numberOfOffers! === 2 ? Dimensions.get('window').height / 6.2 : (storeOfferClicked!.numberOfOffers! !== 1 ? Dimensions.get('window').height / 15: Dimensions.get('window').height / 25)), alignSelf: 'center'
                                     }}>
                                         <TouchableOpacity
                                             style={styles.onlineShoppingButton}
@@ -349,13 +347,12 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                             resizeMethod={"scale"}
                             source={StoreDetailsBackgroundImage}>
                             <ScrollView
-                                scrollEnabled={offerIdExpanded !== null}
                                 persistentScrollbar={false}
                                 showsVerticalScrollIndicator={false}
                                 keyboardShouldPersistTaps={'handled'}
                             >
                                 {/*@ts-ignore*/}
-                                <View style={{height: storeOfferClicked!.qualifier! && storeOfferClicked.qualifier!.length > 200 ? Dimensions.get('window').height * 1.2 : Dimensions.get('window').height / 1.2}}>
+                                <View style={[{height: storeOfferClicked!.qualifier! && storeOfferClicked.qualifier!.length > 200 ? Dimensions.get('window').height * 1.2 : Dimensions.get('window').height / 1.1}, offerIdExpanded === null && {height: Dimensions.get('window').height/4}]}>
                                     <List.Section style={styles.offerListView}>
                                         {
                                             populateOffersList()

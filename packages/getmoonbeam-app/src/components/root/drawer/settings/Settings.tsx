@@ -15,6 +15,7 @@ import {DeviceType} from "expo-device";
 import {Dimensions} from "react-native";
 import {styles} from "../../../../styles/settingsList.module";
 import {Spinner} from "../../../common/Spinner";
+import {ResetPassword} from "./password/ResetPassword";
 
 /**
  * Settings component
@@ -125,6 +126,14 @@ export const Settings = ({navigation}: SettingsProps) => {
                     component={SettingsList}
                     options={{
                         headerShown: false
+                    }}
+                    initialParams={{}}
+                />
+                <Stack.Screen
+                    name="ResetPassword"
+                    component={ResetPassword}
+                    options={{
+                        headerShown: true
                     }}
                     initialParams={{}}
                 />

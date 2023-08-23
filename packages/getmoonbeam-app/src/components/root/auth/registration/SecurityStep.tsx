@@ -3,7 +3,7 @@ import {styles} from "../../../../styles/registration.module";
 import {Text, TextInput} from "react-native-paper";
 import {View} from "react-native";
 import {
-    accountCreationDisclaimerCheckState, amplifySignUpProcessErrorsState,
+    accountCreationDisclaimerCheckState, amplifySignUpProcessErrorsState, authRegistrationNavigation,
     registrationBackButtonShown, registrationConfirmationPasswordErrorsState, registrationConfirmationPasswordState,
     registrationMainErrorState, registrationPasswordErrorsState, registrationPasswordState
 } from "../../../../recoil/AuthAtom";
@@ -23,6 +23,7 @@ export const SecurityStep = () => {
     const [isPasswordShown, setIsPasswordShown] = useState<boolean>(false);
     const [isConfirmPasswordShown, setIsConfirmPasswordShown] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [navigation, ] = useRecoilState(authRegistrationNavigation);
     const [amplifySignUpErrors, setAmplifySignUpErrors] = useRecoilState(amplifySignUpProcessErrorsState);
     const [password, setPassword] = useRecoilState(registrationPasswordState);
     const [confirmPassword, setConfirmPassword] = useRecoilState(registrationConfirmationPasswordState);
@@ -157,9 +158,19 @@ export const SecurityStep = () => {
                         style={styles.disclaimerText}>{'By checking this box, and signing up for an account with Moonbeam, you acknowledge and certify that you have read, and therefore agree to our '}
                         <Text style={styles.disclaimerTextHighlighted}
                               onPress={() => {
+                                  // navigate to the Documents Viewer
+                                  navigation && navigation.navigate('DocumentsViewer', {
+                                      name: 'privacy-policy.pdf',
+                                      privacyFlag: false
+                                  });
                               }}>Privacy Policy</Text>{' and'}
                         <Text style={styles.disclaimerTextHighlighted}
                               onPress={() => {
+                                  // navigate to the Documents Viewer
+                                  navigation && navigation.navigate('DocumentsViewer', {
+                                      name: 'terms-and-conditions.pdf',
+                                      privacyFlag: false
+                                  });
                               }}> Terms & Conditions.</Text>
                     </Text>
                 </View>

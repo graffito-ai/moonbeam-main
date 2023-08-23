@@ -5,10 +5,13 @@ import type {NativeStackScreenProps} from '@react-navigation/native-stack';
  */
 export type SettingsStackParamList = {
     SettingsList: {},
-    Profile: {}
+    Profile: {},
+    ResetPassword: {}
 };
 
 // the SettingsList component props, within the Settings stack
 export type SettingsListProps = NativeStackScreenProps<SettingsStackParamList, 'SettingsList'>;
 // the Profile component props, within the Settings stack
 export type ProfileProps = NativeStackScreenProps<SettingsStackParamList, 'Profile'>;
+// the Reset Password component props, within the Settings stack
+export type ResetPasswordProps = NativeStackScreenProps<SettingsStackParamList, 'ResetPassword'>;

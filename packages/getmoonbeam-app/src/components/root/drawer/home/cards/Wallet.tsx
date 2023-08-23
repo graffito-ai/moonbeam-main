@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Dimensions, ImageBackground, SafeAreaView, TouchableOpacity, View} from "react-native";
+import {Dimensions, Image, SafeAreaView, TouchableOpacity, View} from "react-native";
 import {CardsProps} from "../../../../../models/props/HomeProps";
 import {IconButton, List, Text} from "react-native-paper";
 import {useRecoilState} from "recoil";
@@ -10,8 +10,6 @@ import {
     drawerSwipeState
 } from "../../../../../recoil/AppDrawerAtom";
 import {styles} from '../../../../../styles/wallet.module';
-import {commonStyles} from "../../../../../styles/common.module";
-import {Divider} from "@rneui/base";
 import BottomSheet from "@gorhom/bottom-sheet";
 import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
 import {CardLinkingBottomSheet} from "./CardLinkingBottomSheet";
@@ -23,6 +21,12 @@ import {SplashScreen} from "../../../../common/Splash";
 import {splashStatusState} from "../../../../../recoil/SplashAtom";
 import {customBannerState} from "../../../../../recoil/CustomBannerAtom";
 import {cardLinkingBottomSheetState} from "../../../../../recoil/WalletAtom";
+// @ts-ignore
+import MoonbeamCardChip from '../../../../../../assets/art/moonbeam-card-chip.png';
+// @ts-ignore
+import NoCardImage from '../../../../../../assets/art/moonbeam-empty-wallet.png';
+// @ts-ignore
+import MoonbeamLogo from '../../../../../../assets/login-logo.png';
 // @ts-ignore
 import CardLinkingImage from '../../../../../../assets/art/moonbeam-card-linking.png';
 // @ts-ignore
@@ -39,6 +43,9 @@ import {deviceTypeState} from "../../../../../recoil/RootAtom";
 import * as Device from "expo-device";
 import {DeviceType} from "expo-device";
 import {showWalletBottomSheetState} from "../../../../../recoil/DashboardAtom";
+import {LinearGradient} from "expo-linear-gradient";
+import {Divider} from '@rneui/base';
+import {commonStyles} from "../../../../../styles/common.module";
 
 /**
  * Wallet component. This component will be used as a place where users can manager their
@@ -79,7 +86,7 @@ export const Wallet = ({navigation}: CardsProps) => {
         Device.getDeviceTypeAsync().then(deviceType => {
             setDeviceType(deviceType);
         });
-        // set the app drawer status accordingly,custom banner visibility and drawer swipe actions accordingly
+        // set the app drawer status accordingly, custom banner visibility and drawer swipe actions accordingly
         if (navigation.getState().index === 2) {
             setAppDrawerHeaderShown(false);
             setBannerShown(false);
@@ -230,16 +237,54 @@ export const Wallet = ({navigation}: CardsProps) => {
         if (!userInformation["linkedCard"] || (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length === 0)) {
             results.push(
                 <>
-                    <List.Item
-                        style={styles.cardItemStyle}
-                        titleStyle={styles.cardItemTitle}
-                        descriptionStyle={styles.cardItemDetails}
-                        titleNumberOfLines={1}
-                        descriptionNumberOfLines={2}
-                        title="Hurry!"
-                        description='Connect your first card below.'
-                        right={() =>
-                            <List.Icon color={'#F2FF5D'} icon="exclamation"/>
+                    <Image
+                        style={styles.noCardImage}
+                        resizeMethod={'scale'}
+                        resizeMode={'contain'}
+                        source={NoCardImage}
+                    />
+                    <IconButton
+                        icon={'plus-circle-outline'}
+                        iconColor={'#F2FF5D'}
+                        style={{
+                            alignSelf: 'center',
+                            bottom: Dimensions.get('window').height/15
+                        }}
+                        size={Dimensions.get('window').height / 20}
+                        onPress={
+                            async () => {
+                                // if there is no error and/or success to show, then this button will open up the bottom sheet
+                                if (!splashShown) {
+                                    /**
+                                     * open up the bottom sheet, where the linking action will take place. Any linked cards and/or errors will be
+                                     * handled by the CardLinkingBottomSheet component
+                                     */
+                                    setShowBottomSheet(true);
+                                } else {
+                                    // reset the success linking flag, in case it is true, as well as hide the custom banner accordingly
+                                    if (cardLinkingBottomSheet) {
+                                        setCardLinkingBottomSheet(false);
+
+                                        // change the card linking status
+                                        setCardLinkingStatus(true);
+
+                                        // set the custom banner state for future screens accordingly
+                                        setBannerState({
+                                            bannerVisibilityState: cardLinkingStatusState,
+                                            bannerMessage: "",
+                                            bannerButtonLabel: "",
+                                            bannerButtonLabelActionSource: "",
+                                            bannerArtSource: CardLinkingImage,
+                                            dismissing: false
+                                        });
+                                    }
+
+                                    // close the previously opened bottom sheet, and reset the splash shown flag, to return to the default wallet view
+                                    setShowBottomSheet(false);
+                                    setBottomTabShown(true);
+                                    setSplashShown(false);
+                                }
+                            }
                         }
                     />
                 </>
@@ -258,33 +303,56 @@ export const Wallet = ({navigation}: CardsProps) => {
                         descriptionNumberOfLines={2}
                         title={card["name"]}
                         description={`${card["type"] === CardType.Visa ? 'VISA' : 'MASTERCARD'} ••••${card["last4"]}`}
-                        left={() =>
-                            <IconButton
-                                icon={
-                                    card["type"] === CardType.Visa
+                        right={() =>
+                            <View style={styles.cardView}>
+                                <IconButton
+                                    icon={MoonbeamLogo}
+                                    iconColor={'#313030'}
+                                    rippleColor={'transparent'}
+                                    size={Dimensions.get('window').height / 25}
+                                    onPress={async () => {
+                                        // do nothing, we chose an icon button for styling purposes here
+                                    }}
+                                />
+                                <IconButton
+                                    style={{top: Dimensions.get('window').height / 13}}
+                                    icon={card["type"] === CardType.Visa
                                         ? MoonbeamVisaImage
                                         : MoonbeamMasterCardImage
-                                }
-                                iconColor={'#F2FF5D'}
-                                rippleColor={'transparent'}
-                                size={Dimensions.get('window').height / 20}
-                                onPress={async () => {
-                                    // do nothing, we chose an icon button for styling purposes here
-                                }}
-                            />}
-                        right={() =>
-                            <IconButton
-                                icon="delete"
-                                iconColor={'#FFFFFF'}
-                                style={{
-                                    marginTop: Dimensions.get('window').height / 70,
-                                    left: deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 150 : Dimensions.get('window').width / 20
-                                }}
-                                size={Dimensions.get('window').height / 35}
-                                onPress={async () => {
-                                    setShowBottomSheet(true);
-                                }}
-                            />}
+                                    }
+                                    iconColor={'#313030'}
+                                    rippleColor={'transparent'}
+                                    size={Dimensions.get('window').height / 18}
+                                    onPress={async () => {
+                                        // do nothing, we chose an icon button for styling purposes here
+                                    }}
+                                />
+                            </View>
+                        }
+                        left={() =>
+                            <View style={styles.cardView}>
+                                <IconButton
+                                    icon={MoonbeamCardChip}
+                                    iconColor={'#313030'}
+                                    rippleColor={'transparent'}
+                                    style={{bottom: Dimensions.get('window').height / 65}}
+                                    size={Dimensions.get('window').height / 35}
+                                    onPress={async () => {
+                                        // do nothing, we chose an icon button for styling purposes here
+                                    }}
+                                />
+                                <IconButton
+                                    icon='trash-can-outline'
+                                    iconColor={'#313030'}
+                                    style={{top: Dimensions.get('window').height / 12.5}}
+                                    size={Dimensions.get('window').height / 35}
+                                    onPress={async () => {
+                                        // show the bottom sheet which will handle the card deletion
+                                        setShowBottomSheet(true);
+                                    }}
+                                />
+                            </View>
+                        }
                     />
                 </>
             );
@@ -298,170 +366,213 @@ export const Wallet = ({navigation}: CardsProps) => {
             {!isReady ?
                 <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                 :
-                <ImageBackground
-                    style={[commonStyles.image]}
-                    imageStyle={{
-                        resizeMode: 'stretch'
-                    }}
-                    resizeMethod={"scale"}
-                    source={RegistrationBackgroundImage}>
-                    <SafeAreaView style={styles.walletView}>
-                        {
-                            splashShown ?
-                                <SplashScreen splashTitle={splashState.splashTitle}
-                                              splashDescription={splashState.splashDescription}
-                                              splashButtonText={splashState.splashButtonText}
-                                              splashArtSource={splashState.splashArtSource}
-                                />
-                                :
-                                <>
-                                    <View style={styles.walletTextView}>
-                                        <Text style={deviceType === DeviceType.TABLET ? styles.walletTitleTablet : styles.walletTitle}>
+                <SafeAreaView style={styles.walletView}>
+                    {
+                        splashShown ?
+                            <SplashScreen splashTitle={splashState.splashTitle}
+                                          splashDescription={splashState.splashDescription}
+                                          splashButtonText={splashState.splashButtonText}
+                                          splashArtSource={splashState.splashArtSource}
+                            />
+                            :
+                            <>
+                                <View style={styles.walletTextView}>
+                                    <View style={styles.walletTopTitleView}>
+                                        <Text
+                                            style={deviceType === DeviceType.TABLET ? styles.walletTitleTablet : styles.walletTitle}>
                                             Wallet
                                         </Text>
-                                        <Text style={deviceType === DeviceType.TABLET ? styles.walletSubtitleTablet : styles.walletSubtitle}>
-                                            Link your debit or credit card, and earn discounts on every transaction at
-                                            qualifying
-                                            merchant
-                                            locations.
-                                        </Text>
+                                        <IconButton
+                                            icon={userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0 ? 'dots-horizontal' : 'plus'}
+                                            iconColor={'#F2FF5D'}
+                                            style={{
+                                                alignSelf: 'flex-end',
+                                                left: Dimensions.get('window').width / 1.8
+                                            }}
+                                            size={Dimensions.get('window').height / 32}
+                                            onPress={
+                                                async () => {
+                                                    // if there is no error and/or success to show, then this button will open up the bottom sheet
+                                                    if (!splashShown) {
+                                                        /**
+                                                         * open up the bottom sheet, where the linking action will take place. Any linked cards and/or errors will be
+                                                         * handled by the CardLinkingBottomSheet component
+                                                         */
+                                                        setShowBottomSheet(true);
+                                                    } else {
+                                                        // reset the success linking flag, in case it is true, as well as hide the custom banner accordingly
+                                                        if (cardLinkingBottomSheet) {
+                                                            setCardLinkingBottomSheet(false);
+
+                                                            // change the card linking status
+                                                            setCardLinkingStatus(true);
+
+                                                            // set the custom banner state for future screens accordingly
+                                                            setBannerState({
+                                                                bannerVisibilityState: cardLinkingStatusState,
+                                                                bannerMessage: "",
+                                                                bannerButtonLabel: "",
+                                                                bannerButtonLabelActionSource: "",
+                                                                bannerArtSource: CardLinkingImage,
+                                                                dismissing: false
+                                                            });
+                                                        }
+
+                                                        // close the previously opened bottom sheet, and reset the splash shown flag, to return to the default wallet view
+                                                        setShowBottomSheet(false);
+                                                        setBottomTabShown(true);
+                                                        setSplashShown(false);
+                                                    }
+                                                }
+                                            }
+                                        />
                                     </View>
+                                    <Divider
+                                        style={[commonStyles.divider, {width: Dimensions.get('window').width}]}/>
+                                </View>
+                                <LinearGradient
+                                    colors={['transparent', '#5b5b5b']}
+                                    style={styles.mainCardView}>
                                     <List.Section style={styles.listSectionView}>
-                                        <List.Subheader
-                                            style={styles.subHeaderTitle}>Connected Card</List.Subheader>
-                                        <Divider
-                                            style={[commonStyles.divider, {width: Dimensions.get('window').width / 1.15}]}/>
                                         {
                                             filterCards()
                                         }
                                     </List.Section>
-                                </>
-                        }
-                        <View style={styles.disclaimerTextView}>
-                            <TouchableOpacity
-                                disabled={!splashShown && (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0)}
-                                style={
-                                    splashShown
-                                        ? styles.splashButton
-                                        : (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0)
-                                            ? styles.linkingButtonDisabled
-                                            : styles.linkingButton
-                                }
-                                onPress={
-                                    () => {
-                                        // if there is no error and/or success to show, then this button will open up the bottom sheet
-                                        if (!splashShown) {
-                                            /**
-                                             * open up the bottom sheet, where the linking action will take place. Any linked cards and/or errors will be
-                                             * handled by the CardLinkingBottomSheet component
-                                             */
-                                            setShowBottomSheet(true);
-                                        } else {
-                                            // reset the success linking flag, in case it is true, as well as hide the custom banner accordingly
-                                            if (cardLinkingBottomSheet) {
-                                                setCardLinkingBottomSheet(false);
+                                </LinearGradient>
+                            </>
+                    }
+                    <View style={styles.disclaimerTextView}>
+                        <TouchableOpacity
+                            disabled={!splashShown && (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0)}
+                            style={
+                                splashShown
+                                    ? styles.splashButton
+                                    : styles.linkingButtonDisabled
+                            }
+                            onPress={
+                                async () => {
+                                    // if there is no error and/or success to show, then this button will open up the bottom sheet
+                                    if (!splashShown) {
+                                        /**
+                                         * open up the bottom sheet, where the linking action will take place. Any linked cards and/or errors will be
+                                         * handled by the CardLinkingBottomSheet component
+                                         */
+                                        setShowBottomSheet(true);
+                                    } else {
+                                        // reset the success linking flag, in case it is true, as well as hide the custom banner accordingly
+                                        if (cardLinkingBottomSheet) {
+                                            setCardLinkingBottomSheet(false);
 
-                                                // change the card linking status
-                                                setCardLinkingStatus(true);
+                                            // change the card linking status
+                                            setCardLinkingStatus(true);
 
-                                                // set the custom banner state for future screens accordingly
-                                                setBannerState({
-                                                    bannerVisibilityState: cardLinkingStatusState,
-                                                    bannerMessage: "",
-                                                    bannerButtonLabel: "",
-                                                    bannerButtonLabelActionSource: "",
-                                                    bannerArtSource: CardLinkingImage,
-                                                    dismissing: false
-                                                });
-                                            }
-
-                                            // close the previously opened bottom sheet, and reset the splash shown flag, to return to the default wallet view
-                                            setShowBottomSheet(false);
-                                            setBottomTabShown(true);
-                                            setSplashShown(false);
+                                            // set the custom banner state for future screens accordingly
+                                            setBannerState({
+                                                bannerVisibilityState: cardLinkingStatusState,
+                                                bannerMessage: "",
+                                                bannerButtonLabel: "",
+                                                bannerButtonLabelActionSource: "",
+                                                bannerArtSource: CardLinkingImage,
+                                                dismissing: false
+                                            });
                                         }
+
+                                        // close the previously opened bottom sheet, and reset the splash shown flag, to return to the default wallet view
+                                        setShowBottomSheet(false);
+                                        setBottomTabShown(true);
+                                        setSplashShown(false);
                                     }
                                 }
-                            >
-                                <Text
-                                    style={styles.buttonText}>{
-                                    splashShown
-                                        ? splashState.splashButtonText
-                                        : (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0)
-                                            ? `One card allowed`
-                                            : `Connect new card`
-                                }</Text>
-                            </TouchableOpacity>
-                            {
-                                !splashShown &&
-                                <Text style={deviceType === DeviceType.TABLET ? styles.disclaimerTextTablet : styles.disclaimerText}>
-                                    Limited to <Text style={styles.highlightedText}>one</Text> linked card per customer
-                                    at a
-                                    time.
-                                    To link a new card, first <Text style={styles.highlightedText}>disconnect the
-                                    existing
-                                    one</Text>. Only <Text style={styles.highlightedText}>Visa</Text> or <Text
-                                    style={styles.highlightedText}>MasterCard</Text> allowed.
-                                </Text>
                             }
-                        </View>
+                        >
+                            <Text
+                                style={styles.buttonText}>{
+                                splashShown
+                                    ? splashState.splashButtonText
+                                    : `Connect new card`
+                            }</Text>
+                        </TouchableOpacity>
                         {
-                            !cardLinkingBottomSheet && !appDrawerHeaderShown &&
-                            <BottomSheet
-                                handleIndicatorStyle={{backgroundColor: '#F2FF5D'}}
-                                enableHandlePanningGesture={true}
-                                ref={bottomSheetRef}
-                                backgroundStyle={styles.bottomSheet}
-                                enablePanDownToClose={true}
-                                index={showBottomSheet ? 0 : -1}
-                                snapPoints={
-                                    (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0)
-                                        ? ['40%', '40%']
-                                        : ['70%', '70%']
-                                }
-                                onChange={(index) => {
-                                    setShowBottomSheet(index !== -1);
-                                }}
-                            >
-                                {
-                                    (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0)
-                                        ?
-                                        <View style={{
-                                            flexDirection: 'column',
-                                            alignContent: 'center',
-                                            alignItems: 'center',
-                                            alignSelf: 'center'
-                                        }}>
-                                            <Text style={deviceType === DeviceType.TABLET ? styles.cardRemovalTitleTablet : styles.cardRemovalTitle}>
-                                                Card Removal
-                                            </Text>
-                                            <Text style={deviceType === DeviceType.TABLET ? styles.cardRemovalDetailsTablet : styles.cardRemovalDetails}>
-                                                {userInformation["linkedCard"]["cards"][0]["type"] === CardType.Visa ? 'VISA' : 'MASTERCARD'} ••••{userInformation["linkedCard"]["cards"][0]["last4"]}
-                                            </Text>
-                                            <Text style={deviceType === DeviceType.TABLET ? styles.cardRemovalSubtitleTablet : styles.cardRemovalSubtitle}>
-                                                Once you remove this card, you will no longer be eligible to
-                                                participate
-                                                in
-                                                previously linked programs and/or offers. Do you wish to continue ?
-                                            </Text>
-                                            <TouchableOpacity
-                                                style={styles.cardRemovalButton}
-                                                onPress={
-                                                    async () => {
-                                                        // delete the card
-                                                        await deleteCardAction();
-                                                    }
-                                                }
-                                            >
-                                                <Text style={styles.buttonText}>{`Continue`}</Text>
-                                            </TouchableOpacity>
-                                        </View>
-                                        : <CardLinkingBottomSheet/>
-                                }
-                            </BottomSheet>
+                            !splashShown &&
+                            userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length === 0
+                                ? <Text
+                                    style={deviceType === DeviceType.TABLET ? styles.disclaimerTextTablet : styles.disclaimerText}>
+                                    Connect your <Text
+                                    style={styles.highlightedText}>Visa</Text> or <Text
+                                    style={styles.highlightedText}>MasterCard</Text> debit or credit card.
+                                </Text>
+                                :
+                                splashShown
+                                    ?
+                                    <></>
+                                    :
+                                    <Text
+                                        style={deviceType === DeviceType.TABLET ? styles.disclaimerTextTablet : styles.disclaimerText}>
+                                        Earn discounts on <Text style={styles.highlightedText}>every
+                                        transaction</Text> at <Text
+                                        style={styles.highlightedText}>qualifying</Text> merchant locations.
+                                    </Text>
                         }
-                    </SafeAreaView>
-                </ImageBackground>
+                    </View>
+                    {
+                        !cardLinkingBottomSheet && !appDrawerHeaderShown &&
+                        <BottomSheet
+                            handleIndicatorStyle={{backgroundColor: '#F2FF5D'}}
+                            enableHandlePanningGesture={true}
+                            ref={bottomSheetRef}
+                            backgroundStyle={styles.bottomSheet}
+                            enablePanDownToClose={true}
+                            index={showBottomSheet ? 0 : -1}
+                            snapPoints={
+                                (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0)
+                                    ? ['40%', '40%']
+                                    : ['70%', '70%']
+                            }
+                            onChange={(index) => {
+                                setShowBottomSheet(index !== -1);
+                            }}
+                        >
+                            {
+                                (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0)
+                                    ?
+                                    <View style={{
+                                        flexDirection: 'column',
+                                        alignContent: 'center',
+                                        alignItems: 'center',
+                                        alignSelf: 'center'
+                                    }}>
+                                        <Text
+                                            style={deviceType === DeviceType.TABLET ? styles.cardRemovalTitleTablet : styles.cardRemovalTitle}>
+                                            Card Removal
+                                        </Text>
+                                        <Text
+                                            style={deviceType === DeviceType.TABLET ? styles.cardRemovalDetailsTablet : styles.cardRemovalDetails}>
+                                            {userInformation["linkedCard"]["cards"][0]["type"] === CardType.Visa ? 'VISA' : 'MASTERCARD'} ••••{userInformation["linkedCard"]["cards"][0]["last4"]}
+                                        </Text>
+                                        <Text
+                                            style={deviceType === DeviceType.TABLET ? styles.cardRemovalSubtitleTablet : styles.cardRemovalSubtitle}>
+                                            Once you remove this card, you will no longer be eligible to
+                                            participate
+                                            in
+                                            previously linked programs and/or offers. Do you wish to continue ?
+                                        </Text>
+                                        <TouchableOpacity
+                                            style={styles.cardRemovalButton}
+                                            onPress={
+                                                async () => {
+                                                    // delete the card
+                                                    await deleteCardAction();
+                                                }
+                                            }
+                                        >
+                                            <Text style={styles.buttonText}>{`Continue`}</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    : <CardLinkingBottomSheet/>
+                            }
+                        </BottomSheet>
+                    }
+                </SafeAreaView>
             }
         </>
     );

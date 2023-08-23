@@ -4,6 +4,7 @@ import {styles} from "../../../../styles/registration.module";
 import {Checkbox} from "expo-checkbox";
 import {useRecoilState} from "recoil";
 import {
+    authRegistrationNavigation,
     militaryRegistrationDisclaimerCheckState,
     militaryVerificationStatus,
     registrationMainErrorState
@@ -20,8 +21,8 @@ import MilitaryVerificationImage from '../../../../../assets/art/military-verifi
  * @constructor constructor for the component.
  */
 export const MilitaryStatusSplashStep = () => {
-
     // constants used to keep track of shared states
+    const [navigation, ] = useRecoilState(authRegistrationNavigation);
     const [militaryStatusDisclaimer, setMilitaryStatusDisclaimer] = useRecoilState(militaryRegistrationDisclaimerCheckState);
     const [militaryStatus,] = useRecoilState(militaryVerificationStatus);
     const [registrationMainError, setRegistrationMainError] = useRecoilState(registrationMainErrorState);
@@ -75,9 +76,19 @@ export const MilitaryStatusSplashStep = () => {
                                 'You also acknowledge that you read and agree to our '}
                                 <Text style={styles.disclaimerTextHighlighted}
                                       onPress={() => {
+                                          // navigate to the Documents Viewer
+                                          navigation && navigation.navigate('DocumentsViewer', {
+                                              name: 'privacy-policy.pdf',
+                                              privacyFlag: false
+                                          });
                                       }}>Privacy Policy</Text>{' and our'}
                                 <Text style={styles.disclaimerTextHighlighted}
                                       onPress={() => {
+                                          // navigate to the Documents Viewer
+                                          navigation && navigation.navigate('DocumentsViewer', {
+                                              name: 'terms-and-conditions.pdf',
+                                              privacyFlag: false
+                                          });
                                       }}> Terms & Conditions.</Text>
                             </Text>
                         </View>

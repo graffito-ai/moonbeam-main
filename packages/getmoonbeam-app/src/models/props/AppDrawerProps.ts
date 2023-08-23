@@ -9,7 +9,11 @@ export type AppDrawerStackParamList = {
     Settings: {},
     Support: {},
     AppWall: {},
-    Loading: {}
+    DocumentsViewer: {
+        name: string;
+        privacyFlag: boolean;
+        appDrawerFlag: boolean;
+    }
 };
 
 /**
@@ -21,12 +25,12 @@ export type AppDrawerStackParamList = {
  */
 export type HomeProps = NativeStackScreenProps<AppDrawerStackParamList, 'Home'>
 // the Documents component props, within the AppDrawer stack
-export type SupportProps = NativeStackScreenProps<AppDrawerStackParamList, 'Documents'>
+export type DocumentsProps = NativeStackScreenProps<AppDrawerStackParamList, 'Documents'>
 // the Settings component props, within the AppDrawer stack
 export type SettingsProps = NativeStackScreenProps<AppDrawerStackParamList, 'Settings'>
 // the Support component props, within the AppDrawer stack
-export type BankAccountsProps = NativeStackScreenProps<AppDrawerStackParamList, 'Support'>
+export type SupportProps = NativeStackScreenProps<AppDrawerStackParamList, 'Support'>
 // the AppWall component props, within the AppDrawer stack
 export type AppWallProps = NativeStackScreenProps<AppDrawerStackParamList, 'AppWall'>
-// the Loading component props, within the AppDrawer stack
-export type LoadingProps = NativeStackScreenProps<AppDrawerStackParamList, 'Loading'>
+// the Documents Viewer component props, within the AppDrawer stack
+export type AppDrawerDocumentsViewerProps = NativeStackScreenProps<AppDrawerStackParamList, 'DocumentsViewer'>

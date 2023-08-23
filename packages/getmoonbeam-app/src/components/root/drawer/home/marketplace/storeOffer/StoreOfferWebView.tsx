@@ -36,10 +36,9 @@ export const StoreOfferWebView = ({}: StoreOfferWebViewProps) => {
      * included in here.
      */
     useEffect(() => {
-        console.log(JSON.stringify(userInformation));
         // set the current offer's website accordingly (for now defaulting to a Google search)
         // @ts-ignore
-        storeOfferClicked!.numberOfOffers === undefined ? setInitialOfferWebsite(`https://www.google.com/search?q=${storeOfferClicked!.brandDba!}`) : setInitialOfferWebsite(`https://www.google.com/search?q=${storeOfferClicked!.offers[0].brandDba!}`)
+        storeOfferClicked!.numberOfOffers === undefined ? setInitialOfferWebsite(`https://www.google.com/search?q=${storeOfferClicked!.brandDba!}`) : (storeOfferClicked!.offers![0].brandWebsite! ? setInitialOfferWebsite(`${storeOfferClicked!.offers![0].brandWebsite!}`) :  setInitialOfferWebsite(`https://www.google.com/search?q=${storeOfferClicked!.offers![0].brandDba!}`))
     }, []);
 
     // return the component for the StoreOfferWebView page
@@ -78,7 +77,8 @@ export const StoreOfferWebView = ({}: StoreOfferWebViewProps) => {
                         selectionColor={'#2A3779'}
                         mode={'outlined'}
                         placeholder={'Search or type URL'}
-                        value={"www.google.com"}
+                        // @ts-ignore
+                        value={storeOfferClicked!.numberOfOffers === undefined ? storeOfferClicked!.brandDba! : storeOfferClicked.offers[0].brandDba!}
                     />
                 </View>
             </View>

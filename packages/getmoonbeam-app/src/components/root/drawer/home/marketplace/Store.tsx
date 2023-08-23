@@ -530,7 +530,14 @@ export const Store = ({navigation}: StoreProps) => {
         let nearbyOffersNumber = 0;
         if (nearbyOfferList.length !== 0) {
             for (const nearbyOffer of nearbyOfferList) {
-                results.push(
+                // get the physical location of this offer
+                let physicalLocation: string = '';
+                nearbyOffer.storeDetails!.forEach(store => {
+                     physicalLocation = store!.isOnline === false ? store!.address1! : '';
+                });
+
+                // only get the true nearby offers (since this is an Olive bug
+                physicalLocation !== '' && results.push(
                     <>
                         {
                             nearbyOffersNumber !== nearbyOfferList.length - 1
@@ -582,7 +589,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                 <Paragraph
                                                     style={styles.nearbyOfferCardParagraph}
                                                 >
-                                                    {`📌 Address:\n${nearbyOffer.storeDetails![0]!.address1!}`}
+                                                    {`📌 Address:\n${physicalLocation}`}
                                                 </Paragraph>
                                             </View>
                                         </Card.Content>

@@ -2,6 +2,29 @@ import {Dimensions, StyleSheet} from "react-native";
 
 // styles to be used within the Wallet component
 export const styles = StyleSheet.create({
+    cardView: {
+        flexDirection: 'column',
+        alignContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center'
+    },
+    mainCardView: {
+        flex: 1,
+        width: '100%'
+    },
+    noCardImage: {
+        height: Dimensions.get('window').height * 0.55,
+        width: Dimensions.get('window').width * 0.55,
+        bottom: Dimensions.get('window').height / 25,
+        alignSelf: 'center'
+    },
+    walletTopTitleView: {
+        width: Dimensions.get('window').width,
+        flexDirection: 'row',
+        alignContent: 'flex-start',
+        alignItems: 'flex-start',
+        alignSelf: 'flex-start'
+    },
     walletView: {
         flex: 1,
         width: '100%',
@@ -15,9 +38,9 @@ export const styles = StyleSheet.create({
     cardRemovalButton: {
         backgroundColor: '#F2FF5D',
         position: 'absolute',
-        width: Dimensions.get('window').width/1.4,
-        height: Dimensions.get('window').height/20,
-        bottom: -Dimensions.get('window').height/9,
+        width: Dimensions.get('window').width / 1.4,
+        height: Dimensions.get('window').height / 20,
+        bottom: -Dimensions.get('window').height / 9,
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -25,29 +48,21 @@ export const styles = StyleSheet.create({
     },
     linkingButton: {
         backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width/1.4,
-        height: Dimensions.get('window').height/20,
-        left: Dimensions.get('window').width/13,
+        width: Dimensions.get('window').width / 1.4,
+        height: Dimensions.get('window').height / 20,
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'center'
     },
     linkingButtonDisabled: {
-        backgroundColor: '#D9D9D9',
-        width: Dimensions.get('window').width/1.4,
-        height: Dimensions.get('window').height/20,
-        left: Dimensions.get('window').width/13,
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'center'
+        display: "none"
     },
     splashButton: {
         backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width/1.4,
-        height: Dimensions.get('window').height/20,
-        marginBottom: Dimensions.get('window').width/30,
+        width: Dimensions.get('window').width / 1.4,
+        height: Dimensions.get('window').height / 20,
+        marginBottom: Dimensions.get('window').width / 30,
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -56,33 +71,39 @@ export const styles = StyleSheet.create({
     buttonText: {
         color: '#313030',
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').height/45,
+        fontSize: Dimensions.get('window').height / 45,
         marginTop: Dimensions.get('window').height / 90
     },
     listSectionView: {
         left: Dimensions.get('window').width / 20,
         marginTop: Dimensions.get('window').height / 20,
         alignSelf: 'flex-start',
-        width: Dimensions.get('window').width/1.15,
-        backgroundColor: '#5B5A5A',
+        width: Dimensions.get('window').width / 1.1,
         borderRadius: 10
     },
     subHeaderTitle: {
         alignSelf: 'flex-start',
         color: '#F2FF5D',
-        fontSize: Dimensions.get('window').height/65,
+        fontSize: Dimensions.get('window').height / 65,
         fontFamily: 'Raleway-Medium'
     },
-    cardItemStyle: {},
+    cardItemStyle: {
+        backgroundColor: '#F2FF5D',
+        height: Dimensions.get('window').height / 4,
+        width: Dimensions.get('window').width / 1.1,
+        borderRadius: 20
+    },
     cardItemTitle: {
-        color: '#FFFFFF',
+        color: '#313030',
         fontFamily: 'Saira-Bold',
-        fontSize: Dimensions.get('window').height/50
+        fontSize: Dimensions.get('window').height / 40,
+        width: Dimensions.get('window').width / 3,
+        bottom: Dimensions.get('window').height / 40
     },
     cardItemDetails: {
-        color: '#FFFFFF',
-        fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').height/60
+        color: '#313030',
+        fontFamily: 'Saira-Regular',
+        fontSize: Dimensions.get('window').height / 50
     },
     cardLinkingParentView: {
         backgroundColor: '#5B5A5A',
@@ -92,30 +113,32 @@ export const styles = StyleSheet.create({
     },
     cardLinkingIframeView: {
         backgroundColor: 'transparent',
-        width: Dimensions.get('window').width*1.3,
+        width: Dimensions.get('window').width * 1.3,
         flexGrow: 1
     },
     disclaimerTextView: {
         position: 'absolute',
-        bottom: Dimensions.get('window').height/40,
+        bottom: Dimensions.get('window').height / 30,
+        alignItems: 'center',
         alignSelf: 'center',
         textAlign: 'center'
     },
     disclaimerText: {
         fontFamily: 'Saira-Regular',
-        fontSize: Dimensions.get('window').width / 28,
-        width: Dimensions.get('window').width / 1.15,
+        fontSize: Dimensions.get('window').width / 23,
+        width: Dimensions.get('window').width / 1.5,
         textAlign: 'center'
     },
     disclaimerTextTablet: {
         fontFamily: 'Saira-Regular',
         fontSize: Dimensions.get('window').width / 35,
-        width: Dimensions.get('window').width / 1.15,
+        width: Dimensions.get('window').width / 1.7,
         textAlign: 'center'
     },
     walletTextView: {
         alignSelf: 'flex-start',
-        marginTop: Dimensions.get('window').height / 20,
+        flexDirection: 'column',
+        marginTop: Dimensions.get('window').height / 30,
         left: Dimensions.get('window').width / 20
     },
     walletTitle: {

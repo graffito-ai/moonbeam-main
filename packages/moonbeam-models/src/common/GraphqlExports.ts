@@ -647,6 +647,7 @@ export type Offer = {
   brandLogoSm?: Maybe<Scalars['String']>;
   brandParentCategory?: Maybe<Scalars['String']>;
   brandStubCopy?: Maybe<Scalars['String']>;
+  brandWebsite?: Maybe<Scalars['String']>;
   budget?: Maybe<Scalars['Float']>;
   corporateId?: Maybe<Scalars['ID']>;
   created?: Maybe<Scalars['AWSDateTime']>;

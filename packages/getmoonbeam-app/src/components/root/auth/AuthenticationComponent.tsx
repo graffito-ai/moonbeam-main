@@ -37,17 +37,16 @@ import {commonStyles} from "../../../styles/common.module";
 import {AppDrawer} from "../drawer/AppDrawer";
 import * as Linking from "expo-linking";
 import {Spinner} from "../../common/Spinner";
+import { DocumentsViewer } from "../../common/DocumentsViewer";
 
 /**
  * Authentication component.
  *
  * @constructor constructor for the component.
  */
-export const AuthenticationComponent = ({route, }: AuthenticationProps) => {
+export const AuthenticationComponent = ({route,}: AuthenticationProps) => {
         // constants used to keep track of local component state
         const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
-        // create a native stack navigator, to be used for our Authentication application navigation
-        const Stack = createNativeStackNavigator<AuthenticationStackParamList>();
         // constants used to keep track of shared states
         const [, setRegistrationMainError] = useRecoilState(registrationMainErrorState);
         const [, setStepNumber] = useRecoilState(registrationStepNumber);
@@ -74,6 +73,9 @@ export const AuthenticationComponent = ({route, }: AuthenticationProps) => {
         const [, setAccountRegistrationDisclaimer] = useRecoilState(accountCreationDisclaimerCheckState);
         const [, setAmplifySignUpErrors] = useRecoilState(amplifySignUpProcessErrorsState);
         // do not need to clear further steps because back button won't be shown for subsequent ones
+
+        // create a native stack navigator, to be used for our Authentication application navigation
+        const Stack = createNativeStackNavigator<AuthenticationStackParamList>();
 
         // initial app URL followed by any subsequent changes to the URL.
         const appURL = Linking.useURL();
@@ -176,6 +178,11 @@ export const AuthenticationComponent = ({route, }: AuthenticationProps) => {
                         <Stack.Screen
                             name="AppDrawer"
                             component={AppDrawer}
+                            initialParams={{}}
+                        />
+                        <Stack.Screen
+                            name="DocumentsViewer"
+                            component={DocumentsViewer}
                             initialParams={{}}
                         />
                     </Stack.Navigator>

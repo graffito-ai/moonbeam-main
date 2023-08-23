@@ -52,6 +52,8 @@ import {
 } from "../../../recoil/DashboardAtom";
 import {fetchFile} from "../../../utils/File";
 import Image = Animated.Image;
+import { Documents } from './documents/Documents';
+import {DocumentsViewer} from "../../common/DocumentsViewer";
 
 /**
  * AppDrawer component.
@@ -139,7 +141,8 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                 Support: {
                     path: 'support'
                 },
-                AppWall: {}
+                AppWall: {},
+                DocumentsViewer: {}
             },
         };
 
@@ -691,10 +694,10 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                             ...props,
                                             state: {
                                                 ...props.state,
-                                                // hide the App Wall from drawer content, when the user is verified
+                                                // hide the App Wall and Documents Viewer from drawer content, when the user is verified
                                                 routes: !userVerified ?
                                                     props.state.routes
-                                                    : props.state.routes.filter((route) => route.name !== 'AppWall')
+                                                    : props.state.routes.filter((route) => route.name !== 'AppWall' && route.name !== 'DocumentsViewer')
                                             }
                                         }
                                         return(<CustomDrawer {...filteredProps} />);
@@ -767,10 +770,10 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                     />
                                     <ApplicationDrawer.Screen
                                         name={"Documents"}
-                                        component={() => <></>}
+                                        component={Documents}
                                         initialParams={{}}
                                         options={{
-                                            swipeEnabled: true,
+                                            swipeEnabled: drawerSwipeEnabled,
                                             drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20 : 0},
                                             drawerIcon: () => (
                                                 <Icon
@@ -821,6 +824,25 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                                 <Icon
                                                     size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 25 : Dimensions.get('window').width / 15}
                                                     name={'wall'} color={'#F2FF5D'}/>
+                                            ),
+                                            header: () => {
+                                                return (<></>)
+                                            },
+                                            headerShown: false
+                                        }}
+                                    />
+                                    <ApplicationDrawer.Screen
+                                        name={"DocumentsViewer"}
+                                        component={DocumentsViewer}
+                                        initialParams={{}}
+                                        options={{
+                                            unmountOnBlur: true,
+                                            swipeEnabled: false,
+                                            drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20 : 0},
+                                            drawerIcon: () => (
+                                                <Icon
+                                                    size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 25 : Dimensions.get('window').width / 15}
+                                                    name={'file'} color={'#F2FF5D'}/>
                                             ),
                                             header: () => {
                                                 return (<></>)

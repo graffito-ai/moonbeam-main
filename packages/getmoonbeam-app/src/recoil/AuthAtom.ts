@@ -1,6 +1,17 @@
 import {atom} from "recoil";
 import {MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
 import {ExpoPushToken} from "expo-notifications";
+import {NativeStackNavigationProp} from "@react-navigation/native-stack";
+import {AuthenticationStackParamList} from "../models/props/AuthenticationProps";
+
+/**
+ * Atom used to keep track of the registration navigation (used for documents viewer purposes).
+ */
+const authRegistrationNavigation = atom<NativeStackNavigationProp<AuthenticationStackParamList, "Registration", undefined> | null>({
+    key: 'authRegistrationNavigation',
+    default: null
+});
+
 
 /**
  * Atom used to keep track of the expo push token for a
@@ -433,6 +444,7 @@ const appLinkedURLState = atom({
  * Export all atoms and/or selectors
  */
 export {
+    authRegistrationNavigation,
     expoPushTokenState,
     appLinkedURLState,
     cardLinkingRegistrationStatusState,

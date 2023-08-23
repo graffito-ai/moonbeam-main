@@ -10,6 +10,7 @@ import {useRecoilState} from "recoil";
 import {bottomTabShownState} from "../../../../../../recoil/HomeAtom";
 import {StoreOfferDetails} from "./StoreOfferDetails";
 import {StoreOfferWebView} from "./StoreOfferWebView";
+import {appDrawerHeaderShownState, customBannerShown, drawerSwipeState} from "../../../../../../recoil/AppDrawerAtom";
 
 /**
  * StoreOffer component.
@@ -20,6 +21,9 @@ import {StoreOfferWebView} from "./StoreOfferWebView";
 export const StoreOffer = ({navigation}: StoreOfferProps) => {
     // constants used to keep track of shared states
     const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
+    const [, setBannerShown] = useRecoilState(customBannerShown);
+    const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
+    const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
 
     // create a native stack navigator, to be used for our StoreOffer navigation
     const Stack = createNativeStackNavigator<StoreOfferStackParamList>();
@@ -32,6 +36,10 @@ export const StoreOffer = ({navigation}: StoreOfferProps) => {
      * included in here.
      */
     useEffect(() => {
+        // set the app drawer status accordingly, custom banner visibility and drawer swipe actions accordingly
+        setAppDrawerHeaderShown(false);
+        setBannerShown(false);
+        setDrawerSwipeEnabled(false);
         setBottomTabShown(false);
     }, []);
 
@@ -77,7 +85,10 @@ export const StoreOffer = ({navigation}: StoreOfferProps) => {
                                 icon="close"
                                 iconColor={"#F2FF5D"}
                                 size={Dimensions.get('window').height / 28}
-                                style={[commonStyles.backButtonDismiss, {right: Dimensions.get('window').width/15, bottom: Dimensions.get('window').height/250}]}
+                                style={[commonStyles.backButtonDismiss, {
+                                    right: Dimensions.get('window').width / 15,
+                                    bottom: Dimensions.get('window').height / 250
+                                }]}
                                 onPress={() => {
                                     navigation.navigate('StoreOfferDetails', {});
                                 }}

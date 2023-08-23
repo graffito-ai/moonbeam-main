@@ -7,7 +7,10 @@ export type AuthenticationStackParamList = {
     SignIn: {}
     Registration: {},
     AccountRecovery: {},
-    DocumentViewer: {},
+    DocumentsViewer: {
+        name: string;
+        privacyFlag: boolean;
+    }
     AppDrawer: {}
 };
 
@@ -18,7 +21,7 @@ export type RegistrationProps = NativeStackScreenProps<AuthenticationStackParamL
 // the AccountRecovery component props, within the Authentication stack
 export type AccountRecoveryProps = NativeStackScreenProps<AuthenticationStackParamList, 'AccountRecovery'>;
 // the Document component props, within the Authentication stack
-export type DocumentViewerRootProps = NativeStackScreenProps<AuthenticationStackParamList, 'DocumentViewer'>
+export type AuthenticationDocumentsViewerProps = NativeStackScreenProps<AuthenticationStackParamList, 'DocumentsViewer'>
 /**
  * the AppDrawer component props, within the Authentication stack.
  *

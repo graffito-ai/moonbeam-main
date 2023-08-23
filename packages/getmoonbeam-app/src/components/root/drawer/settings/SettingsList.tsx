@@ -190,7 +190,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                     </Portal>
                     <SafeAreaView style={commonStyles.rowContainer}>
                         <View style={[styles.settingsContentView, StyleSheet.absoluteFill]}>
-                            <ScrollView scrollEnabled={true}
+                            <ScrollView scrollEnabled={false}
                                         persistentScrollbar={false}
                                         showsVerticalScrollIndicator={false}
                                         keyboardShouldPersistTaps={'handled'}>
@@ -201,6 +201,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                     <Divider style={styles.divider}/>
                                     <Divider style={styles.divider}/>
                                     <List.Item
+                                        rippleColor={'transparent'}
                                         style={styles.settingsItemStyle}
                                         titleStyle={styles.settingsItemTitle}
                                         descriptionStyle={styles.settingsItemDescription}
@@ -211,14 +212,15 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                         left={() => <List.Icon color={'#F2FF5D'} icon="clipboard-account-outline"/>}
                                         right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
                                                                 color={'#F2FF5D'} icon="chevron-right"/>}
-                                        onPress={async () => {
+                                        onPress={() => {
                                             // go to the Profile screen
-                                            await Linking.openURL(Linking.createURL(`settings/profile`));
+                                            navigation.navigate('Profile', {});
                                         }}
                                     />
                                     <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>
                                     <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>
                                     <List.Item
+                                        rippleColor={'transparent'}
                                         style={styles.settingsItemStyle}
                                         titleStyle={styles.settingsItemTitle}
                                         descriptionStyle={styles.settingsItemDescription}
@@ -227,8 +229,14 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                         title="Change Password"
                                         description='Forgot your password? Change it so you can continue to securely access your account.'
                                         left={() => <List.Icon color={'#F2FF5D'} icon="lock-check"/>}
+                                        // right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
+                                        //                         color={'#F2FF5D'} icon={FaceIDIcon}/>}
                                         right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
-                                                                color={'#F2FF5D'} icon={FaceIDIcon}/>}
+                                                                color={'#F2FF5D'} icon="chevron-right"/>}
+                                        onPress={() => {
+                                            // go to the Profile screen
+                                            navigation.navigate('ResetPassword', {});
+                                        }}
                                     />
                                 </List.Section>
                                 <List.Section style={styles.listSectionView}>
@@ -238,6 +246,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                     <Divider style={styles.divider}/>
                                     <Divider style={styles.divider}/>
                                     <List.Item
+                                        rippleColor={'transparent'}
                                         style={styles.settingsItemStyle}
                                         titleStyle={styles.settingsItemTitle}
                                         descriptionStyle={styles.settingsItemDescription}
@@ -246,8 +255,10 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                         title={optionTitle}
                                         description={optionDescription}
                                         left={() => <List.Icon color={'#F2FF5D'} icon={optionIcon}/>}
+                                        // right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
+                                        //                         color={'#F2FF5D'} icon={FaceIDIcon}/>}
                                         right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
-                                                                color={'#F2FF5D'} icon={FaceIDIcon}/>}
+                                                                color={'#F2FF5D'} icon="chevron-right"/>}
                                         onPress={async () => {
                                             // check if a member has already been deactivated or never completed the linked card process
                                             if (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0) {
@@ -264,53 +275,53 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                         }}
                                     />
                                 </List.Section>
-                                <List.Section style={styles.listSectionView}>
-                                    <List.Subheader
-                                        style={deviceType === DeviceType.TABLET ? styles.subHeaderTitleTablet : styles.subHeaderTitle}>Security
-                                        and Privacy</List.Subheader>
-                                    <Divider style={styles.divider}/>
-                                    <Divider style={styles.divider}/>
-                                    <List.Item
-                                        style={styles.settingsItemStyle}
-                                        titleStyle={styles.settingsItemTitle}
-                                        descriptionStyle={styles.settingsItemDescription}
-                                        titleNumberOfLines={10}
-                                        descriptionNumberOfLines={10}
-                                        title="Face ID"
-                                        description='Enhance your login experience, by enabling Face ID.'
-                                        left={() => <List.Icon color={'#F2FF5D'} icon="emoticon"/>}
-                                        right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
-                                                                color={'#F2FF5D'} icon="chevron-right"/>}
-                                    />
-                                    <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>
-                                    <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>
-                                    <List.Item
-                                        style={styles.settingsItemStyle}
-                                        titleStyle={styles.settingsItemTitle}
-                                        descriptionStyle={styles.settingsItemDescription}
-                                        titleNumberOfLines={10}
-                                        descriptionNumberOfLines={10}
-                                        title="Two-Factor Authentication"
-                                        description='Secure your account even further, with two-step verification.'
-                                        left={() => <List.Icon color={'#F2FF5D'} icon="lock"/>}
-                                        right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
-                                                                color={'#F2FF5D'} icon="chevron-right"/>}
-                                    />
-                                    <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>
-                                    <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>
-                                    <List.Item
-                                        style={styles.settingsItemStyle}
-                                        titleStyle={styles.settingsItemTitle}
-                                        descriptionStyle={styles.settingsItemDescription}
-                                        titleNumberOfLines={10}
-                                        descriptionNumberOfLines={10}
-                                        title="Notification Preferences"
-                                        description='Manage your notification and marketing settings.'
-                                        left={() => <List.Icon color={'#F2FF5D'} icon="bell-alert"/>}
-                                        right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
-                                                                color={'#F2FF5D'} icon="chevron-right"/>}
-                                    />
-                                </List.Section>
+                                {/*<List.Section style={styles.listSectionView}>*/}
+                                {/*    <List.Subheader*/}
+                                {/*        style={deviceType === DeviceType.TABLET ? styles.subHeaderTitleTablet : styles.subHeaderTitle}>Security*/}
+                                {/*        and Privacy</List.Subheader>*/}
+                                {/*    <Divider style={styles.divider}/>*/}
+                                {/*    <Divider style={styles.divider}/>*/}
+                                {/*    <List.Item*/}
+                                {/*        style={styles.settingsItemStyle}*/}
+                                {/*        titleStyle={styles.settingsItemTitle}*/}
+                                {/*        descriptionStyle={styles.settingsItemDescription}*/}
+                                {/*        titleNumberOfLines={10}*/}
+                                {/*        descriptionNumberOfLines={10}*/}
+                                {/*        title="Face ID"*/}
+                                {/*        description='Enhance your login experience, by enabling Face ID.'*/}
+                                {/*        left={() => <List.Icon color={'#F2FF5D'} icon="emoticon"/>}*/}
+                                {/*        right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}*/}
+                                {/*                                color={'#F2FF5D'} icon="chevron-right"/>}*/}
+                                {/*    />*/}
+                                {/*    <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>*/}
+                                {/*    <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>*/}
+                                {/*    <List.Item*/}
+                                {/*        style={styles.settingsItemStyle}*/}
+                                {/*        titleStyle={styles.settingsItemTitle}*/}
+                                {/*        descriptionStyle={styles.settingsItemDescription}*/}
+                                {/*        titleNumberOfLines={10}*/}
+                                {/*        descriptionNumberOfLines={10}*/}
+                                {/*        title="Two-Factor Authentication"*/}
+                                {/*        description='Secure your account even further, with two-step verification.'*/}
+                                {/*        left={() => <List.Icon color={'#F2FF5D'} icon="lock"/>}*/}
+                                {/*        right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}*/}
+                                {/*                                color={'#F2FF5D'} icon="chevron-right"/>}*/}
+                                {/*    />*/}
+                                {/*    <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>*/}
+                                {/*    <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>*/}
+                                {/*    <List.Item*/}
+                                {/*        style={styles.settingsItemStyle}*/}
+                                {/*        titleStyle={styles.settingsItemTitle}*/}
+                                {/*        descriptionStyle={styles.settingsItemDescription}*/}
+                                {/*        titleNumberOfLines={10}*/}
+                                {/*        descriptionNumberOfLines={10}*/}
+                                {/*        title="Notification Preferences"*/}
+                                {/*        description='Manage your notification and marketing settings.'*/}
+                                {/*        left={() => <List.Icon color={'#F2FF5D'} icon="bell-alert"/>}*/}
+                                {/*        right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}*/}
+                                {/*                                color={'#F2FF5D'} icon="chevron-right"/>}*/}
+                                {/*    />*/}
+                                {/*</List.Section>*/}
                             </ScrollView>
                         </View>
                     </SafeAreaView>

@@ -8,8 +8,6 @@ import FaceIDIcon from '../../../../../../assets/face-id-icon.png';
 import {useRecoilState} from "recoil";
 import {currentUserInformation} from "../../../../../recoil/AuthAtom";
 import {Spinner} from "../../../../common/Spinner";
-// @ts-ignore
-import CardLinkingImage from "../../../../../../assets/art/moonbeam-card-linking.png";
 import {ProfileProps} from "../../../../../models/props/SettingsProps";
 import {appDrawerHeaderShownState, drawerSwipeState, profilePictureURIState} from "../../../../../recoil/AppDrawerAtom";
 import {LinearGradient} from "expo-linear-gradient";
@@ -476,11 +474,12 @@ export const Profile = ({navigation}: ProfileProps) => {
                 :
                 <>
                     <Portal>
-                        <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
+                        <Dialog style={[commonStyles.dialogStyle, {backgroundColor: '#313030'}]} visible={modalVisible}
                                 onDismiss={() => setModalVisible(false)}>
                             <Dialog.Icon icon="alert" color={"#F2FF5D"}
                                          size={Dimensions.get('window').height / 14}/>
-                            <Dialog.Title style={commonStyles.dialogTitle}>{modalButtonMessage === 'Ok' ? 'Great': 'We hit a snag!'}</Dialog.Title>
+                            <Dialog.Title
+                                style={commonStyles.dialogTitle}>{modalButtonMessage === 'Ok' ? 'Great' : 'We hit a snag!'}</Dialog.Title>
                             <Dialog.Content>
                                 <Text
                                     style={commonStyles.dialogParagraph}>{modalCustomMessage}</Text>

@@ -20,6 +20,7 @@ import {
     addressZipErrorsState,
     addressZipState,
     amplifySignUpProcessErrorsState,
+    authRegistrationNavigation,
     birthdayErrorState,
     birthdayState,
     cardLinkingRegistrationStatusState,
@@ -100,6 +101,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
+    const [, setNavigation] = useRecoilState(authRegistrationNavigation);
     const [, setAmplifySignUpErrors] = useRecoilState(amplifySignUpProcessErrorsState);
     const [, setRegistrationMainError] = useRecoilState(registrationMainErrorState);
     const [, setIsBackButtonShown] = useRecoilState(registrationBackButtonShown);
@@ -165,6 +167,9 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
      * included in here.
      */
     useEffect(() => {
+        // set the registration navigation to be used for Documents Viewer purposes
+        setNavigation(navigation);
+
         // start the countdown if the value is 10
         if (countdownValue === 10) {
             startCountdown(10);

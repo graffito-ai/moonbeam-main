@@ -72,7 +72,7 @@ const profilePictureURIState = atom<string>({
 
 /**
  * Atom used to keep track of whether a custom app drawer style should be activated for when
- * the dashboard screen is active.
+ * the dashboard or marketplace screen is active.
  */
 const drawerDashboardState = atom<boolean>({
     key: 'drawerDashboardState',

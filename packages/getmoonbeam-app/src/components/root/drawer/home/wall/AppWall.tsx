@@ -39,13 +39,15 @@ import RegistrationBackgroundImage from '../../../../../../assets/backgrounds/re
 // @ts-ignore
 import MilitaryVerificationImage from '../../../../../../assets/art/military-verification.png';
 import {Button} from "@rneui/base";
+import {AppWallProps} from "../../../../../models/props/AppDrawerProps";
 
 /**
  * AppWall Component.
  *
+ * @param navigation navigation object passed in from the parent navigator.
  * @constructor constructor for the component.
  */
-export const AppWall = () => {
+export const AppWall = ({navigation}: AppWallProps) => {
     // constants used to keep track of local component state
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
@@ -308,7 +310,8 @@ export const AppWall = () => {
                                     onDismiss={() => setSupportModalVisible(false)}>
                                 <Dialog.Icon icon="alert" color={"#F2FF5D"}
                                              size={Dimensions.get('window').height / 14}/>
-                                <Dialog.Title style={commonStyles.dialogTitle}>{supportModalButtonMessage === 'Retry' ? 'We hit a snag!': ('Dismiss' ? 'Great' : 'Heads up')}</Dialog.Title>
+                                <Dialog.Title
+                                    style={commonStyles.dialogTitle}>{supportModalButtonMessage === 'Retry' ? 'We hit a snag!' : ('Dismiss' ? 'Great' : 'Heads up')}</Dialog.Title>
                                 <Dialog.Content>
                                     <Text
                                         style={commonStyles.dialogParagraph}>{supportModalMessage}</Text>
@@ -325,7 +328,7 @@ export const AppWall = () => {
                             </Dialog>
                         </Portal>
                         <KeyboardAwareScrollView
-                            scrollEnabled={true}
+                            scrollEnabled={stepNumber !== 1}
                             showsVerticalScrollIndicator={false}
                             enableOnAndroid={true}
                             enableAutomaticScroll={(Platform.OS === 'ios')}
@@ -391,10 +394,20 @@ export const AppWall = () => {
                                                     'this claim, as well as pursue legal action in accordance with U.S. federal statutes and penal codes, if the claim is proven to be fraudulent.\n' +
                                                     'You also acknowledge that you read and agree to our '}
                                                     <Text style={styles.disclaimerTextHighlighted}
-                                                          onPress={() => {
+                                                          onPress={async () => {
+                                                              navigation.navigate('DocumentsViewer', {
+                                                                  name: 'privacy-policy.pdf',
+                                                                  privacyFlag: false,
+                                                                  appDrawerFlag: true
+                                                              });
                                                           }}>Privacy Policy</Text>{' and our'}
                                                     <Text style={styles.disclaimerTextHighlighted}
-                                                          onPress={() => {
+                                                          onPress={async () => {
+                                                              navigation.navigate('DocumentsViewer', {
+                                                                  name: 'terms-and-conditions.pdf',
+                                                                  privacyFlag: false,
+                                                                  appDrawerFlag: true
+                                                              });
                                                           }}> Terms & Conditions.</Text>
                                                 </Text>
                                             </View>

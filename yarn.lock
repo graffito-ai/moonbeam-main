@@ -10284,10 +10284,10 @@ expo-checkbox@~2.3.1:
   resolved "https://registry.yarnpkg.com/expo-checkbox/-/expo-checkbox-2.3.1.tgz#d214e797a54f387f8ec360487272fefc0aa846a0"
   integrity sha512-CTIabriK5xbtDnI9U5Hve82/WG85XLI4GLYSRTT1XST21HjQ7mDaeiYm7DnKzcgM+qeBwmbg3crJYnp7WW/8Ew==
 
-expo-clipboard@^4.3.1:
-  version "4.3.1"
-  resolved "https://registry.yarnpkg.com/expo-clipboard/-/expo-clipboard-4.3.1.tgz#ce6ed35ae31c7fc1aeadb005b8eb9b39a8bb9b40"
-  integrity sha512-WIsjvAsr2+/NZRa84mKxjui1EdPpdKbQIC2LN/KMBNuT7g4GQYL3oo9WO9G/C7doKQ7f7pnfdvO3N6fUnoRoJw==
+expo-clipboard@~4.1.2:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/expo-clipboard/-/expo-clipboard-4.1.2.tgz#0844566ae8ad1cf72854dc1bbd704c3b09c5d391"
+  integrity sha512-YSuIs4CV+3gypl7X74sp2ruwAVuhnOngsWs7EGkcvRdX0BBrZZMk3GXGw9a59sU6SW4wGWAfwrhyCT41GUaN+A==
 
 expo-constants@~14.2.0, expo-constants@~14.2.1:
   version "14.2.1"
@@ -10456,6 +10456,11 @@ expo-secure-store@~12.1.1:
   version "12.1.1"
   resolved "https://registry.yarnpkg.com/expo-secure-store/-/expo-secure-store-12.1.1.tgz#d4992dbb6170882d99d83a440a49864b36904cd1"
   integrity sha512-phD8e8mlJWaESUBCpHq0GjS3OiqZ7g+I6SpTGQpt+xSS0pEE1ZUBXnIF+WR2OvoseKiS9ODzDl85CUlut/eNKw==
+
+expo-sharing@~11.2.2:
+  version "11.2.2"
+  resolved "https://registry.yarnpkg.com/expo-sharing/-/expo-sharing-11.2.2.tgz#7d9e387f1a902e6dd6838c22d9599dae9e7432cf"
+  integrity sha512-4Lhm1eS/CFIzX+JPuxMUTWBt9rv/WdvJvpQ9y+71bL/9w9dhvsdt9tv0SsNZATz4hk0tbrYD8ZEUsgiHiT1KkQ==
 
 expo-sms@~11.2.1:
   version "11.2.1"
