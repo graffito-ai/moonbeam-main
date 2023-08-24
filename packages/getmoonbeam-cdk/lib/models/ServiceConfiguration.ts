@@ -224,3 +224,14 @@ export interface OffersConfiguration {
     readonly getOffersResolverName: string;
     readonly getFidelisPartnersResolverName: string;
 }
+
+/**
+ * Interface used to define the configuration for the FAQ service resolvers
+ * (GraphQL based), and other afferent data stores.
+ */
+export interface FAQConfiguration {
+    readonly faqFunctionName: string;
+    readonly faqTableName: string;
+    readonly createFAQResolverName: string;
+    readonly getFAQsResolverName: string;
+}

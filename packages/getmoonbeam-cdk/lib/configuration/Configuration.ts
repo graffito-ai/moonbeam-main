@@ -140,6 +140,12 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 getOffersResolverName: 'getOffers',
                 getFidelisPartnersResolverName: 'getFidelisPartners'
             },
+            faqConfig: {
+                faqFunctionName: 'faqLambdaFunction',
+                faqTableName: 'faqsTable',
+                createFAQResolverName: 'createFAQ',
+                getFAQsResolverName: 'getFAQs'
+            },
             sesConfig: {
                 emailAddress: `noreply-${Stages.DEV}@moonbeam.vet`
             },
@@ -278,6 +284,12 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 offersFunctionName: 'offersLambdaFunction',
                 getOffersResolverName: 'getOffers',
                 getFidelisPartnersResolverName: 'getFidelisPartners'
+            },
+            faqConfig: {
+                faqFunctionName: 'faqLambdaFunction',
+                faqTableName: 'faqsTable',
+                createFAQResolverName: 'createFAQ',
+                getFAQsResolverName: 'getFAQs'
             },
             sesConfig: {
                 emailAddress: `noreply@moonbeam.vet`

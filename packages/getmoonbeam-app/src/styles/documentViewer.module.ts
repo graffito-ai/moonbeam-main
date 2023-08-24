@@ -3,7 +3,7 @@ import {Dimensions, StyleSheet} from "react-native";
 // styles to be used within the DocumentsViewer component
 export const styles = StyleSheet.create({
     topBar: {
-        flex: 0.12,
+        flex: 0.11,
         backgroundColor: '#313030',
         flexDirection: 'column',
     },
@@ -19,7 +19,7 @@ export const styles = StyleSheet.create({
         alignItems: 'flex-start'
     },
     shareButton: {
-        top: Dimensions.get('window').height / 25,
+        top: Dimensions.get('window').height / 22,
         right: Dimensions.get('window').width/30,
         alignItems: 'flex-end'
     }

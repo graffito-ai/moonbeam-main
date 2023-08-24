@@ -3,7 +3,7 @@ import {
     AmplifyConfiguration,
     APIGatewayServiceConfiguration,
     AppSyncConfiguration,
-    CardLinkingConfiguration,
+    CardLinkingConfiguration, FAQConfiguration,
     MilitaryVerificationConfiguration,
     NotificationsConfiguration, OffersConfiguration,
     PhysicalDevicesConfiguration,
@@ -35,6 +35,7 @@ export interface StageConfiguration {
     readonly transactionsProducerConsumerConfig: TransactionsProducerConsumerConfiguration;
     readonly transactionsConfig: TransactionsConfiguration;
     readonly offersConfig: OffersConfiguration;
+    readonly faqConfig: FAQConfiguration;
     readonly notificationsConfig: NotificationsConfiguration;
     readonly physicalDevicesConfig: PhysicalDevicesConfiguration;
     readonly environmentVariables: Map<string, string>;

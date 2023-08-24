@@ -1,6 +1,7 @@
 # graphql/Root.graphql
 # Main Schema File
 type Query {
+    getFAQs: FAQResponse! @aws_cognito_user_pools
     getOffers(getOffersInput: GetOffersInput!): OffersResponse! @aws_cognito_user_pools
     getFidelisPartners: FidelisPartnerResponse! @aws_cognito_user_pools
     getDevicesForUser(getDevicesForUserInput: GetDevicesForUserInput!): UserDevicesResponse! @aws_cognito_user_pools @aws_api_key
@@ -17,6 +18,7 @@ type Query {
 
 type Mutation {
     addCard(addCardInput: AddCardInput!): CardLinkResponse! @aws_cognito_user_pools
+    createFAQ(createFAQInput: CreateFAQInput!): FAQResponse! @aws_cognito_user_pools
     createDevice(createDeviceInput: CreateDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     updateDevice(updateDeviceInput: UpdateDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     createNotification(createNotificationInput: CreateNotificationInput!): CreateNotificationResponse! @aws_cognito_user_pools @aws_api_key

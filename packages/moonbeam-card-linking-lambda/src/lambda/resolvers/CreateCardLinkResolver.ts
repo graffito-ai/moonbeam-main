@@ -66,7 +66,7 @@ export const createCardLink = async (fieldName: string, createCardLinkInput: Cre
             }
         }));
 
-        // if there is an item retrieved, then we need to check its contents
+        // if there is an item retrieved, then we return an error
         if (preExistingCardForLink && preExistingCardForLink.Item) {
             // if there is an existent link object, then we cannot duplicate that, so we will return an error
             const errorMessage = `Pre-existing card linked object. Delete it before adding a new one!`;

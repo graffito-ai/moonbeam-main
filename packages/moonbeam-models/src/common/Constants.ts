@@ -54,6 +54,7 @@ export namespace Constants {
     // Moonbeam specific constants used in mapping various resources
     export namespace MoonbeamConstants {
         // Infrastructure related
+        export const FAQ_TABLE: string = 'FAQ_TABLE';
         export const MILITARY_VERIFICATION_TABLE: string = 'MILITARY_VERIFICATION_TABLE';
         export const PARTNER_MERCHANT_TABLE: string = 'PARTNER_MERCHANT_TABLE';
         export const CARD_LINKING_TABLE: string = 'CARD_LINKING_TABLE';

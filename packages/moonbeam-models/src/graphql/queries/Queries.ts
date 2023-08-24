@@ -1,5 +1,27 @@
 // This is a file used to define the all GraphQL query constants
 
+// Query used to retrieve all the FAQs
+export const getFAQs = /* GraphQL */ `
+    query GetFAQs {
+        getFAQs {
+            errorMessage
+            errorType
+            data {
+                id
+                title
+                createdAt
+                updatedAt
+                facts {
+                    description
+                    linkableKeyword
+                    linkLocation
+                    type
+                }   
+            }
+        }
+    }
+`;
+
 // Query used to retrieve all the Fidelis partner offers, filtered by brand/partner (so we can display them as featured in the store)
 export const getFidelisPartners = /* GraphQL */ `
     query GetFidelisPartners {

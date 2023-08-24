@@ -30,9 +30,9 @@ export const DocumentsViewer = ({route, navigation}: DocumentsViewerProps | Auth
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [documentViewerErrorModalVisible, setDocumentViewerErrorModalVisible] = useState<boolean>(false);
     const [documentViewerErrorModalMessage, setDocumentViewerErrorModalMessage] = useState<string>('');
-    const [,setDrawerSwipEnabled] = useRecoilState(drawerSwipeState);
     // constants used to keep track of shared states
     const [, setDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
+    const [,setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
 
     // state driven key-value pairs for any specific data values
     const [documentShareURI, setDocumentShareURI] = useState<string>('');
@@ -46,7 +46,7 @@ export const DocumentsViewer = ({route, navigation}: DocumentsViewerProps | Auth
      */
     useEffect(() => {
         // disable the drawer swipe
-        setDrawerSwipEnabled(false);
+        setDrawerSwipeEnabled(false);
 
         // hide the drawer header
         setDrawerHeaderShown(false);
@@ -63,7 +63,7 @@ export const DocumentsViewer = ({route, navigation}: DocumentsViewerProps | Auth
             shareURI !== null && setDocumentShareURI(shareURI!);
             setIsReady(true);
         });
-    }, [documentShareURI, navigation.getState()]);
+    }, [documentShareURI]);
 
     // return the component for the DocumentViewer component
     return (
@@ -89,6 +89,12 @@ export const DocumentsViewer = ({route, navigation}: DocumentsViewerProps | Auth
                                             onPress={() => {
                                                 setDocumentViewerErrorModalVisible(false);
                                                 navigation.goBack();
+
+                                                // show the drawer header
+                                                setDrawerHeaderShown(true);
+
+                                                // enable the drawer swipe
+                                                setDrawerSwipeEnabled(true);
                                             }}>
                                         {"Dismiss"}
                                     </Button>
@@ -106,7 +112,6 @@ export const DocumentsViewer = ({route, navigation}: DocumentsViewerProps | Auth
                                             size={Dimensions.get('window').height / 25}
                                             style={styles.backButton}
                                             onPress={async () => {
-                                                console.log(JSON.stringify(route.params));
                                                 // go back to the screen which initiated the document load
                                                 // @ts-ignore
                                                 if (route.params.appDrawerFlag !== undefined) {
@@ -120,14 +125,14 @@ export const DocumentsViewer = ({route, navigation}: DocumentsViewerProps | Auth
                                                 setDrawerHeaderShown(true);
 
                                                 // enable the drawer swipe
-                                                setDrawerSwipEnabled(true);
+                                                setDrawerSwipeEnabled(true);
                                             }}
                                         />
                                         <IconButton
                                             rippleColor={'transparent'}
-                                            icon="file-download-outline"
+                                            icon="paperclip"
                                             iconColor={"#F2FF5D"}
-                                            size={Dimensions.get('window').height / 25}
+                                            size={Dimensions.get('window').height / 30}
                                             style={styles.shareButton}
                                             onPress={async () => {
                                                 // share the document

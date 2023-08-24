@@ -117,6 +117,14 @@ export type CreateDeviceInput = {
   tokenId: Scalars['ID'];
 };
 
+export type CreateFaqInput = {
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+  facts: Array<InputMaybe<FactInput>>;
+  id?: InputMaybe<Scalars['ID']>;
+  title: Scalars['String'];
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
 export type CreateMilitaryVerificationInput = {
   addressLine: Scalars['String'];
   city: Scalars['String'];
@@ -240,6 +248,49 @@ export type EligibleLinkedUsersResponse = {
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<CardLinkErrorType>;
 };
+
+export type Faq = {
+  __typename?: 'FAQ';
+  createdAt: Scalars['AWSDateTime'];
+  facts: Array<Maybe<Fact>>;
+  id: Scalars['ID'];
+  title: Scalars['String'];
+  updatedAt: Scalars['AWSDateTime'];
+};
+
+export enum FaqErrorType {
+  DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  ValidationError = 'VALIDATION_ERROR'
+}
+
+export type FaqResponse = {
+  __typename?: 'FAQResponse';
+  data?: Maybe<Array<Maybe<Faq>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<FaqErrorType>;
+};
+
+export type Fact = {
+  __typename?: 'Fact';
+  description: Scalars['String'];
+  linkLocation?: Maybe<Scalars['String']>;
+  linkableKeyword?: Maybe<Scalars['String']>;
+  type: FactType;
+};
+
+export type FactInput = {
+  description: Scalars['String'];
+  linkLocation?: InputMaybe<Scalars['String']>;
+  linkableKeyword?: InputMaybe<Scalars['String']>;
+  type: FactType;
+};
+
+export enum FactType {
+  Linkable = 'LINKABLE',
+  NonLinkable = 'NON_LINKABLE'
+}
 
 export type FidelisPartner = {
   __typename?: 'FidelisPartner';
@@ -501,6 +552,7 @@ export type Mutation = {
   addCard: CardLinkResponse;
   createCardLink: CardLinkResponse;
   createDevice: UserDeviceResponse;
+  createFAQ: FaqResponse;
   createMilitaryVerification: CreateMilitaryVerificationResponse;
   createNotification: CreateNotificationResponse;
   createReimbursement: ReimbursementResponse;
@@ -527,6 +579,11 @@ export type MutationCreateCardLinkArgs = {
 
 export type MutationCreateDeviceArgs = {
   createDeviceInput: CreateDeviceInput;
+};
+
+
+export type MutationCreateFaqArgs = {
+  createFAQInput: CreateFaqInput;
 };
 
 
@@ -758,6 +815,7 @@ export type Query = {
   getDeviceByToken: UserDeviceResponse;
   getDevicesForUser: UserDevicesResponse;
   getEligibleLinkedUsers: EligibleLinkedUsersResponse;
+  getFAQs: FaqResponse;
   getFidelisPartners: FidelisPartnerResponse;
   getMilitaryVerificationStatus: GetMilitaryVerificationResponse;
   getOffers: OffersResponse;
@@ -1119,6 +1177,13 @@ export type UserDevicesResponse = {
   errorType?: Maybe<UserDeviceErrorType>;
 };
 
+export type CreateFaqMutationVariables = Exact<{
+  createFAQInput: CreateFaqInput;
+}>;
+
+
+export type CreateFaqMutation = { __typename?: 'Mutation', createFAQ: { __typename?: 'FAQResponse', errorMessage?: string | null, errorType?: FaqErrorType | null, data?: Array<{ __typename?: 'FAQ', id: string, title: string, createdAt: string, updatedAt: string, facts: Array<{ __typename?: 'Fact', description: string, linkableKeyword?: string | null, linkLocation?: string | null, type: FactType } | null> } | null> | null } };
+
 export type CreateDeviceMutationVariables = Exact<{
   createDeviceInput: CreateDeviceInput;
 }>;
@@ -1216,6 +1281,11 @@ export type UpdateMilitaryVerificationStatusMutationVariables = Exact<{
 
 
 export type UpdateMilitaryVerificationStatusMutation = { __typename?: 'Mutation', updateMilitaryVerificationStatus: { __typename?: 'UpdateMilitaryVerificationResponse', errorType?: MilitaryVerificationErrorType | null, errorMessage?: string | null, id?: string | null, militaryVerificationStatus?: MilitaryVerificationStatusType | null } };
+
+export type GetFaQsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetFaQsQuery = { __typename?: 'Query', getFAQs: { __typename?: 'FAQResponse', errorMessage?: string | null, errorType?: FaqErrorType | null, data?: Array<{ __typename?: 'FAQ', id: string, title: string, createdAt: string, updatedAt: string, facts: Array<{ __typename?: 'Fact', description: string, linkableKeyword?: string | null, linkLocation?: string | null, type: FactType } | null> } | null> | null } };
 
 export type GetFidelisPartnersQueryVariables = Exact<{ [key: string]: never; }>;
 

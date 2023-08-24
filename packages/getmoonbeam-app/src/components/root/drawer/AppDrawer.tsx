@@ -54,6 +54,7 @@ import {fetchFile} from "../../../utils/File";
 import Image = Animated.Image;
 import { Documents } from './documents/Documents';
 import {DocumentsViewer} from "../../common/DocumentsViewer";
+import {Support} from "./support/Support";
 
 /**
  * AppDrawer component.
@@ -800,7 +801,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                     />
                                     <ApplicationDrawer.Screen
                                         name={"Support"}
-                                        component={() => <></>}
+                                        component={Support}
                                         initialParams={{}}
                                         options={{
                                             swipeEnabled: true,

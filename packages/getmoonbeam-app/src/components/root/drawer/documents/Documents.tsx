@@ -2,7 +2,6 @@ import 'react-native-get-random-values';
 import React, {useEffect} from "react";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {NavigationContainer} from "@react-navigation/native";
-import {IconButton} from "react-native-paper";
 import {DocumentsCenter} from './DocumentsCenter';
 import {DocumentsStackParamList} from '../../../../models/props/DocumentsProps';
 import {DocumentsViewer} from '../../../common/DocumentsViewer';
@@ -42,25 +41,9 @@ export const Documents = ({navigation}: DocumentsProps) => {
         <NavigationContainer independent={true}>
             <Stack.Navigator
                 initialRouteName={"DocumentsCenter"}
-                screenOptions={({navigation}) => {
-                    return ({
-                        headerLeft: () => {
-                            return (
-                                <IconButton
-                                    icon="chevron-left"
-                                    iconColor={"#2A3779"}
-                                    size={40}
-                                    style={{marginTop: '-5%', marginLeft: `-10%`}}
-                                    onPress={() => {
-                                        navigation.navigate('DocumentsCenter', {});
-                                    }}
-                                />
-                            )
-                        },
-                        headerTitle: '',
-                        headerTransparent: true,
-                        headerTintColor: '#2A3779'
-                    })
+                screenOptions={{
+                    headerTitle: '',
+                    headerTransparent: true
                 }}
             >
                 <Stack.Screen

@@ -25,6 +25,7 @@ import {API, graphqlOperation} from "aws-amplify";
 import {currentUserInformation} from "../../../../../recoil/AuthAtom";
 import {useRecoilState} from "recoil";
 import {storeOfferState} from "../../../../../recoil/StoreOfferAtom";
+import { dynamicSort } from '../../../../../utils/Main';
 
 /**
  * Store component.
@@ -1484,26 +1485,3 @@ export const Store = ({navigation}: StoreProps) => {
         </>
     );
 };
-
-
-/**
- * Function to sort alphabetically an array of objects by some specific key.
- *
- * @param property Key of the object to sort.
- */
-const dynamicSort = (property: string) => {
-    let sortOrder = 1;
-
-    if (property[0] === "-") {
-        sortOrder = -1;
-        property = property.substring(1);
-    }
-
-    return function (a, b) {
-        if (sortOrder == -1) {
-            return b[property].localeCompare(a[property]);
-        } else {
-            return a[property].localeCompare(b[property]);
-        }
-    }
-}

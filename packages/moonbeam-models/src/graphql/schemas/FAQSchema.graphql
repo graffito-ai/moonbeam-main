@@ -1,0 +1,49 @@
+# graphql/FAQSchema.graphql
+# FAQ Schema File
+enum FAQErrorType {
+    DUPLICATE_OBJECT_FOUND
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+    NONE_OR_ABSENT
+}
+
+enum FactType {
+    LINKABLE
+    NON_LINKABLE
+}
+
+type Fact @aws_cognito_user_pools {
+    description: String!
+    linkableKeyword: String # only applicable if the type of the Fact is LINKABLE
+    linkLocation: String # only applicable if the type of the Fact is LINKABLE
+    type: FactType!
+}
+
+type FAQ @aws_cognito_user_pools {
+    id: ID!
+    title: String!
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+    facts: [Fact]!
+}
+
+type FAQResponse @aws_cognito_user_pools {
+    data: [FAQ]
+    errorType: FAQErrorType
+    errorMessage: String
+}
+
+input FactInput {
+    description: String!
+    linkableKeyword: String # only applicable if the type of the Fact is LINKABLE
+    linkLocation: String # only applicable if the type of the Fact is LINKABLE
+    type: FactType!
+}
+
+input CreateFAQInput {
+    id: ID
+    title: String!
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+    facts: [FactInput]!
+}

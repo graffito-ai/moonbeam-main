@@ -80,7 +80,6 @@ export const getEligibleLinkedUsers = async (fieldName: string): Promise<Eligibl
                     id: eligibleUserResult.id.S!,
                     memberId: eligibleUserResult.memberId.S!,
                     cardId: eligibleUserResult.cards.L![0].M!.id.S!
-
                 };
                 eligibleUsersData.push(eligibleUser);
             });

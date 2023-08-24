@@ -1,5 +1,27 @@
 // This is a file used to define the all GraphQL query constants
 
+// Mutation used to create a new FAQ.
+export const createFAQ = /* GraphQL */ `
+    mutation CreateFAQ($createFAQInput: CreateFAQInput!) {
+        createFAQ(createFAQInput: $createFAQInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                title
+                createdAt
+                updatedAt
+                facts {
+                    description
+                    linkableKeyword
+                    linkLocation
+                    type
+                }
+            }
+        }
+    }
+`;
+
 // Mutation used to create one or more physical devices for a user.
 export const createDevice = /* GraphQL */ `
     mutation CreateDevice($createDeviceInput: CreateDeviceInput!) {
