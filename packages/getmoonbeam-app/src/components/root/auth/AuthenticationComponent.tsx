@@ -3,7 +3,7 @@ import {AuthenticationProps} from "../../../models/props/RootProps";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {AuthenticationStackParamList} from "../../../models/props/AuthenticationProps";
 import {NavigationContainer} from "@react-navigation/native";
-import {IconButton} from "react-native-paper";
+import {IconButton, Text} from "react-native-paper";
 import {SignInComponent} from "./SignInComponent";
 import {RegistrationComponent} from "./registration/RegistrationComponent";
 import {useRecoilState, useRecoilValue} from "recoil";
@@ -20,8 +20,8 @@ import {
     dutyStatusValueState,
     emailState,
     enlistingYearState, expoPushTokenState,
-    firstNameState,
-    initialAuthenticationScreen,
+    firstNameState, globalAmplifyCacheState,
+    initialAuthenticationScreen, isReadyRegistrationState,
     lastNameState,
     militaryBranchValueState,
     phoneNumberState,
@@ -32,12 +32,14 @@ import {
     registrationStepNumber
 } from '../../../recoil/AuthAtom';
 import {AccountRecoveryComponent} from "./AccountRecoveryComponent";
-import {Dimensions} from "react-native";
+import {Dimensions, TouchableOpacity} from "react-native";
 import {commonStyles} from "../../../styles/common.module";
 import {AppDrawer} from "../drawer/AppDrawer";
 import * as Linking from "expo-linking";
 import {Spinner} from "../../common/Spinner";
-import { DocumentsViewer } from "../../common/DocumentsViewer";
+import {DocumentsViewer} from "../../common/DocumentsViewer";
+import * as SMS from "expo-sms";
+import {styles} from "../../../styles/registration.module";
 
 /**
  * Authentication component.
@@ -48,8 +50,10 @@ export const AuthenticationComponent = ({route,}: AuthenticationProps) => {
         // constants used to keep track of local component state
         const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
         // constants used to keep track of shared states
+        const [, setGlobalCache] = useRecoilState(globalAmplifyCacheState);
+        const [isRegistrationReady, ] = useRecoilState(isReadyRegistrationState);
         const [, setRegistrationMainError] = useRecoilState(registrationMainErrorState);
-        const [, setStepNumber] = useRecoilState(registrationStepNumber);
+        const [stepNumber, setStepNumber] = useRecoilState(registrationStepNumber);
         const [, setAppURL] = useRecoilState(appLinkedURLState);
         const [userInformation,] = useRecoilState(currentUserInformation);
         const [, setExpoPushToken] = useRecoilState(expoPushTokenState);
@@ -88,6 +92,9 @@ export const AuthenticationComponent = ({route,}: AuthenticationProps) => {
          * included in here.
          */
         useEffect(() => {
+            // set the Cache to the global cache passed in from the App root component
+            setGlobalCache(route.params.cache);
+
             /**
              * set the App URL as well as any state changes accordingly, once the user is authenticated
              * since we don't want to track any deep links in the app prior to when the authorization occurred
@@ -97,6 +104,36 @@ export const AuthenticationComponent = ({route,}: AuthenticationProps) => {
             // set the expo push token accordingly, to be used in later stages, as part of the current user information object
             setExpoPushToken(route.params.expoPushToken);
         }, [appURL]);
+
+        /**
+         * Function used to contact support, via the native messaging application.
+         */
+        const contactSupport = async (): Promise<void> => {
+            const isAvailable = await SMS.isAvailableAsync();
+            if (isAvailable) {
+                // customize the SMS message below
+                const result = await SMS.sendSMSAsync(
+                    ['210-744-6222'],
+                    'Hello I would like some help with: ',
+                    {}
+                );
+                // switch based on the result received from the async SMS action
+                switch (result.result) {
+                    case 'sent':
+                        console.log('Message sent!');
+                        break;
+                    case 'unknown':
+                        console.log('Unknown error has occurred while attempting to send a message!');
+                        break;
+                    case 'cancelled':
+                        console.log('Message was cancelled!');
+                        break;
+                }
+            } else {
+                // there's no SMS available on this device
+                console.log('no SMS available');
+            }
+        }
 
         // return the component for the Authentication stack
         return (
@@ -126,6 +163,18 @@ export const AuthenticationComponent = ({route,}: AuthenticationProps) => {
                                     headerTitle: '',
                                     headerShown: true,
                                     headerTransparent: true,
+                                    headerRight: () => {
+                                        return (<IconButton
+                                            icon="help-circle-outline"
+                                            iconColor={"#F2FF5D"}
+                                            size={Dimensions.get('window').height / 20}
+                                            style={[commonStyles.supportRegistrationButton, !isRegistrationReady && {display: 'none'}]}
+                                            onPress={async () => {
+                                                // go to the support
+                                                await contactSupport();
+                                            }}
+                                        />)
+                                    },
                                     headerLeft: () => {
                                         return useRecoilValue(registrationBackButtonShown)
                                             ?
@@ -164,7 +213,27 @@ export const AuthenticationComponent = ({route,}: AuthenticationProps) => {
                                                     navigation.navigate('SignIn', {});
                                                 }}
                                             />)
-                                            : <></>
+                                            : (stepNumber === 4 || stepNumber === 7 ?
+                                                <TouchableOpacity
+                                                style={styles.buttonSkip}
+                                                onPress={() => {
+                                                    if (stepNumber === 4) {
+                                                        // skip the current step
+                                                        setStepNumber(stepNumber + 1);
+
+                                                        // clear the registration error
+                                                        setRegistrationMainError(false);
+                                                    } else {
+                                                        // clear the registration error
+                                                        setRegistrationMainError(false);
+
+                                                        // go to the dashboard
+                                                        navigation.navigate("AppDrawer", {});
+                                                    }
+                                                }}
+                                            >
+                                                <Text style={styles.buttonSkipText}>Skip</Text>
+                                            </TouchableOpacity> : <></>)
                                     }
                                 })
                             }}

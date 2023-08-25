@@ -1,4 +1,5 @@
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
+import { Cache } from 'aws-amplify';
 import {ExpoPushToken} from "expo-notifications";
 
 /**
@@ -6,11 +7,13 @@ import {ExpoPushToken} from "expo-notifications";
  */
 export type RootStackParamList = {
     AppOverview: {
-        expoPushToken: ExpoPushToken;
-        onLayoutRootView: () => Promise<void>;
+        cache: typeof Cache,
+        expoPushToken: ExpoPushToken,
+        onLayoutRootView: () => Promise<void>,
     }
     Authentication: {
-        expoPushToken: ExpoPushToken;
+        cache: typeof Cache,
+        expoPushToken: ExpoPushToken
     }
 };
 

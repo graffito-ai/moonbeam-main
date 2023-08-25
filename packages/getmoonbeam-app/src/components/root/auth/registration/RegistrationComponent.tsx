@@ -32,7 +32,7 @@ import {
     enlistingYearErrorsState,
     enlistingYearState, expoPushTokenState,
     firstNameErrorsState,
-    firstNameState,
+    firstNameState, isReadyRegistrationState,
     lastNameErrorsState,
     lastNameState,
     militaryBranchErrorsState,
@@ -98,16 +98,16 @@ import * as ImagePicker from "expo-image-picker";
  */
 export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     // constants used to keep track of local component state
-    const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
+    const [isReady, setIsReady] = useRecoilState(isReadyRegistrationState);
     const [, setNavigation] = useRecoilState(authRegistrationNavigation);
     const [, setAmplifySignUpErrors] = useRecoilState(amplifySignUpProcessErrorsState);
     const [, setRegistrationMainError] = useRecoilState(registrationMainErrorState);
     const [, setIsBackButtonShown] = useRecoilState(registrationBackButtonShown);
     const [stepNumber, setStepNumber] = useRecoilState(registrationStepNumber);
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
-    const [expoPushToken, ] = useRecoilState(expoPushTokenState);
+    const [expoPushToken,] = useRecoilState(expoPushTokenState);
     // step 1
     const [firstName,] = useRecoilState(firstNameState);
     const [firstNameErrors,] = useRecoilState(firstNameErrorsState);
@@ -619,20 +619,6 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                 <View
                                     style={[styles.titleView, {marginTop: Dimensions.get('window').height / 6},
                                         (stepNumber === 4 || (stepNumber === 5 && militaryStatus !== MilitaryVerificationStatusType.Rejected)) && {marginTop: Dimensions.get('window').height / 4.5}]}>
-                                    {stepNumber === 4 &&
-                                        <TouchableOpacity
-                                            style={styles.buttonSkip}
-                                            onPress={() => {
-                                                // skip the current step
-                                                setStepNumber(stepNumber + 1);
-
-                                                // clear the registration error
-                                                setRegistrationMainError(false);
-                                            }}
-                                        >
-                                            <Text style={styles.buttonSkipText}>Skip</Text>
-                                        </TouchableOpacity>
-                                    }
                                     <View style={[styles.titleViewDescription]}>
                                         <Text style={styles.stepTitle}>
                                             {registrationSteps[stepNumber].stepTitle}
@@ -646,7 +632,17 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                     </View>
                                 </View>}
                             {(militaryStatus === MilitaryVerificationStatusType.Verified && stepNumber === 5) || stepNumber === 7 ? <></> :
-                                <Text style={styles.stepDescription}>{registrationSteps[stepNumber].stepDescription}</Text>}
+                                (stepNumber === 3
+                                        ?
+                                        <Text style={styles.stepDescription}>{
+                                            registrationSteps[stepNumber].stepDescription
+                                        }{" "}<Text style={styles.stepDescriptionUnderline}>Check your spam and trash inboxes.</Text>
+                                        </Text>
+                                        : <Text style={styles.stepDescription}>{
+                                            registrationSteps[stepNumber].stepDescription
+                                        }</Text>
+                                )
+                            }
                             {/*switch views based on the step number*/}
                             {
                                 stepNumber === 0
@@ -824,7 +820,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
 
                                                         await addSupportToContacts();
                                                         await requestForegroundLocationPermission();
-                                                        await requestBackgroundLocationPermission();
+                                                        // await requestBackgroundLocationPermission();
                                                         await requestNotificationsPermission();
                                                         await requestMediaLibraryPermission();
                                                         await requestCameraPermission();
@@ -837,6 +833,9 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
 
                                                         setRegistrationMainError(true);
                                                         checksPassed = false;
+
+                                                        // release the loader
+                                                        setIsReady(true);
                                                     }
                                                     break;
                                                 case 5:

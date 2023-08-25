@@ -2,6 +2,10 @@ import {Dimensions, Platform, StyleSheet} from "react-native";
 
 // styles to be used within all components
 export const commonStyles = StyleSheet.create({
+    supportRegistrationButton: {
+        alignSelf: 'flex-end',
+        bottom: Dimensions.get('window').height/100
+    },
     backButton: {
         alignSelf: 'flex-start',
         borderWidth: 1,
@@ -10,6 +14,7 @@ export const commonStyles = StyleSheet.create({
     },
     backButtonDismiss: {
         alignSelf: 'flex-start',
+        bottom: Dimensions.get('window').height/100
     },
     container: {
         flex: 1,

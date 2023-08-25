@@ -360,7 +360,6 @@ export const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'flex-end',
         width: Dimensions.get('window').width/1.5,
-        bottom: Dimensions.get('window').height/37,
         right: Dimensions.get('window').width / 8,
     },
     brandDetailsView: {
@@ -378,6 +377,13 @@ export const styles = StyleSheet.create({
     transactionStatusLabel: {
         fontSize: Dimensions.get('window').width / 23,
         fontFamily: 'Changa-Medium',
+        color: '#F2FF5D'
+    },
+    transactionPrice: {
+        alignSelf: 'flex-start',
+        fontFamily: 'Raleway-ExtraBold',
+        fontSize: Dimensions.get('window').width / 24,
+        textAlign: 'justify',
         color: '#F2FF5D'
     },
     transactionTimestamp: {

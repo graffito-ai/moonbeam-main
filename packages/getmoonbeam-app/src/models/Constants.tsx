@@ -68,7 +68,7 @@ export const registrationSteps = [
     },
     {
         stepTitle: "Code Verification",
-        stepDescription: "Enter the 6 digit verification code we just sent to your email. Check your spam and trash inboxes.",
+        stepDescription: "Enter the 6 digit verification code we just sent to your email.",
     },
     {
         stepTitle: "App Permissions",

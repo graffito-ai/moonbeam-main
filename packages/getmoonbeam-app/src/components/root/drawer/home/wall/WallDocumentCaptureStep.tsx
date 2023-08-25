@@ -14,7 +14,7 @@ import {FieldValidator} from "../../../../../utils/FieldValidator";
 import {Spinner} from "../../../../common/Spinner";
 import {
     additionalAppWallDocumentationErrors,
-    additionalAppWallDocumentationNeeded
+    additionalAppWallDocumentationNeeded, isDocumentUploadAppWallState, isPhotoUploadedAppWallState, isReadyAppWallState
 } from "../../../../../recoil/AppDrawerAtom";
 // @ts-ignore
 import DocumentationUpload1Picture from '../../../../../../assets/art/moonbeam-document-upload-1.png';
@@ -32,18 +32,17 @@ import DocumentationUpload2Picture from '../../../../../../assets/art/moonbeam-d
  */
 export const WallDocumentCaptureStep = () => {
     // constants used to keep track of local component state
-    const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
-    const [capturedFileName, setCapturedFileName] = useState<string>("");
-    const [uploadedFileName, setUploadedFileName] = useState<string>("");
     const [verificationDocument, setVerificationDocument] = useState<string>("");
     const [dropdownDocumentState, setDropdownDocumentState] = useState<boolean>(false);
     const [photoSelectionButtonState, setPhotoSelectionButtonState] = useState<boolean>(false);
     const [captureButtonState, setCaptureButtonState] = useState<boolean>(false);
     const [uploadButtonState, setUploadButtonState] = useState<boolean>(false);
     const [documentItems, setDocumentItems] = useState(documentSelectionItems);
-
     // constants used to keep track of shared states
+    const [isReady, setIsReady] = useRecoilState(isReadyAppWallState);
+    const [capturedFileName, setCapturedFileName] = useRecoilState(isPhotoUploadedAppWallState);
+    const [uploadedFileName, setUploadedFileName] = useRecoilState(isDocumentUploadAppWallState);
     const [, setAdditionalDocumentsNeeded] = useRecoilState(additionalAppWallDocumentationNeeded);
     const [documentationErrors, setDocumentationErrors] = useRecoilState(additionalAppWallDocumentationErrors);
 
@@ -103,7 +102,7 @@ export const WallDocumentCaptureStep = () => {
             if (status && status.status === 'granted') {
                 // first display the photo library picker, and allow the user to pick a photo of their document
                 const result = await ImagePicker.launchImageLibraryAsync({
-                    allowsEditing: true,
+                    allowsEditing: false,
                     quality: 1,
                     mediaTypes: MediaTypeOptions.Images, // only pick images, not videos
                     allowsMultipleSelection: false,
@@ -228,7 +227,7 @@ export const WallDocumentCaptureStep = () => {
             if (status && status.status === 'granted') {
                 // first display the camera, and allow the user to capture a photo of their document
                 const result = await ImagePicker.launchCameraAsync({
-                    allowsEditing: true,
+                    allowsEditing: false,
                     quality: 1,
                     mediaTypes: MediaTypeOptions.Images, // only pick images, not videos
                     allowsMultipleSelection: false,
@@ -559,7 +558,9 @@ export const WallDocumentCaptureStep = () => {
                                                             iconColor="#FFFFFF"
                                                             onPress={() => {
                                                                 // Disable the next button and enable the upload button, and reset the capture file name
-                                                                setUploadButtonState(true);
+                                                                setCaptureButtonState(false);
+                                                                setPhotoSelectionButtonState(false);
+                                                                setUploadButtonState(false);
                                                                 setAdditionalDocumentsNeeded(true);
                                                                 setCapturedFileName("");
                                                             }}
@@ -627,8 +628,9 @@ export const WallDocumentCaptureStep = () => {
                                                             iconColor="#FFFFFF"
                                                             onPress={() => {
                                                                 // Disable the next button and enable the capture buttons, and reset the upload file name
-                                                                setCaptureButtonState(true);
-                                                                setPhotoSelectionButtonState(true);
+                                                                setCaptureButtonState(false);
+                                                                setPhotoSelectionButtonState(false);
+                                                                setUploadButtonState(false);
                                                                 setAdditionalDocumentsNeeded(true);
                                                                 setUploadedFileName("");
                                                             }}

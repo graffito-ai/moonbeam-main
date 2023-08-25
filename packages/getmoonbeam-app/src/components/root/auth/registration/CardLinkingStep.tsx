@@ -219,10 +219,13 @@ export const CardLinkingStep = () => {
                 </script>
                 <script type="application/javascript"
                         id="olive-link-card-form"
-                        src="https://moonbeam-public-files-bucket-dev-us-west-2.s3.us-west-2.amazonaws.com/olive-custom-script-version1.js"
+                        src="https://oliveaddcardsdkjs.blob.core.windows.net/script/olive-add-card-sdk.js"
                         data-public-key=Zlltp0W5jB09Us0kkOPN6edVwfy1JYGO
                         data-container-div="olive-sdk-container"
                         data-environment="sandbox"
+                        data-include-header="false"
+                        data-form-background-color="#313030"
+                        data-background-color="#313030"
                         data-auto-open=true>
                 </script>
         </body>    

@@ -62,6 +62,16 @@ export const styles = StyleSheet.create({
         width: Dimensions.get('window').width/ 1.15,
         color: '#FFFFFF'
     },
+    stepDescriptionUnderline: {
+        fontFamily: 'Raleway-Bold',
+        alignSelf: 'flex-start',
+        textDecorationLine: 'underline',
+        marginLeft: Dimensions.get('window').width/ 18,
+        bottom: Dimensions.get('window').height / 10,
+        fontSize: Dimensions.get('window').height / 52,
+        width: Dimensions.get('window').width/ 1.15,
+        color: '#F2FF5D'
+    },
     permissionsStepTitle: {
         fontFamily: 'Raleway-Bold',
         alignSelf: 'center',
@@ -390,7 +400,7 @@ export const styles = StyleSheet.create({
     },
     cardLinkingParentView: {
         backgroundColor: '#313030',
-        marginTop: -Dimensions.get('window').height/20,
+        paddingTop: Dimensions.get('window').height/10,
         alignContent: 'center',
         alignSelf: 'center',
         alignItems: 'center'

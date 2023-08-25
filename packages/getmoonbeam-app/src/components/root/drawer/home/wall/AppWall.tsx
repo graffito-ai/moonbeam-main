@@ -24,7 +24,7 @@ import {WallDocumentCaptureStep} from "./WallDocumentCaptureStep";
 import {
     additionalAppWallDocumentationErrors,
     additionalAppWallDocumentationNeeded,
-    appWallStepNumber
+    appWallStepNumber, isReadyAppWallState
 } from "../../../../../recoil/AppDrawerAtom";
 // @ts-ignore
 import StatusPendingImage from '../../../../../../assets/art/military-status-pending.png';
@@ -49,13 +49,13 @@ import {AppWallProps} from "../../../../../models/props/AppDrawerProps";
  */
 export const AppWall = ({navigation}: AppWallProps) => {
     // constants used to keep track of local component state
-    const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [supportModalVisible, setSupportModalVisible] = useState<boolean>(false);
     const [supportModalMessage, setSupportModalMessage] = useState<string>('');
     const [supportModalButtonMessage, setSupportModalButtonMessage] = useState<string>('');
     const [appWallError, setAppWallError] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [isReady, setIsReady] = useRecoilState(isReadyAppWallState);
     const [stepNumber, setStepNumber] = useRecoilState(appWallStepNumber);
     const [userInformation,] = useRecoilState(currentUserInformation);
     // steps 1 and 4

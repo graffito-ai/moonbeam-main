@@ -15,8 +15,8 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "notification":{
-      "icon":"./assets/notifications-icon.png",
+    "notification": {
+      "icon": "./assets/notifications-icon.png",
       "androidMode": "default",
       "androidCollapsedTitle": "Updates from Moonbeam",
       "iosDisplayInForeground": true
@@ -89,6 +89,12 @@
       "eas": {
         "projectId": "c3b0411c-168c-4e25-b525-9499a4277c8f"
       }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/c3b0411c-168c-4e25-b525-9499a4277c8f"
     }
   }
 }

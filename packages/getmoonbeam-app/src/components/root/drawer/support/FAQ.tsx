@@ -256,9 +256,6 @@ export const FAQ = ({navigation}: FAQProps) => {
                                 </Dialog.Actions>
                             </Dialog>
                         </Portal>
-                        <View style={styles.mainTitleView}>
-                            <Text style={styles.mainTitle}>FAQs</Text>
-                        </View>
                         <View style={styles.mainView}>
                             <ScrollView
                                 persistentScrollbar={false}

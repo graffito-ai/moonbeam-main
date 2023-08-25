@@ -80,9 +80,36 @@ const drawerDashboardState = atom<boolean>({
 });
 
 /**
+ * Atom used to keep track of whether the AppWall page needs loading global loading.
+ */
+const isReadyAppWallState = atom<boolean>({
+    key: "isReadyAppWallState",
+    default: true
+});
+
+/**
+ * Atom used to keep track of the uploaded photo name from the Documents section.
+ */
+const isPhotoUploadedAppWallState = atom<string>({
+    key: "isPhotoUploadedAppWallState",
+    default: ''
+});
+
+/**
+ * Atom used to keep track of the uploaded document name from the Documents section.
+ */
+const isDocumentUploadAppWallState = atom<string>({
+    key: "isDocumentUploadAppWallState",
+    default: ''
+});
+
+/**
  * Export all atoms and/or selectors
  */
 export {
+    isReadyAppWallState,
+    isPhotoUploadedAppWallState,
+    isDocumentUploadAppWallState,
     drawerDashboardState,
     appDrawerHeaderShownState,
     appWallStepNumber,

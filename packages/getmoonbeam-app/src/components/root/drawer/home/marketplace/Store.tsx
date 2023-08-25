@@ -202,7 +202,7 @@ export const Store = ({navigation}: StoreProps) => {
                     filterType: OfferFilter.Online,
                     offerStates: [OfferState.Active, OfferState.Scheduled],
                     pageNumber: onlineOffersPageNumber,
-                    pageSize: 15, // load 15 nearby offers at a time
+                    pageSize: 7, // load 7 nearby offers at a time
                     redemptionType: RedemptionType.Cardlinked
                 }
             }));
@@ -392,7 +392,7 @@ export const Store = ({navigation}: StoreProps) => {
                         filterType: OfferFilter.Nearby,
                         offerStates: [OfferState.Active, OfferState.Scheduled],
                         pageNumber: nearbyOffersPageNumber,
-                        pageSize: 15, // load 5 nearby offers at a time
+                        pageSize: 7, // load 7 nearby offers at a time
                         radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
                         radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
                         radiusLatitude: geoLocation.latitude,
@@ -449,8 +449,8 @@ export const Store = ({navigation}: StoreProps) => {
         try {
             // first retrieve the necessary permissions for location purposes
             const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
-            const backgroundPermissionStatus = await Location.requestBackgroundPermissionsAsync();
-            if (foregroundPermissionStatus.status !== 'granted' || backgroundPermissionStatus.status !== 'granted') {
+            // const backgroundPermissionStatus = await Location.requestBackgroundPermissionsAsync(); || backgroundPermissionStatus.status !== 'granted'
+            if (foregroundPermissionStatus.status !== 'granted') {
                 console.log(`Necessary location permissions not granted`);
             } else {
                 // first retrieve the latitude and longitude of the current user
@@ -464,7 +464,7 @@ export const Store = ({navigation}: StoreProps) => {
                             filterType: OfferFilter.Nearby,
                             offerStates: [OfferState.Active, OfferState.Scheduled],
                             pageNumber: nearbyOffersPageNumber,
-                            pageSize: 15, // load 5 nearby offers at a time
+                            pageSize: 7, // load 7 nearby offers at a time
                             radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
                             radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
                             radiusLatitude: currentUserLocation.coords.latitude,
@@ -946,7 +946,7 @@ export const Store = ({navigation}: StoreProps) => {
                     filterType: OfferFilter.Online,
                     offerStates: [OfferState.Active, OfferState.Scheduled],
                     pageNumber: 1,
-                    pageSize: 15, // load 15 nearby offers at a time
+                    pageSize: 7, // load 7 nearby offers at a time
                     redemptionType: RedemptionType.Cardlinked,
                     brandName: brandName
                 }
@@ -1004,7 +1004,7 @@ export const Store = ({navigation}: StoreProps) => {
                     filterType: OfferFilter.Nearby,
                     offerStates: [OfferState.Active, OfferState.Scheduled],
                     pageNumber: 1,
-                    pageSize: 15, // load 15 nearby offers at a time
+                    pageSize: 7, // load 7 nearby offers at a time
                     radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
                     radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
                     radiusLatitude: userLatitude,

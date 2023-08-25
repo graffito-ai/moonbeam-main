@@ -32,7 +32,7 @@ import {
 } from "@moonbeam/moonbeam-models";
 import {API, Auth, graphqlOperation} from "aws-amplify";
 import {Observable} from "zen-observable-ts";
-import {currentUserInformation} from "../../../recoil/AuthAtom";
+import {currentUserInformation, globalAmplifyCacheState} from "../../../recoil/AuthAtom";
 import {Spinner} from "../../common/Spinner";
 import {Dialog, IconButton, Portal} from "react-native-paper";
 import {commonStyles} from "../../../styles/common.module";
@@ -78,6 +78,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         const [isLoaded, setIsLoaded] = useState<boolean>(false);
         const [updatedMilitaryStatus, setUpdatedMilitaryStatus] = useState<MilitaryVerificationStatusType | null>(null);
         // constants used to keep track of shared states
+        const [globalCache, ] = useRecoilState(globalAmplifyCacheState);
         const [transactionData, setTransactionData] = useRecoilState(transactionDataState);
         const [, setProfilePictureURI] = useRecoilState(profilePictureURIState);
         const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
@@ -176,6 +177,12 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     }
                     setIsReady(true);
 
+                    // subscribe to receiving military status updates
+                    subscribeToMilitaryStatusUpdates(userInformation["custom:userId"]).then(() => setMilitaryStatusUpdatesSubscribed(true));
+
+                    // subscribe to receiving updates about newly created transactions
+                    subscribeTransactionsCreatedUpdates(userInformation["custom:userId"]).then(() => setTransactionCreatedSubscribed(true));
+
                     // set the user information, transactional data and profile picture URI accordingly, from what we have loaded
                     setUserInformation(updatedUserInformation);
                     setTransactionData(updatedTransactionalData);
@@ -222,8 +229,6 @@ export const AppDrawer = ({}: AppDrawerProps) => {
 
                             // reset the status for future updates
                             setUpdatedMilitaryStatus(null);
-
-                            console.log(`new updated user profile object: ${JSON.stringify(userInformation)}`);
                         } else {
                             // the user is not verified
                             setUserVerified(false);
@@ -239,8 +244,6 @@ export const AppDrawer = ({}: AppDrawerProps) => {
 
                             // reset the status for future updates
                             setUpdatedMilitaryStatus(null);
-
-                            console.log(`new updated user profile object: ${JSON.stringify(userInformation)}`);
                         }
                     }
                 }
@@ -278,11 +281,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
 
             // only subscribe to military status updates and retrieve the status, if needed
             if (!militaryStatusAlreadyVerified) {
-                // subscribe to receiving military status updates
-                await subscribeToMilitaryStatusUpdates(userInformation["custom:userId"]);
-                setMilitaryStatusUpdatesSubscribed(true);
-
-                // retrieve the military status information
+                // retrieve the military status information - attempt to retrieve it from cache first
                 militaryStatus = await retrieveMilitaryVerification(userInformation["custom:userId"]);
                 militaryStatus && setMilitaryStatusRetrieved(true);
 
@@ -295,8 +294,54 @@ export const AppDrawer = ({}: AppDrawerProps) => {
 
             // get the military status, and set the user verified flag accordingly
             if (militaryStatus === MilitaryVerificationStatusType.Verified || militaryStatusAlreadyVerified) {
-                // retrieve linked card information for the user
-                const linkedCard = await retrieveLinkedCard(userInformation["custom:userId"]);
+                /**
+                 * retrieve linked card information for the user - attempt to retrieve it from cache first
+                 *
+                 * We handle clearing and/or updating the cache in the Wallet component
+                 */
+                let linkedCard: CardLink | null;
+                if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCard`) !== null) {
+                    console.log('card is cached');
+                    linkedCard = await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCard`);
+                    /**
+                     * if there are no linked cards for an existing object, then display the banner accordingly.
+                     * Whenever a new card is linked successfully, then the status of the card linking will be changed,
+                     * and thus, the banner will be hidden.
+                     */
+                    if (linkedCard!.cards.length === 0) {
+                        // adding the card linking status accordingly
+                        setCardLinkingStatus(false);
+
+                        // set the banner state accordingly
+                        setBannerState({
+                            bannerVisibilityState: cardLinkingStatusState,
+                            bannerMessage: "You currently do not have a linked card to your Moonbeam account. In order to see more dashboard details, you will need to have a card in your wallet. Get started now!",
+                            bannerButtonLabel: "Link Now",
+                            bannerButtonLabelActionSource: "home/wallet",
+                            bannerArtSource: CardLinkingImage,
+                            dismissing: false
+                        });
+                        setBannerShown(true);
+                    } else {
+                        // adding the card linking status accordingly
+                        setCardLinkingStatus(true);
+
+                        // set the banner state accordingly
+                        setBannerState({
+                            bannerVisibilityState: cardLinkingStatusState,
+                            bannerMessage: "",
+                            bannerButtonLabel: "",
+                            bannerButtonLabelActionSource: "",
+                            bannerArtSource: CardLinkingImage,
+                            dismissing: false
+                        });
+                        setBannerShown(false);
+                    }
+                } else {
+                    console.log('card is not cached');
+                    linkedCard = await retrieveLinkedCard(userInformation["custom:userId"]);
+                    globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, linkedCard)
+                }
                 setCardLinkRetrieved(true);
 
                 // set the user's card linked object accordingly
@@ -305,8 +350,20 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     ...(linkedCard !== null && {linkedCard: linkedCard})
                 };
 
-                // retrieve the user profile picture
-                const profilePictureURI = await retrieveProfilePicture();
+                /**
+                 * retrieve the user profile picture - attempt to retrieve it from cache first
+                 *
+                 * We handle clearing and/or updating the cache in the Profile component
+                 */
+                let profilePictureURI: string | null;
+                if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
+                    console.log('profile picture is cached');
+                    profilePictureURI = await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`);
+                } else {
+                    console.log('profile picture is not cached');
+                    profilePictureURI = await retrieveProfilePicture();
+                    globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, profilePictureURI !== null && profilePictureURI.length !== 0 ? profilePictureURI : "")
+                }
                 setProfilePictureRetrieved(true);
                 updatedProfilePicture = (profilePictureURI !== null && profilePictureURI.length !== 0)
                     ? profilePictureURI
@@ -316,10 +373,6 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                 const retrievedTransactionalData = await retrieveTransactionalData(userInformation["custom:userId"]);
                 setTransactionsRetrieved(true);
                 updatedTransactionalData = retrievedTransactionalData !== null ? retrievedTransactionalData : [];
-
-                // subscribe to receiving updates about newly created transactions
-                await subscribeTransactionsCreatedUpdates(userInformation["custom:userId"]);
-                setTransactionCreatedSubscribed(true);
 
                 return [updatedUserInformation, updatedTransactionalData, updatedProfilePicture];
             } else {
@@ -641,7 +694,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
 
                     // fetch the profile picture URI from storage and/or cache
                     const [returnFlag, profilePictureURI] = await fetchFile('profile_picture.png', true,
-                        true, true, userCredentials["identityId"]);
+                        true, false, userCredentials["identityId"]);
                     if (!returnFlag || profilePictureURI === null) {
                         // for any error we just want to print them out, and not set any profile picture, and show the default avatar instead
                         console.log(`Unable to retrieve new profile picture!`);
@@ -712,13 +765,13 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                                                           setShowWalletBottomSheet(false);
                                                                           navigation.openDrawer();
                                                                       }}/>,
-                                        ...(drawerInDashboard && {
-                                            headerRight: () => <IconButton icon={'bell'} iconColor={'#FFFFFF'}
-                                                                           size={deviceType === DeviceType.TABLET ? Dimensions.get('window').height / 38 : Dimensions.get('window').height / 28}
-                                                                           onPress={() => {
-                                                                               // ToDo: need to go to the notifications screen
-                                                                           }}/>,
-                                        }),
+                                        // ...(drawerInDashboard && {
+                                        //     headerRight: () => <IconButton icon={'bell'} iconColor={'#FFFFFF'}
+                                        //                                    size={deviceType === DeviceType.TABLET ? Dimensions.get('window').height / 38 : Dimensions.get('window').height / 28}
+                                        //                                    onPress={() => {
+                                        //                                        // ToDo: need to go to the notifications screen
+                                        //                                    }}/>,
+                                        // }),
                                         headerTitle: () =>
                                             <Image resizeMode={"contain"}
                                                    style={[{alignSelf: 'center'},

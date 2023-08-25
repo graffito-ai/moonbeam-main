@@ -2,7 +2,11 @@ import React, {useEffect, useState} from "react";
 import {Dimensions, Image, Text, TouchableOpacity, View} from "react-native";
 import {Divider, TextInput} from "react-native-paper";
 import {useRecoilState} from "recoil";
-import {additionalDocumentationErrors, additionalDocumentationNeeded} from "../../../../recoil/AuthAtom";
+import {
+    additionalDocumentationErrors,
+    additionalDocumentationNeeded, isDocumentUploadedState, isPhotoUploadedState,
+    isReadyRegistrationState
+} from "../../../../recoil/AuthAtom";
 import {styles} from "../../../../styles/registration.module";
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
@@ -25,10 +29,7 @@ import DocumentationUpload2Picture from '../../../../../assets/art/moonbeam-docu
  */
 export const DocumentCaptureStep = () => {
     // constants used to keep track of local component state
-    const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
-    const [capturedFileName, setCapturedFileName] = useState<string>("");
-    const [uploadedFileName, setUploadedFileName] = useState<string>("");
     const [verificationDocument, setVerificationDocument] = useState<string>("");
     const [dropdownDocumentState, setDropdownDocumentState] = useState<boolean>(false);
     const [photoSelectionButtonState, setPhotoSelectionButtonState] = useState<boolean>(false);
@@ -37,6 +38,9 @@ export const DocumentCaptureStep = () => {
     const [documentItems, setDocumentItems] = useState(documentSelectionItems);
 
     // constants used to keep track of shared states
+    const [capturedFileName, setCapturedFileName] = useRecoilState(isPhotoUploadedState);
+    const [uploadedFileName, setUploadedFileName] = useRecoilState(isDocumentUploadedState);
+    const [isReady, setIsReady] = useRecoilState(isReadyRegistrationState);
     const [, setAdditionalDocumentsNeeded] = useRecoilState(additionalDocumentationNeeded);
     const [documentationErrors, setDocumentationErrors] = useRecoilState(additionalDocumentationErrors);
 
@@ -96,7 +100,7 @@ export const DocumentCaptureStep = () => {
             if (status && status.status === 'granted') {
                 // first display the photo library picker, and allow the user to pick a photo of their document
                 const result = await ImagePicker.launchImageLibraryAsync({
-                    allowsEditing: true,
+                    allowsEditing: false,
                     quality: 1,
                     mediaTypes: MediaTypeOptions.Images, // only pick images, not videos
                     allowsMultipleSelection: false,
@@ -221,7 +225,7 @@ export const DocumentCaptureStep = () => {
             if (status && status.status === 'granted') {
                 // first display the camera, and allow the user to capture a photo of their document
                 const result = await ImagePicker.launchCameraAsync({
-                    allowsEditing: true,
+                    allowsEditing: false,
                     quality: 1,
                     mediaTypes: MediaTypeOptions.Images, // only pick images, not videos
                     allowsMultipleSelection: false,
@@ -552,7 +556,9 @@ export const DocumentCaptureStep = () => {
                                                             iconColor="#FFFFFF"
                                                             onPress={() => {
                                                                 // Disable the next button and enable the upload button, and reset the capture file name
-                                                                setUploadButtonState(true);
+                                                                setCaptureButtonState(false);
+                                                                setPhotoSelectionButtonState(false);
+                                                                setUploadButtonState(false);
                                                                 setAdditionalDocumentsNeeded(true);
                                                                 setCapturedFileName("");
                                                             }}
@@ -620,8 +626,9 @@ export const DocumentCaptureStep = () => {
                                                             iconColor="#FFFFFF"
                                                             onPress={() => {
                                                                 // Disable the next button and enable the capture buttons, and reset the upload file name
-                                                                setCaptureButtonState(true);
-                                                                setPhotoSelectionButtonState(true);
+                                                                setCaptureButtonState(false);
+                                                                setPhotoSelectionButtonState(false);
+                                                                setUploadButtonState(false);
                                                                 setAdditionalDocumentsNeeded(true);
                                                                 setUploadedFileName("");
                                                             }}

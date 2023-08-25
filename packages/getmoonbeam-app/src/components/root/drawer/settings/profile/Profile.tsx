@@ -1,4 +1,4 @@
-import {Dimensions, Platform, SafeAreaView, StyleSheet, TouchableOpacity, View} from "react-native";
+import {Dimensions, Keyboard, Platform, SafeAreaView, StyleSheet, TouchableOpacity, View} from "react-native";
 import {Dialog, Portal, Text, TextInput} from "react-native-paper";
 import React, {useEffect, useRef, useState} from "react";
 import {commonStyles} from "../../../../../styles/common.module";
@@ -6,7 +6,7 @@ import {styles} from "../../../../../styles/profile.module";
 // @ts-ignore
 import FaceIDIcon from '../../../../../../assets/face-id-icon.png';
 import {useRecoilState} from "recoil";
-import {currentUserInformation} from "../../../../../recoil/AuthAtom";
+import {currentUserInformation, globalAmplifyCacheState} from "../../../../../recoil/AuthAtom";
 import {Spinner} from "../../../../common/Spinner";
 import {ProfileProps} from "../../../../../models/props/SettingsProps";
 import {appDrawerHeaderShownState, drawerSwipeState, profilePictureURIState} from "../../../../../recoil/AppDrawerAtom";
@@ -72,6 +72,7 @@ export const Profile = ({navigation}: ProfileProps) => {
     const [dutyStatusErrors, setDutyStatusErrors] = useState<string[]>([]);
     const bottomSheetRef = useRef(null);
     // constants used to keep track of shared states
+    const [globalCache, ] = useRecoilState(globalAmplifyCacheState);
     const [showBottomSheet, setShowBottomSheet] = useRecoilState(codeVerificationSheetShown);
     const [codeVerified, setCodeVerified] = useRecoilState(codeVerifiedState);
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
@@ -273,7 +274,7 @@ export const Profile = ({navigation}: ProfileProps) => {
             if (status && status.status === 'granted') {
                 // first display the photo library picker, and allow the user to pick a photo of their document
                 const result = await ImagePicker.launchImageLibraryAsync({
-                    allowsEditing: true,
+                    allowsEditing: false,
                     quality: 1,
                     mediaTypes: MediaTypeOptions.Images, // only pick images, not videos
                     allowsMultipleSelection: false,
@@ -315,6 +316,12 @@ export const Profile = ({navigation}: ProfileProps) => {
                                 // release the loader on button press
                                 setIsReady(true);
                                 console.log("Profile picture successfully uploaded!");
+
+                                // update the Amplify cache accordingly
+                                if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
+                                    console.log('old profile picture is cached, needs cleaning up');
+                                    await globalCache!.removeItem(`${userInformation["custom:userId"]}-profilePictureURI`);
+                                }
 
                                 // update the global profile picture state
                                 setProfilePictureURI(photoAsset.uri);
@@ -595,7 +602,12 @@ export const Profile = ({navigation}: ProfileProps) => {
 
                                                             // we first need to decide whether there's a need for an email or phone verification screen to show up
                                                             if (email.toLowerCase() !== userInformation["email"].toLowerCase()) {
+                                                                // show the bottom sheet
                                                                 setShowBottomSheet(true);
+
+                                                                // close the keyboard so it doesn't overlap with anything
+                                                                Keyboard.dismiss();
+
                                                                 // performs the actual saving of fields in the bottom sheet
                                                             } else {
                                                                 // performs the actual saving of fields here
@@ -887,13 +899,9 @@ export const Profile = ({navigation}: ProfileProps) => {
                                                         style={{right: 30, bottom: 10}}
                                                         iconColor="#F2FF5D"
                                                         icon="pencil"
-                                                    />
-                                                )}
-                                                ArrowUpIconComponent={({}) => (
-                                                    <TextInput.Icon
-                                                        style={{right: 30, bottom: 10}}
-                                                        iconColor="#F2FF5D"
-                                                        icon="pencil"
+                                                        onPress={() => {
+                                                            setDropdownDutyState(true);
+                                                        }}
                                                     />
                                                 )}
                                                 disabled={!editingFlag}
@@ -971,7 +979,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                         backgroundStyle={styles.bottomSheet}
                         enablePanDownToClose={true}
                         index={showBottomSheet ? 0 : -1}
-                        snapPoints={['60%', '60%']}
+                        snapPoints={['70%', '70%']}
                         onChange={(index) => {
                             setShowBottomSheet(index !== -1);
                         }}

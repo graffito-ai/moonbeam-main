@@ -8,20 +8,6 @@ export const styles = StyleSheet.create({
         backgroundColor: '#313030',
         flexDirection: 'column'
     },
-    mainTitleView: {
-        backgroundColor: '#313030',
-        paddingTop: Dimensions.get('window').height/10
-    },
-    mainTitle: {
-        fontFamily: 'Raleway-Medium',
-        fontSize: Dimensions.get('window').width / 18,
-        width: Dimensions.get('window').width / 1.15,
-        bottom: Dimensions.get('window').height / 43,
-        left: Dimensions.get('window').width / 2.7,
-        textAlign: 'justify',
-        alignSelf: 'center',
-        color: '#FFFFFF'
-    },
     faqsListView: {
         alignSelf: 'center',
         width: Dimensions.get('window').width/1.05,

@@ -14,7 +14,7 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
 import {CardLinkingBottomSheet} from "./CardLinkingBottomSheet";
 import {Spinner} from "../../../../common/Spinner";
-import {currentUserInformation} from "../../../../../recoil/AuthAtom";
+import {currentUserInformation, globalAmplifyCacheState} from "../../../../../recoil/AuthAtom";
 import {Card, CardType, deleteCard} from "@moonbeam/moonbeam-models";
 import {API, graphqlOperation} from "aws-amplify";
 import {SplashScreen} from "../../../../common/Splash";
@@ -62,6 +62,7 @@ export const Wallet = ({navigation}: CardsProps) => {
     const [splashShown, setSplashShown] = useState<boolean>(false);
     const bottomSheetRef = useRef(null);
     // constants used to keep track of shared states
+    const [globalCache, ] = useRecoilState(globalAmplifyCacheState);
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
     const [, setBannerState] = useRecoilState(customBannerState);
     const [, setBannerShown] = useRecoilState(customBannerShown);
@@ -154,6 +155,12 @@ export const Wallet = ({navigation}: CardsProps) => {
                 bannerArtSource: CardLinkingImage,
                 dismissing: false
             });
+
+            // update the Amplify cache accordingly
+            if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCard`) !== null) {
+                console.log('old card is cached, needs cleaning up');
+                await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCard`);
+            }
         } else {
             // hide the bottom sheet for deletion, to show splash message
             setShowBottomSheet(false);
@@ -383,7 +390,7 @@ export const Wallet = ({navigation}: CardsProps) => {
                                             Wallet
                                         </Text>
                                         <IconButton
-                                            icon={userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0 ? 'dots-horizontal' : 'plus'}
+                                            icon={userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0 ? 'trash-can' : 'plus'}
                                             iconColor={'#F2FF5D'}
                                             style={{
                                                 alignSelf: 'flex-end',

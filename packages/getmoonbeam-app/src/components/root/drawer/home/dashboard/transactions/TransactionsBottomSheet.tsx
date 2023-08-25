@@ -50,6 +50,7 @@ export const TransactionsBottomSheet = (props: {
      * included in here.
      */
     useEffect(() => {
+        console.log(discountPercentage);
         // check and set the type of device, to be used throughout the app
         Device.getDeviceTypeAsync().then(deviceType => {
             setDeviceType(deviceType);
@@ -119,7 +120,7 @@ export const TransactionsBottomSheet = (props: {
                                 {
                                     props.transactionStoreAddress
                                         ? props.transactionStoreAddress
-                                        : `Online Purchase:\n${props.transactionOnlineAddress}`
+                                        : `Online Purchase`
                                 }
                             </Text>
                         </View>
@@ -129,6 +130,9 @@ export const TransactionsBottomSheet = (props: {
                             </Text>
                             <Text style={styles.transactionTimestamp}>
                                 {new Date(Number(props.transactionTimestamp)).toLocaleDateString()}
+                            </Text>
+                            <Text style={styles.transactionPrice}>
+                                {discountPercentage} Off
                             </Text>
                         </View>
                     </View>
@@ -172,7 +176,7 @@ export const TransactionsBottomSheet = (props: {
                                                    }}
                                             />
                                             <Text style={styles.toolTipImagePrice}>
-                                                {discountPercentage}
+                                                {discountPercentage} Off
                                             </Text>
                                         </View>
                                     </TouchableOpacity>

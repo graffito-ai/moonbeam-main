@@ -19,6 +19,8 @@ import {AndroidNotificationPriority, ExpoPushToken} from "expo-notifications";
 import Constants from "expo-constants";
 import {Platform} from "react-native";
 import * as Device from 'expo-device';
+import {Cache} from 'aws-amplify';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // this handler determines how your app handles notifications that come in while the app is foregrounded.
 Notifications.setNotificationHandler({
@@ -69,7 +71,7 @@ async function registerForPushNotificationsAsync(): Promise<ExpoPushToken> {
             name: 'default',
             importance: Notifications.AndroidImportance.MAX,
             vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#FF231F7C',
+            lightColor: '#F2FF5D',
             sound: 'default',
             showBadge: true,
             enableVibrate: true
@@ -99,6 +101,7 @@ export default function App() {
     theme.colors.secondaryContainer = 'transparent';
 
     // constants used to keep track of local component state
+    const [cache, setCache] = useState<typeof Cache | null>(null);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [appIsReady, setAppIsReady] = useState<boolean>(false);
     const [expoPushToken, setExpoPushToken] = useState<ExpoPushToken>({
@@ -177,6 +180,16 @@ export default function App() {
                     console.log(`Incoming notification interaction response received ${response}`);
                 });
 
+                // configure the Cache - @link https://docs.amplify.aws/lib/utilities/cache/q/platform/js/#api-reference
+                setCache(Cache.createInstance({
+                    keyPrefix: 'global-amplify-cache',
+                    capacityInBytes: 5000000, // 5 MB max cache size
+                    itemMaxSize: 500000, // 500 KB max per item
+                    defaultTTL: 32000000000, // in milliseconds, about 8000 something hours, which is roughly 1 year (365 days)
+                    warningThreshold: 0.8, // when to get warned that the cache is full, at 80% capacity
+                    storage: AsyncStorage
+                }));
+
                 // tell the application to render
                 setAppIsReady(true);
 
@@ -210,7 +223,8 @@ export default function App() {
                 };
             }
         }
-        prepare().then(() => {});
+        prepare().then(() => {
+        });
     }, [lastNotificationResponse]);
 
     /**
@@ -250,12 +264,19 @@ export default function App() {
                             <RootStack.Screen
                                 name="AppOverview"
                                 component={AppOverviewComponent}
-                                initialParams={{onLayoutRootView: onLayoutRootView, expoPushToken: expoPushToken}}
+                                initialParams={{
+                                    cache: cache!,
+                                    expoPushToken: expoPushToken,
+                                    onLayoutRootView: onLayoutRootView
+                                }}
                             />
                             <RootStack.Screen
                                 name="Authentication"
                                 component={AuthenticationComponent}
-                                initialParams={{expoPushToken: expoPushToken}}
+                                initialParams={{
+                                    cache: cache!,
+                                    expoPushToken: expoPushToken
+                                }}
                             />
                         </RootStack.Navigator>
                     </NavigationContainer>

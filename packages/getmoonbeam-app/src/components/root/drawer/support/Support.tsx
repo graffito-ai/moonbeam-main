@@ -73,17 +73,27 @@ export const Support = ({navigation}: SupportProps) => {
                                 size={Dimensions.get('window').height / 25}
                                 style={commonStyles.backButtonDismiss}
                                 onPress={() => {
-                                    // go back to the support center
-                                    navigation.navigate('SupportCenter', {});
-
                                     // show the drawer header
                                     setDrawerHeaderShown(true);
 
                                     // enable the drawer swipe
                                     setDrawerSwipeEnabled(true);
+
+                                    // go back to the support center
+                                    navigation.navigate('SupportCenter', {});
                                 }}
                             />,
-                        headerShown: true
+                        headerShown: true,
+                        headerTransparent: false,
+                        headerStyle: {backgroundColor: '#313030'},
+                        headerTitle: 'FAQs',
+                        headerTitleStyle: {
+                            fontFamily: 'Raleway-Medium',
+                            fontSize: Dimensions.get('window').width / 20,
+                            textAlign: 'justify',
+                            alignSelf: 'center',
+                            color: '#FFFFFF'
+                        }
                     })}
                 />
             </Stack.Navigator>

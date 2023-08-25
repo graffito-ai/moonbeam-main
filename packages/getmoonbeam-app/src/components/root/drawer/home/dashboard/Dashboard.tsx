@@ -185,7 +185,7 @@ export const Dashboard = ({}) => {
                                 <View style={styles.itemRightView}>
                                     <View style={styles.itemRightDetailsView}>
                                         <Text
-                                            style={styles.itemRightDetailTop}>{`+ $${transaction.rewardAmount}`}</Text>
+                                            style={styles.itemRightDetailTop}>{`+ $${transaction.rewardAmount.toFixed(2)}`}</Text>
                                         <Text
                                             style={styles.itemRightDetailBottom}>{transaction.transactionStatus}</Text>
                                     </View>
@@ -473,8 +473,8 @@ export const Dashboard = ({}) => {
                                         {...!selectedTransaction.transactionIsOnline && {
                                             transactionStoreAddress: selectedTransaction.transactionBrandAddress
                                         }}
-                                        transactionAmount={selectedTransaction.totalAmount.toString()}
-                                        transactionDiscountAmount={selectedTransaction.rewardAmount.toString()}
+                                        transactionAmount={selectedTransaction.totalAmount.toFixed(2).toString()}
+                                        transactionDiscountAmount={selectedTransaction.rewardAmount.toFixed(2).toString()}
                                         transactionTimestamp={selectedTransaction.timestamp.toString()}
                                         transactionStatus={selectedTransaction.transactionStatus.toString()}
                                     />

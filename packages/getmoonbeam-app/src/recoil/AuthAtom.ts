@@ -3,6 +3,7 @@ import {MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
 import {ExpoPushToken} from "expo-notifications";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {AuthenticationStackParamList} from "../models/props/AuthenticationProps";
+import { Cache } from "aws-amplify";
 
 /**
  * Atom used to keep track of the registration navigation (used for documents viewer purposes).
@@ -441,9 +442,46 @@ const appLinkedURLState = atom({
 });
 
 /**
+ * Atom used to keep track of whether the Registration page needs loading global loading.
+ */
+const isReadyRegistrationState = atom<boolean>({
+    key: "isReadyRegistrationState",
+    default: true
+});
+
+/**
+ * Atom used to keep track of the uploaded photo name from the Documents section.
+ */
+const isPhotoUploadedState = atom<string>({
+    key: "isPhotoUploadedState",
+    default: ''
+});
+
+/**
+ * Atom used to keep track of the uploaded document name from the Documents section.
+ */
+const isDocumentUploadedState = atom<string>({
+    key: "isDocumentUploadedState",
+    default: ''
+});
+
+/**
+ * Atom used to keep track of the global Amplify cache to be used throughout
+ * the app.
+ */
+const globalAmplifyCacheState = atom<typeof Cache | null>({
+    key: "globalAmplifyCacheState",
+    default: null
+});
+
+/**
  * Export all atoms and/or selectors
  */
 export {
+    globalAmplifyCacheState,
+    isPhotoUploadedState,
+    isDocumentUploadedState,
+    isReadyRegistrationState,
     authRegistrationNavigation,
     expoPushTokenState,
     appLinkedURLState,
