@@ -9,14 +9,13 @@ import {FieldValidator} from "../../../utils/FieldValidator";
 import LoginLogo from '../../../../assets/login-logo.png';
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 import {useRecoilState} from "recoil";
-import {currentUserInformation, expoPushTokenState} from "../../../recoil/AuthAtom";
+import {currentUserInformation} from "../../../recoil/AuthAtom";
 import {Auth} from "aws-amplify";
 import {Spinner} from "../../common/Spinner";
 // @ts-ignore
 import AuthenticationGradientImage from '../../../../assets/backgrounds/authentication-gradient.png';
 // @ts-ignore
 import MilitaryBranchImage from '../../../../assets/art/military-branch-logos.png';
-import {createPhysicalDevice, proceedWithDeviceCreation} from "../../../utils/AppSync";
 
 /**
  * Sign In component.
@@ -37,7 +36,6 @@ export const SignInComponent = ({navigation}: SignInProps) => {
     const [loginMainError, setLoginMainError] = useState<boolean>(false);
     const [passwordShown, setIsPasswordShown] = useState<boolean>(false);
     // constants used to keep track of shared states
-    const [expoPushToken, ] = useRecoilState(expoPushTokenState);
     const [, setUserInformation] = useRecoilState(currentUserInformation);
 
     // initializing the field validator, to be used for validating form field values
@@ -91,22 +89,6 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                 setUserInformation({
                     ...userInfo
                 });
-
-                /**
-                 * we then check whether we should proceed with the creation of a new physical device, or not
-                 */
-                const proceedWithDeviceCreationFlag = await proceedWithDeviceCreation(userInfo["custom:userId"], expoPushToken.data);
-                if (proceedWithDeviceCreationFlag) {
-                    // if so, we create the physical device accordingly (and associated to the new user)
-                    const physicalDeviceCreationFlag = await createPhysicalDevice(userInfo["custom:userId"], expoPushToken.data);
-                    if (physicalDeviceCreationFlag) {
-                        console.log(`Successfully created a physical device for user!`);
-                    } else {
-                        console.log(`Unable to create a physical device for user!`);
-                    }
-                } else {
-                    console.log(`Not necessary to create a physical device for user!`);
-                }
 
                 // release the loader on button press
                 setIsReady(true);

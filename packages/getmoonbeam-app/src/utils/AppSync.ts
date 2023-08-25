@@ -1,14 +1,17 @@
 import {
+    CountryCode,
     createDevice,
     createNotification,
-    CreateNotificationInput,
-    getDeviceByToken,
-    PushDevice,
+    CreateNotificationInput, FidelisPartner,
+    getDeviceByToken, getFidelisPartners, getOffers, Offer, OfferAvailability, OfferFilter, OfferState,
+    PushDevice, RedemptionType,
     updateDevice,
     UserDeviceErrorType,
     UserDeviceState
 } from "@moonbeam/moonbeam-models";
 import {API, graphqlOperation} from "aws-amplify";
+import {dynamicSort} from "./Main";
+import * as Location from "expo-location";
 
 /**
  * Function used to send a notification (depending on type and channel)
@@ -72,7 +75,7 @@ export const proceedWithDeviceCreation = async (userId: string, tokenId: string)
             // returning the military status
             const pushDevice: PushDevice = responseData.getDeviceByToken.data as PushDevice;
 
-            // check if the IDs match, if they do then return false, otherwise true
+            // check if the IDs match, if they do then return false
             if (pushDevice.id === userId) {
                 console.log(`Device already associated to user!`);
                 return false;
@@ -164,5 +167,164 @@ export const createPhysicalDevice = async (userId: string, tokenId: string): Pro
     } catch (error) {
         console.log(`Unexpected error while attempting to create a new physical device for user ${JSON.stringify(error)} ${error}`);
         return false;
+    }
+}
+
+/**
+ * Function used to retrieve the list of online offers that we will
+ * use for caching purposes.
+ *
+ * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function will
+ * be used to cache the list of online offers.
+ */
+export const retrieveOnlineOffersList = async (): Promise<Offer[]> => {
+    // result to return
+    let onlineOffers: Offer[] = [];
+
+    try {
+        // call the getOffers API
+        const onlineOffersResult = await API.graphql(graphqlOperation(getOffers, {
+            getOffersInput: {
+                availability: OfferAvailability.Global,
+                countryCode: CountryCode.Us,
+                filterType: OfferFilter.Online,
+                offerStates: [OfferState.Active, OfferState.Scheduled],
+                pageNumber: 1, // cache the first page only
+                pageSize: 7, // load 7 nearby offers at a time
+                redemptionType: RedemptionType.Cardlinked
+            }
+        }));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const responseData = onlineOffersResult ? onlineOffersResult.data : null;
+
+        // check if there are any errors in the returned response
+        if (responseData && responseData.getOffers.errorMessage === null) {
+            // retrieve the array of online offers from the API call
+            onlineOffers = responseData.getOffers.data.offers;
+
+            // ensure that there is at least one online offer in the list
+            if (onlineOffers.length > 0) {
+                return onlineOffers;
+            } else {
+                console.log(`No online offers to display ${JSON.stringify(onlineOffersResult)}`);
+                return onlineOffers;
+            }
+        } else {
+            console.log(`Unexpected error while retrieving online offers ${JSON.stringify(onlineOffersResult)}`);
+            return onlineOffers;
+        }
+    } catch (error) {
+        console.log(`Unexpected error while attempting to retrieve online offers ${JSON.stringify(error)} ${error}`);
+        return onlineOffers;
+    }
+}
+
+/**
+ * Function used to retrieve the list of preferred (Fidelis) partners
+ * and their offers, that we will use for caching purposes.
+ *
+ * @returns a {@link Promise} of an {@link Array} of {@link FidelisPartner}, since this function will
+ * be used to cache the list of Fidelis partners and their offers.
+ */
+export const retrieveFidelisPartnerList = async (): Promise<FidelisPartner[]> => {
+    // result to return
+    let fidelisPartners: FidelisPartner[] = [];
+
+    try {
+        // call the getFidelisPartners API
+        const fidelisPartnersResult = await API.graphql(graphqlOperation(getFidelisPartners));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const responseData = fidelisPartnersResult ? fidelisPartnersResult.data : null;
+
+        // check if there are any errors in the returned response
+        if (responseData && responseData.getFidelisPartners.errorMessage === null) {
+            // retrieve the array of Fidelis partners from the API call
+            fidelisPartners = responseData.getFidelisPartners.data;
+
+            // ensure that there is at least one featured partner in the list
+            if (fidelisPartners.length > 0) {
+                return fidelisPartners.sort(dynamicSort("brandName"));
+            } else {
+                console.log(`No Fidelis partners to display ${JSON.stringify(fidelisPartnersResult)}`);
+                return fidelisPartners;
+            }
+        } else {
+            console.log(`Unexpected error while retrieving Fidelis partner offers ${JSON.stringify(fidelisPartnersResult)}`);
+            return fidelisPartners;
+        }
+    } catch (error) {
+        console.log(`Unexpected error while attempting to retrieve the Fidelis partner offers ${JSON.stringify(error)} ${error}`);
+        return fidelisPartners;
+    }
+}
+
+
+/**
+ * Function used to retrieve the list of offers near the user's home location,
+ * that we will use for caching purposes.
+ *
+ * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function will
+ * be used to cache the list of offers near the user's home location.
+ */
+export const retrieveOffersNearLocation = async (address: string): Promise<Offer[]> => {
+    // result to return
+    let nearbyOffers: Offer[] = [];
+
+    try {
+        // first retrieve the necessary geolocation information based on the user's home address
+        const geoLocationArray = await Location.geocodeAsync(address);
+        /**
+         * get the first location point in the array of geolocation returned
+         */
+        const geoLocation = geoLocationArray && geoLocationArray.length !== 0 ? geoLocationArray[0] : null;
+        if (!geoLocation) {
+            console.log(`Unable to retrieve user's home location's geolocation ${address}`);
+            return nearbyOffers;
+        } else {
+            // call the getOffers API
+            const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
+                getOffersInput: {
+                    availability: OfferAvailability.Global,
+                    countryCode: CountryCode.Us,
+                    filterType: OfferFilter.Nearby,
+                    offerStates: [OfferState.Active, OfferState.Scheduled],
+                    pageNumber: 1, // cache the first page only
+                    pageSize: 7, // load 7 nearby offers at a time
+                    radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
+                    radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
+                    radiusLatitude: geoLocation.latitude,
+                    radiusLongitude: geoLocation.longitude,
+                    redemptionType: RedemptionType.Cardlinked
+                }
+            }));
+
+            // retrieve the data block from the response
+            // @ts-ignore
+            const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
+
+            // check if there are any errors in the returned response
+            if (responseData && responseData.getOffers.errorMessage === null) {
+                // retrieve the array of nearby offers from the API call
+                nearbyOffers = responseData.getOffers.data.offers;
+
+                // ensure that there is at least one nearby offer in the list
+                if (nearbyOffers.length > 0) {
+                    return nearbyOffers;
+                } else {
+                    console.log(`No offers near user's home location to display ${JSON.stringify(nearbyOffersResult)}`);
+                    return nearbyOffers;
+                }
+            } else {
+                console.log(`Unexpected error while retrieving offers near user's home location ${JSON.stringify(nearbyOffersResult)}`);
+                return nearbyOffers;
+            }
+        }
+    } catch (error) {
+        console.log(`Unexpected error while attempting to retrieve offers near user's home location ${JSON.stringify(error)} ${error}`);
+        return nearbyOffers;
     }
 }

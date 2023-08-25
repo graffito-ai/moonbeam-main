@@ -32,7 +32,7 @@ import {
 } from "@moonbeam/moonbeam-models";
 import {API, Auth, graphqlOperation} from "aws-amplify";
 import {Observable} from "zen-observable-ts";
-import {currentUserInformation, globalAmplifyCacheState} from "../../../recoil/AuthAtom";
+import {currentUserInformation, expoPushTokenState, globalAmplifyCacheState} from "../../../recoil/AuthAtom";
 import {Spinner} from "../../common/Spinner";
 import {Dialog, IconButton, Portal} from "react-native-paper";
 import {commonStyles} from "../../../styles/common.module";
@@ -55,6 +55,7 @@ import Image = Animated.Image;
 import { Documents } from './documents/Documents';
 import {DocumentsViewer} from "../../common/DocumentsViewer";
 import {Support} from "./support/Support";
+import {createPhysicalDevice, proceedWithDeviceCreation} from "../../../utils/AppSync";
 
 /**
  * AppDrawer component.
@@ -78,6 +79,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         const [isLoaded, setIsLoaded] = useState<boolean>(false);
         const [updatedMilitaryStatus, setUpdatedMilitaryStatus] = useState<MilitaryVerificationStatusType | null>(null);
         // constants used to keep track of shared states
+        const [expoPushToken, ] = useRecoilState(expoPushTokenState);
         const [globalCache, ] = useRecoilState(globalAmplifyCacheState);
         const [transactionData, setTransactionData] = useRecoilState(transactionDataState);
         const [, setProfilePictureURI] = useRecoilState(profilePictureURIState);
@@ -183,6 +185,24 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     // subscribe to receiving updates about newly created transactions
                     subscribeTransactionsCreatedUpdates(userInformation["custom:userId"]).then(() => setTransactionCreatedSubscribed(true));
 
+                    /**
+                     * we then check whether we should proceed with the creation of a new physical device, or not
+                     */
+                    proceedWithDeviceCreation(userInformation["custom:userId"], expoPushToken.data).then((proceedWithDeviceCreationFlag) => {
+                        if (proceedWithDeviceCreationFlag) {
+                            // if so, we create the physical device accordingly (and associated to the new user)
+                            createPhysicalDevice(userInformation["custom:userId"], expoPushToken.data).then((physicalDeviceCreationFlag) => {
+                                if (physicalDeviceCreationFlag) {
+                                    console.log(`Successfully created a physical device for user!`);
+                                } else {
+                                    console.log(`Unable to create a physical device for user!`);
+                                }
+                            });
+                        } else {
+                            console.log(`Not necessary to create a physical device for user!`);
+                        }
+                    });
+
                     // set the user information, transactional data and profile picture URI accordingly, from what we have loaded
                     setUserInformation(updatedUserInformation);
                     setTransactionData(updatedTransactionalData);
@@ -194,6 +214,24 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                 && loadAppData(true).then(([updatedUserInformation, updatedTransactionalData, updateProfilePictureURI]) => {
                     setIsReady(true);
                     setUserVerified(true);
+
+                    /**
+                     * we then check whether we should proceed with the creation of a new physical device, or not
+                     */
+                    proceedWithDeviceCreation(userInformation["custom:userId"], expoPushToken.data).then((proceedWithDeviceCreationFlag) => {
+                        if (proceedWithDeviceCreationFlag) {
+                            // if so, we create the physical device accordingly (and associated to the new user)
+                            createPhysicalDevice(userInformation["custom:userId"], expoPushToken.data).then((physicalDeviceCreationFlag) => {
+                                if (physicalDeviceCreationFlag) {
+                                    console.log(`Successfully created a physical device for user!`);
+                                } else {
+                                    console.log(`Unable to create a physical device for user!`);
+                                }
+                            });
+                        } else {
+                            console.log(`Not necessary to create a physical device for user!`);
+                        }
+                    });
 
                     // set the user information, transactional data and profile picture URI accordingly, from what we have loaded
                     setUserInformation(latestUserInformationValue => {
@@ -281,8 +319,20 @@ export const AppDrawer = ({}: AppDrawerProps) => {
 
             // only subscribe to military status updates and retrieve the status, if needed
             if (!militaryStatusAlreadyVerified) {
-                // retrieve the military status information - attempt to retrieve it from cache first
-                militaryStatus = await retrieveMilitaryVerification(userInformation["custom:userId"]);
+                /**
+                 * retrieve the military status information - attempt to retrieve it from cache first
+                 *
+                 * We keep the successful military verification status of a user for a year. For people
+                 * not verified we don't cache this.
+                 */
+                if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-militaryStatus`) !== null) {
+                    console.log('military status is cached');
+                    militaryStatus = await globalCache!.getItem(`${userInformation["custom:userId"]}-militaryStatus`);
+                } else {
+                    console.log('military status is not cached');
+                    militaryStatus = await retrieveMilitaryVerification(userInformation["custom:userId"]);
+                    militaryStatus === MilitaryVerificationStatusType.Verified && globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, militaryStatus);
+                }
                 militaryStatus && setMilitaryStatusRetrieved(true);
 
                 // set the user's military verification status accordingly
@@ -300,15 +350,17 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                  * We handle clearing and/or updating the cache in the Wallet component
                  */
                 let linkedCard: CardLink | null;
-                if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCard`) !== null) {
+                if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCardFlag`) !== null) {
                     console.log('card is cached');
                     linkedCard = await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCard`);
                     /**
-                     * if there are no linked cards for an existing object, then display the banner accordingly.
+                     * if there is no linked card object or if there are no linked cards for an existing object,
+                     * then display the banner accordingly.
+                     *
                      * Whenever a new card is linked successfully, then the status of the card linking will be changed,
                      * and thus, the banner will be hidden.
                      */
-                    if (linkedCard!.cards.length === 0) {
+                    if (linkedCard === null || (linkedCard &&linkedCard!.cards.length === 0)) {
                         // adding the card linking status accordingly
                         setCardLinkingStatus(false);
 
@@ -340,7 +392,8 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                 } else {
                     console.log('card is not cached');
                     linkedCard = await retrieveLinkedCard(userInformation["custom:userId"]);
-                    globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, linkedCard)
+                    globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, linkedCard);
+                    await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
                 }
                 setCardLinkRetrieved(true);
 

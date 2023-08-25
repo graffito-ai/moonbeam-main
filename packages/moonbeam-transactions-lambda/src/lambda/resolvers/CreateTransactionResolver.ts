@@ -107,16 +107,16 @@ export const createTransaction = async (fieldName: string, createTransactionInpu
                         S: createTransactionInput.currencyCode
                     },
                     rewardAmount: {
-                        N: createTransactionInput.rewardAmount.toString()
+                        N: createTransactionInput.rewardAmount.toFixed(2).toString()
                     },
                     totalAmount: {
-                        N: createTransactionInput.totalAmount.toString()
+                        N: createTransactionInput.totalAmount.toFixed(2).toString()
                     },
                     pendingCashbackAmount: {
-                        N: createTransactionInput.pendingCashbackAmount.toString()
+                        N: createTransactionInput.pendingCashbackAmount.toFixed(2).toString()
                     },
                     creditedCashbackAmount: {
-                        N: createTransactionInput.creditedCashbackAmount.toString()
+                        N: createTransactionInput.creditedCashbackAmount.toFixed(2).toString()
                     },
                     transactionBrandName: {
                         S: createTransactionInput.transactionBrandName

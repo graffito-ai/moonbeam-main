@@ -156,10 +156,17 @@ export const Wallet = ({navigation}: CardsProps) => {
                 dismissing: false
             });
 
-            // update the Amplify cache accordingly
-            if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCard`) !== null) {
+            // if the card was successfully removed, then we can cache it accordingly
+            if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCardFlag`) !== null) {
                 console.log('old card is cached, needs cleaning up');
                 await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCard`);
+                await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCardFlag`);
+                await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, null);
+                await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
+            } else {
+                console.log('card is not cached');
+                globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, null);
+                globalCache && await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
             }
         } else {
             // hide the bottom sheet for deletion, to show splash message

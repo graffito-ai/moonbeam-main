@@ -1,5 +1,11 @@
-import {DynamoDBClient, GetItemCommand, PutItemCommand} from "@aws-sdk/client-dynamodb";
-import {CreateDeviceInput, UserDeviceResponse, PushDevice, UserDeviceErrorType} from "@moonbeam/moonbeam-models";
+import {DynamoDBClient, GetItemCommand, PutItemCommand, UpdateItemCommand} from "@aws-sdk/client-dynamodb";
+import {
+    CreateDeviceInput,
+    UserDeviceResponse,
+    PushDevice,
+    UserDeviceErrorType,
+    UserDeviceState
+} from "@moonbeam/moonbeam-models";
 
 /**
  * CreateDevice resolver
@@ -39,10 +45,11 @@ export const createDevice = async (fieldName: string, createDeviceInput: CreateD
              * @link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ReservedWords.html
              * @link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.ExpressionAttributeNames.html
              */
-            ProjectionExpression: '#idf, #tId',
+            ProjectionExpression: '#idf, #tId, #dSt',
             ExpressionAttributeNames: {
                 '#idf': 'id',
-                '#tId': 'tokenId'
+                '#tId': 'tokenId',
+                '#dSt': 'deviceState'
             }
         }));
 
@@ -50,14 +57,52 @@ export const createDevice = async (fieldName: string, createDeviceInput: CreateD
         if (preExistingPhysicalDevice && preExistingPhysicalDevice.Item) {
             /**
              * if there is a pre-existing device with the same composite primary key (userId/id, tokenId) combination,
-             * then we cannot duplicate that, so we will return an error.
+             * then we check if that device is active. If so, then cannot duplicate that, so we will return an error.
+             * Otherwise, we will update that device's state to active accordingly, so that we can 'revive' an old
+             * device.
              */
-            const errorMessage = `Duplicate physical device found!`;
-            console.log(errorMessage);
+            if (preExistingPhysicalDevice.Item.deviceState.S! === UserDeviceState.Inactive) {
+                console.log(`Reviving old device ${createDeviceInput.tokenId} for account id ${createDeviceInput.id}`);
 
-            return {
-                errorMessage: errorMessage,
-                errorType: UserDeviceErrorType.DuplicateObjectFound
+                // update the physical device object based on the passed in object
+                await dynamoDbClient.send(new UpdateItemCommand({
+                    TableName: process.env.PHYSICAL_DEVICES_TABLE!,
+                    Key: {
+                        id: {
+                            S: createDeviceInput.id
+                        },
+                        tokenId: {
+                            S: createDeviceInput.tokenId
+                        }
+                    },
+                    ExpressionAttributeNames: {
+                        "#dst": "deviceState",
+                        "#llog": "lastLoginDate"
+                    },
+                    ExpressionAttributeValues: {
+                        ":dst": {
+                            S: createDeviceInput.deviceState
+                        },
+                        ":llog": {
+                            S: createDeviceInput.lastLoginDate
+                        }
+                    },
+                    UpdateExpression: "SET #dst = :dst, #llog = :llog",
+                    ReturnValues: "UPDATED_NEW"
+                }));
+
+                // return the updated physical device object
+                return {
+                    data: createDeviceInput as PushDevice
+                }
+            } else {
+                const errorMessage = `Duplicate physical device found!`;
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: UserDeviceErrorType.DuplicateObjectFound
+                }
             }
         } else {
             // store the physical device object

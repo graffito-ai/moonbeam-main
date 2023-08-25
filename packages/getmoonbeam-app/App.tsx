@@ -101,6 +101,7 @@ export default function App() {
     theme.colors.secondaryContainer = 'transparent';
 
     // constants used to keep track of local component state
+    const [marketplaceCache, setMarketplaceCache] = useState<typeof Cache | null>(null);
     const [cache, setCache] = useState<typeof Cache | null>(null);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [appIsReady, setAppIsReady] = useState<boolean>(false);
@@ -180,12 +181,22 @@ export default function App() {
                     console.log(`Incoming notification interaction response received ${response}`);
                 });
 
-                // configure the Cache - @link https://docs.amplify.aws/lib/utilities/cache/q/platform/js/#api-reference
+                // configure the Global Cache - @link https://docs.amplify.aws/lib/utilities/cache/q/platform/js/#api-reference
                 setCache(Cache.createInstance({
                     keyPrefix: 'global-amplify-cache',
                     capacityInBytes: 5000000, // 5 MB max cache size
                     itemMaxSize: 500000, // 500 KB max per item
                     defaultTTL: 32000000000, // in milliseconds, about 8000 something hours, which is roughly 1 year (365 days)
+                    warningThreshold: 0.8, // when to get warned that the cache is full, at 80% capacity
+                    storage: AsyncStorage
+                }));
+
+                // configure the Marketplace specific Cache - @link https://docs.amplify.aws/lib/utilities/cache/q/platform/js/#api-reference
+                setMarketplaceCache(Cache.createInstance({
+                    keyPrefix: 'marketplace-amplify-cache',
+                    capacityInBytes: 5000000, // 5 MB max cache size
+                    itemMaxSize: 2500000, // 2.5 MB max per item
+                    defaultTTL: 600000000, // in milliseconds, about 7 days
                     warningThreshold: 0.8, // when to get warned that the cache is full, at 80% capacity
                     storage: AsyncStorage
                 }));
@@ -265,6 +276,7 @@ export default function App() {
                                 name="AppOverview"
                                 component={AppOverviewComponent}
                                 initialParams={{
+                                    marketplaceCache: marketplaceCache!,
                                     cache: cache!,
                                     expoPushToken: expoPushToken,
                                     onLayoutRootView: onLayoutRootView
@@ -274,6 +286,7 @@ export default function App() {
                                 name="Authentication"
                                 component={AuthenticationComponent}
                                 initialParams={{
+                                    marketplaceCache: marketplaceCache!,
                                     cache: cache!,
                                     expoPushToken: expoPushToken
                                 }}

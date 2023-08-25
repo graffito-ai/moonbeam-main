@@ -8,11 +8,13 @@ import {ExpoPushToken} from "expo-notifications";
 export type RootStackParamList = {
     AppOverview: {
         cache: typeof Cache,
+        marketplaceCache: typeof Cache,
         expoPushToken: ExpoPushToken,
         onLayoutRootView: () => Promise<void>,
     }
     Authentication: {
         cache: typeof Cache,
+        marketplaceCache: typeof Cache,
         expoPushToken: ExpoPushToken
     }
 };

@@ -317,7 +317,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                                 setIsReady(true);
                                 console.log("Profile picture successfully uploaded!");
 
-                                // update the Amplify cache accordingly
+                                // update the Amplify cache accordingly - we will load up the new profile picture at first login load
                                 if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
                                     console.log('old profile picture is cached, needs cleaning up');
                                     await globalCache!.removeItem(`${userInformation["custom:userId"]}-profilePictureURI`);

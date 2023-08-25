@@ -412,15 +412,15 @@ const processPendingTransaction = async (itemFailures: SQSBatchItemFailure[], pe
                  */
                 if ((
                         (pendingTransaction!.totalAmount !== oliveTransactionStatusResponse.data.totalAmount) ||
-                        ((Math.round((pendingTransaction!.totalAmount + Number.EPSILON) * 100) / 100) !== (Math.round((oliveTransactionStatusResponse.data.totalAmount + Number.EPSILON) * 100) / 100))
+                        (pendingTransaction!.totalAmount.toFixed(2) !== oliveTransactionStatusResponse.data.totalAmount.toFixed(2))
                     ) ||
                     (
                         (pendingTransaction!.pendingCashbackAmount !== oliveTransactionStatusResponse.data.pendingCashbackAmount) ||
-                        ((Math.round((pendingTransaction!.pendingCashbackAmount + Number.EPSILON) * 100) / 100) !== (Math.round((oliveTransactionStatusResponse.data.pendingCashbackAmount + Number.EPSILON) * 100) / 100))
+                        (pendingTransaction!.pendingCashbackAmount.toFixed(2) !== oliveTransactionStatusResponse.data.pendingCashbackAmount.toFixed(2))
                     ) ||
                     (
                         (pendingTransaction!.creditedCashbackAmount !== oliveTransactionStatusResponse.data.creditedCashbackAmount) ||
-                        ((Math.round((pendingTransaction!.creditedCashbackAmount + Number.EPSILON) * 100) / 100) !== (Math.round((oliveTransactionStatusResponse.data.creditedCashbackAmount + Number.EPSILON) * 100) / 100)) ||
+                        (pendingTransaction!.creditedCashbackAmount.toFixed(2) !== oliveTransactionStatusResponse.data.creditedCashbackAmount.toFixed(2)) ||
                         pendingTransaction!.creditedCashbackAmount !== 0
                     )) {
                     /**

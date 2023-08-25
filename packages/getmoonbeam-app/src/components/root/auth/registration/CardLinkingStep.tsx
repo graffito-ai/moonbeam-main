@@ -2,7 +2,11 @@ import React, {useEffect, useState} from "react";
 import {Dimensions, SafeAreaView, StyleSheet} from "react-native";
 import WebView from "react-native-webview";
 import {useRecoilState} from "recoil";
-import {cardLinkingRegistrationStatusState, currentUserInformation} from "../../../../recoil/AuthAtom";
+import {
+    cardLinkingRegistrationStatusState,
+    currentUserInformation,
+    globalAmplifyCacheState, isReadyRegistrationState
+} from "../../../../recoil/AuthAtom";
 import {Dialog, Portal, Text} from "react-native-paper";
 import {commonStyles} from '../../../../styles/common.module';
 import {styles} from '../../../../styles/registration.module';
@@ -20,10 +24,11 @@ export const CardLinkingStep = () => {
     // constants used to keep track of shared states
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [modalCustomMessage, setModalCustomMessage] = useState<string>("");
-    const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
 
     // constants used to keep track of shared states
+    const [isReady, setIsReady] = useRecoilState(isReadyRegistrationState);
+    const [globalCache,] = useRecoilState(globalAmplifyCacheState);
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingRegistrationStatusState);
     const [userInformation,] = useRecoilState(currentUserInformation);
 
@@ -172,6 +177,18 @@ export const CardLinkingStep = () => {
 
             // check if there are any errors in the returned response
             if (responseData && responseData.createCardLink.errorMessage === null) {
+                // if the card was successfully linked, then we can cache it accordingly
+                if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCardFlag`) !== null) {
+                    console.log('old card is cached, needs cleaning up');
+                    await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCard`);
+                    await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCardFlag`);
+                    await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, responseData.createCardLink.data);
+                    await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
+                } else {
+                    console.log('card is not cached');
+                    globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, responseData.createCardLink.data);
+                    globalCache && await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
+                }
                 return [true];
             } else {
                 console.log(`Unexpected error while signing a new member up through the card linking API ${JSON.stringify(cardLinkingResult)}`);

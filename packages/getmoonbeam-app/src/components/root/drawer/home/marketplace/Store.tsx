@@ -4,7 +4,19 @@ import {StoreProps} from "../../../../../models/props/MarketplaceProps";
 import {Spinner} from '../../../../common/Spinner';
 import {Dimensions, Platform, SafeAreaView, ScrollView, TouchableOpacity, View} from "react-native";
 import {commonStyles} from "../../../../../styles/common.module";
-import {Button, Card, Chip, Dialog, List, Paragraph, Portal, Searchbar, Text, ToggleButton} from 'react-native-paper';
+import {
+    ActivityIndicator,
+    Button,
+    Card,
+    Chip,
+    Dialog,
+    List,
+    Paragraph,
+    Portal,
+    Searchbar,
+    Text,
+    ToggleButton
+} from 'react-native-paper';
 import {styles} from '../../../../../styles/store.module';
 import {Avatar, Icon} from '@rneui/base';
 import * as Location from "expo-location";
@@ -22,10 +34,12 @@ import {
     RewardType
 } from "@moonbeam/moonbeam-models";
 import {API, graphqlOperation} from "aws-amplify";
-import {currentUserInformation} from "../../../../../recoil/AuthAtom";
+import {currentUserInformation, marketplaceAmplifyCacheState} from "../../../../../recoil/AuthAtom";
 import {useRecoilState} from "recoil";
 import {storeOfferState} from "../../../../../recoil/StoreOfferAtom";
-import { dynamicSort } from '../../../../../utils/Main';
+import {dynamicSort} from '../../../../../utils/Main';
+// @ts-ignore
+import MoonbeamOffersLoading from '../../../../../../assets/art/moonbeam-offers-loading.png';
 
 /**
  * Store component.
@@ -35,6 +49,7 @@ import { dynamicSort } from '../../../../../utils/Main';
  */
 export const Store = ({navigation}: StoreProps) => {
     // constants used to keep track of local component state
+    const [areNearbyOffersReady, setAreNearbyOffersReady] = useState<boolean>(false);
     const [isReady, setIsReady] = useState<boolean>(false);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [filteredOffersSpinnerShown, setFilteredOffersSpinnerShown] = useState<boolean>(false);
@@ -44,7 +59,7 @@ export const Store = ({navigation}: StoreProps) => {
     const [searchQuery, setSearchQuery] = React.useState('');
     const [offersNearUserLocationFlag, setOffersNearUserLocationFlag] = useState<boolean>(false);
     const [noFilteredOffersAvailable, setNoFilteredOffersAvailable] = useState<boolean>(false);
-    const [fidelisOfferList, ] = useState<Offer[]>([]);
+    const [fidelisOfferList,] = useState<Offer[]>([]);
     const [nearbyOfferList, setNearbyOfferList] = useState<Offer[]>([]);
     const [onlineOfferList, setOnlineOfferList] = useState<Offer[]>([]);
     const [fidelisPartnerList, setFidelisPartnerList] = useState<FidelisPartner[]>([]);
@@ -56,6 +71,7 @@ export const Store = ({navigation}: StoreProps) => {
     const [userLongitude, setUserLongitude] = useState<number>(1);
     const [shouldCacheImages, setShouldCacheImages] = useState<boolean>(true);
     // constants used to keep track of shared states
+    const [marketplaceCache,] = useRecoilState(marketplaceAmplifyCacheState);
     const [userInformation,] = useRecoilState(currentUserInformation);
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
 
@@ -83,7 +99,11 @@ export const Store = ({navigation}: StoreProps) => {
 
                 // ensure that there is at least one featured partner in the list
                 if (fidelisPartners.length > 0) {
-                    setFidelisPartnerList(fidelisPartners.sort(dynamicSort("brandName")));
+                    const fidelisPartnersSorted = fidelisPartners.sort(dynamicSort("brandName"));
+                    setFidelisPartnerList(fidelisPartnersSorted);
+
+                    // set the cache appropriately
+                    marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, fidelisPartnersSorted);
                 } else {
                     console.log(`No Fidelis partners to display ${JSON.stringify(fidelisPartnersResult)}`);
                     setModalVisible(true);
@@ -162,7 +182,10 @@ export const Store = ({navigation}: StoreProps) => {
                                                 imageProps={{
                                                     resizeMode: 'contain'
                                                 }}
-                                                source={{uri: fidelisPartner.offers[0]!.brandLogoSm!, cache: 'force-cache'}}
+                                                source={{
+                                                    uri: fidelisPartner.offers[0]!.brandLogoSm!,
+                                                    cache: 'force-cache'
+                                                }}
                                             />
                                         </View>
                                     </View>
@@ -218,6 +241,9 @@ export const Store = ({navigation}: StoreProps) => {
 
                 // ensure that there is at least one online offer in the list
                 if (onlineOffers.length > 0) {
+                    // if the page number is 1, then cache the first page of online offers
+                    onlineOffersPageNumber === 1 && marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, onlineOffers);
+
                     // increase the page number
                     setOnlineOffersPageNumber(onlineOffersPageNumber + 1);
 
@@ -375,66 +401,112 @@ export const Store = ({navigation}: StoreProps) => {
      */
     const retrieveOffersNearLocation = async (address: string): Promise<void> => {
         try {
-            // first retrieve the necessary geolocation information based on the user's home address
-            const geoLocationArray = await Location.geocodeAsync(address);
-            /**
-             * get the first location point in the array of geolocation returned
-             */
-            const geoLocation = geoLocationArray && geoLocationArray.length !== 0 ? geoLocationArray[0] : null;
-            if (!geoLocation) {
-                console.log(`Unable to retrieve user's home location's geolocation ${address}`);
-            } else {
-                // call the getOffers API
-                const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
-                    getOffersInput: {
-                        availability: OfferAvailability.Global,
-                        countryCode: CountryCode.Us,
-                        filterType: OfferFilter.Nearby,
-                        offerStates: [OfferState.Active, OfferState.Scheduled],
-                        pageNumber: nearbyOffersPageNumber,
-                        pageSize: 7, // load 7 nearby offers at a time
-                        radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
-                        radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
-                        radiusLatitude: geoLocation.latitude,
-                        radiusLongitude: geoLocation.longitude,
-                        redemptionType: RedemptionType.Cardlinked
-                    }
-                }));
+            // check to see if we already have these offers cached, for the first page, if we do retrieve them from cache instead
+            if (onlineOffersPageNumber === 1 && marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-offerNearUserHome`) !== null) {
+                console.log('offers near user home are cached');
 
-                // retrieve the data block from the response
-                // @ts-ignore
-                const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
+                setNearbyOfferList(await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-offerNearUserHome`));
+                // we want to increase the page number of offers near user home, since we already have the first page obtained from cache
+                setNearbyOffersPageNumber(nearbyOffersPageNumber + 1);
 
-                // check if there are any errors in the returned response
-                if (responseData && responseData.getOffers.errorMessage === null) {
-                    // retrieve the array of nearby offers from the API call
-                    const nearbyOffers: Offer[] = responseData.getOffers.data.offers;
+                // set the nearby user location flag
+                setOffersNearUserLocationFlag(true);
 
-                    // ensure that there is at least one nearby offer in the list
-                    if (nearbyOffers.length > 0) {
-                        // increase page number
-                        setNearbyOffersPageNumber(nearbyOffersPageNumber + 1);
-
-                        // push any old offers into the list to return
-                        setNearbyOfferList(nearbyOfferList.concat(nearbyOffers));
-
-                        // set the nearby user location flag
-                        setOffersNearUserLocationFlag(true);
-
-                        // set the user geolocation information
-                        setUserLatitude(geoLocation.latitude);
-                        setUserLongitude(geoLocation.longitude);
-                    } else {
-                        console.log(`No offers near user's home location to display ${JSON.stringify(nearbyOffersResult)}`);
-                    }
+                /**
+                 * get the first location point in the array of geolocation returned (based on the user's address since
+                 * that was what we used when we cached these offers)
+                 */
+                const geoLocationArray = await Location.geocodeAsync(userInformation["address"]["formatted"]);
+                const geoLocation = geoLocationArray && geoLocationArray.length !== 0 ? geoLocationArray[0] : null;
+                if (!geoLocation) {
+                    console.log(`Unable to retrieve user's home location's geolocation ${address}`);
+                    setAreNearbyOffersReady(true);
+                    setNearbyOffersSpinnerShown(false);
                 } else {
-                    console.log(`Unexpected error while retrieving offers near user's home location ${JSON.stringify(nearbyOffersResult)}`);
-                    setModalVisible(true);
+                    // set the user geolocation information
+                    setUserLatitude(geoLocation.latitude);
+                    setUserLongitude(geoLocation.longitude);
+                    setAreNearbyOffersReady(true);
+                    setNearbyOffersSpinnerShown(false);
+                }
+            } else {
+                console.log('offers near user home are not cached, or page number is not 1');
+                // first retrieve the necessary geolocation information based on the user's home address
+                const geoLocationArray = await Location.geocodeAsync(address);
+                /**
+                 * get the first location point in the array of geolocation returned
+                 */
+                const geoLocation = geoLocationArray && geoLocationArray.length !== 0 ? geoLocationArray[0] : null;
+                if (!geoLocation) {
+                    console.log(`Unable to retrieve user's home location's geolocation ${address}`);
+                    setAreNearbyOffersReady(true);
+                    setNearbyOffersSpinnerShown(false);
+                } else {
+                    // call the getOffers API
+                    const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
+                        getOffersInput: {
+                            availability: OfferAvailability.Global,
+                            countryCode: CountryCode.Us,
+                            filterType: OfferFilter.Nearby,
+                            offerStates: [OfferState.Active, OfferState.Scheduled],
+                            pageNumber: nearbyOffersPageNumber,
+                            pageSize: 7, // load 7 nearby offers at a time
+                            radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
+                            radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
+                            radiusLatitude: geoLocation.latitude,
+                            radiusLongitude: geoLocation.longitude,
+                            redemptionType: RedemptionType.Cardlinked
+                        }
+                    }));
+
+                    // retrieve the data block from the response
+                    // @ts-ignore
+                    const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
+
+                    // check if there are any errors in the returned response
+                    if (responseData && responseData.getOffers.errorMessage === null) {
+                        // retrieve the array of nearby offers from the API call
+                        const nearbyOffers: Offer[] = responseData.getOffers.data.offers;
+
+                        // ensure that there is at least one nearby offer in the list
+                        if (nearbyOffers.length > 0) {
+                            // if the page number is 1, then cache the first page of offers near user home
+                            nearbyOffersPageNumber === 1 && marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-offerNearUserHome`, nearbyOffers);
+
+                            // increase page number
+                            setNearbyOffersPageNumber(nearbyOffersPageNumber + 1);
+
+                            // push any old offers into the list to return
+                            setNearbyOfferList(nearbyOfferList.concat(nearbyOffers));
+
+                            // set the nearby user location flag
+                            setOffersNearUserLocationFlag(true);
+
+                            // set the user geolocation information
+                            setUserLatitude(geoLocation.latitude);
+                            setUserLongitude(geoLocation.longitude);
+
+                            setAreNearbyOffersReady(true);
+                            setNearbyOffersSpinnerShown(false);
+                        } else {
+                            console.log(`No offers near user's home location to display ${JSON.stringify(nearbyOffersResult)}`);
+                            setAreNearbyOffersReady(true);
+                            setNearbyOffersSpinnerShown(false);
+                        }
+                    } else {
+                        console.log(`Unexpected error while retrieving offers near user's home location ${JSON.stringify(nearbyOffersResult)}`);
+                        setModalVisible(true);
+                        setAreNearbyOffersReady(true);
+                        setNearbyOffersSpinnerShown(false);
+                    }
                 }
             }
+
         } catch (error) {
             console.log(`Unexpected error while attempting to retrieve offers near user's home location ${JSON.stringify(error)} ${error}`);
             setModalVisible(true);
+            setAreNearbyOffersReady(true);
+            setNearbyOffersSpinnerShown(false);
         }
     }
 
@@ -447,6 +519,9 @@ export const Store = ({navigation}: StoreProps) => {
      */
     const retrieveNearbyOffersList = async (): Promise<void> => {
         try {
+            setAreNearbyOffersReady(false);
+            setNearbyOffersSpinnerShown(true);
+
             // first retrieve the necessary permissions for location purposes
             const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
             // const backgroundPermissionStatus = await Location.requestBackgroundPermissionsAsync(); || backgroundPermissionStatus.status !== 'granted'
@@ -493,6 +568,9 @@ export const Store = ({navigation}: StoreProps) => {
                             // set the user geolocation information
                             setUserLatitude(currentUserLocation.coords.latitude);
                             setUserLongitude(currentUserLocation.coords.longitude);
+
+                            setAreNearbyOffersReady(true);
+                            setNearbyOffersSpinnerShown(false);
                         } else {
                             console.log(`No nearby offers to display ${JSON.stringify(nearbyOffersResult)}`);
                             // fallback to offers near their home address
@@ -501,10 +579,14 @@ export const Store = ({navigation}: StoreProps) => {
                     } else {
                         console.log(`Unexpected error while retrieving nearby offers ${JSON.stringify(nearbyOffersResult)}`);
                         setModalVisible(true);
+                        setAreNearbyOffersReady(true);
+                        setNearbyOffersSpinnerShown(false);
                     }
                 } else {
                     console.log(`Unable to retrieve the current user's location coordinates!`);
                     setModalVisible(true);
+                    setAreNearbyOffersReady(true);
+                    setNearbyOffersSpinnerShown(false);
                 }
             }
         } catch (error) {
@@ -513,6 +595,8 @@ export const Store = ({navigation}: StoreProps) => {
             // @ts-ignore
             if (!error.code || error.code !== 'ERR_LOCATION_INFO_PLIST') {
                 setModalVisible(true);
+                setAreNearbyOffersReady(true);
+                setNearbyOffersSpinnerShown(false);
             } else {
                 // fallback to offers near their home address
                 userInformation["address"] && userInformation["address"]["formatted"] && await retrieveOffersNearLocation(userInformation["address"]["formatted"]);
@@ -529,12 +613,12 @@ export const Store = ({navigation}: StoreProps) => {
     const populateNearbyOffers = (): React.ReactNode | React.ReactNode[] => {
         let results: React.ReactNode[] = [];
         let nearbyOffersNumber = 0;
-        if (nearbyOfferList.length !== 0) {
+        if (areNearbyOffersReady && nearbyOfferList.length !== 0) {
             for (const nearbyOffer of nearbyOfferList) {
                 // get the physical location of this offer
                 let physicalLocation: string = '';
                 nearbyOffer.storeDetails!.forEach(store => {
-                     physicalLocation = store!.isOnline === false ? store!.address1! : '';
+                    physicalLocation = store!.isOnline === false ? store!.address1! : '';
                 });
 
                 // only get the true nearby offers (since this is an Olive bug
@@ -583,7 +667,10 @@ export const Store = ({navigation}: StoreProps) => {
                                                             imageProps={{
                                                                 resizeMode: 'contain'
                                                             }}
-                                                            source={{uri: nearbyOffer.brandLogoSm!, cache: 'force-cache'}}
+                                                            source={{
+                                                                uri: nearbyOffer.brandLogoSm!,
+                                                                cache: 'force-cache'
+                                                            }}
                                                         />
                                                     </View>
                                                 </View>
@@ -639,7 +726,10 @@ export const Store = ({navigation}: StoreProps) => {
                                                             imageProps={{
                                                                 resizeMode: 'contain'
                                                             }}
-                                                            source={{uri: nearbyOffer.brandLogoSm!, cache: 'force-cache'}}
+                                                            source={{
+                                                                uri: nearbyOffer.brandLogoSm!,
+                                                                cache: 'force-cache'
+                                                            }}
                                                         />
                                                     </View>
                                                 </View>
@@ -760,7 +850,10 @@ export const Store = ({navigation}: StoreProps) => {
                                         resizeMode: 'stretch'
                                     }}
                                     size={60}
-                                    source={{uri: offer!.brandLogoSm!, cache: !shouldCacheImages ? 'reload': 'force-cache'}}
+                                    source={{
+                                        uri: offer!.brandLogoSm!,
+                                        cache: !shouldCacheImages ? 'reload' : 'force-cache'
+                                    }}
                                 />}
                             right={() => <List.Icon color={'#F2FF5D'}
                                                     icon="chevron-right"/>}
@@ -810,7 +903,10 @@ export const Store = ({navigation}: StoreProps) => {
                                                     resizeMode: 'stretch'
                                                 }}
                                                 size={60}
-                                                source={{uri: verticalOffer.brandLogoSm!, cache: !shouldCacheImages ? 'reload': 'force-cache'}}
+                                                source={{
+                                                    uri: verticalOffer.brandLogoSm!,
+                                                    cache: !shouldCacheImages ? 'reload' : 'force-cache'
+                                                }}
                                             />}
                                         right={() => <List.Icon color={'#F2FF5D'}
                                                                 icon="chevron-right"/>}
@@ -849,7 +945,10 @@ export const Store = ({navigation}: StoreProps) => {
                                                     resizeMode: 'stretch'
                                                 }}
                                                 size={60}
-                                                source={{uri: verticalOffer.brandLogoSm!, cache: !shouldCacheImages ? 'reload': 'force-cache'}}
+                                                source={{
+                                                    uri: verticalOffer.brandLogoSm!,
+                                                    cache: !shouldCacheImages ? 'reload' : 'force-cache'
+                                                }}
                                             />}
                                         right={() => <List.Icon color={'#F2FF5D'}
                                                                 icon="chevron-right"/>}
@@ -1087,13 +1186,33 @@ export const Store = ({navigation}: StoreProps) => {
      */
     useEffect(() => {
         const loadData = async (): Promise<void> => {
-            await retrieveFidelisPartnerList();
-            await retrieveNearbyOffersList();
-            await retrieveOnlineOffersList();
+            // check to see if we have cached Fidelis Partners, Online Offers and offers near user location.
+            // If we do, we don't need to retrieve them again for a week.
+            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-fidelisPartners`) !== null) {
+                console.log('Fidelis Partners are cached');
+                setFidelisPartnerList(await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-fidelisPartners`));
+            } else {
+                console.log('Fidelis Partners are not cached');
+                await retrieveFidelisPartnerList();
+            }
+            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`) !== null) {
+                console.log('online offers are cached');
+                setOnlineOfferList(await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`));
+
+                // we want to increase the page number of online offers, since we already have the first page obtained from cache
+                setOnlineOffersPageNumber(onlineOffersPageNumber + 1);
+            } else {
+                console.log('online offers are not cached');
+                await retrieveOnlineOffersList();
+            }
         }
         fidelisPartnerList.length === 0 && nearbyOfferList.length === 0 && onlineOfferList.length === 0 && loadData().then(_ => {
             // release the loader on button press
             !isReady && setIsReady(true);
+
+            // retrieve the nearby offers list
+            retrieveNearbyOffersList().then(() => {
+            });
         });
 
         // change the filtered list, based on the search query
@@ -1354,7 +1473,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                                 </Text>{`   🎖`}️
                                                             </Text>
                                                             <ScrollView
-                                                                style={[styles.featuredPartnersScrollView, nearbyOfferList.length === 0 && {left: Dimensions.get('window').width / 40}]}
+                                                                style={[styles.featuredPartnersScrollView, nearbyOfferList.length === 0 && areNearbyOffersReady && {left: Dimensions.get('window').width / 40}]}
                                                                 horizontal={true}
                                                                 decelerationRate={"fast"}
                                                                 snapToInterval={Dimensions.get('window').width / 1.15 + Dimensions.get('window').width / 20}
@@ -1371,6 +1490,60 @@ export const Store = ({navigation}: StoreProps) => {
                                                                 }
                                                             </ScrollView>
                                                         </View>
+                                                        {
+                                                            !areNearbyOffersReady &&
+                                                            <>
+                                                                <View style={{height: Dimensions.get('window').height / 100}}/>
+                                                                <View style={styles.nearbyOffersView}>
+                                                                    <View style={styles.nearbyOffersTitleView}>
+                                                                        <View style={styles.nearbyOffersLeftTitleView}>
+                                                                            <Text
+                                                                                style={[styles.nearbyLoadingOffersTitleMain]}>
+                                                                                <Text
+                                                                                    style={styles.nearbyLoadingOffersTitle}>
+                                                                                    {'Retrieving offers near you...'}
+                                                                                </Text>{`   📍️`}
+                                                                            </Text>
+                                                                        </View>
+                                                                    </View>
+                                                                    <ScrollView
+                                                                        style={styles.nearbyOffersScrollView}
+                                                                        horizontal={true}
+                                                                        decelerationRate={"fast"}
+                                                                        snapToInterval={Dimensions.get('window').width / 1.3 + Dimensions.get('window').width / 20}
+                                                                        snapToAlignment={"start"}
+                                                                        scrollEnabled={true}
+                                                                        persistentScrollbar={false}
+                                                                        showsHorizontalScrollIndicator={false}>
+                                                                        {
+                                                                            <>
+                                                                                <Card
+                                                                                    style={styles.nearbyLoadingOfferCard}>
+                                                                                    <Card.Content>
+                                                                                        <View
+                                                                                            style={{flexDirection: 'column'}}>
+                                                                                            <ActivityIndicator
+                                                                                                style={{top: Dimensions.get('window').height/10}}
+                                                                                                animating={nearbyOffersSpinnerShown}
+                                                                                                color={'#F2FF5D'}
+                                                                                                size={Dimensions.get('window').height / 18}
+                                                                                            />
+                                                                                        </View>
+                                                                                        <Avatar
+                                                                                            containerStyle={styles.nearbyLoadingOfferCardCover}
+                                                                                            imageProps={{
+                                                                                                resizeMode: 'contain'
+                                                                                            }}
+                                                                                            source={MoonbeamOffersLoading}
+                                                                                        />
+                                                                                    </Card.Content>
+                                                                                </Card>
+                                                                            </>
+                                                                        }
+                                                                    </ScrollView>
+                                                                </View>
+                                                            </>
+                                                        }
                                                         {nearbyOfferList.length > 0 &&
                                                             <View style={styles.nearbyOffersView}>
                                                                 <View style={styles.nearbyOffersTitleView}>
@@ -1391,7 +1564,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                                     </View>
                                                                     <TouchableOpacity onPress={() => {
                                                                         setToggleViewPressed('vertical');
-
+                                                        
                                                                         // set the search query manually
                                                                         setSearchQuery('sort by: nearby locations');
                                                                     }}>
@@ -1427,7 +1600,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                             </View>
                                                         }
                                                         <View
-                                                            style={[styles.onlineOffersView, nearbyOfferList.length === 0 && {bottom: '40%'}]}>
+                                                            style={[styles.onlineOffersView, nearbyOfferList.length == 0 && areNearbyOffersReady && {bottom: '40%'}]}>
                                                             <View style={styles.onlineOffersTitleView}>
                                                                 <View style={styles.onlineOffersLeftTitleView}>
                                                                     <Text style={styles.onlineOffersTitleMain}>
@@ -1453,7 +1626,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                                     setLoadingSpinnerShown={setOnlineOffersSpinnerShown}
                                                                     fullScreen={false}/>
                                                                 <ScrollView
-                                                                    style={[styles.onlineOffersScrollView, nearbyOfferList.length === 0 && {left: Dimensions.get('window').width / 500}]}
+                                                                    style={[styles.onlineOffersScrollView, nearbyOfferList.length === 0 && areNearbyOffersReady && {left: Dimensions.get('window').width / 500}]}
                                                                     horizontal={true}
                                                                     decelerationRate={"fast"}
                                                                     snapToInterval={Dimensions.get('window').width / 3 * 3}

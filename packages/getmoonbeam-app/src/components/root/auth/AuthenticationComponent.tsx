@@ -19,10 +19,14 @@ import {
     currentUserInformation,
     dutyStatusValueState,
     emailState,
-    enlistingYearState, expoPushTokenState,
-    firstNameState, globalAmplifyCacheState,
-    initialAuthenticationScreen, isReadyRegistrationState,
+    enlistingYearState,
+    expoPushTokenState,
+    firstNameState,
+    globalAmplifyCacheState,
+    initialAuthenticationScreen,
+    isReadyRegistrationState,
     lastNameState,
+    marketplaceAmplifyCacheState,
     militaryBranchValueState,
     phoneNumberState,
     registrationBackButtonShown,
@@ -40,6 +44,7 @@ import {Spinner} from "../../common/Spinner";
 import {DocumentsViewer} from "../../common/DocumentsViewer";
 import * as SMS from "expo-sms";
 import {styles} from "../../../styles/registration.module";
+import {retrieveFidelisPartnerList, retrieveOffersNearLocation, retrieveOnlineOffersList} from "../../../utils/AppSync";
 
 /**
  * Authentication component.
@@ -50,8 +55,10 @@ export const AuthenticationComponent = ({route,}: AuthenticationProps) => {
         // constants used to keep track of local component state
         const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
         // constants used to keep track of shared states
-        const [, setGlobalCache] = useRecoilState(globalAmplifyCacheState);
-        const [isRegistrationReady, ] = useRecoilState(isReadyRegistrationState);
+        const [, setIsReady] = useRecoilState(isReadyRegistrationState);
+        const [marketplaceCache, setMarketplaceCache] = useRecoilState(marketplaceAmplifyCacheState);
+        const [globalCache, setGlobalCache] = useRecoilState(globalAmplifyCacheState);
+        const [isRegistrationReady,] = useRecoilState(isReadyRegistrationState);
         const [, setRegistrationMainError] = useRecoilState(registrationMainErrorState);
         const [stepNumber, setStepNumber] = useRecoilState(registrationStepNumber);
         const [, setAppURL] = useRecoilState(appLinkedURLState);
@@ -94,6 +101,8 @@ export const AuthenticationComponent = ({route,}: AuthenticationProps) => {
         useEffect(() => {
             // set the Cache to the global cache passed in from the App root component
             setGlobalCache(route.params.cache);
+            // set the Marketplace Cache to the marketplace cache passed in from the App root component
+            setMarketplaceCache(route.params.marketplaceCache);
 
             /**
              * set the App URL as well as any state changes accordingly, once the user is authenticated
@@ -168,7 +177,7 @@ export const AuthenticationComponent = ({route,}: AuthenticationProps) => {
                                             icon="help-circle-outline"
                                             iconColor={"#F2FF5D"}
                                             size={Dimensions.get('window').height / 20}
-                                            style={[commonStyles.supportRegistrationButton, !isRegistrationReady && {display: 'none'}]}
+                                            style={[commonStyles.supportRegistrationButton, (!isRegistrationReady || stepNumber === 8 || stepNumber === 5) && {display: 'none'}]}
                                             onPress={async () => {
                                                 // go to the support
                                                 await contactSupport();
@@ -182,7 +191,7 @@ export const AuthenticationComponent = ({route,}: AuthenticationProps) => {
                                                 icon="chevron-left"
                                                 iconColor={"#FFFFFF"}
                                                 size={Dimensions.get('window').height / 30}
-                                                style={commonStyles.backButton}
+                                                style={[commonStyles.backButton, !isRegistrationReady && {display: 'none'}]}
                                                 onPress={() => {
                                                     // clear the registration values
                                                     // step 1
@@ -215,25 +224,70 @@ export const AuthenticationComponent = ({route,}: AuthenticationProps) => {
                                             />)
                                             : (stepNumber === 4 || stepNumber === 7 ?
                                                 <TouchableOpacity
-                                                style={styles.buttonSkip}
-                                                onPress={() => {
-                                                    if (stepNumber === 4) {
-                                                        // skip the current step
-                                                        setStepNumber(stepNumber + 1);
+                                                    style={[styles.buttonSkip, !isRegistrationReady && {display: 'none'}]}
+                                                    onPress={async () => {
+                                                        if (stepNumber === 4) {
+                                                            // skip the current step
+                                                            setStepNumber(stepNumber + 1);
 
-                                                        // clear the registration error
-                                                        setRegistrationMainError(false);
-                                                    } else {
-                                                        // clear the registration error
-                                                        setRegistrationMainError(false);
+                                                            // clear the registration error
+                                                            setRegistrationMainError(false);
+                                                        } else {
+                                                            // clear the registration error
+                                                            setRegistrationMainError(false);
 
-                                                        // go to the dashboard
-                                                        navigation.navigate("AppDrawer", {});
-                                                    }
-                                                }}
-                                            >
-                                                <Text style={styles.buttonSkipText}>Skip</Text>
-                                            </TouchableOpacity> : <></>)
+                                                            setIsReady(false);
+                                                            /**
+                                                             * if everything was successful, then:
+                                                             * - we just cache the list of:
+                                                             *      - Fidelis partners for initial load (for 1 week only)
+                                                             *      - the list of online offers (first page only) for initial load (for 1 week only)
+                                                             *      - the list of offers near user's home address (first page only) for initial load (for 1 week only)
+                                                             * - we just cache an empty profile photo for the user for initial load
+                                                             */
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-fidelisPartners`) !== null) {
+                                                                console.log('old Fidelis Partners are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-fidelisPartners`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, await retrieveFidelisPartnerList());
+                                                            } else {
+                                                                console.log('Fidelis Partners are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, await retrieveFidelisPartnerList());
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`) !== null) {
+                                                                console.log('online offers are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineOffers`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, await retrieveOnlineOffersList());
+                                                            } else {
+                                                                console.log('online offers are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, await retrieveOnlineOffersList());
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-offerNearUserHome`) !== null) {
+                                                                console.log('offers near user home are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-offerNearUserHome`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-offerNearUserHome`,
+                                                                    await retrieveOffersNearLocation(userInformation["address"]["formatted"]));
+                                                            } else {
+                                                                console.log('offers near user home are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-offerNearUserHome`,
+                                                                    await retrieveOffersNearLocation(userInformation["address"]["formatted"]));
+                                                            }
+                                                            if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
+                                                                console.log('old profile picture is cached, needs cleaning up');
+                                                                await globalCache!.removeItem(`${userInformation["custom:userId"]}-profilePictureURI`);
+                                                                await globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, "");
+                                                            } else {
+                                                                console.log('profile picture is not cached');
+                                                                globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, "");
+                                                            }
+                                                            setIsReady(true);
+
+                                                            // go to the dashboard
+                                                            navigation.navigate("AppDrawer", {});
+                                                        }
+                                                    }}
+                                                >
+                                                    <Text style={styles.buttonSkipText}>Skip</Text>
+                                                </TouchableOpacity> : <></>)
                                     }
                                 })
                             }}

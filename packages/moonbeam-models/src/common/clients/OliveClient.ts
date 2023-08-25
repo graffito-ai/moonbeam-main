@@ -629,12 +629,11 @@ export class OliveClient extends BaseAPIClient {
                  * if we reached this, then we assume that a 2xx response code was returned.
                  * check the contents of the response, and act appropriately.
                  */
-                if (brandDetailsResponse.data !== undefined && brandDetailsResponse.data["dba"] !== undefined &&
-                    brandDetailsResponse.data["logoUrl"] !== undefined && brandDetailsResponse.data["website"] !== undefined) {
+                if (brandDetailsResponse.data !== undefined && brandDetailsResponse.data["dba"] !== undefined && brandDetailsResponse.data["logoUrl"] !== undefined) {
                     // set the brand details for the transaction object, from the response
                     transaction.transactionBrandName = brandDetailsResponse.data["dba"];
                     transaction.transactionBrandLogoUrl = brandDetailsResponse.data["logoUrl"];
-                    transaction.transactionBrandURLAddress = brandDetailsResponse.data["website"];
+                    transaction.transactionBrandURLAddress = brandDetailsResponse.data["website"] !== undefined ? brandDetailsResponse.data["website"] : 'Not Available';
                     return {
                         data: transaction
                     }

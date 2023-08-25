@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {Dimensions, SafeAreaView, StyleSheet} from "react-native";
 import WebView from "react-native-webview";
 import {useRecoilState} from "recoil";
-import {currentUserInformation} from "../../../../../recoil/AuthAtom";
+import {currentUserInformation, globalAmplifyCacheState} from "../../../../../recoil/AuthAtom";
 import {Dialog, Portal, Text} from "react-native-paper";
 import {commonStyles} from '../../../../../styles/common.module';
 import {styles} from '../../../../../styles/wallet.module';
@@ -28,6 +28,7 @@ export const CardLinkingBottomSheet = () => {
     const [modalCustomMessage, setModalCustomMessage] = useState<string>("");
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
+    const [globalCache,] = useRecoilState(globalAmplifyCacheState);
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
     const [, setBannerShown] = useRecoilState(customBannerShown);
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
@@ -151,6 +152,19 @@ export const CardLinkingBottomSheet = () => {
                         // set the banner and card linking status accordingly
                         setCardLinkingStatus(true);
                         setBannerShown(false);
+
+                        // if the card was successfully linked, then we can cache it accordingly
+                        if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCardFlag`) !== null) {
+                            console.log('old card is cached, needs cleaning up');
+                            await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCard`);
+                            await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCardFlag`);
+                            await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, addCardResult);
+                            await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
+                        } else {
+                            console.log('card is not cached');
+                            globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, addCardResult);
+                            globalCache && await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
+                        }
 
                         // update the user information object accordingly
                         setUserInformation({

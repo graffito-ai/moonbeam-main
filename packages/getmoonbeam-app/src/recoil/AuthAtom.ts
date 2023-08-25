@@ -13,7 +13,6 @@ const authRegistrationNavigation = atom<NativeStackNavigationProp<Authentication
     default: null
 });
 
-
 /**
  * Atom used to keep track of the expo push token for a
  * particular/curren user's device.
@@ -475,10 +474,20 @@ const globalAmplifyCacheState = atom<typeof Cache | null>({
 });
 
 /**
+ * Atom used to keep track of the marketplace Amplify cache to be used throughout
+ * the app.
+ */
+const marketplaceAmplifyCacheState = atom<typeof Cache | null>({
+    key: "marketplaceAmplifyCacheState",
+    default: null
+});
+
+/**
  * Export all atoms and/or selectors
  */
 export {
     globalAmplifyCacheState,
+    marketplaceAmplifyCacheState,
     isPhotoUploadedState,
     isDocumentUploadedState,
     isReadyRegistrationState,

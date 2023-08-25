@@ -30,11 +30,13 @@ import {
     emailErrorsState,
     emailState,
     enlistingYearErrorsState,
-    enlistingYearState, expoPushTokenState,
+    enlistingYearState,
+    expoPushTokenState,
     firstNameErrorsState,
-    firstNameState, isReadyRegistrationState,
+    firstNameState, globalAmplifyCacheState,
+    isReadyRegistrationState,
     lastNameErrorsState,
-    lastNameState,
+    lastNameState, marketplaceAmplifyCacheState,
     militaryBranchErrorsState,
     militaryBranchValueState,
     militaryRegistrationDisclaimerCheckState,
@@ -87,7 +89,12 @@ import {CardLinkingStep} from "./CardLinkingStep";
 import CardLinkedSuccessImage from '../../../../../assets/art/card-linked-success.png';
 // @ts-ignore
 import RegistrationBackgroundImage from '../../../../../assets/backgrounds/registration-background.png';
-import {createPhysicalDevice, proceedWithDeviceCreation, sendNotification} from "../../../../utils/AppSync";
+import {
+    createPhysicalDevice,
+    proceedWithDeviceCreation,
+    retrieveFidelisPartnerList, retrieveOffersNearLocation, retrieveOnlineOffersList,
+    sendNotification
+} from "../../../../utils/AppSync";
 import * as ImagePicker from "expo-image-picker";
 
 /**
@@ -100,6 +107,8 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     // constants used to keep track of local component state
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
+    const [marketplaceCache, ] = useRecoilState(marketplaceAmplifyCacheState);
+    const [globalCache, ] = useRecoilState(globalAmplifyCacheState);
     const [isReady, setIsReady] = useRecoilState(isReadyRegistrationState);
     const [, setNavigation] = useRecoilState(authRegistrationNavigation);
     const [, setAmplifySignUpErrors] = useRecoilState(amplifySignUpProcessErrorsState);
@@ -847,6 +856,19 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                         // check if the military status retrieval was successful
                                                         if (verificationFlag) {
                                                             setRegistrationMainError(false);
+
+                                                            // if the verification status is verified, then we can cache it accordingly
+                                                            if (verificationStatus === MilitaryVerificationStatusType.Verified) {
+                                                                if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-militaryStatus`) !== null) {
+                                                                    console.log('old military status is cached, needs cleaning up');
+                                                                    await globalCache!.removeItem(`${userInformation["custom:userId"]}-militaryStatus`);
+                                                                    await globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, MilitaryVerificationStatusType.Verified);
+                                                                } else {
+                                                                    console.log('military status is not cached');
+                                                                    globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, MilitaryVerificationStatusType.Verified);
+                                                                }
+                                                            }
+
                                                             /**
                                                              * even if this was successful, at first pass do not allow going to the next step if it is VERIFIED
                                                              * since we want to display the successful status screen
@@ -882,6 +904,51 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                      */
                                                     break;
                                                 case 8:
+                                                    setIsReady(false);
+                                                    /**
+                                                     * if everything was successful, then:
+                                                     * - we just cache the list of:
+                                                     *      - Fidelis partners for initial load (for 1 week only)
+                                                     *      - the list of online offers (first page only) for initial load (for 1 week only)
+                                                     *      - the list of offers near user's home address (first page only) for initial load (for 1 week only)
+                                                     * - we just cache an empty profile photo for the user for initial load
+                                                     */
+                                                    if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-fidelisPartners`) !== null) {
+                                                        console.log('old Fidelis Partners are cached, needs cleaning up');
+                                                        await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-fidelisPartners`);
+                                                        await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, await retrieveFidelisPartnerList());
+                                                    } else {
+                                                        console.log('Fidelis Partners are not cached');
+                                                        marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, await retrieveFidelisPartnerList());
+                                                    }
+                                                    if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`) !== null) {
+                                                        console.log('online offers are cached, needs cleaning up');
+                                                        await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineOffers`);
+                                                        await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, await retrieveOnlineOffersList());
+                                                    } else {
+                                                        console.log('online offers are not cached');
+                                                        marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, await retrieveOnlineOffersList());
+                                                    }
+                                                    if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-offerNearUserHome`) !== null) {
+                                                        console.log('offers near user home are cached, needs cleaning up');
+                                                        await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-offerNearUserHome`);
+                                                        await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-offerNearUserHome`,
+                                                            await retrieveOffersNearLocation(userInformation["address"]["formatted"]));
+                                                    } else {
+                                                        console.log('offers near user home are not cached');
+                                                        marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-offerNearUserHome`,
+                                                            await retrieveOffersNearLocation(userInformation["address"]["formatted"]));
+                                                    }
+                                                    if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
+                                                        console.log('old profile picture is cached, needs cleaning up');
+                                                        await globalCache!.removeItem(`${userInformation["custom:userId"]}-profilePictureURI`);
+                                                        await globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, "");
+                                                    } else {
+                                                        console.log('profile picture is not cached');
+                                                        globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, "");
+                                                    }
+                                                    setIsReady(true);
+
                                                     /**
                                                      * if we got to this point, then all checks passed, everything worked as expected, so we can just redirect the
                                                      * already logged-in user to the App Drawer.

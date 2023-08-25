@@ -181,7 +181,7 @@ export const createNotification = async (fieldName: string, createNotificationIn
                             const sendMobilePushNotificationResponse: NotificationResponse = await courierClient.sendMobilePushNotification({
                                 expoPushTokens: createNotificationInput.expoPushTokens!,
                                 merchantName: createNotificationInput.merchantName!,
-                                pendingCashback: createNotificationInput.pendingCashback!
+                                pendingCashback: Number(createNotificationInput.pendingCashback!.toFixed(2))
                             });
 
                             // check to see if the mobile push notification was successfully sent or not

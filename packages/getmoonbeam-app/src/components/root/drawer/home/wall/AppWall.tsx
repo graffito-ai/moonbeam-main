@@ -6,7 +6,7 @@ import {styles} from '../../../../../styles/appWall.module';
 import {Dialog, IconButton, Portal, Text} from "react-native-paper";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 import {useRecoilState} from "recoil";
-import {currentUserInformation} from '../../../../../recoil/AuthAtom';
+import {currentUserInformation, globalAmplifyCacheState} from '../../../../../recoil/AuthAtom';
 import {applicationWallSteps} from "../../../../../models/Constants";
 import {
     createMilitaryVerification,
@@ -55,6 +55,7 @@ export const AppWall = ({navigation}: AppWallProps) => {
     const [supportModalButtonMessage, setSupportModalButtonMessage] = useState<string>('');
     const [appWallError, setAppWallError] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [globalCache, ] = useRecoilState(globalAmplifyCacheState);
     const [isReady, setIsReady] = useRecoilState(isReadyAppWallState);
     const [stepNumber, setStepNumber] = useRecoilState(appWallStepNumber);
     const [userInformation,] = useRecoilState(currentUserInformation);
@@ -151,7 +152,6 @@ export const AppWall = ({navigation}: AppWallProps) => {
         }
     }
 
-
     /**
      * Function used to update an individual's eligibility by updating their
      * military verification status through the `createMilitaryVerification` API call.
@@ -217,6 +217,16 @@ export const AppWall = ({navigation}: AppWallProps) => {
 
                         return true;
                     case MilitaryVerificationStatusType.Verified:
+                        // if the verification status is verified, then we can cache it accordingly
+                        if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-militaryStatus`) !== null) {
+                            console.log('old military status is cached, needs cleaning up');
+                            await globalCache!.removeItem(`${userInformation["custom:userId"]}-militaryStatus`);
+                            await globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, MilitaryVerificationStatusType.Verified);
+                        } else {
+                            console.log('military status is not cached');
+                            globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, MilitaryVerificationStatusType.Verified);
+                        }
+
                         // set the military status of the user information object accordingly
                         userInformation["militaryStatus"] = MilitaryVerificationStatusType.Verified;
 

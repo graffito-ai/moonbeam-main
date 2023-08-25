@@ -188,6 +188,18 @@ export const styles = StyleSheet.create({
         left: '10%',
         alignSelf: 'flex-start'
     },
+    nearbyLoadingOffersTitleMain: {
+        fontSize: Dimensions.get('window').height / 45,
+        fontFamily: 'Changa-Medium',
+        left: '6%',
+        alignSelf: 'flex-start'
+    },
+    nearbyLoadingOffersTitle: {
+        fontSize: Dimensions.get('window').height / 45,
+        fontFamily: 'Changa-Medium',
+        alignSelf: 'flex-start',
+        color: '#F2FF5D'
+    },
     nearbyOffersTitle: {
         fontSize: Dimensions.get('window').height / 45,
         fontFamily: 'Changa-Medium',
@@ -310,6 +322,17 @@ export const styles = StyleSheet.create({
         fontSize: Dimensions.get('window').height / 65,
         color: '#FFFFFF'
     },
+    nearbyLoadingOfferCard: {
+        left: '1.5%',
+        backgroundColor: 'transparent',
+        width: Dimensions.get('window').width / 1.3,
+        height: Dimensions.get('window').height / 3.5,
+        shadowColor: 'black',
+        shadowOffset: {width: -2, height: 1},
+        shadowOpacity: 0.6,
+        shadowRadius: 2,
+        elevation: 15
+    },
     nearbyOfferCard: {
         left: '1.5%',
         backgroundColor: '#5B5A5A',
@@ -320,6 +343,13 @@ export const styles = StyleSheet.create({
         shadowOpacity: 0.6,
         shadowRadius: 2,
         elevation: 15
+    },
+    nearbyLoadingOfferCardCover: {
+        alignSelf: 'center',
+        bottom: '27%',
+        left: '17%',
+        width: Dimensions.get('window').width / 1.1,
+        height: Dimensions.get('window').width,
     },
     nearbyOfferCardCover: {
         alignSelf: 'flex-start',

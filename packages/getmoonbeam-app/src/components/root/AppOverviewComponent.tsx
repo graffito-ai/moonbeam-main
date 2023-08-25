@@ -89,6 +89,7 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
                                      */
                                     setAuthScreen('Registration');
                                     navigation.navigate("Authentication", {
+                                        marketplaceCache: route.params.marketplaceCache,
                                         cache: route.params.cache,
                                         expoPushToken: route.params.expoPushToken
                                     });
@@ -107,6 +108,7 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
                                      */
                                     setAuthScreen('SignIn');
                                     navigation.navigate("Authentication", {
+                                        marketplaceCache: route.params.marketplaceCache,
                                         cache: route.params.cache,
                                         expoPushToken: route.params.expoPushToken
                                     });
