@@ -3,7 +3,7 @@ import {StoreOfferDetailsProps} from "../../../../../../models/props/StoreOfferP
 import {Dimensions, ImageBackground, ScrollView, Text, TouchableOpacity, View} from "react-native";
 import {styles} from '../../../../../../styles/storeOfferDetails.module';
 import {useRecoilState} from "recoil";
-import {storeOfferState} from "../../../../../../recoil/StoreOfferAtom";
+import {storeOfferPhysicalLocationState, storeOfferState} from "../../../../../../recoil/StoreOfferAtom";
 import {Avatar} from "@rneui/base";
 import {List} from 'react-native-paper';
 import {FidelisPartner, Offer, RewardType} from "@moonbeam/moonbeam-models";
@@ -22,9 +22,11 @@ import {LinearGradient} from "expo-linear-gradient";
 export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
     // constants used to keep track of local component state
     const [offerIdExpanded, setOfferIdExpanded] = useState<string | null>(null);
+    const [hasOnlineStore, setHasOnlineStore] = useState<boolean>(false);
 
     // constants used to keep track of shared states
     const [storeOfferClicked,] = useRecoilState(storeOfferState);
+    const [storeOfferPhysicalLocation,] = useRecoilState(storeOfferPhysicalLocationState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -34,7 +36,28 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
      * included in here.
      */
     useEffect(() => {
-    }, []);
+        // filter by the type of object clicked/passed in
+        // @ts-ignore
+        if (storeOfferClicked!.numberOfOffers !== undefined) {
+            const retrievedClickedObject = storeOfferClicked as FidelisPartner;
+            // filter through the retrieved offers for the partner, and decide if it has an online offer or not
+            for (const retrievedPartnerOffer of retrievedClickedObject.offers) {
+                retrievedPartnerOffer!.storeDetails && retrievedPartnerOffer!.storeDetails!.length !== 0 && retrievedPartnerOffer!.storeDetails!.forEach(store => {
+                    if (store!.isOnline) {
+                        setHasOnlineStore(true);
+                    }
+                });
+            }
+        } else {
+            const retrievedClickedObject = storeOfferClicked as Offer;
+            // filter through the retrieved offers, and decide whether they are online or not
+            retrievedClickedObject!.storeDetails && retrievedClickedObject!.storeDetails!.length !== 0 && retrievedClickedObject!.storeDetails!.forEach(store => {
+                if (store!.isOnline) {
+                    setHasOnlineStore(true);
+                }
+            });
+        }
+    }, [hasOnlineStore]);
 
     /**
      * Function used to populate the online offers.
@@ -61,17 +84,31 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                         : `Everyday`)
 
                 // build the participating locations object
+                let participatingLocationsNumber = 0;
                 const participatingLocations: React.ReactNode[] = [];
-                let onlineOnlyFlagForLocation = false;
+                let hasOnlineStoreFlag = false;
                 retrievedPartnerOffer!.storeDetails && retrievedPartnerOffer!.storeDetails!.length !== 0 && retrievedPartnerOffer!.storeDetails!.forEach(store => {
-                    if (store!.isOnline && !onlineOnlyFlagForLocation) {
-                        onlineOnlyFlagForLocation = true;
+                    if (store!.isOnline && !hasOnlineStoreFlag) {
+                        hasOnlineStoreFlag = true;
                         participatingLocations.push(<Text>{"• Available Online\n"}</Text>);
                     } else {
-                        participatingLocations.push(
-                            <Text>{`• ${store!.address1}, ${store!.city}, ${store!.state}, ${store!.postCode}\n`}</Text>)
+                        // only consider locations within 25 miles, 50 km, or 50,000 meters within user's location.
+                        if (store!.distance && store!.distance! <= 50000) {
+                            // only display the 5 closest locations
+                            if (participatingLocationsNumber <= 4) {
+                                participatingLocations.push(
+                                    <Text>{`• ${store!.address1}, ${store!.city}, ${store!.state}, ${store!.postCode}\n`}</Text>)
+                            }
+                            participatingLocationsNumber += 1;
+                        }
                     }
                 });
+
+                // also add any additional locations as a number
+                if (participatingLocationsNumber > 4) {
+                    participatingLocations.push(
+                        <Text>{`• And ${6 - participatingLocationsNumber} more locations near you!\n`}</Text>)
+                }
 
                 results.push(
                     <>
@@ -166,17 +203,31 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
             const retrievedClickedObject = storeOfferClicked as Offer;
 
             // build the participating locations object
+            let participatingLocationsNumber = 0;
             const participatingLocations: React.ReactNode[] = [];
-            let onlineOnlyFlagForLocation = false;
+            let hasOnlineStoreFlag = false;
             retrievedClickedObject!.storeDetails && retrievedClickedObject!.storeDetails!.length !== 0 && retrievedClickedObject!.storeDetails!.forEach(store => {
-                if (store!.isOnline && !onlineOnlyFlagForLocation) {
-                    onlineOnlyFlagForLocation = true;
+                if (store!.isOnline && !hasOnlineStoreFlag) {
+                    hasOnlineStoreFlag = true;
                     participatingLocations.push(<Text>{"• Available Online\n"}</Text>);
                 } else {
-                    participatingLocations.push(
-                        <Text>{`• ${store!.address1}, ${store!.city}, ${store!.state}, ${store!.postCode}\n`}</Text>)
+                    // only consider locations within 25 miles, 50 km, or 50,000 meters within user's location.
+                    if (store!.distance && store!.distance! <= 50000) {
+                        // only display the 2 closest locations
+                        if (participatingLocationsNumber <= 1) {
+                            participatingLocations.push(
+                                <Text>{`• ${store!.address1}, ${store!.city}, ${store!.state}, ${store!.postCode}\n`}</Text>)
+                        }
+                        participatingLocationsNumber += 1;
+                    }
                 }
             });
+
+            // also add any additional locations as a number
+            if (participatingLocationsNumber >= 2) {
+                participatingLocations.push(
+                    <Text>{`• And ${participatingLocationsNumber - 2 + 1} more location/s near you!\n`}</Text>)
+            }
 
             results.push(
                 <>
@@ -280,11 +331,26 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                                 // @ts-ignore
                                 source={{uri: storeOfferClicked!.offers[0].brandLogoSm!}}
                             />
-                            {/*@ts-ignore*/}
-                            <Text style={styles.brandTitle}>{storeOfferClicked!.offers[0].brandDba!}</Text>
+                            {
+                                !hasOnlineStore
+                                    ?
+                                    <Text style={styles.brandTitle}>{
+                                        // @ts-ignore
+                                        storeOfferClicked!.offers[0].brandDba!
+                                    }
+                                        <Text style={styles.brandTitleAddress}>
+                                            {`\n${storeOfferPhysicalLocation}`}
+                                        </Text>
+                                    </Text>
+                                    :
+                                    <Text style={styles.brandTitle}>{
+                                        // @ts-ignore
+                                        `${storeOfferClicked!.offers[0].brandDba!}`
+                                    }</Text>
+                            }
                         </View>
                         <ImageBackground
-                            style={[commonStyles.image, {top: Dimensions.get('window').height/10}]}
+                            style={[commonStyles.image, {top: Dimensions.get('window').height / 10}]}
                             imageStyle={{
                                 resizeMode: 'stretch'
                             }}
@@ -296,25 +362,26 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                                 keyboardShouldPersistTaps={'handled'}
                             >
                                 {/*@ts-ignore*/}
-                                <View style={[{height: storeOfferClicked!.numberOfOffers! === 2 ? Dimensions.get('window').height * 1.1 : (storeOfferClicked!.numberOfOffers! !== 1 ? Dimensions.get('window').height*1.12: Dimensions.get('window').height / 1.1)}, offerIdExpanded === null && {height: Dimensions.get('window').height/4}]}>
+                                <View style={[{height: storeOfferClicked!.numberOfOffers! === 2 ? Dimensions.get('window').height * 1.1 : (storeOfferClicked!.numberOfOffers! !== 1 ? Dimensions.get('window').height * 1.12 : Dimensions.get('window').height / 1.1)}, offerIdExpanded === null && {height: Dimensions.get('window').height / 4}]}>
                                     <List.Section style={styles.offerListView}>
                                         {
                                             populateOffersList()
                                         }
                                     </List.Section>
                                     {/*@ts-ignore*/}
-                                    <View style={{top: offerIdExpanded === null ? (storeOfferClicked!.numberOfOffers! === 2 ? Dimensions.get('window').height / 5.2 : (storeOfferClicked!.numberOfOffers! !== 1 ? Dimensions.get('window').height / 7.2: Dimensions.get('window').height / 3)): (storeOfferClicked!.numberOfOffers! === 2 ? Dimensions.get('window').height / 6.2 : (storeOfferClicked!.numberOfOffers! !== 1 ? Dimensions.get('window').height / 15: Dimensions.get('window').height / 25)), alignSelf: 'center'
-                                    }}>
-                                        <TouchableOpacity
-                                            style={styles.onlineShoppingButton}
-                                            onPress={async () => {
-                                                // go to the offer's web view
-                                                navigation.navigate('StoreOfferWebView', {});
-                                            }}
-                                        >
-                                            {/*@ts-ignore*/}
-                                            <Text style={styles.onlineShoppingButtonContent}>Shop at {storeOfferClicked!.offers[0].brandDba!}</Text>
-                                        </TouchableOpacity>
+                                    <View style={{top: offerIdExpanded === null ? (storeOfferClicked!.numberOfOffers! === 2 ? Dimensions.get('window').height / 5.2 : (storeOfferClicked!.numberOfOffers! !== 1 ? Dimensions.get('window').height / 7.2 : Dimensions.get('window').height / 3)) : (storeOfferClicked!.numberOfOffers! === 2 ? Dimensions.get('window').height / 6.2 : (storeOfferClicked!.numberOfOffers! !== 1 ? Dimensions.get('window').height / 15 : Dimensions.get('window').height / 25)), alignSelf: 'center'}}>
+                                        {hasOnlineStore &&
+                                            <TouchableOpacity
+                                                style={styles.onlineShoppingButton}
+                                                onPress={async () => {
+                                                    // go to the offer's web view
+                                                    navigation.navigate('StoreOfferWebView', {});
+                                                }}
+                                            >
+                                                {/*@ts-ignore*/}
+                                                <Text style={styles.onlineShoppingButtonContent}>Shop Online</Text>
+                                            </TouchableOpacity>
+                                        }
                                         <Text style={styles.footerTitle}>Moonbeam Exclusive</Text>
                                         <Text style={styles.footerDescription}>Offers and/or loyalty programs may
                                             change, and are subject to using your Linked Card at checkout (online and/or
@@ -336,11 +403,26 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                                 // @ts-ignore
                                 source={{uri: storeOfferClicked!.brandLogoSm!}}
                             />
-                            {/*@ts-ignore*/}
-                            <Text style={styles.brandTitle}>{storeOfferClicked!.brandDba!}</Text>
+                            {
+                                !hasOnlineStore
+                                    ?
+                                <Text style={styles.brandTitle}>{
+                                    // @ts-ignore
+                                    storeOfferClicked!.brandDba!
+                                }
+                                    <Text style={styles.brandTitleAddress}>
+                                        {`\n${storeOfferPhysicalLocation}`}
+                                    </Text>
+                                </Text>
+                                    :
+                                <Text style={styles.brandTitle}>{
+                                    // @ts-ignore
+                                    `${storeOfferClicked!.brandDba!}`
+                                }</Text>
+                            }
                         </View>
                         <ImageBackground
-                            style={[commonStyles.image, {top: Dimensions.get('window').height/10}]}
+                            style={[commonStyles.image, {top: Dimensions.get('window').height / 10}]}
                             imageStyle={{
                                 resizeMode: 'stretch'
                             }}
@@ -352,7 +434,7 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                                 keyboardShouldPersistTaps={'handled'}
                             >
                                 {/*@ts-ignore*/}
-                                <View style={[{height: storeOfferClicked!.qualifier! && storeOfferClicked.qualifier!.length > 200 ? Dimensions.get('window').height * 1.2 : Dimensions.get('window').height / 1.1}, offerIdExpanded === null && {height: Dimensions.get('window').height/4}]}>
+                                <View style={[{height: storeOfferClicked!.qualifier! && storeOfferClicked.qualifier!.length > 200 ? Dimensions.get('window').height * 1.2 : Dimensions.get('window').height / 1.1}, offerIdExpanded === null && {height: Dimensions.get('window').height / 4}]}>
                                     <List.Section style={styles.offerListView}>
                                         {
                                             populateOffersList()
@@ -363,20 +445,22 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                                             ? Dimensions.get('window').height / 3
                                             : Dimensions.get('window').height / 20, alignSelf: 'center'
                                     }}>
-                                        <TouchableOpacity
-                                            style={styles.onlineShoppingButton}
-                                            onPress={async () => {
-                                                // go to the offer's web view
-                                                navigation.navigate('StoreOfferWebView', {});
-                                            }}
-                                        >
-                                            {/*@ts-ignore*/}
-                                            <Text style={styles.onlineShoppingButtonContent}>Shop at {storeOfferClicked!.brandDba!}</Text>
-                                        </TouchableOpacity>
+                                        {hasOnlineStore &&
+                                            <TouchableOpacity
+                                                style={styles.onlineShoppingButton}
+                                                onPress={async () => {
+                                                    // go to the offer's web view
+                                                    navigation.navigate('StoreOfferWebView', {});
+                                                }}
+                                            >
+                                                {/*@ts-ignore*/}
+                                                <Text style={styles.onlineShoppingButtonContent}>Shop Online</Text>
+                                            </TouchableOpacity>
+                                        }
                                         <Text style={styles.footerTitle}>Moonbeam Exclusive</Text>
-                                        <Text style={styles.footerDescription}>Offers and/or loyalty programs may
-                                            change, and are subject to using your Linked Card at checkout (online and/or
-                                            at physical merchant locations).</Text>
+                                        <Text style={styles.footerDescription}>Offers and loyalty programs may
+                                            change, and are subject to using your Linked Card at checkout (online or
+                                            in-person).</Text>
                                     </View>
                                 </View>
                             </ScrollView>

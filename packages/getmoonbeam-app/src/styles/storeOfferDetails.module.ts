@@ -24,10 +24,19 @@ export const styles = StyleSheet.create({
         top: Dimensions.get('window').height/100,
         alignSelf: 'center',
         fontFamily: 'Saira-SemiBold',
-        fontSize: Dimensions.get('window').width / 18,
-        width: Dimensions.get('window').width / 1.5,
+        fontSize: Dimensions.get('window').width / 20,
+        width: Dimensions.get('window').width / 1.1,
         textAlign: 'center',
         color: '#FFFFFF'
+    },
+    brandTitleAddress: {
+        top: Dimensions.get('window').height/100,
+        alignSelf: 'center',
+        fontFamily: 'Saira-Regular',
+        fontSize: Dimensions.get('window').width / 25,
+        width: Dimensions.get('window').width / 1.1,
+        textAlign: 'center',
+        color: '#F2FF5D'
     },
     offerAccordionStyle: {
         backgroundColor: '#1c1a1f',
@@ -116,7 +125,7 @@ export const styles = StyleSheet.create({
         alignSelf: 'center',
         fontFamily: 'Raleway-Medium',
         fontSize: Dimensions.get('window').width / 30,
-        width: Dimensions.get('window').width / 1.5,
+        width: Dimensions.get('window').width / 1.1,
         textAlign: 'center',
         color: '#FFFFFF'
     },

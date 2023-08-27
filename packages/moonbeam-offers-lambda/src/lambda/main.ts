@@ -1,5 +1,5 @@
 import {FidelisPartnerResponse, GetOffersInput, OffersErrorType, OffersResponse} from "@moonbeam/moonbeam-models";
-import { getFidelisPartners } from "./resolvers/GetFidelistPartnersResolver";
+import { getFidelisPartners } from "./resolvers/GetFidelisPartnersResolver";
 import { getOffers } from "./resolvers/GetOffersResolver";
 
 /**

@@ -36,7 +36,7 @@ import {
 import {API, graphqlOperation} from "aws-amplify";
 import {currentUserInformation, marketplaceAmplifyCacheState} from "../../../../../recoil/AuthAtom";
 import {useRecoilState} from "recoil";
-import {storeOfferState} from "../../../../../recoil/StoreOfferAtom";
+import {storeOfferPhysicalLocationState, storeOfferState} from "../../../../../recoil/StoreOfferAtom";
 import {dynamicSort} from '../../../../../utils/Main';
 // @ts-ignore
 import MoonbeamOffersLoading from '../../../../../../assets/art/moonbeam-offers-loading.png';
@@ -63,6 +63,7 @@ export const Store = ({navigation}: StoreProps) => {
     const [nearbyOfferList, setNearbyOfferList] = useState<Offer[]>([]);
     const [onlineOfferList, setOnlineOfferList] = useState<Offer[]>([]);
     const [fidelisPartnerList, setFidelisPartnerList] = useState<FidelisPartner[]>([]);
+    const [filteredFidelisList, setFilteredFidelisList] = useState<FidelisPartner[]>([]);
     const [filteredOfferList, setFilteredOfferList] = useState<Offer[]>([]);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [nearbyOffersPageNumber, setNearbyOffersPageNumber] = useState<number>(1);
@@ -74,6 +75,7 @@ export const Store = ({navigation}: StoreProps) => {
     const [marketplaceCache,] = useRecoilState(marketplaceAmplifyCacheState);
     const [userInformation,] = useRecoilState(currentUserInformation);
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
+    const [, setStoreOfferPhysicalLocation] = useRecoilState(storeOfferPhysicalLocationState);
 
     /**
      * Function used to retrieve the list of preferred (Fidelis) partners
@@ -613,12 +615,30 @@ export const Store = ({navigation}: StoreProps) => {
     const populateNearbyOffers = (): React.ReactNode | React.ReactNode[] => {
         let results: React.ReactNode[] = [];
         let nearbyOffersNumber = 0;
-        if (areNearbyOffersReady && nearbyOfferList.length !== 0) {
+        if (nearbyOfferList.length !== 0) {
             for (const nearbyOffer of nearbyOfferList) {
                 // get the physical location of this offer
                 let physicalLocation: string = '';
                 nearbyOffer.storeDetails!.forEach(store => {
-                    physicalLocation = store!.isOnline === false ? store!.address1! : '';
+                    /**
+                     * there are many possible stores with physical locations.
+                     * We want to get the one closest (within 25 miles from the user,
+                     * which is equivalent to approximately 50 km, which is 50000 meters)
+                     */
+                    if (physicalLocation === '' && store!.isOnline === false && store!.distance && store!.distance! <= 50000) {
+                        // Olive needs to get better at displaying the address. For now, we will do this input sanitization
+                        if (store!.address1 && store!.address1!.length !== 0 && store!.city && store!.city!.length !== 0 &&
+                            store!.state && store!.state!.length !== 0 && store!.postCode && store!.postCode!.length !== 0) {
+                            physicalLocation =
+                                (store!.address1!.toLowerCase().includes(store!.city!.toLowerCase())
+                                    && store!.address1!.toLowerCase().includes(store!.state!.toLowerCase())
+                                    && store!.address1!.toLowerCase().includes(store!.postCode!.toLowerCase()))
+                                    ? store!.address1!
+                                    : `${store!.address1!}, ${store!.city!}, ${store!.state!}, ${store!.postCode!}`;
+                        } else {
+                            physicalLocation = store!.address1!;
+                        }
+                    }
                 });
 
                 // only get the true nearby offers (since this is an Olive bug
@@ -651,6 +671,10 @@ export const Store = ({navigation}: StoreProps) => {
                                                             onPress={() => {
                                                                 // set the clicked offer/partner accordingly
                                                                 setStoreOfferClicked(nearbyOffer);
+
+                                                                // set the clicked offer physical location
+                                                                setStoreOfferPhysicalLocation(physicalLocation);
+
                                                                 navigation.navigate('StoreOffer', {})
                                                             }}
                                                             style={[styles.nearbyOfferCardActionButton]}
@@ -805,7 +829,65 @@ export const Store = ({navigation}: StoreProps) => {
         // check which offer arrays to observe (filtered or all the other ones)
         const offerList: Offer[] = filtered ? filteredOfferList : nearbyOfferList.concat(onlineOfferList);
 
-        // fidelis partner listing
+        // fidelis partner listing - filtered
+        if (filtered && filteredFidelisList.length !== 0) {
+            for (const fidelisPartner of filteredFidelisList) {
+                // retrieve appropriate offer for partner (everyday)
+                let offer: Offer | null = null;
+                for (const matchedOffer of fidelisPartner.offers) {
+                    if (matchedOffer!.title!.includes("Military Discount")) {
+                        offer = matchedOffer!;
+                        break;
+                    }
+                }
+                offer && results.push(
+                    <>
+                        <List.Item
+                            onPress={() => {
+                                // set the clicked offer/partner accordingly
+                                setStoreOfferClicked(fidelisPartner);
+                                navigation.navigate('StoreOffer', {});
+                            }}
+                            style={{marginLeft: '3%'}}
+                            titleStyle={styles.verticalOfferName}
+                            descriptionStyle={styles.verticalOfferBenefits}
+                            titleNumberOfLines={1}
+                            descriptionNumberOfLines={1}
+                            title={fidelisPartner.brandName}
+                            description={
+                                <>
+                                    {"Starting at "}
+                                    <Text style={styles.verticalOfferBenefit}>
+                                        {offer!.reward!.type! === RewardType.RewardPercent
+                                            ? `${offer!.reward!.value}%`
+                                            : `$${offer!.reward!.value}`}
+                                    </Text>
+                                    {" Off "}
+                                </>
+                            }
+                            left={() =>
+                                <Avatar
+                                    containerStyle={{
+                                        marginRight: '5%'
+                                    }}
+                                    imageProps={{
+                                        resizeMode: 'stretch'
+                                    }}
+                                    size={60}
+                                    source={{
+                                        uri: offer!.brandLogoSm!,
+                                        cache: !shouldCacheImages ? 'reload' : 'force-cache'
+                                    }}
+                                />}
+                            right={() => <List.Icon color={'#F2FF5D'}
+                                                    icon="chevron-right"/>}
+                        />
+                    </>
+                )
+            }
+        }
+
+        // fidelis partner listing - not filtered
         if (!filtered && !noFilteredOffersAvailable) {
             for (const fidelisPartner of fidelisPartnerList) {
                 // retrieve appropriate offer for partner (everyday)
@@ -1012,7 +1094,10 @@ export const Store = ({navigation}: StoreProps) => {
                 );
                 verticalOffersNumber += 1;
             }
-        } else {
+        }
+
+        // filtered no offers to be displayed
+        if (filtered && filteredOfferList.length === 0 && filteredFidelisList.length === 0) {
             results.push(
                 <>
                     <List.Item
@@ -1134,9 +1219,7 @@ export const Store = ({navigation}: StoreProps) => {
                 } else {
                     console.log(`No nearby offers to display for brand name ${brandName} ${JSON.stringify(nearbyOffersResult)}`);
 
-                    // set the no filtered offers available flag accordingly
-                    setNoFilteredOffersAvailable(true);
-
+                    // fallback to the online offers retrieval
                     await retrieveOnlineOffersForBrand(brandName);
                 }
             } else {
@@ -1159,17 +1242,33 @@ export const Store = ({navigation}: StoreProps) => {
      */
     const retrieveQueriedOffers = async (query: string): Promise<void> => {
         try {
-            /**
-             * check to see if we have valid latitude and longitude values
-             * then we need to first query for nearby offers for brand.
-             */
-            if (userLatitude !== 1 && userLongitude !== 1) {
-                await retrieveNearbyOffersListForBrand(query);
+            // first we filter the list of Fidelis partners which match
+            const filteredPartner = fidelisPartnerList.filter(fidelisPartner => fidelisPartner.brandName.toLowerCase().includes(query.toLowerCase()));
+
+            // if there are Fidelis partner offers to return, then return those, otherwise fallback to search for more
+            if (filteredPartner.length !== 0) {
+                setFilteredOfferList([]);
+                // push the filtered fidelis partner into the list to return
+                filteredPartner.forEach(partner => {
+                    setFilteredFidelisList([partner!]);
+                });
+
+                // set the no filtered offers available flag accordingly
+                setNoFilteredOffersAvailable(false);
             } else {
+                setFilteredFidelisList([]);
                 /**
-                 * we will look up online offers for brand.
+                 * check to see if we have valid latitude and longitude values
+                 * then we need to first query for nearby offers for brand.
                  */
-                await retrieveOnlineOffersForBrand(query);
+                if (userLatitude !== 1 && userLongitude !== 1) {
+                    await retrieveNearbyOffersListForBrand(query);
+                } else {
+                    /**
+                     * we will look up online offers for brand.
+                     */
+                    await retrieveOnlineOffersForBrand(query);
+                }
             }
         } catch (error) {
             console.log(`Unexpected error while attempting to retrieve queried offers ${JSON.stringify(error)} ${error}`);
@@ -1304,6 +1403,7 @@ export const Store = ({navigation}: StoreProps) => {
                                             // clear the filtered list and set appropriate flags
                                             if (value === 'horizontal' && filteredOfferList.length !== 0) {
                                                 setFilteredOfferList([]);
+                                                setFilteredFidelisList([]);
 
                                                 // set the no filtered offers available flag accordingly
                                                 setNoFilteredOffersAvailable(false);
@@ -1335,6 +1435,7 @@ export const Store = ({navigation}: StoreProps) => {
                                     onClearIconPress={(_) => {
                                         // clear the filtered list and set appropriate flags
                                         setFilteredOfferList([]);
+                                        setFilteredFidelisList([]);
 
                                         // set the no filtered offers available flag accordingly
                                         setNoFilteredOffersAvailable(false);
@@ -1344,17 +1445,38 @@ export const Store = ({navigation}: StoreProps) => {
                                     }}
                                     onSubmitEditing={async (event) => {
                                         console.log("searching", event.nativeEvent.text);
-                                        // set the loader
-                                        setFilteredOffersSpinnerShown(true);
+                                        // flag to ensure that we are not looking up a previously filtered offer/partner
+                                        let reSearchFlag = false;
 
-                                        // retrieve additional offers
-                                        await retrieveQueriedOffers(event.nativeEvent.text);
+                                        // first determine whether we are searching for something that's already displayed
+                                        if (filteredOfferList.length !== 0) {
+                                            filteredOfferList.forEach(offer => {
+                                                if (offer.brandDba!.toLowerCase() === event.nativeEvent.text.toLowerCase()) {
+                                                    reSearchFlag = true;
+                                                }
+                                            })
+                                        }
+                                        if (filteredFidelisList.length !== 0) {
+                                            filteredFidelisList.forEach(partner => {
+                                                if (partner.brandName.toLowerCase().includes(event.nativeEvent.text.toLowerCase())) {
+                                                    reSearchFlag = true;
+                                                }
+                                            });
+                                        }
 
-                                        // release the loader
-                                        setFilteredOffersSpinnerShown(false);
+                                        if (!reSearchFlag) {
+                                            // set the loader
+                                            setFilteredOffersSpinnerShown(true);
 
-                                        if (toggleViewPressed === 'horizontal') {
-                                            setToggleViewPressed('vertical');
+                                            // retrieve additional offers
+                                            await retrieveQueriedOffers(event.nativeEvent.text);
+
+                                            // release the loader
+                                            setFilteredOffersSpinnerShown(false);
+
+                                            if (toggleViewPressed === 'horizontal') {
+                                                setToggleViewPressed('vertical');
+                                            }
                                         }
                                     }}
                                     onChangeText={(query) => setSearchQuery(query)}
@@ -1375,6 +1497,7 @@ export const Store = ({navigation}: StoreProps) => {
                                               if (searchQuery === 'sort by: online') {
                                                   // clear the filtered list and set appropriate flags
                                                   setFilteredOfferList([]);
+                                                  setFilteredFidelisList([]);
 
                                                   // set the no filtered offers available flag accordingly
                                                   setNoFilteredOffersAvailable(false);
@@ -1397,6 +1520,7 @@ export const Store = ({navigation}: StoreProps) => {
                                               if (searchQuery === 'sort by: discount percentage') {
                                                   // clear the filtered list and set appropriate flags
                                                   setFilteredOfferList([]);
+                                                  setFilteredFidelisList([]);
 
                                                   // set the no filtered offers available flag accordingly
                                                   setNoFilteredOffersAvailable(false);
@@ -1420,6 +1544,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                   if (searchQuery === 'sort by: nearby locations') {
                                                       // clear the filtered list and set appropriate flags
                                                       setFilteredOfferList([]);
+                                                      setFilteredFidelisList([]);
 
                                                       // set the no filtered offers available flag accordingly
                                                       setNoFilteredOffersAvailable(false);
@@ -1456,7 +1581,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                     >
                                                         <>
                                                             {
-                                                                populateVerticalOffers(filteredOfferList.length !== 0)
+                                                                populateVerticalOffers(filteredOfferList.length !== 0 || filteredFidelisList.length !== 0)
                                                             }
                                                         </>
                                                     </List.Section>
@@ -1491,9 +1616,10 @@ export const Store = ({navigation}: StoreProps) => {
                                                             </ScrollView>
                                                         </View>
                                                         {
-                                                            !areNearbyOffersReady &&
+                                                            !areNearbyOffersReady && nearbyOfferList.length === 0 &&
                                                             <>
-                                                                <View style={{height: Dimensions.get('window').height / 100}}/>
+                                                                <View
+                                                                    style={{height: Dimensions.get('window').height / 100}}/>
                                                                 <View style={styles.nearbyOffersView}>
                                                                     <View style={styles.nearbyOffersTitleView}>
                                                                         <View style={styles.nearbyOffersLeftTitleView}>
@@ -1523,7 +1649,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                                                         <View
                                                                                             style={{flexDirection: 'column'}}>
                                                                                             <ActivityIndicator
-                                                                                                style={{top: Dimensions.get('window').height/10}}
+                                                                                                style={{top: Dimensions.get('window').height / 10}}
                                                                                                 animating={nearbyOffersSpinnerShown}
                                                                                                 color={'#F2FF5D'}
                                                                                                 size={Dimensions.get('window').height / 18}
@@ -1564,7 +1690,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                                     </View>
                                                                     <TouchableOpacity onPress={() => {
                                                                         setToggleViewPressed('vertical');
-                                                        
+
                                                                         // set the search query manually
                                                                         setSearchQuery('sort by: nearby locations');
                                                                     }}>

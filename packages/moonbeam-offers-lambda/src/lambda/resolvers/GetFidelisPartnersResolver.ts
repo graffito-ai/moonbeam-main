@@ -53,7 +53,7 @@ export const getFidelisPartners = async (fieldName: string): Promise<FidelisPart
                 // increase pageNumber
                 pageNumber += 1;
 
-                // execute the subsquent GET offers Olive REST call
+                // execute the subsequent GET offers Olive REST call
                 const subsequentOffersResponse: OffersResponse = await oliveClient.getOffers({
                     availability: OfferAvailability.ClientOnly,
                     countryCode: CountryCode.Us,
