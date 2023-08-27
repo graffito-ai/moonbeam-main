@@ -3,7 +3,7 @@ import {MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
 import {ExpoPushToken} from "expo-notifications";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {AuthenticationStackParamList} from "../models/props/AuthenticationProps";
-import { Cache } from "aws-amplify";
+import {Cache} from "aws-amplify";
 
 /**
  * Atom used to keep track of the registration navigation (used for documents viewer purposes).
@@ -483,9 +483,28 @@ const marketplaceAmplifyCacheState = atom<typeof Cache | null>({
 });
 
 /**
+ * Atom used to keep track of a flag indicating whether we need to go back
+ * to the AppOverview component or not.
+ */
+const isLoadingAppOverviewNeededState = atom<boolean>({
+    key: "isLoadingAppOverviewNeededState",
+    default: true
+});
+
+/**
+ * Atom used to keep track of the main navigation for the whole App.
+ */
+const mainRootNavigationState = atom<NativeStackNavigationProp<any> | null>({
+    key: "mainRootNavigationState",
+    default: null
+})
+
+/**
  * Export all atoms and/or selectors
  */
 export {
+    mainRootNavigationState,
+    isLoadingAppOverviewNeededState,
     globalAmplifyCacheState,
     marketplaceAmplifyCacheState,
     isPhotoUploadedState,

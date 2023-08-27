@@ -44,6 +44,7 @@ export const getFidelisPartners = /* GraphQL */ `
                     brandBanner
                     brandParentCategory
                     brandStubCopy
+                    brandWebsite
                     storeDetails {
                         id
                         name
@@ -113,6 +114,7 @@ export const getOffers = /* GraphQL */ `
                     brandBanner
                     brandParentCategory
                     brandStubCopy
+                    brandWebsite
                     storeDetails {
                         id
                         name

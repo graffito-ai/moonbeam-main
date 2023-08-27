@@ -359,6 +359,10 @@ export class FieldValidator {
                     setErrorsArray([]);
                 }
                 break;
+            /**
+             * !/^((?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{12,72})$/ - old password regex
+             * 12 - 72 chars, 1 special char, 1 number, 1 lowerCase, 1 UpperCase.
+             */
             // password during login
             case 'password':
                 if (fieldValue === null || fieldValue === undefined || fieldValue.length === 0) {
@@ -369,16 +373,16 @@ export class FieldValidator {
                 break;
             // password during signup
             case 'newPassword':
-                if (!/^((?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{12,72})$/.test(fieldValue)) {
-                    setErrorsArray(["Invalid Password - 12 - 72 chars, 1 special char, 1 number, 1 lowerCase, 1 UpperCase."]);
+                if (!/^.{8,}$/.test(fieldValue)) {
+                    setErrorsArray(["Invalid Password - minimum 8 characters long."]);
                 } else {
                     setErrorsArray([]);
                 }
                 break;
             case 'confirmPassword':
-                if (!/^((?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{12,72})$/.test(fieldValue)
-                    || !/^((?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{12,72})$/.test(comparisonFieldValue!)) {
-                    setErrorsArray(["Invalid Password - 12 - 72 chars, 1 special char, 1 number, 1 lowerCase, 1 UpperCase."]);
+                if (!/^.{8,}$/.test(fieldValue)
+                    || !/^.{8,}$/.test(comparisonFieldValue!)) {
+                    setErrorsArray(["Invalid Password - minimum 8 characters long."]);
                 } else if (fieldValue !== comparisonFieldValue!) {
                     setErrorsArray(["Passwords do not match."]);
                 } else {

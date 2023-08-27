@@ -536,6 +536,9 @@ export const DocumentCaptureStep = () => {
                                             :
                                             <>
                                                 <TextInput
+                                                    autoCapitalize={"none"}
+                                                    autoCorrect={false}
+                                                    autoComplete={"off"}
                                                     disabled={true}
                                                     keyboardType={"default"}
                                                     placeholderTextColor={'#D9D9D9'}
@@ -606,6 +609,9 @@ export const DocumentCaptureStep = () => {
                                             :
                                             <>
                                                 <TextInput
+                                                    autoCapitalize={"none"}
+                                                    autoCorrect={false}
+                                                    autoComplete={"off"}
                                                     disabled={true}
                                                     keyboardType={"default"}
                                                     placeholderTextColor={'#D9D9D9'}

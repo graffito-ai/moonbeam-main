@@ -130,6 +130,9 @@ export const ProfileRegistrationStep = () => {
             <View style={{zIndex: 1000}}>
                 <View style={styles.inputColumnView}>
                     <TextInput
+                        autoCapitalize={"sentences"}
+                        autoCorrect={false}
+                        autoComplete={"off"}
                         keyboardType={"default"}
                         placeholderTextColor={'#D9D9D9'}
                         activeUnderlineColor={'#F2FF5D'}
@@ -162,6 +165,9 @@ export const ProfileRegistrationStep = () => {
                         textColor={"#FFFFFF"}
                     />
                     <TextInput
+                        autoCapitalize={"sentences"}
+                        autoCorrect={false}
+                        autoComplete={"off"}
                         keyboardType={"default"}
                         placeholderTextColor={'#D9D9D9'}
                         activeUnderlineColor={'#F2FF5D'}
@@ -195,6 +201,9 @@ export const ProfileRegistrationStep = () => {
                     />
                 </View>
                 <TextInput
+                    autoCapitalize={"none"}
+                    autoCorrect={false}
+                    autoComplete={"off"}
                     keyboardType={"email-address"}
                     placeholderTextColor={'#D9D9D9'}
                     activeUnderlineColor={'#F2FF5D'}
@@ -228,6 +237,8 @@ export const ProfileRegistrationStep = () => {
                     left={<TextInput.Icon icon="email" iconColor="#FFFFFF"/>}
                 />
                 <TextInput
+                    autoCorrect={false}
+                    autoComplete={"off"}
                     keyboardType={"number-pad"}
                     placeholderTextColor={'#D9D9D9'}
                     activeUnderlineColor={'#F2FF5D'}
@@ -265,6 +276,8 @@ export const ProfileRegistrationStep = () => {
                     left={<TextInput.Icon icon="cake" iconColor="#FFFFFF"/>}
                 />
                 <TextInput
+                    autoCorrect={false}
+                    autoComplete={"off"}
                     keyboardType={"phone-pad"}
                     placeholderTextColor={'#D9D9D9'}
                     activeUnderlineColor={'#F2FF5D'}
@@ -302,6 +315,8 @@ export const ProfileRegistrationStep = () => {
                     left={<TextInput.Icon icon="phone" iconColor="#FFFFFF"/>}
                 />
                 <TextInput
+                    autoCorrect={false}
+                    autoComplete={"off"}
                     keyboardType={"number-pad"}
                     placeholderTextColor={'#D9D9D9'}
                     activeUnderlineColor={'#F2FF5D'}

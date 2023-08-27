@@ -33,7 +33,7 @@ export const accountRecoverySteps = [
         stepSubtitleHighlighted: "identity",
         contentTitle: "Forgot Password ?",
         contentDescription: "Enter the email address associated with your account. We will send you a one-time pass code (OTP), to reset your password.",
-        stepButtonText: "Send Code"
+        stepButtonText: "Next"
     },
     {
         stepTitle: "Password",

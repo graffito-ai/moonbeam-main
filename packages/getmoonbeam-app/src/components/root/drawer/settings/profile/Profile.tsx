@@ -660,6 +660,8 @@ export const Profile = ({navigation}: ProfileProps) => {
                                     <View
                                         style={deviceType === DeviceType.TABLET ? styles.profileContentViewTablet : styles.profileContentView}>
                                         <TextInput
+                                            autoCorrect={false}
+                                            autoComplete={"off"}
                                             disabled={true}
                                             placeholderTextColor={'#D9D9D9'}
                                             activeUnderlineColor={'#F2FF5D'}
@@ -676,6 +678,9 @@ export const Profile = ({navigation}: ProfileProps) => {
                                             left={<TextInput.Icon icon="cake" iconColor="#FFFFFF"/>}
                                         />
                                         <TextInput
+                                            autoCapitalize={"none"}
+                                            autoCorrect={false}
+                                            autoComplete={"off"}
                                             disabled={!editingFlag}
                                             keyboardType={"email-address"}
                                             placeholderTextColor={'#D9D9D9'}
@@ -711,6 +716,8 @@ export const Profile = ({navigation}: ProfileProps) => {
                                             }}
                                         />
                                         <TextInput
+                                            autoCorrect={false}
+                                            autoComplete={"off"}
                                             disabled={!editingFlag}
                                             keyboardType={"phone-pad"}
                                             placeholderTextColor={'#D9D9D9'}
@@ -750,6 +757,9 @@ export const Profile = ({navigation}: ProfileProps) => {
                                             }}
                                         />
                                         <TextInput
+                                            autoCapitalize={"sentences"}
+                                            autoCorrect={false}
+                                            autoComplete={"off"}
                                             disabled={!editingFlag}
                                             keyboardType={"default"}
                                             placeholderTextColor={'#D9D9D9'}
@@ -785,6 +795,9 @@ export const Profile = ({navigation}: ProfileProps) => {
                                             }}
                                         />
                                         <TextInput
+                                            autoCapitalize={"sentences"}
+                                            autoCorrect={false}
+                                            autoComplete={"off"}
                                             disabled={!editingFlag}
                                             keyboardType={"default"}
                                             placeholderTextColor={'#D9D9D9'}
@@ -821,6 +834,9 @@ export const Profile = ({navigation}: ProfileProps) => {
                                         />
                                         <View style={styles.inputColumnViewAddress}>
                                             <TextInput
+                                                autoCapitalize={"characters"}
+                                                autoCorrect={false}
+                                                autoComplete={"off"}
                                                 disabled={!editingFlag}
                                                 keyboardType={"default"}
                                                 placeholderTextColor={'#D9D9D9'}
@@ -856,6 +872,8 @@ export const Profile = ({navigation}: ProfileProps) => {
                                                 }}
                                             />
                                             <TextInput
+                                                autoCorrect={false}
+                                                autoComplete={"off"}
                                                 disabled={!editingFlag}
                                                 keyboardType={"number-pad"}
                                                 placeholderTextColor={'#D9D9D9'}
@@ -938,6 +956,8 @@ export const Profile = ({navigation}: ProfileProps) => {
                                             />
                                         </View>
                                         <TextInput
+                                            autoCorrect={false}
+                                            autoComplete={"off"}
                                             disabled={true}
                                             placeholderTextColor={'#D9D9D9'}
                                             activeUnderlineColor={'#F2FF5D'}
@@ -954,6 +974,9 @@ export const Profile = ({navigation}: ProfileProps) => {
                                             left={<TextInput.Icon icon="calendar" iconColor="#FFFFFF"/>}
                                         />
                                         <TextInput
+                                            autoCapitalize={"sentences"}
+                                            autoCorrect={false}
+                                            autoComplete={"off"}
                                             disabled={true}
                                             placeholderTextColor={'#D9D9D9'}
                                             activeUnderlineColor={'#F2FF5D'}

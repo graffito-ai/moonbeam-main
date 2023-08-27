@@ -288,7 +288,8 @@ export default function App() {
                                 initialParams={{
                                     marketplaceCache: marketplaceCache!,
                                     cache: cache!,
-                                    expoPushToken: expoPushToken
+                                    expoPushToken: expoPushToken,
+                                    onLayoutRootView: onLayoutRootView
                                 }}
                             />
                         </RootStack.Navigator>

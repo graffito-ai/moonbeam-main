@@ -38,7 +38,11 @@ export const StoreOfferWebView = ({}: StoreOfferWebViewProps) => {
     useEffect(() => {
         // set the current offer's website accordingly (for now defaulting to a Google search)
         // @ts-ignore
-        storeOfferClicked!.numberOfOffers === undefined ? setInitialOfferWebsite(`https://www.google.com/search?q=${storeOfferClicked!.brandDba!}`) : (storeOfferClicked!.offers![0].brandWebsite! ? setInitialOfferWebsite(`${storeOfferClicked!.offers![0].brandWebsite!}`) :  setInitialOfferWebsite(`https://www.google.com/search?q=${storeOfferClicked!.offers![0].brandDba!}`))
+        storeOfferClicked!.numberOfOffers === undefined
+            // @ts-ignore
+            ? (storeOfferClicked!.brandWebsite ? setInitialOfferWebsite(`${storeOfferClicked!.brandWebsite!}`) : setInitialOfferWebsite(`https://www.google.com/search?q=${storeOfferClicked!.brandDba!}`))
+            // @ts-ignore
+            : (storeOfferClicked!.offers![0].brandWebsite ? setInitialOfferWebsite(`${storeOfferClicked!.offers![0].brandWebsite!}`) : setInitialOfferWebsite(`https://www.google.com/search?q=${storeOfferClicked!.offers![0].brandDba!}`))
     }, []);
 
     // return the component for the StoreOfferWebView page
@@ -48,6 +52,9 @@ export const StoreOfferWebView = ({}: StoreOfferWebViewProps) => {
             <View style={styles.topBar}>
                 <View style={styles.containerView}>
                     <TextInput
+                        autoCapitalize={"sentences"}
+                        autoCorrect={false}
+                        autoComplete={"off"}
                         // the text input will be disabled for now, later we can enable it, for a full browser experience
                         disabled={true}
                         style={styles.urlBar}
@@ -143,14 +150,14 @@ export const StoreOfferWebView = ({}: StoreOfferWebViewProps) => {
                             open={cardDetailsMenuOpen['open']}
                             icon={cardDetailsMenuOpen['open'] ? require('../../../../../../../assets/card-details-close.png') : require('../../../../../../../assets/card-details-open.png')}
                             actions={[
-                                ...userInformation["cards"] && userInformation["cards"].length !== 0 ?
+                                ...userInformation["linkedCard"] && userInformation["linkedCard"].length !== 0 ?
                                 [{
                                     labelStyle: styles.cardDetailsSectionLabel,
                                     color: '#F2FF5D',
                                     icon: 'credit-card',
                                     label: 'Linked Card Last 4 Digits',
                                     onPress: async () => {
-                                        await Clipboard.setStringAsync(`Linked Card Last 4`);
+                                        await Clipboard.setStringAsync(`${userInformation["linkedCard"]["cards"][0].last4}`);
                                     },
                                 }] : [],
                                 {

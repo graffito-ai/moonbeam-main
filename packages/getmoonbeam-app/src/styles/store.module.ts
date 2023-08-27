@@ -281,9 +281,8 @@ export const styles = StyleSheet.create({
     featuredPartnerCardParagraph: {
         top: '20%',
         padding: 8,
-        textAlign: 'justify',
         fontFamily: 'Raleway-Bold',
-        width: Dimensions.get('window').width / 1.25,
+        width: Dimensions.get('window').width / 1.23,
         fontSize: Dimensions.get('window').height / 75,
         color: '#FFFFFF'
     },

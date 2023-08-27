@@ -108,6 +108,9 @@ export const AdditionalRegistrationStep = () => {
             }
             <View style={styles.militaryRegistrationView}>
                 <TextInput
+                    autoCapitalize={"sentences"}
+                    autoCorrect={false}
+                    autoComplete={"off"}
                     keyboardType={"default"}
                     placeholderTextColor={'#D9D9D9'}
                     activeUnderlineColor={'#F2FF5D'}
@@ -141,6 +144,9 @@ export const AdditionalRegistrationStep = () => {
                     left={<TextInput.Icon icon="home-map-marker" iconColor="#FFFFFF"/>}
                 />
                 <TextInput
+                    autoCapitalize={"sentences"}
+                    autoCorrect={false}
+                    autoComplete={"off"}
                     keyboardType={"default"}
                     placeholderTextColor={'#D9D9D9'}
                     activeUnderlineColor={'#F2FF5D'}
@@ -175,6 +181,9 @@ export const AdditionalRegistrationStep = () => {
                 />
                 <View style={styles.inputColumnViewAddress}>
                     <TextInput
+                        autoCapitalize={"characters"}
+                        autoCorrect={false}
+                        autoComplete={"off"}
                         keyboardType={"default"}
                         placeholderTextColor={'#D9D9D9'}
                         activeUnderlineColor={'#F2FF5D'}
@@ -209,6 +218,8 @@ export const AdditionalRegistrationStep = () => {
                         left={<TextInput.Icon icon="flag" iconColor="#FFFFFF"/>}
                     />
                     <TextInput
+                        autoCorrect={false}
+                        autoComplete={"off"}
                         keyboardType={"number-pad"}
                         placeholderTextColor={'#D9D9D9'}
                         activeUnderlineColor={'#F2FF5D'}

@@ -23,9 +23,9 @@ import {
     expoPushTokenState,
     firstNameState,
     globalAmplifyCacheState,
-    initialAuthenticationScreen,
+    initialAuthenticationScreen, isLoadingAppOverviewNeededState,
     isReadyRegistrationState,
-    lastNameState,
+    lastNameState, mainRootNavigationState,
     marketplaceAmplifyCacheState,
     militaryBranchValueState,
     phoneNumberState,
@@ -51,10 +51,12 @@ import {retrieveFidelisPartnerList, retrieveOffersNearLocation, retrieveOnlineOf
  *
  * @constructor constructor for the component.
  */
-export const AuthenticationComponent = ({route,}: AuthenticationProps) => {
+export const AuthenticationComponent = ({route, navigation}: AuthenticationProps) => {
         // constants used to keep track of local component state
         const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
         // constants used to keep track of shared states
+        const [mainRootNavigation, setMainRootNavigation] = useRecoilState(mainRootNavigationState);
+        const [isLoadingAppOverviewNeeded, ] = useRecoilState(isLoadingAppOverviewNeededState);
         const [, setIsReady] = useRecoilState(isReadyRegistrationState);
         const [marketplaceCache, setMarketplaceCache] = useRecoilState(marketplaceAmplifyCacheState);
         const [globalCache, setGlobalCache] = useRecoilState(globalAmplifyCacheState);
@@ -99,6 +101,8 @@ export const AuthenticationComponent = ({route,}: AuthenticationProps) => {
          * included in here.
          */
         useEffect(() => {
+            // set the mai root navigation of the app accordingly
+            setMainRootNavigation(navigation);
             // set the Cache to the global cache passed in from the App root component
             setGlobalCache(route.params.cache);
             // set the Marketplace Cache to the marketplace cache passed in from the App root component
@@ -218,8 +222,20 @@ export const AuthenticationComponent = ({route,}: AuthenticationProps) => {
                                                     // main
                                                     setRegistrationMainError(false);
                                                     setStepNumber(0);
-                                                    // navigate to the SignIn page
-                                                    navigation.navigate('SignIn', {});
+
+                                                    // navigate to the AppOverviewComponent page - in case we have not already been to the SignIn
+                                                    if (isLoadingAppOverviewNeeded) {
+                                                        // navigate to the SignIn page - in case we have already been there
+                                                        mainRootNavigation && mainRootNavigation!.navigate('AppOverview', {
+                                                            marketplaceCache: route.params.marketplaceCache,
+                                                            cache: route.params.cache,
+                                                            expoPushToken: route.params.expoPushToken,
+                                                            onLayoutRootView: route.params.onLayoutRootView
+                                                        });
+                                                    } else {
+                                                        // navigate to the SignIn page - in case we have already been there
+                                                        navigation.navigate('SignIn', {});
+                                                    }
                                                 }}
                                             />)
                                             : (stepNumber === 4 || stepNumber === 7 ?

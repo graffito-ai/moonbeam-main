@@ -502,6 +502,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
      * Function used to add the necessary location background permissions, needed for the application
      * to access a user's geolocation.
      */
+    // @ts-ignore
     const requestBackgroundLocationPermission = async () => {
         const {status} = await Location.requestBackgroundPermissionsAsync();
         if (status !== 'granted') {

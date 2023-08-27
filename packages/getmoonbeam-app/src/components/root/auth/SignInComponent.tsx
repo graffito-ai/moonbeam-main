@@ -9,7 +9,11 @@ import {FieldValidator} from "../../../utils/FieldValidator";
 import LoginLogo from '../../../../assets/login-logo.png';
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 import {useRecoilState} from "recoil";
-import {currentUserInformation} from "../../../recoil/AuthAtom";
+import {
+    currentUserInformation,
+    isLoadingAppOverviewNeededState,
+    mainRootNavigationState
+} from "../../../recoil/AuthAtom";
 import {Auth} from "aws-amplify";
 import {Spinner} from "../../common/Spinner";
 // @ts-ignore
@@ -36,6 +40,8 @@ export const SignInComponent = ({navigation}: SignInProps) => {
     const [loginMainError, setLoginMainError] = useState<boolean>(false);
     const [passwordShown, setIsPasswordShown] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [mainRootNavigation, ] = useRecoilState(mainRootNavigationState);
+    const [, setIsLoadingAppOverviewNeeded] = useRecoilState(isLoadingAppOverviewNeededState);
     const [, setUserInformation] = useRecoilState(currentUserInformation);
 
     // initializing the field validator, to be used for validating form field values
@@ -49,6 +55,12 @@ export const SignInComponent = ({navigation}: SignInProps) => {
      * included in here.
      */
     useEffect(() => {
+        /**
+         * signal that there will be no need to go back to the App Overview component from here, unless we press
+         * on the appropriate prompt, located under the Sign-In button.
+         */
+        setIsLoadingAppOverviewNeeded(false);
+
         // perform field validations on every state change, for the specific field that is being validated
         if (emailFocus && email !== "") {
             fieldValidator.validateField(email, "email", setEmailErrors);
@@ -171,6 +183,9 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                                             : <></>
                                 }
                                 <TextInput
+                                    autoCapitalize={"none"}
+                                    autoCorrect={false}
+                                    autoComplete={"off"}
                                     keyboardType={"email-address"}
                                     placeholderTextColor={'#D9D9D9'}
                                     activeUnderlineColor={'#F2FF5D'}
@@ -196,6 +211,9 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                                     left={<TextInput.Icon icon="email" iconColor="#FFFFFF"/>}
                                 />
                                 <TextInput
+                                    autoCapitalize={"none"}
+                                    autoCorrect={false}
+                                    autoComplete={"off"}
                                     keyboardType={"default"}
                                     placeholderTextColor={'#D9D9D9'}
                                     activeUnderlineColor={'#F2FF5D'}
@@ -273,8 +291,19 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                                                   // clear the username and password
                                                   setPassword("");
                                                   setEmail("");
-                                                  navigation.navigate('Registration', {})
+                                                  navigation.navigate('Registration', {});
                                               }}>{"  "}Sign up</Text>
+                                    </Text>
+                                    <Text style={styles.loginFooter}>
+                                        <Text style={styles.loginFooterButton}
+                                              onPress={() => {
+                                                  // clear the username and password
+                                                  setPassword("");
+                                                  setEmail("");
+                                                  // reset the App Overview flag and go back, to the App Overview screen
+                                                  setIsLoadingAppOverviewNeeded(true);
+                                                  mainRootNavigation && mainRootNavigation.goBack();
+                                              }}>{"  "}Learn More</Text>
                                     </Text>
                                 </View>
                             </View>

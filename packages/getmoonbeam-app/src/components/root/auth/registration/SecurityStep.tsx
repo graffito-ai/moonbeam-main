@@ -76,6 +76,9 @@ export const SecurityStep = () => {
             }
             <View style={styles.militaryRegistrationView}>
                 <TextInput
+                    autoCapitalize={"none"}
+                    autoCorrect={false}
+                    autoComplete={"off"}
                     keyboardType={"default"}
                     placeholderTextColor={'#D9D9D9'}
                     activeUnderlineColor={'#F2FF5D'}
@@ -111,6 +114,9 @@ export const SecurityStep = () => {
                                            onPress={() => setIsPasswordShown(!isPasswordShown)}/>}
                 />
                 <TextInput
+                    autoCapitalize={"none"}
+                    autoCorrect={false}
+                    autoComplete={"off"}
                     keyboardType={"default"}
                     placeholderTextColor={'#D9D9D9'}
                     activeUnderlineColor={'#F2FF5D'}

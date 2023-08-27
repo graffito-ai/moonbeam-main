@@ -38,6 +38,7 @@ query GetFidelisPartners {
                 brandBanner
                 brandParentCategory
                 brandStubCopy
+                brandWebsite
                 storeDetails {
                     id
                     name
@@ -103,6 +104,7 @@ query GetOffers($getOffersInput: GetOffersInput!) {
                 brandBanner
                 brandParentCategory
                 brandStubCopy
+                brandWebsite
                 storeDetails {
                     id
                     name

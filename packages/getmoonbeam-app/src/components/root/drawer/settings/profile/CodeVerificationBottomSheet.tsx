@@ -339,6 +339,8 @@ export const CodeVerificationBottomSheet = (props: {
                                             }
                                             <View style={styles.codeInputColumnView}>
                                                 <TextInput
+                                                    autoCorrect={false}
+                                                    autoComplete={"off"}
                                                     keyboardType={"number-pad"}
                                                     placeholderTextColor={'#D9D9D9'}
                                                     activeUnderlineColor={'#F2FF5D'}
@@ -377,6 +379,8 @@ export const CodeVerificationBottomSheet = (props: {
                                                     textColor={"#FFFFFF"}
                                                 />
                                                 <TextInput
+                                                    autoCorrect={false}
+                                                    autoComplete={"off"}
                                                     ref={verificationCodeDigit2Ref}
                                                     keyboardType={"number-pad"}
                                                     placeholderTextColor={'#D9D9D9'}
@@ -416,6 +420,8 @@ export const CodeVerificationBottomSheet = (props: {
                                                     textColor={"#FFFFFF"}
                                                 />
                                                 <TextInput
+                                                    autoCorrect={false}
+                                                    autoComplete={"off"}
                                                     ref={verificationCodeDigit3Ref}
                                                     keyboardType={"number-pad"}
                                                     placeholderTextColor={'#D9D9D9'}
@@ -455,6 +461,8 @@ export const CodeVerificationBottomSheet = (props: {
                                                     textColor={"#FFFFFF"}
                                                 />
                                                 <TextInput
+                                                    autoCorrect={false}
+                                                    autoComplete={"off"}
                                                     ref={verificationCodeDigit4Ref}
                                                     keyboardType={"number-pad"}
                                                     placeholderTextColor={'#D9D9D9'}
@@ -494,6 +502,8 @@ export const CodeVerificationBottomSheet = (props: {
                                                     textColor={"#FFFFFF"}
                                                 />
                                                 <TextInput
+                                                    autoCorrect={false}
+                                                    autoComplete={"off"}
                                                     ref={verificationCodeDigit5Ref}
                                                     keyboardType={"number-pad"}
                                                     placeholderTextColor={'#D9D9D9'}
@@ -533,6 +543,8 @@ export const CodeVerificationBottomSheet = (props: {
                                                     textColor={"#FFFFFF"}
                                                 />
                                                 <TextInput
+                                                    autoCorrect={false}
+                                                    autoComplete={"off"}
                                                     ref={verificationCodeDigit6Ref}
                                                     keyboardType={"number-pad"}
                                                     placeholderTextColor={'#D9D9D9'}

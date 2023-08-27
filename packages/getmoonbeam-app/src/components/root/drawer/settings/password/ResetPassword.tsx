@@ -211,6 +211,9 @@ export const ResetPassword = ({}: ResetPasswordProps) => {
                                                     : <></>
                                     }
                                     <TextInput
+                                        autoCapitalize={"none"}
+                                        autoCorrect={false}
+                                        autoComplete={"off"}
                                         keyboardType={"default"}
                                         placeholderTextColor={'#D9D9D9'}
                                         activeUnderlineColor={'#F2FF5D'}
@@ -245,6 +248,9 @@ export const ResetPassword = ({}: ResetPasswordProps) => {
                                                                onPress={() => setIsOldPasswordShown(!isOldPasswordShown)}/>}
                                     />
                                     <TextInput
+                                        autoCapitalize={"none"}
+                                        autoCorrect={false}
+                                        autoComplete={"off"}
                                         keyboardType={"default"}
                                         placeholderTextColor={'#D9D9D9'}
                                         activeUnderlineColor={'#F2FF5D'}
@@ -279,6 +285,9 @@ export const ResetPassword = ({}: ResetPasswordProps) => {
                                                                onPress={() => setIsPasswordShown(!isPasswordShown)}/>}
                                     />
                                     <TextInput
+                                        autoCapitalize={"none"}
+                                        autoCorrect={false}
+                                        autoComplete={"off"}
                                         keyboardType={"default"}
                                         placeholderTextColor={'#D9D9D9'}
                                         activeUnderlineColor={'#F2FF5D'}

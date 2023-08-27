@@ -15,7 +15,8 @@ export type RootStackParamList = {
     Authentication: {
         cache: typeof Cache,
         marketplaceCache: typeof Cache,
-        expoPushToken: ExpoPushToken
+        expoPushToken: ExpoPushToken,
+        onLayoutRootView: () => Promise<void>,
     }
 };
 
