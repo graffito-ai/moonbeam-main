@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Dimensions, SafeAreaView, StyleSheet} from "react-native";
+import {Dimensions, Linking, SafeAreaView, StyleSheet} from "react-native";
 import WebView from "react-native-webview";
 import {useRecoilState} from "recoil";
 import {
@@ -288,6 +288,21 @@ export const CardLinkingStep = () => {
                             setSupportMultipleWindows={false}
                             nestedScrollEnabled={true}
                             startInLoadingState={true}
+                            onShouldStartLoadWithRequest={(request) => {
+                                // redirect to browser for terms and conditions and privacy policy clicks
+                                if (request.url === 'https://www.moonbeam.vet/terms-and-conditions' || request.url === 'https://www.moonbeam.vet/privacy-policy') {
+                                    Linking.canOpenURL(request.url).then(supported => {
+                                        if (supported) {
+                                            Linking.openURL(request.url).then(() => {});
+                                        } else {
+                                            console.log(`Don't know how to open URI: ${request.url}`);
+                                        }
+                                    });
+                                    return false;
+                                } else {
+                                    return true;
+                                }
+                            }}
                             renderLoading={() => {
                                 return (
                                     <Spinner loadingSpinnerShown={loadingSpinnerShown}
