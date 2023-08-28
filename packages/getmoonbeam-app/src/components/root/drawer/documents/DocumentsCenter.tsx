@@ -51,7 +51,7 @@ export const DocumentsCenter = ({navigation}: DocumentsCenterProps) => {
                             titleNumberOfLines={2}
                             descriptionNumberOfLines={3}
                             title="Terms and Conditions"
-                            description='Review what was agreed upon your sign up process.'
+                            description='Check this out if you wanna make sure you did not sign away your house or firstborn child.'
                             onPress={async () => {
                                 navigation.navigate('DocumentsViewer', {
                                     name: 'terms-and-conditions.pdf',
@@ -72,7 +72,7 @@ export const DocumentsCenter = ({navigation}: DocumentsCenterProps) => {
                             titleNumberOfLines={2}
                             descriptionNumberOfLines={3}
                             title="Privacy Policy"
-                            description='Get details about how we store, share and use your information.'
+                            description='We respect your privacy. We won’t read over your shoulder and we always knock before entering a room.'
                             onPress={async () => {
                                 navigation.navigate('DocumentsViewer', {
                                     name: 'privacy-policy.pdf',

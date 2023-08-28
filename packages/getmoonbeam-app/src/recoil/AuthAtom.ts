@@ -449,6 +449,14 @@ const isReadyRegistrationState = atom<boolean>({
 });
 
 /**
+ * atom used to keep track of the document verification dropdown state from the Documents section.
+ */
+const verificationDocumentState = atom<string>({
+    key: "verificationDocumentState",
+    default: ''
+});
+
+/**
  * Atom used to keep track of the uploaded photo name from the Documents section.
  */
 const isPhotoUploadedState = atom<string>({
@@ -503,6 +511,7 @@ const mainRootNavigationState = atom<NativeStackNavigationProp<any> | null>({
  * Export all atoms and/or selectors
  */
 export {
+    verificationDocumentState,
     mainRootNavigationState,
     isLoadingAppOverviewNeededState,
     globalAmplifyCacheState,

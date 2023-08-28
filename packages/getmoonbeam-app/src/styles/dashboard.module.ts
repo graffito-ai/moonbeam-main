@@ -272,7 +272,7 @@ export const styles = StyleSheet.create({
     mapTooltipSquare: {
         zIndex: 600,
         height: Dimensions.get('window').height / 25,
-        width: Dimensions.get('window').width / 4.5,
+        width: Dimensions.get('window').width / 3.5,
         backgroundColor: "#313030",
         borderRadius: 10,
         borderColor: '#F2FF5D',
@@ -282,7 +282,7 @@ export const styles = StyleSheet.create({
         zIndex: 700,
         position: "absolute",
         top: -Dimensions.get('window').height / 100,
-        right: Dimensions.get('window').width / 17.4,
+        right: Dimensions.get('window').width / 13,
         width: 0,
         height: 0,
         borderStyle: "solid",
@@ -296,7 +296,7 @@ export const styles = StyleSheet.create({
     mapTooltipArrowOverlay: {
         position: "absolute",
         top: -Dimensions.get('window').height / 60,
-        right: Dimensions.get('window').width / 17.4,
+        right: Dimensions.get('window').width / 13,
         width: 0,
         height: 0,
         borderStyle: "solid",

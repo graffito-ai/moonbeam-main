@@ -70,12 +70,12 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
         if (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0) {
             // set the opt-out information accordingly
             setOptionTitle('Opt Out');
-            setOptionDescription('You will automatically be opted out of all the cashback programs that you enrolled into, and your card will be un-linked.');
+            setOptionDescription('Are your sure you want to opt-out of all our sweet discount programs?');
             setOptionIcon('credit-card-remove-outline');
         } else {
             // set the opt-out information accordingly
             setOptionTitle("Opt-In");
-            setOptionDescription("You can re-opt to the available cashback programs, by linking your favorite Visa or MasterCard card!");
+            setOptionDescription("Click this button to opt-in to all our sweet discount programs!");
             setOptionIcon('credit-card-plus-outline');
         }
     }, [userInformation["linkedCard"], deviceType, appURL]);
@@ -126,7 +126,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                 // set the custom banner state for future screens accordingly
                 setBannerState({
                     bannerVisibilityState: cardLinkingStatusState,
-                    bannerMessage: "You currently do not have a linked card to your Moonbeam account. In order to see more dashboard details, you will need to have a card in your wallet. Get started now!",
+                    bannerMessage: "You do not have a linked card. You will need to have a card in your wallet to see more details.",
                     bannerButtonLabel: "Link Now",
                     bannerButtonLabelActionSource: "home/wallet",
                     bannerArtSource: CardLinkingImage,
@@ -208,7 +208,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                         titleNumberOfLines={10}
                                         descriptionNumberOfLines={10}
                                         title="Edit Profile"
-                                        description='View and edit your basic information, such as email, phone number, name or address.'
+                                        description='We know you’re not “basic,” but this is where you edit your basic information.'
                                         left={() => <List.Icon color={'#F2FF5D'} icon="clipboard-account-outline"/>}
                                         right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
                                                                 color={'#F2FF5D'} icon="chevron-right"/>}
@@ -227,7 +227,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                         titleNumberOfLines={10}
                                         descriptionNumberOfLines={10}
                                         title="Change Password"
-                                        description='Forgot your password? Change it so you can continue to securely access your account.'
+                                        description='Keep this one a secret, bro. We don’t even wanna know.'
                                         left={() => <List.Icon color={'#F2FF5D'} icon="lock-check"/>}
                                         // right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
                                         //                         color={'#F2FF5D'} icon={FaceIDIcon}/>}

@@ -60,11 +60,11 @@ export const registrationSteps = [
     },
     {
         stepTitle: "Additional Info",
-        stepDescription: "Enter your address, duty status and military branch, to help us verify your eligibility.",
+        stepDescription: "Enter your address, duty status and military branch to help us verify your eligibility.",
     },
     {
         stepTitle: "Account Security",
-        stepDescription: "Secure your account by setting an account password. You will use this paired with your email, in order to access your new account.",
+        stepDescription: "Secure your account by setting an account password. You will use this paired with your email in order to access your new account.",
     },
     {
         stepTitle: "Code Verification",
@@ -80,7 +80,7 @@ export const registrationSteps = [
     },
     {
         stepTitle: "Documentation",
-        stepDescription: "We need additional information to verify your military identity. Upload or capture supporting documentation, to help with your eligibility.",
+        stepDescription: "We need additional information to verify your military identity. Upload or capture supporting documentation to help with your eligibility.",
     },
     {
         stepTitle: "Card Linking",
@@ -118,18 +118,18 @@ export const appOverviewSteps = [
         stepImageSource: CardOverviewImage
     },
     {
-        stepTitle: "Verify your\n Valor",
-        stepDescription: "Go through our secure and trusted military verification process to ensure secure access.",
+        stepTitle: "Verify your\n Service",
+        stepDescription: "Complete our secure and trusted military verification process to gain access.",
         stepImageSource: VerificationOverviewImage
     },
     {
         stepTitle: "Link & Start Earning\n Cashback",
-        stepDescription: "Link your MasterCard or Visa debit or credit cards, and earn through qualifying transactions.",
+        stepDescription: "Link your MasterCard or Visa debit or credit cards and earn through qualifying transactions.",
         stepImageSource: LinkingOverviewImage
     },
     {
         stepTitle: "Earn Discounts\n Seamlessly",
-        stepDescription: "Discounts are automatically applied and will show on your statements monthly. No need to ask the cashier.",
+        stepDescription: "Discounts are automatically applied and will show in your wallet monthly. No need to ask the cashier or input a code.",
         stepImageSource: RewardsOverviewImage
     }
 ]

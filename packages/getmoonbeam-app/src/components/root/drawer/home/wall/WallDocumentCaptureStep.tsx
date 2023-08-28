@@ -14,7 +14,11 @@ import {FieldValidator} from "../../../../../utils/FieldValidator";
 import {Spinner} from "../../../../common/Spinner";
 import {
     additionalAppWallDocumentationErrors,
-    additionalAppWallDocumentationNeeded, isDocumentUploadAppWallState, isPhotoUploadedAppWallState, isReadyAppWallState
+    additionalAppWallDocumentationNeeded,
+    isDocumentUploadAppWallState,
+    isPhotoUploadedAppWallState,
+    isReadyAppWallState,
+    verificationDocumentAppWallState
 } from "../../../../../recoil/AppDrawerAtom";
 // @ts-ignore
 import DocumentationUpload1Picture from '../../../../../../assets/art/moonbeam-document-upload-1.png';
@@ -33,7 +37,6 @@ import DocumentationUpload2Picture from '../../../../../../assets/art/moonbeam-d
 export const WallDocumentCaptureStep = () => {
     // constants used to keep track of local component state
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
-    const [verificationDocument, setVerificationDocument] = useState<string>("");
     const [dropdownDocumentState, setDropdownDocumentState] = useState<boolean>(false);
     const [photoSelectionButtonState, setPhotoSelectionButtonState] = useState<boolean>(false);
     const [captureButtonState, setCaptureButtonState] = useState<boolean>(false);
@@ -41,6 +44,7 @@ export const WallDocumentCaptureStep = () => {
     const [documentItems, setDocumentItems] = useState(documentSelectionItems);
     // constants used to keep track of shared states
     const [isReady, setIsReady] = useRecoilState(isReadyAppWallState);
+    const [verificationDocument, setVerificationDocument] = useRecoilState(verificationDocumentAppWallState);
     const [capturedFileName, setCapturedFileName] = useRecoilState(isPhotoUploadedAppWallState);
     const [uploadedFileName, setUploadedFileName] = useRecoilState(isDocumentUploadAppWallState);
     const [, setAdditionalDocumentsNeeded] = useRecoilState(additionalAppWallDocumentationNeeded);
@@ -566,6 +570,7 @@ export const WallDocumentCaptureStep = () => {
                                                                 setUploadButtonState(false);
                                                                 setAdditionalDocumentsNeeded(true);
                                                                 setCapturedFileName("");
+                                                                setVerificationDocument("");
                                                             }}
                                                         />
                                                     }
@@ -639,6 +644,7 @@ export const WallDocumentCaptureStep = () => {
                                                                 setUploadButtonState(false);
                                                                 setAdditionalDocumentsNeeded(true);
                                                                 setUploadedFileName("");
+                                                                setVerificationDocument("");
                                                             }}
                                                         />
                                                     }

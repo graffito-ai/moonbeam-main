@@ -5,7 +5,7 @@ import {useRecoilState} from "recoil";
 import {
     additionalDocumentationErrors,
     additionalDocumentationNeeded, isDocumentUploadedState, isPhotoUploadedState,
-    isReadyRegistrationState
+    isReadyRegistrationState, verificationDocumentState
 } from "../../../../recoil/AuthAtom";
 import {styles} from "../../../../styles/registration.module";
 import * as DocumentPicker from 'expo-document-picker';
@@ -30,7 +30,6 @@ import DocumentationUpload2Picture from '../../../../../assets/art/moonbeam-docu
 export const DocumentCaptureStep = () => {
     // constants used to keep track of local component state
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
-    const [verificationDocument, setVerificationDocument] = useState<string>("");
     const [dropdownDocumentState, setDropdownDocumentState] = useState<boolean>(false);
     const [photoSelectionButtonState, setPhotoSelectionButtonState] = useState<boolean>(false);
     const [captureButtonState, setCaptureButtonState] = useState<boolean>(false);
@@ -38,6 +37,7 @@ export const DocumentCaptureStep = () => {
     const [documentItems, setDocumentItems] = useState(documentSelectionItems);
 
     // constants used to keep track of shared states
+    const [verificationDocument, setVerificationDocument] = useRecoilState(verificationDocumentState);
     const [capturedFileName, setCapturedFileName] = useRecoilState(isPhotoUploadedState);
     const [uploadedFileName, setUploadedFileName] = useRecoilState(isDocumentUploadedState);
     const [isReady, setIsReady] = useRecoilState(isReadyRegistrationState);
@@ -564,6 +564,7 @@ export const DocumentCaptureStep = () => {
                                                                 setUploadButtonState(false);
                                                                 setAdditionalDocumentsNeeded(true);
                                                                 setCapturedFileName("");
+                                                                setVerificationDocument("");
                                                             }}
                                                         />
                                                     }
@@ -637,6 +638,7 @@ export const DocumentCaptureStep = () => {
                                                                 setUploadButtonState(false);
                                                                 setAdditionalDocumentsNeeded(true);
                                                                 setUploadedFileName("");
+                                                                setVerificationDocument("");
                                                             }}
                                                         />
                                                     }

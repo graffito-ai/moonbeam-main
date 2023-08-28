@@ -13,12 +13,13 @@ import {styles} from '../../styles/customDrawer.module';
 import {useRecoilState} from "recoil";
 import {deviceTypeState} from "../../recoil/RootAtom";
 import {DeviceType} from "expo-device";
-import {currentUserInformation} from '../../recoil/AuthAtom';
+import {currentUserInformation, isLoadingAppOverviewNeededState, mainRootNavigationState} from '../../recoil/AuthAtom';
 // @ts-ignore
 import SideBarImage from '../../../assets/art/sidebar.png';
 import {profilePictureURIState} from "../../recoil/AppDrawerAtom";
 import * as Linking from "expo-linking";
 import {Spinner} from "./Spinner";
+import {Auth} from "aws-amplify";
 
 /**
  * CustomDrawer component. This component will be used to further tailor our sidebar navigation drawer, mainly
@@ -34,7 +35,9 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const [isReady,] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
-    const [userInformation,] = useRecoilState(currentUserInformation);
+    const [, setIsLoadingAppOverviewNeeded] = useRecoilState(isLoadingAppOverviewNeededState);
+    const [mainRootNavigation, ] = useRecoilState(mainRootNavigationState);
+    const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
     const [profilePictureURI,] = useRecoilState(profilePictureURIState);
     const [deviceType,] = useRecoilState(deviceTypeState);
 
@@ -56,6 +59,9 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
         }
     }, [userInformation["custom:userId"], userInformation["given_name"],
         userInformation["family_name"], profilePictureURI]);
+
+
+
 
     // return the component for the CustomDrawer component, part of the AppDrawer pages.
     return (
@@ -149,11 +155,20 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                     color={'#F2FF5D'}/>}
                                 labelStyle={[styles.drawerItemLabel, deviceType === DeviceType.TABLET ? {fontSize: Dimensions.get('window').width / 35} : {fontSize: Dimensions.get('window').width / 25}]}
                                 label={'Log Out'}
-                                onPress={() => {
-                                    console.log('sign out');
+                                onPress={async () => {
+                                    try {
+                                        // navigate to the Login Screen
+                                        setIsLoadingAppOverviewNeeded(true);
+                                        mainRootNavigation && mainRootNavigation!.navigate('AppOverview', {});
 
-                                    // ToDo: implement the Sign out mechanism here and cleanup any recoil states and object, as well as caches
-                                    //       and/or local store items.
+                                        // set the user information to an empty object
+                                        setUserInformation({});
+
+                                        // performing the Sign-Out action through Amplify
+                                        await Auth.signOut();
+                                    } catch (error) {
+                                        console.log('error while signing out: ', error);
+                                    }
                                 }}>
                             </DrawerItem>
                         </View>

@@ -64,7 +64,7 @@ export const StoreOfferWebView = ({}: StoreOfferWebViewProps) => {
                             <TextInput.Icon
                                 style={styles.urlLockIcon}
                                 icon="lock"
-                                rippleColor={'#dbdbdb'}
+                                rippleColor={'#F2FF5D'}
                                 size={Dimensions.get('window').height/55}
                             />
                         }
@@ -81,7 +81,7 @@ export const StoreOfferWebView = ({}: StoreOfferWebViewProps) => {
                         }
                         multiline={false}
                         textColor={'black'}
-                        selectionColor={'#2A3779'}
+                        selectionColor={'#F2FF5D'}
                         mode={'outlined'}
                         placeholder={'Search or type URL'}
                         // @ts-ignore

@@ -119,7 +119,7 @@ export const TransactionsBottomSheet = (props: {
                             <Text style={styles.transactionAddress}>
                                 {
                                     props.transactionStoreAddress
-                                        ? props.transactionStoreAddress
+                                        ? `In Person Purchase`
                                         : `Online Purchase`
                                 }
                             </Text>

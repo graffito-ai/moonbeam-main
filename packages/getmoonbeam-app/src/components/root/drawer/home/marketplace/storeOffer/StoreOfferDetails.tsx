@@ -78,7 +78,7 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
             for (const retrievedPartnerOffer of retrievedClickedObject.offers) {
                 // check the type of Fidelis partner offer
                 const offerType = retrievedPartnerOffer!.title!.includes('Birthday')
-                    ? 'Birthdays'
+                    ? 'Birthday'
                     : (retrievedPartnerOffer!.title!.includes(`Veterans Day`)
                         ? `Veteran's Day`
                         : `Everyday`)
@@ -164,7 +164,7 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                                                     {
                                                         offerType == `Everyday`
                                                             ? "• Offer applicable to every purchase, subject to the discounts aforementioned.\n• No limits on the minimum or maximum amount for purchase.\n• Offer available only at participating merchant locations."
-                                                            : (offerType === `Birthdays`
+                                                            : (offerType === `Birthday`
                                                                     ? "• Offer limited to one purchase for your birthday, subject to the discounts aforementioned.\n• No limits on the minimum or maximum amount for purchase.\n• Offer available at merchant participant locations."
                                                                     : "• Offer limited to one purchase for Veteran's Day, subject to the discounts aforementioned.\n• No limits on the minimum or maximum amount for purchase.\n• Offer available at merchant participant locations."
                                                             )

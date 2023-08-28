@@ -5,9 +5,9 @@ import {MoonbeamTransaction} from "@moonbeam/moonbeam-models";
  * Atom used to keep track of the state of the transactional data
  * for a particular user.
  */
-const transactionDataState = atom<MoonbeamTransaction[]>({
+const transactionDataState = atom<Set<MoonbeamTransaction>>({
     key: "transactionDataState",
-    default: []
+    default: new Set()
 });
 
 /**
@@ -32,12 +32,64 @@ const showWalletBottomSheetState = atom<boolean>({
  *
  * This will also round down the discount amount, to two digits only.
  */
-const sortedTransactionDataState = selector<MoonbeamTransaction[]>({
+const sortedTransactionDataState = selector<Set<MoonbeamTransaction>>({
     key: 'sortedTransactionDataState',
     get: ({get}) => {
         const transactionDataList = get(transactionDataState);
-        transactionDataList.forEach(transaction => {transaction.rewardAmount = Number(transaction.rewardAmount.toFixed(2))});
-        return transactionDataList.slice().sort((a, b) => b.timestamp - a.timestamp);
+        // only consider each transaction's reward amount up to two digits
+        transactionDataList.forEach(transaction => {
+            transaction.rewardAmount = Number(transaction.rewardAmount.toFixed(2))
+        });
+        // sort transactions by timestamp
+        return new Set(Array.from(transactionDataList).sort((a, b) => b.timestamp - a.timestamp));
+    },
+});
+
+/**
+ * A selector used to keep track of the current balance, made up of the total Pending amounts
+ * in each transaction obtained for the user.
+ */
+const currentBalanceState = selector<number>({
+    key: 'currentBalanceState',
+    get: ({get}) => {
+        const transactionDataList = get(transactionDataState);
+        // the pending amounts representing the current balance (to be paid to the user)
+        let currentBalance = 0;
+
+        /**
+         * only consider each transaction's reward amount equal to the pending amount that will
+         * be included in the current balance total.
+         */
+        transactionDataList.forEach(transaction => {
+            currentBalance += Number(transaction.pendingCashbackAmount.toFixed(2));
+        });
+        // return the current balance amount
+        return Number(currentBalance.toFixed(2));
+    },
+});
+
+/**
+ * A selector used to keep track of the current balance, made up of the total Pending as well as
+ * Credited amounts in each transaction obtained for the user.
+ */
+const lifetimeSavingsState = selector<number>({
+    key: 'lifetimeSavingsState',
+    get: ({get}) => {
+        const transactionDataList = get(transactionDataState);
+        // the pending + credited amounts representing the lifetime savings balance
+        let lifetimeSavingsBalance = 0;
+
+        /**
+         * consider the pending and credited amounts for transactions, that will
+         * be included in the lifetime savings total.
+         */
+        transactionDataList.forEach(transaction => {
+            lifetimeSavingsBalance += transaction.pendingCashbackAmount !== 0
+                ? Number(transaction.pendingCashbackAmount.toFixed(2))
+                : Number(transaction.creditedCashbackAmount.toFixed(2));
+        });
+        // return the lifetime savings amount
+        return Number(lifetimeSavingsBalance.toFixed(2));
     },
 });
 
@@ -45,6 +97,8 @@ const sortedTransactionDataState = selector<MoonbeamTransaction[]>({
  * Export all atoms and/or selectors
  */
 export {
+    currentBalanceState,
+    lifetimeSavingsState,
     showWalletBottomSheetState,
     transactionDataState,
     sortedTransactionDataState,

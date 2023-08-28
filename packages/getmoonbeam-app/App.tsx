@@ -12,14 +12,13 @@ import {AppOverviewComponent} from './src/components/root/AppOverviewComponent';
 import {AuthenticationComponent} from "./src/components/root/auth/AuthenticationComponent";
 import {RootStackParamList} from "./src/models/props/RootProps";
 import {PaperProvider, useTheme} from "react-native-paper";
-import {Hub} from "aws-amplify";
+import {Cache, Hub} from "aws-amplify";
 import {Spinner} from "./src/components/common/Spinner";
 import * as Notifications from 'expo-notifications';
-import {AndroidNotificationPriority, ExpoPushToken} from "expo-notifications";
+import {AndroidNotificationPriority, ExpoPushToken} from 'expo-notifications';
 import Constants from "expo-constants";
 import {Platform} from "react-native";
 import * as Device from 'expo-device';
-import {Cache} from 'aws-amplify';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // this handler determines how your app handles notifications that come in while the app is foregrounded.

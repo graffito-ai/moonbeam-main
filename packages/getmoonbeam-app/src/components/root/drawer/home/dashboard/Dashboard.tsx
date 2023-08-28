@@ -18,7 +18,12 @@ import {customBannerState} from "../../../../../recoil/CustomBannerAtom";
 import BottomSheet from '@gorhom/bottom-sheet';
 import {TransactionsBottomSheet} from "./transactions/TransactionsBottomSheet";
 import {MoonbeamTransaction} from "@moonbeam/moonbeam-models";
-import {showTransactionBottomSheetState, sortedTransactionDataState} from "../../../../../recoil/DashboardAtom";
+import {
+    currentBalanceState,
+    lifetimeSavingsState,
+    showTransactionBottomSheetState,
+    sortedTransactionDataState
+} from "../../../../../recoil/DashboardAtom";
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -45,6 +50,8 @@ export const Dashboard = ({}) => {
     const [bannerState,] = useRecoilState(customBannerState);
     const [bannerVisible,] = useRecoilState(bannerState.bannerVisibilityState);
     const sortedTransactionData = useRecoilValue(sortedTransactionDataState);
+    const lifetimeSavings = useRecoilValue(lifetimeSavingsState);
+    const currentBalance = useRecoilValue(currentBalanceState);
     const [showTransactionsBottomSheet, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
 
     /**
@@ -130,7 +137,7 @@ export const Dashboard = ({}) => {
         let results: React.ReactNode[] = [];
 
         // check if there's no transactional data to be retrieved for the current user
-        if (sortedTransactionData.length === 0) {
+        if (sortedTransactionData.size === 0) {
             results.push(
                 <>
                     <List.Item
@@ -195,7 +202,7 @@ export const Dashboard = ({}) => {
                                 </View>
                             }
                             onPress={() => {
-                                setSelectedTransaction(sortedTransactionData.filter((filteredTransaction) => filteredTransaction.transactionId === transaction.transactionId)[0]);
+                                setSelectedTransaction(Array.from(sortedTransactionData).filter((filteredTransaction) => filteredTransaction.transactionId === transaction.transactionId)[0]);
                                 // show the bottom sheet with the appropriate transaction details
                                 setShowTransactionsBottomSheet(true);
                             }}
@@ -252,12 +259,11 @@ export const Dashboard = ({}) => {
                                                     <Text
                                                         style={commonStyles.dialogParagraphNumbered}>➊</Text> Your <Text
                                                     style={commonStyles.dialogParagraphBold}>Lifetime
-                                                    Savings</Text> amount includes cashback already credited to your
-                                                    account,
-                                                    as well as the one currently available.{"\n\n"}
-                                                    <Text style={commonStyles.dialogParagraphNumbered}>➋</Text> Moonbeam
-                                                    transfers your cashback to the linked card, on a <Text
-                                                    style={commonStyles.dialogParagraphBold}>monthly</Text> basis.
+                                                    Savings</Text> amount includes cashback  <Text
+                                                    style={commonStyles.dialogParagraphBold}>already credited</Text> to your
+                                                    account, as well as the one  <Text
+                                                    style={commonStyles.dialogParagraphBold}>currently pending</Text> for credit, redeemed through
+                                                    transactions made at qualifying merchant locations (in-store or online).
                                                 </> :
                                                 <>
                                                     Your Moonbeam <Text
@@ -273,23 +279,19 @@ export const Dashboard = ({}) => {
                                                     <Text
                                                         style={commonStyles.dialogParagraphNumbered}>➊</Text> The <Text
                                                     style={commonStyles.dialogParagraphBold}>Current
-                                                    Balance</Text> amount, includes any
-                                                    pending and processed cashback, redeemed through transactions made
+                                                    Balance</Text> amount, includes any  <Text
+                                                    style={commonStyles.dialogParagraphBold}>pending</Text> cashback,
+                                                    not yet credited to your account, redeemed through transactions made
                                                     at qualifying merchant locations (in-store or online).{"\n\n"}
-                                                    <Text style={commonStyles.dialogParagraphNumbered}>➋</Text> It can
+                                                    <Text style={commonStyles.dialogParagraphNumbered}>➋</Text> Moonbeam
+                                                    will automatically enable you to transfer your <Text
+                                                    style={commonStyles.dialogParagraphBold}>Current
+                                                    Balance</Text> amount, once it reaches <Text style={commonStyles.dialogParagraphBold}>$20</Text>.{"\n\n"}
+                                                    <Text style={commonStyles.dialogParagraphNumbered}>➌</Text> It can
                                                     take up to <Text style={commonStyles.dialogParagraphBold}>2-3
                                                     business days</Text>, for any cashback
                                                     credits, to be reflected in your linked-card's statement
-                                                    balance.{"\n\n"}
-                                                    <Text style={commonStyles.dialogParagraphNumbered}>➌</Text> Moonbeam
-                                                    will automatically transfer the <Text
-                                                    style={commonStyles.dialogParagraphBold}>Current
-                                                    Balance</Text> amount, once
-                                                    it reaches <Text style={commonStyles.dialogParagraphBold}>$20</Text>,
-                                                    in processed cashback amount.{"\n\n"}
-                                                    <Text style={commonStyles.dialogParagraphNumbered}>➍</Text> Moonbeam
-                                                    transfers your cashback to the linked card, on a <Text
-                                                    style={commonStyles.dialogParagraphBold}>monthly</Text> basis.
+                                                    balance.
                                                 </>
                                         }
                                     </Text>
@@ -347,7 +349,7 @@ export const Dashboard = ({}) => {
                                     <View style={styles.statisticsView}>
                                         <View style={styles.statLeftView}>
                                             <View style={styles.statInfoViewLeft}>
-                                                <Text style={styles.statNumberCenterLeft}>$1,238.76</Text>
+                                                <Text style={styles.statNumberCenterLeft}>$ {lifetimeSavings.toFixed(2)}</Text>
                                                 <Text style={styles.statTitleLeft}>
                                                     Lifetime <Text style={styles.statTitleRegular}>Savings</Text>
                                                 </Text>
@@ -362,7 +364,7 @@ export const Dashboard = ({}) => {
                                         <View style={styles.verticalLine}/>
                                         <View style={styles.statRightView}>
                                             <View style={styles.statInfoViewRight}>
-                                                <Text style={styles.statNumberCenterRight}>$10.38</Text>
+                                                <Text style={styles.statNumberCenterRight}>$ {currentBalance.toFixed(2)}</Text>
                                                 <Text style={styles.statTitleRight}>
                                                     Current <Text style={styles.statTitleRegular}>Balance</Text>
                                                 </Text>
@@ -459,7 +461,7 @@ export const Dashboard = ({}) => {
                                 backgroundStyle={[styles.bottomSheet, selectedTransaction && selectedTransaction.transactionIsOnline && {backgroundColor: '#5B5A5A'}]}
                                 enablePanDownToClose={true}
                                 index={showTransactionsBottomSheet ? 0 : -1}
-                                snapPoints={selectedTransaction && !selectedTransaction.transactionIsOnline ? ['60%', '60%'] : ['30%', '30%']}
+                                snapPoints={selectedTransaction && !selectedTransaction.transactionIsOnline ? ['60%', '60%'] : ['27%', '27%']}
                                 onChange={(index) => {
                                     setShowTransactionsBottomSheet(index !== -1);
                                 }}

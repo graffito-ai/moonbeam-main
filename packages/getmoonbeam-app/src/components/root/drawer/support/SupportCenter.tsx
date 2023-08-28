@@ -145,7 +145,7 @@ export const SupportCenter = ({navigation}: SupportCenterProps) => {
                                             titleNumberOfLines={2}
                                             descriptionNumberOfLines={3}
                                             title={'Contact'}
-                                            description={`You will be redirected to a live agent whom will be able to answer your questions.`}
+                                            description={`Wanna ask us to dinner? Slide into our DMs.`}
                                             onPress={async () => {
                                                 await contactSupport();
                                             }}
@@ -167,7 +167,7 @@ export const SupportCenter = ({navigation}: SupportCenterProps) => {
                                             titleNumberOfLines={2}
                                             descriptionNumberOfLines={3}
                                             title={'FAQ'}
-                                            description={`Access our most frequently asked questions and answers.`}
+                                            description={`Got questions? We got answers.`}
                                             onPress={async () => {
                                                 // go to the FAQ page
                                                 navigation.navigate('FAQ', {});

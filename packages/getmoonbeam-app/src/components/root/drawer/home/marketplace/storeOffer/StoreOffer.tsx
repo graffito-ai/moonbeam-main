@@ -85,10 +85,11 @@ export const StoreOffer = ({navigation}: StoreOfferProps) => {
                                 icon="close"
                                 iconColor={"#F2FF5D"}
                                 size={Dimensions.get('window').height / 28}
-                                style={[commonStyles.backButtonDismiss, {
+                                style={{
+                                    alignSelf: 'flex-start',
                                     right: Dimensions.get('window').width / 15,
-                                    bottom: Dimensions.get('window').height / 250
-                                }]}
+                                    bottom: Dimensions.get('window').height / 650
+                                }}
                                 onPress={() => {
                                     navigation.navigate('StoreOfferDetails', {});
                                 }}

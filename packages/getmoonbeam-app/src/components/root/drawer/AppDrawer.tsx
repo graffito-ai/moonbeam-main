@@ -51,11 +51,11 @@ import {
     transactionDataState
 } from "../../../recoil/DashboardAtom";
 import {fetchFile} from "../../../utils/File";
-import Image = Animated.Image;
-import { Documents } from './documents/Documents';
+import {Documents} from './documents/Documents';
 import {DocumentsViewer} from "../../common/DocumentsViewer";
 import {Support} from "./support/Support";
 import {createPhysicalDevice, proceedWithDeviceCreation} from "../../../utils/AppSync";
+import Image = Animated.Image;
 
 /**
  * AppDrawer component.
@@ -79,8 +79,8 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         const [isLoaded, setIsLoaded] = useState<boolean>(false);
         const [updatedMilitaryStatus, setUpdatedMilitaryStatus] = useState<MilitaryVerificationStatusType | null>(null);
         // constants used to keep track of shared states
-        const [expoPushToken, ] = useRecoilState(expoPushTokenState);
-        const [globalCache, ] = useRecoilState(globalAmplifyCacheState);
+        const [expoPushToken,] = useRecoilState(expoPushTokenState);
+        const [globalCache,] = useRecoilState(globalAmplifyCacheState);
         const [transactionData, setTransactionData] = useRecoilState(transactionDataState);
         const [, setProfilePictureURI] = useRecoilState(profilePictureURIState);
         const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
@@ -304,15 +304,15 @@ export const AppDrawer = ({}: AppDrawerProps) => {
          * and verification needs to take place (since this already does take place at initial load, no
          * matter what)
          *
-         * @return a tuple of {@link Object}, {@link MoonbeamTransaction} and {@link string}, representing
+         * @return a tuple of {@link Object} - {@link Set} of {@link MoonbeamTransaction}, and {@link string}, representing
          * the user information details retrieved, the user's transactional data retrieved as well as the
          * user's profile picture URI if applicable, to be used when updating the current user information.
          */
-        const loadAppData = async (militaryStatusAlreadyVerified: boolean): Promise<[Object, MoonbeamTransaction[], string]> => {
+        const loadAppData = async (militaryStatusAlreadyVerified: boolean): Promise<[Object, Set<MoonbeamTransaction>, string]> => {
             setIsReady(false);
             setIsLoaded(true);
 
-            let updatedTransactionalData: MoonbeamTransaction[] = [];
+            let updatedTransactionalData: Set<MoonbeamTransaction> = new Set();
             let updatedUserInformation: Object = userInformation;
             let updatedProfilePicture: string = "";
             let militaryStatus: MilitaryVerificationStatusType | 'UNKNOWN' | null = null;
@@ -360,14 +360,14 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                      * Whenever a new card is linked successfully, then the status of the card linking will be changed,
                      * and thus, the banner will be hidden.
                      */
-                    if (linkedCard === null || (linkedCard &&linkedCard!.cards.length === 0)) {
+                    if (linkedCard === null || (linkedCard && linkedCard!.cards.length === 0)) {
                         // adding the card linking status accordingly
                         setCardLinkingStatus(false);
 
                         // set the banner state accordingly
                         setBannerState({
                             bannerVisibilityState: cardLinkingStatusState,
-                            bannerMessage: "You currently do not have a linked card to your Moonbeam account. In order to see more dashboard details, you will need to have a card in your wallet. Get started now!",
+                            bannerMessage: "You do not have a linked card. You will need to have a card in your wallet to see more details.",
                             bannerButtonLabel: "Link Now",
                             bannerButtonLabelActionSource: "home/wallet",
                             bannerArtSource: CardLinkingImage,
@@ -425,7 +425,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                 // retrieve the transactional data for the user
                 const retrievedTransactionalData = await retrieveTransactionalData(userInformation["custom:userId"]);
                 setTransactionsRetrieved(true);
-                updatedTransactionalData = retrievedTransactionalData !== null ? retrievedTransactionalData : [];
+                updatedTransactionalData = retrievedTransactionalData !== null ? retrievedTransactionalData : new Set();
 
                 return [updatedUserInformation, updatedTransactionalData, updatedProfilePicture];
             } else {
@@ -458,7 +458,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                 // adding the new transactions into the transaction list
                                 setTransactionData(latestTransactionData => {
                                     // @link https://legacy.reactjs.org/docs/hooks-reference.html#functional-updates
-                                    return latestTransactionData.concat([messageData]);
+                                    return new Set([...latestTransactionData, messageData]);
                                 });
                             } else {
                                 console.log(`Unexpected error while parsing subscription message for transactions created updates ${JSON.stringify(value)}`);
@@ -484,9 +484,9 @@ export const AppDrawer = ({}: AppDrawerProps) => {
          * us.
          *
          * @param userId userID generated through previous steps during the sign-up process
-         * @returns a {@link MoonbeamTransaction[]} representing the card linked object, or {@link null}, representing an error
+         * @returns a {@link Set} of {@link MoonbeamTransaction} representing the card linked object, or {@link null}, representing an error
          */
-        const retrieveTransactionalData = async (userId: string): Promise<MoonbeamTransaction[] | null> => {
+        const retrieveTransactionalData = async (userId: string): Promise<Set<MoonbeamTransaction> | null> => {
             try {
                 if (!transactionsRetrieved) {
                     // call the get transaction API
@@ -508,10 +508,10 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                          * concatenating the incoming transactional data to the existing one and
                          * adding the user's transactions to the transactional object
                          */
-                        const updatedTransactionalData = transactionData.concat(responseData.getTransaction.data);
+                        const updatedTransactionalData = new Set([ ...transactionData, ...responseData.getTransaction.data]);
 
                         // return the transactional data for the user
-                        return updatedTransactionalData as MoonbeamTransaction[];
+                        return updatedTransactionalData as Set<MoonbeamTransaction>;
                     } else {
                         /**
                          * if there is no transactional data, we won't be showing the error modal, since for new customers,
@@ -571,7 +571,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                             // set the banner state accordingly
                             setBannerState({
                                 bannerVisibilityState: cardLinkingStatusState,
-                                bannerMessage: "You currently do not have a linked card to your Moonbeam account. In order to see more dashboard details, you will need to have a card in your wallet. Get started now!",
+                                bannerMessage: "You do not have a linked card. You will need to have a card in your wallet to see more details.",
                                 bannerButtonLabel: "Link Now",
                                 bannerButtonLabelActionSource: "home/wallet",
                                 bannerArtSource: CardLinkingImage,
@@ -612,7 +612,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                             // set the banner state accordingly
                             setBannerState({
                                 bannerVisibilityState: cardLinkingStatusState,
-                                bannerMessage: "You currently do not have a linked card to your Moonbeam account. In order to see more dashboard details, you will need to have a card in your wallet. Get started now!",
+                                bannerMessage: "You do not have a linked card. You will need to have a card in your wallet to see more details.",
                                 bannerButtonLabel: "Link Now",
                                 bannerButtonLabelActionSource: "home/wallet",
                                 bannerArtSource: CardLinkingImage,
@@ -807,7 +807,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                                     : props.state.routes.filter((route) => route.name !== 'AppWall' && route.name !== 'DocumentsViewer')
                                             }
                                         }
-                                        return(<CustomDrawer {...filteredProps} />);
+                                        return (<CustomDrawer {...filteredProps} />);
                                     }}
                                     initialRouteName={!userVerified ? "AppWall" : "Home"}
                                     screenOptions={({navigation}) => ({

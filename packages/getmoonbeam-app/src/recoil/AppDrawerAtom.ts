@@ -87,6 +87,15 @@ const isReadyAppWallState = atom<boolean>({
     default: true
 });
 
+
+/**
+ * atom used to keep track of the document verification dropdown state from the Documents section.
+ */
+const verificationDocumentAppWallState = atom<string>({
+    key: "verificationDocumentAppWallState",
+    default: ''
+});
+
 /**
  * Atom used to keep track of the uploaded photo name from the Documents section.
  */
@@ -107,6 +116,7 @@ const isDocumentUploadAppWallState = atom<string>({
  * Export all atoms and/or selectors
  */
 export {
+    verificationDocumentAppWallState,
     isReadyAppWallState,
     isPhotoUploadedAppWallState,
     isDocumentUploadAppWallState,
