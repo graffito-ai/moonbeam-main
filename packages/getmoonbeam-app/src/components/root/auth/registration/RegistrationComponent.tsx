@@ -555,7 +555,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
         if (status === 'granted') {
             // fetch the URI for the image to be retrieved from CloudFront
             // retrieving the document link from either local cache, or from storage
-            const [returnFlag, shareURI] = await fetchFile('contact-icon.png', false, true, true);
+            const [returnFlag, shareURI] = await fetchFile('contact-icon.png', false, false, true);
             if (!returnFlag || shareURI === null) {
                 console.log(`Unable to download contact icon file!`);
             } else {

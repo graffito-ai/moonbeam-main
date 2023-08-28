@@ -324,10 +324,9 @@ export const Dashboard = ({}) => {
                                         {...profilePictureURI && profilePictureURI !== "" && {
                                             source: {
                                                 uri: profilePictureURI,
-                                                cache: 'force-cache'
+                                                cache: 'reload'
                                             }
-                                        }
-                                        }
+                                        }}
                                         avatarStyle={{
                                             resizeMode: 'cover',
                                             borderColor: '#F2FF5D',
@@ -418,7 +417,10 @@ export const Dashboard = ({}) => {
                                             }
                                         ]}
                                     />
-                                    <View style={{height: Dimensions.get('window').height / 100, backgroundColor: '#313030'}}/>
+                                    <View style={{
+                                        height: Dimensions.get('window').height / 100,
+                                        backgroundColor: '#313030'
+                                    }}/>
                                     <ScrollView
                                         scrollEnabled={true}
                                         persistentScrollbar={false}

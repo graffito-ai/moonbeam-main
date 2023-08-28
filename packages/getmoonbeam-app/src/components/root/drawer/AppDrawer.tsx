@@ -747,7 +747,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
 
                     // fetch the profile picture URI from storage and/or cache
                     const [returnFlag, profilePictureURI] = await fetchFile('profile_picture.png', true,
-                        true, false, userCredentials["identityId"]);
+                        false, false, userCredentials["identityId"]);
                     if (!returnFlag || profilePictureURI === null) {
                         // for any error we just want to print them out, and not set any profile picture, and show the default avatar instead
                         console.log(`Unable to retrieve new profile picture!`);

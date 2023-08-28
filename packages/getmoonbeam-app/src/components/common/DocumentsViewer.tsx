@@ -53,7 +53,7 @@ export const DocumentsViewer = ({route, navigation}: DocumentsViewerProps | Auth
 
         // retrieving the document link from either local cache, or from storage
         // @ts-ignore
-        documentShareURI === '' && fetchFile(route.params.name, route.params.privacyFlag, true, true).then(([returnFlag, shareURI]) => {
+        documentShareURI === '' && fetchFile(route.params.name, route.params.privacyFlag, false, true).then(([returnFlag, shareURI]) => {
             if (!returnFlag) {
                 // show error modal, go back on dismiss
                 setDocumentViewerErrorModalMessage(`${route.params.name}`);

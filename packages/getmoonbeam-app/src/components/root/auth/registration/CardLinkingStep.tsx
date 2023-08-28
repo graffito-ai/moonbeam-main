@@ -240,7 +240,7 @@ export const CardLinkingStep = () => {
                         data-public-key=Zlltp0W5jB09Us0kkOPN6edVwfy1JYGO
                         data-container-div="olive-sdk-container"
                         data-environment="sandbox"
-                        data-include-header="false"
+                        data-include-header="true"
                         data-form-background-color="#313030"
                         data-background-color="#313030"
                         data-auto-open=true>

@@ -531,7 +531,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                                             {...(profilePictureURI && profilePictureURI !== "") && {
                                                 source: {
                                                     uri: profilePictureURI,
-                                                    cache: 'force-cache'
+                                                    cache: 'reload'
                                                 }
                                             }
                                             }
