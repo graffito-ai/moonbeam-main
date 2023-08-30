@@ -137,7 +137,7 @@ export const Dashboard = ({}) => {
         let results: React.ReactNode[] = [];
 
         // check if there's no transactional data to be retrieved for the current user
-        if (sortedTransactionData.size === 0) {
+        if (sortedTransactionData.length === 0) {
             results.push(
                 <>
                     <List.Item
@@ -247,51 +247,40 @@ export const Dashboard = ({}) => {
                                             lifetimeSavingsDialog ?
                                                 <>
                                                     Your Moonbeam <Text
-                                                    style={commonStyles.dialogParagraphBold}>Cashback</Text>, is split
-                                                    in two main categories,
+                                                    style={commonStyles.dialogParagraphBold}>Cashback</Text> is split
+                                                    in two categories.
                                                     <Text style={commonStyles.dialogParagraphBold}> Lifetime
                                                         Savings</Text> and <Text
                                                     style={commonStyles.dialogParagraphBold}>Current
-                                                    Balance</Text> amounts.
-                                                    In order to understand how the <Text
-                                                    style={commonStyles.dialogParagraphBold}>Lifetime
-                                                    Savings</Text> category works, please note the following:{"\n\n\n"}
+                                                    Balance</Text>.{"\n\n\n"}
                                                     <Text
-                                                        style={commonStyles.dialogParagraphNumbered}>➊</Text> Your <Text
+                                                        style={commonStyles.dialogParagraphNumbered}>➊</Text>  The <Text
                                                     style={commonStyles.dialogParagraphBold}>Lifetime
-                                                    Savings</Text> amount includes cashback  <Text
-                                                    style={commonStyles.dialogParagraphBold}>already credited</Text> to your
-                                                    account, as well as the one  <Text
-                                                    style={commonStyles.dialogParagraphBold}>currently pending</Text> for credit, redeemed through
-                                                    transactions made at qualifying merchant locations (in-store or online).
+                                                    Savings</Text> amount includes your <Text
+                                                    style={commonStyles.dialogParagraphBold}>all-time cashback.</Text>
                                                 </> :
                                                 <>
                                                     Your Moonbeam <Text
-                                                    style={commonStyles.dialogParagraphBold}>Cashback</Text>, is split
-                                                    in two main categories,
+                                                    style={commonStyles.dialogParagraphBold}>Cashback</Text> is split
+                                                    in two categories.
                                                     <Text style={commonStyles.dialogParagraphBold}> Lifetime
                                                         Savings</Text> and <Text
                                                     style={commonStyles.dialogParagraphBold}>Current
-                                                    Balance</Text> amounts.
-                                                    In order to understand how the <Text
-                                                    style={commonStyles.dialogParagraphBold}>Current
-                                                    Balance</Text> category works, please note the following:{"\n\n\n"}
+                                                    Balance</Text>.{"\n\n\n"}
                                                     <Text
-                                                        style={commonStyles.dialogParagraphNumbered}>➊</Text> The <Text
+                                                        style={commonStyles.dialogParagraphNumbered}>➊</Text>  The <Text
                                                     style={commonStyles.dialogParagraphBold}>Current
-                                                    Balance</Text> amount, includes any  <Text
-                                                    style={commonStyles.dialogParagraphBold}>pending</Text> cashback,
-                                                    not yet credited to your account, redeemed through transactions made
-                                                    at qualifying merchant locations (in-store or online).{"\n\n"}
-                                                    <Text style={commonStyles.dialogParagraphNumbered}>➋</Text> Moonbeam
-                                                    will automatically enable you to transfer your <Text
+                                                    Balance</Text> amount includes any <Text
+                                                    style={commonStyles.dialogParagraphBold}>processed</Text> cashback which can be
+                                                    redeemed through the Moonbeam platform.{"\n\n"}
+                                                    <Text style={commonStyles.dialogParagraphNumbered}>➋</Text>  It can take upto 30 days
+                                                    for your cashback to reflect in your <Text
                                                     style={commonStyles.dialogParagraphBold}>Current
-                                                    Balance</Text> amount, once it reaches <Text style={commonStyles.dialogParagraphBold}>$20</Text>.{"\n\n"}
-                                                    <Text style={commonStyles.dialogParagraphNumbered}>➌</Text> It can
-                                                    take up to <Text style={commonStyles.dialogParagraphBold}>2-3
-                                                    business days</Text>, for any cashback
-                                                    credits, to be reflected in your linked-card's statement
-                                                    balance.
+                                                    Balance</Text> amount.{"\n\n"}
+                                                    <Text style={commonStyles.dialogParagraphNumbered}>➌</Text>  You will be able to transfer your
+                                                    <Text style={commonStyles.dialogParagraphBold}> Current Balance</Text> amount once it reaches $20.{"\n\n"}
+                                                    <Text style={commonStyles.dialogParagraphNumbered}>➍</Text>  If you have any issues please contact support.{"\n\n"}
+
                                                 </>
                                         }
                                     </Text>

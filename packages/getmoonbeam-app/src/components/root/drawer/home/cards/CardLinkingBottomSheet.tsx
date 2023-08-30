@@ -56,7 +56,6 @@ export const CardLinkingBottomSheet = () => {
      * @param data data to be passed in from the webview form.
      */
     const onCardLinkAction = async (data): Promise<void> => {
-        console.log('here bitch!');
         // reset previously modal error message
         setModalCustomMessage("");
 

@@ -4,10 +4,10 @@ import {Banner, Text} from 'react-native-paper';
 import {RecoilState, useRecoilState} from "recoil";
 import {styles} from '../../styles/customBanner.module';
 import {customBannerShown} from "../../recoil/AppDrawerAtom";
-import * as Linking from "expo-linking";
 import {deviceTypeState} from "../../recoil/RootAtom";
 import * as Device from "expo-device";
 import {DeviceType} from "expo-device";
+import {bottomBarNavigationState} from "../../recoil/HomeAtom";
 
 /**
  * Custom Banner component. This component will be used as a banner for notification and/or
@@ -25,6 +25,7 @@ export const CustomBanner = (props: {
     dismissing: boolean
 }) => {
     // constants used to keep track of shared states
+    const [bottomBarNavigation, ] = useRecoilState(bottomBarNavigationState);
     const [bannerShown,] = useRecoilState(customBannerShown);
     const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
     const [bannerVisibile, setBannerVisible] = useRecoilState(props.bannerVisibilityState);
@@ -54,7 +55,9 @@ export const CustomBanner = (props: {
                     labelStyle: deviceType === DeviceType.TABLET ? styles.buttonLabelTablet : styles.buttonLabel,
                     onPress: async () => {
                         // go to a specific URL within the application
-                        await Linking.openURL(Linking.createURL(props.bannerButtonLabelActionSource));
+                        if (props.bannerButtonLabelActionSource === "home/wallet") {
+                            bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
+                        }
                     },
                 },
                 ...props.dismissing ? [{

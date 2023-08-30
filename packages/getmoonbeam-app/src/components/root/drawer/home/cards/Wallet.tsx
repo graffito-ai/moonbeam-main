@@ -157,15 +157,19 @@ export const Wallet = ({navigation}: CardsProps) => {
             });
 
             // if the card was successfully removed, then we can cache it accordingly
+            const newCardLink = {
+                ...userInformation["linkedCard"],
+                cards: []
+            }
             if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCardFlag`) !== null) {
                 console.log('old card is cached, needs cleaning up');
                 await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCard`);
                 await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCardFlag`);
-                await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, null);
+                await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, newCardLink);
                 await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
             } else {
                 console.log('card is not cached');
-                globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, null);
+                globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, newCardLink);
                 globalCache && await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
             }
         } else {

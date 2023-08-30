@@ -432,15 +432,6 @@ const cardLinkingRegistrationStatusState = atom({
 });
 
 /**
- * Atom used to keep track of the initial app URL, after the authentication passed, as well as
- * any of its state changes.
- */
-const appLinkedURLState = atom({
-    key: "appLinkedURLState",
-    default: ""
-});
-
-/**
  * Atom used to keep track of whether the Registration page needs loading global loading.
  */
 const isReadyRegistrationState = atom<boolean>({
@@ -521,7 +512,6 @@ export {
     isReadyRegistrationState,
     authRegistrationNavigation,
     expoPushTokenState,
-    appLinkedURLState,
     cardLinkingRegistrationStatusState,
     additionalDocumentationErrors,
     additionalDocumentationNeeded,

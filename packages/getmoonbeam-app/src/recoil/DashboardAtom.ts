@@ -5,9 +5,9 @@ import {MoonbeamTransaction} from "@moonbeam/moonbeam-models";
  * Atom used to keep track of the state of the transactional data
  * for a particular user.
  */
-const transactionDataState = atom<Set<MoonbeamTransaction>>({
+const transactionDataState = atom<MoonbeamTransaction[]>({
     key: "transactionDataState",
-    default: new Set()
+    default: []
 });
 
 /**
@@ -32,17 +32,19 @@ const showWalletBottomSheetState = atom<boolean>({
  *
  * This will also round down the discount amount, to two digits only.
  */
-const sortedTransactionDataState = selector<Set<MoonbeamTransaction>>({
+const sortedTransactionDataState = selector<MoonbeamTransaction[]>({
     key: 'sortedTransactionDataState',
     get: ({get}) => {
         const transactionDataList = get(transactionDataState);
-        // only consider each transaction's reward amount up to two digits
+        // only consider each transaction's reward amount up to two digits, and do not include duplicates (it happens on re-renders not due to the backend)
         transactionDataList.forEach(transaction => {
-            transaction.rewardAmount = Number(transaction.rewardAmount.toFixed(2))
+            transaction.rewardAmount = Number(transaction.rewardAmount.toFixed(2));
         });
-        // sort transactions by timestamp
-        return new Set(Array.from(transactionDataList).sort((a, b) => b.timestamp - a.timestamp));
-    },
+        // sort transactions by timestamp and ensure that there are no duplicates
+        return transactionDataList
+            .filter((v, i, a) => a.findIndex(v2 => (v2.transactionId === v.transactionId)) === i)
+            .slice().sort((a, b) => b.timestamp - a.timestamp);
+    }
 });
 
 /**
@@ -52,19 +54,23 @@ const sortedTransactionDataState = selector<Set<MoonbeamTransaction>>({
 const currentBalanceState = selector<number>({
     key: 'currentBalanceState',
     get: ({get}) => {
+        // @ts-ignore
         const transactionDataList = get(transactionDataState);
-        // the pending amounts representing the current balance (to be paid to the user)
-        let currentBalance = 0;
-
-        /**
-         * only consider each transaction's reward amount equal to the pending amount that will
-         * be included in the current balance total.
-         */
-        transactionDataList.forEach(transaction => {
-            currentBalance += Number(transaction.pendingCashbackAmount.toFixed(2));
-        });
-        // return the current balance amount
-        return Number(currentBalance.toFixed(2));
+        // // the pending amounts representing the current balance (to be paid to the user)
+        // let currentBalance = 0;
+        //
+        // /**
+        //  * only consider each transaction's reward amount equal to the pending amount that will
+        //  * be included in the current balance total.
+        //  */
+        // transactionDataList
+        //             .filter((v,i,a)=>a.findIndex(v2=>(v2.transactionId===v.transactionId))===i)
+        //             .forEach(transaction => {
+        //     currentBalance += Number(transaction.pendingCashbackAmount.toFixed(2));
+        // });
+        // // return the current balance amount
+        // return Number(currentBalance.toFixed(2));
+        return Number(0.00);
     },
 });
 
@@ -83,11 +89,13 @@ const lifetimeSavingsState = selector<number>({
          * consider the pending and credited amounts for transactions, that will
          * be included in the lifetime savings total.
          */
-        transactionDataList.forEach(transaction => {
-            lifetimeSavingsBalance += transaction.pendingCashbackAmount !== 0
-                ? Number(transaction.pendingCashbackAmount.toFixed(2))
-                : Number(transaction.creditedCashbackAmount.toFixed(2));
-        });
+        transactionDataList
+            .filter((v, i, a) => a.findIndex(v2 => (v2.transactionId === v.transactionId)) === i)
+            .forEach(transaction => {
+                lifetimeSavingsBalance += transaction.pendingCashbackAmount !== 0
+                    ? Number(transaction.pendingCashbackAmount.toFixed(2))
+                    : Number(transaction.creditedCashbackAmount.toFixed(2));
+            });
         // return the lifetime savings amount
         return Number(lifetimeSavingsBalance.toFixed(2));
     },

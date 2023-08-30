@@ -14,6 +14,8 @@ import {styles} from "../../../../styles/faq.module";
 import {ScrollView} from "react-native-gesture-handler";
 import {dynamicSort} from '../../../../utils/Main';
 import {faqListState} from "../../../../recoil/FaqAtom";
+import {bottomBarNavigationState, drawerNavigationState} from "../../../../recoil/HomeAtom";
+import {goToProfileSettingsState} from "../../../../recoil/Settings";
 
 /**
  * FAQ component.
@@ -28,6 +30,9 @@ export const FAQ = ({navigation}: FAQProps) => {
     const [faqErrorModalVisible, setFAQErrorModalVisible] = useState<boolean>(false);
     const [faqIDExpanded, setFAQIdExpanded] = useState<string | null>(null);
     // constants used to keep track of shared states
+    const [, setGoToProfileSettings] = useRecoilState(goToProfileSettingsState);
+    const [bottomBarNavigation, ] = useRecoilState(bottomBarNavigationState);
+    const [drawerNavigation, ] = useRecoilState(drawerNavigationState);
     const [faqList, setFAQList] = useRecoilState(faqListState);
     const [, setDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
     const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
@@ -127,7 +132,57 @@ export const FAQ = ({navigation}: FAQProps) => {
                                             <Text
                                                 style={styles.factItemTitle}
                                                 onPress={async () => {
-                                                    // ToDo link to the appropriate location
+                                                    switch (fact!.linkLocation) {
+                                                        case 'support':
+                                                            // show the drawer header
+                                                            setDrawerHeaderShown(true);
+
+                                                            // enable the drawer swipe
+                                                            setDrawerSwipeEnabled(true);
+
+                                                            navigation.goBack();
+                                                            break;
+                                                        case 'wallet':
+                                                            // show the drawer header
+                                                            setDrawerHeaderShown(true);
+
+                                                            // enable the drawer swipe
+                                                            setDrawerSwipeEnabled(true);
+
+                                                            navigation.goBack();
+
+                                                            bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
+                                                            drawerNavigation && drawerNavigation!.navigate('Home', {});
+                                                            break;
+                                                        case 'profile':
+                                                            // show the drawer header
+                                                            setDrawerHeaderShown(true);
+
+                                                            // enable the drawer swipe
+                                                            setDrawerSwipeEnabled(true);
+
+                                                            navigation.goBack();
+
+                                                            setGoToProfileSettings(true);
+                                                            drawerNavigation && drawerNavigation!.navigate('Settings', {});
+                                                            break;
+                                                        case 'store':
+                                                            // show the drawer header
+                                                            setDrawerHeaderShown(true);
+
+                                                            // enable the drawer swipe
+                                                            setDrawerSwipeEnabled(true);
+
+                                                            navigation.goBack();
+
+                                                            bottomBarNavigation && bottomBarNavigation!.navigate('Marketplace', {});
+                                                            drawerNavigation && drawerNavigation!.navigate('Home', {});
+                                                            break;
+                                                        default:
+                                                            console.log('Unknown location from FAQ');
+                                                            break
+                                                    }
+                                                    console.log(fact!.linkLocation);
                                                 }}
                                             >
                                                 {word}

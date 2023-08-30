@@ -149,7 +149,7 @@ export class NotificationsResolverStack extends Stack {
                 resources: [
                     // this ARN is retrieved post secret creation
                     ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:courier-internal-secret-pair-dev-us-west-2-cPEXmP"] : [],
-                    ...props.stage === Stages.PROD ? [""] : []
+                    ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:courier-internal-secret-pair-prod-us-west-2-PpvduA"] : []
                 ]
             })
         );

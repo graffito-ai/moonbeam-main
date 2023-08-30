@@ -8,7 +8,7 @@ import {DashboardControllerStackParamList} from "../../../../../models/props/Das
 import {Dashboard} from "./Dashboard";
 import {showTransactionBottomSheetState, showWalletBottomSheetState} from "../../../../../recoil/DashboardAtom";
 import {Spinner} from "../../../../common/Spinner";
-import * as Linking from "expo-linking";
+import {bottomBarNavigationState} from "../../../../../recoil/HomeAtom";
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -21,6 +21,7 @@ export const DashboardController = ({navigation}: DashboardProps) => {
         // constants used to keep track of local component state
         const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
         // constants used to keep track of shared states
+        const [, setBottomBarNavigation] = useRecoilState(bottomBarNavigationState);
         const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
         const [, setBannerShown] = useRecoilState(customBannerShown);
         const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
@@ -30,32 +31,6 @@ export const DashboardController = ({navigation}: DashboardProps) => {
         // create a native stack navigator, to be used for our Dashboard Controller application navigation
         const DashboardStack = createNativeStackNavigator<DashboardControllerStackParamList>();
 
-        // enabling the linking configuration for creating links to the application screens, based on the navigator
-        const config = {
-            screens: {
-                Dashboard: {
-                    path: 'home/control/dashboard'
-                },
-                TransactionsController: {
-                    path: 'home/control/transactions'
-                },
-                CashbackController: {
-                    path: 'home/control/cashback'
-                }
-            }
-        };
-
-        /**
-         * configuring the navigation linking, based on the types of prefixes that the application supports, given
-         * the environment that we deployed the application in.
-         * @see https://docs.expo.dev/guides/linking/?redirected
-         * @see https://reactnavigation.org/docs/deep-linking/
-         */
-        const linking = {
-            prefixes: [Linking.createURL('/')],
-            config,
-        };
-
         /**
          * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
          * auth-related functionality for example), as well as any afferent API calls.
@@ -64,6 +39,8 @@ export const DashboardController = ({navigation}: DashboardProps) => {
          * included in here.
          */
         useEffect(() => {
+            // set the bottom bar navigation
+            setBottomBarNavigation(navigation);
             // set the app drawer status accordingly,custom banner visibility and drawer swipe actions accordingly
             if (navigation.getState().index === 0) {
                 setAppDrawerHeaderShown(true)
@@ -88,7 +65,6 @@ export const DashboardController = ({navigation}: DashboardProps) => {
         return (
             <>
                 <NavigationContainer independent={true}
-                                     linking={linking}
                                      fallback={
                                          <Spinner loadingSpinnerShown={loadingSpinnerShown}
                                                   setLoadingSpinnerShown={setLoadingSpinnerShown}/>

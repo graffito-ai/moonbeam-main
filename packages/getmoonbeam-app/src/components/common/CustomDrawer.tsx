@@ -17,9 +17,10 @@ import {currentUserInformation, isLoadingAppOverviewNeededState, mainRootNavigat
 // @ts-ignore
 import SideBarImage from '../../../assets/art/sidebar.png';
 import {profilePictureURIState} from "../../recoil/AppDrawerAtom";
-import * as Linking from "expo-linking";
 import {Spinner} from "./Spinner";
 import {Auth} from "aws-amplify";
+import {drawerNavigationState} from "../../recoil/HomeAtom";
+import {goToProfileSettingsState} from "../../recoil/Settings";
 
 /**
  * CustomDrawer component. This component will be used to further tailor our sidebar navigation drawer, mainly
@@ -35,6 +36,8 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const [isReady,] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
+    const [, setGoToProfileSettings] = useRecoilState(goToProfileSettingsState);
+    const [drawerNavigation, ] = useRecoilState(drawerNavigationState);
     const [, setIsLoadingAppOverviewNeeded] = useRecoilState(isLoadingAppOverviewNeededState);
     const [mainRootNavigation, ] = useRecoilState(mainRootNavigationState);
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
@@ -106,7 +109,8 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                     containerStyle={styles.avatarStyle}
                                     onPress={async () => {
                                         // go to the Profile screen
-                                        await Linking.openURL(Linking.createURL(`settings/profile`));
+                                        setGoToProfileSettings(true);
+                                        drawerNavigation && drawerNavigation!.navigate('Settings', {});
                                     }}
                                 >
                                     <Avatar.Accessory
@@ -115,7 +119,8 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                         color={'#F2FF5D'}
                                         onPress={async () => {
                                             // go to the Profile screen
-                                            await Linking.openURL(Linking.createURL(`settings/profile`));
+                                            setGoToProfileSettings(true);
+                                            drawerNavigation && drawerNavigation!.navigate('Settings', {});
                                         }}
                                     />
                                 </Avatar>

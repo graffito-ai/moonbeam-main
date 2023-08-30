@@ -141,7 +141,9 @@ export class AmplifyAuthStack extends NestedStack {
                 requireLowercase: true
             },
             email: UserPoolEmail.withSES({
-                fromEmail: `noreply-${props.stage}@moonbeam.vet`,
+                fromEmail:  props.stage === Stages.DEV
+                    ? `noreply-${props.stage}@moonbeam.vet`
+                    : `noreply@moonbeam.vet`,
                 fromName: 'Moonbeam App',
                 replyTo: 'info@moonbeam.vet',
             }),

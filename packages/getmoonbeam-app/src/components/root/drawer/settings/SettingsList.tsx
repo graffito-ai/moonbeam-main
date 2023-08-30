@@ -7,11 +7,10 @@ import {styles} from "../../../../styles/settingsList.module";
 // @ts-ignore
 import FaceIDIcon from '../../../../../assets/face-id-icon.png';
 import {useRecoilState} from "recoil";
-import {appLinkedURLState, currentUserInformation} from "../../../../recoil/AuthAtom";
+import {currentUserInformation, globalAmplifyCacheState} from "../../../../recoil/AuthAtom";
 import {Spinner} from "../../../common/Spinner";
 import {API, graphqlOperation} from "aws-amplify";
 import {deleteCard} from "@moonbeam/moonbeam-models";
-import * as Linking from 'expo-linking';
 import {cardLinkingStatusState, drawerSwipeState} from "../../../../recoil/AppDrawerAtom";
 // @ts-ignore
 import CardLinkingImage from "../../../../../assets/art/moonbeam-card-linking.png";
@@ -20,6 +19,8 @@ import {deviceTypeState} from "../../../../recoil/RootAtom";
 import * as Device from "expo-device";
 import {DeviceType} from "expo-device";
 import {Button} from "@rneui/base";
+import {bottomBarNavigationState, drawerNavigationState} from "../../../../recoil/HomeAtom";
+import {goToProfileSettingsState} from "../../../../recoil/Settings";
 
 /**
  * SettingsList component
@@ -38,12 +39,15 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
     const [modalCustomMessage, setModalCustomMessage] = useState<string>("");
     const [modalButtonMessage, setModalButtonMessage] = useState<string>("");
     // constants used to keep track of shared states
+    const [goToProfileSettings, ] = useRecoilState(goToProfileSettingsState);
+    const [globalCache, ] = useRecoilState(globalAmplifyCacheState);
+    const [drawerNavigation, ] = useRecoilState(drawerNavigationState);
+    const [bottomBarNavigation, ] = useRecoilState(bottomBarNavigationState);
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
     const [, setBannerState] = useRecoilState(customBannerState);
     const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
     const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
-    const [appURL,] = useRecoilState(appLinkedURLState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -53,10 +57,8 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
      * included in here.
      */
     useEffect(() => {
-        // since deep-linking sometimes does not work on first-render, use the global App URL to re-route to appropriate screen
-        if (appURL.length !== 0 && appURL.includes('profile')) {
-            navigation.navigate('Profile', {});
-        }
+        // redirect the appropriate screen through linking
+        goToProfileSettings && navigation.navigate('Profile', {});
 
         // check and set the type of device, to be used throughout the app
         Device.getDeviceTypeAsync().then(deviceType => {
@@ -78,7 +80,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
             setOptionDescription("Click this button to opt-in to all our sweet discount programs!");
             setOptionIcon('credit-card-plus-outline');
         }
-    }, [userInformation["linkedCard"], deviceType, appURL]);
+    }, [goToProfileSettings, userInformation["linkedCard"], deviceType]);
 
     /**
      * Function used to handle the opt-out action, from the settings list
@@ -119,6 +121,23 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                         cards: []
                     }
                 });
+
+                // if the card was successfully removed, then we can cache it accordingly
+                const newCardLink = {
+                    ...userInformation["linkedCard"],
+                    cards: []
+                }
+                if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCardFlag`) !== null) {
+                    console.log('old card is cached, needs cleaning up');
+                    await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCard`);
+                    await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCardFlag`);
+                    await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, newCardLink);
+                    await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
+                } else {
+                    console.log('card is not cached');
+                    globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, newCardLink);
+                    globalCache && await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
+                }
 
                 // change the card linking status
                 setCardLinkingStatus(false);
@@ -172,7 +191,8 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                 onDismiss={() => setModalVisible(false)}>
                             <Dialog.Icon icon="alert" color={"#F2FF5D"}
                                          size={Dimensions.get('window').height / 14}/>
-                            <Dialog.Title style={commonStyles.dialogTitle}>{modalButtonMessage === 'Try Again' ? 'We hit a snag!': 'Great'}</Dialog.Title>
+                            <Dialog.Title
+                                style={commonStyles.dialogTitle}>{modalButtonMessage === 'Try Again' ? 'We hit a snag!' : 'Great'}</Dialog.Title>
                             <Dialog.Content>
                                 <Text
                                     style={commonStyles.dialogParagraph}>{modalCustomMessage}</Text>
@@ -255,8 +275,6 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                         title={optionTitle}
                                         description={optionDescription}
                                         left={() => <List.Icon color={'#F2FF5D'} icon={optionIcon}/>}
-                                        // right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
-                                        //                         color={'#F2FF5D'} icon={FaceIDIcon}/>}
                                         right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
                                                                 color={'#F2FF5D'} icon="chevron-right"/>}
                                         onPress={async () => {
@@ -270,58 +288,12 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                                 );
                                             } else {
                                                 // there's no need for deactivation, so go to the Card linking screen
-                                                await Linking.openURL(Linking.createURL(`home/wallet`));
+                                                bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
+                                                drawerNavigation && drawerNavigation!.navigate('Home', {});
                                             }
                                         }}
                                     />
                                 </List.Section>
-                                {/*<List.Section style={styles.listSectionView}>*/}
-                                {/*    <List.Subheader*/}
-                                {/*        style={deviceType === DeviceType.TABLET ? styles.subHeaderTitleTablet : styles.subHeaderTitle}>Security*/}
-                                {/*        and Privacy</List.Subheader>*/}
-                                {/*    <Divider style={styles.divider}/>*/}
-                                {/*    <Divider style={styles.divider}/>*/}
-                                {/*    <List.Item*/}
-                                {/*        style={styles.settingsItemStyle}*/}
-                                {/*        titleStyle={styles.settingsItemTitle}*/}
-                                {/*        descriptionStyle={styles.settingsItemDescription}*/}
-                                {/*        titleNumberOfLines={10}*/}
-                                {/*        descriptionNumberOfLines={10}*/}
-                                {/*        title="Face ID"*/}
-                                {/*        description='Enhance your login experience, by enabling Face ID.'*/}
-                                {/*        left={() => <List.Icon color={'#F2FF5D'} icon="emoticon"/>}*/}
-                                {/*        right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}*/}
-                                {/*                                color={'#F2FF5D'} icon="chevron-right"/>}*/}
-                                {/*    />*/}
-                                {/*    <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>*/}
-                                {/*    <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>*/}
-                                {/*    <List.Item*/}
-                                {/*        style={styles.settingsItemStyle}*/}
-                                {/*        titleStyle={styles.settingsItemTitle}*/}
-                                {/*        descriptionStyle={styles.settingsItemDescription}*/}
-                                {/*        titleNumberOfLines={10}*/}
-                                {/*        descriptionNumberOfLines={10}*/}
-                                {/*        title="Two-Factor Authentication"*/}
-                                {/*        description='Secure your account even further, with two-step verification.'*/}
-                                {/*        left={() => <List.Icon color={'#F2FF5D'} icon="lock"/>}*/}
-                                {/*        right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}*/}
-                                {/*                                color={'#F2FF5D'} icon="chevron-right"/>}*/}
-                                {/*    />*/}
-                                {/*    <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>*/}
-                                {/*    <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>*/}
-                                {/*    <List.Item*/}
-                                {/*        style={styles.settingsItemStyle}*/}
-                                {/*        titleStyle={styles.settingsItemTitle}*/}
-                                {/*        descriptionStyle={styles.settingsItemDescription}*/}
-                                {/*        titleNumberOfLines={10}*/}
-                                {/*        descriptionNumberOfLines={10}*/}
-                                {/*        title="Notification Preferences"*/}
-                                {/*        description='Manage your notification and marketing settings.'*/}
-                                {/*        left={() => <List.Icon color={'#F2FF5D'} icon="bell-alert"/>}*/}
-                                {/*        right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}*/}
-                                {/*                                color={'#F2FF5D'} icon="chevron-right"/>}*/}
-                                {/*    />*/}
-                                {/*</List.Section>*/}
                             </ScrollView>
                         </View>
                     </SafeAreaView>

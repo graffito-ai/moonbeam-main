@@ -5,14 +5,13 @@ import {HomeProps} from "../../../../models/props/AppDrawerProps";
 import {createMaterialBottomTabNavigator} from "@react-navigation/material-bottom-tabs";
 import {HomeStackParamList} from "../../../../models/props/HomeProps";
 import {useRecoilState} from "recoil";
-import {bottomTabShownState} from "../../../../recoil/HomeAtom";
+import {bottomTabShownState, drawerNavigationState} from "../../../../recoil/HomeAtom";
 import {Dimensions} from 'react-native';
 import {currentUserInformation} from "../../../../recoil/AuthAtom";
 import {MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
 import {Wallet} from "./cards/Wallet";
 import {DashboardController} from "./dashboard/DashboardController";
 import {Marketplace} from "./marketplace/Marketplace";
-import * as Linking from "expo-linking";
 import {drawerDashboardState} from "../../../../recoil/AppDrawerAtom";
 import {Spinner} from "../../../common/Spinner";
 
@@ -27,49 +26,13 @@ export const Home = ({navigation}: HomeProps) => {
     // constants used to keep track of local component state
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
+    const [, setDrawerNavigation] = useRecoilState(drawerNavigationState);
     const [bottomTabShown,] = useRecoilState(bottomTabShownState);
     const [userInformation,] = useRecoilState(currentUserInformation);
     const [, setIsDrawerInDashboard] = useRecoilState(drawerDashboardState);
 
     // create a bottom navigator, to be used for our Home bottom bar navigation
     const HomeTabStack = createMaterialBottomTabNavigator<HomeStackParamList>();
-
-    // enabling the linking configuration for creating links to the application screens, based on the navigator
-    const config = {
-        screens: {
-            DashboardController: {
-                path: 'home/control',
-                screens: {
-                    Dashboard: {
-                        path: 'dashboard'
-                    },
-                    TransactionsController: {
-                        path: 'transactions'
-                    },
-                    CashbackController: {
-                        path: 'cashback'
-                    }
-                }
-            },
-            Marketplace: {
-                path: 'home/marketplace'
-            },
-            Cards: {
-                path: 'home/wallet'
-            }
-        },
-    };
-
-    /**
-     * configuring the navigation linking, based on the types of prefixes that the application supports, given
-     * the environment that we deployed the application in.
-     * @see https://docs.expo.dev/guides/linking/?redirected
-     * @see https://reactnavigation.org/docs/deep-linking/
-     */
-    const linking = {
-        prefixes: [Linking.createURL('/')],
-        config,
-    };
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -79,6 +42,8 @@ export const Home = ({navigation}: HomeProps) => {
      * included in here.
      */
     useEffect(() => {
+        // set the drawer navigation
+        setDrawerNavigation(navigation);
         // set the custom drawer header style accordingly
         if (navigation.getState().index === 0) {
             setIsDrawerInDashboard(true);
@@ -93,7 +58,6 @@ export const Home = ({navigation}: HomeProps) => {
     return (
         <>
             <NavigationContainer independent={true}
-                                 linking={linking}
                                  fallback={
                                      <Spinner loadingSpinnerShown={loadingSpinnerShown}
                                               setLoadingSpinnerShown={setLoadingSpinnerShown}/>

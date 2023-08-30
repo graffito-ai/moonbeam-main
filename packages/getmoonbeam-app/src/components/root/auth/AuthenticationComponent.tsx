@@ -14,7 +14,6 @@ import {
     addressStateState,
     addressZipState,
     amplifySignUpProcessErrorsState,
-    appLinkedURLState,
     birthdayState,
     currentUserInformation,
     dutyStatusValueState,
@@ -23,9 +22,11 @@ import {
     expoPushTokenState,
     firstNameState,
     globalAmplifyCacheState,
-    initialAuthenticationScreen, isLoadingAppOverviewNeededState,
+    initialAuthenticationScreen,
+    isLoadingAppOverviewNeededState,
     isReadyRegistrationState,
-    lastNameState, mainRootNavigationState,
+    lastNameState,
+    mainRootNavigationState,
     marketplaceAmplifyCacheState,
     militaryBranchValueState,
     phoneNumberState,
@@ -39,7 +40,6 @@ import {AccountRecoveryComponent} from "./AccountRecoveryComponent";
 import {Dimensions, TouchableOpacity} from "react-native";
 import {commonStyles} from "../../../styles/common.module";
 import {AppDrawer} from "../drawer/AppDrawer";
-import * as Linking from "expo-linking";
 import {Spinner} from "../../common/Spinner";
 import {DocumentsViewer} from "../../common/DocumentsViewer";
 import * as SMS from "expo-sms";
@@ -56,14 +56,13 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
         // constants used to keep track of shared states
         const [mainRootNavigation, setMainRootNavigation] = useRecoilState(mainRootNavigationState);
-        const [isLoadingAppOverviewNeeded, ] = useRecoilState(isLoadingAppOverviewNeededState);
+        const [isLoadingAppOverviewNeeded,] = useRecoilState(isLoadingAppOverviewNeededState);
         const [, setIsReady] = useRecoilState(isReadyRegistrationState);
         const [marketplaceCache, setMarketplaceCache] = useRecoilState(marketplaceAmplifyCacheState);
         const [globalCache, setGlobalCache] = useRecoilState(globalAmplifyCacheState);
         const [isRegistrationReady,] = useRecoilState(isReadyRegistrationState);
         const [, setRegistrationMainError] = useRecoilState(registrationMainErrorState);
         const [stepNumber, setStepNumber] = useRecoilState(registrationStepNumber);
-        const [, setAppURL] = useRecoilState(appLinkedURLState);
         const [userInformation,] = useRecoilState(currentUserInformation);
         const [, setExpoPushToken] = useRecoilState(expoPushTokenState);
         // step 1
@@ -90,9 +89,6 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         // create a native stack navigator, to be used for our Authentication application navigation
         const Stack = createNativeStackNavigator<AuthenticationStackParamList>();
 
-        // initial app URL followed by any subsequent changes to the URL.
-        const appURL = Linking.useURL();
-
         /**
          * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
          * auth-related functionality for example), as well as any afferent API calls.
@@ -108,15 +104,9 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             // set the Marketplace Cache to the marketplace cache passed in from the App root component
             setMarketplaceCache(route.params.marketplaceCache);
 
-            /**
-             * set the App URL as well as any state changes accordingly, once the user is authenticated
-             * since we don't want to track any deep links in the app prior to when the authorization occurred
-             */
-            appURL && Object.keys(userInformation).length !== 0 && setAppURL(appURL);
-
             // set the expo push token accordingly, to be used in later stages, as part of the current user information object
             setExpoPushToken(route.params.expoPushToken);
-        }, [appURL]);
+        }, []);
 
         /**
          * Function used to contact support, via the native messaging application.

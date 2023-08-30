@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {createDrawerNavigator, DrawerContentComponentProps} from "@react-navigation/drawer";
+import {createDrawerNavigator} from "@react-navigation/drawer";
 import {NavigationContainer} from "@react-navigation/native";
 import {AppDrawerProps} from "../../../models/props/AuthenticationProps";
 import {AppDrawerStackParamList} from "../../../models/props/AppDrawerProps";
@@ -44,7 +44,6 @@ import CardLinkingImage from '../../../../assets/art/moonbeam-card-linking.png';
 // @ts-ignore
 import MoonbeamNavigationLogo from '../../../../assets/moonbeam-navigation-logo.png';
 import {Settings} from "./settings/Settings";
-import * as Linking from "expo-linking";
 import {
     showTransactionBottomSheetState,
     showWalletBottomSheetState,
@@ -99,67 +98,6 @@ export const AppDrawer = ({}: AppDrawerProps) => {
          * navigation of our application.
          */
         const ApplicationDrawer = createDrawerNavigator<AppDrawerStackParamList>();
-
-        // enabling the linking configuration for creating links to the application screens, based on the navigator
-        const config = {
-            screens: {
-                Home: {
-                    path: 'home',
-                    screens: {
-                        DashboardController: {
-                            path: 'control',
-                            screens: {
-                                Dashboard: {
-                                    path: 'dashboard'
-                                },
-                                TransactionsController: {
-                                    path: 'transactions'
-                                },
-                                CashbackController: {
-                                    path: 'cashback'
-                                }
-                            }
-                        },
-                        Marketplace: {
-                            path: 'marketplace'
-                        },
-                        Cards: {
-                            path: 'wallet'
-                        }
-                    }
-                },
-                Documents: {
-                    path: 'documents'
-                },
-                Settings: {
-                    path: 'settings',
-                    screens: {
-                        SettingsList: {
-                            path: 'list'
-                        },
-                        Profile: {
-                            path: 'profile'
-                        }
-                    }
-                },
-                Support: {
-                    path: 'support'
-                },
-                AppWall: {},
-                DocumentsViewer: {}
-            },
-        };
-
-        /**
-         * configuring the navigation linking, based on the types of prefixes that the application supports, given
-         * the environment that we deployed the application in.
-         * @see https://docs.expo.dev/guides/linking/?redirected
-         * @see https://reactnavigation.org/docs/deep-linking/
-         */
-        const linking = {
-            prefixes: [Linking.createURL('/')],
-            config,
-        };
 
         /**
          * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -304,15 +242,15 @@ export const AppDrawer = ({}: AppDrawerProps) => {
          * and verification needs to take place (since this already does take place at initial load, no
          * matter what)
          *
-         * @return a tuple of {@link Object} - {@link Set} of {@link MoonbeamTransaction}, and {@link string}, representing
+         * @return a tuple of {@link Object} - {@link Array} of {@link MoonbeamTransaction}, and {@link string}, representing
          * the user information details retrieved, the user's transactional data retrieved as well as the
          * user's profile picture URI if applicable, to be used when updating the current user information.
          */
-        const loadAppData = async (militaryStatusAlreadyVerified: boolean): Promise<[Object, Set<MoonbeamTransaction>, string]> => {
+        const loadAppData = async (militaryStatusAlreadyVerified: boolean): Promise<[Object, MoonbeamTransaction[], string]> => {
             setIsReady(false);
             setIsLoaded(true);
 
-            let updatedTransactionalData: Set<MoonbeamTransaction> = new Set();
+            let updatedTransactionalData: MoonbeamTransaction[] = [];
             let updatedUserInformation: Object = userInformation;
             let updatedProfilePicture: string = "";
             let militaryStatus: MilitaryVerificationStatusType | 'UNKNOWN' | null = null;
@@ -425,7 +363,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                 // retrieve the transactional data for the user
                 const retrievedTransactionalData = await retrieveTransactionalData(userInformation["custom:userId"]);
                 setTransactionsRetrieved(true);
-                updatedTransactionalData = retrievedTransactionalData !== null ? retrievedTransactionalData : new Set();
+                updatedTransactionalData = retrievedTransactionalData !== null ? retrievedTransactionalData : [];
 
                 return [updatedUserInformation, updatedTransactionalData, updatedProfilePicture];
             } else {
@@ -454,11 +392,10 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                             if (value && value.data && value.data.createdTransaction) {
                                 // parse the new transaction data from the subscription message received
                                 const messageData: MoonbeamTransaction = value.data.createdTransaction.data;
-
                                 // adding the new transactions into the transaction list
                                 setTransactionData(latestTransactionData => {
                                     // @link https://legacy.reactjs.org/docs/hooks-reference.html#functional-updates
-                                    return new Set([...latestTransactionData, messageData]);
+                                    return [...latestTransactionData, messageData];
                                 });
                             } else {
                                 console.log(`Unexpected error while parsing subscription message for transactions created updates ${JSON.stringify(value)}`);
@@ -484,9 +421,9 @@ export const AppDrawer = ({}: AppDrawerProps) => {
          * us.
          *
          * @param userId userID generated through previous steps during the sign-up process
-         * @returns a {@link Set} of {@link MoonbeamTransaction} representing the card linked object, or {@link null}, representing an error
+         * @returns a {@link Array} of {@link MoonbeamTransaction} representing the card linked object, or {@link null}, representing an error
          */
-        const retrieveTransactionalData = async (userId: string): Promise<Set<MoonbeamTransaction> | null> => {
+        const retrieveTransactionalData = async (userId: string): Promise<MoonbeamTransaction[] | null> => {
             try {
                 if (!transactionsRetrieved) {
                     // call the get transaction API
@@ -508,10 +445,10 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                          * concatenating the incoming transactional data to the existing one and
                          * adding the user's transactions to the transactional object
                          */
-                        const updatedTransactionalData = new Set([ ...transactionData, ...responseData.getTransaction.data]);
+                        const updatedTransactionalData = [...transactionData, ...responseData.getTransaction.data];
 
                         // return the transactional data for the user
-                        return updatedTransactionalData as Set<MoonbeamTransaction>;
+                        return updatedTransactionalData as MoonbeamTransaction[];
                     } else {
                         /**
                          * if there is no transactional data, we won't be showing the error modal, since for new customers,
@@ -707,12 +644,23 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     // @ts-ignore
                     setMilitaryStatusUpdatesSubscription(militaryStatusUpdates.subscribe({
                         // function triggering on the next military verification status update
-                        next: ({value}) => {
+                        next: async ({value}) => {
                             // check to ensure that there is a value and a valid data block to parse the message from
                             if (value && value.data && value.data.updatedMilitaryVerificationStatus && value.data.updatedMilitaryVerificationStatus.militaryVerificationStatus) {
                                 // parse the military status data from the subscription message received
                                 const militaryStatus: MilitaryVerificationStatusType = value.data.updatedMilitaryVerificationStatus.militaryVerificationStatus;
 
+                                // cache the new verification status if it is verified
+                                if (militaryStatus === MilitaryVerificationStatusType.Verified) {
+                                    if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-militaryStatus`) !== null) {
+                                        console.log('old military status is cached, needs cleaning up');
+                                        await globalCache!.removeItem(`${userInformation["custom:userId"]}-militaryStatus`);
+                                        await globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, militaryStatus);
+                                    } else {
+                                        console.log('military status is not cached');
+                                        globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, militaryStatus);
+                                    }
+                                }
                                 // set the update military status object
                                 setUpdatedMilitaryStatus(militaryStatus);
                             } else {
@@ -790,24 +738,13 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                             </Portal>
                             {/*@ts-ignore*/}
                             <NavigationContainer independent={true}
-                                                 linking={linking}
                                                  fallback={
                                                      <Spinner loadingSpinnerShown={loadingSpinnerShown}
                                                               setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                                                  }>
                                 <ApplicationDrawer.Navigator
                                     drawerContent={(props) => {
-                                        const filteredProps: DrawerContentComponentProps = {
-                                            ...props,
-                                            state: {
-                                                ...props.state,
-                                                // hide the App Wall and Documents Viewer from drawer content, when the user is verified
-                                                routes: !userVerified ?
-                                                    props.state.routes
-                                                    : props.state.routes.filter((route) => route.name !== 'AppWall' && route.name !== 'DocumentsViewer')
-                                            }
-                                        }
-                                        return (<CustomDrawer {...filteredProps} />);
+                                        return (<CustomDrawer {...props} />);
                                     }}
                                     initialRouteName={!userVerified ? "AppWall" : "Home"}
                                     screenOptions={({navigation}) => ({
@@ -920,43 +857,49 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                             headerShown: drawerHeaderShown
                                         }}
                                     />
-                                    <ApplicationDrawer.Screen
-                                        name={"AppWall"}
-                                        component={AppWall}
-                                        initialParams={{}}
-                                        options={{
-                                            swipeEnabled: false,
-                                            drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20 : 0},
-                                            drawerIcon: () => (
-                                                <Icon
-                                                    size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 25 : Dimensions.get('window').width / 15}
-                                                    name={'wall'} color={'#F2FF5D'}/>
-                                            ),
-                                            header: () => {
-                                                return (<></>)
-                                            },
-                                            headerShown: false
-                                        }}
-                                    />
-                                    <ApplicationDrawer.Screen
-                                        name={"DocumentsViewer"}
-                                        component={DocumentsViewer}
-                                        initialParams={{}}
-                                        options={{
-                                            unmountOnBlur: true,
-                                            swipeEnabled: false,
-                                            drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20 : 0},
-                                            drawerIcon: () => (
-                                                <Icon
-                                                    size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 25 : Dimensions.get('window').width / 15}
-                                                    name={'file'} color={'#F2FF5D'}/>
-                                            ),
-                                            header: () => {
-                                                return (<></>)
-                                            },
-                                            headerShown: false
-                                        }}
-                                    />
+                                    {
+                                        !userVerified &&
+                                        <ApplicationDrawer.Screen
+                                            name={"AppWall"}
+                                            component={AppWall}
+                                            initialParams={{}}
+                                            options={{
+                                                swipeEnabled: false,
+                                                drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20 : 0},
+                                                drawerIcon: () => (
+                                                    <Icon
+                                                        size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 25 : Dimensions.get('window').width / 15}
+                                                        name={'wall'} color={'#F2FF5D'}/>
+                                                ),
+                                                header: () => {
+                                                    return (<></>)
+                                                },
+                                                headerShown: false
+                                            }}
+                                        />
+                                    }
+                                    {
+                                        !userVerified &&
+                                        <ApplicationDrawer.Screen
+                                            name={"DocumentsViewer"}
+                                            component={DocumentsViewer}
+                                            initialParams={{}}
+                                            options={{
+                                                unmountOnBlur: true,
+                                                swipeEnabled: false,
+                                                drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20 : 0},
+                                                drawerIcon: () => (
+                                                    <Icon
+                                                        size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 25 : Dimensions.get('window').width / 15}
+                                                        name={'file'} color={'#F2FF5D'}/>
+                                                ),
+                                                header: () => {
+                                                    return (<></>)
+                                                },
+                                                headerShown: false
+                                            }}
+                                        />
+                                    }
                                 </ApplicationDrawer.Navigator>
                             </NavigationContainer>
                         </>
