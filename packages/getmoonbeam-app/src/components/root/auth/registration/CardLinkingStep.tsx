@@ -12,8 +12,9 @@ import {commonStyles} from '../../../../styles/common.module';
 import {styles} from '../../../../styles/registration.module';
 import {Spinner} from "../../../common/Spinner";
 import {API, graphqlOperation} from "aws-amplify";
-import {CardLinkErrorType, CardType, createCardLink} from "@moonbeam/moonbeam-models";
+import {CardLinkErrorType, CardType, createCardLink, Stages} from "@moonbeam/moonbeam-models";
 import {Button} from "@rneui/base";
+import * as envInfo from "../../../../../amplify/.config/local-env-info.json";
 
 /**
  * CardLinkingStep component.
@@ -200,7 +201,6 @@ export const CardLinkingStep = () => {
         }
     }
 
-
     /**
      * Content of the Olive iFrame, used to display the card linking form.
      * More information can be found at {@link https://developer.oliveltd.com/docs/2-enroll-your-customer-in-olive-programs}.
@@ -208,6 +208,23 @@ export const CardLinkingStep = () => {
      * We use a custom script, which wraps the script mentioned in their documentation,
      * and we store it in S3 to make Olive's IFrame more UI/UX friendly.
      */
+    let olivePublicKey = ``;
+    let oliveIframeContainer = ``;
+    // set the appropriate Olive card linking container configuration according to the environment that we're in
+    switch (envInfo.envName) {
+        case Stages.DEV:
+            olivePublicKey = 'data-public-key="Zlltp0W5jB09Us0kkOPN6edVwfy1JYGO"';
+            oliveIframeContainer += `data-environment="sandbox"`;
+            break;
+        case Stages.PROD:
+            olivePublicKey = ' data-public-key="ECXIbQePFvImh0xHUMpr5Sj8XKbcwGev"';
+            oliveIframeContainer += `data-environment=""`
+            break;
+        // ToDo: add more environments representing our stages in here
+        default:
+            console.log(`Invalid environment passed in from Amplify ${envInfo.envName}`);
+            break;
+    }
     const oliveIframeContent =
         `
         <!DOCTYPE html>
@@ -237,9 +254,9 @@ export const CardLinkingStep = () => {
                 <script type="application/javascript"
                         id="olive-link-card-form"
                         src="https://oliveaddcardsdkjs.blob.core.windows.net/script/olive-add-card-sdk.js"
-                        data-public-key=Zlltp0W5jB09Us0kkOPN6edVwfy1JYGO
+                        ${olivePublicKey}
                         data-container-div="olive-sdk-container"
-                        data-environment="sandbox"
+                        ${oliveIframeContainer}
                         data-include-header="true"
                         data-form-background-color="#313030"
                         data-background-color="#313030"

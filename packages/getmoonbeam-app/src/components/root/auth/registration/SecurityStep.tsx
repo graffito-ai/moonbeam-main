@@ -1,11 +1,16 @@
 import React, {useEffect, useState} from "react";
 import {styles} from "../../../../styles/registration.module";
 import {Text, TextInput} from "react-native-paper";
-import {View} from "react-native";
+import {Linking, View} from "react-native";
 import {
-    accountCreationDisclaimerCheckState, amplifySignUpProcessErrorsState, authRegistrationNavigation,
-    registrationBackButtonShown, registrationConfirmationPasswordErrorsState, registrationConfirmationPasswordState,
-    registrationMainErrorState, registrationPasswordErrorsState, registrationPasswordState
+    accountCreationDisclaimerCheckState,
+    amplifySignUpProcessErrorsState,
+    registrationBackButtonShown,
+    registrationConfirmationPasswordErrorsState,
+    registrationConfirmationPasswordState,
+    registrationMainErrorState,
+    registrationPasswordErrorsState,
+    registrationPasswordState
 } from "../../../../recoil/AuthAtom";
 import {useRecoilState} from "recoil";
 import {Checkbox} from "expo-checkbox";
@@ -23,7 +28,6 @@ export const SecurityStep = () => {
     const [isPasswordShown, setIsPasswordShown] = useState<boolean>(false);
     const [isConfirmPasswordShown, setIsConfirmPasswordShown] = useState<boolean>(false);
     // constants used to keep track of shared states
-    const [navigation, ] = useRecoilState(authRegistrationNavigation);
     const [amplifySignUpErrors, setAmplifySignUpErrors] = useRecoilState(amplifySignUpProcessErrorsState);
     const [password, setPassword] = useRecoilState(registrationPasswordState);
     const [confirmPassword, setConfirmPassword] = useRecoilState(registrationConfirmationPasswordState);
@@ -164,18 +168,28 @@ export const SecurityStep = () => {
                         style={styles.disclaimerText}>{'By checking this box, and signing up for an account with Moonbeam, you acknowledge and certify that you have read, and therefore agree to our '}
                         <Text style={styles.disclaimerTextHighlighted}
                               onPress={() => {
-                                  // navigate to the Documents Viewer
-                                  navigation && navigation.navigate('DocumentsViewer', {
-                                      name: 'privacy-policy.pdf',
-                                      privacyFlag: false
+                                  // open the privacy policy document
+                                  const privacyPolicyUrl = 'https://www.moonbeam.vet/privacy-policy'
+                                  Linking.canOpenURL(privacyPolicyUrl).then(supported => {
+                                      if (supported) {
+                                          Linking.openURL(privacyPolicyUrl).then(() => {
+                                          });
+                                      } else {
+                                          console.log(`Don't know how to open URI: ${privacyPolicyUrl}`);
+                                      }
                                   });
                               }}>Privacy Policy</Text>{' and'}
                         <Text style={styles.disclaimerTextHighlighted}
                               onPress={() => {
-                                  // navigate to the Documents Viewer
-                                  navigation && navigation.navigate('DocumentsViewer', {
-                                      name: 'terms-and-conditions.pdf',
-                                      privacyFlag: false
+                                  // open the terms and conditions document
+                                  const termsAndConditionsUrl = 'https://www.moonbeam.vet/terms-and-conditions'
+                                  Linking.canOpenURL(termsAndConditionsUrl).then(supported => {
+                                      if (supported) {
+                                          Linking.openURL(termsAndConditionsUrl).then(() => {
+                                          });
+                                      } else {
+                                          console.log(`Don't know how to open URI: ${termsAndConditionsUrl}`);
+                                      }
                                   });
                               }}> Terms & Conditions.</Text>
                     </Text>

@@ -50,7 +50,6 @@ export const TransactionsBottomSheet = (props: {
      * included in here.
      */
     useEffect(() => {
-        console.log(discountPercentage);
         // check and set the type of device, to be used throughout the app
         Device.getDeviceTypeAsync().then(deviceType => {
             setDeviceType(deviceType);
