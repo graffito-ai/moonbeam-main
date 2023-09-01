@@ -31,7 +31,11 @@ export class APIGatewayServiceStack extends Stack {
      * @param props stack properties to be passed in
      */
     constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'apiGatewayServiceConfig'>
-        & { transactionsProducerLambda: aws_lambda_nodejs.NodejsFunction, reimbursementsProducerLambda: aws_lambda_nodejs.NodejsFunction }) {
+        & {
+        transactionsProducerLambda: aws_lambda_nodejs.NodejsFunction,
+        updatedTransactionsProducerLambda: aws_lambda_nodejs.NodejsFunction,
+        reimbursementsProducerLambda: aws_lambda_nodejs.NodejsFunction
+    }) {
         super(scope, id, props);
 
         // create the API Gateway API service
@@ -85,6 +89,25 @@ export class APIGatewayServiceStack extends Stack {
             options: {
                 apiKeyRequired: true,
                 operationName: props.apiGatewayServiceConfig.transactionsAcknowledgmentMethodName
+            }
+        });
+
+        // create a new API Integration for updated transactions
+        const postUpdatedTransactionsIntegration = new aws_apigateway.LambdaIntegration(props.updatedTransactionsProducerLambda, {
+            allowTestInvoke: true,
+            timeout: Duration.seconds(29)
+        });
+        /**
+         * create a new POST method for the API/Lambda integration, used for posting updated transactions.
+         * This method will be secured via an API key.
+         */
+        const updatedTransactionAcknowledgmentMethod = new Method(this, `${props.apiGatewayServiceConfig.updatedTransactionsAcknowledgmentMethodName}-${props.stage}-${props.env!.region}`, {
+            httpMethod: "POST",
+            resource: cardLinkingServiceAPI.root.addResource(`${props.apiGatewayServiceConfig.updatedTransactionsAcknowledgmentMethodName}`),
+            integration: postUpdatedTransactionsIntegration,
+            options: {
+                apiKeyRequired: true,
+                operationName: props.apiGatewayServiceConfig.updatedTransactionsAcknowledgmentMethodName
             }
         });
 
@@ -157,6 +180,13 @@ export class APIGatewayServiceStack extends Stack {
                         },
                         {
                             method: transactionAcknowledgmentMethod,
+                            throttle: {
+                                burstLimit: 5000,
+                                rateLimit: 10000
+                            }
+                        },
+                        {
+                            method: updatedTransactionAcknowledgmentMethod,
                             throttle: {
                                 burstLimit: 5000,
                                 rateLimit: 10000

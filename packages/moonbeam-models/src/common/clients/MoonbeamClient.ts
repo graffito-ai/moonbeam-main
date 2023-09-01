@@ -10,11 +10,11 @@ import {
     EligibleLinkedUser,
     EligibleLinkedUsersResponse, GetDevicesForUserInput,
     GetReimbursementByStatusInput,
-    GetTransactionByStatusInput,
+    GetTransactionByStatusInput, GetTransactionInput,
     MoonbeamTransaction,
     MoonbeamTransactionByStatus,
     MoonbeamTransactionResponse,
-    MoonbeamTransactionsByStatusResponse,
+    MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse,
     MoonbeamUpdatedTransaction,
     MoonbeamUpdatedTransactionResponse,
     Notification,
@@ -25,7 +25,7 @@ import {
     ReimbursementEligibilityResponse,
     ReimbursementResponse,
     ReimbursementsErrorType,
-    TransactionsErrorType,
+    TransactionsErrorType, UpdatedTransactionEvent,
     UpdateReimbursementEligibilityInput,
     UpdateReimbursementInput,
     UpdateTransactionInput, UserDeviceErrorType, UserDevicesResponse
@@ -39,7 +39,7 @@ import {
     updateReimbursementEligibility,
     updateTransaction
 } from "../../graphql/mutations/Mutations";
-import {getEligibleLinkedUsers, getReimbursementByStatus, getTransactionByStatus, getDevicesForUser} from "../../graphql/queries/Queries";
+import {getEligibleLinkedUsers, getReimbursementByStatus, getTransactionByStatus, getTransaction, getDevicesForUser} from "../../graphql/queries/Queries";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 
 /**
@@ -56,6 +56,150 @@ export class MoonbeamClient extends BaseAPIClient {
      */
     constructor(environment: string, region: string) {
         super(region, environment);
+    }
+
+    /**
+     * Function used to send a new transaction acknowledgment, for an updated transaction, so we can kick-start the
+     * transaction process through the transaction producer.
+     *
+     * @param updatedTransactionEvent updated transaction event to be passed in
+     *
+     * @return a {@link Promise} of {@link APIGatewayProxyResult} representing the API Gateway result
+     * sent by the reimbursement producer Lambda, to validate whether the transactions process was
+     * kick-started or not.
+     */
+    async transactionsAcknowledgment(updatedTransactionEvent: UpdatedTransactionEvent): Promise<APIGatewayProxyResult> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'POST /transactionsAcknowledgment Moonbeam REST API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the transaction acknowledgment call through the client
+            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME, true);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
+                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Moonbeam REST API call!";
+                console.log(errorMessage);
+
+                return {
+                    statusCode: 500,
+                    body: JSON.stringify({
+                        data: null,
+                        errorType: ReimbursementsErrorType.UnexpectedError,
+                        errorMessage: errorMessage
+                    })
+                };
+            }
+
+            /**
+             * POST /transactionsAcknowledgment
+             *
+             * build the internal Moonbeam API request body to be passed in, and perform a POST to it with the appropriate information
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            console.log(`Moonbeam REST API request Object: ${JSON.stringify(updatedTransactionEvent)}`);
+            return axios.post(`${moonbeamBaseURL}/transactionsAcknowledgment`, JSON.stringify(updatedTransactionEvent), {
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": moonbeamPrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Moonbeam REST API timed out after 15000ms!'
+            }).then(transactionsAcknowledgmentResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(transactionsAcknowledgmentResponse.data)}`);
+
+                // check if there are any errors in the returned response
+                if (transactionsAcknowledgmentResponse.data && transactionsAcknowledgmentResponse.data.data !== null
+                    && !transactionsAcknowledgmentResponse.data.errorMessage && !transactionsAcknowledgmentResponse.data.errorType
+                    && transactionsAcknowledgmentResponse.status === 202) {
+                    // returned the transaction acknowledgment response
+                    return {
+                        statusCode: transactionsAcknowledgmentResponse.status,
+                        body: transactionsAcknowledgmentResponse.data.data
+                    }
+                } else {
+                    return transactionsAcknowledgmentResponse.data && transactionsAcknowledgmentResponse.data.errorMessage !== undefined
+                    && transactionsAcknowledgmentResponse.data.errorMessage !== null  ?
+                        // return the error message and type, from the original REST API call
+                        {
+                            statusCode: transactionsAcknowledgmentResponse.status,
+                            body: transactionsAcknowledgmentResponse.data.errorMessage
+                        } :
+                        // return the error response indicating an invalid structure returned
+                        {
+                            statusCode: 500,
+                            body: JSON.stringify({
+                                data: null,
+                                errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                                errorType: ReimbursementsErrorType.ValidationError
+                            })
+                        }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam REST API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        statusCode: error.response.status,
+                        body: JSON.stringify({
+                            data: null,
+                            errorType: error.response.data.errorType,
+                            errorMessage: error.response.data.errorMessage
+                        })
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        statusCode: 500,
+                        body: JSON.stringify({
+                            data: null,
+                            errorType: ReimbursementsErrorType.UnexpectedError,
+                            errorMessage: errorMessage
+                        })
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        statusCode: 500,
+                        body: JSON.stringify({
+                            data: null,
+                            errorType: ReimbursementsErrorType.UnexpectedError,
+                            errorMessage: errorMessage
+                        })
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while posting the transactions acknowledgment object through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                statusCode: 500,
+                body: JSON.stringify({
+                    data: null,
+                    errorType: ReimbursementsErrorType.UnexpectedError,
+                    errorMessage: errorMessage
+                })
+            };
+        }
     }
 
     /**
@@ -111,22 +255,22 @@ export class MoonbeamClient extends BaseAPIClient {
             }).then(reimbursementsAcknowledgmentResponse => {
                 console.log(`${endpointInfo} response ${JSON.stringify(reimbursementsAcknowledgmentResponse.data)}`);
 
-                // retrieve the data block from the response
-                const responseData = (reimbursementsAcknowledgmentResponse && reimbursementsAcknowledgmentResponse.data) ? reimbursementsAcknowledgmentResponse.data : null;
-
                 // check if there are any errors in the returned response
-                if (responseData && responseData.data !== null && !responseData.errorMessage) {
-                    // returned the successfully acknowledged reimbursement
+                if (reimbursementsAcknowledgmentResponse.data && reimbursementsAcknowledgmentResponse.data.data !== null
+                    && !reimbursementsAcknowledgmentResponse.data.errorMessage && !reimbursementsAcknowledgmentResponse.data.errorType
+                    && reimbursementsAcknowledgmentResponse.status === 202) {
+                    // returned the reimbursement acknowledgment response
                     return {
                         statusCode: reimbursementsAcknowledgmentResponse.status,
-                        body: responseData
+                        body: reimbursementsAcknowledgmentResponse.data.data
                     }
                 } else {
-                    return responseData ?
+                    return reimbursementsAcknowledgmentResponse.data && reimbursementsAcknowledgmentResponse.data.errorMessage !== undefined
+                    && reimbursementsAcknowledgmentResponse.data.errorMessage !== null  ?
                         // return the error message and type, from the original REST API call
                         {
                             statusCode: reimbursementsAcknowledgmentResponse.status,
-                            body: responseData
+                            body: reimbursementsAcknowledgmentResponse.data.errorMessage
                         } :
                         // return the error response indicating an invalid structure returned
                         {
@@ -564,6 +708,130 @@ export class MoonbeamClient extends BaseAPIClient {
             });
         } catch (err) {
             const errorMessage = `Unexpected error while retrieving transactions for a particular user, filtered by their status through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: TransactionsErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
+     * Function used to get all transactions, for a particular user.
+     *
+     * @param getTransactionInput the transaction input object to be passed in,
+     * containing all the necessary filtering for retrieving the transactions for a particular user.
+     *
+     * @returns a {@link MoonbeamTransactionsResponse} representing the transactional data.
+     */
+    async getTransaction(getTransactionInput: GetTransactionInput): Promise<MoonbeamTransactionsResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'getTransaction Query Moonbeam GraphQL API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the transaction retrieval call through the client
+            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
+                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: TransactionsErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * getTransaction Query
+             *
+             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
+             * with the appropriate information.
+             *
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.post(`${moonbeamBaseURL}`, {
+                query: getTransaction,
+                variables: {
+                    getTransactionInput: getTransactionInput
+                }
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": moonbeamPrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
+            }).then(getTransactionsResponses => {
+                // we don't want to log this in case of success responses, because the transaction responses are very long (frugality)
+                // console.log(`${endpointInfo} response ${JSON.stringify(getTransactionsResponses.data)}`);
+
+                // retrieve the data block from the response
+                const responseData = (getTransactionsResponses && getTransactionsResponses.data) ? getTransactionsResponses.data.data : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.getTransaction.errorMessage === null) {
+                    // returned the successfully retrieved transactions for a given user
+                    return {
+                        data: responseData.getTransaction.data as MoonbeamTransaction[]
+                    }
+                } else {
+                    return responseData ?
+                        // return the error message and type, from the original AppSync call
+                        {
+                            errorMessage: responseData.getTransaction.errorMessage,
+                            errorType: responseData.getTransaction.errorType
+                        } :
+                        // return the error response indicating an invalid structure returned
+                        {
+                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                            errorType: TransactionsErrorType.ValidationError
+                        }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while retrieving transactions for a particular user, through ${endpointInfo}`;
             console.log(`${errorMessage} ${err}`);
 
             return {

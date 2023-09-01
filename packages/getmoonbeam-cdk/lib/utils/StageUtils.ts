@@ -16,6 +16,7 @@ import {NotificationsResolverStack} from "../stacks/NotificationsResolverStack";
 import {PhysicalDevicesResolverStack} from "../stacks/PhysicalDevicesResolverStack";
 import {OffersResolverStack} from "../stacks/OffersResolverStack";
 import {FAQResolverStack} from "../stacks/FAQResolverStack";
+import {UpdateTransactionsProducerConsumerStack} from "../stacks/UpdateTransactionsProducerConsumerStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -172,6 +173,17 @@ export class StageUtils {
                 });
                 transactionsProducerConsumerStack.addDependency(appSyncStack);
 
+                // create the Updated Transaction Producer Consumer stack && add it to the CDK app
+                const updatedTransactionsProducerConsumerStack = new UpdateTransactionsProducerConsumerStack(this.app, `moonbeam-updated-transactions-producer-consumer-${stageKey}`, {
+                    stackName: `moonbeam-updated-transactions-producer-consumer-${stageKey}`,
+                    description: 'This stack will contain all the resources needed for the async updated transactional consumers, as well as producers',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    updatedTransactionsProducerConsumerConfig: stageConfiguration.updatedTransactionsProducerConsumerConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                updatedTransactionsProducerConsumerStack.addDependency(appSyncStack);
+
                 // create the Reimbursements resolver stack && add it to the CDK app
                 const reimbursementsStack = new ReimbursementsResolverStack(this.app, `moonbeam-reimbursements-resolver-${stageKey}`, {
                     stackName: `moonbeam-reimbursements-resolver-${stageKey}`,
@@ -268,11 +280,13 @@ export class StageUtils {
                     env: stageEnv,
                     stage: stageConfiguration.stage,
                     transactionsProducerLambda: transactionsProducerConsumerStack.transactionsProducerLambda,
+                    updatedTransactionsProducerLambda: updatedTransactionsProducerConsumerStack.updatedTransactionalOffersProducerLambda,
                     reimbursementsProducerLambda: reimbursementsProducerConsumerStack.reimbursementsProducerLambda,
                     apiGatewayServiceConfig: stageConfiguration.apiGatewayServiceConfig,
                     environmentVariables: stageConfiguration.environmentVariables,
                 });
                 apiGatewayStack.addDependency(transactionsProducerConsumerStack);
+                apiGatewayStack.addDependency(updatedTransactionsProducerConsumerStack);
                 apiGatewayStack.addDependency(reimbursementsProducerConsumerStack);
             }
         }

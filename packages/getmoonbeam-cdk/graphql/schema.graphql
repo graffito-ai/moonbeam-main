@@ -7,7 +7,7 @@ type Query {
     getDevicesForUser(getDevicesForUserInput: GetDevicesForUserInput!): UserDevicesResponse! @aws_cognito_user_pools @aws_api_key
     getDevice(getDeviceInput: GetDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     getDeviceByToken(getDeviceByTokenInput: GetDeviceByTokenInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
-    getTransaction(getTransactionInput: GetTransactionInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools
+    getTransaction(getTransactionInput: GetTransactionInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools @aws_api_key
     getReimbursementByStatus(getReimbursementByStatusInput: GetReimbursementByStatusInput!): ReimbursementByStatusResponse! @aws_cognito_user_pools @aws_api_key
     getTransactionByStatus(getTransactionByStatusInput: GetTransactionByStatusInput!): MoonbeamTransactionsByStatusResponse! @aws_cognito_user_pools @aws_api_key
     getCardLink(getCardLinkInput: GetCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
@@ -312,8 +312,8 @@ type EligibleLinkedUsersResponse @aws_cognito_user_pools @aws_api_key {
     errorType: CardLinkErrorType
     errorMessage: String
 }
-# graphql/TransactionsSchema.graphql
-# Transactions Schema File
+## graphql/TransactionsSchema.graphql
+## Transactions Schema File
 enum TransactionsErrorType {
     DUPLICATE_OBJECT_FOUND
     NONE_OR_ABSENT
@@ -322,42 +322,42 @@ enum TransactionsErrorType {
     UNPROCESSABLE
 }
 
-# Defines the types of the statuses for a transaction, during its lifecycle. Although these
-# statuses might not match Olive's statuses 1:1, they represent what our customers see in their
-# dashboard, and how we translate incoming Olive information, and communicate it to our end
-# users.
+## Defines the types of the statuses for a transaction, during its lifecycle. Although these
+## statuses might not match Olive's statuses 1:1, they represent what our customers see in their
+## dashboard, and how we translate incoming Olive information, and communicate it to our end
+## users.
 enum TransactionsStatus {
-    PENDING
-    PROCESSED
-    CREDITED
-    REJECTED
+    PENDING ## pending  = transaction is a qualifying offer, and it is pending merchant approval and funding
+    PROCESSED ## processed = transaction is a qualifying offer, and it has been approved and funded by the merchant
+    CREDITED ## credited = transaction is a qualifying offer, and it has been approved and funded by the merchant, and its cashback credited back to the user
+    REJECTED ## rejected = transaction is a qualifying offer, and it has been rejected for some particular reason
 }
 
-# Defines the type of transactions that are available, depending on incoming information received
-# through the Olive webhooks. The transactions processor, will handle these transaction types and
-# determine whether they are offers to be redeemed, round-ups, contributions/matching, etc.
+## Defines the type of transactions that are available, depending on incoming information received
+## through the Olive webhooks. The transactions processor, will handle these transaction types and
+## determine whether they are offers to be redeemed, round-ups, contributions/matching, etc.
 enum TransactionType {
     OFFER_REDEEMED
     ROUNDUP
     CONTRIBUTION
 }
 
-# For now we only support USD as the currency code type for transactions
+## For now we only support USD as the currency code type for transactions
 enum CurrencyCodeType {
     USD
 }
 
-# this type is mainly used to define and/or work with the Transaction object before it is stored
-# in the DB, as obtained from Olive.
-type Transaction @aws_cognito_user_pools {
-    id: ID # this represents the userID which the transaction belongs to/was made by
-    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+## this type is mainly used to define and/or work with the Transaction object before it is stored
+## in the DB, as obtained from Olive.
+type Transaction @aws_cognito_user_pools @aws_api_key {
+    id: ID ## this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! ## this represents the timestamp, in a Number epoch based format (for sorting purposes)
     transactionId: ID!
     transactionStatus: TransactionsStatus!
     transactionType: TransactionType!
-    createdAt: AWSDateTime! # this will be the same as the "timestamp" value above, only represented in a date time format
+    createdAt: AWSDateTime! ## this will be the same as the "timestamp" value above, only represented in a date time format
     updatedAt: AWSDateTime
-    memberId: ID! # this will be obtained from Olive (and it is the Olive member id)
+    memberId: ID! ## this will be obtained from Olive (and it is the Olive member id)
     cardId: ID!
     brandId: ID!
     storeId: ID!
@@ -365,8 +365,8 @@ type Transaction @aws_cognito_user_pools {
     currencyCode: CurrencyCodeType!,
     rewardAmount: Float,
     totalAmount: Float,
-    pendingCashbackAmount: Float # this amount should be the total reward amount that's pending reimbursement to the customer
-    creditedCashbackAmount: Float # this amount should be the total reward amount that's reimbursed/credited to the customer
+    pendingCashbackAmount: Float ## this amount should be the total reward amount that's pending reimbursement to the customer
+    creditedCashbackAmount: Float ## this amount should be the total reward amount that's reimbursed/credited to the customer
     transactionBrandName: String,
     transactionBrandAddress: String,
     transactionBrandLogoUrl: String,
@@ -374,7 +374,51 @@ type Transaction @aws_cognito_user_pools {
     transactionIsOnline: Boolean
 }
 
-# the details obtained from the Olive transaction details call, after a transaction is stores - used for reimbursement purposes.
+## this type is mainly used to define and/or work with the UpdateTransactionEvent object for the updated transaction webhook
+type UpdateTransactionEventTransactionData @aws_cognito_user_pools @aws_api_key {
+    id: ID!
+    rewardAmount: Float!
+    cardId: ID!
+    amount: Float
+    currencyCode: CurrencyCodeType!
+    created: AWSDateTime
+    storeId: ID
+    brandId: ID
+    roundedAmount: Float
+    matchingAmount: Float
+    roundingRuleId: String
+    loyaltyProgramId: String
+    merchantCategoryCode: String
+    moonbeamTransactionStatus: TransactionsStatus
+}
+
+## this type is mainly used to define and/or work with the UpdateTransactionEvent object for the updated transaction webhook
+type UpdatedTransactionEventData @aws_cognito_user_pools @aws_api_key {
+    webhookEventType: String!
+    cardId: ID!
+    memberId: ID!
+    redeemedMatchings: [String]!
+    transaction: UpdateTransactionEventTransactionData!
+}
+
+## this type is mainly used to define and/or work with the UpdateTransactionEvent object for the updated transaction webhook
+type UpdatedTransactionEvent @aws_cognito_user_pools @aws_api_key {
+    id: ID!
+    subscriptionId: ID!
+    timestamp: AWSTimestamp!
+    callbackUrl: String!
+    topic: String!
+    data: UpdatedTransactionEventData!
+}
+
+## this type is mainly used to define and/or work with the UpdateTransactionEvent object for the updated transaction webhook
+type UpdatedTransactionEventResponse @aws_cognito_user_pools @aws_api_key {
+    data: UpdatedTransactionEvent
+    errorType: TransactionsErrorType
+    errorMessage: String
+}
+
+## the details obtained from the Olive transaction details call, after a transaction is stores - used for reimbursement purposes.
 type TransactionStatusDetails @aws_cognito_user_pools @aws_api_key {
     totalAmount: Float!,
     rewardAmount: Float!,
@@ -383,16 +427,16 @@ type TransactionStatusDetails @aws_cognito_user_pools @aws_api_key {
     oliveTransactionStatus: String!
 }
 
-# this type is mainly used to define and/or work with the TransactionResponse object before it is stored
-# in the DB, as obtained from Olive's get transaction details call - used for transactional purposes.
+## this type is mainly used to define and/or work with the TransactionResponse object before it is stored
+## in the DB, as obtained from Olive's get transaction details call - used for transactional purposes.
 type TransactionResponse @aws_cognito_user_pools @aws_api_key {
     data: Transaction
     errorType: TransactionsErrorType
     errorMessage: String
 }
 
-# this type is mainly used to define and/or work with the TransactionStatusResponse object before it is stored
-# in the DB, as obtained from Olive's get transaction details call - used for reimbursement purposes.
+## this type is mainly used to define and/or work with the TransactionStatusResponse object before it is stored
+## in the DB, as obtained from Olive's get transaction details call - used for reimbursement purposes.
 type TransactionStatusDetailsResponse @aws_cognito_user_pools @aws_api_key {
     data: TransactionStatusDetails
     errorType: TransactionsErrorType
@@ -406,14 +450,14 @@ type MemberDetailsResponse @aws_cognito_user_pools @aws_api_key {
 }
 
 type MoonbeamTransaction @aws_cognito_user_pools @aws_api_key {
-    id: ID! # this represents the userID which the transaction belongs to/was made by
-    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    id: ID! ## this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! ## this represents the timestamp, in a Number epoch based format (for sorting purposes)
     transactionId: ID!
     transactionStatus: TransactionsStatus!
     transactionType: TransactionType!
-    createdAt: AWSDateTime! # this will be the same as the "timestamp" value above, only represented in a date time format
+    createdAt: AWSDateTime! ## this will be the same as the "timestamp" value above, only represented in a date time format
     updatedAt: AWSDateTime!
-    memberId: ID! # this will be obtained from Olive (and it is the Olive member id)
+    memberId: ID! ## this will be obtained from Olive (and it is the Olive member id)
     cardId: ID!
     brandId: ID!
     storeId: ID!
@@ -421,8 +465,8 @@ type MoonbeamTransaction @aws_cognito_user_pools @aws_api_key {
     currencyCode: CurrencyCodeType!,
     rewardAmount: Float!,
     totalAmount: Float!,
-    pendingCashbackAmount: Float! # this amount should be the total reward amount that's pending reimbursement to the customer
-    creditedCashbackAmount: Float! # this amount should be the total reward amount that's reimbursed/credited to the customer
+    pendingCashbackAmount: Float! ## this amount should be the total reward amount that's pending reimbursement to the customer
+    creditedCashbackAmount: Float! ## this amount should be the total reward amount that's reimbursed/credited to the customer
     transactionBrandName: String!,
     transactionBrandAddress: String!,
     transactionBrandLogoUrl: String!,
@@ -431,15 +475,15 @@ type MoonbeamTransaction @aws_cognito_user_pools @aws_api_key {
 }
 
 type MoonbeamUpdatedTransaction @aws_cognito_user_pools @aws_api_key {
-    id: ID! # this represents the userID which the transaction belongs to/was made by
-    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    id: ID! ## this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! ## this represents the timestamp, in a Number epoch based format (for sorting purposes)
     transactionId: ID!
     transactionStatus: TransactionsStatus!
     updatedAt: AWSDateTime!
 }
 
 type MoonbeamTransactionByStatus @aws_cognito_user_pools @aws_api_key {
-    id: ID! # this represents the userID which the transaction belongs to/was made by
+    id: ID! ## this represents the userID which the transaction belongs to/was made by
     timestamp: AWSTimestamp!
     transactionId: ID!
     transactionStatus: TransactionsStatus!
@@ -450,13 +494,13 @@ type MoonbeamTransactionByStatus @aws_cognito_user_pools @aws_api_key {
 }
 
 type MoonbeamTransactionResponse @aws_cognito_user_pools @aws_api_key {
-    id: ID # this represents the userID of the transaction, and the reason we repeat it in the parent response is for the subscription filtering to work properly
+    id: ID ## this represents the userID of the transaction, and the reason we repeat it in the parent response is for the subscription filtering to work properly
     data: MoonbeamTransaction
     errorType: TransactionsErrorType
     errorMessage: String
 }
 
-type MoonbeamTransactionsResponse @aws_cognito_user_pools {
+type MoonbeamTransactionsResponse @aws_cognito_user_pools @aws_api_key {
     data: [MoonbeamTransaction]
     errorType: TransactionsErrorType
     errorMessage: String
@@ -469,40 +513,40 @@ type MoonbeamTransactionsByStatusResponse @aws_cognito_user_pools @aws_api_key {
 }
 
 type MoonbeamUpdatedTransactionResponse @aws_cognito_user_pools @aws_api_key {
-    id: ID # this represents the userID of the transaction, and the reason we repeat it in the parent response is for the subscription filtering to work properly
+    id: ID ## this represents the userID of the transaction, and the reason we repeat it in the parent response is for the subscription filtering to work properly
     data: MoonbeamUpdatedTransaction
     errorType: TransactionsErrorType
     errorMessage: String
 }
 
 input GetTransactionInput {
-    id: ID! #this represents the userID which the transactions should be retrieved for
-    startDate: AWSDateTime # the start time to filter transactions for
-    endDate: AWSDateTime! # the end time to filter transactions for
+    id: ID! ## this represents the userID which the transactions should be retrieved for
+    startDate: AWSDateTime ## the start time to filter transactions for
+    endDate: AWSDateTime! ## the end time to filter transactions for
 }
 
 input GetTransactionByStatusInput {
-    id: ID! # this represents the userID which the transactions should be retrieved for
-    status: TransactionsStatus! # the transactions status to filter transactions for
+    id: ID! ## this represents the userID which the transactions should be retrieved for
+    status: TransactionsStatus! ## the transactions status to filter transactions for
 }
 
 input UpdateTransactionInput {
-    id: ID! # this represents the userID which the transaction belongs to/was made by
-    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    id: ID! ## this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! ## this represents the timestamp, in a Number epoch based format (for sorting purposes)
     transactionId: ID!
     transactionStatus: TransactionsStatus!
     updatedAt: AWSDateTime
 }
 
 input CreateTransactionInput {
-    id: ID! # this represents the userID which the transaction belongs to/was made by
-    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    id: ID! ## this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! ## this represents the timestamp, in a Number epoch based format (for sorting purposes)
     transactionId: ID!
     transactionStatus: TransactionsStatus!
     transactionType: TransactionType!
-    createdAt: AWSDateTime! # this will be the same as the "timestamp" value above, only represented in a date time format
+    createdAt: AWSDateTime! ## this will be the same as the "timestamp" value above, only represented in a date time format
     updatedAt: AWSDateTime!
-    memberId: ID! # this will be obtained from Olive (and it is the Olive member id)
+    memberId: ID! ## this will be obtained from Olive (and it is the Olive member id)
     cardId: ID!
     brandId: ID!
     storeId: ID!
@@ -510,8 +554,8 @@ input CreateTransactionInput {
     currencyCode: CurrencyCodeType!,
     rewardAmount: Float!,
     totalAmount: Float!,
-    pendingCashbackAmount: Float! # this amount should be the total reward amount that's pending reimbursement to the customer
-    creditedCashbackAmount: Float! # this amount should be the total reward amount that's reimbursed/credited to the customer
+    pendingCashbackAmount: Float! ## this amount should be the total reward amount that's pending reimbursement to the customer
+    creditedCashbackAmount: Float! ## this amount should be the total reward amount that's reimbursed/credited to the customer
     transactionBrandName: String!,
     transactionBrandAddress: String!,
     transactionBrandLogoUrl: String!,

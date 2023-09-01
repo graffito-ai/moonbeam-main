@@ -60,6 +60,7 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 internallySharedAPIKeyName: `internallySharedAPIKey`,
                 internalUsagePlan: `internalUsagePlan`,
                 transactionsAcknowledgmentMethodName: `transactionsAcknowledgment`,
+                updatedTransactionsAcknowledgmentMethodName: `updatedTransactionsAcknowledgment`,
                 reimbursementsAcknowledgmentMethodName: `reimbursementsAcknowledgment`
             },
             reimbursementsProducerConsumerConfig: {
@@ -104,6 +105,17 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     transactionsProcessingTopicDLQName: 'transactionsProcessingTopicDLQ',
                     transactionalOffersProcessingEventSourceMapping: 'transactionalOffersProcessingEventSourceMapping',
                     notificationsTransactionalOffersProcessingEventSourceMapping: 'notificationsTransactionalOffersProcessingEventSourceMapping'
+                }
+            },
+            updatedTransactionsProducerConsumerConfig: {
+                updatedTransactionsProducerFunctionName: 'updatedTransactionsProducerLambdaFunction',
+                updatedTransactionsConsumerFunctionName: 'updatedTransactionsConsumerLambdaFunction',
+                updatedTransactionsFanOutConfig: {
+                    updatedTransactionalOffersProcessingTopicName: 'updatedTransactionalOffersProcessingTopic',
+                    updatedTransactionalOffersProcessingTopicDLQName: 'updatedTransactionalOffersProcessingTopicDLQ',
+                    updatedTransactionalOffersProcessingQueueName: 'updatedTransactionalOffersProcessingQueue',
+                    updatedTransactionalOffersProcessingDLQName: 'updateTransactionalOffersProcessingDLQ',
+                    updatedTransactionalOffersProcessingEventSourceMapping: 'updateTransactionalOffersProcessingEventSourceMapping'
                 }
             },
             transactionsConfig: {
@@ -205,6 +217,7 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 internallySharedAPIKeyName: `internallySharedAPIKey`,
                 internalUsagePlan: `internalUsagePlan`,
                 transactionsAcknowledgmentMethodName: `transactionsAcknowledgment`,
+                updatedTransactionsAcknowledgmentMethodName: `updatedTransactionsAcknowledgment`,
                 reimbursementsAcknowledgmentMethodName: `reimbursementsAcknowledgment`
             },
             reimbursementsProducerConsumerConfig: {
@@ -249,6 +262,17 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     transactionsProcessingTopicDLQName: 'transactionsProcessingTopicDLQ',
                     transactionalOffersProcessingEventSourceMapping: 'transactionalOffersProcessingEventSourceMapping',
                     notificationsTransactionalOffersProcessingEventSourceMapping: 'notificationsTransactionalOffersProcessingEventSourceMapping'
+                }
+            },
+            updatedTransactionsProducerConsumerConfig: {
+                updatedTransactionsProducerFunctionName: 'updatedTransactionsProducerLambdaFunction',
+                updatedTransactionsConsumerFunctionName: 'updatedTransactionsConsumerLambdaFunction',
+                updatedTransactionsFanOutConfig: {
+                    updatedTransactionalOffersProcessingTopicName: 'updatedTransactionalOffersProcessingTopic',
+                    updatedTransactionalOffersProcessingTopicDLQName: 'updatedTransactionalOffersProcessingTopicDLQ',
+                    updatedTransactionalOffersProcessingQueueName: 'updatedTransactionalOffersProcessingQueue',
+                    updatedTransactionalOffersProcessingDLQName: 'updateTransactionalOffersProcessingDLQ',
+                    updatedTransactionalOffersProcessingEventSourceMapping: 'updateTransactionalOffersProcessingEventSourceMapping'
                 }
             },
             transactionsConfig: {

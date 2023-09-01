@@ -24,6 +24,9 @@
   "moonbeam-transactions-producer-consumer-dev-us-west-2": {
     "ExportsOutputFnGetAtttransactionsProducerLambdaFunctiondevuswest2F0428334ArnD5FB2711": "arn:aws:lambda:us-west-2:963863720257:function:transactionsProducerLambdaFunction-dev-us-west-2"
   },
+  "moonbeam-updated-transactions-producer-consumer-dev-us-west-2": {
+    "ExportsOutputFnGetAttupdatedTransactionsProducerLambdaFunctiondevuswest27E1FEE2BArn7AF88284": "arn:aws:lambda:us-west-2:963863720257:function:updatedTransactionsProducerLambdaFunction-dev-us-west-2"
+  },
   "moonbeam-api-gateway-dev-us-west-2": {
     "cardLinkingServiceAPIdevuswest2Endpoint8235E493": "https://rs9fn3vxf4.execute-api.us-west-2.amazonaws.com/prod/"
   }

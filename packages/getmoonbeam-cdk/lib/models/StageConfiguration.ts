@@ -13,7 +13,7 @@ import {
     SESConfiguration,
     StorageConfiguration,
     TransactionsConfiguration,
-    TransactionsProducerConsumerConfiguration
+    TransactionsProducerConsumerConfiguration, UpdatedTransactionsProducerConsumerConfiguration
 } from "./ServiceConfiguration";
 
 /**
@@ -33,6 +33,7 @@ export interface StageConfiguration {
     readonly reimbursementsConfig: ReimbursementsConfiguration;
     readonly reimbursementEligibilityConfig: ReimbursementEligibilityConfiguration;
     readonly transactionsProducerConsumerConfig: TransactionsProducerConsumerConfiguration;
+    readonly updatedTransactionsProducerConsumerConfig: UpdatedTransactionsProducerConsumerConfiguration;
     readonly transactionsConfig: TransactionsConfiguration;
     readonly offersConfig: OffersConfiguration;
     readonly faqConfig: FAQConfiguration;

@@ -11,13 +11,13 @@ import {
     EligibleLinkedUser,
     EligibleLinkedUsersResponse, GetDevicesForUserInput, GetOffersInput,
     GetReimbursementByStatusInput,
-    GetTransactionByStatusInput,
+    GetTransactionByStatusInput, GetTransactionInput,
     MemberDetailsResponse,
     MemberResponse,
     MilitaryVerificationStatusType,
     MoonbeamTransaction,
     MoonbeamTransactionResponse,
-    MoonbeamTransactionsByStatusResponse,
+    MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse,
     MoonbeamUpdatedTransactionResponse,
     NotificationResponse,
     NotificationType, OffersResponse,
@@ -30,6 +30,8 @@ import {
     Transaction,
     TransactionResponse,
     TransactionStatusDetailsResponse,
+    UpdatedTransactionEvent,
+    UpdatedTransactionEventResponse,
     UpdateReimbursementEligibilityInput,
     UpdateReimbursementInput,
     UpdateTransactionInput, UserDevicesResponse
@@ -234,10 +236,22 @@ export abstract class BaseAPIClient {
     protected updateReimbursementEligibility?(updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput): Promise<ReimbursementEligibilityResponse>;
 
     /**
+     * Function used to get all transactions, for a particular user.
+     *
+     * @param getTransactionInput the transaction input object to be passed in,
+     * containing all the necessary filtering for retrieving the transactions for a particular user.
+     *
+     * @returns a {@link MoonbeamTransactionsResponse} representing the transactional data.
+     *
+     * @protected
+     */
+    protected getTransaction?(getTransactionInput: GetTransactionInput): Promise<MoonbeamTransactionsResponse>;
+
+    /**
      * Function used to get all transactions, for a particular user, filtered
      * by their status.
      *
-     * @param getTransactionByStatusInput the transaction by status input object ot be passed in,
+     * @param getTransactionByStatusInput the transaction by status input object to be passed in,
      * containing all the necessary filtering for retrieving the transactions.
      *
      * @returns a {@link MoonbeamTransactionsByStatusResponse} representing the transactional data,
@@ -312,6 +326,20 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected reimbursementsAcknowledgment?(eligibleLinkedUser: EligibleLinkedUser): Promise<APIGatewayProxyResult>;
+
+    /**
+     * Function used to send a new transaction acknowledgment, for an updated transaction, so we can kick-start the
+     * transaction process through the transaction producer.
+     *
+     * @param updatedTransactionEvent updated transaction event to be passed in
+     *
+     * @return a {@link Promise} of {@link APIGatewayProxyResult} representing the API Gateway result
+     * sent by the reimbursement producer Lambda, to validate whether the transactions process was
+     * kick-started or not.
+     *
+     * @protected
+     */
+    protected transactionsAcknowledgment?(updatedTransactionEvent: UpdatedTransactionEvent): Promise<APIGatewayProxyResult>;
 
     /**
      * Function used to create a new transaction internally, from an incoming transaction
@@ -461,6 +489,22 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected getTransactionDetails?(transaction: Transaction): Promise<TransactionResponse>
+
+    /**
+     * Function used to retrieve the transaction details, given a transaction ID (used for updated
+     * transactional events purposes).
+     *
+     * @param updatedTransactionEvent the updated transaction event object, populated by the
+     * initial details passed by Olive in the updated webhook call. This object will be used
+     * to set even more information for it, obtained from this transaction details call.
+     *
+     * @return a {@link Promise} of {@link UpdatedTransactionEventResponse} representing the
+     * updated transaction event object, populated with the additional transaction details
+     * that we retrieved
+     *
+     * @protected
+     */
+    protected getUpdatedTransactionDetails?(updatedTransactionEvent: UpdatedTransactionEvent): Promise<UpdatedTransactionEventResponse>
 
     /**
      * Function used to retrieve the transaction status details, given a transaction ID

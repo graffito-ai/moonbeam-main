@@ -92,6 +92,7 @@ export interface APIGatewayServiceConfiguration {
     readonly internallySharedAPIKeyName: string;
     readonly internalUsagePlan: string;
     readonly transactionsAcknowledgmentMethodName: string;
+    readonly updatedTransactionsAcknowledgmentMethodName: string;
     readonly reimbursementsAcknowledgmentMethodName: string;
 }
 
@@ -169,6 +170,28 @@ export interface TransactionsProducerConsumerConfiguration {
     readonly transactionalOffersConsumerFunctionName: string;
     readonly transactionalOffersNotificationsConsumerFunctionName: string;
     readonly transactionsFanOutConfig: TransactionsFanOutConfiguration;
+}
+
+/**
+ * Interface used to define the configuration for the update transaction-related fan-out pattern, composed
+ * of an event-based process, driven by SNS and SQS.
+ */
+export interface UpdatedTransactionsFanOutConfiguration {
+    readonly updatedTransactionalOffersProcessingTopicName: string;
+    readonly updatedTransactionalOffersProcessingQueueName: string;
+    readonly updatedTransactionalOffersProcessingDLQName: string;
+    readonly updatedTransactionalOffersProcessingTopicDLQName: string;
+    readonly updatedTransactionalOffersProcessingEventSourceMapping: string;
+}
+
+/**
+ * Interface used to define all the resources for the producer and consumers, taking advantage
+ * of the async update transactional data.
+ */
+export interface UpdatedTransactionsProducerConsumerConfiguration {
+    readonly updatedTransactionsProducerFunctionName: string;
+    readonly updatedTransactionsConsumerFunctionName: string;
+    readonly updatedTransactionsFanOutConfig: UpdatedTransactionsFanOutConfiguration;
 }
 
 /**

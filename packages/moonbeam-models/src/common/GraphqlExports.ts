@@ -1143,12 +1143,56 @@ export type UpdateReimbursementInput = {
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
+export type UpdateTransactionEventTransactionData = {
+  __typename?: 'UpdateTransactionEventTransactionData';
+  amount?: Maybe<Scalars['Float']>;
+  brandId?: Maybe<Scalars['ID']>;
+  cardId: Scalars['ID'];
+  created?: Maybe<Scalars['AWSDateTime']>;
+  currencyCode: CurrencyCodeType;
+  id: Scalars['ID'];
+  loyaltyProgramId?: Maybe<Scalars['String']>;
+  matchingAmount?: Maybe<Scalars['Float']>;
+  merchantCategoryCode?: Maybe<Scalars['String']>;
+  moonbeamTransactionStatus?: Maybe<TransactionsStatus>;
+  rewardAmount: Scalars['Float'];
+  roundedAmount?: Maybe<Scalars['Float']>;
+  roundingRuleId?: Maybe<Scalars['String']>;
+  storeId?: Maybe<Scalars['ID']>;
+};
+
 export type UpdateTransactionInput = {
   id: Scalars['ID'];
   timestamp: Scalars['AWSTimestamp'];
   transactionId: Scalars['ID'];
   transactionStatus: TransactionsStatus;
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
+export type UpdatedTransactionEvent = {
+  __typename?: 'UpdatedTransactionEvent';
+  callbackUrl: Scalars['String'];
+  data: UpdatedTransactionEventData;
+  id: Scalars['ID'];
+  subscriptionId: Scalars['ID'];
+  timestamp: Scalars['AWSTimestamp'];
+  topic: Scalars['String'];
+};
+
+export type UpdatedTransactionEventData = {
+  __typename?: 'UpdatedTransactionEventData';
+  cardId: Scalars['ID'];
+  memberId: Scalars['ID'];
+  redeemedMatchings: Array<Maybe<Scalars['String']>>;
+  transaction: UpdateTransactionEventTransactionData;
+  webhookEventType: Scalars['String'];
+};
+
+export type UpdatedTransactionEventResponse = {
+  __typename?: 'UpdatedTransactionEventResponse';
+  data?: Maybe<UpdatedTransactionEvent>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<TransactionsErrorType>;
 };
 
 export enum UserDeviceErrorType {

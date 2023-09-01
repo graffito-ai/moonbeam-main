@@ -9,7 +9,7 @@ import {EventSourceMapping} from "aws-cdk-lib/aws-lambda";
 
 /**
  * File used to define the TransactionsProducerConsumerStack stack, used to create all the necessary resources
- * involved around handling incoming transactional data in an async fashion (Lambdas, etc.), aws well as
+ * involved around handling incoming transactional data in an async fashion (Lambdas, etc.), as well as
  * around the transactions-related fan-out pattern, composed of an event-based process, driven by SNS and SQS. This
  * will help build the infrastructure for the acknowledgment service, or producer, as well as any of its consumers.
  */

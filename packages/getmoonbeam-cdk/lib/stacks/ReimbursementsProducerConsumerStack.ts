@@ -95,8 +95,11 @@ export class ReimbursementsProducerConsumerStack extends Stack {
         new Rule(this, `${props.reimbursementsProducerConsumerConfig.reimbursementsCronRuleName}-${props.stage}-${props.env!.region}`, {
             ruleName: `${props.reimbursementsProducerConsumerConfig.reimbursementsCronRuleName}-${props.stage}-${props.env!.region}`,
             description: "Schedule the Reimbursements Trigger Lambda which initiates the reimbursement process daily, at 11PM",
-            // the timezone for this cron expression is in UTC.
+            // the timezone for this cron expression is in UTC (for now schedule this to run on the 1st of December 2023, so we can avoid reimbursing anyone)
             schedule: Schedule.cron({
+                month: '12',
+                day: '1',
+                year: '2023',
                 minute: '30',
                 hour: '08'
             }),

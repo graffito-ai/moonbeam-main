@@ -7,7 +7,7 @@ type Query {
     getDevicesForUser(getDevicesForUserInput: GetDevicesForUserInput!): UserDevicesResponse! @aws_cognito_user_pools @aws_api_key
     getDevice(getDeviceInput: GetDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     getDeviceByToken(getDeviceByTokenInput: GetDeviceByTokenInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
-    getTransaction(getTransactionInput: GetTransactionInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools
+    getTransaction(getTransactionInput: GetTransactionInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools @aws_api_key
     getReimbursementByStatus(getReimbursementByStatusInput: GetReimbursementByStatusInput!): ReimbursementByStatusResponse! @aws_cognito_user_pools @aws_api_key
     getTransactionByStatus(getTransactionByStatusInput: GetTransactionByStatusInput!): MoonbeamTransactionsByStatusResponse! @aws_cognito_user_pools @aws_api_key
     getCardLink(getCardLinkInput: GetCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools

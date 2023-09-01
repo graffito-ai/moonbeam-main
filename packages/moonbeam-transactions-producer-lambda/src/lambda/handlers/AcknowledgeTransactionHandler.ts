@@ -16,22 +16,31 @@ export const acknowledgeTransaction = async (route: string, requestBody: string 
         const region = process.env.AWS_REGION!;
 
         // first check whether we have a valid request body.
-        if (requestBody) {
+        if (requestBody !== undefined && requestBody !== null && requestBody.length !== 0) {
             // parse the incoming request body data as a JSON object
             const requestBodyParsed = JSON.parse(requestBody);
             const requestData = requestBodyParsed["data"] ? requestBodyParsed["data"] : null;
 
             // perform some validations based on what is expected in terms of the incoming data model and its mapping
-            if (requestBodyParsed["data"] && requestBodyParsed["timestamp"] && requestData &&
-                requestData["cardId"] && requestData["memberId"] && requestData["transaction"] &&
-                requestData["transaction"]["id"] && requestData["transaction"]["cardId"] &&
-                requestData["transaction"]["created"] && requestData["transaction"]["currencyCode"] &&
-                requestData["transaction"]["created"] && requestData["transaction"]["merchantCategoryCode"]) {
+            if (requestBodyParsed["data"] !== undefined && requestBodyParsed["data"] !== null &&
+                requestBodyParsed["timestamp"] !== undefined && requestBodyParsed["timestamp"] !== undefined !== null &&
+                requestData !== undefined && requestData !== null &&
+                requestData["cardId"] !== undefined && requestData["cardId"] !== null &&
+                requestData["memberId"] !==undefined && requestData["memberId"] !==null &&
+                requestData["transaction"] !== undefined && requestData["transaction"] !== null &&
+                requestData["transaction"]["id"] !== undefined && requestData["transaction"]["id"] !== null &&
+                requestData["transaction"]["cardId"] !== undefined && requestData["transaction"]["cardId"] !== null &&
+                requestData["transaction"]["created"] !== undefined && requestData["transaction"]["created"] !== null &&
+                requestData["transaction"]["currencyCode"] !== undefined && requestData["transaction"]["currencyCode"] !== null &&
+                requestData["transaction"]["created"] !== undefined && requestData["transaction"]["created"] !== null &&
+                requestData["transaction"]["merchantCategoryCode"] !== undefined && requestData["transaction"]["merchantCategoryCode"] !== null) {
 
                 // filter based on whether an incoming transaction is a redeemable offer or not
-                if (requestData["transaction"]["amount"] && requestData["transaction"]["brandId"] &&
-                    requestData["transaction"]["loyaltyProgramId"] && requestData["transaction"]["rewardAmount"] &&
-                    requestData["transaction"]["storeId"]) {
+                if (requestData["transaction"]["amount"] !== undefined && requestData["transaction"]["amount"] !== null &&
+                    requestData["transaction"]["brandId"] !== undefined && requestData["transaction"]["brandId"] !== null &&
+                    requestData["transaction"]["loyaltyProgramId"] !== undefined && requestData["transaction"]["loyaltyProgramId"] !== null &&
+                    requestData["transaction"]["rewardAmount"] !== undefined && requestData["transaction"]["rewardAmount"] !== null &&
+                    requestData["transaction"]["storeId"] !== undefined && requestData["transaction"]["storeId"] !== null) {
 
                     // build the transaction object from the incoming request body
                     const transaction: Transaction = {
@@ -46,8 +55,18 @@ export const acknowledgeTransaction = async (route: string, requestBody: string 
                         category: requestData["transaction"]["merchantCategoryCode"],
                         currencyCode: requestData["transaction"]["currencyCode"],
                         transactionId: requestData["transaction"]["id"],
-                        // set the status of all incoming transactions to be pending, until we get a status change and/or until the cashback is reimbursed to the customer
-                        transactionStatus: TransactionsStatus.Pending,
+                        /**
+                         * set the status of all incoming transactions:
+                         * - to PENDING if there is no status passed in the ["transaction"]["moonbeamTransactionStatus"] parameter, since then we know that this
+                         * got invoked directly by Olive on card swipe, or by our update transactions workflow, when an ineligible transaction became an eligible offer.
+                         * - if the updated transaction workflow passes a status in the ["transaction"]["moonbeamTransactionStatus"] , pass that accordingly.
+                         *
+                         * Note: any other statuses such as (PROCESSED, CREDITED or REJECTED) will be updated by the updated transaction workflow accordingly, by
+                         * directly calling our AppSync transaction endpoints, instead of going through this flow.
+                         */
+                        transactionStatus: requestData["transaction"]["moonbeamTransactionStatus"]
+                            ? requestData["transaction"]["moonbeamTransactionStatus"] as TransactionsStatus
+                            : TransactionsStatus.Pending,
                         // the type of this transaction will be an offer redeemed type for now. In the future when we process different types of transactions, this might change
                         transactionType: TransactionType.OfferRedeemed,
                         /**

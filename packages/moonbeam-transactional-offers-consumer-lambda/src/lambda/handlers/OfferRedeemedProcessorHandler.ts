@@ -39,12 +39,12 @@ export const processOfferRedeemedTransactions = async (event: SQSEvent): Promise
             /**
              * The overall transaction processing, will be made up of the following steps:
              *
-             * 1) Call the GET member details Olive API to retrieve the member details (extMemberID) for member
-             * 2) Call the GET brand details Olive API to retrieve the brand name for incoming transaction
-             * 3) Call the GET store details Olive API to retrieve the brand store address for incoming transaction
-             * 4) Call the GET transaction details Olive API to retrieve the actual purchase date/time for an incoming transaction
-             * 5) Convert any necessary timestamps and created/updated at times to appropriate formats
-             * 6) Call the createTransaction Moonbeam AppSync API endpoint, to store transaction in Dynamo DB
+             * 1) Call the GET member details Olive API to retrieve the member details (extMemberID) for member.
+             * 2) Call the GET brand details Olive API to retrieve the brand name for incoming transaction.
+             * 3) Call the GET store details Olive API to retrieve the brand store address for incoming transaction.
+             * 4) Call the GET transaction details Olive API to retrieve the actual purchase date/time for an incoming transaction.
+             * 5) Convert any necessary timestamps and created/updated at times to appropriate formats.
+             * 6) Call the createTransaction Moonbeam AppSync API endpoint, to store transaction in Dynamo DB.
              */
                 // first, convert the incoming event message body, into a transaction object
             const transaction: Transaction = JSON.parse(transactionalRecord.body) as Transaction;

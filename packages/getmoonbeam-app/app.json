@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Moonbeam",
+    "name": "Moonbeam Finance",
     "owner": "moonbeamfin",
     "slug": "moonbeam-app",
     "version": "0.0.1",
@@ -11,7 +11,7 @@
       "image": "./assets/splash.png",
       "resizeMode": "cover"
     },
-    "scheme": "moonbeam",
+    "scheme": "moonbeamfin",
     "assetBundlePatterns": [
       "**/*"
     ],
