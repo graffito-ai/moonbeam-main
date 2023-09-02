@@ -107,8 +107,8 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     // constants used to keep track of local component state
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
-    const [marketplaceCache, ] = useRecoilState(marketplaceAmplifyCacheState);
-    const [globalCache, ] = useRecoilState(globalAmplifyCacheState);
+    const [marketplaceCache,] = useRecoilState(marketplaceAmplifyCacheState);
+    const [globalCache,] = useRecoilState(globalAmplifyCacheState);
     const [isReady, setIsReady] = useRecoilState(isReadyRegistrationState);
     const [, setNavigation] = useRecoilState(authRegistrationNavigation);
     const [, setAmplifySignUpErrors] = useRecoilState(amplifySignUpProcessErrorsState);
@@ -502,13 +502,13 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
      * Function used to add the necessary location background permissions, needed for the application
      * to access a user's geolocation.
      */
-    // @ts-ignore
+        // @ts-ignore
     const requestBackgroundLocationPermission = async () => {
-        const {status} = await Location.requestBackgroundPermissionsAsync();
-        if (status !== 'granted') {
-            console.log('Permission to access location in background not granted!');
+            const {status} = await Location.requestBackgroundPermissionsAsync();
+            if (status !== 'granted') {
+                console.log('Permission to access location in background not granted!');
+            }
         }
-    }
 
     /**
      * Function used to add the necessary notification permissions, needed for the application
@@ -646,7 +646,8 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                         ?
                                         <Text style={styles.stepDescription}>{
                                             registrationSteps[stepNumber].stepDescription
-                                        }{" "}<Text style={styles.stepDescriptionUnderline}>Check your spam and trash inboxes.</Text>
+                                        }{" "}<Text style={styles.stepDescriptionUnderline}>Check your spam and trash
+                                            inboxes.</Text>
                                         </Text>
                                         : <Text style={styles.stepDescription}>{
                                             registrationSteps[stepNumber].stepDescription
@@ -675,7 +676,10 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                                     ? <CardLinkingStatusSplashStep/>
                                                                     : <></>
                             }
-                            <View style={[styles.bottomContainerButtons]}>
+                            <View style={[
+                                styles.bottomContainerButtons,
+                                (stepNumber === 4 || stepNumber === 5 || stepNumber == 6) && {paddingRight: Dimensions.get('window').width / 30}
+                            ]}>
                                 {(stepNumber === 1 || stepNumber === 2) &&
                                     <TouchableOpacity
                                         style={styles.buttonLeft}

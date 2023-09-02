@@ -258,7 +258,7 @@ export const styles = StyleSheet.create({
     bottomContainerButtons: {
         flexDirection: 'row',
         marginTop: Dimensions.get('window').height / 40,
-        paddingRight: Dimensions.get('window').width/ 20,
+        alignSelf: 'center'
     },
     documentSelectionView: {
         zIndex: 1000,

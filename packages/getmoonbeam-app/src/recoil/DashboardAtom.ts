@@ -1,5 +1,5 @@
 import {atom, selector} from "recoil";
-import {MoonbeamTransaction} from "@moonbeam/moonbeam-models";
+import {MoonbeamTransaction, TransactionsStatus} from "@moonbeam/moonbeam-models";
 
 /**
  * Atom used to keep track of the state of the transactional data
@@ -56,21 +56,26 @@ const currentBalanceState = selector<number>({
     get: ({get}) => {
         // @ts-ignore
         const transactionDataList = get(transactionDataState);
-        // // the pending amounts representing the current balance (to be paid to the user)
-        // let currentBalance = 0;
-        //
-        // /**
-        //  * only consider each transaction's reward amount equal to the pending amount that will
-        //  * be included in the current balance total.
-        //  */
-        // transactionDataList
-        //             .filter((v,i,a)=>a.findIndex(v2=>(v2.transactionId===v.transactionId))===i)
-        //             .forEach(transaction => {
-        //     currentBalance += Number(transaction.pendingCashbackAmount.toFixed(2));
-        // });
-        // // return the current balance amount
-        // return Number(currentBalance.toFixed(2));
-        return Number(0.00);
+
+        // the pending amounts representing the current balance (to be paid to the user)
+        let currentBalance = 0;
+
+        /**
+         * ONLY look at transactions that are in a PROCESSED state (essentially that were funded
+         * from our merchants' or Olive's side, and are about to be credited back to the customer)
+         *
+         * only consider each transaction's reward amount equal to the pending amount that will
+         * be included in the current balance total.
+         */
+        transactionDataList
+                    .filter((v,i,a)=>a.findIndex(v2=>(v2.transactionId===v.transactionId))===i)
+                    .forEach(transaction => {
+                        if (transaction.transactionStatus === TransactionsStatus.Processed) {
+                            currentBalance += Number(transaction.pendingCashbackAmount.toFixed(2));
+                        }
+        });
+        // return the current balance amount
+        return Number(currentBalance.toFixed(2));
     },
 });
 
@@ -86,15 +91,20 @@ const lifetimeSavingsState = selector<number>({
         let lifetimeSavingsBalance = 0;
 
         /**
+         * ONLY look at transactions that are in PENDING, PROCESSED or CREDITED state
+         * (do not look at REJECTED)
+         *
          * consider the pending and credited amounts for transactions, that will
          * be included in the lifetime savings total.
          */
         transactionDataList
             .filter((v, i, a) => a.findIndex(v2 => (v2.transactionId === v.transactionId)) === i)
             .forEach(transaction => {
-                lifetimeSavingsBalance += transaction.pendingCashbackAmount !== 0
-                    ? Number(transaction.pendingCashbackAmount.toFixed(2))
-                    : Number(transaction.creditedCashbackAmount.toFixed(2));
+                if (transaction.transactionStatus !== TransactionsStatus.Rejected) {
+                    lifetimeSavingsBalance += transaction.pendingCashbackAmount !== 0
+                        ? Number(transaction.pendingCashbackAmount.toFixed(2))
+                        : Number(transaction.creditedCashbackAmount.toFixed(2));
+                }
             });
         // return the lifetime savings amount
         return Number(lifetimeSavingsBalance.toFixed(2));
