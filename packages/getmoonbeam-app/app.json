@@ -37,8 +37,8 @@
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Allow $(PRODUCT_NAME) to always access your while using the app.",
         "NSLocationAlwaysUsageDescription": "Allow $(PRODUCT_NAME) to always access your location."
       },
-      "buildNumber": "2",
-      "bundleIdentifier": "com.moonbeam.moonbeamfin"
+      "buildNumber": "3",
+      "bundleIdentifier": "com.moonbeam.moonbeamfinance"
     },
     "android": {
       "versionCode": 1,
