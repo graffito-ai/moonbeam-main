@@ -1,175 +1,177 @@
-import {Dimensions, StyleSheet} from "react-native";
+import {StyleSheet} from "react-native";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 // styles to be used within the Account Recovery component
 export const styles = StyleSheet.create({
     topContainer: {
         flex: 0.3,
         backgroundColor: 'transparent',
-        width: '100%'
+        width: wp(100)
     },
     greetingTitle: {
         fontFamily: 'Saira-Medium',
         alignSelf: 'flex-start',
-        marginLeft: Dimensions.get('window').width/22,
-        marginTop: Dimensions.get('window').height/20,
-        fontSize: Dimensions.get('window').height/18,
+        marginLeft: wp(5),
+        marginTop: hp(4),
+        fontSize: hp(5.5),
         color: '#FFFFFF'
     },
     gettingSubtitle: {
         fontFamily: 'Saira-Medium',
         alignSelf: 'flex-start',
-        marginLeft: Dimensions.get('window').width/20,
-        bottom: Dimensions.get('window').height/50,
-        fontSize: Dimensions.get('window').height/40,
+        marginLeft: wp(5),
+        bottom: hp(2),
+        fontSize: hp(2.8),
         color: '#FFFFFF'
     },
     gettingSubtitleHighlighted: {
         fontFamily: 'Saira-SemiBold',
         alignSelf: 'flex-start',
-        fontSize: Dimensions.get('window').height/40,
+        fontSize: hp(2.8),
         color: '#F2FF5D'
     },
     contentTitle: {
         fontFamily: 'Saira-Medium',
         alignSelf: 'flex-start',
-        marginLeft: Dimensions.get('window').width/20,
-        marginTop: Dimensions.get('window').height/20,
-        fontSize: Dimensions.get('window').height/28,
-        width: Dimensions.get('window').width/1.1,
+        marginLeft: wp(5),
+        marginBottom: hp(2),
+        top: hp(2),
+        fontSize: hp(4.2),
+        width: wp(90),
         color: '#FFFFFF'
     },
     contentDescription: {
         fontFamily: 'Raleway-Regular',
         alignSelf: 'flex-start',
-        marginLeft: Dimensions.get('window').width/20,
-        marginTop: Dimensions.get('window').height/100,
-        fontSize: Dimensions.get('window').height/48,
-        width: Dimensions.get('window').width/1.1,
+        marginLeft: wp(5.5),
+        marginTop: hp(1.5),
+        fontSize: hp(2),
+        width: wp(90),
         color: '#FFFFFF'
     },
     bottomContainer: {
         backgroundColor: '#313030',
         flex: 0.7,
-        width: '100%',
-        height: '100%',
+        width: wp(100),
+        height: hp(100),
         flexDirection: 'column'
     },
     textInputContentStyle: {
-        fontSize: Dimensions.get('window').height/55,
+        fontSize: hp(2),
         fontFamily: 'Saira-Regular'
     },
-    textInputFocus: {
-        marginTop: Dimensions.get('window').height / 10,
-        bottom: Dimensions.get('window').height / 14,
-        alignSelf: 'flex-start',
-        marginLeft: Dimensions.get('window').width / 20,
-        width: Dimensions.get('window').width / 1.15
-    },
     textInput: {
-        marginTop: Dimensions.get('window').height / 10,
-        bottom: Dimensions.get('window').height / 14,
+        marginTop: hp(2),
         alignSelf: 'flex-start',
-        marginLeft: Dimensions.get('window').width / 20,
-        width: Dimensions.get('window').width / 1.15
+        marginLeft: hp(3),
+        width: wp(87)
+    },
+    textInputFocus: {
+        marginTop: hp(2),
+        alignSelf: 'flex-start',
+        marginLeft: hp(3),
+        width: wp(87)
     },
     textPasswordInputFocus: {
-        marginTop: Dimensions.get('window').height / 54,
-        bottom: Dimensions.get('window').height / 14,
+        marginTop: hp(2),
         alignSelf: 'flex-start',
-        marginLeft: Dimensions.get('window').width / 20,
-        width: Dimensions.get('window').width / 1.15
+        marginLeft: hp(3),
+        width: wp(87)
     },
     textPasswordInput: {
-        marginTop: Dimensions.get('window').height / 54,
-        bottom: Dimensions.get('window').height / 14,
+        marginTop: hp(2),
         alignSelf: 'flex-start',
-        marginLeft: Dimensions.get('window').width / 20,
-        width: Dimensions.get('window').width / 1.15
+        marginLeft: hp(3),
+        width: wp(87)
     },
     button: {
         backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width/3,
-        height: Dimensions.get('window').height/20,
-        marginTop: Dimensions.get('window').height/10,
-        marginLeft: Dimensions.get('window').width/3,
+        width: wp(30),
+        height: hp(5),
+        marginTop: hp(20),
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
+        alignSelf: 'center',
         justifyContent: 'center'
     },
     buttonText: {
         color: '#313030',
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').height/45,
-        marginTop: Dimensions.get('window').height / 90
+        fontSize: hp(2.3),
+        marginTop: hp(1)
     },
     bottomAuthenticationText: {
         fontFamily: 'Saira-Regular',
         alignSelf: 'center',
-        top: Dimensions.get('window').height/40,
-        fontSize: Dimensions.get('window').height/50,
+        top: hp(3),
+        fontSize: hp(2.3),
         color: '#FFFFFF'
     },
     bottomAuthenticationTextButton: {
         fontFamily: 'Saira-SemiBold',
         alignSelf: 'center',
-        fontSize: Dimensions.get('window').height/50,
+        fontSize: hp(2.3),
         color: '#F2FF5D'
     },
     codeInputColumnView: {
-        marginLeft: Dimensions.get('window').width/20,
-        marginTop: Dimensions.get('window').height / 15,
+        alignSelf: 'center',
+        marginLeft: wp(8),
+        marginTop: hp(10),
         flexDirection: 'row',
-        width: '100%',
+        width: wp(100),
     },
     textInputCodeContentStyle: {
-        fontSize: Dimensions.get('window').height/25,
+        fontSize: hp(4),
+        width: wp(15),
+        marginLeft: wp(1.2),
         fontFamily: 'Saira-Regular',
         alignSelf: 'center',
+        textAlign: 'center'
     },
     textInputCode: {
-        marginTop: Dimensions.get('window').height / 50,
-        bottom: Dimensions.get('window').height / 14,
+        marginTop: hp(2),
+        bottom: hp(7),
         alignSelf: 'flex-start',
-        marginRight: Dimensions.get('window').width / 80,
-        width: Dimensions.get('window').width / 7,
+        marginRight: wp(1.7),
+        width: wp(14),
     },
     textInputCodeFocus: {
-        marginTop: Dimensions.get('window').height / 50,
-        bottom: Dimensions.get('window').height / 14,
+        marginTop: hp(2),
+        bottom: hp(7),
         alignSelf: 'flex-start',
-        marginRight: Dimensions.get('window').width /80,
-        width: Dimensions.get('window').width / 7,
+        marginRight: wp(1.7),
+        width: wp(14),
     },
     resendCodeView: {
         flexDirection: 'row',
-        width: Dimensions.get('window').width / 3,
-        bottom: Dimensions.get('window').height / 15,
+        width: wp(50),
+        bottom: hp(5),
         alignSelf: 'flex-start',
-        marginLeft: Dimensions.get('window').width/20
+        marginLeft: wp(4)
     },
     resendCode: {
-        width: Dimensions.get('window').width / 3,
+        width: wp(50),
         alignSelf: 'flex-start',
         fontFamily: 'Changa-Medium',
-        fontSize: Dimensions.get('window').height/40,
+        fontSize: hp(2.5),
         textDecorationLine: 'underline',
         color: '#F2FF5D'
     },
     countdownTimer: {
-        width: Dimensions.get('window').width /3,
+        width: wp(50),
         alignSelf: 'flex-start',
         fontFamily: 'Changa-Medium',
-        fontSize: Dimensions.get('window').height/40,
+        fontSize: hp(2.5),
         color: '#D9D9D9'
     },
     errorMessage: {
-        width: Dimensions.get('window').width / 1.15,
-        marginTop: Dimensions.get('window').height /70,
-        marginLeft: Dimensions.get('window').width/ 20,
+        width: wp(90),
+        marginTop: hp(1.5),
+        marginLeft: wp(6),
         alignSelf: 'flex-start',
         fontFamily: 'Saira-Medium',
-        fontSize: 15,
+        fontSize: hp(1.8),
         color: '#F2FF5D'
     }
 });

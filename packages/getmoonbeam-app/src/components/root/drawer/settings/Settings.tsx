@@ -8,14 +8,11 @@ import {SettingsList} from "./SettingsList";
 import {Profile} from './profile/Profile';
 import {useRecoilState} from "recoil";
 import {appDrawerHeaderShownState, drawerDashboardState, drawerSwipeState} from "../../../../recoil/AppDrawerAtom";
-import {deviceTypeState} from "../../../../recoil/RootAtom";
-import * as Device from "expo-device";
-import {DeviceType} from "expo-device";
-import {Dimensions} from "react-native";
 import {styles} from "../../../../styles/settingsList.module";
 import {Spinner} from "../../../common/Spinner";
 import {ResetPassword} from "./password/ResetPassword";
 import {goToProfileSettingsState} from "../../../../recoil/Settings";
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 /**
  * Settings component
@@ -30,7 +27,6 @@ export const Settings = ({navigation}: SettingsProps) => {
     const [, setGoToProfileSettings] = useRecoilState(goToProfileSettingsState);
     const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
     const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
-    const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
     const [, setIsDrawerInDashboard] = useRecoilState(drawerDashboardState);
 
     // create a native stack navigator, to be used for our Settings navigation
@@ -48,11 +44,7 @@ export const Settings = ({navigation}: SettingsProps) => {
         if (navigation.getState().index === 2) {
             setIsDrawerInDashboard(false);
         }
-        // check and set the type of device, to be used throughout the app
-        Device.getDeviceTypeAsync().then(deviceType => {
-            setDeviceType(deviceType);
-        });
-    }, [deviceType, navigation.getState()]);
+    }, [navigation.getState()]);
 
     // return the component for the Settings page
     return (
@@ -69,8 +61,8 @@ export const Settings = ({navigation}: SettingsProps) => {
                             return (<IconButton
                                 icon="chevron-left"
                                 iconColor={"#F2FF5D"}
-                                size={deviceType === DeviceType.TABLET ? Dimensions.get('window').height / 28 : Dimensions.get('window').height / 22}
-                                style={deviceType === DeviceType.TABLET ? styles.backButtonTablet : styles.backButton}
+                                size={hp(4.5)}
+                                style={styles.backButton}
                                 onPress={() => {
                                     // enable swipes for the App Drawer
                                     setDrawerSwipeEnabled(true);

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Dimensions, Image, Text, TouchableOpacity, View} from "react-native";
+import {Image, Platform, Text, TouchableOpacity, View} from "react-native";
 import {Divider, TextInput} from "react-native-paper";
 import {useRecoilState} from "recoil";
 import {
@@ -21,6 +21,7 @@ import {Spinner} from "../../../common/Spinner";
 import DocumentationUpload1Picture from '../../../../../assets/art/moonbeam-document-upload-1.png';
 // @ts-ignore
 import DocumentationUpload2Picture from '../../../../../assets/art/moonbeam-document-upload-2.png';
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 /**
  * DocumentCaptureStep component.
@@ -113,7 +114,7 @@ export const DocumentCaptureStep = () => {
                         const photoAsset = result.assets[0];
 
                         // if a photo of their document was picked successfully, then check against its size
-                        if (photoAsset.fileSize && isValidSize(photoAsset.fileSize!)) {
+                        if (!photoAsset.fileSize || (photoAsset.fileSize && isValidSize(photoAsset.fileSize!))) {
                             /**
                              * build a new upload URI, used to upload the photo to the file system storage
                              * in order to obtain a valid URI/URL that can be use for further steps
@@ -134,6 +135,8 @@ export const DocumentCaptureStep = () => {
                                 // @ts-ignore
                                 setDocumentationErrors([errorMessage]);
 
+                                setVerificationDocument("");
+
                                 // release the loader on button press
                                 setIsReady(true);
                                 return false;
@@ -153,6 +156,8 @@ export const DocumentCaptureStep = () => {
                             // @ts-ignore
                             setDocumentationErrors([errorMessage]);
 
+                            setVerificationDocument("");
+
                             // release the loader on button press
                             setIsReady(true);
                             return false;
@@ -164,6 +169,8 @@ export const DocumentCaptureStep = () => {
                         // set the documentation errors accordingly
                         // @ts-ignore
                         setDocumentationErrors([errorMessage]);
+
+                        setVerificationDocument("");
 
                         // release the loader on button press
                         setIsReady(true);
@@ -177,6 +184,8 @@ export const DocumentCaptureStep = () => {
                     // @ts-ignore
                     setDocumentationErrors([errorMessage]);
 
+                    setVerificationDocument("");
+
                     // release the loader on button press
                     setIsReady(true);
                     return false;
@@ -189,6 +198,8 @@ export const DocumentCaptureStep = () => {
                 // @ts-ignore
                 setDocumentationErrors([errorMessage]);
 
+                setVerificationDocument("");
+
                 // release the loader on button press
                 setIsReady(true);
                 return false;
@@ -200,6 +211,8 @@ export const DocumentCaptureStep = () => {
             // set the documentation errors accordingly
             // @ts-ignore
             setDocumentationErrors([errorMessage]);
+
+            setVerificationDocument("");
 
             // release the loader on button press
             setIsReady(true);
@@ -239,7 +252,7 @@ export const DocumentCaptureStep = () => {
                         const photoAsset = result.assets[0];
 
                         // if a photo of their document was captured successfully, then check against its size
-                        if (photoAsset.fileSize && isValidSize(photoAsset.fileSize!)) {
+                        if (!photoAsset.fileSize || (photoAsset.fileSize && isValidSize(photoAsset.fileSize!))) {
                             /**
                              * build a new upload URI, used to upload the photo to the file system storage
                              * in order to obtain a valid URI/URL that can be use for further steps
@@ -260,6 +273,8 @@ export const DocumentCaptureStep = () => {
                                 // @ts-ignore
                                 setDocumentationErrors([errorMessage]);
 
+                                setVerificationDocument("");
+
                                 // release the loader on button press
                                 setIsReady(true);
                                 return false;
@@ -279,6 +294,8 @@ export const DocumentCaptureStep = () => {
                             // @ts-ignore
                             setDocumentationErrors([errorMessage]);
 
+                            setVerificationDocument("");
+
                             // release the loader on button press
                             setIsReady(true);
                             return false;
@@ -290,6 +307,8 @@ export const DocumentCaptureStep = () => {
                         // set the documentation errors accordingly
                         // @ts-ignore
                         setDocumentationErrors([errorMessage]);
+
+                        setVerificationDocument("");
 
                         // release the loader on button press
                         setIsReady(true);
@@ -303,6 +322,8 @@ export const DocumentCaptureStep = () => {
                     // @ts-ignore
                     setDocumentationErrors([errorMessage]);
 
+                    setVerificationDocument("");
+
                     // release the loader on button press
                     setIsReady(true);
                     return false;
@@ -315,6 +336,8 @@ export const DocumentCaptureStep = () => {
                 // @ts-ignore
                 setDocumentationErrors([errorMessage]);
 
+                setVerificationDocument("");
+
                 // release the loader on button press
                 setIsReady(true);
                 return false;
@@ -326,6 +349,8 @@ export const DocumentCaptureStep = () => {
             // set the documentation errors accordingly
             // @ts-ignore
             setDocumentationErrors([errorMessage]);
+
+            setVerificationDocument("");
 
             // release the loader on button press
             setIsReady(true);
@@ -364,7 +389,7 @@ export const DocumentCaptureStep = () => {
             // if the user successfully selected a document using the picker
             if (result.type === "success") {
                 // if the document was picked successfully, then check against its size
-                if (result.size && isValidSize(result.size!)) {
+                if (!result.size || (result.size && isValidSize(result.size!))) {
                     /**
                      * build a new upload URI, used to upload the file to the file system storage
                      * in order to obtain a valid URI/URL that can be use for further steps
@@ -385,6 +410,8 @@ export const DocumentCaptureStep = () => {
                         // @ts-ignore
                         setDocumentationErrors([errorMessage]);
 
+                        setVerificationDocument("");
+
                         // release the loader on button press
                         setIsReady(true);
                         return false;
@@ -404,6 +431,8 @@ export const DocumentCaptureStep = () => {
                     // @ts-ignore
                     setDocumentationErrors([errorMessage]);
 
+                    setVerificationDocument("");
+
                     // release the loader on button press
                     setIsReady(true);
                     return false;
@@ -416,6 +445,8 @@ export const DocumentCaptureStep = () => {
                 // @ts-ignore
                 setDocumentationErrors([errorMessage]);
 
+                setVerificationDocument("");
+
                 // release the loader on button press
                 setIsReady(true);
                 return false;
@@ -427,6 +458,8 @@ export const DocumentCaptureStep = () => {
             // set the documentation errors accordingly
             // @ts-ignore
             setDocumentationErrors([errorMessage]);
+
+            setVerificationDocument("");
 
             // release the loader on button press
             setIsReady(true);
@@ -447,44 +480,41 @@ export const DocumentCaptureStep = () => {
                             : <></>
                         }
                         <View style={styles.documentSelectionView}>
-                            <View style={styles.documentSelectionOptionTop}>
-                                <DropDownPicker
-                                    zIndex={5000}
-                                    placeholder={"Select a document to continue"}
-                                    dropDownContainerStyle={styles.documentsDropdownContainer}
-                                    style={styles.documentsDropdownPicker}
-                                    textStyle={[styles.textInputContentStyle, {color: '#D9D9D9'}]}
-                                    dropDownDirection={"BOTTOM"}
-                                    open={dropdownDocumentState}
-                                    onOpen={() => {
-                                        // clear any previous errors
-                                        setDocumentationErrors([]);
-                                    }}
-                                    onClose={() => {
-                                        setDropdownDocumentState(false);
-                                    }}
-                                    value={verificationDocument === "" ? null : verificationDocument}
-                                    items={documentItems}
-                                    setOpen={setDropdownDocumentState}
-                                    setValue={setVerificationDocument}
-                                    setItems={setDocumentItems}
-                                    onSelectItem={(item) => {
-                                        // clear any previous errors
-                                        setDocumentationErrors([]);
+                            <DropDownPicker
+                                zIndex={5000}
+                                searchPlaceholder={"Search for a document type"}
+                                placeholder={"Select a document to continue"}
+                                containerStyle={dropdownDocumentState && Platform.OS === 'android' && {height: hp(25)}}
+                                dropDownContainerStyle={[styles.documentsDropdownContainer, Platform.OS === 'android' ? {height: hp(20)} : {height: hp(15)}]}
+                                style={styles.documentsDropdownPicker}
+                                textStyle={[styles.dropdownTextInputContentStyle, {color: '#D9D9D9'}]}
+                                dropDownDirection={"BOTTOM"}
+                                open={dropdownDocumentState}
+                                onOpen={() => {
+                                    // clear any previous errors
+                                    setDocumentationErrors([]);
+                                }}
+                                onClose={() => {
+                                    setDropdownDocumentState(false);
+                                }}
+                                value={verificationDocument === "" ? null : verificationDocument}
+                                items={documentItems}
+                                setOpen={setDropdownDocumentState}
+                                setValue={setVerificationDocument}
+                                setItems={setDocumentItems}
+                                onSelectItem={(item) => {
+                                    // clear any previous errors
+                                    setDocumentationErrors([]);
 
-                                        setVerificationDocument(item.value!);
+                                    setVerificationDocument(item.value!);
 
-                                        // validate value
-                                        fieldValidator.validateField(item.value!, "verificationDocument", setDocumentationErrors);
-                                    }}
-                                    theme="DARK"
-                                    multiple={false}
-                                    mode="SIMPLE"
-                                    searchable={true}
-                                />
-                            </View>
-                            <Divider
-                                style={styles.documentSelectionDivider}/>
+                                    // validate value
+                                    fieldValidator.validateField(item.value!, "verificationDocument", setDocumentationErrors);
+                                }}
+                                theme="DARK"
+                                multiple={false}
+                                listMode="SCROLLVIEW"
+                            />
                             <View style={styles.documentSelectionOptionBottom}>
                                 <Image
                                     resizeMethod={"scale"}
@@ -500,10 +530,10 @@ export const DocumentCaptureStep = () => {
                                     {
                                         capturedFileName === ""
                                             ?
-                                            <>
+                                            <View style={{bottom: hp(3)}}>
                                                 <TouchableOpacity
                                                     disabled={!captureButtonState}
-                                                    style={!captureButtonState ? styles.documentSelectionButtonDisabled : styles.documentSelectionButton}
+                                                    style={!captureButtonState ? styles.captureSelectionButtonDisabled : styles.captureSelectionButton}
                                                     onPress={
                                                         async () => {
                                                             // clear any previous errors
@@ -518,8 +548,8 @@ export const DocumentCaptureStep = () => {
                                                 </TouchableOpacity>
                                                 <TouchableOpacity
                                                     disabled={!photoSelectionButtonState}
-                                                    style={[!photoSelectionButtonState ? styles.documentSelectionButtonDisabled : styles.documentSelectionButton,
-                                                        {marginTop: Dimensions.get('window').width / 30}]}
+                                                    style={[!photoSelectionButtonState ? styles.captureSelectionButtonDisabled : styles.captureSelectionButton,
+                                                        {marginTop: wp(3)}]}
                                                     onPress={
                                                         async () => {
                                                             // clear any previous errors
@@ -532,7 +562,7 @@ export const DocumentCaptureStep = () => {
                                                 >
                                                     <Text style={styles.documentButtonText}>Pick Photo</Text>
                                                 </TouchableOpacity>
-                                            </>
+                                            </View>
                                             :
                                             <>
                                                 <TextInput
@@ -549,7 +579,7 @@ export const DocumentCaptureStep = () => {
                                                     selectionColor={'#F2FF5D'}
                                                     mode={'outlined'}
                                                     contentStyle={styles.fileUploadTextInputContentStyle}
-                                                    style={styles.fileUploadedTextInput}
+                                                    style={styles.pictureUploadedTextInput}
                                                     label="document"
                                                     textColor={"#FFFFFF"}
                                                     left={<TextInput.Icon icon="file" iconColor="#FFFFFF"/>}
@@ -582,7 +612,7 @@ export const DocumentCaptureStep = () => {
                                     resizeMode={'stretch'}
                                     source={DocumentationUpload1Picture}/>
                                 <View style={styles.documentCapturingDescriptionView}>
-                                    <Text style={styles.documentCapturingOptionDescription}>{
+                                    <Text style={styles.documentUploadOptionDescription}>{
                                         uploadedFileName === ""
                                             ? "Upload your document."
                                             : "Document successfully uploaded."

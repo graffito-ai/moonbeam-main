@@ -1,6 +1,6 @@
 import 'react-native-get-random-values';
 import React, {useEffect, useState} from "react";
-import {Dimensions, SafeAreaView, ScrollView, StyleSheet, View} from "react-native";
+import {SafeAreaView, ScrollView, StyleSheet, View} from "react-native";
 import {Dialog, Divider, List, Portal, Text} from "react-native-paper";
 import {styles} from "../../../../styles/supportCenter.module";
 import {useRecoilState} from "recoil";
@@ -10,6 +10,7 @@ import {commonStyles} from '../../../../styles/common.module';
 import * as SMS from "expo-sms";
 import {Spinner} from "../../../common/Spinner";
 import {Button} from "@rneui/base";
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 /**
  * SupportCenter component.
@@ -108,7 +109,7 @@ export const SupportCenter = ({navigation}: SupportCenterProps) => {
                             <Dialog style={commonStyles.dialogStyle} visible={supportModalVisible}
                                     onDismiss={() => setSupportModalVisible(false)}>
                                 <Dialog.Icon icon="alert" color={"#F2FF5D"}
-                                             size={Dimensions.get('window').height / 14}/>
+                                             size={hp(10)}/>
                                 <Dialog.Title
                                     style={commonStyles.dialogTitle}>{supportModalButtonMessage === 'Retry' ? 'We hit a snag!' : ('Dismiss' ? 'Great' : 'Heads up')}</Dialog.Title>
                                 <Dialog.Content>
@@ -150,7 +151,7 @@ export const SupportCenter = ({navigation}: SupportCenterProps) => {
                                                 await contactSupport();
                                             }}
                                             left={() => <List.Icon color={'#F2FF5D'} icon="message"/>}
-                                            right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
+                                            right={() => <List.Icon style={{left: hp(1)}}
                                                                     color={'#F2FF5D'} icon="chevron-right"/>}
                                         />
                                     </List.Section>
@@ -174,7 +175,7 @@ export const SupportCenter = ({navigation}: SupportCenterProps) => {
                                             }}
                                             left={() => <List.Icon color={'#F2FF5D'}
                                                                    icon="frequently-asked-questions"/>}
-                                            right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
+                                            right={() => <List.Icon style={{left: hp(1)}}
                                                                     color={'#F2FF5D'} icon="chevron-right"/>}
                                         />
                                     </List.Section>

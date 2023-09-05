@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {StoreProps} from "../../../../../models/props/MarketplaceProps";
 import {Spinner} from '../../../../common/Spinner';
-import {Dimensions, Platform, SafeAreaView, ScrollView, TouchableOpacity, View} from "react-native";
+import {Platform, ScrollView, TouchableOpacity, View} from "react-native";
 import {commonStyles} from "../../../../../styles/common.module";
 import {
     ActivityIndicator,
@@ -40,6 +40,7 @@ import {storeOfferPhysicalLocationState, storeOfferState} from "../../../../../r
 import {dynamicSort} from '../../../../../utils/Main';
 // @ts-ignore
 import MoonbeamOffersLoading from '../../../../../../assets/art/moonbeam-offers-loading.png';
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 /**
  * Store component.
@@ -152,31 +153,33 @@ export const Store = ({navigation}: StoreProps) => {
                                 <View style={{flexDirection: 'column'}}>
                                     <View style={{
                                         flexDirection: 'row',
-                                        marginTop: -10
+                                        marginTop: hp(1)
                                     }}>
                                         <View>
                                             <Card.Title
-                                                title={fidelisPartner.brandName}
-                                                subtitle={subtitle}
-                                                titleStyle={styles.featuredPartnerCardTitle}
-                                                subtitleStyle={styles.featuredPartnerCardSubtitle}
-                                                titleNumberOfLines={3}
-                                                subtitleNumberOfLines={3}/>
-                                            <Button
-                                                uppercase={false}
-                                                disabled={false}
+                                                title={
+                                                    <Text style={styles.featuredPartnerCardTitle}>
+                                                        {`${fidelisPartner.brandName}\n`}
+                                                        <Text style={styles.featuredPartnerCardSubtitle}>
+                                                            {subtitle}
+                                                        </Text>
+                                                    </Text>
+                                                }
+                                                titleStyle={styles.featuredPartnerCardTitleMain}
+                                                titleNumberOfLines={10}/>
+                                            <TouchableOpacity
+                                                style={styles.viewOfferButton}
                                                 onPress={() => {
                                                     // set the clicked offer/partner accordingly
                                                     setStoreOfferClicked(fidelisPartner);
                                                     navigation.navigate('StoreOffer', {})
                                                 }}
-                                                style={[styles.featuredPartnerCardActionButton]}
-                                                textColor={"#313030"}
-                                                buttonColor={"#F2FF5D"}
-                                                mode="outlined"
-                                                labelStyle={styles.featuredPartnerCardActionButtonLabel}>
-                                                {fidelisPartner.numberOfOffers === 1 ? 'View Offer' : 'View Offers'}
-                                            </Button>
+                                            >
+                                                {/*@ts-ignore*/}
+                                                <Text style={styles.viewOfferButtonContent}>
+                                                    {fidelisPartner.numberOfOffers === 1 ? 'View Offer' : 'View Offers'}
+                                                </Text>
+                                            </TouchableOpacity>
                                         </View>
                                         <View>
                                             <Avatar
@@ -200,7 +203,7 @@ export const Store = ({navigation}: StoreProps) => {
                             </Card.Content>
                         </Card>
                         <View
-                            style={{width: fidelisPartnerNumber === fidelisPartnerList.length - 1 ? Dimensions.get('window').width / 10 : Dimensions.get('window').width / 20}}/>
+                            style={{width: fidelisPartnerNumber === fidelisPartnerList.length - 1 ? wp(10) : wp(5)}}/>
 
                     </>
                 );
@@ -294,7 +297,6 @@ export const Store = ({navigation}: StoreProps) => {
                                                 imageProps={{
                                                     resizeMode: 'stretch'
                                                 }}
-                                                size={25}
                                                 source={{uri: onlineOffer.brandLogoSm!, cache: 'force-cache'}}
                                             />
                                             <Paragraph
@@ -310,11 +312,11 @@ export const Store = ({navigation}: StoreProps) => {
                                     </Card.Content>
                                 </Card>
                                 <View
-                                    style={{width: Dimensions.get('window').width / 15}}/>
+                                    style={{width: wp(5)}}/>
                             </TouchableOpacity>
                             :
                             <>
-                                <TouchableOpacity style={{left: '3%'}}
+                                <TouchableOpacity style={{left: wp(5)}}
                                                   onPress={() => {
                                                       // set the clicked offer/partner accordingly
                                                       setStoreOfferClicked(onlineOffer);
@@ -328,7 +330,6 @@ export const Store = ({navigation}: StoreProps) => {
                                                     imageProps={{
                                                         resizeMode: 'stretch'
                                                     }}
-                                                    size={25}
                                                     source={{uri: onlineOffer.brandLogoSm!, cache: 'force-cache'}}
                                                 />
                                                 <Paragraph
@@ -343,9 +344,9 @@ export const Store = ({navigation}: StoreProps) => {
                                             </View>
                                         </Card.Content>
                                     </Card>
-                                    <View style={{width: Dimensions.get('window').width / 15}}/>
+                                    <View style={{width: wp(5)}}/>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={{left: '3%'}}
+                                <TouchableOpacity style={{left: wp(5)}}
                                                   onPress={() => {
                                                       // set the clicked offer/partner accordingly
                                                       setStoreOfferClicked(onlineOffer);
@@ -353,29 +354,28 @@ export const Store = ({navigation}: StoreProps) => {
                                                   }}>
                                     <Card style={styles.onlineOfferCard}>
                                         <Card.Content>
-                                            <Button
-                                                uppercase={false}
-                                                disabled={false}
-                                                onPress={async () => {
-                                                    // set the loader
-                                                    setOnlineOffersSpinnerShown(true);
+                                            <View style={{top: hp(2)}}>
+                                                <TouchableOpacity
+                                                    style={styles.viewOfferButton}
+                                                    onPress={async () => {
+                                                        // set the loader
+                                                        setOnlineOffersSpinnerShown(true);
 
-                                                    // retrieve additional offers
-                                                    await retrieveOnlineOffersList();
+                                                        // retrieve additional offers
+                                                        await retrieveOnlineOffersList();
 
-                                                    // release the loader
-                                                    setOnlineOffersSpinnerShown(false);
-                                                }}
-                                                style={[styles.loadOnlineCardActionButton]}
-                                                textColor={"#313030"}
-                                                buttonColor={"#F2FF5D"}
-                                                mode="outlined"
-                                                labelStyle={styles.featuredPartnerCardActionButtonLabel}>{'More'}
-                                            </Button>
+                                                        // release the loader
+                                                        setOnlineOffersSpinnerShown(false);
+                                                    }}
+                                                >
+                                                    {/*@ts-ignore*/}
+                                                    <Text style={styles.viewOfferButtonContent}>More</Text>
+                                                </TouchableOpacity>
+                                            </View>
                                         </Card.Content>
                                     </Card>
                                     <View
-                                        style={{width: Dimensions.get('window').width / 15}}/>
+                                        style={{width: wp(5)}}/>
                                 </TouchableOpacity>
                                 <TouchableOpacity>
                                     <Card style={styles.onlineOfferCard}>
@@ -657,17 +657,20 @@ export const Store = ({navigation}: StoreProps) => {
                                                 }}>
                                                     <View>
                                                         <Card.Title
-                                                            title={`${nearbyOffer.brandDba}`}
-                                                            subtitle={nearbyOffer.reward!.type! === RewardType.RewardPercent
-                                                                ? `${nearbyOffer.reward!.value}% Off`
-                                                                : `$${nearbyOffer.reward!.value} Off`}
-                                                            titleStyle={styles.nearbyOfferCardTitle}
-                                                            subtitleStyle={styles.nearbyOfferCardSubtitle}
-                                                            titleNumberOfLines={3}
-                                                            subtitleNumberOfLines={3}/>
-                                                        <Button
-                                                            uppercase={false}
-                                                            disabled={false}
+                                                            title={
+                                                                <Text style={styles.nearbyOfferCardTitle}>
+                                                                    {`${nearbyOffer.brandDba}\n`}
+                                                                    <Text style={styles.nearbyOfferCardSubtitle}>
+                                                                        {nearbyOffer.reward!.type! === RewardType.RewardPercent
+                                                                            ? `${nearbyOffer.reward!.value}% Off`
+                                                                            : `$${nearbyOffer.reward!.value} Off`}
+                                                                    </Text>
+                                                                </Text>
+                                                            }
+                                                            titleStyle={styles.nearbyOfferCardTitleMain}
+                                                            titleNumberOfLines={10}/>
+                                                        <TouchableOpacity
+                                                            style={styles.viewOfferButton}
                                                             onPress={() => {
                                                                 // set the clicked offer/partner accordingly
                                                                 setStoreOfferClicked(nearbyOffer);
@@ -677,15 +680,12 @@ export const Store = ({navigation}: StoreProps) => {
 
                                                                 navigation.navigate('StoreOffer', {})
                                                             }}
-                                                            style={[styles.nearbyOfferCardActionButton]}
-                                                            textColor={"#313030"}
-                                                            buttonColor={"#F2FF5D"}
-                                                            mode="outlined"
-                                                            labelStyle={styles.nearbyOfferCardActionButtonLabel}>
-                                                            {'View Offer'}
-                                                        </Button>
+                                                        >
+                                                            {/*@ts-ignore*/}
+                                                            <Text style={styles.viewOfferButtonContent}>View Offer</Text>
+                                                        </TouchableOpacity>
                                                     </View>
-                                                    <View style={{left: Dimensions.get('window').width / 20}}>
+                                                    <View>
                                                         <Avatar
                                                             containerStyle={styles.nearbyOfferCardCover}
                                                             imageProps={{
@@ -707,7 +707,7 @@ export const Store = ({navigation}: StoreProps) => {
                                         </Card.Content>
                                     </Card>
                                     <View
-                                        style={{width: nearbyOffersNumber === nearbyOfferList.length - 1 ? Dimensions.get('window').width / 10 : Dimensions.get('window').width / 20}}/>
+                                        style={{width: nearbyOffersNumber === nearbyOfferList.length - 1 ? wp(10) : wp(5)}}/>
                                 </>
                                 :
                                 <>
@@ -720,31 +720,31 @@ export const Store = ({navigation}: StoreProps) => {
                                                 }}>
                                                     <View>
                                                         <Card.Title
-                                                            title={`${nearbyOffer.brandDba}`}
-                                                            subtitle={nearbyOffer.reward!.type! === RewardType.RewardPercent
-                                                                ? `${nearbyOffer.reward!.value}% Off`
-                                                                : `$${nearbyOffer.reward!.value} Off`}
-                                                            titleStyle={styles.nearbyOfferCardTitle}
-                                                            subtitleStyle={styles.nearbyOfferCardSubtitle}
-                                                            titleNumberOfLines={3}
-                                                            subtitleNumberOfLines={3}/>
-                                                        <Button
-                                                            uppercase={false}
-                                                            disabled={false}
+                                                            title={
+                                                                <Text style={styles.nearbyOfferCardTitle}>
+                                                                    {`${nearbyOffer.brandDba}\n`}
+                                                                    <Text style={styles.nearbyOfferCardSubtitle}>
+                                                                        {nearbyOffer.reward!.type! === RewardType.RewardPercent
+                                                                            ? `${nearbyOffer.reward!.value}% Off`
+                                                                            : `$${nearbyOffer.reward!.value} Off`}
+                                                                    </Text>
+                                                                </Text>
+                                                            }
+                                                            titleStyle={styles.nearbyOfferCardTitleMain}
+                                                            titleNumberOfLines={10}/>
+                                                        <TouchableOpacity
+                                                            style={styles.viewOfferButton}
                                                             onPress={() => {
                                                                 // set the clicked offer/partner accordingly
                                                                 setStoreOfferClicked(nearbyOffer);
                                                                 navigation.navigate('StoreOffer', {})
                                                             }}
-                                                            style={[styles.nearbyOfferCardActionButton]}
-                                                            textColor={"#313030"}
-                                                            buttonColor={"#F2FF5D"}
-                                                            mode="outlined"
-                                                            labelStyle={styles.nearbyOfferCardActionButtonLabel}>
-                                                            {'View Offer'}
-                                                        </Button>
+                                                        >
+                                                            {/*@ts-ignore*/}
+                                                            <Text style={styles.viewOfferButtonContent}>View Offer</Text>
+                                                        </TouchableOpacity>
                                                     </View>
-                                                    <View style={{left: Dimensions.get('window').width / 20}}>
+                                                    <View>
                                                         <Avatar
                                                             containerStyle={styles.nearbyOfferCardCover}
                                                             imageProps={{
@@ -766,19 +766,17 @@ export const Store = ({navigation}: StoreProps) => {
                                         </Card.Content>
                                     </Card>
                                     <View
-                                        style={{width: nearbyOffersNumber === nearbyOfferList.length - 1 ? Dimensions.get('window').width / 10 : Dimensions.get('window').width / 20}}/>
+                                        style={{width: nearbyOffersNumber === nearbyOfferList.length - 1 ? wp(10) : wp(5)}}/>
                                     <Card
                                         style={styles.loadCard}>
                                         <Card.Content>
                                             <View style={{flexDirection: 'column'}}>
                                                 <View style={{
-                                                    flexDirection: 'row',
-                                                    marginTop: -10
+                                                    flexDirection: 'row'
                                                 }}>
-                                                    <View>
-                                                        <Button
-                                                            uppercase={false}
-                                                            disabled={false}
+                                                    <View style={{top: hp(5)}}>
+                                                        <TouchableOpacity
+                                                            style={styles.viewOfferButton}
                                                             onPress={async () => {
                                                                 // set the loader
                                                                 setNearbyOffersSpinnerShown(true);
@@ -791,13 +789,10 @@ export const Store = ({navigation}: StoreProps) => {
                                                                 // release the loader
                                                                 setNearbyOffersSpinnerShown(false);
                                                             }}
-                                                            style={[styles.loadNearbyCardActionButton]}
-                                                            textColor={"#313030"}
-                                                            buttonColor={"#F2FF5D"}
-                                                            mode="outlined"
-                                                            labelStyle={styles.featuredPartnerCardActionButtonLabel}>
-                                                            {'More'}
-                                                        </Button>
+                                                        >
+                                                            {/*@ts-ignore*/}
+                                                            <Text style={styles.viewOfferButtonContent}>More</Text>
+                                                        </TouchableOpacity>
                                                     </View>
                                                 </View>
                                             </View>
@@ -848,7 +843,7 @@ export const Store = ({navigation}: StoreProps) => {
                                 setStoreOfferClicked(fidelisPartner);
                                 navigation.navigate('StoreOffer', {});
                             }}
-                            style={{marginLeft: '3%'}}
+                            style={{marginLeft: wp(2)}}
                             titleStyle={styles.verticalOfferName}
                             descriptionStyle={styles.verticalOfferBenefits}
                             titleNumberOfLines={1}
@@ -868,12 +863,12 @@ export const Store = ({navigation}: StoreProps) => {
                             left={() =>
                                 <Avatar
                                     containerStyle={{
-                                        marginRight: '5%'
+                                        marginRight: wp(4)
                                     }}
                                     imageProps={{
                                         resizeMode: 'stretch'
                                     }}
-                                    size={60}
+                                    size={hp(6)}
                                     source={{
                                         uri: offer!.brandLogoSm!,
                                         cache: !shouldCacheImages ? 'reload' : 'force-cache'
@@ -906,7 +901,7 @@ export const Store = ({navigation}: StoreProps) => {
                                 setStoreOfferClicked(fidelisPartner);
                                 navigation.navigate('StoreOffer', {});
                             }}
-                            style={{marginLeft: '3%'}}
+                            style={{marginLeft: wp(2)}}
                             titleStyle={styles.verticalOfferName}
                             descriptionStyle={styles.verticalOfferBenefits}
                             titleNumberOfLines={1}
@@ -926,12 +921,12 @@ export const Store = ({navigation}: StoreProps) => {
                             left={() =>
                                 <Avatar
                                     containerStyle={{
-                                        marginRight: '5%'
+                                        marginRight: wp(4)
                                     }}
                                     imageProps={{
                                         resizeMode: 'stretch'
                                     }}
-                                    size={60}
+                                    size={hp(6)}
                                     source={{
                                         uri: offer!.brandLogoSm!,
                                         cache: !shouldCacheImages ? 'reload' : 'force-cache'
@@ -960,7 +955,7 @@ export const Store = ({navigation}: StoreProps) => {
                                             setStoreOfferClicked(verticalOffer);
                                             navigation.navigate('StoreOffer', {});
                                         }}
-                                        style={{marginLeft: '3%'}}
+                                        style={{marginLeft: wp(2)}}
                                         titleStyle={styles.verticalOfferName}
                                         descriptionStyle={styles.verticalOfferBenefits}
                                         titleNumberOfLines={1}
@@ -979,12 +974,12 @@ export const Store = ({navigation}: StoreProps) => {
                                         left={() =>
                                             <Avatar
                                                 containerStyle={{
-                                                    marginRight: '5%'
+                                                    marginRight: wp(4)
                                                 }}
                                                 imageProps={{
                                                     resizeMode: 'stretch'
                                                 }}
-                                                size={60}
+                                                size={hp(6)}
                                                 source={{
                                                     uri: verticalOffer.brandLogoSm!,
                                                     cache: !shouldCacheImages ? 'reload' : 'force-cache'
@@ -1002,7 +997,7 @@ export const Store = ({navigation}: StoreProps) => {
                                             setStoreOfferClicked(verticalOffer);
                                             navigation.navigate('StoreOffer', {});
                                         }}
-                                        style={{marginLeft: '3%'}}
+                                        style={{marginLeft: wp(2)}}
                                         titleStyle={styles.verticalOfferName}
                                         descriptionStyle={styles.verticalOfferBenefits}
                                         titleNumberOfLines={1}
@@ -1021,12 +1016,12 @@ export const Store = ({navigation}: StoreProps) => {
                                         left={() =>
                                             <Avatar
                                                 containerStyle={{
-                                                    marginRight: '5%'
+                                                    marginRight: wp(4)
                                                 }}
                                                 imageProps={{
                                                     resizeMode: 'stretch'
                                                 }}
-                                                size={60}
+                                                size={hp(6)}
                                                 source={{
                                                     uri: verticalOffer.brandLogoSm!,
                                                     cache: !shouldCacheImages ? 'reload' : 'force-cache'
@@ -1052,8 +1047,8 @@ export const Store = ({navigation}: StoreProps) => {
                                                 setFilteredOffersSpinnerShown(false);
                                             }}
                                             style={{
-                                                marginLeft: Dimensions.get('window').width / 2.8,
-                                                top: Dimensions.get('window').height / 50
+                                                marginLeft: wp(36),
+                                                top: hp(5)
                                             }}
                                             titleStyle={[styles.verticalOfferName, {color: '#F2FF5D'}]}
                                             titleNumberOfLines={1}
@@ -1080,8 +1075,8 @@ export const Store = ({navigation}: StoreProps) => {
                                                 setFilteredOffersSpinnerShown(false);
                                             }}
                                             style={{
-                                                marginLeft: Dimensions.get('window').width / 2.8,
-                                                top: Dimensions.get('window').height / 50
+                                                marginLeft: wp(36),
+                                                top: hp(5)
                                             }}
                                             titleStyle={[styles.verticalOfferName, {color: '#F2FF5D'}]}
                                             titleNumberOfLines={1}
@@ -1099,14 +1094,7 @@ export const Store = ({navigation}: StoreProps) => {
         // filtered no offers to be displayed
         if (filtered && filteredOfferList.length === 0 && filteredFidelisList.length === 0) {
             results.push(
-                <>
-                    <List.Item
-                        style={{marginLeft: Dimensions.get('window').width / 3.5, top: '1%'}}
-                        titleStyle={[styles.verticalOfferName, {color: '#F2FF5D'}]}
-                        titleNumberOfLines={1}
-                        title={'No offers found!'}
-                    />
-                </>
+                <></>
             )
         }
         return results;
@@ -1358,7 +1346,7 @@ export const Store = ({navigation}: StoreProps) => {
                             <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
                                     onDismiss={() => setModalVisible(false)}>
                                 <Dialog.Icon icon="alert" color={"#F2FF5D"}
-                                             size={Dimensions.get('window').height / 14}/>
+                                             size={hp(10)}/>
                                 <Dialog.Title
                                     style={commonStyles.dialogTitle}>{'Marketplace Crashing'}</Dialog.Title>
                                 <Dialog.Content>
@@ -1383,11 +1371,9 @@ export const Store = ({navigation}: StoreProps) => {
                             contentContainerStyle={commonStyles.rowContainer}
                             keyboardShouldPersistTaps={'handled'}
                         >
-                            <SafeAreaView style={[styles.mainView]}>
+                            <View style={[styles.mainView]}>
                                 <View style={styles.titleView}>
-                                    <View style={{
-                                        paddingRight: Dimensions.get('window').width / 4.5
-                                    }}>
+                                    <View style={{alignSelf: 'flex-start'}}>
                                         <Text style={styles.mainTitle}>
                                             Shop
                                         </Text>
@@ -1395,36 +1381,43 @@ export const Store = ({navigation}: StoreProps) => {
                                             at select merchant partners.
                                         </Text>
                                     </View>
-                                    <ToggleButton.Group
-                                        onValueChange={(value) => {
-                                            value === 'horizontal' && searchQuery !== '' && setSearchQuery('');
-                                            value !== null && setToggleViewPressed(value);
+                                    <View style={{
+                                        alignSelf: 'flex-end',
+                                        flexDirection: 'row',
+                                        bottom: hp(7),
+                                        right: wp(3)
+                                    }}>
+                                        <ToggleButton.Group
+                                            onValueChange={(value) => {
+                                                value === 'horizontal' && searchQuery !== '' && setSearchQuery('');
+                                                value !== null && setToggleViewPressed(value);
 
-                                            // clear the filtered list and set appropriate flags
-                                            if (value === 'horizontal' && filteredOfferList.length !== 0) {
-                                                setFilteredOfferList([]);
-                                                setFilteredFidelisList([]);
+                                                // clear the filtered list and set appropriate flags
+                                                if (value === 'horizontal' && filteredOfferList.length !== 0) {
+                                                    setFilteredOfferList([]);
+                                                    setFilteredFidelisList([]);
 
-                                                // set the no filtered offers available flag accordingly
-                                                setNoFilteredOffersAvailable(false);
-                                            }
-                                        }}
-                                        value={toggleViewPressed}>
-                                        <ToggleButton
-                                            style={styles.toggleViewButton}
-                                            size={toggleViewPressed === 'horizontal' ? Dimensions.get('window').width / 13 : Dimensions.get('window').width / 15}
-                                            icon="collage"
-                                            value="horizontal"
-                                            iconColor={toggleViewPressed === 'horizontal' ? '#F2FF5D' : '#5B5A5A'}
-                                        />
-                                        <ToggleButton
-                                            style={styles.toggleViewButton}
-                                            size={toggleViewPressed === 'vertical' ? Dimensions.get('window').width / 13 : Dimensions.get('window').width / 15}
-                                            icon="format-list-bulleted-type"
-                                            value="vertical"
-                                            iconColor={toggleViewPressed === 'vertical' ? '#F2FF5D' : '#5B5A5A'}
-                                        />
-                                    </ToggleButton.Group>
+                                                    // set the no filtered offers available flag accordingly
+                                                    setNoFilteredOffersAvailable(false);
+                                                }
+                                            }}
+                                            value={toggleViewPressed}>
+                                            <ToggleButton
+                                                style={styles.toggleViewButton}
+                                                size={toggleViewPressed === 'horizontal' ? hp(4) : hp(4)}
+                                                icon="collage"
+                                                value="horizontal"
+                                                iconColor={toggleViewPressed === 'horizontal' ? '#F2FF5D' : '#5B5A5A'}
+                                            />
+                                            <ToggleButton
+                                                style={styles.toggleViewButton}
+                                                size={toggleViewPressed === 'vertical' ? hp(4) : hp(4)}
+                                                icon="format-list-bulleted-type"
+                                                value="vertical"
+                                                iconColor={toggleViewPressed === 'vertical' ? '#F2FF5D' : '#5B5A5A'}
+                                            />
+                                        </ToggleButton.Group>
+                                    </View>
                                 </View>
                                 <Searchbar
                                     selectionColor={'#F2FF5D'}
@@ -1490,7 +1483,7 @@ export const Store = ({navigation}: StoreProps) => {
                                           icon={() => (
                                               <Icon name="web"
                                                     type={'material-community'}
-                                                    size={Dimensions.get('window').height / 40}
+                                                    size={hp(2.5)}
                                                     color={searchQuery === 'sort by: online' ? '#5B5A5A' : '#F2FF5D'}/>
                                           )}
                                           onPress={() => {
@@ -1513,7 +1506,7 @@ export const Store = ({navigation}: StoreProps) => {
                                           icon={() => (
                                               <Icon name="percent"
                                                     type={'material-community'}
-                                                    size={Dimensions.get('window').height / 40}
+                                                    size={hp(2.5)}
                                                     color={searchQuery === 'sort by: discount percentage' ? '#5B5A5A' : '#F2FF5D'}/>
                                           )}
                                           onPress={() => {
@@ -1536,7 +1529,7 @@ export const Store = ({navigation}: StoreProps) => {
                                               icon={() => (
                                                   <Icon name="map-marker"
                                                         type={'material-community'}
-                                                        size={Dimensions.get('window').height / 45}
+                                                        size={hp(2.5)}
                                                         color={searchQuery === 'sort by: nearby locations' ? '#5B5A5A' : '#F2FF5D'}/>
                                               )}
                                               textStyle={[styles.filterChipText, searchQuery === 'sort by: nearby locations' ? {color: '#5B5A5A'} : {color: '#F2FF5D'}]}
@@ -1557,7 +1550,7 @@ export const Store = ({navigation}: StoreProps) => {
                                     }
                                 </View>
                                 <View style={{
-                                    height: Dimensions.get('window').height / 100,
+                                    height: hp(1),
                                     backgroundColor: '#313030'
                                 }}/>
                                 <Portal.Host>
@@ -1571,13 +1564,13 @@ export const Store = ({navigation}: StoreProps) => {
                                             persistentScrollbar={false}
                                             showsVerticalScrollIndicator={false}
                                             keyboardShouldPersistTaps={'handled'}
-                                            contentContainerStyle={{paddingBottom: Dimensions.get('window').height / 20}}
+                                            contentContainerStyle={{paddingBottom: hp(10)}}
                                         >
                                             {
                                                 toggleViewPressed === 'vertical' &&
                                                 <>
                                                     <List.Section
-                                                        style={{width: Dimensions.get('window').width}}
+                                                        style={{width: wp(100), left: wp(2)}}
                                                     >
                                                         <>
                                                             {
@@ -1598,10 +1591,10 @@ export const Store = ({navigation}: StoreProps) => {
                                                                 </Text>{`   🎖`}️
                                                             </Text>
                                                             <ScrollView
-                                                                style={[styles.featuredPartnersScrollView, nearbyOfferList.length === 0 && areNearbyOffersReady && {left: Dimensions.get('window').width / 40}]}
+                                                                style={[styles.featuredPartnersScrollView, nearbyOfferList.length === 0 && areNearbyOffersReady && {left: -wp(0.5)}]}
                                                                 horizontal={true}
                                                                 decelerationRate={"fast"}
-                                                                snapToInterval={Dimensions.get('window').width / 1.15 + Dimensions.get('window').width / 20}
+                                                                snapToInterval={wp(70) + wp(20)}
                                                                 snapToAlignment={"center"}
                                                                 scrollEnabled={true}
                                                                 persistentScrollbar={false}
@@ -1618,8 +1611,6 @@ export const Store = ({navigation}: StoreProps) => {
                                                         {
                                                             !areNearbyOffersReady && nearbyOfferList.length === 0 &&
                                                             <>
-                                                                <View
-                                                                    style={{height: Dimensions.get('window').height / 100}}/>
                                                                 <View style={styles.nearbyOffersView}>
                                                                     <View style={styles.nearbyOffersTitleView}>
                                                                         <View style={styles.nearbyOffersLeftTitleView}>
@@ -1628,7 +1619,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                                                 <Text
                                                                                     style={styles.nearbyLoadingOffersTitle}>
                                                                                     {'Retrieving offers near you...'}
-                                                                                </Text>{`   📍️`}
+                                                                                </Text>{`   🌎️`}
                                                                             </Text>
                                                                         </View>
                                                                     </View>
@@ -1636,7 +1627,6 @@ export const Store = ({navigation}: StoreProps) => {
                                                                         style={styles.nearbyOffersScrollView}
                                                                         horizontal={true}
                                                                         decelerationRate={"fast"}
-                                                                        snapToInterval={Dimensions.get('window').width / 1.3 + Dimensions.get('window').width / 20}
                                                                         snapToAlignment={"start"}
                                                                         scrollEnabled={true}
                                                                         persistentScrollbar={false}
@@ -1649,10 +1639,10 @@ export const Store = ({navigation}: StoreProps) => {
                                                                                         <View
                                                                                             style={{flexDirection: 'column'}}>
                                                                                             <ActivityIndicator
-                                                                                                style={{top: Dimensions.get('window').height / 10}}
+                                                                                                style={{top: hp(10)}}
                                                                                                 animating={nearbyOffersSpinnerShown}
                                                                                                 color={'#F2FF5D'}
-                                                                                                size={Dimensions.get('window').height / 18}
+                                                                                                size={hp(6)}
                                                                                             />
                                                                                         </View>
                                                                                         <Avatar
@@ -1675,16 +1665,16 @@ export const Store = ({navigation}: StoreProps) => {
                                                                 <View style={styles.nearbyOffersTitleView}>
                                                                     <View style={styles.nearbyOffersLeftTitleView}>
                                                                         <Text
-                                                                            style={[styles.nearbyOffersTitleMain, offersNearUserLocationFlag && {left: '7%'}]}>
+                                                                            style={[styles.nearbyOffersTitleMain, offersNearUserLocationFlag && {left: wp(4)}]}>
                                                                             <Text
                                                                                 style={styles.nearbyOffersTitle}>
                                                                                 {!offersNearUserLocationFlag
                                                                                     ? 'Offers near you'
                                                                                     : `Offers in ${userInformation["address"]["formatted"].split(',')[1]},${userInformation["address"]["formatted"].split(',')[2]}`}
-                                                                            </Text>{`   📍️`}
+                                                                            </Text>{`   🌎️`}
                                                                         </Text>
                                                                         <Text
-                                                                            style={[styles.nearbyOffersTitleSub, offersNearUserLocationFlag && {left: '7%'}]}>
+                                                                            style={[styles.nearbyOffersTitleSub, offersNearUserLocationFlag && {left: wp(4)}]}>
                                                                             (within 25 miles)
                                                                         </Text>
                                                                     </View>
@@ -1709,7 +1699,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                                         style={styles.nearbyOffersScrollView}
                                                                         horizontal={true}
                                                                         decelerationRate={"fast"}
-                                                                        snapToInterval={Dimensions.get('window').width / 1.3 + Dimensions.get('window').width / 20}
+                                                                        snapToInterval={wp(70) + wp(20)}
                                                                         snapToAlignment={"start"}
                                                                         scrollEnabled={true}
                                                                         persistentScrollbar={false}
@@ -1726,7 +1716,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                             </View>
                                                         }
                                                         <View
-                                                            style={[styles.onlineOffersView, nearbyOfferList.length == 0 && areNearbyOffersReady && {bottom: '40%'}]}>
+                                                            style={[styles.onlineOffersView, nearbyOfferList.length == 0 && areNearbyOffersReady && {bottom: hp(25)}]}>
                                                             <View style={styles.onlineOffersTitleView}>
                                                                 <View style={styles.onlineOffersLeftTitleView}>
                                                                     <Text style={styles.onlineOffersTitleMain}>
@@ -1752,10 +1742,10 @@ export const Store = ({navigation}: StoreProps) => {
                                                                     setLoadingSpinnerShown={setOnlineOffersSpinnerShown}
                                                                     fullScreen={false}/>
                                                                 <ScrollView
-                                                                    style={[styles.onlineOffersScrollView, nearbyOfferList.length === 0 && areNearbyOffersReady && {left: Dimensions.get('window').width / 500}]}
+                                                                    style={[styles.onlineOffersScrollView, nearbyOfferList.length === 0 && areNearbyOffersReady && {left: -wp(0.5)}]}
                                                                     horizontal={true}
                                                                     decelerationRate={"fast"}
-                                                                    snapToInterval={Dimensions.get('window').width / 3 * 3}
+                                                                    snapToInterval={wp(33) * 3}
                                                                     snapToAlignment={"start"}
                                                                     scrollEnabled={true}
                                                                     persistentScrollbar={false}
@@ -1777,7 +1767,7 @@ export const Store = ({navigation}: StoreProps) => {
                                         </ScrollView>
                                     </View>
                                 </Portal.Host>
-                            </SafeAreaView>
+                            </View>
                         </KeyboardAwareScrollView>
                     </>
             }

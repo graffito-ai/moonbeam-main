@@ -1,4 +1,5 @@
-import {Dimensions, StyleSheet} from "react-native";
+import {StyleSheet} from "react-native";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 // styles to be used within the FAQ component
 export const styles = StyleSheet.create({
@@ -10,34 +11,34 @@ export const styles = StyleSheet.create({
     },
     faqsListView: {
         alignSelf: 'center',
-        width: Dimensions.get('window').width/1.05,
+        width: wp(95),
         backgroundColor: '#5B5A5A',
-        bottom: Dimensions.get('window').height/25
+        bottom: hp(2)
     },
     faqAccordionStyle: {
-        marginTop: '8%',
+        marginTop: hp(4),
         alignSelf: 'center',
-        width: Dimensions.get('window').width/1.05,
+        width: wp(95),
         backgroundColor: '#5B5A5A'
     },
     faqAccordionTitle: {
         alignSelf: 'flex-start',
         fontFamily: 'Raleway-Medium',
-        left: Dimensions.get('window').width / 45,
-        fontSize: Dimensions.get('window').width / 28,
-        width: Dimensions.get('window').width / 1.5,
+        left: wp(2),
+        fontSize: hp(1.8),
+        width: wp(70),
         color: '#FFFFFF',
     },
     factItem: {
         borderColor: '#FFFFFF',
-        borderTopWidth: Dimensions.get('window').height / 2000,
+        borderTopWidth: hp(0.05),
         backgroundColor: '#5B5A5A',
     },
     factItemTitle: {
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').width / 30,
-        width: Dimensions.get('window').width / 1.15,
-        right: Dimensions.get('window').width / 15,
+        fontSize: hp(1.75),
+        width: wp(80),
+        right: wp(2),
         textAlign: 'justify',
         alignSelf: 'flex-start',
         textDecorationLine: 'underline',
@@ -45,10 +46,10 @@ export const styles = StyleSheet.create({
     },
     factItemDescription: {
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').width / 30,
-        width: Dimensions.get('window').width / 1.22,
-        bottom: Dimensions.get('window').height / 120,
-        textAlign: 'justify',
+        fontSize: wp(3.2),
+        width: wp(85),
+        bottom: hp(1),
+        textAlign: 'left',
         alignSelf: 'center',
         color: '#FFFFFF'
     },

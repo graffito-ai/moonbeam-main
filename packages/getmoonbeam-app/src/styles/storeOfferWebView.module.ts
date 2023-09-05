@@ -1,4 +1,5 @@
-import {Dimensions, StyleSheet} from "react-native";
+import {StyleSheet} from "react-native";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 // styles to be used within the StoreOfferWebView component
 export const styles = StyleSheet.create({
@@ -7,85 +8,69 @@ export const styles = StyleSheet.create({
         backgroundColor: '#313030',
     },
     webViewNavbar: {
-        height: Dimensions.get('window').height/11,
+        height: hp(11),
+        width: wp(100),
         backgroundColor: '#313030',
-        justifyContent: 'space-between',
-        flexDirection: 'row',
-        flexWrap: 'nowrap'
+        flexDirection: 'row'
     },
     cardDetailsButton: {
-        width: Dimensions.get('window').width/3.5,
+        alignSelf: 'flex-end',
+        position: 'absolute',
+        bottom: hp(10),
         backgroundColor: '#5B5A5A'
     },
     cardDetailsSectionLabel: {
-        fontSize: 15,
-        width:  Dimensions.get('window').width/2,
+        fontSize: hp(2.5),
+        width: wp(90),
         fontFamily: 'Raleway-Medium',
         color: 'white',
         textAlign: 'right'
     },
-    cardDetailsTab: {
-        paddingBottom: Dimensions.get('window').height/300
-    },
     webViewBackButton: {
-        bottom: '1%',
-        alignSelf: 'center'
+        alignSelf: 'flex-start'
     },
     webViewForwardButton: {
-        bottom: '1%',
-        alignSelf: 'center',
-        right: Dimensions.get('window').width/6
+        alignSelf: 'flex-end'
     },
     bottomBarDiscountsView: {
-        alignSelf: 'flex-end',
-        bottom: Dimensions.get('window').height/35,
-        right: Dimensions.get('window').width / 4
+        alignSelf: 'center',
+        flexDirection: "column",
+        alignItems: 'center',
+        alignContent: 'center',
+        width: wp(50)
     },
     bottomBarDiscountsNumberLabel: {
         fontFamily: 'Raleway-Bold',
-        fontSize: Dimensions.get('window').height / 55,
+        fontSize: hp(2),
         textAlign: 'center',
         color: '#F2FF5D'
     },
     bottomBarDiscountsLabel: {
         fontFamily: 'Raleway-Medium',
-        fontSize: Dimensions.get('window').height / 60,
+        fontSize: hp(2),
         textAlign: 'center'
     },
     topBar: {
-        flex: 0.15,
+        width: wp(100),
+        height: hp(12),
         backgroundColor: '#313030',
-        flexDirection: 'column',
-    },
-    containerView: {
-        left: Dimensions.get('window').width/7.5,
-        flex: 0.15,
-        justifyContent: 'space-between',
-        flexDirection: 'row',
-        flexWrap: 'nowrap'
+        flexDirection: 'row'
     },
     urlBar: {
-        right: Dimensions.get('window').width / 40,
-        top: Dimensions.get('window').height / 11,
-        alignSelf: 'flex-end',
+        alignSelf: 'center',
+        bottom: hp(0.3),
         backgroundColor: '#dbdbdb',
-        width: Dimensions.get('window').width / 1.15,
-        height: Dimensions.get('window').height / 25
+        width: wp(80),
+        height: hp(4)
     },
     urlInput: {
-        alignSelf: 'center',
         fontFamily: 'Raleway-Medium',
-        fontSize: Dimensions.get('window').height/55
+        fontSize: hp(1.7),
+        textAlign: 'center',
+        width: wp(80)
     },
     urlBarOutline: {
         borderColor: '#dbdbdb',
         borderRadius: 10
-    },
-    urlLockIcon: {
-        top: '25%',
-        alignSelf: 'flex-start'
-    },
-    urlReloadIcon: {
-        top: '25%'
     }
 });

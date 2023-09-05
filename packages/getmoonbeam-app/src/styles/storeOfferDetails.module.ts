@@ -1,102 +1,105 @@
-import {Dimensions, StyleSheet} from "react-native";
+import {StyleSheet} from "react-native";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 // styles to be used within the StoreOfferDetails component
 export const styles = StyleSheet.create({
     mainView: {
         flex: 1,
         flexGrow: 1,
-        width: '100%',
+        width: wp(100),
         flexDirection: 'column',
         alignContent: 'center',
         alignItems: 'center',
         alignSelf: 'center'
     },
     brandView: {
-        top: Dimensions.get('window').height/10,
-        width: Dimensions.get('window').width,
-        flexDirection: 'column',
-        paddingBottom: Dimensions.get('window').height/50
+        backgroundColor: '#F2FF5D',
+        paddingTop: hp(8),
+        width: wp(100),
+        height: hp(35),
+        flexDirection: 'column'
     },
     brandLogo: {
         alignSelf: 'center'
     },
     brandTitle: {
-        top: Dimensions.get('window').height/100,
+        top: hp(2),
         alignSelf: 'center',
         fontFamily: 'Saira-SemiBold',
-        fontSize: Dimensions.get('window').width / 20,
-        width: Dimensions.get('window').width / 1.1,
+        fontSize: hp(2.5),
+        lineHeight: hp(3),
+        width: wp(90),
         textAlign: 'center',
         color: '#FFFFFF'
     },
     brandTitleAddress: {
-        top: Dimensions.get('window').height/100,
+        top: hp(2),
         alignSelf: 'center',
         fontFamily: 'Saira-Regular',
-        fontSize: Dimensions.get('window').width / 25,
-        width: Dimensions.get('window').width / 1.1,
+        fontSize: hp(2.3),
+        width: wp(90),
+        lineHeight: hp(3),
         textAlign: 'center',
         color: '#F2FF5D'
     },
     offerAccordionStyle: {
         backgroundColor: '#1c1a1f',
-        height: Dimensions.get('window').height/12
+        height: hp(10)
     },
     offerListView: {
-        bottom: Dimensions.get('window').height/145,
+        bottom: hp(1),
         alignSelf: 'center',
-        width: Dimensions.get('window').width
+        width: wp(100)
     },
     offerAccordionTitle: {
-        left: Dimensions.get('window').width/4,
+        left: wp(25),
         alignSelf: 'flex-end',
         fontFamily: 'Raleway-Medium',
-        fontSize: Dimensions.get('window').width / 22,
-        width: Dimensions.get('window').width / 1.5,
+        fontSize: hp(2.3),
+        width: wp(65),
         color: '#FFFFFF',
     },
     offerRightIcon: {
-        top: Dimensions.get('window').height/150
+        top: hp(0.5)
     },
     offerLeftView: {
         backgroundColor: '#252629',
-        height: Dimensions.get('window').height/17,
-        width: Dimensions.get('window').width/4,
+        height: hp(6),
+        width: wp(25),
         flexDirection: 'row',
         alignSelf: 'flex-start',
-        left: Dimensions.get('window').width/20,
-        bottom: Dimensions.get('window').height/500
+        left: wp(5)
     },
     offerLeftDiscountPercentage: {
-        top: Dimensions.get('window').height/80,
-        right: Dimensions.get('window').height/10,
+        top: hp(0.75),
+        right: wp(20),
         fontFamily: 'Changa-Medium',
-        fontSize: Dimensions.get('window').width / 20,
-        width: Dimensions.get('window').width / 1.5,
+        fontSize: hp(2.3),
+        width: wp(65),
         textAlign: 'center',
         alignSelf: 'flex-start',
         color: '#FFFFFF'
     },
     offerLeftDiscount: {
-        top: Dimensions.get('window').height/80,
-        right: Dimensions.get('window').height/10,
+        top: hp(0.75),
+        right: wp(20),
         fontFamily: 'Changa-SemiBold',
-        fontSize: Dimensions.get('window').width / 20,
-        width: Dimensions.get('window').width / 1.5,
+        fontSize: hp(2.3),
+        width: wp(65),
         textAlign: 'center',
         alignSelf: 'flex-start',
         color: '#F2FF5D'
     },
     offerItem: {
         borderColor: '#FFFFFF',
-        borderTopWidth: Dimensions.get('window').height/2000,
+        borderTopWidth: hp(0.05),
         backgroundColor: '#1c1a1f'
     },
     offerItemTitle: {
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').width / 30,
-        width: Dimensions.get('window').width / 1.15,
-        right: Dimensions.get('window').width/15,
+        fontSize: hp(1.8),
+        width: wp(80),
+        right: wp(7),
         textAlign: 'justify',
         alignSelf: 'flex-start',
         textDecorationLine: 'underline',
@@ -104,45 +107,45 @@ export const styles = StyleSheet.create({
     },
     offerItemDescription: {
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').width / 30,
-        width: Dimensions.get('window').width / 1.15,
+        fontSize: hp(1.5),
+        width: wp(80),
+        right: wp(7),
         textAlign: 'justify',
         alignSelf: 'flex-start',
-        color: '#FFFFFF',
-        right: Dimensions.get('window').width/15,
+        color: '#FFFFFF'
     },
     footerTitle: {
-        top: Dimensions.get('window').height/30,
+        top: hp(3),
         alignSelf: 'center',
         fontFamily: 'Raleway-Bold',
-        fontSize: Dimensions.get('window').width / 28,
-        width: Dimensions.get('window').width / 1.5,
+        fontSize: hp(2),
+        width: wp(90),
         textAlign: 'center',
         color: '#F2FF5D'
     },
     footerDescription: {
-        top: Dimensions.get('window').height/30,
+        top: hp(3.5),
         alignSelf: 'center',
         fontFamily: 'Raleway-Medium',
-        fontSize: Dimensions.get('window').width / 30,
-        width: Dimensions.get('window').width / 1.1,
+        fontSize: hp(1.8),
+        width: wp(95),
         textAlign: 'center',
         color: '#FFFFFF'
     },
     onlineShoppingButton: {
-        top: Dimensions.get('window').height/30,
-        marginBottom: Dimensions.get('window').height/100,
+        top: hp(3),
+        marginBottom: hp(1.5),
         alignSelf: 'center',
         backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width/1.1,
-        height: Dimensions.get('window').height/20,
+        width: wp(85),
+        height: hp(5),
         borderRadius: 0
     },
     onlineShoppingButtonContent: {
         color: '#313030',
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').height/45,
-        marginTop: Dimensions.get('window').height / 200,
+        fontSize: hp(2.5),
+        marginTop: hp(0.5),
         alignItems: 'center',
         alignSelf: 'center'
     },

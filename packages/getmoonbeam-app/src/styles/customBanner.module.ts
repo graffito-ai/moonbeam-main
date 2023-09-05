@@ -1,40 +1,28 @@
-import {Dimensions, StyleSheet} from "react-native";
+import {StyleSheet} from "react-native";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 // styles to be used within the CustomBanner component
 export const styles = StyleSheet.create({
     bannerStyle: {
         backgroundColor: '#313030',
-        borderTopWidth: Dimensions.get('window').width / 1000,
-        borderBottomWidth: Dimensions.get('window').width / 1000,
-        width: Dimensions.get('window').width,
+        borderTopWidth: hp(0.02),
+        borderBottomWidth: hp(0.02),
+        width: wp(100),
         position: 'absolute',
         bottom: 0
     },
     buttonLabel: {
         fontFamily: 'Saira-Bold',
         color: '#F2FF5D',
-        fontSize: Dimensions.get('window').width/25
-    },
-    buttonLabelTablet: {
-        fontFamily: 'Saira-Bold',
-        color: '#F2FF5D',
-        marginRight: Dimensions.get('window').width/40,
-        fontSize: Dimensions.get('window').width/58
+        fontSize: hp(2)
     },
     bannerImage: {
-        width: Dimensions.get('window').width/7,
-        height: Dimensions.get('window').width/7,
-    },
-    bannerImageTablet: {
-        width: Dimensions.get('window').width/10,
-        height: Dimensions.get('window').width/10,
+        width: wp(18),
+        height: hp(10),
+        left: wp(0.5)
     },
     bannerDescription: {
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').width/27
-    },
-    bannerDescriptionTablet: {
-        fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').width/40
+        fontSize: hp(1.8)
     }
 });

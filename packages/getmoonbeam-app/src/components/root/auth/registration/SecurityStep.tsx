@@ -15,6 +15,7 @@ import {
 import {useRecoilState} from "recoil";
 import {Checkbox} from "expo-checkbox";
 import {FieldValidator} from "../../../../utils/FieldValidator";
+import {heightPercentageToDP as hp} from "react-native-responsive-screen";
 
 /**
  * SecurityStep component.
@@ -112,8 +113,11 @@ export const SecurityStep = () => {
                     placeholder={'Required'}
                     label="Password"
                     textColor={"#FFFFFF"}
-                    left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
+                    left={
+                        <TextInput.Icon icon="lock" size={hp(2.8)} style={{marginTop: hp(2)}} iconColor="#FFFFFF"/>
+                    }
                     right={<TextInput.Icon icon="eye"
+                                           size={hp(2.8)} style={{marginTop: hp(2)}}
                                            iconColor={isPasswordShown ? "#F2FF5D" : "#FFFFFF"}
                                            onPress={() => setIsPasswordShown(!isPasswordShown)}/>}
                 />
@@ -150,8 +154,11 @@ export const SecurityStep = () => {
                     placeholder={'Required (must match Password)'}
                     label="Confirm Password"
                     textColor={"#FFFFFF"}
-                    left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
+                    left={
+                        <TextInput.Icon icon="lock" size={hp(2.8)} style={{marginTop: hp(2)}} iconColor="#FFFFFF"/>
+                    }
                     right={<TextInput.Icon icon="eye"
+                                           size={hp(2.8)} style={{marginTop: hp(2)}}
                                            iconColor={isConfirmPasswordShown ? "#F2FF5D" : "#FFFFFF"}
                                            onPress={() => setIsConfirmPasswordShown(!isConfirmPasswordShown)}/>}
                 />

@@ -1,11 +1,8 @@
-import {Dimensions, Platform, StyleSheet} from "react-native";
+import {StyleSheet} from "react-native";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 // styles to be used within all components
 export const commonStyles = StyleSheet.create({
-    supportRegistrationButton: {
-        alignSelf: 'flex-end',
-        bottom: Dimensions.get('window').height/100
-    },
     backButton: {
         alignSelf: 'flex-start',
         borderWidth: 1,
@@ -14,7 +11,7 @@ export const commonStyles = StyleSheet.create({
     },
     backButtonDismiss: {
         alignSelf: 'flex-start',
-        bottom: Dimensions.get('window').height/100
+        bottom: hp(1)
     },
     container: {
         flex: 1,
@@ -26,8 +23,8 @@ export const commonStyles = StyleSheet.create({
     },
     columnContainer: {
         flex: 1,
-        width: '100%',
-        height: '100%',
+        width: wp(100),
+        height: hp(100),
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -35,8 +32,9 @@ export const commonStyles = StyleSheet.create({
     },
     rowContainer: {
         flex: 1,
-        width: '100%',
-        height: '100%',
+        flexGrow: 1,
+        width: wp(100),
+        height: hp(100),
         flexDirection: 'column',
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -54,21 +52,6 @@ export const commonStyles = StyleSheet.create({
     divider: {
         backgroundColor: '#303030'
     },
-    androidSafeArea: {
-        flex: 1,
-        paddingTop: Platform.OS === 'android' ? 25 : 0
-    },
-    topNavbarView: {
-        height: Dimensions.get("window").height/9,
-        backgroundColor: '#f2f2f2',
-        shadowColor: '#313030',
-        shadowOffset: {width: -2, height: 5},
-        shadowOpacity: 0.5,
-        shadowRadius: 5,
-        elevation: 15,
-        borderBottomLeftRadius: 45,
-        borderBottomRightRadius: 45
-    },
     insideNavbarBarText: {
         marginTop: '15%',
         fontFamily: 'Raleway-Bold',
@@ -83,18 +66,18 @@ export const commonStyles = StyleSheet.create({
     },
     dialogStyle: {
         backgroundColor: '#5B5A5A',
-        borderRadius: 15
+        borderRadius: wp(5)
     },
     dialogParagraph: {
         color: '#FFFFFF',
         fontFamily: 'Raleway-Regular',
-        fontSize: Dimensions.get('window').height/60,
+        fontSize: hp(1.8),
         textAlign: 'left'
     },
     dialogTitle: {
         color: '#F2FF5D',
         fontFamily: 'Raleway-Bold',
-        fontSize: Dimensions.get('window').height/50
+        fontSize: hp(2.2)
     },
     dialogButton: {
         backgroundColor: '#F2FF5D'

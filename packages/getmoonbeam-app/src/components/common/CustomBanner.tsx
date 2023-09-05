@@ -4,9 +4,6 @@ import {Banner, Text} from 'react-native-paper';
 import {RecoilState, useRecoilState} from "recoil";
 import {styles} from '../../styles/customBanner.module';
 import {customBannerShown} from "../../recoil/AppDrawerAtom";
-import {deviceTypeState} from "../../recoil/RootAtom";
-import * as Device from "expo-device";
-import {DeviceType} from "expo-device";
 import {bottomBarNavigationState} from "../../recoil/HomeAtom";
 
 /**
@@ -25,9 +22,8 @@ export const CustomBanner = (props: {
     dismissing: boolean
 }) => {
     // constants used to keep track of shared states
-    const [bottomBarNavigation, ] = useRecoilState(bottomBarNavigationState);
+    const [bottomBarNavigation,] = useRecoilState(bottomBarNavigationState);
     const [bannerShown,] = useRecoilState(customBannerShown);
-    const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
     const [bannerVisibile, setBannerVisible] = useRecoilState(props.bannerVisibilityState);
 
     /**
@@ -38,11 +34,7 @@ export const CustomBanner = (props: {
      * included in here.
      */
     useEffect(() => {
-        // check and set the type of device, to be used throughout the app
-        Device.getDeviceTypeAsync().then(deviceType => {
-            setDeviceType(deviceType);
-        })
-    }, [deviceType]);
+    }, []);
 
     // return the component for the Custom Banner page
     return (
@@ -52,7 +44,7 @@ export const CustomBanner = (props: {
             actions={[
                 {
                     label: props.bannerButtonLabel,
-                    labelStyle: deviceType === DeviceType.TABLET ? styles.buttonLabelTablet : styles.buttonLabel,
+                    labelStyle: styles.buttonLabel,
                     onPress: async () => {
                         // go to a specific URL within the application
                         if (props.bannerButtonLabelActionSource === "home/wallet") {
@@ -61,7 +53,7 @@ export const CustomBanner = (props: {
                     },
                 },
                 ...props.dismissing ? [{
-                    labelStyle: deviceType === DeviceType.TABLET ? styles.buttonLabelTablet : styles.buttonLabel,
+                    labelStyle: styles.buttonLabel,
                     label: 'Dismiss',
                     onPress: () => {
                         // hide banner
@@ -72,10 +64,10 @@ export const CustomBanner = (props: {
             icon={({}) => (
                 <Image
                     source={props.bannerArtSource}
-                    style={deviceType === DeviceType.TABLET ? styles.bannerImageTablet : styles.bannerImage}
+                    style={styles.bannerImage}
                 />
             )}>
-            <Text style={deviceType === DeviceType.TABLET ? styles.bannerDescriptionTablet : styles.bannerDescription}>
+            <Text style={styles.bannerDescription}>
                 {props.bannerMessage}
             </Text>
         </Banner>

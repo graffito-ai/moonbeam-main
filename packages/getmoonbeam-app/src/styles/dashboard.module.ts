@@ -1,11 +1,12 @@
-import {Dimensions, StyleSheet} from "react-native";
+import {StyleSheet} from "react-native";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 // styles to be used within the Dashboard component
 export const styles = StyleSheet.create({
     mainDashboardView: {
         flex: 1,
-        width: '100%',
-        height: '100%',
+        width: wp(100),
+        height: hp(100),
         flexDirection: 'column',
         alignContent: 'center',
         alignItems: 'center',
@@ -14,7 +15,7 @@ export const styles = StyleSheet.create({
     },
     topDashboardView: {
         flex: 1,
-        width: '100%',
+        width: wp(100),
         alignContent: 'center',
         alignItems: 'center',
         alignSelf: 'center',
@@ -23,64 +24,39 @@ export const styles = StyleSheet.create({
         shadowOffset: {width: -2, height: 8},
         shadowOpacity: 0.5,
         shadowRadius: 10,
-        elevation: 25,
+        elevation: 15,
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
     },
     tppGreetingView: {
-        left: Dimensions.get('window').width / 16,
+        top: hp(5)
     },
     greetingText: {
         fontFamily: 'Saira-Light',
-        fontSize: Dimensions.get('window').width / 18,
-        width: Dimensions.get('window').width / 1.15,
-        textAlign: 'center',
-        color: '#FFFFFF'
-    },
-    greetingTextTablet: {
-        fontFamily: 'Saira-Light',
-        fontSize: Dimensions.get('window').width / 24,
-        width: Dimensions.get('window').width / 1.15,
+        fontSize: hp(2.7),
+        width: wp(100),
         textAlign: 'center',
         color: '#FFFFFF'
     },
     greetingNameText: {
         fontFamily: 'Saira-SemiBold',
-        bottom: Dimensions.get('window').width / 30,
-        fontSize: Dimensions.get('window').width / 18,
-        width: Dimensions.get('window').width / 1.15,
-        textAlign: 'center',
-        color: '#FFFFFF'
-    },
-    greetingNameTextTablet: {
-        fontFamily: 'Saira-SemiBold',
-        bottom: Dimensions.get('window').width / 40,
-        fontSize: Dimensions.get('window').width / 24,
-        width: Dimensions.get('window').width / 1.15,
+        bottom: hp(1.5),
+        fontSize: hp(3),
+        width: wp(100),
         textAlign: 'center',
         color: '#FFFFFF'
     },
     imageCover: {
-        height: '95%',
-        width: '70%',
-        alignSelf: 'flex-start'
-    },
-    imageCoverTablet: {
-        height: '95%',
-        width: '60%',
+        bottom: hp(5),
         alignSelf: 'flex-start'
     },
     titleStyle: {
         fontFamily: 'Raleway-Regular',
-        color: 'grey'
+        color: 'grey',
+        fontSize: hp(5)
     },
     avatarStyle: {
-        left: Dimensions.get('window').width / 6.7,
-        alignSelf: 'center',
-        backgroundColor: 'white'
-    },
-    avatarStyleTablet: {
-        left: Dimensions.get('window').width / 5,
+        top: hp(5),
         alignSelf: 'center',
         backgroundColor: 'white'
     },
@@ -90,53 +66,52 @@ export const styles = StyleSheet.create({
         backgroundColor: '#303030'
     },
     statisticsView: {
-        width: Dimensions.get('window').width / 1.1,
+        width: wp(90),
         flexDirection: 'row',
         justifyContent: 'center',
         alignSelf: 'center',
         alignItems: 'center',
-        left: Dimensions.get('window').width /7,
-        top: Dimensions.get('window').height/30
+        top: hp(7)
     },
     statLeftView: {
-        height: Dimensions.get('window').height / 15,
-        width: Dimensions.get('window').width / 3.5,
-        marginRight: Dimensions.get('window').width/10,
+        height: hp(8),
+        width: wp(30),
+        marginRight: wp(10),
         justifyContent: 'center',
         flexDirection: 'column'
     },
     statRightView: {
-        height: Dimensions.get('window').height / 15,
-        width: Dimensions.get('window').width / 3.5,
-        marginLeft: Dimensions.get('window').width/10,
+        height: hp(8),
+        width: wp(30),
+        marginLeft: wp(10),
         justifyContent: 'center',
         flexDirection: 'column'
     },
     statTitleLeft: {
         fontFamily: 'Raleway-ExtraBold',
-        fontSize: Dimensions.get('window').width / 24,
-        width: Dimensions.get('window').width / 1.15,
+        fontSize: hp(2),
+        width: wp(50),
         textAlign: 'center',
         color: '#FFFFFF'
     },
     statNumberCenterLeft: {
         fontFamily: 'Changa-Medium',
-        fontSize: Dimensions.get('window').width / 19,
-        width: Dimensions.get('window').width / 1.15,
+        fontSize: hp(2.5),
+        width: wp(50),
         textAlign: 'center',
         color: '#F2FF5D',
     },
     statNumberCenterRight: {
         fontFamily: 'Changa-Medium',
-        fontSize: Dimensions.get('window').width / 19,
-        width: Dimensions.get('window').width / 1.15,
+        fontSize: hp(2.5),
+        width: wp(50),
         textAlign: 'center',
         color: '#F2FF5D',
     },
     statTitleRight: {
         fontFamily: 'Raleway-ExtraBold',
-        fontSize: Dimensions.get('window').width / 24,
-        width: Dimensions.get('window').width / 1.15,
+        fontSize: hp(2),
+        width: wp(50),
         textAlign: 'center',
         color: '#FFFFFF'
     },
@@ -157,54 +132,55 @@ export const styles = StyleSheet.create({
         flexDirection: 'column'
     },
     verticalLine: {
-        height: '50%',
-        width: 2,
+        height: hp(5),
+        width: wp(0.5),
         backgroundColor: 'white'
     },
     bottomView: {
         flex: 1,
-        top: Dimensions.get('window').height/45,
+        top: hp(2),
     },
     segmentedButtons: {
-        width: Dimensions.get('window').width/1.15,
+        width: wp(95),
         alignSelf: 'center'
     },
     subHeaderTitle: {
         alignSelf: 'center',
         color: '#FFFFFF',
-        fontSize: 18,
+        fontSize: hp(2.3),
         fontFamily: 'Saira-SemiBold'
     },
     individualTransactionContainer: {
-        paddingBottom: Dimensions.get('window').height/30
+        width: wp(100),
+        paddingBottom: hp(4),
+        alignItems: 'center',
+        alignContent: 'center'
     },
     emptyPayoutListItemTitle: {
-        left: Dimensions.get('window').width/4,
-        fontSize: Dimensions.get('window').height/50,
+        alignSelf: 'center',
+        fontSize: hp(2.3),
         color: '#F2FF5D',
-        fontFamily: 'Saira-Medium',
-        width: Dimensions.get('window').width/1.15
+        fontFamily: 'Saira-Medium'
     },
     emptyTransactionsListItemTitle: {
-        left: Dimensions.get('window').width/5,
-        fontSize: Dimensions.get('window').height/50,
+        alignSelf: 'center',
+        fontSize: hp(2.3),
         color: '#F2FF5D',
-        fontFamily: 'Saira-Medium',
-        width: Dimensions.get('window').width/1.15
+        fontFamily: 'Saira-Medium'
     },
     listItemTitle: {
-        left: Dimensions.get('window').width/20,
-        fontSize: Dimensions.get('window').height/50,
+        left: wp(5),
+        fontSize: hp(2),
         color: '#FFFFFF',
         fontFamily: 'Saira-ExtraBold',
-        width: Dimensions.get('window').width/2
+        width: wp(50)
     },
     listItemDescription: {
-        left: Dimensions.get('window').width/20,
-        fontSize: Dimensions.get('window').height/55,
+        left: wp(5),
+        fontSize: hp(1.8),
         color: '#FFFFFF',
         fontFamily: 'Raleway-Regular',
-        width: Dimensions.get('window').width/2
+        width: wp(50)
     },
     itemRightView: {
         flexDirection: 'row'
@@ -215,35 +191,35 @@ export const styles = StyleSheet.create({
         flexDirection: 'column'
     },
     itemRightDetailTop: {
-        fontSize: Dimensions.get('window').height/50,
+        fontSize: hp(1.8),
         fontFamily: 'Changa-Bold',
         color: '#F2FF5D',
     },
     itemRightDetailBottom: {
         marginTop: '5%',
-        fontSize: Dimensions.get('window').height/60,
+        fontSize: hp(1.6),
         fontFamily: 'Raleway-Medium',
         color: '#FFFFFF'
     },
     rightItemIcon: {
-        left: Dimensions.get('window').width/40,
+        left: wp(2.2),
         alignItems: 'flex-end',
         justifyContent: 'center'
     },
     leftItemIcon: {
-        left: Dimensions.get('window').width/30,
-        height: Dimensions.get('window').height/10,
-        width: Dimensions.get('window').width/10,
+        left: wp(3),
+        height: hp(8),
+        width: wp(10),
     },
     mainDivider: {
-        height: Dimensions.get('window').height/550,
-        width: Dimensions.get('window').width,
+        height: hp(0.2),
+        width: wp(100),
         backgroundColor: '#FFFFFF'
     },
     divider: {
-        height: Dimensions.get('window').height/750,
+        height: hp(0.05),
         alignSelf: 'flex-end',
-        width: Dimensions.get('window').width/1.15,
+        width: wp(85),
         backgroundColor: '#5B5A5A'
     },
     bottomSheet: {
@@ -251,8 +227,8 @@ export const styles = StyleSheet.create({
     },
     transactionParentView: {
         flex: 1,
-        width: '100%',
-        height: '100%',
+        width: wp(100),
+        height: hp(100),
         flexDirection: 'column',
         alignContent: 'center',
         alignSelf: 'center',
@@ -260,10 +236,9 @@ export const styles = StyleSheet.create({
         backgroundColor: '#313030',
     },
     transactionMapView: {
-        height: Dimensions.get('window').height/4,
-        width: Dimensions.get('window').width/1.05,
-        position: 'absolute',
-        bottom: Dimensions.get('window').height/100
+        height: hp(30),
+        width: wp(95),
+        top: hp(5)
     },
     mapTooltip: {
         zIndex: 500,
@@ -271,8 +246,8 @@ export const styles = StyleSheet.create({
     },
     mapTooltipSquare: {
         zIndex: 600,
-        height: Dimensions.get('window').height / 25,
-        width: Dimensions.get('window').width / 3.5,
+        height: hp(4.3),
+        width: wp(28),
         backgroundColor: "#313030",
         borderRadius: 10,
         borderColor: '#F2FF5D',
@@ -281,28 +256,28 @@ export const styles = StyleSheet.create({
     mapTooltipArrow: {
         zIndex: 700,
         position: "absolute",
-        top: -Dimensions.get('window').height / 100,
-        right: Dimensions.get('window').width / 13,
+        top: -hp(1.1),
+        right: wp(8.1),
         width: 0,
         height: 0,
         borderStyle: "solid",
-        borderLeftWidth: Dimensions.get('window').height / 45,
-        borderRightWidth: Dimensions.get('window').height / 45,
-        borderBottomWidth: Dimensions.get('window').height / 35,
+        borderLeftWidth: hp(2),
+        borderRightWidth: hp(2),
+        borderBottomWidth: hp(3.5),
         borderLeftColor: "transparent",
         borderRightColor: "transparent",
         borderBottomColor: "#313030"
     },
     mapTooltipArrowOverlay: {
         position: "absolute",
-        top: -Dimensions.get('window').height / 60,
-        right: Dimensions.get('window').width / 13,
+        top: -hp(1.7),
+        right: wp(8.1),
         width: 0,
         height: 0,
         borderStyle: "solid",
-        borderLeftWidth: Dimensions.get('window').height / 45,
-        borderRightWidth: Dimensions.get('window').height / 45,
-        borderBottomWidth: Dimensions.get('window').height / 35,
+        borderLeftWidth: hp(2),
+        borderRightWidth: hp(2),
+        borderBottomWidth: hp(3),
         borderLeftColor: "transparent",
         borderRightColor: "transparent",
         borderBottomColor: "#F2FF5D"
@@ -314,19 +289,18 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         alignContent: 'center',
         justifyContent: 'center',
-        bottom: Dimensions.get('window').height/30,
+        bottom: hp(3.3),
         zIndex: 1000
     },
     toolTipImageDetail: {
         alignSelf: 'center',
-        right: Dimensions.get('window').width / 55
+        right: wp(2)
     },
     toolTipImagePrice: {
-        left: Dimensions.get('window').width / 50,
-        top: Dimensions.get('window').width / 500,
+        left: wp(2),
         alignSelf: 'center',
         fontFamily: 'Raleway-ExtraBold',
-        fontSize: Dimensions.get('window').width / 24,
+        fontSize: hp(1.8),
         textAlign: 'center',
         color: '#F2FF5D'
     },
@@ -336,21 +310,21 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         alignContent: 'center',
         justifyContent: 'center',
-        width: Dimensions.get('window').width
+        width: wp(100)
     },
     transactionBrandName: {
         alignSelf: 'flex-start',
-        left: Dimensions.get('window').width / 20,
+        left: wp(5.5),
         fontFamily: 'Saira-Bold',
-        fontSize: Dimensions.get('window').width / 18,
+        fontSize: hp(2.5),
         color: '#FFFFFF'
     },
     transactionDetailsView: {
         flexDirection: 'row',
         justifyContent: 'flex-start',
-        width: Dimensions.get('window').width,
-        left: Dimensions.get('window').width / 20,
-        top: Dimensions.get('window').height/60
+        width: wp(100),
+        left: wp(5),
+        top: hp(1)
     },
     transactionBrandImage: {
         alignSelf: 'flex-start',
@@ -359,73 +333,51 @@ export const styles = StyleSheet.create({
     transactionAmountsView: {
         flexDirection: 'column',
         justifyContent: 'flex-end',
-        width: Dimensions.get('window').width/1.5,
-        right: Dimensions.get('window').width / 8,
+        right: wp(15),
     },
     brandDetailsView: {
         flexDirection: 'column',
         justifyContent: 'flex-start',
-        width: Dimensions.get('window').width/1.5,
-        bottom: Dimensions.get('window').height/200,
-        left: Dimensions.get('window').width / 20,
+        width: wp(70),
+        top: hp(0.8),
+        left: wp(4),
     },
     transactionAmountLabel: {
-        fontSize: Dimensions.get('window').width / 23,
+        fontSize: hp(2),
         fontFamily: 'Changa-Medium',
         color: '#FFFFFF'
     },
     transactionStatusLabel: {
-        fontSize: Dimensions.get('window').width / 23,
+        fontSize: hp(2.3),
         fontFamily: 'Changa-Medium',
         color: '#F2FF5D'
     },
     transactionPrice: {
         alignSelf: 'flex-start',
         fontFamily: 'Raleway-ExtraBold',
-        fontSize: Dimensions.get('window').width / 24,
+        fontSize: hp(2),
         textAlign: 'justify',
         color: '#F2FF5D'
     },
     transactionTimestamp: {
         alignSelf: 'flex-start',
-        fontSize: Dimensions.get('window').width / 28,
+        fontSize: hp(2),
         fontFamily: 'Changa-Light',
         textAlign: 'justify',
-        width: Dimensions.get('window').width/3,
-        lineHeight: Dimensions.get('window').height/40,
+        lineHeight: hp(2.5),
         color: '#FFFFFF'
     },
     transactionAddress: {
         alignSelf: 'flex-start',
-        fontSize: Dimensions.get('window').width / 30,
+        fontSize: hp(1.8),
         fontFamily: 'Changa-Light',
-        width: Dimensions.get('window').width/3,
-        lineHeight: Dimensions.get('window').height/43,
+        lineHeight: hp(2.5),
         color: '#FFFFFF'
     },
     transactionDiscountAmount: {
         alignSelf: 'flex-start',
-        fontSize: Dimensions.get('window').width / 20,
+        fontSize: hp(2.3),
         fontFamily: 'Changa-Bold',
         color: '#F2FF5D'
-    },
-    transactionDiscountPercentage: {
-        alignSelf: 'flex-start',
-        bottom: Dimensions.get('window').height/50,
-        fontSize: Dimensions.get('window').width / 20,
-        fontFamily: 'Changa-Bold',
-        color: '#F2FF5D'
-    },
-    transactionStatus: {
-        alignSelf: 'flex-start',
-        left: Dimensions.get('window').width / 20,
-        fontFamily: 'Changa-Bold',
-        color: '#FFFFFF'
-    },
-    transactionLocation: {
-        alignSelf: 'flex-start',
-        left: Dimensions.get('window').width / 20,
-        fontFamily: 'Changa-Bold',
-        color: '#FFFFFF'
-    },
+    }
 });

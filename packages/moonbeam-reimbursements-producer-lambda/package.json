@@ -11,11 +11,11 @@
     "build": "rm -rf ./lib && tsc",
     "clean": "rm -rf build/ lib/ node_modules/"
   },
-  "devDependencies": {
+  "dependencies": {
     "@aws-sdk/types": "^3.272.0",
     "@aws-sdk/client-sns": "^3.363.0",
-    "@moonbeam/moonbeam-models": "*",
-    "@moonbeam/moonbeam-tsconfig": "*",
+    "@moonbeam/moonbeam-models": "1.0.0",
+    "@moonbeam/moonbeam-tsconfig": "1.0.0",
     "@types/aws-lambda": "^8.10.119"
   },
   "private": true

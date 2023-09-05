@@ -4,13 +4,13 @@ import {NavigationContainer} from '@react-navigation/native';
 import {StoreOfferProps} from "../../../../../../models/props/MarketplaceProps";
 import {StoreOfferStackParamList} from "../../../../../../models/props/StoreOfferProps";
 import {IconButton} from "react-native-paper";
-import {Dimensions} from "react-native";
 import {commonStyles} from "../../../../../../styles/common.module";
 import {useRecoilState} from "recoil";
 import {bottomTabShownState} from "../../../../../../recoil/HomeAtom";
 import {StoreOfferDetails} from "./StoreOfferDetails";
 import {StoreOfferWebView} from "./StoreOfferWebView";
 import {appDrawerHeaderShownState, customBannerShown, drawerSwipeState} from "../../../../../../recoil/AppDrawerAtom";
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 /**
  * StoreOffer component.
@@ -65,7 +65,7 @@ export const StoreOffer = ({navigation}: StoreOfferProps) => {
                                 rippleColor={'transparent'}
                                 icon="close"
                                 iconColor={"#F2FF5D"}
-                                size={Dimensions.get('window').height / 28}
+                                size={hp(4)}
                                 style={commonStyles.backButtonDismiss}
                                 onPress={() => {
                                     setBottomTabShown(true);
@@ -77,24 +77,9 @@ export const StoreOffer = ({navigation}: StoreOfferProps) => {
                 <Stack.Screen
                     name="StoreOfferWebView"
                     component={StoreOfferWebView}
-                    initialParams={{}}
-                    options={({navigation}) => ({
-                        headerLeft: () =>
-                            <IconButton
-                                rippleColor={'transparent'}
-                                icon="close"
-                                iconColor={"#F2FF5D"}
-                                size={Dimensions.get('window').height / 28}
-                                style={{
-                                    alignSelf: 'flex-start',
-                                    right: Dimensions.get('window').width / 15,
-                                    bottom: Dimensions.get('window').height / 650
-                                }}
-                                onPress={() => {
-                                    navigation.navigate('StoreOfferDetails', {});
-                                }}
-                            />
-                    })}
+                    options={{
+                        headerShown: false
+                    }}
                 />
             </Stack.Navigator>
         </NavigationContainer>

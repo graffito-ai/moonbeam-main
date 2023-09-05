@@ -1,5 +1,6 @@
 import React from 'react';
-import {Dimensions, SafeAreaView} from 'react-native';
+import {SafeAreaView} from 'react-native';
+import {widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {ActivityIndicator, Modal, Portal} from 'react-native-paper';
 // @ts-ignore
 import {useValidation} from 'react-native-form-validator';
@@ -11,7 +12,7 @@ import {useValidation} from 'react-native-form-validator';
  * @param props component properties to be passed in.
  * @constructor constructor for the component.
  */
-export const Spinner = (props: { loadingSpinnerShown: boolean, setLoadingSpinnerShown: React.Dispatch<React.SetStateAction<boolean>>, fullScreen?: boolean}) => {
+export const Spinner = (props: { loadingSpinnerShown: boolean, setLoadingSpinnerShown: React.Dispatch<React.SetStateAction<boolean>>, fullScreen?: boolean }) => {
     // return the component for the Spinner/loading view
     return (
         <>
@@ -20,7 +21,8 @@ export const Spinner = (props: { loadingSpinnerShown: boolean, setLoadingSpinner
                     ?
                     <Portal>
                         <Modal dismissable={false} visible={props.loadingSpinnerShown}
-                               onDismiss={() => props.setLoadingSpinnerShown(false)}><></></Modal>
+                               onDismiss={() => props.setLoadingSpinnerShown(false)}><></>
+                        </Modal>
                     </Portal>
                     :
                     <SafeAreaView style={[{backgroundColor: '#5B5A5A', flex: 1}]}>
@@ -28,7 +30,7 @@ export const Spinner = (props: { loadingSpinnerShown: boolean, setLoadingSpinner
                             <Modal dismissable={false} visible={props.loadingSpinnerShown}
                                    onDismiss={() => props.setLoadingSpinnerShown(false)}>
                                 <ActivityIndicator animating={true} color={'#F2FF5D'}
-                                                   size={Dimensions.get('window').height / 18}/>
+                                                   size={wp(13)}/>
                             </Modal>
                         </Portal>
                     </SafeAreaView>

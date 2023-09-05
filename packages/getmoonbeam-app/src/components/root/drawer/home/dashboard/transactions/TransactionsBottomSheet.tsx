@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import {Dimensions, Image, SafeAreaView, StyleSheet, TouchableOpacity, View} from "react-native";
+import {Image, SafeAreaView, StyleSheet, TouchableOpacity, View} from "react-native";
 import {useRecoilState} from "recoil";
 import {Text} from "react-native-paper";
 import {deviceTypeState} from "../../../../../../recoil/RootAtom";
@@ -7,6 +7,7 @@ import * as Device from "expo-device";
 import {styles} from "../../../../../../styles/dashboard.module";
 import MapView, {Marker} from "react-native-maps";
 import * as Location from 'expo-location';
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 /**
  * Interface to be used for determining the location of transaction
@@ -106,8 +107,8 @@ export const TransactionsBottomSheet = (props: {
                                style={styles.transactionBrandImage}
                                source={{
                                    uri: props.brandImage,
-                                   height: Dimensions.get('window').height / 12,
-                                   width: Dimensions.get('window').width / 5
+                                   height: hp(10),
+                                   width: wp(15)
                                }}
                         />
                         <View style={styles.brandDetailsView}>
@@ -140,6 +141,7 @@ export const TransactionsBottomSheet = (props: {
                     props.transactionStoreAddress &&
                     <View style={styles.transactionMapView}>
                         <MapView
+                            userInterfaceStyle={'dark'}
                             zoomControlEnabled={true}
                             ref={mapViewRef}
                             style={[StyleSheet.absoluteFillObject, {borderRadius: 30}]}
@@ -158,9 +160,9 @@ export const TransactionsBottomSheet = (props: {
                                     <TouchableOpacity onPress={async () => {
                                         await retrieveStoreGeolocation();
                                     }}>
-                                        <View style={styles.mapTooltipArrow}/>
+                                        {/*<View style={styles.mapTooltipArrow}/>*/}
                                         <View style={styles.mapTooltip}>
-                                            <View style={styles.mapTooltipArrowOverlay}/>
+                                            {/*<View style={styles.mapTooltipArrowOverlay}/>*/}
                                             <View style={styles.mapTooltipSquare}/>
                                         </View>
                                         <View
@@ -170,8 +172,8 @@ export const TransactionsBottomSheet = (props: {
                                                    resizeMode={'cover'}
                                                    source={{
                                                        uri: props.brandImage,
-                                                       height: Dimensions.get('window').height / 40,
-                                                       width: Dimensions.get('window').width / 18
+                                                       height: hp(2.5),
+                                                       width: wp(6)
                                                    }}
                                             />
                                             <Text style={styles.toolTipImagePrice}>

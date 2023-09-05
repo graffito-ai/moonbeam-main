@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Dimensions, Linking, SafeAreaView, StyleSheet} from "react-native";
+import {Linking, SafeAreaView} from "react-native";
 import WebView from "react-native-webview";
 import {useRecoilState} from "recoil";
 import {
@@ -14,7 +14,8 @@ import {Spinner} from "../../../common/Spinner";
 import {API, graphqlOperation} from "aws-amplify";
 import {CardLinkErrorType, CardType, createCardLink, Stages} from "@moonbeam/moonbeam-models";
 import {Button} from "@rneui/base";
-import * as envInfo from "../../../../../amplify/.config/local-env-info.json";
+import * as envInfo from "../../../../../local-env-info.json";
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 /**
  * CardLinkingStep component.
@@ -22,11 +23,10 @@ import * as envInfo from "../../../../../amplify/.config/local-env-info.json";
  * @constructor constructor for the component.
  */
 export const CardLinkingStep = () => {
-    // constants used to keep track of shared states
+    // constants used to keep track of local component state
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [modalCustomMessage, setModalCustomMessage] = useState<string>("");
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
-
     // constants used to keep track of shared states
     const [isReady, setIsReady] = useRecoilState(isReadyRegistrationState);
     const [globalCache,] = useRecoilState(globalAmplifyCacheState);
@@ -276,7 +276,7 @@ export const CardLinkingStep = () => {
                     <Portal>
                         <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
                                 onDismiss={() => setModalVisible(false)}>
-                            <Dialog.Icon icon="alert" color={"#F2FF5D"} size={Dimensions.get('window').height / 14}/>
+                            <Dialog.Icon icon="alert" color={"#F2FF5D"} size={hp(10)}/>
                             <Dialog.Title style={commonStyles.dialogTitle}>We hit a snag!</Dialog.Title>
                             <Dialog.Content>
                                 <Text
@@ -294,7 +294,7 @@ export const CardLinkingStep = () => {
                         </Dialog>
                     </Portal>
                     <SafeAreaView
-                        style={[StyleSheet.absoluteFill, styles.cardLinkingParentView]}>
+                        style={[styles.cardLinkingParentView]}>
                         <WebView
                             onMessage={onCardLinkAction}
                             scrollEnabled={false}

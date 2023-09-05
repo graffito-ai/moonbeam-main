@@ -1,4 +1,4 @@
-import {Dimensions, SafeAreaView, ScrollView, StyleSheet, View} from "react-native";
+import {SafeAreaView, ScrollView, StyleSheet, View} from "react-native";
 import {Dialog, Divider, List, Portal, Text} from "react-native-paper";
 import React, {useEffect, useState} from "react";
 import {SettingsListProps} from "../../../../models/props/SettingsProps";
@@ -15,12 +15,10 @@ import {cardLinkingStatusState, drawerSwipeState} from "../../../../recoil/AppDr
 // @ts-ignore
 import CardLinkingImage from "../../../../../assets/art/moonbeam-card-linking.png";
 import {customBannerState} from "../../../../recoil/CustomBannerAtom";
-import {deviceTypeState} from "../../../../recoil/RootAtom";
-import * as Device from "expo-device";
-import {DeviceType} from "expo-device";
 import {Button} from "@rneui/base";
 import {bottomBarNavigationState, drawerNavigationState} from "../../../../recoil/HomeAtom";
 import {goToProfileSettingsState} from "../../../../recoil/Settings";
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 /**
  * SettingsList component
@@ -47,7 +45,6 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
     const [, setBannerState] = useRecoilState(customBannerState);
     const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
-    const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -59,11 +56,6 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
     useEffect(() => {
         // redirect the appropriate screen through linking
         goToProfileSettings && navigation.navigate('Profile', {});
-
-        // check and set the type of device, to be used throughout the app
-        Device.getDeviceTypeAsync().then(deviceType => {
-            setDeviceType(deviceType);
-        });
 
         // enable the swipe for the drawer
         setDrawerSwipeEnabled(true);
@@ -80,7 +72,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
             setOptionDescription("Click this button to opt-in to all our sweet discount programs!");
             setOptionIcon('credit-card-plus-outline');
         }
-    }, [goToProfileSettings, userInformation["linkedCard"], deviceType]);
+    }, [goToProfileSettings, userInformation["linkedCard"]]);
 
     /**
      * Function used to handle the opt-out action, from the settings list
@@ -190,7 +182,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                         <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
                                 onDismiss={() => setModalVisible(false)}>
                             <Dialog.Icon icon="alert" color={"#F2FF5D"}
-                                         size={Dimensions.get('window').height / 14}/>
+                                         size={hp(10)}/>
                             <Dialog.Title
                                 style={commonStyles.dialogTitle}>{modalButtonMessage === 'Try Again' ? 'We hit a snag!' : 'Great'}</Dialog.Title>
                             <Dialog.Content>
@@ -216,7 +208,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                         keyboardShouldPersistTaps={'handled'}>
                                 <List.Section style={styles.listSectionView}>
                                     <List.Subheader
-                                        style={deviceType === DeviceType.TABLET ? styles.subHeaderTitleTablet : styles.subHeaderTitle}>Account
+                                        style={styles.subHeaderTitle}>Account
                                         Management</List.Subheader>
                                     <Divider style={styles.divider}/>
                                     <Divider style={styles.divider}/>
@@ -230,7 +222,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                         title="Edit Profile"
                                         description='We know you’re not “basic,” but this is where you edit your basic information.'
                                         left={() => <List.Icon color={'#F2FF5D'} icon="clipboard-account-outline"/>}
-                                        right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
+                                        right={() => <List.Icon style={{left: hp(1)}}
                                                                 color={'#F2FF5D'} icon="chevron-right"/>}
                                         onPress={() => {
                                             // go to the Profile screen
@@ -249,9 +241,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                         title="Change Password"
                                         description='Keep this one a secret, bro. We don’t even wanna know.'
                                         left={() => <List.Icon color={'#F2FF5D'} icon="lock-check"/>}
-                                        // right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
-                                        //                         color={'#F2FF5D'} icon={FaceIDIcon}/>}
-                                        right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
+                                        right={() => <List.Icon style={{left: hp(1)}}
                                                                 color={'#F2FF5D'} icon="chevron-right"/>}
                                         onPress={() => {
                                             // go to the Profile screen
@@ -261,7 +251,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                 </List.Section>
                                 <List.Section style={styles.listSectionView}>
                                     <List.Subheader
-                                        style={deviceType === DeviceType.TABLET ? styles.subHeaderTitleTablet : styles.subHeaderTitle}>Wallet
+                                        style={styles.subHeaderTitle}>Wallet
                                         Management</List.Subheader>
                                     <Divider style={styles.divider}/>
                                     <Divider style={styles.divider}/>
@@ -275,7 +265,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                         title={optionTitle}
                                         description={optionDescription}
                                         left={() => <List.Icon color={'#F2FF5D'} icon={optionIcon}/>}
-                                        right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
+                                        right={() => <List.Icon style={{left: hp(1)}}
                                                                 color={'#F2FF5D'} icon="chevron-right"/>}
                                         onPress={async () => {
                                             // check if a member has already been deactivated or never completed the linked card process

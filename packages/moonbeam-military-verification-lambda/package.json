@@ -11,12 +11,12 @@
     "build": "rm -rf ./lib && tsc",
     "clean": "rm -rf build/ lib/ node_modules/"
   },
-  "devDependencies": {
+  "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.338.0",
     "@aws-sdk/types": "^3.272.0",
     "@aws-sdk/util-dynamodb": "^3.284.0",
-    "@moonbeam/moonbeam-models": "*",
-    "@moonbeam/moonbeam-tsconfig": "*",
+    "@moonbeam/moonbeam-models": "1.0.0",
+    "@moonbeam/moonbeam-tsconfig": "1.0.0",
     "axios": "^1.4.0"
   },
   "private": true

@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import 'react-native-get-random-values';
-import {Dimensions, ImageBackground, Platform, TouchableOpacity, View} from "react-native";
+import {ImageBackground, Keyboard, Platform, TouchableOpacity, View} from "react-native";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {commonStyles} from '../../../../styles/common.module';
 import {styles} from '../../../../styles/registration.module';
 import {RegistrationProps} from "../../../../models/props/AuthenticationProps";
@@ -106,6 +107,7 @@ import * as ImagePicker from "expo-image-picker";
 export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     // constants used to keep track of local component state
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
+    const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     // constants used to keep track of shared states
     const [marketplaceCache,] = useRecoilState(marketplaceAmplifyCacheState);
     const [globalCache,] = useRecoilState(globalAmplifyCacheState);
@@ -176,6 +178,20 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
      * included in here.
      */
     useEffect(() => {
+        // keyboard listeners
+        const keyboardDidShowListener = Keyboard.addListener(
+            'keyboardDidShow',
+            () => {
+                setIsKeyboardShown(true);
+            }
+        );
+        const keyboardDidHideListener = Keyboard.addListener(
+            'keyboardDidHide',
+            () => {
+                setIsKeyboardShown(false);
+            }
+        );
+
         // set the registration navigation to be used for Documents Viewer purposes
         setNavigation(navigation);
 
@@ -201,7 +217,12 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
             let newStepValue = stepNumber + 1;
             setStepNumber(newStepValue);
         }
-    }, [countdownValue, stepNumber, cardLinkingStatus]);
+        // remove keyboard listeners accordingly
+        return () => {
+            keyboardDidHideListener.remove();
+            keyboardDidShowListener.remove();
+        };
+    }, [isKeyboardShown, countdownValue, stepNumber, cardLinkingStatus]);
 
     /**
      * Callback function used to decrease the value of the countdown by 1,
@@ -625,368 +646,378 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                             contentContainerStyle={[commonStyles.rowContainer]}
                             keyboardShouldPersistTaps={'handled'}
                         >
-                            {stepNumber !== 8 && stepNumber !== 7 &&
-                                <View
-                                    style={[styles.titleView, {marginTop: Dimensions.get('window').height / 6},
-                                        (stepNumber === 4 || (stepNumber === 5 && militaryStatus !== MilitaryVerificationStatusType.Rejected)) && {marginTop: Dimensions.get('window').height / 4.5}]}>
-                                    <View style={[styles.titleViewDescription]}>
-                                        <Text style={styles.stepTitle}>
-                                            {registrationSteps[stepNumber].stepTitle}
-                                        </Text>
-                                        <IconButton
-                                            icon={"triangle"}
-                                            iconColor={"#F2FF5D"}
-                                            size={Dimensions.get('window').width / 20}
-                                            style={styles.triangleIcon}
-                                        />
-                                    </View>
-                                </View>}
-                            {(militaryStatus === MilitaryVerificationStatusType.Verified && stepNumber === 5) || stepNumber === 7 ? <></> :
-                                (stepNumber === 3
-                                        ?
-                                        <Text style={styles.stepDescription}>{
-                                            registrationSteps[stepNumber].stepDescription
-                                        }{" "}<Text style={styles.stepDescriptionUnderline}>Check your spam and trash
-                                            inboxes.</Text>
-                                        </Text>
-                                        : <Text style={styles.stepDescription}>{
-                                            registrationSteps[stepNumber].stepDescription
-                                        }</Text>
-                                )
-                            }
-                            {/*switch views based on the step number*/}
-                            {
-                                stepNumber === 0
-                                    ? <ProfileRegistrationStep/>
-                                    : stepNumber === 1
-                                        ? <AdditionalRegistrationStep/>
-                                        : stepNumber === 2
-                                            ? <SecurityStep/>
-                                            : stepNumber === 3
-                                                ? <CodeVerificationStep/>
-                                                : stepNumber === 4
-                                                    ? <UserPermissionsStep/>
-                                                    : stepNumber === 5
-                                                        ? <MilitaryStatusSplashStep/>
-                                                        : stepNumber === 6
-                                                            ? <DocumentCaptureStep/>
-                                                            : stepNumber === 7
-                                                                ? <CardLinkingStep/>
-                                                                : stepNumber === 8
-                                                                    ? <CardLinkingStatusSplashStep/>
-                                                                    : <></>
-                            }
-                            <View style={[
-                                styles.bottomContainerButtons,
-                                (stepNumber === 4 || stepNumber === 5 || stepNumber == 6) && {paddingRight: Dimensions.get('window').width / 30}
-                            ]}>
-                                {(stepNumber === 1 || stepNumber === 2) &&
-                                    <TouchableOpacity
-                                        style={styles.buttonLeft}
-                                        onPress={
-                                            () => {
-                                                // show back button on previous step
-                                                setIsBackButtonShown(true);
+                            <View style={[Platform.OS === 'android' && isKeyboardShown && {height: hp(110)},
+                                          Platform.OS === 'android' && isKeyboardShown && stepNumber === 2 && {height: hp(100)},
+                                          Platform.OS === 'android' && isKeyboardShown && stepNumber === 3 && {height: hp(85)}]}>
+                                {stepNumber !== 8 && stepNumber !== 7 &&
+                                    <View
+                                        style={[styles.titleView, {marginTop: hp(18)},
+                                            (stepNumber === 4 || (stepNumber === 5 && militaryStatus !== MilitaryVerificationStatusType.Rejected)) && {marginTop: hp(25)}]}>
+                                        <View style={[styles.titleViewDescription]}>
+                                            <Text style={styles.stepTitle}>
+                                                {registrationSteps[stepNumber].stepTitle}
+                                            </Text>
+                                            <IconButton
+                                                icon={"triangle"}
+                                                iconColor={"#F2FF5D"}
+                                                size={wp(4)}
+                                                style={styles.triangleIcon}
+                                            />
+                                        </View>
+                                    </View>}
+                                {(militaryStatus === MilitaryVerificationStatusType.Verified && stepNumber === 5) || stepNumber === 7 ? <></> :
+                                    (stepNumber === 3
+                                            ?
+                                            <Text style={styles.stepDescription}>{
+                                                registrationSteps[stepNumber].stepDescription
+                                            }{" "}<Text style={styles.stepDescriptionUnderline}>Check your spam and trash
+                                                inboxes.</Text>
+                                            </Text>
+                                            : <Text style={styles.stepDescription}>{
+                                                registrationSteps[stepNumber].stepDescription
+                                            }</Text>
+                                    )
+                                }
+                                {/*switch views based on the step number*/}
+                                {
+                                    stepNumber === 0
+                                        ? <ProfileRegistrationStep/>
+                                        : stepNumber === 1
+                                            ? <AdditionalRegistrationStep/>
+                                            : stepNumber === 2
+                                                ? <SecurityStep/>
+                                                : stepNumber === 3
+                                                    ? <CodeVerificationStep/>
+                                                    : stepNumber === 4
+                                                        ? <UserPermissionsStep/>
+                                                        : stepNumber === 5
+                                                            ? <MilitaryStatusSplashStep/>
+                                                            : stepNumber === 6
+                                                                ? <DocumentCaptureStep/>
+                                                                : stepNumber === 7
+                                                                    ? <CardLinkingStep/>
+                                                                    : stepNumber === 8
+                                                                        ? <CardLinkingStatusSplashStep/>
+                                                                        : <></>
+                                }
+                                <View style={[
+                                    styles.bottomContainerButtons,
+                                    stepNumber == 2 && {marginRight: wp(10)}
+                                ]}>
+                                    {(stepNumber === 1 || stepNumber === 2) &&
+                                        <TouchableOpacity
+                                            style={styles.buttonLeft}
+                                            onPress={
+                                                () => {
+                                                    // show back button on previous step
+                                                    setIsBackButtonShown(true);
 
-                                                // clean the registration error on previous step
-                                                setRegistrationMainError(false);
+                                                    // clean the registration error on previous step
+                                                    setRegistrationMainError(false);
 
-                                                // clean any Amplify Sign Up errors
-                                                if (stepNumber === 2) {
-                                                    setAmplifySignUpErrors([]);
+                                                    // clean any Amplify Sign Up errors
+                                                    if (stepNumber === 2) {
+                                                        setAmplifySignUpErrors([]);
+                                                    }
+
+                                                    // decrease the step number
+                                                    if (stepNumber > 0) {
+                                                        let newStepValue = stepNumber - 1;
+                                                        setStepNumber(newStepValue);
+                                                    }
                                                 }
+                                            }
+                                        >
+                                            <Text style={styles.buttonText}>Previous</Text>
+                                        </TouchableOpacity>}
+                                    {stepNumber !== 7 && <TouchableOpacity
+                                        disabled={
+                                            (!militaryVerificationDisclaimer && stepNumber === 5)
+                                            || (!accountRegistrationDisclaimer && stepNumber === 2)
+                                            || (additionalDocumentsNeeded && stepNumber === 6)
+                                        }
+                                        style={[
+                                            (
+                                                !militaryVerificationDisclaimer && stepNumber === 5
+                                                || (!accountRegistrationDisclaimer && stepNumber === 2)
+                                                || (additionalDocumentsNeeded && stepNumber === 6)
+                                            )
+                                                ? styles.buttonRightDisabled
+                                                : styles.buttonRight,
+                                            (stepNumber === 0 || stepNumber === 3 || stepNumber === 6) && {marginLeft: wp(33)},
+                                            (stepNumber === 1 || stepNumber === 2) && {marginLeft: wp(25)},
+                                            (stepNumber === 4)
+                                            && {
+                                                marginLeft: wp(33),
+                                                marginBottom: hp(5)
+                                            },
+                                            (stepNumber === 5)
+                                            && {
+                                                marginLeft: wp(33),
+                                                marginBottom: hp(5)
+                                            },
+                                            stepNumber === 8
+                                            && {
+                                                marginBottom: hp(10)
+                                            }]
+                                        }
+                                        onPress={
+                                            async () => {
+                                                // show back button on next step if the step is 0, 1 or 2
+                                                (stepNumber === 0 || stepNumber === 1) ? setIsBackButtonShown(true) : setIsBackButtonShown(false);
 
-                                                // decrease the step number
-                                                if (stepNumber > 0) {
-                                                    let newStepValue = stepNumber - 1;
-                                                    setStepNumber(newStepValue);
+                                                // verify if we can move to the next stage
+                                                let checksPassed = true;
+                                                switch (stepNumber) {
+                                                    case 0:
+                                                        if (dutyStatus === "" || enlistingYear === "" || firstName === "" || lastName === "" || email === "" || birthday === "" || phoneNumber === ""
+                                                            || firstNameErrors.length !== 0 || lastNameErrors.length !== 0 ||
+                                                            enlistingYearErrors.length !== 0 || dutyStatusErrors.length !== 0 ||
+                                                            emailErrors.length !== 0 || birthdayErrors.length !== 0 || phoneNumberErrors.length !== 0) {
+                                                            checksPassed = false;
+
+                                                            // only populate main error if there are no other errors showing
+                                                            if (firstNameErrors.length === 0 && lastNameErrors.length === 0 &&
+                                                                emailErrors.length === 0 && birthdayErrors.length === 0 && phoneNumberErrors.length === 0 &&
+                                                                enlistingYearErrors.length === 0 && dutyStatusErrors.length === 0) {
+                                                                setRegistrationMainError(true);
+                                                            }
+                                                        } else {
+                                                            setRegistrationMainError(false);
+                                                            checksPassed = true;
+                                                        }
+                                                        break;
+                                                    case 1:
+                                                        if (addressLine === "" || addressCity === "" || addressState === "" || addressZip === "" || militaryBranch === ""
+                                                            || addressLineErrors.length !== 0 || addressCityErrors.length !== 0 ||
+                                                            addressStateErrors.length !== 0 || addressZipErrors.length !== 0 || militaryBranchErrors.length !== 0) {
+                                                            checksPassed = false;
+
+                                                            // only populate main error if there are no other errors showing
+                                                            if (addressLineErrors.length === 0 && addressCityErrors.length === 0 &&
+                                                                addressStateErrors.length === 0 && addressZipErrors.length === 0 && militaryBranchErrors.length === 0) {
+                                                                setRegistrationMainError(true);
+                                                            }
+                                                        } else {
+                                                            setRegistrationMainError(false);
+                                                            checksPassed = true;
+                                                        }
+                                                        break;
+                                                    case 2:
+                                                        if (confirmPassword === "" || password === "" || passwordErrors.length !== 0
+                                                            || confirmPasswordErrors.length !== 0) {
+                                                            checksPassed = false;
+
+                                                            // only populate main error if there are no other errors showing
+                                                            if (passwordErrors.length === 0 && confirmPasswordErrors.length === 0) {
+                                                                setRegistrationMainError(true);
+                                                            }
+                                                        } else {
+                                                            // register user through Amplify
+                                                            const signUpFlag = await signUp();
+
+                                                            // check if registration was successful
+                                                            if (signUpFlag) {
+                                                                // initiate the countdown if an account has been created without any errors
+                                                                setCountdownValue(10);
+
+                                                                setRegistrationMainError(false);
+                                                                checksPassed = true;
+                                                            } else {
+                                                                checksPassed = false;
+                                                            }
+                                                        }
+                                                        break;
+                                                    case 3:
+                                                        if (verificationCodeDigit1 === "" || verificationCodeDigit2 === "" || verificationCodeDigit3 === "" ||
+                                                            verificationCodeDigit4 === "" || verificationCodeDigit5 === "" || verificationCodeDigit6 === "") {
+                                                            checksPassed = false;
+
+                                                            setRegistrationMainError(true);
+                                                        } else {
+                                                            // check on the code validity through Amplify sign-in/sign-up
+                                                            const signUpConfirmationFlag = await confirmSignUpCode();
+
+                                                            // check if the confirmation was successful
+                                                            if (signUpConfirmationFlag) {
+                                                                setRegistrationMainError(false);
+                                                                checksPassed = true;
+                                                            } else {
+                                                                checksPassed = false;
+                                                            }
+                                                        }
+                                                        break;
+                                                    case 4:
+                                                        try {
+                                                            // set the loader
+                                                            setIsReady(false);
+
+                                                            await addSupportToContacts();
+                                                            await requestForegroundLocationPermission();
+                                                            await Location.getCurrentPositionAsync();
+                                                            // await requestBackgroundLocationPermission();
+                                                            await requestNotificationsPermission();
+                                                            await requestMediaLibraryPermission();
+                                                            await requestCameraPermission();
+
+                                                            // release the loader
+                                                            setIsReady(true);
+                                                        } catch (err) {
+                                                            // make an exception for Android/Expo Go for Contacts
+                                                            // @ts-ignore
+                                                            if (Platform.OS === 'android' && err.code && err.code === 'E_MISSING_PERMISSION') {
+                                                                console.log(`Unexpected error while adding permissions, overriding: ${err}`);
+                                                                console.log(`Unexpected error while adding permissions, overriding: ${JSON.stringify(err)}`);
+
+                                                                setIsReady(true);
+                                                            } else {
+                                                                console.log(`Unexpected error while adding permissions: ${err}`);
+                                                                console.log(`Unexpected error while adding permissions: ${JSON.stringify(err)}`);
+
+                                                                setRegistrationMainError(true);
+                                                                checksPassed = false;
+
+                                                                // release the loader
+                                                                setIsReady(true);
+                                                            }
+                                                        }
+                                                        break;
+                                                    case 5:
+                                                        // when initiating the verification process
+                                                        if (militaryStatus === MilitaryVerificationStatusType.Rejected) {
+                                                            // check on the military verification eligibility status
+                                                            const [verificationFlag, verificationStatus] = await verifyEligibility(userInformation["userId"]);
+
+                                                            // check if the military status retrieval was successful
+                                                            if (verificationFlag) {
+                                                                setRegistrationMainError(false);
+
+                                                                // if the verification status is verified, then we can cache it accordingly
+                                                                if (verificationStatus === MilitaryVerificationStatusType.Verified) {
+                                                                    if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-militaryStatus`) !== null) {
+                                                                        console.log('old military status is cached, needs cleaning up');
+                                                                        await globalCache!.removeItem(`${userInformation["custom:userId"]}-militaryStatus`);
+                                                                        await globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, MilitaryVerificationStatusType.Verified);
+                                                                    } else {
+                                                                        console.log('military status is not cached');
+                                                                        globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, MilitaryVerificationStatusType.Verified);
+                                                                    }
+                                                                }
+
+                                                                /**
+                                                                 * even if this was successful, at first pass do not allow going to the next step if it is VERIFIED
+                                                                 * since we want to display the successful status screen
+                                                                 */
+                                                                checksPassed = verificationStatus === MilitaryVerificationStatusType.Pending;
+
+                                                                // if the checks passed, and implicitly if the status is VERIFIED, then set the additional documents needed flag
+                                                                if (checksPassed) {
+                                                                    setAdditionalDocumentsNeeded(true);
+                                                                }
+
+                                                                // set the obtained status appropriately
+                                                                setMilitaryStatus(verificationStatus);
+                                                            } else {
+                                                                setRegistrationMainError(true);
+                                                                checksPassed = false;
+                                                            }
+                                                        } else {
+                                                            // upon subsequent button presses, once the status was changed, enable going to the next step
+                                                            checksPassed = true;
+
+                                                            // clear any documents related errors
+                                                            setDocumentationErrors([]);
+                                                        }
+                                                        break;
+                                                    case 6:
+                                                        // for the 7th step, the driver of the step is the additional documentation needed flag in the Documentation component
+                                                        break;
+                                                    case 7:
+                                                        /**
+                                                         * for the 8th step, we need to handle that retroactively in the useEffect(), since we don't have control over the button press,
+                                                         * given that it's coming from Olive's iFrame.
+                                                         */
+                                                        break;
+                                                    case 8:
+                                                        setIsReady(false);
+                                                        /**
+                                                         * if everything was successful, then:
+                                                         * - we just cache the list of:
+                                                         *      - Fidelis partners for initial load (for 1 week only)
+                                                         *      - the list of online offers (first page only) for initial load (for 1 week only)
+                                                         *      - the list of offers near user's home address (first page only) for initial load (for 1 week only)
+                                                         * - we just cache an empty profile photo for the user for initial load
+                                                         */
+                                                        if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-fidelisPartners`) !== null) {
+                                                            console.log('old Fidelis Partners are cached, needs cleaning up');
+                                                            await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-fidelisPartners`);
+                                                            await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, await retrieveFidelisPartnerList());
+                                                        } else {
+                                                            console.log('Fidelis Partners are not cached');
+                                                            marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, await retrieveFidelisPartnerList());
+                                                        }
+                                                        if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`) !== null) {
+                                                            console.log('online offers are cached, needs cleaning up');
+                                                            await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineOffers`);
+                                                            await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, await retrieveOnlineOffersList());
+                                                        } else {
+                                                            console.log('online offers are not cached');
+                                                            marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, await retrieveOnlineOffersList());
+                                                        }
+                                                        if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-offerNearUserHome`) !== null) {
+                                                            console.log('offers near user home are cached, needs cleaning up');
+                                                            await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-offerNearUserHome`);
+                                                            await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-offerNearUserHome`,
+                                                                await retrieveOffersNearLocation(userInformation["address"]["formatted"]));
+                                                        } else {
+                                                            console.log('offers near user home are not cached');
+                                                            marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-offerNearUserHome`,
+                                                                await retrieveOffersNearLocation(userInformation["address"]["formatted"]));
+                                                        }
+                                                        if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
+                                                            console.log('old profile picture is cached, needs cleaning up');
+                                                            await globalCache!.removeItem(`${userInformation["custom:userId"]}-profilePictureURI`);
+                                                            await globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, "");
+                                                        } else {
+                                                            console.log('profile picture is not cached');
+                                                            globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, "");
+                                                        }
+                                                        setIsReady(true);
+
+                                                        /**
+                                                         * if we got to this point, then all checks passed, everything worked as expected, so we can just redirect the
+                                                         * already logged-in user to the App Drawer.
+                                                         */
+                                                        navigation.navigate("AppDrawer", {});
+                                                        break;
+                                                    default:
+                                                        break;
+                                                }
+                                                // increase the step number
+                                                if (stepNumber < 8 && checksPassed) {
+                                                    // in case the military status was verified, skip the documentation step
+                                                    if (stepNumber === 5 && militaryStatus === MilitaryVerificationStatusType.Verified) {
+                                                        let newStepValue = stepNumber + 2;
+                                                        setStepNumber(newStepValue);
+                                                    } else {
+                                                        let newStepValue = stepNumber + 1;
+                                                        setStepNumber(newStepValue);
+                                                    }
                                                 }
                                             }
                                         }
                                     >
-                                        <Text style={styles.buttonText}>Previous</Text>
+                                        <Text
+                                            style={styles.buttonText}>{
+                                            stepNumber === 4
+                                                ? `Enable`
+                                                : (militaryStatus === MilitaryVerificationStatusType.Rejected && stepNumber === 5)
+                                                    ? `Verify`
+                                                    : stepNumber === 8
+                                                        ? splashState.splashButtonText
+                                                        : `Next`}</Text>
                                     </TouchableOpacity>}
-                                {stepNumber !== 7 && <TouchableOpacity
-                                    disabled={
-                                        (!militaryVerificationDisclaimer && stepNumber === 5)
-                                        || (!accountRegistrationDisclaimer && stepNumber === 2)
-                                        || (additionalDocumentsNeeded && stepNumber === 6)
-                                    }
-                                    style={[
-                                        (
-                                            !militaryVerificationDisclaimer && stepNumber === 5
-                                            || (!accountRegistrationDisclaimer && stepNumber === 2)
-                                            || (additionalDocumentsNeeded && stepNumber === 6)
-                                        )
-                                            ? styles.buttonRightDisabled
-                                            : styles.buttonRight,
-                                        (stepNumber === 1 || stepNumber === 2) && {marginLeft: Dimensions.get('window').width / 5},
-                                        (stepNumber === 4)
-                                        && {
-                                            marginBottom: Dimensions.get('window').height / 15,
-                                            marginLeft: Dimensions.get('window').width / 25
-                                        },
-                                        (stepNumber === 5)
-                                        && {
-                                            marginBottom: Dimensions.get('window').height / 15,
-                                            marginLeft: Dimensions.get('window').width / 25
-                                        },
-                                        stepNumber === 6
-                                        && {
-                                            marginLeft: Dimensions.get('window').width / 25
-                                        },
-                                        stepNumber === 8
-                                        && {
-                                            marginBottom: Dimensions.get('window').height / 10,
-                                            marginLeft: Dimensions.get('window').width / 6
-                                        }]
-                                    }
-                                    onPress={
-                                        async () => {
-                                            // show back button on next step if the step is 0, 1 or 2
-                                            (stepNumber === 0 || stepNumber === 1) ? setIsBackButtonShown(true) : setIsBackButtonShown(false);
-
-                                            // verify if we can move to the next stage
-                                            let checksPassed = true;
-                                            switch (stepNumber) {
-                                                case 0:
-                                                    if (dutyStatus === "" || enlistingYear === "" || firstName === "" || lastName === "" || email === "" || birthday === "" || phoneNumber === ""
-                                                        || firstNameErrors.length !== 0 || lastNameErrors.length !== 0 ||
-                                                        enlistingYearErrors.length !== 0 || dutyStatusErrors.length !== 0 ||
-                                                        emailErrors.length !== 0 || birthdayErrors.length !== 0 || phoneNumberErrors.length !== 0) {
-                                                        checksPassed = false;
-
-                                                        // only populate main error if there are no other errors showing
-                                                        if (firstNameErrors.length === 0 && lastNameErrors.length === 0 &&
-                                                            emailErrors.length === 0 && birthdayErrors.length === 0 && phoneNumberErrors.length === 0 &&
-                                                            enlistingYearErrors.length === 0 && dutyStatusErrors.length === 0) {
-                                                            setRegistrationMainError(true);
-                                                        }
-                                                    } else {
-                                                        setRegistrationMainError(false);
-                                                        checksPassed = true;
-                                                    }
-                                                    break;
-                                                case 1:
-                                                    if (addressLine === "" || addressCity === "" || addressState === "" || addressZip === "" || militaryBranch === ""
-                                                        || addressLineErrors.length !== 0 || addressCityErrors.length !== 0 ||
-                                                        addressStateErrors.length !== 0 || addressZipErrors.length !== 0 || militaryBranchErrors.length !== 0) {
-                                                        checksPassed = false;
-
-                                                        // only populate main error if there are no other errors showing
-                                                        if (addressLineErrors.length === 0 && addressCityErrors.length === 0 &&
-                                                            addressStateErrors.length === 0 && addressZipErrors.length === 0 && militaryBranchErrors.length === 0) {
-                                                            setRegistrationMainError(true);
-                                                        }
-                                                    } else {
-                                                        setRegistrationMainError(false);
-                                                        checksPassed = true;
-                                                    }
-                                                    break;
-                                                case 2:
-                                                    if (confirmPassword === "" || password === "" || passwordErrors.length !== 0
-                                                        || confirmPasswordErrors.length !== 0) {
-                                                        checksPassed = false;
-
-                                                        // only populate main error if there are no other errors showing
-                                                        if (passwordErrors.length === 0 && confirmPasswordErrors.length === 0) {
-                                                            setRegistrationMainError(true);
-                                                        }
-                                                    } else {
-                                                        // register user through Amplify
-                                                        const signUpFlag = await signUp();
-
-                                                        // check if registration was successful
-                                                        if (signUpFlag) {
-                                                            // initiate the countdown if an account has been created without any errors
-                                                            setCountdownValue(10);
-
-                                                            setRegistrationMainError(false);
-                                                            checksPassed = true;
-                                                        } else {
-                                                            checksPassed = false;
-                                                        }
-                                                    }
-                                                    break;
-                                                case 3:
-                                                    if (verificationCodeDigit1 === "" || verificationCodeDigit2 === "" || verificationCodeDigit3 === "" ||
-                                                        verificationCodeDigit4 === "" || verificationCodeDigit5 === "" || verificationCodeDigit6 === "") {
-                                                        checksPassed = false;
-
-                                                        setRegistrationMainError(true);
-                                                    } else {
-                                                        // check on the code validity through Amplify sign-in/sign-up
-                                                        const signUpConfirmationFlag = await confirmSignUpCode();
-
-                                                        // check if the confirmation was successful
-                                                        if (signUpConfirmationFlag) {
-                                                            setRegistrationMainError(false);
-                                                            checksPassed = true;
-                                                        } else {
-                                                            checksPassed = false;
-                                                        }
-                                                    }
-                                                    break;
-                                                case 4:
-                                                    try {
-                                                        // set the loader
-                                                        setIsReady(false);
-
-                                                        await addSupportToContacts();
-                                                        await requestForegroundLocationPermission();
-                                                        // await requestBackgroundLocationPermission();
-                                                        await requestNotificationsPermission();
-                                                        await requestMediaLibraryPermission();
-                                                        await requestCameraPermission();
-
-                                                        // release the loader
-                                                        setIsReady(true);
-                                                    } catch (err) {
-                                                        console.log(`Unexpected error while adding permissions: ${err}`);
-                                                        console.log(`Unexpected error while adding permissions: ${JSON.stringify(err)}`);
-
-                                                        setRegistrationMainError(true);
-                                                        checksPassed = false;
-
-                                                        // release the loader
-                                                        setIsReady(true);
-                                                    }
-                                                    break;
-                                                case 5:
-                                                    // when initiating the verification process
-                                                    if (militaryStatus === MilitaryVerificationStatusType.Rejected) {
-                                                        // check on the military verification eligibility status
-                                                        const [verificationFlag, verificationStatus] = await verifyEligibility(userInformation["userId"]);
-
-                                                        // check if the military status retrieval was successful
-                                                        if (verificationFlag) {
-                                                            setRegistrationMainError(false);
-
-                                                            // if the verification status is verified, then we can cache it accordingly
-                                                            if (verificationStatus === MilitaryVerificationStatusType.Verified) {
-                                                                if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-militaryStatus`) !== null) {
-                                                                    console.log('old military status is cached, needs cleaning up');
-                                                                    await globalCache!.removeItem(`${userInformation["custom:userId"]}-militaryStatus`);
-                                                                    await globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, MilitaryVerificationStatusType.Verified);
-                                                                } else {
-                                                                    console.log('military status is not cached');
-                                                                    globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, MilitaryVerificationStatusType.Verified);
-                                                                }
-                                                            }
-
-                                                            /**
-                                                             * even if this was successful, at first pass do not allow going to the next step if it is VERIFIED
-                                                             * since we want to display the successful status screen
-                                                             */
-                                                            checksPassed = verificationStatus === MilitaryVerificationStatusType.Pending;
-
-                                                            // if the checks passed, and implicitly if the status is VERIFIED, then set the additional documents needed flag
-                                                            if (checksPassed) {
-                                                                setAdditionalDocumentsNeeded(true);
-                                                            }
-
-                                                            // set the obtained status appropriately
-                                                            setMilitaryStatus(verificationStatus);
-                                                        } else {
-                                                            setRegistrationMainError(true);
-                                                            checksPassed = false;
-                                                        }
-                                                    } else {
-                                                        // upon subsequent button presses, once the status was changed, enable going to the next step
-                                                        checksPassed = true;
-
-                                                        // clear any documents related errors
-                                                        setDocumentationErrors([]);
-                                                    }
-                                                    break;
-                                                case 6:
-                                                    // for the 7th step, the driver of the step is the additional documentation needed flag in the Documentation component
-                                                    break;
-                                                case 7:
-                                                    /**
-                                                     * for the 8th step, we need to handle that retroactively in the useEffect(), since we don't have control over the button press,
-                                                     * given that it's coming from Olive's iFrame.
-                                                     */
-                                                    break;
-                                                case 8:
-                                                    setIsReady(false);
-                                                    /**
-                                                     * if everything was successful, then:
-                                                     * - we just cache the list of:
-                                                     *      - Fidelis partners for initial load (for 1 week only)
-                                                     *      - the list of online offers (first page only) for initial load (for 1 week only)
-                                                     *      - the list of offers near user's home address (first page only) for initial load (for 1 week only)
-                                                     * - we just cache an empty profile photo for the user for initial load
-                                                     */
-                                                    if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-fidelisPartners`) !== null) {
-                                                        console.log('old Fidelis Partners are cached, needs cleaning up');
-                                                        await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-fidelisPartners`);
-                                                        await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, await retrieveFidelisPartnerList());
-                                                    } else {
-                                                        console.log('Fidelis Partners are not cached');
-                                                        marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, await retrieveFidelisPartnerList());
-                                                    }
-                                                    if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`) !== null) {
-                                                        console.log('online offers are cached, needs cleaning up');
-                                                        await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineOffers`);
-                                                        await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, await retrieveOnlineOffersList());
-                                                    } else {
-                                                        console.log('online offers are not cached');
-                                                        marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, await retrieveOnlineOffersList());
-                                                    }
-                                                    if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-offerNearUserHome`) !== null) {
-                                                        console.log('offers near user home are cached, needs cleaning up');
-                                                        await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-offerNearUserHome`);
-                                                        await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-offerNearUserHome`,
-                                                            await retrieveOffersNearLocation(userInformation["address"]["formatted"]));
-                                                    } else {
-                                                        console.log('offers near user home are not cached');
-                                                        marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-offerNearUserHome`,
-                                                            await retrieveOffersNearLocation(userInformation["address"]["formatted"]));
-                                                    }
-                                                    if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
-                                                        console.log('old profile picture is cached, needs cleaning up');
-                                                        await globalCache!.removeItem(`${userInformation["custom:userId"]}-profilePictureURI`);
-                                                        await globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, "");
-                                                    } else {
-                                                        console.log('profile picture is not cached');
-                                                        globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, "");
-                                                    }
-                                                    setIsReady(true);
-
-                                                    /**
-                                                     * if we got to this point, then all checks passed, everything worked as expected, so we can just redirect the
-                                                     * already logged-in user to the App Drawer.
-                                                     */
-                                                    navigation.navigate("AppDrawer", {});
-                                                    break;
-                                                default:
-                                                    break;
-                                            }
-                                            // increase the step number
-                                            if (stepNumber < 8 && checksPassed) {
-                                                // in case the military status was verified, skip the documentation step
-                                                if (stepNumber === 5 && militaryStatus === MilitaryVerificationStatusType.Verified) {
-                                                    let newStepValue = stepNumber + 2;
-                                                    setStepNumber(newStepValue);
-                                                } else {
-                                                    let newStepValue = stepNumber + 1;
-                                                    setStepNumber(newStepValue);
-                                                }
-                                            }
-                                        }
-                                    }
-                                >
-                                    <Text
-                                        style={styles.buttonText}>{
-                                        stepNumber === 4
-                                            ? `Enable`
-                                            : (militaryStatus === MilitaryVerificationStatusType.Rejected && stepNumber === 5)
-                                                ? `Verify`
-                                                : stepNumber === 8
-                                                    ? splashState.splashButtonText
-                                                    : `Next`}</Text>
-                                </TouchableOpacity>}
+                                </View>
                             </View>
                         </KeyboardAwareScrollView>
                     </ImageBackground>

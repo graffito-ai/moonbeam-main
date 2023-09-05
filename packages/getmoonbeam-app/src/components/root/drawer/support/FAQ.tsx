@@ -7,7 +7,7 @@ import {Dialog, List, Portal, Text} from "react-native-paper";
 import {commonStyles} from "../../../../styles/common.module";
 import {Button, Icon} from "@rneui/base";
 import {Spinner} from '../../../common/Spinner';
-import {Dimensions, View} from 'react-native';
+import {View} from 'react-native';
 import {FactType, Faq, FaqErrorType, getFAQs} from "@moonbeam/moonbeam-models";
 import {API, graphqlOperation} from "aws-amplify";
 import {styles} from "../../../../styles/faq.module";
@@ -16,6 +16,7 @@ import {dynamicSort} from '../../../../utils/Main';
 import {faqListState} from "../../../../recoil/FaqAtom";
 import {bottomBarNavigationState, drawerNavigationState} from "../../../../recoil/HomeAtom";
 import {goToProfileSettingsState} from "../../../../recoil/Settings";
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 /**
  * FAQ component.
@@ -53,7 +54,7 @@ export const FAQ = ({navigation}: FAQProps) => {
 
         // retrieve the FAQs
         if (faqList.length === 0) {
-            retrieveFAQs().then(_ => setIsReady(true));
+            !isReady && retrieveFAQs().then(_ => setIsReady(true));
         } else {
             setIsReady(true);
         }
@@ -247,7 +248,7 @@ export const FAQ = ({navigation}: FAQProps) => {
                                 <Icon color={'#F2FF5D'}
                                       type={'material-community'}
                                       name={faqIDExpanded !== filteredFAQ.id! ? "plus" : "minus"}
-                                      size={Dimensions.get('window').height / 35}/>}>
+                                      size={hp(3)}/>}>
                             {facts}
                         </List.Accordion>
                     </>);
@@ -268,7 +269,7 @@ export const FAQ = ({navigation}: FAQProps) => {
                         <Icon color={'#F2FF5D'}
                               type={'material-community'}
                               name={""}
-                              size={Dimensions.get('window').height / 35}/>}><></>
+                              size={hp(3)}/>}><></>
                 </List.Accordion>
             </>);
         }
@@ -286,7 +287,7 @@ export const FAQ = ({navigation}: FAQProps) => {
                             <Dialog style={commonStyles.dialogStyle} visible={faqErrorModalVisible}
                                     onDismiss={() => setFAQErrorModalVisible(false)}>
                                 <Dialog.Icon icon="alert" color={"#F2FF5D"}
-                                             size={Dimensions.get('window').height / 14}/>
+                                             size={hp(10)}/>
                                 <Dialog.Title style={commonStyles.dialogTitle}>{'We hit a snag!'}</Dialog.Title>
                                 <Dialog.Content>
                                     <Text
@@ -316,7 +317,7 @@ export const FAQ = ({navigation}: FAQProps) => {
                                 persistentScrollbar={false}
                                 showsVerticalScrollIndicator={false}
                                 keyboardShouldPersistTaps={'handled'}
-                                contentContainerStyle={{paddingBottom: Dimensions.get('window').height / 70}}
+                                contentContainerStyle={{paddingBottom: hp(5)}}
                             >
                                 <List.Section style={styles.faqsListView}>
                                     {

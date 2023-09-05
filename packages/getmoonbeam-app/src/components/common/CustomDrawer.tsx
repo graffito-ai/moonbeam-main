@@ -4,15 +4,13 @@ import {
     DrawerItem,
     DrawerItemList
 } from '@react-navigation/drawer';
-import {Dimensions, ImageBackground, Text, View} from 'react-native';
+import {ImageBackground, Text, View} from 'react-native';
 import {Avatar, Divider} from "@rneui/base";
 import React, {useEffect, useState} from "react";
 import {commonStyles} from "../../styles/common.module";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import {styles} from '../../styles/customDrawer.module';
 import {useRecoilState} from "recoil";
-import {deviceTypeState} from "../../recoil/RootAtom";
-import {DeviceType} from "expo-device";
 import {currentUserInformation, isLoadingAppOverviewNeededState, mainRootNavigationState} from '../../recoil/AuthAtom';
 // @ts-ignore
 import SideBarImage from '../../../assets/art/sidebar.png';
@@ -21,6 +19,7 @@ import {Spinner} from "./Spinner";
 import {Auth} from "aws-amplify";
 import {drawerNavigationState} from "../../recoil/HomeAtom";
 import {goToProfileSettingsState} from "../../recoil/Settings";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 /**
  * CustomDrawer component. This component will be used to further tailor our sidebar navigation drawer, mainly
@@ -37,12 +36,11 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
     const [, setGoToProfileSettings] = useRecoilState(goToProfileSettingsState);
-    const [drawerNavigation, ] = useRecoilState(drawerNavigationState);
+    const [drawerNavigation,] = useRecoilState(drawerNavigationState);
     const [, setIsLoadingAppOverviewNeeded] = useRecoilState(isLoadingAppOverviewNeededState);
-    const [mainRootNavigation, ] = useRecoilState(mainRootNavigationState);
+    const [mainRootNavigation,] = useRecoilState(mainRootNavigationState);
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
     const [profilePictureURI,] = useRecoilState(profilePictureURIState);
-    const [deviceType,] = useRecoilState(deviceTypeState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -64,8 +62,6 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
         userInformation["family_name"], profilePictureURI]);
 
 
-
-
     // return the component for the CustomDrawer component, part of the AppDrawer pages.
     return (
         <>
@@ -82,6 +78,9 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                             <ImageBackground
                                 resizeMethod={"scale"}
                                 imageStyle={{
+                                    left: wp(40),
+                                    height: hp(30),
+                                    width: wp(30),
                                     resizeMode: 'stretch'
                                 }}
                                 source={SideBarImage}>
@@ -98,12 +97,12 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                         borderColor: '#F2FF5D',
                                         borderWidth: 3
                                     }}
-                                    size={deviceType === DeviceType.TABLET ? 240 : Dimensions.get('window').height / 8}
+                                    size={hp(15)}
                                     rounded
                                     title={(!profilePictureURI || profilePictureURI === "") ? currentUserTitle : undefined}
                                     {...(!profilePictureURI || profilePictureURI === "") && {
                                         titleStyle: [
-                                            styles.titleStyle, deviceType === DeviceType.TABLET ? {fontSize: 80} : {fontSize: Dimensions.get('window').width / 10}
+                                            styles.titleStyle
                                         ]
                                     }}
                                     containerStyle={styles.avatarStyle}
@@ -114,7 +113,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                     }}
                                 >
                                     <Avatar.Accessory
-                                        size={deviceType == DeviceType.TABLET ? 55 : Dimensions.get('window').width / 15}
+                                        size={hp(3.5)}
                                         style={styles.avatarAccessoryStyle}
                                         color={'#F2FF5D'}
                                         onPress={async () => {
@@ -124,22 +123,8 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                         }}
                                     />
                                 </Avatar>
-                                <Text numberOfLines={3} textBreakStrategy={"simple"} style={[styles.userNameStyle,
-                                    deviceType === DeviceType.TABLET
-                                        ? {
-                                            fontSize: 45,
-                                            top: '8%',
-                                            marginBottom: '20%',
-                                            left: '10%',
-                                            width: Dimensions.get('window').width / 2.1
-                                        }
-                                        : {
-                                            fontSize: Dimensions.get('window').width / 15,
-                                            top: '8%',
-                                            marginBottom: '20%',
-                                            left: '10%',
-                                            width: Dimensions.get('window').width / 1.6
-                                        }]}>{currentUserName}</Text>
+                                <Text numberOfLines={3} textBreakStrategy={"simple"}
+                                      style={[styles.userNameStyle]}>{currentUserName}</Text>
                             </ImageBackground>
                             <Divider
                                 style={[commonStyles.divider]}/>
@@ -155,10 +140,10 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                 activeBackgroundColor={'transparent'}
                                 activeTintColor={'#F2FF5D'}
                                 icon={() => <Icon
-                                    size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 25 : Dimensions.get('window').width / 15}
+                                    size={hp(3)}
                                     name={'logout'}
                                     color={'#F2FF5D'}/>}
-                                labelStyle={[styles.drawerItemLabel, deviceType === DeviceType.TABLET ? {fontSize: Dimensions.get('window').width / 35} : {fontSize: Dimensions.get('window').width / 25}]}
+                                labelStyle={[styles.drawerItemLabel]}
                                 label={'Log Out'}
                                 onPress={async () => {
                                     try {

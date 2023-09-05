@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import WebView from 'react-native-webview';
 // @ts-ignore
 import HomeDashboardLogo from "../../../assets/login-logo.png";
-import {Dimensions, View} from "react-native";
+import {Platform, View} from "react-native";
 import {styles} from "../../styles/documentViewer.module";
 import {Dialog, IconButton, Portal, Text} from "react-native-paper";
 import {fetchFile} from '../../utils/File';
@@ -16,6 +16,7 @@ import {useRecoilState} from "recoil";
 import {appDrawerHeaderShownState, drawerSwipeState} from "../../recoil/AppDrawerAtom";
 import {AuthenticationDocumentsViewerProps} from "../../models/props/AuthenticationProps";
 import {AppDrawerDocumentsViewerProps} from "../../models/props/AppDrawerProps";
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 /**
  * DocumentsViewer component.
@@ -24,7 +25,10 @@ import {AppDrawerDocumentsViewerProps} from "../../models/props/AppDrawerProps";
  * @param navigation navigation object passed in from the parent navigator.
  * @constructor constructor for the component
  */
-export const DocumentsViewer = ({route, navigation}: DocumentsViewerProps | AuthenticationDocumentsViewerProps | AppDrawerDocumentsViewerProps) => {
+export const DocumentsViewer = ({
+                                    route,
+                                    navigation
+                                }: DocumentsViewerProps | AuthenticationDocumentsViewerProps | AppDrawerDocumentsViewerProps) => {
     // constants used to keep track of local component state
     const [isReady, setIsReady] = useState<boolean>(false);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
@@ -32,7 +36,7 @@ export const DocumentsViewer = ({route, navigation}: DocumentsViewerProps | Auth
     const [documentViewerErrorModalMessage, setDocumentViewerErrorModalMessage] = useState<string>('');
     // constants used to keep track of shared states
     const [, setDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
-    const [,setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
+    const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
 
     // state driven key-value pairs for any specific data values
     const [documentShareURI, setDocumentShareURI] = useState<string>('');
@@ -77,7 +81,7 @@ export const DocumentsViewer = ({route, navigation}: DocumentsViewerProps | Auth
                             <Dialog style={commonStyles.dialogStyle} visible={documentViewerErrorModalVisible}
                                     onDismiss={() => setDocumentViewerErrorModalVisible(false)}>
                                 <Dialog.Icon icon="alert" color={"#F2FF5D"}
-                                             size={Dimensions.get('window').height / 14}/>
+                                             size={hp(10)}/>
                                 <Dialog.Title style={commonStyles.dialogTitle}>{'We hit a snag!'}</Dialog.Title>
                                 <Dialog.Content>
                                     <Text
@@ -103,13 +107,13 @@ export const DocumentsViewer = ({route, navigation}: DocumentsViewerProps | Auth
                         </Portal>
                         {documentShareURI !== '' &&
                             <>
-                                <View style={styles.topBar}>
+                                <SafeAreaView style={styles.topBar}>
                                     <View style={styles.containerView}>
                                         <IconButton
                                             rippleColor={'transparent'}
                                             icon="chevron-left"
                                             iconColor={"#F2FF5D"}
-                                            size={Dimensions.get('window').height / 25}
+                                            size={hp(4)}
                                             style={styles.backButton}
                                             onPress={async () => {
                                                 // go back to the screen which initiated the document load
@@ -132,7 +136,7 @@ export const DocumentsViewer = ({route, navigation}: DocumentsViewerProps | Auth
                                             rippleColor={'transparent'}
                                             icon="paperclip"
                                             iconColor={"#F2FF5D"}
-                                            size={Dimensions.get('window').height / 30}
+                                            size={hp(3)}
                                             style={styles.shareButton}
                                             onPress={async () => {
                                                 // share the document
@@ -140,13 +144,24 @@ export const DocumentsViewer = ({route, navigation}: DocumentsViewerProps | Auth
                                             }}
                                         />
                                     </View>
-                                </View>
+                                </SafeAreaView>
                                 <WebView
+                                    allowContentAccess={true}
+                                    allowFileAccessFromFileURLs={true}
+                                    allowFileAccess={true}
+                                    allowUniversalAccessFromFileURLs={true}
                                     style={{backgroundColor: '#313030'}}
                                     scalesPageToFit={true}
                                     automaticallyAdjustContentInsets={true}
                                     startInLoadingState={true}
-                                    source={{uri: `${documentShareURI!}`}}
+                                    source={
+                                        // Android sucks... we all know it
+                                        Platform.OS === "android"
+                                            ? (documentShareURI.includes('terms')
+                                                ? {uri: 'https://www.moonbeam.vet/terms-and-conditions'}
+                                                : {uri: 'https://www.moonbeam.vet/privacy-policy'})
+                                            : {uri: `${documentShareURI!}`}
+                                    }
                                     originWhitelist={['*']}
                                     bounce={false}
                                     scrollEnabled={true}

@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import {Dimensions, Image, Platform, SafeAreaView, TouchableOpacity, View} from "react-native";
+import {Image, Platform, SafeAreaView, TouchableOpacity, View} from "react-native";
 import {Dialog, Portal, Text, TextInput} from "react-native-paper";
 import {commonStyles} from '../../../../../styles/common.module';
 import {styles} from '../../../../../styles/codeVerification.module';
@@ -10,7 +10,6 @@ import EmailVerificationPicture from "../../../../../../assets/art/moonbeam-emai
 import {FieldValidator} from "../../../../../utils/FieldValidator";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 import * as Device from "expo-device";
-import {DeviceType} from "expo-device";
 import {useRecoilState} from "recoil";
 import {deviceTypeState} from "../../../../../recoil/RootAtom";
 import {codeVerificationSheetShown, codeVerifiedState} from "../../../../../recoil/CodeVerificationAtom";
@@ -18,6 +17,7 @@ import {Auth} from "aws-amplify";
 import {currentUserInformation} from "../../../../../recoil/AuthAtom";
 import {CognitoUser} from "amazon-cognito-identity-js";
 import {Button} from "@rneui/base";
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 /**
  * CodVerificationBottomSheet component.
@@ -275,7 +275,7 @@ export const CodeVerificationBottomSheet = (props: {
                         <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
                                 onDismiss={() => setModalVisible(false)}>
                             <Dialog.Icon icon="alert" color={"#F2FF5D"}
-                                         size={Dimensions.get('window').height / 14}/>
+                                         size={hp(10)}/>
                             <Dialog.Title style={commonStyles.dialogTitle}>{'We hit a snag!'}</Dialog.Title>
                             <Dialog.Content>
                                 <Text
@@ -329,12 +329,12 @@ export const CodeVerificationBottomSheet = (props: {
                                             {codeVerificationErrors
                                                 ?
                                                 <Text
-                                                    style={deviceType === DeviceType.TABLET ? styles.errorMessageTablet : styles.errorMessage}>Please
+                                                    style={styles.errorMessage}>Please
                                                     fill out the information
                                                     below!</Text>
                                                 : (verificationCodeErrors.length !== 0 && !codeVerificationErrors)
                                                     ? <Text
-                                                        style={deviceType === DeviceType.TABLET ? styles.errorMessageTablet : styles.errorMessage}>{verificationCodeErrors[0]}</Text>
+                                                        style={styles.errorMessage}>{verificationCodeErrors[0]}</Text>
                                                     : <></>
                                             }
                                             <View style={styles.codeInputColumnView}>
@@ -579,7 +579,7 @@ export const CodeVerificationBottomSheet = (props: {
                                                 />
                                             </View>
                                             <View style={styles.resendCodeView}>
-                                                {countdownValue > 0
+                                                {countdownValue > 0 && Platform.OS !== 'android' // this flickers on Android so we will enable it by default
                                                     ? <Text style={styles.countdownTimer}>{``}</Text>
                                                     :
                                                     <TouchableOpacity

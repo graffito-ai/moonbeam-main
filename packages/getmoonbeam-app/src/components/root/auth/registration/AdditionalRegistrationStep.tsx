@@ -1,4 +1,4 @@
-import {Dimensions, Text, View} from "react-native";
+import {Platform, Text, View} from "react-native";
 import React, {useEffect, useState} from "react";
 import DropDownPicker from "react-native-dropdown-picker";
 import {styles} from "../../../../styles/registration.module";
@@ -21,6 +21,7 @@ import {
 import {militaryBranchItems} from "../../../../models/Constants";
 import {TextInput} from "react-native-paper";
 import {FieldValidator} from "../../../../utils/FieldValidator";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 /**
  * AdditionalRegistrationStep component.
@@ -141,7 +142,9 @@ export const AdditionalRegistrationStep = () => {
                     placeholder={'Required (1 West Example Street)'}
                     label="Street Address"
                     textColor={"#FFFFFF"}
-                    left={<TextInput.Icon icon="home-map-marker" iconColor="#FFFFFF"/>}
+                    left={
+                        <TextInput.Icon icon="home-map-marker" size={hp(2.8)} style={{marginTop: hp(2)}} iconColor="#FFFFFF"/>
+                    }
                 />
                 <TextInput
                     autoCapitalize={"sentences"}
@@ -177,7 +180,9 @@ export const AdditionalRegistrationStep = () => {
                     placeholder={'Required'}
                     label="City"
                     textColor={"#FFFFFF"}
-                    left={<TextInput.Icon icon="home-city" iconColor="#FFFFFF"/>}
+                    left={
+                        <TextInput.Icon icon="home-city" size={hp(2.8)} style={{marginTop: hp(2)}} iconColor="#FFFFFF"/>
+                    }
                 />
                 <View style={styles.inputColumnViewAddress}>
                     <TextInput
@@ -215,7 +220,9 @@ export const AdditionalRegistrationStep = () => {
                         placeholder={'Required'}
                         label="State"
                         textColor={"#FFFFFF"}
-                        left={<TextInput.Icon icon="flag" iconColor="#FFFFFF"/>}
+                        left={
+                            <TextInput.Icon icon="flag" size={hp(2.8)} style={{marginTop: hp(2)}} iconColor="#FFFFFF"/>
+                        }
                     />
                     <TextInput
                         autoCorrect={false}
@@ -239,7 +246,7 @@ export const AdditionalRegistrationStep = () => {
                         }}
                         value={addressZip}
                         contentStyle={styles.textInputNarrowContentStyle}
-                        style={[addressZipFocus ? styles.textInputNarrowFocus : styles.textInputNarrow, {marginLeft: Dimensions.get('window').width / 15}]}
+                        style={[addressZipFocus ? styles.textInputNarrowFocus : styles.textInputNarrow, {marginLeft: wp(7)}]}
                         onFocus={() => {
                             setIsAddressZipFocus(true);
                             setIsBackButtonShown(false);
@@ -250,16 +257,19 @@ export const AdditionalRegistrationStep = () => {
                         placeholder={'Required'}
                         label="Zip Code"
                         textColor={"#FFFFFF"}
-                        left={<TextInput.Icon icon="dialpad" iconColor="#FFFFFF"/>}
+                        left={
+                            <TextInput.Icon icon="dialpad" size={hp(2.8)} style={{marginTop: hp(2)}} iconColor="#FFFFFF"/>
+                        }
                     />
                 </View>
                 <View style={styles.pickerView}>
                     <DropDownPicker
                         zIndex={5000}
                         placeholder={"Military Branch"}
-                        dropDownContainerStyle={styles.dropdownContainer}
+                        containerStyle={dropdownBranchState && Platform.OS === 'android' && {height: hp(25)}}
+                        dropDownContainerStyle={[styles.dropdownContainer, Platform.OS === 'android' ? {height: hp(20)} : {height: hp(15)}]}
                         style={styles.dropdownPicker}
-                        textStyle={[styles.textInputContentStyle, {color: '#D9D9D9'}]}
+                        textStyle={[styles.dropdownTextInputContentStyle, {color: '#D9D9D9'}]}
                         dropDownDirection={"BOTTOM"}
                         open={dropdownBranchState}
                         onOpen={() => {
@@ -283,7 +293,7 @@ export const AdditionalRegistrationStep = () => {
                         }}
                         theme="DARK"
                         multiple={false}
-                        mode="SIMPLE"
+                        listMode="SCROLLVIEW"
                     />
                 </View>
             </View>

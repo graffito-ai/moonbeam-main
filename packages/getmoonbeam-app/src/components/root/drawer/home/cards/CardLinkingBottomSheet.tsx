@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Dimensions, Linking, SafeAreaView, StyleSheet} from "react-native";
+import {Linking, SafeAreaView, StyleSheet} from "react-native";
 import WebView from "react-native-webview";
 import {useRecoilState} from "recoil";
 import {currentUserInformation, globalAmplifyCacheState} from "../../../../../recoil/AuthAtom";
@@ -11,11 +11,9 @@ import {API, graphqlOperation} from "aws-amplify";
 import {addCard, CardLink, CardLinkErrorType, CardType, createCardLink, Stages} from "@moonbeam/moonbeam-models";
 import {cardLinkingStatusState, customBannerShown} from "../../../../../recoil/AppDrawerAtom";
 import {cardLinkingBottomSheetState} from "../../../../../recoil/WalletAtom";
-import {deviceTypeState} from "../../../../../recoil/RootAtom";
-import * as Device from "expo-device";
-import {DeviceType} from "expo-device";
 import {Button} from "@rneui/base";
-import * as envInfo from "../../../../../../amplify/.config/local-env-info.json";
+import * as envInfo from "../../../../../../local-env-info.json";
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 /**
  * CardLinkingBottomSheet component.
@@ -34,7 +32,6 @@ export const CardLinkingBottomSheet = () => {
     const [, setBannerShown] = useRecoilState(customBannerShown);
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
     const [, setCardLinkingBottomSheetState] = useRecoilState(cardLinkingBottomSheetState);
-    const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -44,11 +41,7 @@ export const CardLinkingBottomSheet = () => {
      * included in here.
      */
     useEffect(() => {
-        // check and set the type of device, to be used throughout the app
-        Device.getDeviceTypeAsync().then(deviceType => {
-            setDeviceType(deviceType);
-        });
-    }, [deviceType]);
+    }, []);
 
     /**
      * Function used to keep track of the card linking action executed inside
@@ -401,7 +394,7 @@ export const CardLinkingBottomSheet = () => {
                         <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
                                 onDismiss={() => setModalVisible(false)}>
                             <Dialog.Icon icon="alert" color={"#F2FF5D"}
-                                         size={Dimensions.get('window').height / 14}/>
+                                         size={hp(10)}/>
                             <Dialog.Title style={commonStyles.dialogTitle}>We hit a snag!</Dialog.Title>
                             <Dialog.Content>
                                 <Text
@@ -425,7 +418,7 @@ export const CardLinkingBottomSheet = () => {
                             scrollEnabled={false}
                             originWhitelist={['*']}
                             source={{html: oliveIframeContent}}
-                            style={[styles.cardLinkingIframeView, deviceType === DeviceType.TABLET && {bottom: Dimensions.get('window').height / 20}]}
+                            style={[styles.cardLinkingIframeView]}
                             scalesPageToFit={true}
                             setSupportMultipleWindows={false}
                             nestedScrollEnabled={true}

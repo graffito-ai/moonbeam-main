@@ -1,4 +1,4 @@
-import * as envInfo from "./amplify/.config/local-env-info.json";
+import * as envInfo from "./local-env-info.json";
 import {Constants, Stages} from "@moonbeam/moonbeam-models";
 import {Amplify} from "aws-amplify";
 

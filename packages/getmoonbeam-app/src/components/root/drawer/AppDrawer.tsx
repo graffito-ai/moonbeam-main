@@ -4,7 +4,7 @@ import {NavigationContainer} from "@react-navigation/native";
 import {AppDrawerProps} from "../../../models/props/AuthenticationProps";
 import {AppDrawerStackParamList} from "../../../models/props/AppDrawerProps";
 import {CustomDrawer} from "../../common/CustomDrawer";
-import {Animated, Dimensions, Text} from "react-native";
+import {Animated, Platform, Text} from "react-native";
 import {useRecoilState} from "recoil";
 import {
     appDrawerHeaderShownState,
@@ -17,7 +17,6 @@ import {
 import {Home} from "./home/Home";
 import {Ionicons} from "@expo/vector-icons";
 import * as Device from "expo-device";
-import {DeviceType} from "expo-device";
 import {deviceTypeState} from "../../../recoil/RootAtom";
 import {
     CardLink,
@@ -54,6 +53,7 @@ import {Documents} from './documents/Documents';
 import {DocumentsViewer} from "../../common/DocumentsViewer";
 import {Support} from "./support/Support";
 import {createPhysicalDevice, proceedWithDeviceCreation} from "../../../utils/AppSync";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import Image = Animated.Image;
 
 /**
@@ -728,7 +728,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                 <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
                                         onDismiss={() => setModalVisible(false)}>
                                     <Dialog.Icon icon="alert" color={"#F2FF5D"}
-                                                 size={Dimensions.get('window').height / 14}/>
+                                                 size={hp(10)}/>
                                     <Dialog.Title style={commonStyles.dialogTitle}>We hit a snag!</Dialog.Title>
                                     <Dialog.Content>
                                         <Text
@@ -749,34 +749,26 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                     initialRouteName={!userVerified ? "AppWall" : "Home"}
                                     screenOptions={({navigation}) => ({
                                         headerLeft: () => <IconButton icon={'menu'} iconColor={'#FFFFFF'}
-                                                                      size={deviceType === DeviceType.TABLET ? Dimensions.get('window').height / 38 : Dimensions.get('window').height / 28}
+                                                                      size={hp(4)}
                                                                       onPress={() => {
                                                                           setShowTransactionsBottomSheet(false);
                                                                           setShowWalletBottomSheet(false);
                                                                           navigation.openDrawer();
                                                                       }}/>,
-                                        // ...(drawerInDashboard && {
-                                        //     headerRight: () => <IconButton icon={'bell'} iconColor={'#FFFFFF'}
-                                        //                                    size={deviceType === DeviceType.TABLET ? Dimensions.get('window').height / 38 : Dimensions.get('window').height / 28}
-                                        //                                    onPress={() => {
-                                        //                                        // ToDo: need to go to the notifications screen
-                                        //                                    }}/>,
-                                        // }),
                                         headerTitle: () =>
-                                            <Image resizeMode={"contain"}
-                                                   style={[{alignSelf: 'center'},
-                                                       deviceType === DeviceType.TABLET
-                                                           ? {
-                                                               width: Dimensions.get('window').width / 22,
-                                                               height: Dimensions.get('window').height / 22
-                                                           }
-                                                           : {
-                                                               width: Dimensions.get('window').width / 12,
-                                                               height: Dimensions.get('window').height / 12
-                                                           }]}
-                                                   source={MoonbeamNavigationLogo}
-                                            />,
+                                                <Image resizeMode={"contain"}
+                                                       style={{
+                                                           height: hp(10),
+                                                           width: wp(10),
+                                                           alignSelf: 'center',
+                                                           ...(Platform.OS === 'android' && {
+                                                               alignSelf: 'center'
+                                                           })
+                                                       }}
+                                                       source={MoonbeamNavigationLogo}
+                                                />,
                                         headerStyle: drawerInDashboard ? {
+                                            width: wp(100),
                                             backgroundColor: '#5B5A5A',
                                             shadowColor: 'transparent', // this covers iOS
                                             elevation: 0, // this covers Android
@@ -785,14 +777,15 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                         },
                                         drawerLabelStyle: {
                                             fontFamily: 'Raleway-Medium',
-                                            fontSize: deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 35 : Dimensions.get('window').width / 25
+                                            fontSize: hp(2)
                                         },
+                                        headerTitleAlign: 'center',
                                         drawerActiveBackgroundColor: 'transparent',
                                         drawerActiveTintColor: '#F2FF5D',
                                         drawerInactiveTintColor: 'white',
                                         swipeEnabled: false,
                                         drawerStyle: {
-                                            width: deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 2 : Dimensions.get('window').width / 1.5,
+                                            width: wp(70),
                                             backgroundColor: '#5B5A5A'
                                         },
                                     })}
@@ -802,10 +795,13 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                         component={Home}
                                         options={{
                                             swipeEnabled: drawerSwipeEnabled,
-                                            drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20 : 0},
+                                            drawerItemStyle: {
+                                                right: wp(2),
+                                                marginBottom: 0
+                                            },
                                             drawerIcon: () => (
                                                 <Icon
-                                                    size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 25 : Dimensions.get('window').width / 15}
+                                                    size={hp(3)}
                                                     name={'home-variant-outline'} color={'#F2FF5D'}/>
                                             ),
                                             headerShown: drawerHeaderShown
@@ -818,10 +814,13 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                         initialParams={{}}
                                         options={{
                                             swipeEnabled: drawerSwipeEnabled,
-                                            drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20 : 0},
+                                            drawerItemStyle: {
+                                                right: wp(2),
+                                                marginBottom: 0
+                                            },
                                             drawerIcon: () => (
                                                 <Icon
-                                                    size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 25 : Dimensions.get('window').width / 15}
+                                                    size={hp(3)}
                                                     name={'file-document-multiple-outline'} color={'#F2FF5D'}/>
                                             ),
                                             headerShown: drawerHeaderShown
@@ -832,10 +831,13 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                         component={Settings}
                                         options={{
                                             swipeEnabled: drawerSwipeEnabled,
-                                            drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20 : 0},
+                                            drawerItemStyle: {
+                                                right: wp(2),
+                                                marginBottom: 0
+                                            },
                                             drawerIcon: () => (
                                                 <Ionicons
-                                                    size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 25 : Dimensions.get('window').width / 15}
+                                                    size={hp(3)}
                                                     name={'settings-outline'} color={'#F2FF5D'}/>
                                             ),
                                             headerShown: drawerHeaderShown
@@ -848,10 +850,13 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                         initialParams={{}}
                                         options={{
                                             swipeEnabled: true,
-                                            drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20 : 0},
+                                            drawerItemStyle: {
+                                                right: wp(2),
+                                                marginBottom: 0
+                                            },
                                             drawerIcon: () => (
                                                 <Icon
-                                                    size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 25 : Dimensions.get('window').width / 15}
+                                                    size={hp(3)}
                                                     name={'help-circle-outline'} color={'#F2FF5D'}/>
                                             ),
                                             headerShown: drawerHeaderShown
@@ -865,10 +870,13 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                             initialParams={{}}
                                             options={{
                                                 swipeEnabled: false,
-                                                drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20 : 0},
+                                                drawerItemStyle: {
+                                                    right: wp(2),
+                                                    marginBottom: 0
+                                                },
                                                 drawerIcon: () => (
                                                     <Icon
-                                                        size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 25 : Dimensions.get('window').width / 15}
+                                                        size={hp(3)}
                                                         name={'wall'} color={'#F2FF5D'}/>
                                                 ),
                                                 header: () => {
@@ -887,10 +895,13 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                             options={{
                                                 unmountOnBlur: true,
                                                 swipeEnabled: false,
-                                                drawerItemStyle: {marginBottom: deviceType === DeviceType.TABLET ? 20 : 0},
+                                                drawerItemStyle: {
+                                                    right: wp(2),
+                                                    marginBottom: 0
+                                                },
                                                 drawerIcon: () => (
                                                     <Icon
-                                                        size={deviceType === DeviceType.TABLET ? Dimensions.get('window').width / 25 : Dimensions.get('window').width / 15}
+                                                        size={hp(3)}
                                                         name={'file'} color={'#F2FF5D'}/>
                                                 ),
                                                 header: () => {

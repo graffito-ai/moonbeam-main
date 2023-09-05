@@ -1,11 +1,10 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Dimensions, Image, ImageBackground, SafeAreaView, ScrollView, View} from "react-native";
+import {Image, ImageBackground, SafeAreaView, ScrollView, View} from "react-native";
 import {Dialog, List, Portal, SegmentedButtons, Text} from "react-native-paper";
 import {styles} from "../../../../../styles/dashboard.module";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {currentUserInformation} from "../../../../../recoil/AuthAtom";
 import * as Device from "expo-device";
-import {DeviceType} from "expo-device";
 import {deviceTypeState} from "../../../../../recoil/RootAtom";
 import {Spinner} from "../../../../common/Spinner";
 // @ts-ignore
@@ -24,6 +23,7 @@ import {
     showTransactionBottomSheetState,
     sortedTransactionDataState
 } from "../../../../../recoil/DashboardAtom";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -33,7 +33,7 @@ import {
  */
 export const Dashboard = ({}) => {
     // constants used to keep track of local component state
-    const [isReady,] = useState<boolean>(true);
+    const [isReady, ] = useState<boolean>(true);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [statsDialogVisible, setStatsDialogVisible] = useState(false);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
@@ -143,10 +143,8 @@ export const Dashboard = ({}) => {
                     <List.Item
                         titleStyle={styles.emptyTransactionsListItemTitle}
                         descriptionStyle={styles.listItemDescription}
-                        titleNumberOfLines={2}
-                        descriptionNumberOfLines={2}
+                        titleNumberOfLines={1}
                         title={"No transactions available"}
-                        description=''
                     />
                 </>
             );
@@ -227,7 +225,7 @@ export const Dashboard = ({}) => {
                             <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
                                     onDismiss={() => setModalVisible(false)}>
                                 <Dialog.Icon icon="alert" color={"#F2FF5D"}
-                                             size={Dimensions.get('window').height / 14}/>
+                                             size={hp(10)}/>
                                 <Dialog.Title style={commonStyles.dialogTitle}>We hit a snag!</Dialog.Title>
                                 <Dialog.Content>
                                     <Text
@@ -239,7 +237,7 @@ export const Dashboard = ({}) => {
                             <Dialog style={commonStyles.dialogStyle} visible={statsDialogVisible} onDismiss={() => {
                                 setStatsDialogVisible(false)
                             }}>
-                                <Dialog.Icon icon="cash" color={"#F2FF5D"} size={Dimensions.get('window').height / 14}/>
+                                <Dialog.Icon icon="cash" color={"#F2FF5D"} size={hp(10)}/>
                                 <Dialog.Title style={commonStyles.dialogTitle}>Cashback Balances</Dialog.Title>
                                 <Dialog.Content>
                                     <Text style={commonStyles.dialogParagraph}>
@@ -254,7 +252,7 @@ export const Dashboard = ({}) => {
                                                     style={commonStyles.dialogParagraphBold}>Current
                                                     Balance</Text>.{"\n\n\n"}
                                                     <Text
-                                                        style={commonStyles.dialogParagraphNumbered}>➊</Text>  The <Text
+                                                        style={commonStyles.dialogParagraphNumbered}>➊</Text> The <Text
                                                     style={commonStyles.dialogParagraphBold}>Lifetime
                                                     Savings</Text> amount includes your <Text
                                                     style={commonStyles.dialogParagraphBold}>all-time cashback.</Text>
@@ -268,18 +266,23 @@ export const Dashboard = ({}) => {
                                                     style={commonStyles.dialogParagraphBold}>Current
                                                     Balance</Text>.{"\n\n\n"}
                                                     <Text
-                                                        style={commonStyles.dialogParagraphNumbered}>➊</Text>  The <Text
+                                                        style={commonStyles.dialogParagraphNumbered}>➊</Text> The <Text
                                                     style={commonStyles.dialogParagraphBold}>Current
                                                     Balance</Text> amount includes any <Text
-                                                    style={commonStyles.dialogParagraphBold}>processed</Text> cashback which can be
+                                                    style={commonStyles.dialogParagraphBold}>processed</Text> cashback
+                                                    which can be
                                                     redeemed through the Moonbeam platform.{"\n\n"}
-                                                    <Text style={commonStyles.dialogParagraphNumbered}>➋</Text>  It can take upto 30 days
+                                                    <Text style={commonStyles.dialogParagraphNumbered}>➋</Text> It can
+                                                    take upto 30 days
                                                     for your cashback to reflect in your <Text
                                                     style={commonStyles.dialogParagraphBold}>Current
                                                     Balance</Text> amount.{"\n\n"}
-                                                    <Text style={commonStyles.dialogParagraphNumbered}>➌</Text>  You will be able to transfer your
-                                                    <Text style={commonStyles.dialogParagraphBold}> Current Balance</Text> amount once it reaches $20.{"\n\n"}
-                                                    <Text style={commonStyles.dialogParagraphNumbered}>➍</Text>  If you have any issues please contact support.{"\n\n"}
+                                                    <Text style={commonStyles.dialogParagraphNumbered}>➌</Text> You will
+                                                    be able to transfer your
+                                                    <Text style={commonStyles.dialogParagraphBold}> Current
+                                                        Balance</Text> amount once it reaches $20.{"\n\n"}
+                                                    <Text style={commonStyles.dialogParagraphNumbered}>➍</Text> If you
+                                                    have any issues please contact support.{"\n\n"}
 
                                                 </>
                                         }
@@ -299,17 +302,19 @@ export const Dashboard = ({}) => {
                         <SafeAreaView style={styles.mainDashboardView}>
                             <View style={styles.topDashboardView}>
                                 <ImageBackground
-                                    style={deviceType === DeviceType.TABLET ? styles.imageCoverTablet : styles.imageCover}
+                                    style={styles.imageCover}
                                     imageStyle={{
+                                        height: hp(40),
+                                        width: wp(30),
                                         resizeMode: 'stretch'
                                     }}
                                     resizeMethod={"scale"}
                                     source={DashboardBackgroundImage}>
                                     <View style={styles.tppGreetingView}>
                                         <Text
-                                            style={deviceType === DeviceType.TABLET ? styles.greetingTextTablet : styles.greetingText}>Hello,</Text>
+                                            style={styles.greetingText}>Hello,</Text>
                                         <Text
-                                            style={deviceType === DeviceType.TABLET ? styles.greetingNameTextTablet : styles.greetingNameText}>{currentUserName}</Text>
+                                            style={styles.greetingNameText}>{currentUserName}</Text>
                                     </View>
                                     <Avatar
                                         {...profilePictureURI && profilePictureURI !== "" && {
@@ -323,26 +328,28 @@ export const Dashboard = ({}) => {
                                             borderColor: '#F2FF5D',
                                             borderWidth: 3
                                         }}
-                                        size={deviceType === DeviceType.TABLET ? 200 : Dimensions.get('window').height / 8}
+                                        size={hp(15)}
                                         rounded
                                         title={(!profilePictureURI || profilePictureURI === "") ? currentUserTitle : undefined}
                                         {...(!profilePictureURI || profilePictureURI === "") && {
                                             titleStyle: [
-                                                styles.titleStyle, deviceType === DeviceType.TABLET ? {fontSize: 80} : {fontSize: Dimensions.get('window').width / 10}
+                                                styles.titleStyle
                                             ]
                                         }}
-                                        containerStyle={deviceType === DeviceType.TABLET ? styles.avatarStyleTablet : styles.avatarStyle}
+                                        containerStyle={styles.avatarStyle}
                                         onPress={async () => {
                                         }}
                                     />
                                     <View style={styles.statisticsView}>
                                         <View style={styles.statLeftView}>
                                             <View style={styles.statInfoViewLeft}>
-                                                <Text style={styles.statNumberCenterLeft}>$ {lifetimeSavings.toFixed(2)}</Text>
+                                                <Text
+                                                    style={styles.statNumberCenterLeft}>$ {lifetimeSavings.toFixed(2)}</Text>
                                                 <Text style={styles.statTitleLeft}>
                                                     Lifetime <Text style={styles.statTitleRegular}>Savings</Text>
                                                 </Text>
                                                 <Icon name={'info'}
+                                                      size={hp(3)}
                                                       color={'#F2FF5D'}
                                                       onPress={() => {
                                                           setIsLifetimeSavingsDialog(true);
@@ -353,11 +360,13 @@ export const Dashboard = ({}) => {
                                         <View style={styles.verticalLine}/>
                                         <View style={styles.statRightView}>
                                             <View style={styles.statInfoViewRight}>
-                                                <Text style={styles.statNumberCenterRight}>$ {currentBalance.toFixed(2)}</Text>
+                                                <Text
+                                                    style={styles.statNumberCenterRight}>$ {currentBalance.toFixed(2)}</Text>
                                                 <Text style={styles.statTitleRight}>
                                                     Current <Text style={styles.statTitleRegular}>Balance</Text>
                                                 </Text>
                                                 <Icon name={'info'}
+                                                      size={hp(3)}
                                                       color={'#F2FF5D'}
                                                       onPress={() => {
                                                           setIsLifetimeSavingsDialog(false);
@@ -409,7 +418,7 @@ export const Dashboard = ({}) => {
                                         ]}
                                     />
                                     <View style={{
-                                        height: Dimensions.get('window').height / 100,
+                                        height: hp(0.5),
                                         backgroundColor: '#313030'
                                     }}/>
                                     <ScrollView
@@ -435,10 +444,8 @@ export const Dashboard = ({}) => {
                                                 <List.Item
                                                     titleStyle={styles.emptyPayoutListItemTitle}
                                                     descriptionStyle={styles.listItemDescription}
-                                                    titleNumberOfLines={2}
-                                                    descriptionNumberOfLines={2}
+                                                    titleNumberOfLines={1}
                                                     title={"No payouts available"}
-                                                    description=''
                                                 />
                                             </List.Section>}
                                     </ScrollView>
@@ -450,7 +457,7 @@ export const Dashboard = ({}) => {
                                 backgroundStyle={[styles.bottomSheet, selectedTransaction && selectedTransaction.transactionIsOnline && {backgroundColor: '#5B5A5A'}]}
                                 enablePanDownToClose={true}
                                 index={showTransactionsBottomSheet ? 0 : -1}
-                                snapPoints={selectedTransaction && !selectedTransaction.transactionIsOnline ? ['60%', '60%'] : ['27%', '27%']}
+                                snapPoints={selectedTransaction && !selectedTransaction.transactionIsOnline ? [hp(55), hp(55)] : [hp(22), hp(22)]}
                                 onChange={(index) => {
                                     setShowTransactionsBottomSheet(index !== -1);
                                 }}

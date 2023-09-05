@@ -6,7 +6,6 @@ import {createMaterialBottomTabNavigator} from "@react-navigation/material-botto
 import {HomeStackParamList} from "../../../../models/props/HomeProps";
 import {useRecoilState} from "recoil";
 import {bottomTabShownState, drawerNavigationState} from "../../../../recoil/HomeAtom";
-import {Dimensions} from 'react-native';
 import {currentUserInformation} from "../../../../recoil/AuthAtom";
 import {MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
 import {Wallet} from "./cards/Wallet";
@@ -14,6 +13,7 @@ import {DashboardController} from "./dashboard/DashboardController";
 import {Marketplace} from "./marketplace/Marketplace";
 import {drawerDashboardState} from "../../../../recoil/AppDrawerAtom";
 import {Spinner} from "../../../common/Spinner";
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 /**
  * Home component. This is where the bottom bar components will reside, as well
@@ -68,7 +68,8 @@ export const Home = ({navigation}: HomeProps) => {
                     labeled={true}
                     activeColor={'white'}
                     barStyle={{
-                        borderTopWidth: Dimensions.get('window').width / 1000,
+                        borderTopWidth: hp(0.05),
+                        ...(bottomTabShown && {height: hp(11)}),
                         borderTopColor: '#FFFFFF',
                         backgroundColor: '#313030',
                         ...(!bottomTabShown && {display: 'none'}),
@@ -83,17 +84,17 @@ export const Home = ({navigation}: HomeProps) => {
                                 iconName = focused ? 'home-variant' : 'home-variant-outline';
                                 iconColor = !focused ? 'white' : '#F2FF5D';
 
-                                return <Icon name={iconName} size={30} color={iconColor}/>;
+                                return <Icon name={iconName} size={25} color={iconColor}/>;
                             } else if (route.name === 'Marketplace') {
                                 iconName = focused ? 'store-marker' : 'store-marker-outline';
                                 iconColor = !focused ? 'white' : '#F2FF5D';
 
-                                return <Icon name={iconName} size={30} color={iconColor}/>;
+                                return <Icon name={iconName} size={25} color={iconColor}/>;
                             } else if (route.name === 'Cards') {
                                 iconName = focused ? 'credit-card-multiple' : 'credit-card-multiple-outline';
                                 iconColor = !focused ? 'white' : '#F2FF5D';
 
-                                return <Icon name={iconName} size={30} color={iconColor}/>;
+                                return <Icon name={iconName} size={25} color={iconColor}/>;
                             }
 
                             return <></>;

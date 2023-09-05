@@ -1,126 +1,123 @@
-import {Dimensions, StyleSheet} from "react-native";
+import {StyleSheet} from "react-native";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 // styles to be used within the SignIn component
 export const styles = StyleSheet.create({
     topContainer: {
         flex: 0.3,
         backgroundColor: 'transparent',
-        width: '100%'
+        width: wp(100)
     },
     topContainerImage: {
         alignSelf: 'flex-start',
-        marginLeft: Dimensions.get('window').width/20,
-        bottom: Dimensions.get('window').height/6.5,
-        height: Dimensions.get('window').height * 0.50,
-        width: Dimensions.get('window').width * 0.75
+        marginLeft: wp(6),
+        bottom: hp(16),
+        height: hp(50),
+        width: wp(75)
     },
     bottomContainer: {
         backgroundColor: '#313030',
         flex: 0.7,
-        width: '100%',
-        height: '100%',
+        width: wp(100),
+        height: hp(100),
         flexDirection: 'column'
     },
     greetingTitle: {
         fontFamily: 'Saira-Medium',
         alignSelf: 'flex-start',
-        marginLeft: Dimensions.get('window').width/20,
-        marginTop: Dimensions.get('window').height/20,
-        fontSize: Dimensions.get('window').height/18,
+        marginLeft: wp(5),
+        marginTop: hp(4),
+        fontSize: hp(5.5),
         color: '#FFFFFF'
     },
     gettingSubtitle: {
         fontFamily: 'Saira-Medium',
         alignSelf: 'flex-start',
-        marginLeft: Dimensions.get('window').width/20,
-        bottom: Dimensions.get('window').height/50,
-        fontSize: Dimensions.get('window').height/40,
+        marginLeft: wp(5),
+        bottom: hp(2),
+        fontSize: hp(2.8),
         color: '#FFFFFF'
     },
     gettingSubtitleHighlighted: {
         fontFamily: 'Saira-SemiBold',
         alignSelf: 'flex-start',
-        fontSize: Dimensions.get('window').height/40,
+        fontSize: hp(2.8),
         color: '#F2FF5D'
     },
     bottomTitle: {
         fontFamily: 'Saira-Medium',
         alignSelf: 'flex-start',
-        marginLeft: Dimensions.get('window').width/20,
-        marginBottom: Dimensions.get('window').height/50,
-        top: Dimensions.get('window').height/50,
-        fontSize: Dimensions.get('window').height/25,
+        marginLeft: wp(5),
+        marginBottom: hp(2),
+        top: hp(2),
+        fontSize: hp(4.2),
         color: '#FFFFFF'
     },
     textInputContentStyle: {
-        fontSize: Dimensions.get('window').height/55,
+        fontSize: hp(2),
         fontFamily: 'Saira-Regular'
     },
     textInput: {
-        marginTop: Dimensions.get('window').height/45,
+        marginTop: hp(2),
         alignSelf: 'flex-start',
-        marginLeft: Dimensions.get('window').width/20,
-        width: Dimensions.get('window').width/1.15,
+        marginLeft: hp(3),
+        width: wp(87),
     },
     textInputFocus: {
-        marginTop: Dimensions.get('window').height/25,
+        marginTop: hp(2),
         alignSelf: 'flex-start',
-        marginLeft: Dimensions.get('window').width/20,
-        width: Dimensions.get('window').width/1.15,
+        marginLeft: hp(3),
+        width: wp(87),
     },
     errorMessage: {
-        width: Dimensions.get('window').width/1.15,
-        marginLeft: Dimensions.get('window').width/20,
+        width: wp(87),
+        marginLeft: hp(3),
         fontFamily: 'Saira-Medium',
-        fontSize: 15,
+        fontSize: hp(2),
         color: '#F2FF5D'
     },
     forgotPasswordButton: {
         alignSelf: 'flex-end',
         fontFamily: 'Raleway-SemiBold',
-        fontSize: 17,
+        fontSize: hp(2),
         color: '#FFFFFF',
         textDecorationLine: 'underline'
     },
     forgotPasswordView: {
         marginTop: '3%',
-        alignSelf: 'flex-end',
-        marginRight: Dimensions.get('window').width/12,
+        marginRight: wp(8.5),
     },
     loginButtonContentStyle: {
         color: '#313030',
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').height/45,
-        marginTop: Dimensions.get('window').height / 200,
+        fontSize: hp(2.3),
+        marginTop: hp(1),
         alignItems: 'center',
         alignSelf: 'center'
     },
     logInButton: {
-        marginTop: '10%',
+        marginTop: hp(5),
         alignSelf: 'center',
         backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width/3,
-        height: Dimensions.get('window').height/20,
+        width: wp(30),
+        height: hp(5.5),
         borderRadius: 0
     },
-    bottomView: {
-        marginTop: Dimensions.get('window').height/20
-    },
     loginFooter: {
-        marginTop: '2%',
+        marginTop: hp(1),
         alignSelf: 'center',
         fontFamily: 'Saira-Regular',
-        fontSize: Dimensions.get('window').height/45,
+        fontSize: hp(2.2),
         color: '#FFFFFF'
     },
     loginFooterButton: {
         fontFamily: 'Saira-SemiBold',
-        fontSize: Dimensions.get('window').height/45,
+        fontSize: hp(2.2),
         color: '#F2FF5D',
     },
     loginLogo: {
         alignSelf: 'center',
-        height: Dimensions.get('window').height/15,
-        width: Dimensions.get('window').width/5
+        height: hp(6),
+        width: wp(20)
     }
 });

@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
-import {Dimensions, ImageBackground, Platform, TouchableOpacity, View} from "react-native";
+import {ImageBackground, Keyboard, Platform, TouchableOpacity, View} from "react-native";
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {commonStyles} from '../../../styles/common.module';
 import {AccountRecoveryProps} from "../../../models/props/AuthenticationProps";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
@@ -25,6 +26,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [stepNumber, setStepNumber] = useState<number>(0);
     const [accountRecoveryError, setAccountRecoveryError] = useState<boolean>(false);
+    const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     // step 1
     const [email, setEmail] = useState<string>("");
     const [emailFocus, setIsEmailFocus] = useState<boolean>(false);
@@ -71,6 +73,19 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
      * included in here.
      */
     useEffect(() => {
+        // keyboard listeners
+        const keyboardDidShowListener = Keyboard.addListener(
+            'keyboardDidShow',
+            () => {
+                setIsKeyboardShown(true);
+            }
+        );
+        const keyboardDidHideListener = Keyboard.addListener(
+            'keyboardDidHide',
+            () => {
+                setIsKeyboardShown(false);
+            }
+        );
         // start the countdown if the value is 10
         if (countdownValue === 10) {
             startCountdown(10);
@@ -95,7 +110,13 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
             // @ts-ignore
             setConfirmPasswordErrors(["Passwords do not match."]);
         }
-    }, [countdownValue, email, emailFocus,
+
+        // remove keyboard listeners accordingly
+        return () => {
+            keyboardDidHideListener.remove();
+            keyboardDidShowListener.remove();
+        };
+    }, [isKeyboardShown, countdownValue, email, emailFocus,
         password, passwordFocus, confirmPassword, confirmPasswordFocus]);
 
     /**
@@ -230,7 +251,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                             <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
                                     onDismiss={() => setModalVisible(false)}>
                                 <Dialog.Icon icon="alert" color={"#F2FF5D"}
-                                             size={Dimensions.get('window').height / 14}/>
+                                             size={hp(10)}/>
                                 <Dialog.Title style={commonStyles.dialogTitle}>Great!</Dialog.Title>
                                 <Dialog.Content>
                                     <Text
@@ -251,76 +272,50 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                             enableOnAndroid={true}
                             showsVerticalScrollIndicator={false}
                             enableAutomaticScroll={(Platform.OS === 'ios')}
-                            contentContainerStyle={commonStyles.rowContainer}
+                            contentContainerStyle={[commonStyles.rowContainer]}
                             keyboardShouldPersistTaps={'handled'}
                         >
-                            <View style={styles.topContainer}>
-                                <Text style={styles.greetingTitle}>{accountRecoverySteps[stepNumber].stepTitle}</Text>
-                                <Text
-                                    style={styles.gettingSubtitle}>{accountRecoverySteps[stepNumber].stepSubtitle}<Text
-                                    style={styles.gettingSubtitleHighlighted}>{accountRecoverySteps[stepNumber].stepSubtitleHighlighted}</Text></Text>
-                            </View>
-                            <View style={[styles.bottomContainer]}>
-                                <Text style={styles.contentTitle}>{accountRecoverySteps[stepNumber].contentTitle}</Text>
-                                <Text
-                                    style={styles.contentDescription}>{accountRecoverySteps[stepNumber].contentDescription}</Text>
-                                {accountRecoveryError
-                                    ? <Text style={styles.errorMessage}>Please fill out the information below!</Text>
-                                    : (emailErrors.length !== 0 && !accountRecoveryError)
-                                        ? <Text style={styles.errorMessage}>{emailErrors[0]}</Text>
-                                        : (verificationCodeErrors.length !== 0 && !accountRecoveryError)
-                                            ? <Text style={styles.errorMessage}>{verificationCodeErrors[0]}</Text>
-                                            : (passwordErrors.length !== 0 && !accountRecoveryError)
-                                                ? <Text style={styles.errorMessage}>{passwordErrors[0]}</Text>
-                                                : (confirmPasswordErrors.length !== 0 && !accountRecoveryError)
-                                                    ?
-                                                    <Text style={styles.errorMessage}>{confirmPasswordErrors[0]}</Text>
-                                                    : <></>
-                                }
-                                {
-                                    stepNumber === 0 ?
-                                        <>
-                                            <TextInput
-                                                autoCapitalize={"none"}
-                                                autoCorrect={false}
-                                                autoComplete={"off"}
-                                                keyboardType={"email-address"}
-                                                placeholderTextColor={'#D9D9D9'}
-                                                activeUnderlineColor={'#F2FF5D'}
-                                                underlineColor={'#D9D9D9'}
-                                                outlineColor={'#D9D9D9'}
-                                                activeOutlineColor={'#F2FF5D'}
-                                                selectionColor={'#F2FF5D'}
-                                                mode={'outlined'}
-                                                onChangeText={(value: React.SetStateAction<string>) => {
-                                                    setIsEmailFocus(true);
-                                                    setAccountRecoveryError(false);
-                                                    setEmailErrors([]);
-
-                                                    setEmail(value);
-                                                }}
-                                                onBlur={() => {
-                                                    setIsEmailFocus(false);
-                                                }}
-                                                value={email}
-                                                contentStyle={styles.textInputContentStyle}
-                                                style={emailFocus ? styles.textInputFocus : styles.textInput}
-                                                onFocus={() => {
-                                                    setIsEmailFocus(true);
-                                                }}
-                                                placeholder={'Required'}
-                                                label="Email"
-                                                textColor={"#FFFFFF"}
-                                                left={<TextInput.Icon icon="email" iconColor="#FFFFFF"/>}
-                                            />
-                                        </>
-                                        : stepNumber === 1 ?
+                            <View
+                                style={[Platform.OS === 'android' && isKeyboardShown && emailFocus && {height: hp(160)},
+                                    Platform.OS === 'android' && isKeyboardShown && (confirmPasswordFocus || passwordFocus) && {height: hp(200)},
+                                    Platform.OS === 'android' && isKeyboardShown &&
+                                    (verificationCodeDigit1Focus || verificationCodeDigit2Focus || verificationCodeDigit3Focus ||
+                                        verificationCodeDigit4Focus || verificationCodeDigit5Focus || verificationCodeDigit6Focus) && {height: hp(150)}]}>
+                                <View style={styles.topContainer}>
+                                    <Text
+                                        style={styles.greetingTitle}>{accountRecoverySteps[stepNumber].stepTitle}</Text>
+                                    <Text
+                                        style={styles.gettingSubtitle}>{accountRecoverySteps[stepNumber].stepSubtitle}<Text
+                                        style={styles.gettingSubtitleHighlighted}>{accountRecoverySteps[stepNumber].stepSubtitleHighlighted}</Text></Text>
+                                </View>
+                                <View style={[styles.bottomContainer]}>
+                                    <Text
+                                        style={styles.contentTitle}>{accountRecoverySteps[stepNumber].contentTitle}</Text>
+                                    <Text
+                                        style={styles.contentDescription}>{accountRecoverySteps[stepNumber].contentDescription}</Text>
+                                    {accountRecoveryError
+                                        ?
+                                        <Text style={styles.errorMessage}>Please fill out the information below!</Text>
+                                        : (emailErrors.length !== 0 && !accountRecoveryError)
+                                            ? <Text style={styles.errorMessage}>{emailErrors[0]}</Text>
+                                            : (verificationCodeErrors.length !== 0 && !accountRecoveryError)
+                                                ? <Text style={styles.errorMessage}>{verificationCodeErrors[0]}</Text>
+                                                : (passwordErrors.length !== 0 && !accountRecoveryError)
+                                                    ? <Text style={styles.errorMessage}>{passwordErrors[0]}</Text>
+                                                    : (confirmPasswordErrors.length !== 0 && !accountRecoveryError)
+                                                        ?
+                                                        <Text
+                                                            style={styles.errorMessage}>{confirmPasswordErrors[0]}</Text>
+                                                        : <></>
+                                    }
+                                    {
+                                        stepNumber === 0 ?
                                             <>
                                                 <TextInput
                                                     autoCapitalize={"none"}
                                                     autoCorrect={false}
                                                     autoComplete={"off"}
-                                                    keyboardType={"default"}
+                                                    keyboardType={"email-address"}
                                                     placeholderTextColor={'#D9D9D9'}
                                                     activeUnderlineColor={'#F2FF5D'}
                                                     underlineColor={'#D9D9D9'}
@@ -329,408 +324,445 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                     selectionColor={'#F2FF5D'}
                                                     mode={'outlined'}
                                                     onChangeText={(value: React.SetStateAction<string>) => {
-                                                        setIsPasswordFocus(true);
+                                                        setIsEmailFocus(true);
                                                         setAccountRecoveryError(false);
-                                                        setPasswordErrors([]);
+                                                        setEmailErrors([]);
 
-                                                        setPassword(value);
+                                                        setEmail(value);
                                                     }}
                                                     onBlur={() => {
-                                                        setIsPasswordFocus(false);
+                                                        setIsEmailFocus(false);
                                                     }}
-                                                    value={password}
-                                                    secureTextEntry={!isPasswordShown}
+                                                    value={email}
                                                     contentStyle={styles.textInputContentStyle}
-                                                    style={passwordFocus ? styles.textInputFocus : styles.textInput}
+                                                    style={emailFocus ? styles.textInputFocus : styles.textInput}
                                                     onFocus={() => {
-                                                        setIsPasswordFocus(true);
+                                                        setIsEmailFocus(true);
                                                     }}
                                                     placeholder={'Required'}
-                                                    label="Password"
+                                                    label="Email"
                                                     textColor={"#FFFFFF"}
-                                                    left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
-                                                    right={<TextInput.Icon icon="eye"
-                                                                           iconColor={isPasswordShown ? "#F2FF5D" : "#FFFFFF"}
-                                                                           onPress={() => setIsPasswordShown(!isPasswordShown)}/>}
-                                                />
-                                                <TextInput
-                                                    autoCapitalize={"none"}
-                                                    autoCorrect={false}
-                                                    autoComplete={"off"}
-                                                    keyboardType={"default"}
-                                                    placeholderTextColor={'#D9D9D9'}
-                                                    activeUnderlineColor={'#F2FF5D'}
-                                                    underlineColor={'#D9D9D9'}
-                                                    outlineColor={'#D9D9D9'}
-                                                    activeOutlineColor={'#F2FF5D'}
-                                                    selectionColor={'#F2FF5D'}
-                                                    mode={'outlined'}
-                                                    onChangeText={(value: React.SetStateAction<string>) => {
-                                                        setIsConfirmPasswordFocus(true);
-                                                        setAccountRecoveryError(false);
-                                                        setConfirmPasswordErrors([]);
-
-                                                        setConfirmPassword(value);
-                                                    }}
-                                                    onBlur={() => {
-                                                        setIsConfirmPasswordFocus(false);
-                                                    }}
-                                                    value={confirmPassword}
-                                                    secureTextEntry={!isConfirmPasswordShown}
-                                                    contentStyle={styles.textInputContentStyle}
-                                                    style={confirmPasswordFocus ? styles.textPasswordInputFocus : styles.textPasswordInput}
-                                                    onFocus={() => {
-                                                        setIsConfirmPasswordFocus(true);
-                                                    }}
-                                                    placeholder={'Required (must match Password)'}
-                                                    label="Confirm Password"
-                                                    textColor={"#FFFFFF"}
-                                                    left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
-                                                    right={<TextInput.Icon icon="eye"
-                                                                           iconColor={isConfirmPasswordShown ? "#F2FF5D" : "#FFFFFF"}
-                                                                           onPress={() => setIsConfirmPasswordShown(!isConfirmPasswordShown)}/>}
+                                                    left={<TextInput.Icon icon="email" iconColor="#FFFFFF"/>}
                                                 />
                                             </>
-                                            : stepNumber === 2 ?
+                                            : stepNumber === 1 ?
                                                 <>
-                                                    <View style={styles.codeInputColumnView}>
-                                                        <TextInput
-                                                            autoCorrect={false}
-                                                            autoComplete={"off"}
-                                                            keyboardType={"number-pad"}
-                                                            placeholderTextColor={'#D9D9D9'}
-                                                            activeUnderlineColor={'#F2FF5D'}
-                                                            underlineColor={'#D9D9D9'}
-                                                            outlineColor={'#D9D9D9'}
-                                                            activeOutlineColor={'#F2FF5D'}
-                                                            selectionColor={'#F2FF5D'}
-                                                            mode={'outlined'}
-                                                            onChangeText={(value: React.SetStateAction<string>) => {
-                                                                setVerificationCodeDigit1Focus(true);
-                                                                setAccountRecoveryError(false);
-                                                                setVerificationCodeErrors([]);
+                                                    <TextInput
+                                                        autoCapitalize={"none"}
+                                                        autoCorrect={false}
+                                                        autoComplete={"off"}
+                                                        keyboardType={"default"}
+                                                        placeholderTextColor={'#D9D9D9'}
+                                                        activeUnderlineColor={'#F2FF5D'}
+                                                        underlineColor={'#D9D9D9'}
+                                                        outlineColor={'#D9D9D9'}
+                                                        activeOutlineColor={'#F2FF5D'}
+                                                        selectionColor={'#F2FF5D'}
+                                                        mode={'outlined'}
+                                                        onChangeText={(value: React.SetStateAction<string>) => {
+                                                            setIsPasswordFocus(true);
+                                                            setAccountRecoveryError(false);
+                                                            setPasswordErrors([]);
 
-                                                                // format value
-                                                                value = fieldValidator.formatCodeDigit(verificationCodeDigit1, value.toString());
+                                                            setPassword(value);
+                                                        }}
+                                                        onBlur={() => {
+                                                            setIsPasswordFocus(false);
+                                                        }}
+                                                        value={password}
+                                                        secureTextEntry={!isPasswordShown}
+                                                        contentStyle={styles.textInputContentStyle}
+                                                        style={passwordFocus ? styles.textInputFocus : styles.textInput}
+                                                        onFocus={() => {
+                                                            setIsPasswordFocus(true);
+                                                        }}
+                                                        placeholder={'Required'}
+                                                        label="Password"
+                                                        textColor={"#FFFFFF"}
+                                                        left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
+                                                        right={<TextInput.Icon icon="eye"
+                                                                               iconColor={isPasswordShown ? "#F2FF5D" : "#FFFFFF"}
+                                                                               onPress={() => setIsPasswordShown(!isPasswordShown)}/>}
+                                                    />
+                                                    <TextInput
+                                                        autoCapitalize={"none"}
+                                                        autoCorrect={false}
+                                                        autoComplete={"off"}
+                                                        keyboardType={"default"}
+                                                        placeholderTextColor={'#D9D9D9'}
+                                                        activeUnderlineColor={'#F2FF5D'}
+                                                        underlineColor={'#D9D9D9'}
+                                                        outlineColor={'#D9D9D9'}
+                                                        activeOutlineColor={'#F2FF5D'}
+                                                        selectionColor={'#F2FF5D'}
+                                                        mode={'outlined'}
+                                                        onChangeText={(value: React.SetStateAction<string>) => {
+                                                            setIsConfirmPasswordFocus(true);
+                                                            setAccountRecoveryError(false);
+                                                            setConfirmPasswordErrors([]);
 
-                                                                setVerificationCodeDigit1(value);
-
-                                                                // if the value is of length 1, then move to the next digit
-                                                                if (value.length === 1) {
-                                                                    // @ts-ignore
-                                                                    verificationCodeDigit2Ref.current.focus();
-                                                                }
-                                                            }}
-                                                            onBlur={() => {
-                                                                setVerificationCodeDigit1Focus(false);
-                                                            }}
-                                                            value={verificationCodeDigit1}
-                                                            contentStyle={styles.textInputCodeContentStyle}
-                                                            style={verificationCodeDigit1Focus ? styles.textInputCodeFocus : styles.textInputCode}
-                                                            onFocus={() => {
-                                                                setVerificationCodeDigit1Focus(true);
-                                                            }}
-                                                            placeholder={'-'}
-                                                            label=""
-                                                            textColor={"#FFFFFF"}
-                                                        />
-                                                        <TextInput
-                                                            autoCorrect={false}
-                                                            autoComplete={"off"}
-                                                            ref={verificationCodeDigit2Ref}
-                                                            keyboardType={"number-pad"}
-                                                            placeholderTextColor={'#D9D9D9'}
-                                                            activeUnderlineColor={'#F2FF5D'}
-                                                            underlineColor={'#D9D9D9'}
-                                                            outlineColor={'#D9D9D9'}
-                                                            activeOutlineColor={'#F2FF5D'}
-                                                            selectionColor={'#F2FF5D'}
-                                                            mode={'outlined'}
-                                                            onChangeText={(value: React.SetStateAction<string>) => {
-                                                                setVerificationCodeDigit2Focus(true);
-                                                                setAccountRecoveryError(false);
-                                                                setVerificationCodeErrors([]);
-
-                                                                // format value
-                                                                value = fieldValidator.formatCodeDigit(verificationCodeDigit2, value.toString());
-
-                                                                setVerificationCodeDigit2(value);
-
-                                                                // if the value is of length 1, then move to the next digit
-                                                                if (value.length === 1) {
-                                                                    // @ts-ignore
-                                                                    verificationCodeDigit3Ref.current.focus();
-                                                                }
-                                                            }}
-                                                            onBlur={() => {
-                                                                setVerificationCodeDigit2Focus(false);
-                                                            }}
-                                                            value={verificationCodeDigit2}
-                                                            contentStyle={styles.textInputCodeContentStyle}
-                                                            style={verificationCodeDigit2Focus ? styles.textInputCodeFocus : styles.textInputCode}
-                                                            onFocus={() => {
-                                                                setVerificationCodeDigit2Focus(true);
-                                                            }}
-                                                            placeholder={'-'}
-                                                            label=""
-                                                            textColor={"#FFFFFF"}
-                                                        />
-                                                        <TextInput
-                                                            autoCorrect={false}
-                                                            autoComplete={"off"}
-                                                            ref={verificationCodeDigit3Ref}
-                                                            keyboardType={"number-pad"}
-                                                            placeholderTextColor={'#D9D9D9'}
-                                                            activeUnderlineColor={'#F2FF5D'}
-                                                            underlineColor={'#D9D9D9'}
-                                                            outlineColor={'#D9D9D9'}
-                                                            activeOutlineColor={'#F2FF5D'}
-                                                            selectionColor={'#F2FF5D'}
-                                                            mode={'outlined'}
-                                                            onChangeText={(value: React.SetStateAction<string>) => {
-                                                                setVerificationCodeDigit3Focus(true);
-                                                                setAccountRecoveryError(false);
-                                                                setVerificationCodeErrors([]);
-
-                                                                // format value
-                                                                value = fieldValidator.formatCodeDigit(verificationCodeDigit3, value.toString());
-
-                                                                setVerificationCodeDigit3(value);
-
-                                                                // if the value is of length 1, then move to the next digit
-                                                                if (value.length === 1) {
-                                                                    // @ts-ignore
-                                                                    verificationCodeDigit4Ref.current.focus();
-                                                                }
-                                                            }}
-                                                            onBlur={() => {
-                                                                setVerificationCodeDigit3Focus(false);
-                                                            }}
-                                                            value={verificationCodeDigit3}
-                                                            contentStyle={styles.textInputCodeContentStyle}
-                                                            style={verificationCodeDigit3Focus ? styles.textInputCodeFocus : styles.textInputCode}
-                                                            onFocus={() => {
-                                                                setVerificationCodeDigit3Focus(true);
-                                                            }}
-                                                            placeholder={'-'}
-                                                            label=""
-                                                            textColor={"#FFFFFF"}
-                                                        />
-                                                        <TextInput
-                                                            autoCorrect={false}
-                                                            autoComplete={"off"}
-                                                            ref={verificationCodeDigit4Ref}
-                                                            keyboardType={"number-pad"}
-                                                            placeholderTextColor={'#D9D9D9'}
-                                                            activeUnderlineColor={'#F2FF5D'}
-                                                            underlineColor={'#D9D9D9'}
-                                                            outlineColor={'#D9D9D9'}
-                                                            activeOutlineColor={'#F2FF5D'}
-                                                            selectionColor={'#F2FF5D'}
-                                                            mode={'outlined'}
-                                                            onChangeText={(value: React.SetStateAction<string>) => {
-                                                                setVerificationCodeDigit4Focus(true);
-                                                                setAccountRecoveryError(false);
-                                                                setVerificationCodeErrors([]);
-
-                                                                // format value
-                                                                value = fieldValidator.formatCodeDigit(verificationCodeDigit4, value.toString());
-
-                                                                setVerificationCodeDigit4(value);
-
-                                                                // if the value is of length 1, then move to the next digit
-                                                                if (value.length === 1) {
-                                                                    // @ts-ignore
-                                                                    verificationCodeDigit5Ref.current.focus();
-                                                                }
-                                                            }}
-                                                            onBlur={() => {
-                                                                setVerificationCodeDigit4Focus(false);
-                                                            }}
-                                                            value={verificationCodeDigit4}
-                                                            contentStyle={styles.textInputCodeContentStyle}
-                                                            style={verificationCodeDigit4Focus ? styles.textInputCodeFocus : styles.textInputCode}
-                                                            onFocus={() => {
-                                                                setVerificationCodeDigit4Focus(true);
-                                                            }}
-                                                            placeholder={'-'}
-                                                            label=""
-                                                            textColor={"#FFFFFF"}
-                                                        />
-                                                        <TextInput
-                                                            autoCorrect={false}
-                                                            autoComplete={"off"}
-                                                            ref={verificationCodeDigit5Ref}
-                                                            keyboardType={"number-pad"}
-                                                            placeholderTextColor={'#D9D9D9'}
-                                                            activeUnderlineColor={'#F2FF5D'}
-                                                            underlineColor={'#D9D9D9'}
-                                                            outlineColor={'#D9D9D9'}
-                                                            activeOutlineColor={'#F2FF5D'}
-                                                            selectionColor={'#F2FF5D'}
-                                                            mode={'outlined'}
-                                                            onChangeText={(value: React.SetStateAction<string>) => {
-                                                                setVerificationCodeDigit5Focus(true);
-                                                                setAccountRecoveryError(false);
-                                                                setVerificationCodeErrors([]);
-
-                                                                // format value
-                                                                value = fieldValidator.formatCodeDigit(verificationCodeDigit5, value.toString());
-
-                                                                setVerificationCodeDigit5(value);
-
-                                                                // if the value is of length 1, then move to the next digit
-                                                                if (value.length === 1) {
-                                                                    // @ts-ignore
-                                                                    verificationCodeDigit6Ref.current.focus();
-                                                                }
-                                                            }}
-                                                            onBlur={() => {
-                                                                setVerificationCodeDigit5Focus(false);
-                                                            }}
-                                                            value={verificationCodeDigit5}
-                                                            contentStyle={styles.textInputCodeContentStyle}
-                                                            style={verificationCodeDigit5Focus ? styles.textInputCodeFocus : styles.textInputCode}
-                                                            onFocus={() => {
-                                                                setVerificationCodeDigit5Focus(true);
-                                                            }}
-                                                            placeholder={'-'}
-                                                            label=""
-                                                            textColor={"#FFFFFF"}
-                                                        />
-                                                        <TextInput
-                                                            autoCorrect={false}
-                                                            autoComplete={"off"}
-                                                            ref={verificationCodeDigit6Ref}
-                                                            keyboardType={"number-pad"}
-                                                            placeholderTextColor={'#D9D9D9'}
-                                                            activeUnderlineColor={'#F2FF5D'}
-                                                            underlineColor={'#D9D9D9'}
-                                                            outlineColor={'#D9D9D9'}
-                                                            activeOutlineColor={'#F2FF5D'}
-                                                            selectionColor={'#F2FF5D'}
-                                                            mode={'outlined'}
-                                                            onChangeText={(value: React.SetStateAction<string>) => {
-                                                                setVerificationCodeDigit6Focus(true);
-                                                                setAccountRecoveryError(false);
-                                                                setVerificationCodeErrors([]);
-
-                                                                // format value
-                                                                value = fieldValidator.formatCodeDigit(verificationCodeDigit6, value.toString());
-
-                                                                setVerificationCodeDigit6(value);
-                                                            }}
-                                                            onBlur={() => {
-                                                                setVerificationCodeDigit6Focus(false);
-                                                            }}
-                                                            value={verificationCodeDigit6}
-                                                            contentStyle={styles.textInputCodeContentStyle}
-                                                            style={verificationCodeDigit6Focus ? styles.textInputCodeFocus : styles.textInputCode}
-                                                            onFocus={() => {
-                                                                setVerificationCodeDigit6Focus(true);
-                                                            }}
-                                                            placeholder={'-'}
-                                                            label=""
-                                                            textColor={"#FFFFFF"}
-                                                        />
-                                                    </View>
-                                                    <View style={styles.resendCodeView}>
-                                                        {countdownValue > 0
-                                                            ? <Text style={styles.countdownTimer}>{``}</Text>
-                                                            :
-                                                            <TouchableOpacity
-                                                                onPress={
-                                                                    async () => {
-                                                                        // reset the timer
-                                                                        setCountdownValue(10);
-
-                                                                        // resend the verification code, and clear previous code and errors
-                                                                        await passwordCodeRetrieval(email);
-                                                                        setVerificationCodeDigit1("");
-                                                                        setVerificationCodeDigit2("");
-                                                                        setVerificationCodeDigit3("");
-                                                                        setVerificationCodeDigit4("");
-                                                                        setVerificationCodeDigit5("");
-                                                                        setVerificationCodeDigit6("");
-                                                                        setVerificationCodeErrors([]);
-                                                                    }
-                                                                }
-                                                            >
-                                                                <Text style={styles.resendCode}>Resend Code</Text>
-                                                            </TouchableOpacity>
-                                                        }
-                                                    </View>
+                                                            setConfirmPassword(value);
+                                                        }}
+                                                        onBlur={() => {
+                                                            setIsConfirmPasswordFocus(false);
+                                                        }}
+                                                        value={confirmPassword}
+                                                        secureTextEntry={!isConfirmPasswordShown}
+                                                        contentStyle={styles.textInputContentStyle}
+                                                        style={confirmPasswordFocus ? styles.textPasswordInputFocus : styles.textPasswordInput}
+                                                        onFocus={() => {
+                                                            setIsConfirmPasswordFocus(true);
+                                                        }}
+                                                        placeholder={'Required (must match Password)'}
+                                                        label="Confirm Password"
+                                                        textColor={"#FFFFFF"}
+                                                        left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
+                                                        right={<TextInput.Icon icon="eye"
+                                                                               iconColor={isConfirmPasswordShown ? "#F2FF5D" : "#FFFFFF"}
+                                                                               onPress={() => setIsConfirmPasswordShown(!isConfirmPasswordShown)}/>}
+                                                    />
                                                 </>
-                                                : <></>
-                                }
-                                <TouchableOpacity
-                                    style={[styles.button, stepNumber === 1 && {marginTop: Dimensions.get('window').height / 15}]}
-                                    onPress={
-                                        async () => {
-                                            switch (stepNumber) {
-                                                case 0:
-                                                    if (email === "" || emailErrors.length !== 0) {
-                                                        // only populate main error if there are no other errors showing
-                                                        if (emailErrors.length === 0) {
-                                                            setAccountRecoveryError(true);
+                                                : stepNumber === 2 ?
+                                                    <>
+                                                        <View style={styles.codeInputColumnView}>
+                                                            <TextInput
+                                                                autoCorrect={false}
+                                                                autoComplete={"off"}
+                                                                keyboardType={"number-pad"}
+                                                                placeholderTextColor={'#D9D9D9'}
+                                                                activeUnderlineColor={'#F2FF5D'}
+                                                                underlineColor={'#D9D9D9'}
+                                                                outlineColor={'#D9D9D9'}
+                                                                activeOutlineColor={'#F2FF5D'}
+                                                                selectionColor={'#F2FF5D'}
+                                                                mode={'outlined'}
+                                                                onChangeText={(value: React.SetStateAction<string>) => {
+                                                                    setVerificationCodeDigit1Focus(true);
+                                                                    setAccountRecoveryError(false);
+                                                                    setVerificationCodeErrors([]);
+
+                                                                    // format value
+                                                                    value = fieldValidator.formatCodeDigit(verificationCodeDigit1, value.toString());
+
+                                                                    setVerificationCodeDigit1(value);
+
+                                                                    // if the value is of length 1, then move to the next digit
+                                                                    if (value.length === 1) {
+                                                                        // @ts-ignore
+                                                                        verificationCodeDigit2Ref.current.focus();
+                                                                    }
+                                                                }}
+                                                                onBlur={() => {
+                                                                    setVerificationCodeDigit1Focus(false);
+                                                                }}
+                                                                value={verificationCodeDigit1}
+                                                                contentStyle={styles.textInputCodeContentStyle}
+                                                                style={verificationCodeDigit1Focus ? styles.textInputCodeFocus : styles.textInputCode}
+                                                                onFocus={() => {
+                                                                    setVerificationCodeDigit1Focus(true);
+                                                                }}
+                                                                placeholder={'-'}
+                                                                label=""
+                                                                textColor={"#FFFFFF"}
+                                                            />
+                                                            <TextInput
+                                                                autoCorrect={false}
+                                                                autoComplete={"off"}
+                                                                ref={verificationCodeDigit2Ref}
+                                                                keyboardType={"number-pad"}
+                                                                placeholderTextColor={'#D9D9D9'}
+                                                                activeUnderlineColor={'#F2FF5D'}
+                                                                underlineColor={'#D9D9D9'}
+                                                                outlineColor={'#D9D9D9'}
+                                                                activeOutlineColor={'#F2FF5D'}
+                                                                selectionColor={'#F2FF5D'}
+                                                                mode={'outlined'}
+                                                                onChangeText={(value: React.SetStateAction<string>) => {
+                                                                    setVerificationCodeDigit2Focus(true);
+                                                                    setAccountRecoveryError(false);
+                                                                    setVerificationCodeErrors([]);
+
+                                                                    // format value
+                                                                    value = fieldValidator.formatCodeDigit(verificationCodeDigit2, value.toString());
+
+                                                                    setVerificationCodeDigit2(value);
+
+                                                                    // if the value is of length 1, then move to the next digit
+                                                                    if (value.length === 1) {
+                                                                        // @ts-ignore
+                                                                        verificationCodeDigit3Ref.current.focus();
+                                                                    }
+                                                                }}
+                                                                onBlur={() => {
+                                                                    setVerificationCodeDigit2Focus(false);
+                                                                }}
+                                                                value={verificationCodeDigit2}
+                                                                contentStyle={styles.textInputCodeContentStyle}
+                                                                style={verificationCodeDigit2Focus ? styles.textInputCodeFocus : styles.textInputCode}
+                                                                onFocus={() => {
+                                                                    setVerificationCodeDigit2Focus(true);
+                                                                }}
+                                                                placeholder={'-'}
+                                                                label=""
+                                                                textColor={"#FFFFFF"}
+                                                            />
+                                                            <TextInput
+                                                                autoCorrect={false}
+                                                                autoComplete={"off"}
+                                                                ref={verificationCodeDigit3Ref}
+                                                                keyboardType={"number-pad"}
+                                                                placeholderTextColor={'#D9D9D9'}
+                                                                activeUnderlineColor={'#F2FF5D'}
+                                                                underlineColor={'#D9D9D9'}
+                                                                outlineColor={'#D9D9D9'}
+                                                                activeOutlineColor={'#F2FF5D'}
+                                                                selectionColor={'#F2FF5D'}
+                                                                mode={'outlined'}
+                                                                onChangeText={(value: React.SetStateAction<string>) => {
+                                                                    setVerificationCodeDigit3Focus(true);
+                                                                    setAccountRecoveryError(false);
+                                                                    setVerificationCodeErrors([]);
+
+                                                                    // format value
+                                                                    value = fieldValidator.formatCodeDigit(verificationCodeDigit3, value.toString());
+
+                                                                    setVerificationCodeDigit3(value);
+
+                                                                    // if the value is of length 1, then move to the next digit
+                                                                    if (value.length === 1) {
+                                                                        // @ts-ignore
+                                                                        verificationCodeDigit4Ref.current.focus();
+                                                                    }
+                                                                }}
+                                                                onBlur={() => {
+                                                                    setVerificationCodeDigit3Focus(false);
+                                                                }}
+                                                                value={verificationCodeDigit3}
+                                                                contentStyle={styles.textInputCodeContentStyle}
+                                                                style={verificationCodeDigit3Focus ? styles.textInputCodeFocus : styles.textInputCode}
+                                                                onFocus={() => {
+                                                                    setVerificationCodeDigit3Focus(true);
+                                                                }}
+                                                                placeholder={'-'}
+                                                                label=""
+                                                                textColor={"#FFFFFF"}
+                                                            />
+                                                            <TextInput
+                                                                autoCorrect={false}
+                                                                autoComplete={"off"}
+                                                                ref={verificationCodeDigit4Ref}
+                                                                keyboardType={"number-pad"}
+                                                                placeholderTextColor={'#D9D9D9'}
+                                                                activeUnderlineColor={'#F2FF5D'}
+                                                                underlineColor={'#D9D9D9'}
+                                                                outlineColor={'#D9D9D9'}
+                                                                activeOutlineColor={'#F2FF5D'}
+                                                                selectionColor={'#F2FF5D'}
+                                                                mode={'outlined'}
+                                                                onChangeText={(value: React.SetStateAction<string>) => {
+                                                                    setVerificationCodeDigit4Focus(true);
+                                                                    setAccountRecoveryError(false);
+                                                                    setVerificationCodeErrors([]);
+
+                                                                    // format value
+                                                                    value = fieldValidator.formatCodeDigit(verificationCodeDigit4, value.toString());
+
+                                                                    setVerificationCodeDigit4(value);
+
+                                                                    // if the value is of length 1, then move to the next digit
+                                                                    if (value.length === 1) {
+                                                                        // @ts-ignore
+                                                                        verificationCodeDigit5Ref.current.focus();
+                                                                    }
+                                                                }}
+                                                                onBlur={() => {
+                                                                    setVerificationCodeDigit4Focus(false);
+                                                                }}
+                                                                value={verificationCodeDigit4}
+                                                                contentStyle={styles.textInputCodeContentStyle}
+                                                                style={verificationCodeDigit4Focus ? styles.textInputCodeFocus : styles.textInputCode}
+                                                                onFocus={() => {
+                                                                    setVerificationCodeDigit4Focus(true);
+                                                                }}
+                                                                placeholder={'-'}
+                                                                label=""
+                                                                textColor={"#FFFFFF"}
+                                                            />
+                                                            <TextInput
+                                                                autoCorrect={false}
+                                                                autoComplete={"off"}
+                                                                ref={verificationCodeDigit5Ref}
+                                                                keyboardType={"number-pad"}
+                                                                placeholderTextColor={'#D9D9D9'}
+                                                                activeUnderlineColor={'#F2FF5D'}
+                                                                underlineColor={'#D9D9D9'}
+                                                                outlineColor={'#D9D9D9'}
+                                                                activeOutlineColor={'#F2FF5D'}
+                                                                selectionColor={'#F2FF5D'}
+                                                                mode={'outlined'}
+                                                                onChangeText={(value: React.SetStateAction<string>) => {
+                                                                    setVerificationCodeDigit5Focus(true);
+                                                                    setAccountRecoveryError(false);
+                                                                    setVerificationCodeErrors([]);
+
+                                                                    // format value
+                                                                    value = fieldValidator.formatCodeDigit(verificationCodeDigit5, value.toString());
+
+                                                                    setVerificationCodeDigit5(value);
+
+                                                                    // if the value is of length 1, then move to the next digit
+                                                                    if (value.length === 1) {
+                                                                        // @ts-ignore
+                                                                        verificationCodeDigit6Ref.current.focus();
+                                                                    }
+                                                                }}
+                                                                onBlur={() => {
+                                                                    setVerificationCodeDigit5Focus(false);
+                                                                }}
+                                                                value={verificationCodeDigit5}
+                                                                contentStyle={styles.textInputCodeContentStyle}
+                                                                style={verificationCodeDigit5Focus ? styles.textInputCodeFocus : styles.textInputCode}
+                                                                onFocus={() => {
+                                                                    setVerificationCodeDigit5Focus(true);
+                                                                }}
+                                                                placeholder={'-'}
+                                                                label=""
+                                                                textColor={"#FFFFFF"}
+                                                            />
+                                                            <TextInput
+                                                                autoCorrect={false}
+                                                                autoComplete={"off"}
+                                                                ref={verificationCodeDigit6Ref}
+                                                                keyboardType={"number-pad"}
+                                                                placeholderTextColor={'#D9D9D9'}
+                                                                activeUnderlineColor={'#F2FF5D'}
+                                                                underlineColor={'#D9D9D9'}
+                                                                outlineColor={'#D9D9D9'}
+                                                                activeOutlineColor={'#F2FF5D'}
+                                                                selectionColor={'#F2FF5D'}
+                                                                mode={'outlined'}
+                                                                onChangeText={(value: React.SetStateAction<string>) => {
+                                                                    setVerificationCodeDigit6Focus(true);
+                                                                    setAccountRecoveryError(false);
+                                                                    setVerificationCodeErrors([]);
+
+                                                                    // format value
+                                                                    value = fieldValidator.formatCodeDigit(verificationCodeDigit6, value.toString());
+
+                                                                    setVerificationCodeDigit6(value);
+                                                                }}
+                                                                onBlur={() => {
+                                                                    setVerificationCodeDigit6Focus(false);
+                                                                }}
+                                                                value={verificationCodeDigit6}
+                                                                contentStyle={styles.textInputCodeContentStyle}
+                                                                style={verificationCodeDigit6Focus ? styles.textInputCodeFocus : styles.textInputCode}
+                                                                onFocus={() => {
+                                                                    setVerificationCodeDigit6Focus(true);
+                                                                }}
+                                                                placeholder={'-'}
+                                                                label=""
+                                                                textColor={"#FFFFFF"}
+                                                            />
+                                                        </View>
+                                                        <View style={styles.resendCodeView}>
+                                                            {countdownValue > 0
+                                                                ? <Text style={styles.countdownTimer}>{``}</Text>
+                                                                :
+                                                                <TouchableOpacity
+                                                                    onPress={
+                                                                        async () => {
+                                                                            // reset the timer
+                                                                            setCountdownValue(10);
+
+                                                                            // resend the verification code, and clear previous code and errors
+                                                                            await passwordCodeRetrieval(email);
+                                                                            setVerificationCodeDigit1("");
+                                                                            setVerificationCodeDigit2("");
+                                                                            setVerificationCodeDigit3("");
+                                                                            setVerificationCodeDigit4("");
+                                                                            setVerificationCodeDigit5("");
+                                                                            setVerificationCodeDigit6("");
+                                                                            setVerificationCodeErrors([]);
+                                                                        }
+                                                                    }
+                                                                >
+                                                                    <Text style={styles.resendCode}>Resend Code</Text>
+                                                                </TouchableOpacity>
+                                                            }
+                                                        </View>
+                                                    </>
+                                                    : <></>
+                                    }
+                                    <TouchableOpacity
+                                        style={[styles.button, (stepNumber === 1) && {marginTop: hp(10)}, (stepNumber === 2) && {marginTop: hp(5)}]}
+                                        onPress={
+                                            async () => {
+                                                switch (stepNumber) {
+                                                    case 0:
+                                                        if (email === "" || emailErrors.length !== 0) {
+                                                            // only populate main error if there are no other errors showing
+                                                            if (emailErrors.length === 0) {
+                                                                setAccountRecoveryError(true);
+                                                            }
+                                                        } else {
+                                                            // send a verification code to the email
+                                                            const codeRetrievalFlag = await passwordCodeRetrieval(email);
+                                                            if (codeRetrievalFlag) {
+                                                                // set the next step
+                                                                setStepNumber(1);
+                                                            }
                                                         }
-                                                    } else {
-                                                        // send a verification code to the email
-                                                        const codeRetrievalFlag = await passwordCodeRetrieval(email);
-                                                        if (codeRetrievalFlag) {
-                                                            // set the next step
-                                                            setStepNumber(1);
+                                                        break;
+                                                    case 1:
+                                                        if (password === "" || confirmPassword === "" || passwordErrors.length !== 0 || confirmPasswordErrors.length !== 0) {
+                                                            // only populate main error if there are no other errors showing
+                                                            if (passwordErrors.length === 0 || confirmPasswordErrors.length === 0) {
+                                                                setAccountRecoveryError(true);
+                                                            }
+                                                        } else {
+                                                            // continue to next step, in order to verify code
+                                                            setStepNumber(2);
                                                         }
-                                                    }
-                                                    break;
-                                                case 1:
-                                                    if (password === "" || confirmPassword === "" || passwordErrors.length !== 0 || confirmPasswordErrors.length !== 0) {
-                                                        // only populate main error if there are no other errors showing
-                                                        if (passwordErrors.length === 0 || confirmPasswordErrors.length === 0) {
-                                                            setAccountRecoveryError(true);
+                                                        break;
+                                                    case 2:
+                                                        if (verificationCodeDigit1 === "" || verificationCodeDigit2 === "" || verificationCodeDigit3 === "" ||
+                                                            verificationCodeDigit4 === "" || verificationCodeDigit5 === "" || verificationCodeDigit6 === "" ||
+                                                            verificationCodeErrors.length !== 0) {
+                                                            // only populate main error if there are no other errors showing
+                                                            if (verificationCodeErrors.length === 0) {
+                                                                setAccountRecoveryError(true);
+                                                            }
+                                                        } else {
+                                                            // confirm password reset
+                                                            const passwordResetFlag = await passwordReset(email,
+                                                                password,
+                                                                `${verificationCodeDigit1}${verificationCodeDigit2}${verificationCodeDigit3}${verificationCodeDigit4}${verificationCodeDigit5}${verificationCodeDigit6}`);
+                                                            if (passwordResetFlag) {
+                                                                // display a success message
+                                                                setModalVisible(true);
+                                                            }
                                                         }
-                                                    } else {
-                                                        // continue to next step, in order to verify code
-                                                        setStepNumber(2);
-                                                    }
-                                                    break;
-                                                case 2:
-                                                    if (verificationCodeDigit1 === "" || verificationCodeDigit2 === "" || verificationCodeDigit3 === "" ||
-                                                        verificationCodeDigit4 === "" || verificationCodeDigit5 === "" || verificationCodeDigit6 === "" ||
-                                                        verificationCodeErrors.length !== 0) {
-                                                        // only populate main error if there are no other errors showing
-                                                        if (verificationCodeErrors.length === 0) {
-                                                            setAccountRecoveryError(true);
-                                                        }
-                                                    } else {
-                                                        // confirm password reset
-                                                        const passwordResetFlag = await passwordReset(email,
-                                                            password,
-                                                            `${verificationCodeDigit1}${verificationCodeDigit2}${verificationCodeDigit3}${verificationCodeDigit4}${verificationCodeDigit5}${verificationCodeDigit6}`);
-                                                        if (passwordResetFlag) {
-                                                            // display a success message
-                                                            setModalVisible(true);
-                                                        }
-                                                    }
-                                                    break;
-                                                default:
-                                                    console.log(`Unexpected step number ${stepNumber}!`);
-                                                    break;
+                                                        break;
+                                                    default:
+                                                        console.log(`Unexpected step number ${stepNumber}!`);
+                                                        break;
+                                                }
                                             }
                                         }
-                                    }
-                                >
-                                    <Text
-                                        style={styles.buttonText}>{accountRecoverySteps[stepNumber].stepButtonText}</Text>
-                                </TouchableOpacity>
-                                <Text style={styles.bottomAuthenticationText}>{"Remember your password ?"}
-                                    <Text
-                                        onPress={() => {
-                                            navigation.navigate('SignIn', {});
-                                        }}
-                                        style={styles.bottomAuthenticationTextButton}>{" Sign In"}
+                                    >
+                                        <Text
+                                            style={styles.buttonText}>{accountRecoverySteps[stepNumber].stepButtonText}</Text>
+                                    </TouchableOpacity>
+                                    <Text style={styles.bottomAuthenticationText}>{"Remember your password ?"}
+                                        <Text
+                                            onPress={() => {
+                                                navigation.navigate('SignIn', {});
+                                            }}
+                                            style={styles.bottomAuthenticationTextButton}>{" Sign In"}
+                                        </Text>
                                     </Text>
-                                </Text>
+                                </View>
                             </View>
                         </KeyboardAwareScrollView>
                     </ImageBackground>

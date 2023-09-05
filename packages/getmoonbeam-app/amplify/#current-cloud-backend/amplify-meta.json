@@ -1,0 +1,15 @@
+{
+  "providers": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-getmoonbeamapp-prod-151306-authRole",
+      "UnauthRoleArn": "arn:aws:iam::251312580862:role/amplify-getmoonbeamapp-prod-151306-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::251312580862:role/amplify-getmoonbeamapp-prod-151306-authRole",
+      "Region": "us-west-2",
+      "DeploymentBucketName": "amplify-getmoonbeamapp-prod-151306-deployment",
+      "UnauthRoleName": "amplify-getmoonbeamapp-prod-151306-unauthRole",
+      "StackName": "amplify-getmoonbeamapp-prod-151306",
+      "StackId": "arn:aws:cloudformation:us-west-2:251312580862:stack/amplify-getmoonbeamapp-prod-151306/460384f0-25b8-11ee-94ce-06a3ab0f4179",
+      "AmplifyAppId": "d116111n160733"
+    }
+  }
+}

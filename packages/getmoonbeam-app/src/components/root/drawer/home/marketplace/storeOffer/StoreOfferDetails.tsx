@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {StoreOfferDetailsProps} from "../../../../../../models/props/StoreOfferProps";
-import {Dimensions, ImageBackground, ScrollView, Text, TouchableOpacity, View} from "react-native";
+import {ImageBackground, ScrollView, Text, TouchableOpacity, View} from "react-native";
 import {styles} from '../../../../../../styles/storeOfferDetails.module';
 import {useRecoilState} from "recoil";
 import {storeOfferPhysicalLocationState, storeOfferState} from "../../../../../../recoil/StoreOfferAtom";
@@ -12,6 +12,7 @@ import {commonStyles} from "../../../../../../styles/common.module";
 // @ts-ignore
 import StoreDetailsBackgroundImage from "../../../../../../../assets/backgrounds/store-details-background.png";
 import {LinearGradient} from "expo-linear-gradient";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 /**
  * StoreOfferDetails component.
@@ -130,7 +131,7 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                                 <Icon style={styles.offerRightIcon}
                                       color={'#F2FF5D'}
                                       name={offerIdExpanded !== retrievedPartnerOffer!.id! ? "chevron-down" : "chevron-up"}
-                                      size={Dimensions.get('window').height / 28}/>}
+                                      size={hp(4)}/>}
                             left={() =>
                                 <>
                                     <View style={styles.offerLeftView}>
@@ -189,10 +190,10 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                         {
                             retrievedOfferCount !== retrievedClickedObject.offers.length - 1 &&
                             <View style={{
-                                backgroundColor: 'transparent',
-                                height: Dimensions.get('window').height / 50,
-                                top: Dimensions.get('window').height / 10,
-                                width: Dimensions.get('window').width
+                                backgroundColor: 'red',
+                                height: hp(5),
+                                top: hp(2),
+                                width: wp(100)
                             }}/>
                         }
                     </>
@@ -249,7 +250,7 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                             <Icon style={styles.offerRightIcon}
                                   color={'#F2FF5D'}
                                   name={offerIdExpanded !== retrievedClickedObject!.id! ? "chevron-down" : "chevron-up"}
-                                  size={Dimensions.get('window').height / 28}/>}
+                                  size={hp(4)}/>}
                         left={() =>
                             <>
                                 <View style={styles.offerLeftView}>
@@ -311,23 +312,23 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
 
     // return the component for the StoreOfferDetails page
     return (
-        <LinearGradient
-            start={{x: 5, y: 1}}
-            end={{x: 0, y: 1}}
-            colors={['transparent', '#313030']}
-            style={styles.mainView}>
-            {
-                // @ts-ignore
-                storeOfferClicked!.numberOfOffers !== undefined
-                    ?
-                    <>
-                        <View style={styles.brandView}>
+        <View style={styles.mainView}>
+            <LinearGradient
+                start={{x: 5, y: 1}}
+                end={{x: 0, y: 1}}
+                colors={['transparent', '#313030']}
+                style={styles.brandView}>
+                {
+                    /*// @ts-ignore*/
+                    storeOfferClicked!.numberOfOffers !== undefined
+                        ?
+                        <>
                             <Avatar
                                 containerStyle={styles.brandLogo}
                                 imageProps={{
                                     resizeMode: 'contain'
                                 }}
-                                size={Dimensions.get('window').height / 5.5}
+                                size={hp(15)}
                                 // @ts-ignore
                                 source={{uri: storeOfferClicked!.offers[0].brandLogoSm!}}
                             />
@@ -348,81 +349,90 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                                         `${storeOfferClicked!.offers[0].brandDba!}`
                                     }</Text>
                             }
-                        </View>
-                        <ImageBackground
-                            style={[commonStyles.image, {top: Dimensions.get('window').height / 10}]}
-                            imageStyle={{
-                                resizeMode: 'stretch'
-                            }}
-                            resizeMethod={"scale"}
-                            source={StoreDetailsBackgroundImage}>
-                            <ScrollView
-                                persistentScrollbar={false}
-                                showsVerticalScrollIndicator={false}
-                                keyboardShouldPersistTaps={'handled'}
-                            >
-                                {/*@ts-ignore*/}
-                                <View style={[{height: storeOfferClicked!.numberOfOffers! === 2 ? Dimensions.get('window').height * 1.1 : (storeOfferClicked!.numberOfOffers! !== 1 ? Dimensions.get('window').height * 1.12 : Dimensions.get('window').height / 1.1)}, offerIdExpanded === null && {height: Dimensions.get('window').height / 4}]}>
-                                    <List.Section style={styles.offerListView}>
-                                        {
-                                            populateOffersList()
-                                        }
-                                    </List.Section>
-                                    {/*@ts-ignore*/}
-                                    <View style={{top: offerIdExpanded === null ? (storeOfferClicked!.numberOfOffers! === 2 ? Dimensions.get('window').height / 5.2 : (storeOfferClicked!.numberOfOffers! !== 1 ? Dimensions.get('window').height / 7.2 : Dimensions.get('window').height / 3)) : (storeOfferClicked!.numberOfOffers! === 2 ? Dimensions.get('window').height / 6.2 : (storeOfferClicked!.numberOfOffers! !== 1 ? Dimensions.get('window').height / 15 : Dimensions.get('window').height / 25)), alignSelf: 'center'}}>
-                                        {hasOnlineStore &&
-                                            <TouchableOpacity
-                                                style={styles.onlineShoppingButton}
-                                                onPress={async () => {
-                                                    // go to the offer's web view
-                                                    navigation.navigate('StoreOfferWebView', {});
-                                                }}
-                                            >
-                                                {/*@ts-ignore*/}
-                                                <Text style={styles.onlineShoppingButtonContent}>Shop Online</Text>
-                                            </TouchableOpacity>
-                                        }
-                                        <Text style={styles.footerTitle}>Moonbeam Exclusive</Text>
-                                        <Text style={styles.footerDescription}>Offers and/or loyalty programs may
-                                            change, and are subject to using your Linked Card at checkout (online and/or
-                                            at physical merchant locations).</Text>
-                                    </View>
-                                </View>
-                            </ScrollView>
-                        </ImageBackground>
-                    </>
-                    :
-                    <>
-                        <View style={styles.brandView}>
+                        </>
+                        :
+                        <>
                             <Avatar
                                 containerStyle={styles.brandLogo}
                                 imageProps={{
                                     resizeMode: 'contain'
                                 }}
-                                size={Dimensions.get('window').height / 5.5}
+                                size={hp(15)}
                                 // @ts-ignore
                                 source={{uri: storeOfferClicked!.brandLogoSm!}}
                             />
                             {
                                 !hasOnlineStore
                                     ?
-                                <Text style={styles.brandTitle}>{
-                                    // @ts-ignore
-                                    storeOfferClicked!.brandDba!
-                                }
-                                    <Text style={styles.brandTitleAddress}>
-                                        {`\n${storeOfferPhysicalLocation}`}
+                                    <Text style={styles.brandTitle}>{
+                                        // @ts-ignore
+                                        storeOfferClicked!.brandDba!
+                                    }
+                                        <Text style={styles.brandTitleAddress}>
+                                            {`\n${storeOfferPhysicalLocation}`}
+                                        </Text>
                                     </Text>
-                                </Text>
                                     :
-                                <Text style={styles.brandTitle}>{
-                                    // @ts-ignore
-                                    `${storeOfferClicked!.brandDba!}`
-                                }</Text>
+                                    <Text style={styles.brandTitle}>{
+                                        // @ts-ignore
+                                        `${storeOfferClicked!.brandDba!}`
+                                    }</Text>
                             }
+                        </>
+                }
+            </LinearGradient>
+            {
+                /*// @ts-ignore*/
+                storeOfferClicked!.numberOfOffers !== undefined
+                    ?
+                    <ImageBackground
+                        style={[commonStyles.image]}
+                        imageStyle={{
+                            resizeMode: 'stretch'
+                        }}
+                        resizeMethod={"scale"}
+                        source={StoreDetailsBackgroundImage}>
+                        <ScrollView
+                            scrollEnabled={true}
+                            persistentScrollbar={false}
+                            showsVerticalScrollIndicator={false}
+                            keyboardShouldPersistTaps={'handled'}
+                        >
+                            <View>
+                                <List.Section style={styles.offerListView}>
+                                    {
+                                        populateOffersList()
+                                    }
+                                </List.Section>
+                            </View>
+                        </ScrollView>
+                        <View style={[{
+                            alignSelf: 'center',
+                            bottom: hp(8)
+                        }, offerIdExpanded !== null && {display: 'none'}]}>
+                            {hasOnlineStore &&
+                                <TouchableOpacity
+                                    style={styles.onlineShoppingButton}
+                                    onPress={async () => {
+                                        // go to the offer's web view
+                                        navigation.navigate('StoreOfferWebView', {});
+                                    }}
+                                >
+                                    {/*@ts-ignore*/}
+                                    <Text style={styles.onlineShoppingButtonContent}>Shop Online</Text>
+                                </TouchableOpacity>
+                            }
+                            <Text style={styles.footerTitle}>Moonbeam Exclusive</Text>
+                            <Text style={styles.footerDescription}>Offers and/or loyalty programs may
+                                change, and are subject to using your Linked Card at checkout (online
+                                and/or
+                                at physical merchant locations).</Text>
                         </View>
+                    </ImageBackground>
+                    :
+                    <>
                         <ImageBackground
-                            style={[commonStyles.image, {top: Dimensions.get('window').height / 10}]}
+                            style={[commonStyles.image]}
                             imageStyle={{
                                 resizeMode: 'stretch'
                             }}
@@ -433,40 +443,38 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                                 showsVerticalScrollIndicator={false}
                                 keyboardShouldPersistTaps={'handled'}
                             >
-                                {/*@ts-ignore*/}
-                                <View style={[{height: storeOfferClicked!.qualifier! && storeOfferClicked.qualifier!.length > 200 ? Dimensions.get('window').height * 1.2 : Dimensions.get('window').height / 1.1}, offerIdExpanded === null && {height: Dimensions.get('window').height / 4}]}>
+                                <View>
                                     <List.Section style={styles.offerListView}>
                                         {
                                             populateOffersList()
                                         }
                                     </List.Section>
-                                    <View style={{
-                                        top: offerIdExpanded === null
-                                            ? Dimensions.get('window').height / 3
-                                            : Dimensions.get('window').height / 20, alignSelf: 'center'
-                                    }}>
-                                        {hasOnlineStore &&
-                                            <TouchableOpacity
-                                                style={styles.onlineShoppingButton}
-                                                onPress={async () => {
-                                                    // go to the offer's web view
-                                                    navigation.navigate('StoreOfferWebView', {});
-                                                }}
-                                            >
-                                                {/*@ts-ignore*/}
-                                                <Text style={styles.onlineShoppingButtonContent}>Shop Online</Text>
-                                            </TouchableOpacity>
-                                        }
-                                        <Text style={styles.footerTitle}>Moonbeam Exclusive</Text>
-                                        <Text style={styles.footerDescription}>Offers and loyalty programs may
-                                            change, and are subject to using your Linked Card at checkout (online or
-                                            in-person).</Text>
-                                    </View>
                                 </View>
                             </ScrollView>
+                            <View style={[{
+                                alignSelf: 'center',
+                                bottom: hp(8)
+                            }, offerIdExpanded !== null && {display: 'none'}]}>
+                                {hasOnlineStore &&
+                                    <TouchableOpacity
+                                        style={styles.onlineShoppingButton}
+                                        onPress={async () => {
+                                            // go to the offer's web view
+                                            navigation.navigate('StoreOfferWebView', {});
+                                        }}
+                                    >
+                                        {/*@ts-ignore*/}
+                                        <Text style={styles.onlineShoppingButtonContent}>Shop Online</Text>
+                                    </TouchableOpacity>
+                                }
+                                <Text style={styles.footerTitle}>Moonbeam Exclusive</Text>
+                                <Text style={styles.footerDescription}>Offers and loyalty programs may
+                                    change, and are subject to using your Linked Card at checkout (online or
+                                    in-person).</Text>
+                            </View>
                         </ImageBackground>
                     </>
             }
-        </LinearGradient>
+        </View>
     );
 };

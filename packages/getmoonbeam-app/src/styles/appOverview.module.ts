@@ -1,91 +1,87 @@
-import {Dimensions, StyleSheet} from "react-native";
+import {StyleSheet} from "react-native";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 // styles to be used within the AppOverview component
 export const styles = StyleSheet.create({
     topContainer: {
         flex: 0.52,
-        width: '100%'
+        width: wp(100)
     },
     topContainerImage: {
-        height: '85%',
-        marginTop: Dimensions.get('window').height/10
+        height: hp(40),
+        marginTop: hp(8)
     },
     bottomContainer: {
         backgroundColor: '#313030',
         flex: 0.48,
-        width: '100%'
+        width: wp(100)
     },
     bottomContainerTitle: {
         fontFamily: 'Saira-Medium',
-        marginTop: Dimensions.get('window').height/22,
-        fontSize: Dimensions.get('window').height/32,
+        marginTop: hp(6),
+        fontSize: hp(3.5),
         textAlign: 'center',
-        width: Dimensions.get('window').width/1.25,
+        width: wp(80),
         alignSelf: 'center',
         color: '#FFFFFF'
     },
     bottomContainerContent: {
         fontFamily: 'Raleway-Regular',
-        marginTop: Dimensions.get('window').height/32,
-        fontSize: Dimensions.get('window').height/52,
+        marginTop: hp(3),
+        fontSize: hp(2),
         textAlign: 'center',
-        width: Dimensions.get('window').width/1.15,
+        width: wp(95),
         alignSelf: 'center',
         color: '#FFFFFF'
     },
     progressSteps: {
-        marginTop: Dimensions.get('window').height/25
-    },
-    progressStepsCenter: {
-        height: '100%',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'center'
+        marginTop: hp(5)
     },
     activeStep: {
         backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width/35,
-        height: Dimensions.get('window').height/65,
-        marginLeft: Dimensions.get('window').width/30,
-        marginRight: Dimensions.get('window').width/30,
-        borderRadius: Math.round(Dimensions.get('window').width + Dimensions.get('window').height) / 2,
+        width: wp(3),
+        height: wp(3),
+        marginLeft: wp(3),
+        marginRight: wp(3),
+        borderRadius: Math.round(wp(100) + hp(100)) / 2,
     },
     inactiveStep: {
         backgroundColor: '#D9D9D9',
-        width: Dimensions.get('window').width/35,
-        height: Dimensions.get('window').height/65,
-        marginLeft: Dimensions.get('window').width/30,
-        marginRight: Dimensions.get('window').width/30,
-        borderRadius: Math.round(Dimensions.get('window').width + Dimensions.get('window').height) / 2,
+        width: wp(3),
+        height: wp(3),
+        marginLeft: wp(3),
+        marginRight: wp(3),
+        borderRadius: Math.round(wp(100) + hp(100)) / 2,
     },
     buttonLeft: {
         backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width/3,
-        height: Dimensions.get('window').height/20,
-        marginRight: Dimensions.get('window').width/5,
+        width: wp(35),
+        height: hp(5),
+        marginRight: wp(20),
         flexDirection: 'row',
         flexWrap: 'wrap',
+        alignSelf: 'flex-start',
         alignItems: 'center',
         justifyContent: 'center'
     },
     buttonRight: {
         backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width/3,
-        height: Dimensions.get('window').height/20,
+        width: wp(35),
+        height: hp(5),
         flexDirection: 'row',
         flexWrap: 'wrap',
+        alignSelf: 'flex-end',
         alignItems: 'center',
         justifyContent: 'center'
     },
     buttonText: {
         color: '#313030',
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').height/45,
-        marginTop: Dimensions.get('window').height / 90
+        fontSize: hp(2.5),
+        marginTop: hp(1)
     },
     bottomContainerButtons: {
-        marginBottom: Dimensions.get('window').width/12,
+        marginBottom: hp(3),
         alignItems: "center",
         alignContent: 'center',
         justifyContent: 'center'

@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Dimensions, Image, SafeAreaView, TouchableOpacity, View} from "react-native";
+import {Image, SafeAreaView, TouchableOpacity, View} from "react-native";
 import {CardsProps} from "../../../../../models/props/HomeProps";
 import {IconButton, List, Text} from "react-native-paper";
 import {useRecoilState} from "recoil";
@@ -41,11 +41,11 @@ import MoonbeamMasterCardImage from '../../../../../../assets/moonbeam-mastercar
 import RegistrationBackgroundImage from '../../../../../../assets/backgrounds/registration-background.png';
 import {deviceTypeState} from "../../../../../recoil/RootAtom";
 import * as Device from "expo-device";
-import {DeviceType} from "expo-device";
 import {showWalletBottomSheetState} from "../../../../../recoil/DashboardAtom";
 import {LinearGradient} from "expo-linear-gradient";
 import {Divider} from '@rneui/base';
 import {commonStyles} from "../../../../../styles/common.module";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 /**
  * Wallet component. This component will be used as a place where users can manager their
@@ -62,7 +62,7 @@ export const Wallet = ({navigation}: CardsProps) => {
     const [splashShown, setSplashShown] = useState<boolean>(false);
     const bottomSheetRef = useRef(null);
     // constants used to keep track of shared states
-    const [globalCache, ] = useRecoilState(globalAmplifyCacheState);
+    const [globalCache,] = useRecoilState(globalAmplifyCacheState);
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
     const [, setBannerState] = useRecoilState(customBannerState);
     const [, setBannerShown] = useRecoilState(customBannerShown);
@@ -266,9 +266,9 @@ export const Wallet = ({navigation}: CardsProps) => {
                         iconColor={'#F2FF5D'}
                         style={{
                             alignSelf: 'center',
-                            bottom: Dimensions.get('window').height/15
+                            bottom: hp(11)
                         }}
-                        size={Dimensions.get('window').height / 20}
+                        size={hp(5.5)}
                         onPress={
                             async () => {
                                 // if there is no error and/or success to show, then this button will open up the bottom sheet
@@ -319,7 +319,7 @@ export const Wallet = ({navigation}: CardsProps) => {
                         descriptionStyle={styles.cardItemDetails}
                         titleNumberOfLines={2}
                         descriptionNumberOfLines={2}
-                        title={card["name"]}
+                        title={'Card'}
                         description={`${card["type"] === CardType.Visa ? 'VISA' : 'MASTERCARD'} ••••${card["last4"]}`}
                         right={() =>
                             <View style={styles.cardView}>
@@ -327,20 +327,20 @@ export const Wallet = ({navigation}: CardsProps) => {
                                     icon={MoonbeamLogo}
                                     iconColor={'#313030'}
                                     rippleColor={'transparent'}
-                                    size={Dimensions.get('window').height / 25}
+                                    size={hp(3.5)}
                                     onPress={async () => {
                                         // do nothing, we chose an icon button for styling purposes here
                                     }}
                                 />
                                 <IconButton
-                                    style={{top: Dimensions.get('window').height / 13}}
+                                    style={{top: hp(6)}}
                                     icon={card["type"] === CardType.Visa
                                         ? MoonbeamVisaImage
                                         : MoonbeamMasterCardImage
                                     }
                                     iconColor={'#313030'}
                                     rippleColor={'transparent'}
-                                    size={Dimensions.get('window').height / 18}
+                                    size={hp(4)}
                                     onPress={async () => {
                                         // do nothing, we chose an icon button for styling purposes here
                                     }}
@@ -353,8 +353,8 @@ export const Wallet = ({navigation}: CardsProps) => {
                                     icon={MoonbeamCardChip}
                                     iconColor={'#313030'}
                                     rippleColor={'transparent'}
-                                    style={{bottom: Dimensions.get('window').height / 65}}
-                                    size={Dimensions.get('window').height / 35}
+                                    style={{bottom: hp(1)}}
+                                    size={hp(4)}
                                     onPress={async () => {
                                         // do nothing, we chose an icon button for styling purposes here
                                     }}
@@ -362,8 +362,8 @@ export const Wallet = ({navigation}: CardsProps) => {
                                 <IconButton
                                     icon='trash-can-outline'
                                     iconColor={'#313030'}
-                                    style={{top: Dimensions.get('window').height / 12.5}}
-                                    size={Dimensions.get('window').height / 35}
+                                    style={{top: hp(5.6)}}
+                                    size={hp(3.5)}
                                     onPress={async () => {
                                         // show the bottom sheet which will handle the card deletion
                                         setShowBottomSheet(true);
@@ -397,7 +397,7 @@ export const Wallet = ({navigation}: CardsProps) => {
                                 <View style={styles.walletTextView}>
                                     <View style={styles.walletTopTitleView}>
                                         <Text
-                                            style={deviceType === DeviceType.TABLET ? styles.walletTitleTablet : styles.walletTitle}>
+                                            style={styles.walletTitle}>
                                             Wallet
                                         </Text>
                                         <IconButton
@@ -405,9 +405,9 @@ export const Wallet = ({navigation}: CardsProps) => {
                                             iconColor={'#F2FF5D'}
                                             style={{
                                                 alignSelf: 'flex-end',
-                                                left: Dimensions.get('window').width / 1.8
+                                                bottom: hp(6.5)
                                             }}
-                                            size={Dimensions.get('window').height / 32}
+                                            size={hp(3.5)}
                                             onPress={
                                                 async () => {
                                                     // if there is no error and/or success to show, then this button will open up the bottom sheet
@@ -446,7 +446,7 @@ export const Wallet = ({navigation}: CardsProps) => {
                                         />
                                     </View>
                                     <Divider
-                                        style={[commonStyles.divider, {width: Dimensions.get('window').width}]}/>
+                                        style={[commonStyles.divider, {width: wp(100)}]}/>
                                 </View>
                                 <LinearGradient
                                     colors={['transparent', '#5b5b5b']}
@@ -503,18 +503,13 @@ export const Wallet = ({navigation}: CardsProps) => {
                                 }
                             }
                         >
-                            <Text
-                                style={styles.buttonText}>{
-                                splashShown
-                                    ? splashState.splashButtonText
-                                    : `Connect new card`
-                            }</Text>
+                            <Text style={styles.buttonText}>{splashState.splashButtonText}</Text>
                         </TouchableOpacity>
                         {
                             !splashShown &&
                             userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length === 0
                                 ? <Text
-                                    style={deviceType === DeviceType.TABLET ? styles.disclaimerTextTablet : styles.disclaimerText}>
+                                    style={styles.disclaimerText}>
                                     Connect your <Text
                                     style={styles.highlightedText}>Visa</Text> or <Text
                                     style={styles.highlightedText}>MasterCard</Text> debit or credit card.
@@ -525,7 +520,7 @@ export const Wallet = ({navigation}: CardsProps) => {
                                     <></>
                                     :
                                     <Text
-                                        style={deviceType === DeviceType.TABLET ? styles.disclaimerTextTablet : styles.disclaimerText}>
+                                        style={styles.disclaimerText}>
                                         Earn discounts on <Text style={styles.highlightedText}>every
                                         transaction</Text> at <Text
                                         style={styles.highlightedText}>qualifying</Text> merchant locations.
@@ -543,7 +538,7 @@ export const Wallet = ({navigation}: CardsProps) => {
                             index={showBottomSheet ? 0 : -1}
                             snapPoints={
                                 (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0)
-                                    ? ['40%', '40%']
+                                    ? [hp(35), hp(35)]
                                     : ['70%', '70%']
                             }
                             onChange={(index) => {
@@ -560,15 +555,15 @@ export const Wallet = ({navigation}: CardsProps) => {
                                         alignSelf: 'center'
                                     }}>
                                         <Text
-                                            style={deviceType === DeviceType.TABLET ? styles.cardRemovalTitleTablet : styles.cardRemovalTitle}>
+                                            style={styles.cardRemovalTitle}>
                                             Card Removal
                                         </Text>
                                         <Text
-                                            style={deviceType === DeviceType.TABLET ? styles.cardRemovalDetailsTablet : styles.cardRemovalDetails}>
+                                            style={styles.cardRemovalDetails}>
                                             {userInformation["linkedCard"]["cards"][0]["type"] === CardType.Visa ? 'VISA' : 'MASTERCARD'} ••••{userInformation["linkedCard"]["cards"][0]["last4"]}
                                         </Text>
                                         <Text
-                                            style={deviceType === DeviceType.TABLET ? styles.cardRemovalSubtitleTablet : styles.cardRemovalSubtitle}>
+                                            style={styles.cardRemovalSubtitle}>
                                             Once you remove this card, you will no longer be eligible to
                                             participate
                                             in

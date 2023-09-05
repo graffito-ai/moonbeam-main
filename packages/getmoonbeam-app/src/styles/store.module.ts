@@ -1,67 +1,67 @@
-import {Dimensions, StyleSheet} from "react-native";
+import {StyleSheet} from "react-native";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 // styles to be used within the Store component
 export const styles = StyleSheet.create({
     mainView: {
         flex: 1,
         flexGrow: 1,
-        width: '100%',
+        width: wp(100),
         flexDirection: 'column',
         backgroundColor: '#313030'
     },
     titleView: {
-        alignContent: 'flex-end',
-        flexDirection: 'row',
-        flexWrap: 'wrap'
+        flexDirection: 'column',
+        top: hp(5),
+        width: wp(100)
     },
     mainTitle: {
         alignSelf: 'flex-start',
-        marginLeft: '7%',
-        fontSize: Dimensions.get('window').width / 11,
+        marginLeft: wp(4),
+        fontSize: hp(4.5),
         fontFamily: 'Saira-SemiBold',
         color: '#FFFFFF',
     },
     mainSubtitle: {
-        marginLeft: '7%',
-        bottom: Dimensions.get('window').height / 100,
-        fontSize: Dimensions.get('window').width / 25,
+        marginLeft: wp(4),
+        bottom: hp(1),
+        fontSize: hp(2),
         fontFamily: 'Raleway-Light',
         color: '#FFFFFF'
     },
     toggleViewButton: {
-        width: Dimensions.get('window').width / 11,
-        height: Dimensions.get('window').width / 11,
-        marginTop: "2%"
+        width: hp(5),
+        height: hp(5)
     },
     searchBar: {
-        marginTop: "2%",
-        width: Dimensions.get('window').width / 1.05,
-        height: Dimensions.get('window').height / 22,
+        marginTop: hp(2),
+        width: wp(94),
+        height: hp(5),
         alignSelf: 'flex-start',
-        marginLeft: Dimensions.get('window').width / 30,
+        marginLeft: wp(4),
         backgroundColor: '#5B5A5A',
         borderRadius: 10
     },
     searchBarInput: {
+        alignSelf: 'center',
         fontFamily: 'Raleway-Light',
-        fontSize: Dimensions.get('window').width / 25,
-        bottom: Dimensions.get('window').height / 120,
+        fontSize: hp(1.8),
         color: '#FFFFFF'
     },
     filterChip: {
-        marginRight: '5%',
-        width: Dimensions.get('window').width / 3.7,
-        height: Dimensions.get('window').height / 25,
+        marginRight: wp(6),
+        width: wp(27),
         borderColor: 'transparent'
     },
     filterChipText: {
+        alignSelf: 'center',
         fontFamily: 'Raleway-Medium',
         color: '#F2FF5D'
     },
     filterChipView: {
-        left: '2%',
+        left: wp(4),
         alignSelf: 'flex-start',
-        marginTop: '3%',
+        marginTop: hp(1.5),
         flexDirection: 'row',
         flexWrap: 'wrap'
     },
@@ -71,7 +71,8 @@ export const styles = StyleSheet.create({
         alignItems: 'flex-start'
     },
     horizontalScrollView: {
-        marginTop: '5%',
+        marginTop: hp(1),
+        paddingBottom: hp(3),
         flexDirection: 'column',
         flex: 1,
         flexGrow: 1
@@ -80,172 +81,169 @@ export const styles = StyleSheet.create({
         height: '100%'
     },
     featuredPartnersTitleMain: {
-        fontSize: Dimensions.get('window').height / 45,
+        fontSize: hp(3),
         fontFamily: 'Changa-Medium',
-        left: '5%',
+        left: wp(6),
         alignSelf: 'flex-start'
     },
     featuredPartnersTitle: {
-        fontSize: Dimensions.get('window').height / 45,
+        fontSize: hp(2.5),
         fontFamily: 'Changa-Medium',
         textDecorationLine: 'underline',
-        left: '5%',
+        left: wp(6),
         alignSelf: 'flex-start'
     },
     featuredPartnersScrollView: {
-        bottom: Dimensions.get('window').height/100
+        bottom: hp(2)
     },
     onlineOffersView: {
         height: '100%',
-        bottom: '121%',
-        left: '1.5%'
+        bottom: hp(130),
+        left: wp(2)
     },
     onlineOffersTitleView: {
         justifyContent: 'space-between',
         flexDirection: 'row',
-        top: '1%'
+        top: hp(1)
     },
     onlineOffersLeftTitleView: {
         flexDirection: 'column'
     },
     onlineOffersTitleMain: {
-        fontSize: Dimensions.get('window').height / 45,
+        fontSize: hp(3),
         fontFamily: 'Changa-Medium',
-        left: '10%',
+        left: wp(4),
         alignSelf: 'flex-start'
     },
     onlineOffersTitle: {
-        fontSize: Dimensions.get('window').height / 45,
+        fontSize: hp(2.5),
         fontFamily: 'Changa-Medium',
         textDecorationLine: 'underline',
-        left: '10%',
-        alignSelf: 'flex-start'
-    },
-    onlineOffersTitleSub: {
-        fontSize: Dimensions.get('window').height / 75,
-        fontFamily: 'Changa-Medium',
-        textDecorationLine: 'none',
-        color: '#F2FF5D',
-        left: '10%',
+        left: wp(4),
         alignSelf: 'flex-start'
     },
     onlineOffersTitleButton: {
-        right: Dimensions.get('window').width / 25,
-        fontSize: Dimensions.get('window').height / 55,
+        right: wp(5),
+        fontSize: hp(2),
         fontFamily: 'Raleway-Bold',
         color: '#F2FF5D',
         textDecorationLine: 'underline',
         alignSelf: 'flex-end',
-        top: '16%'
+        top: hp(1.5)
     },
     onlineOffersScrollView: {
-        right: Dimensions.get('window').width / 30,
+        right: wp(3),
         height: '50%'
     },
     onlineOfferCard: {
-        right: Dimensions.get('window').width / 40,
+        right: wp(2),
         backgroundColor: 'transparent',
-        width: Dimensions.get('window').width / 3,
-        height: Dimensions.get('window').height / 3.8,
+        width: wp(33),
+        height: hp(25),
+        shadowColor: 'transparent',
+        shadowOffset: {width: 0, height: 0},
+        shadowOpacity: 0.5,
+        shadowRadius: 0
     },
     onlineOfferCardTitle: {
+        top: hp(0.5),
         fontFamily: 'Raleway-Medium',
-        fontSize: Dimensions.get('window').height / 60,
+        fontSize: hp(2),
+        lineHeight: hp(2.2),
         alignSelf: 'center',
-        textAlign: 'center',
-        bottom: Dimensions.get('window').height / 1200
+        textAlign: 'center'
     },
     onlineOfferCardSubtitle: {
-        fontSize: Dimensions.get('window').height / 70,
+        top: hp(0.5),
+        fontSize: hp(1.8),
         fontFamily: 'Raleway-Bold',
         alignSelf: 'center',
         textAlign: 'center',
-        color: '#F2FF5D',
-        bottom: Dimensions.get('window').height / 500
+        color: '#F2FF5D'
     },
     onlineOfferCardCover: {
-        width: Dimensions.get('window').width / 3.8,
-        height: Dimensions.get('window').height / 8.5,
+        width: wp(25),
+        height: hp(12),
         borderBottomRightRadius: 5,
         borderBottomLeftRadius: 5,
     },
     nearbyOffersView: {
         height: '100%',
-        bottom: '62%',
-        left: '1.5%'
+        bottom: hp(65),
+        left: wp(2)
     },
     nearbyOffersTitleView: {
         justifyContent: 'space-between',
         flexDirection: 'row',
-        top: '1%'
+        top: hp(0.5)
     },
     nearbyOffersLeftTitleView: {
         flexDirection: 'column'
     },
     nearbyOffersTitleMain: {
-        fontSize: Dimensions.get('window').height / 45,
+        fontSize: hp(3),
         fontFamily: 'Changa-Medium',
-        left: '10%',
+        left: wp(4),
         alignSelf: 'flex-start'
     },
     nearbyLoadingOffersTitleMain: {
-        fontSize: Dimensions.get('window').height / 45,
+        fontSize: hp(3),
         fontFamily: 'Changa-Medium',
-        left: '6%',
+        left: wp(4),
         alignSelf: 'flex-start'
     },
     nearbyLoadingOffersTitle: {
-        fontSize: Dimensions.get('window').height / 45,
+        fontSize: hp(2.5),
         fontFamily: 'Changa-Medium',
-        alignSelf: 'flex-start',
+        textDecorationLine: 'underline',
+        left: wp(4),
         color: '#F2FF5D'
     },
     nearbyOffersTitle: {
-        fontSize: Dimensions.get('window').height / 45,
+        fontSize: hp(2.5),
         fontFamily: 'Changa-Medium',
         textDecorationLine: 'underline',
-        left: '10%',
+        left: wp(4),
         alignSelf: 'flex-start'
     },
     nearbyOffersTitleSub: {
-        fontSize: Dimensions.get('window').height / 75,
+        fontSize: hp(1.5),
         fontFamily: 'Changa-Medium',
         textDecorationLine: 'none',
         color: '#F2FF5D',
-        left: '10%',
+        left: wp(4),
+        bottom: hp(0.5),
         alignSelf: 'flex-start'
     },
     nearbyOffersTitleButton: {
-        right: Dimensions.get('window').width / 25,
-        fontSize: Dimensions.get('window').height / 55,
+        right: wp(5),
+        fontSize: hp(2),
         fontFamily: 'Raleway-Bold',
         color: '#F2FF5D',
         textDecorationLine: 'underline',
         alignSelf: 'flex-end',
-        top: '16%'
+        top: hp(1.5)
     },
     nearbyOffersScrollView: {
-        top: '2%',
+        top: hp(1),
         height: '50%'
     },
     loadCard: {
-        top: '0.5%',
-        left: '2%',
+        left: wp(3),
+        width: wp(85),
+        height: hp(30),
         backgroundColor: 'transparent',
-        width: Dimensions.get('window').width / 1.25,
-        height: Dimensions.get('window').height / 3.5,
-        shadowColor: 'black',
-        shadowOffset: {width: -2, height: 1},
-        shadowOpacity: 0.6,
-        shadowRadius: 2,
-        elevation: 15
+        shadowColor: 'transparent',
+        shadowOffset: {width: 0, height: 0},
+        shadowOpacity: 0.5,
+        shadowRadius: 0
     },
     featuredPartnerCard: {
-        top: '0.5%',
-        left: '2%',
+        top: hp(2.5),
+        left: wp(4),
         backgroundColor: '#5B5A5A',
-        width: Dimensions.get('window').width / 1.15,
-        height: Dimensions.get('window').height / 3.5,
+        width: wp(85),
+        height: hp(30),
         shadowColor: 'black',
         shadowOffset: {width: -2, height: 1},
         shadowOpacity: 0.6,
@@ -254,89 +252,90 @@ export const styles = StyleSheet.create({
     },
     featuredPartnerCardCover: {
         alignSelf: 'flex-end',
-        top: '10%',
-        left: '65%',
-        width: Dimensions.get('window').width / 3.5,
-        height: Dimensions.get('window').width / 4,
+        top: hp(1),
+        left: wp(20),
+        width: wp(25),
+        height: hp(12),
+    },
+    featuredPartnerCardTitleMain: {
+        top: hp(0.5),
+        width: wp(40),
+        marginBottom: hp(1)
     },
     featuredPartnerCardTitle: {
-        top: '15%',
-        right: '5%',
+        right: wp(1),
         fontFamily: 'Raleway-Medium',
-        fontSize: Dimensions.get('window').height / 48,
-        width: Dimensions.get('window').width / 1.9,
+        fontSize: hp(2),
+        width: wp(40),
+        lineHeight: hp(2.4),
         alignSelf: 'flex-start',
         color: '#FFFFFF'
     },
     featuredPartnerCardSubtitle: {
-        top: '15%',
-        right: '5%',
-        fontSize: Dimensions.get('window').height / 60,
+        top: hp(0.5),
+        right: wp(1),
+        fontSize: hp(1.6),
         fontFamily: 'Raleway-SemiBold',
         alignSelf: 'flex-start',
-        bottom: '3%',
-        width: Dimensions.get('window').width / 2,
+        width: wp(40),
+        lineHeight: hp(2),
         color: '#F2FF5D',
     },
     featuredPartnerCardParagraph: {
-        top: '20%',
+        top: hp(3),
         padding: 8,
         fontFamily: 'Raleway-Bold',
-        width: Dimensions.get('window').width / 1.23,
-        fontSize: Dimensions.get('window').height / 75,
+        width: wp(80),
+        fontSize: hp(1.5),
+        lineHeight: hp(2),
         color: '#FFFFFF'
     },
     loadNearbyCardActionButton: {
-        top: Dimensions.get('window').height/10,
-        right: Dimensions.get('window').width/30,
-        height: Dimensions.get('window').height / 25,
-        width: Dimensions.get('window').width / 1.5,
+        top: hp(10),
+        right: wp(2),
+        width: wp(60),
         borderRadius: 5
     },
     loadOnlineCardActionButton: {
-        top: Dimensions.get('window').height/30,
-        right: Dimensions.get('window').width/60,
-        height: Dimensions.get('window').height / 25,
-        width: Dimensions.get('window').width / 4,
+        top: hp(3),
+        // width: wp(25),
         borderRadius: 5
     },
-    featuredPartnerCardActionButton: {
-        top: '25%',
-        left: '5%',
-        height: Dimensions.get('window').height / 25,
-        width: Dimensions.get('window').width / 3,
-        borderRadius: 5
-    },
-    featuredPartnerCardActionButtonLabel: {
+    loadCardActionButtonLabel: {
+        alignSelf: 'center',
         fontFamily: 'Saira-SemiBold',
-        fontSize: Dimensions.get('window').height / 60
+        fontSize: hp(1.8)
+    },
+    loadOnlineCardActionButtonLabel: {
+        alignSelf: 'center',
+        fontFamily: 'Saira-SemiBold',
+        fontSize: hp(2)
     },
     nearbyOfferCardParagraph: {
-        top: '20%',
-        alignSelf: 'flex-start',
-        left: '5%',
-        textAlign: 'left',
+        top: hp(1.5),
+        left: wp(2),
+        padding: 8,
         fontFamily: 'Raleway-Bold',
-        width: Dimensions.get('window').width / 1.6,
-        fontSize: Dimensions.get('window').height / 65,
+        width: wp(80),
+        fontSize: hp(1.5),
+        lineHeight: hp(2),
         color: '#FFFFFF'
     },
     nearbyLoadingOfferCard: {
-        left: '1.5%',
+        left: wp(2),
         backgroundColor: 'transparent',
-        width: Dimensions.get('window').width / 1.3,
-        height: Dimensions.get('window').height / 3.5,
-        shadowColor: 'black',
-        shadowOffset: {width: -2, height: 1},
-        shadowOpacity: 0.6,
-        shadowRadius: 2,
-        elevation: 15
+        width: wp(85),
+        height: hp(30),
+        shadowColor: 'transparent',
+        shadowOffset: {width: 0, height: 0},
+        shadowOpacity: 0.5,
+        shadowRadius: 0
     },
     nearbyOfferCard: {
-        left: '1.5%',
+        left: wp(3),
         backgroundColor: '#5B5A5A',
-        width: Dimensions.get('window').width / 1.3,
-        height: Dimensions.get('window').height / 3.5,
+        width: wp(85),
+        height: hp(27),
         shadowColor: 'black',
         shadowOffset: {width: -2, height: 1},
         shadowOpacity: 0.6,
@@ -345,54 +344,55 @@ export const styles = StyleSheet.create({
     },
     nearbyLoadingOfferCardCover: {
         alignSelf: 'center',
-        bottom: '27%',
-        left: '17%',
-        width: Dimensions.get('window').width / 1.1,
-        height: Dimensions.get('window').width,
+        bottom: hp(15),
+        left: wp(5),
+        width: wp(60),
+        height: hp(45),
     },
     nearbyOfferCardCover: {
-        alignSelf: 'flex-start',
-        top: '10%',
-        left: '5%',
-        width: Dimensions.get('window').width / 3.5,
-        height: Dimensions.get('window').width / 4,
+        alignSelf: 'flex-end',
+        top: hp(1),
+        left: wp(20),
+        width: wp(25),
+        height: hp(12),
+    },
+    nearbyOfferCardTitleMain: {
+        marginTop: hp(1),
+        width: wp(40)
     },
     nearbyOfferCardTitle: {
-        right: '5%',
+        right: wp(1),
         fontFamily: 'Raleway-Medium',
-        fontSize: Dimensions.get('window').height / 48,
-        width: Dimensions.get('window').width / 2.5,
+        fontSize: hp(2),
+        width: wp(40),
+        lineHeight: hp(2.4),
         alignSelf: 'flex-start',
         color: '#FFFFFF'
     },
     nearbyOfferCardSubtitle: {
-        top: '4%',
-        right: '5%',
-        fontSize: Dimensions.get('window').height / 55,
+        right: wp(1),
+        fontSize: hp(2),
         fontFamily: 'Raleway-SemiBold',
         alignSelf: 'flex-start',
-        bottom: '3%',
-        width: Dimensions.get('window').width / 2,
+        width: wp(40),
         color: '#F2FF5D',
     },
-    nearbyOfferCardActionButton: {
-        top: '7%',
-        alignSelf: 'flex-start',
-        left: '5%',
-        height: Dimensions.get('window').height / 25,
-        width: Dimensions.get('window').width / 3,
+    viewOfferButton: {
+        top: hp(1.5),
+        alignSelf: 'center',
+        backgroundColor: '#F2FF5D',
+        width: wp(30),
+        height: hp(4.5),
+        left: wp(4),
         borderRadius: 5
     },
-    nearbyOfferCardLocationDistance: {
-        top: Dimensions.get('window').height/30,
-        left: Dimensions.get('window').width/2.7,
-        fontFamily: 'Raleway-Bold',
-        color: '#FFFFFF',
-        fontSize: Dimensions.get('window').height / 60
-    },
-    nearbyOfferCardActionButtonLabel: {
-        fontFamily: 'Saira-SemiBold',
-        fontSize: Dimensions.get('window').height / 60
+    viewOfferButtonContent: {
+        color: '#313030',
+        fontFamily: 'Changa-Medium',
+        fontSize: hp(1.8),
+        marginTop: hp(0.5),
+        alignItems: 'center',
+        alignSelf: 'center'
     },
     verticalOfferBenefit: {
         fontFamily: 'Raleway-Bold',
@@ -402,18 +402,11 @@ export const styles = StyleSheet.create({
         marginTop: '2%',
         fontFamily: 'Raleway-SemiBold',
         color: '#FFFFFF',
-        fontSize: 14
+        fontSize: hp(1.8)
     },
     verticalOfferName: {
         fontFamily: 'Raleway-SemiBold',
         color: '#FFFFFF',
-        fontSize: Dimensions.get('window').height / 50
+        fontSize: hp(1.8)
     },
-    emptyOfferListItemTitle: {
-        left: Dimensions.get('window').width / 4,
-        fontSize: Dimensions.get('window').height / 50,
-        color: '#F2FF5D',
-        fontFamily: 'Saira-Medium',
-        width: Dimensions.get('window').width / 1.15
-    }
 });

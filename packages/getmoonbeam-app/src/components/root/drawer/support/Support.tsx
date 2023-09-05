@@ -9,8 +9,8 @@ import {FAQ} from "./FAQ";
 import {useRecoilState} from "recoil";
 import {appDrawerHeaderShownState, drawerDashboardState, drawerSwipeState} from "../../../../recoil/AppDrawerAtom";
 import {IconButton} from "react-native-paper";
-import {commonStyles} from "../../../../styles/common.module";
-import { Dimensions } from 'react-native';
+import {View} from 'react-native';
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 /**
  * Support component.
@@ -66,34 +66,37 @@ export const Support = ({navigation}: SupportProps) => {
                     initialParams={{}}
                     options={({navigation}) => ({
                         headerLeft: () =>
-                            <IconButton
-                                rippleColor={'transparent'}
-                                icon="chevron-left"
-                                iconColor={"#F2FF5D"}
-                                size={Dimensions.get('window').height / 25}
-                                style={commonStyles.backButtonDismiss}
-                                onPress={() => {
-                                    // show the drawer header
-                                    setDrawerHeaderShown(true);
+                            <View style={{height: hp(5.5), flexDirection: 'column'}}>
+                                <IconButton
+                                    rippleColor={'transparent'}
+                                    icon="chevron-left"
+                                    iconColor={"#F2FF5D"}
+                                    size={hp(4)}
+                                    style={{alignSelf: 'center', bottom: wp(3)}}
+                                    onPress={() => {
+                                        // show the drawer header
+                                        setDrawerHeaderShown(true);
 
-                                    // enable the drawer swipe
-                                    setDrawerSwipeEnabled(true);
+                                        // enable the drawer swipe
+                                        setDrawerSwipeEnabled(true);
 
-                                    // go back to the support center
-                                    navigation.navigate('SupportCenter', {});
-                                }}
-                            />,
+                                        // go back to the support center
+                                        navigation.navigate('SupportCenter', {});
+                                    }}
+                                />
+                            </View>
+                        ,
                         headerShown: true,
                         headerTransparent: false,
-                        headerStyle: {backgroundColor: '#313030'},
-                        headerTitle: 'FAQs',
-                        headerTitleStyle: {
-                            fontFamily: 'Raleway-Medium',
-                            fontSize: Dimensions.get('window').width / 20,
-                            textAlign: 'justify',
-                            alignSelf: 'center',
-                            color: '#FFFFFF'
-                        }
+                        headerStyle: {backgroundColor: '#313030', height: hp(5.5), flexDirection: 'column'},
+                        headerTitle: '',
+                        // headerTitleStyle: {
+                        //     fontFamily: 'Raleway-Medium',
+                        //     fontSize: hp(2.5),
+                        //     textAlign: 'justify',
+                        //     alignSelf: 'center',
+                        //     color: '#FFFFFF'
+                        // }
                     })}
                 />
             </Stack.Navigator>

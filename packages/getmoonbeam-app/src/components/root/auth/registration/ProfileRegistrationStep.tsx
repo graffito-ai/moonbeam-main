@@ -1,15 +1,18 @@
-import {Dimensions, View} from "react-native";
+import {Platform, View} from "react-native";
 import {styles} from "../../../../styles/registration.module";
 import {Text, TextInput} from "react-native-paper";
 import React, {useEffect, useState} from "react";
 import {useRecoilState} from "recoil";
 import {
     birthdayErrorState,
-    birthdayState, dutyStatusErrorsState,
+    birthdayState,
+    dutyStatusErrorsState,
     dutyStatusState,
     dutyStatusValueState,
     emailErrorsState,
-    emailState, enlistingYearErrorsState, enlistingYearState,
+    emailState,
+    enlistingYearErrorsState,
+    enlistingYearState,
     firstNameErrorsState,
     firstNameState,
     lastNameErrorsState,
@@ -22,6 +25,7 @@ import {
 import {FieldValidator} from "../../../../utils/FieldValidator";
 import DropDownPicker from "react-native-dropdown-picker";
 import {dutyStatusItems} from "../../../../models/Constants";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 /**
  * ProfileRegistrationStep component.
@@ -187,7 +191,7 @@ export const ProfileRegistrationStep = () => {
                         }}
                         value={lastName}
                         contentStyle={styles.textInputNarrowContentStyle}
-                        style={[lastNameFocus ? styles.textInputNarrowFocus : styles.textInputNarrow, {marginLeft: Dimensions.get('window').width / 15}]}
+                        style={[lastNameFocus ? styles.textInputNarrowFocus : styles.textInputNarrow, {marginLeft: wp(7)}]}
                         onFocus={() => {
                             setIsLastNameFocus(true);
                             setIsBackButtonShown(false);
@@ -234,7 +238,9 @@ export const ProfileRegistrationStep = () => {
                     placeholder={'Required'}
                     label="Email"
                     textColor={"#FFFFFF"}
-                    left={<TextInput.Icon icon="email" iconColor="#FFFFFF"/>}
+                    left={
+                        <TextInput.Icon icon="email" size={hp(3.3)} style={{marginTop: hp(1.8)}} iconColor="#FFFFFF"/>
+                    }
                 />
                 <TextInput
                     autoCorrect={false}
@@ -273,7 +279,9 @@ export const ProfileRegistrationStep = () => {
                     placeholder={'Required MM/DD/YYYY'}
                     label="Birthday"
                     textColor={"#FFFFFF"}
-                    left={<TextInput.Icon icon="cake" iconColor="#FFFFFF"/>}
+                    left={
+                        <TextInput.Icon icon="cake" size={hp(3)} style={{marginTop: hp(1.8)}} iconColor="#FFFFFF"/>
+                    }
                 />
                 <TextInput
                     autoCorrect={false}
@@ -312,7 +320,9 @@ export const ProfileRegistrationStep = () => {
                     placeholder={'Required +1 (XXX)-XXX-XXXX'}
                     label="Phone Number"
                     textColor={"#FFFFFF"}
-                    left={<TextInput.Icon icon="phone" iconColor="#FFFFFF"/>}
+                    left={
+                        <TextInput.Icon icon="phone" size={hp(3)} style={{marginTop: hp(1.9)}} iconColor="#FFFFFF"/>
+                    }
                 />
                 <TextInput
                     autoCorrect={false}
@@ -351,15 +361,18 @@ export const ProfileRegistrationStep = () => {
                     placeholder={'Required'}
                     label="Year of Enlistment/Commission"
                     textColor={"#FFFFFF"}
-                    left={<TextInput.Icon icon="calendar" iconColor="#FFFFFF"/>}
+                    left={
+                        <TextInput.Icon icon="calendar" size={hp(2.8)} style={{marginTop: hp(2.2)}} iconColor="#FFFFFF"/>
+                    }
                 />
                 <View style={styles.pickerView}>
                     <DropDownPicker
                         zIndex={5000}
                         placeholder={"Duty Status"}
-                        dropDownContainerStyle={styles.dropdownContainer}
+                        containerStyle={dropdownDutyState && Platform.OS === 'android' && {height: hp(25)}}
+                        dropDownContainerStyle={[styles.dropdownContainer, Platform.OS === 'android' ? {height: hp(20)} : {height: hp(15)}]}
                         style={styles.dropdownPicker}
-                        textStyle={[styles.textInputContentStyle, {color: '#D9D9D9'}]}
+                        textStyle={[styles.dropdownTextInputContentStyle, {color: '#D9D9D9'}]}
                         dropDownDirection={"BOTTOM"}
                         open={dropdownDutyState}
                         value={dutyStatus === "" ? null : dutyStatus}
@@ -383,7 +396,7 @@ export const ProfileRegistrationStep = () => {
                         }}
                         theme="DARK"
                         multiple={false}
-                        mode="SIMPLE"
+                        listMode="SCROLLVIEW"
                     />
                 </View>
             </View>

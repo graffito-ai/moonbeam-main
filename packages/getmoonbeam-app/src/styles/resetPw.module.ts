@@ -1,4 +1,5 @@
-import {Dimensions, StyleSheet} from "react-native";
+import {StyleSheet} from "react-native";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 // styles to be used within the ResetPassword component
 export const styles = StyleSheet.create({
@@ -11,69 +12,68 @@ export const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     topContainer: {
-        width: '100%',
-        marginBottom: -Dimensions.get('window').height/2.5,
+        width: wp(100)
     },
     topTextView: {
-        top: Dimensions.get('window').height/30
+        top: hp(3)
     },
     resetPwTitle: {
-        fontSize: Dimensions.get('window').height/33,
-        width: Dimensions.get('window').width,
-        left: Dimensions.get('window').width/15,
+        fontSize: hp(3),
+        width: wp(100),
+        left: wp(6.5),
         fontFamily: 'Raleway-SemiBold',
         alignSelf: 'flex-start',
         textAlign: 'left',
         color: '#F2FF5D'
     },
     resetPwSubtitle: {
-        top: Dimensions.get('window').height/85,
-        left: Dimensions.get('window').width/15,
-        fontSize: Dimensions.get('window').height/45,
-        width: Dimensions.get('window').width/1.2,
+        top: hp(1.5),
+        left: wp(6.5),
+        fontSize: hp(2.5),
+        width: wp(90),
         fontFamily: 'Raleway-Medium',
         alignSelf: 'flex-start',
         textAlign: 'left',
         color: '#FFFFFF'
     },
     textInputContentStyle: {
-        fontSize: Dimensions.get('window').height/55,
+        fontSize: hp(2.5),
         fontFamily: 'Saira-Regular'
     },
     textInputFocus: {
-        marginTop: Dimensions.get('window').height / 10,
-        bottom: Dimensions.get('window').height / 14,
+        marginTop: hp(10),
+        bottom: hp(8),
         alignSelf: 'flex-start',
-        width: Dimensions.get('window').width / 1.15
+        width: wp(90)
     },
     textInput: {
-        marginTop: Dimensions.get('window').height / 10,
-        bottom: Dimensions.get('window').height / 14,
+        marginTop: hp(10),
+        bottom: hp(8),
         alignSelf: 'flex-start',
-        width: Dimensions.get('window').width / 1.15
+        width: wp(90)
     },
     textPasswordInputFocus: {
-        marginTop: Dimensions.get('window').height / 54,
-        bottom: Dimensions.get('window').height / 14,
+        marginTop: hp(2),
+        bottom: hp(8),
         alignSelf: 'flex-start',
-        width: Dimensions.get('window').width / 1.15
+        width: wp(90)
     },
     textPasswordInput: {
-        marginTop: Dimensions.get('window').height / 54,
-        bottom: Dimensions.get('window').height / 14,
+        marginTop: hp(2),
+        bottom: hp(8),
         alignSelf: 'flex-start',
-        width: Dimensions.get('window').width / 1.15
+        width: wp(90)
     },
     inputFieldsView: {
-        top: Dimensions.get('window').height/20,
+        top: hp(5),
         alignSelf: 'center'
     },
     button: {
         backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width/2,
-        height: Dimensions.get('window').height/20,
-        marginTop: Dimensions.get('window').height/25,
-        marginLeft: Dimensions.get('window').width/4,
+        width: wp(50),
+        height: hp(5),
+        marginTop: hp(5),
+        marginLeft: wp(25),
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -82,15 +82,15 @@ export const styles = StyleSheet.create({
     buttonText: {
         color: '#313030',
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').height/45,
-        marginTop: Dimensions.get('window').height / 90
+        fontSize: hp(2.3),
+        marginTop: hp(1)
     },
     errorMessage: {
-        top: Dimensions.get('window').height / 50,
-        width: Dimensions.get('window').width / 1.15,
+        top: hp(2),
+        width: wp(90),
         alignSelf: 'center',
         fontFamily: 'Saira-Medium',
-        fontSize: 15,
+        fontSize: hp(1.7),
         color: '#F2FF5D'
     }
 });

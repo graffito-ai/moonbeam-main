@@ -15,11 +15,11 @@
     "build": "rm -rf ./lib && tsc",
     "clean": "rm -rf build/ lib/ node_modules/"
   },
-  "devDependencies": {
+  "dependencies": {
     "@commitlint/cli": "^17.4.3",
     "@commitlint/config-conventional": "^17.4.3",
     "@commitlint/config-lerna-scopes": "^17.4.2",
-    "@moonbeam/moonbeam-tsconfig": "*",
+    "@moonbeam/moonbeam-tsconfig": "1.0.0",
     "@types/node": "^18.11.18"
   },
   "private": true

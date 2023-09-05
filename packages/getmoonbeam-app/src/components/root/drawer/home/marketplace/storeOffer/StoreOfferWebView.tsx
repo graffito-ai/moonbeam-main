@@ -3,12 +3,13 @@ import {StoreOfferWebViewProps} from "../../../../../../models/props/StoreOfferP
 import {useRecoilState} from "recoil";
 import {storeOfferState} from "../../../../../../recoil/StoreOfferAtom";
 import {styles} from '../../../../../../styles/storeOfferWebView.module';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import {Dimensions, View} from "react-native";
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {View} from "react-native";
 import {FAB, IconButton, Portal, Text, TextInput} from "react-native-paper";
 import WebView from "react-native-webview";
 import * as Clipboard from 'expo-clipboard';
 import {currentUserInformation} from "../../../../../../recoil/AuthAtom";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 /**
  * StoreOfferWebView component.
@@ -16,7 +17,7 @@ import {currentUserInformation} from "../../../../../../recoil/AuthAtom";
  * @param navigation navigation object passed in from the parent navigator.
  * @constructor constructor for the component.
  */
-export const StoreOfferWebView = ({}: StoreOfferWebViewProps) => {
+export const StoreOfferWebView = ({navigation}: StoreOfferWebViewProps) => {
     // constants used to keep track of local component state
     const [cardDetailsMenuOpen, setCardDetailsMenuOpen] = useState<any>(false);
     const [isBackButtonDisabled, setIsBackButtonDisabled] = useState<boolean>(true);
@@ -50,43 +51,43 @@ export const StoreOfferWebView = ({}: StoreOfferWebViewProps) => {
         <SafeAreaView edges={['right', 'left']}
                       style={styles.mainView}>
             <View style={styles.topBar}>
-                <View style={styles.containerView}>
-                    <TextInput
-                        autoCapitalize={"sentences"}
-                        autoCorrect={false}
-                        autoComplete={"off"}
-                        // the text input will be disabled for now, later we can enable it, for a full browser experience
-                        disabled={true}
-                        style={styles.urlBar}
-                        contentStyle={styles.urlInput}
-                        outlineStyle={styles.urlBarOutline}
-                        left={
-                            <TextInput.Icon
-                                style={styles.urlLockIcon}
-                                icon="lock"
-                                rippleColor={'#F2FF5D'}
-                                size={Dimensions.get('window').height/55}
-                            />
-                        }
-                        right={
-                            <TextInput.Icon
-                                style={styles.urlReloadIcon}
-                                icon="reload"
-                                size={Dimensions.get('window').height/40}
-                                onPress={() => {
-                                    // @ts-ignore
-                                    webViewRef.current.reload();
-                                }}
-                            />
-                        }
-                        multiline={false}
-                        textColor={'black'}
-                        selectionColor={'#F2FF5D'}
-                        mode={'outlined'}
-                        placeholder={'Search or type URL'}
-                        // @ts-ignore
-                        value={storeOfferClicked!.numberOfOffers === undefined ? storeOfferClicked!.brandDba! : storeOfferClicked.offers[0].brandDba!}
-                    />
+                <View style={{
+                    alignSelf: 'flex-start',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    alignContent: 'center',
+                    height: hp(12)
+                }}>
+                    <View style={{alignSelf: 'flex-end', height: hp(7.5)}}>
+                        <IconButton
+                            rippleColor={'transparent'}
+                            icon="close"
+                            iconColor={"#F2FF5D"}
+                            size={hp(4)}
+                            onPress={() => {
+                                navigation.navigate('StoreOfferDetails', {});
+                            }}
+                        />
+                    </View>
+                    <View style={{alignSelf: 'flex-end', flexDirection: 'row', height: hp(7.5), width: wp(100)}}>
+                        <TextInput
+                            autoCapitalize={"sentences"}
+                            autoCorrect={false}
+                            autoComplete={"off"}
+                            // the text input will be disabled for now, later we can enable it, for a full browser experience
+                            disabled={true}
+                            style={styles.urlBar}
+                            contentStyle={styles.urlInput}
+                            outlineStyle={styles.urlBarOutline}
+                            multiline={false}
+                            textColor={'black'}
+                            selectionColor={'#F2FF5D'}
+                            mode={'outlined'}
+                            placeholder={'Search or type URL'}
+                            // @ts-ignore
+                            value={storeOfferClicked!.numberOfOffers === undefined ? storeOfferClicked!.brandDba! : storeOfferClicked.offers[0].brandDba!}
+                        />
+                    </View>
                 </View>
             </View>
             <WebView
@@ -107,30 +108,32 @@ export const StoreOfferWebView = ({}: StoreOfferWebViewProps) => {
                 }}
             />
             <View style={styles.webViewNavbar}>
-                <IconButton
-                    disabled={isBackButtonDisabled}
-                    rippleColor={'grey'}
-                    icon="chevron-left"
-                    iconColor={"#F2FF5D"}
-                    size={Dimensions.get('window').height / 23}
-                    style={styles.webViewBackButton}
-                    onPress={() => {
-                        // @ts-ignore
-                        webViewRef && webViewRef.current.goBack();
-                    }}
-                />
-                <IconButton
-                    disabled={isForwardButtonDisabled}
-                    rippleColor={'grey'}
-                    icon="chevron-right"
-                    iconColor={"#F2FF5D"}
-                    size={Dimensions.get('window').height / 23}
-                    style={styles.webViewForwardButton}
-                    onPress={() => {
-                        // @ts-ignore
-                        webViewRef && webViewRef.current.goForward();
-                    }}
-                />
+                <View style={{alignSelf: 'center', flexDirection: 'row', width: wp(25)}}>
+                    <IconButton
+                        disabled={isBackButtonDisabled}
+                        rippleColor={'grey'}
+                        icon="chevron-left"
+                        iconColor={"#F2FF5D"}
+                        size={hp(4)}
+                        style={styles.webViewBackButton}
+                        onPress={() => {
+                            // @ts-ignore
+                            webViewRef && webViewRef.current.goBack();
+                        }}
+                    />
+                    <IconButton
+                        disabled={isForwardButtonDisabled}
+                        rippleColor={'grey'}
+                        icon="chevron-right"
+                        iconColor={"#F2FF5D"}
+                        size={hp(4)}
+                        style={styles.webViewForwardButton}
+                        onPress={() => {
+                            // @ts-ignore
+                            webViewRef && webViewRef.current.goForward();
+                        }}
+                    />
+                </View>
                 <View style={styles.bottomBarDiscountsView}>
                     <Text style={styles.bottomBarDiscountsLabel}>
                         Shop with your{"\n"}
@@ -139,27 +142,36 @@ export const StoreOfferWebView = ({}: StoreOfferWebViewProps) => {
                         </Text>
                     </Text>
                 </View>
-                <View>
+                <View style={{
+                    alignSelf: 'center',
+                    flexDirection: 'column',
+                    backgroundColor: 'red'
+                }}>
                     <Portal>
                         <FAB.Group
                             visible={true}
-                            style={styles.cardDetailsTab}
                             label={'Copy'}
+                            style={{
+                                flexDirection: 'row',
+                                backgroundColor: 'transparent',
+                                position: 'absolute',
+                                top: hp(55)
+                            }}
                             fabStyle={styles.cardDetailsButton}
                             color={'#F2FF5D'}
                             open={cardDetailsMenuOpen['open']}
                             icon={cardDetailsMenuOpen['open'] ? require('../../../../../../../assets/card-details-close.png') : require('../../../../../../../assets/card-details-open.png')}
                             actions={[
                                 ...userInformation["linkedCard"] && userInformation["linkedCard"].length !== 0 ?
-                                [{
-                                    labelStyle: styles.cardDetailsSectionLabel,
-                                    color: '#F2FF5D',
-                                    icon: 'credit-card',
-                                    label: 'Linked Card Last 4 Digits',
-                                    onPress: async () => {
-                                        await Clipboard.setStringAsync(`${userInformation["linkedCard"]["cards"][0].last4}`);
-                                    },
-                                }] : [],
+                                    [{
+                                        labelStyle: styles.cardDetailsSectionLabel,
+                                        color: '#F2FF5D',
+                                        icon: 'credit-card',
+                                        label: 'Linked Card Last 4 Digits',
+                                        onPress: async () => {
+                                            await Clipboard.setStringAsync(`${userInformation["linkedCard"]["cards"][0].last4}`);
+                                        },
+                                    }] : [],
                                 {
                                     labelStyle: styles.cardDetailsSectionLabel,
                                     color: '#F2FF5D',
@@ -179,7 +191,7 @@ export const StoreOfferWebView = ({}: StoreOfferWebViewProps) => {
                                     setCardDetailsMenuOpen(true);
                                 }
                             }}
-                         />
+                        />
                     </Portal>
                 </View>
             </View>

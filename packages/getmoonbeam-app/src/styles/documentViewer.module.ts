@@ -1,26 +1,25 @@
-import {Dimensions, StyleSheet} from "react-native";
+import {StyleSheet} from "react-native";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 // styles to be used within the DocumentsViewer component
 export const styles = StyleSheet.create({
     topBar: {
-        flex: 0.11,
+        height: hp(13),
+        width: wp(100),
         backgroundColor: '#313030',
         flexDirection: 'column',
     },
     containerView: {
-        flex: 0.10,
+        height: hp(12),
+        width: wp(100),
         justifyContent: 'space-between',
-        flexDirection: 'row',
-        flexWrap: 'nowrap'
+        flexDirection: 'row'
     },
     backButton: {
-        top: Dimensions.get('window').height / 25,
-        left: Dimensions.get('window').width/30,
         alignItems: 'flex-start'
     },
     shareButton: {
-        top: Dimensions.get('window').height / 22,
-        right: Dimensions.get('window').width/30,
+        top: hp(0.5),
         alignItems: 'flex-end'
     }
 });

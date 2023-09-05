@@ -1,4 +1,5 @@
-import {Dimensions, StyleSheet} from "react-native";
+import {StyleSheet} from "react-native";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 // styles to be used within the Wallet component
 export const styles = StyleSheet.create({
@@ -10,25 +11,23 @@ export const styles = StyleSheet.create({
     },
     mainCardView: {
         flex: 1,
-        width: '100%'
+        width: wp(100)
     },
     noCardImage: {
-        height: Dimensions.get('window').height * 0.55,
-        width: Dimensions.get('window').width * 0.55,
-        bottom: Dimensions.get('window').height / 25,
+        height: hp(55),
+        width: wp(55),
+        bottom: hp(5),
         alignSelf: 'center'
     },
     walletTopTitleView: {
-        width: Dimensions.get('window').width,
-        flexDirection: 'row',
-        alignContent: 'flex-start',
-        alignItems: 'flex-start',
-        alignSelf: 'flex-start'
+        height: hp(7),
+        width: wp(100),
+        flexDirection: 'column'
     },
     walletView: {
         flex: 1,
-        width: '100%',
-        height: '100%',
+        width: wp(100),
+        height: hp(100),
         flexDirection: 'column',
         alignContent: 'center',
         alignItems: 'center',
@@ -38,18 +37,9 @@ export const styles = StyleSheet.create({
     cardRemovalButton: {
         backgroundColor: '#F2FF5D',
         position: 'absolute',
-        width: Dimensions.get('window').width / 1.4,
-        height: Dimensions.get('window').height / 20,
-        bottom: -Dimensions.get('window').height / 9,
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    linkingButton: {
-        backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width / 1.4,
-        height: Dimensions.get('window').height / 20,
+        width: wp(40),
+        height: hp(5),
+        bottom: -hp(10),
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -60,9 +50,9 @@ export const styles = StyleSheet.create({
     },
     splashButton: {
         backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width / 1.4,
-        height: Dimensions.get('window').height / 20,
-        marginBottom: Dimensions.get('window').width / 30,
+        width: wp(50),
+        height: hp(5),
+        marginBottom: hp(1),
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -71,39 +61,33 @@ export const styles = StyleSheet.create({
     buttonText: {
         color: '#313030',
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').height / 45,
-        marginTop: Dimensions.get('window').height / 90
+        fontSize: hp(2.3),
+        marginTop: hp(1.3)
     },
     listSectionView: {
-        left: Dimensions.get('window').width / 20,
-        marginTop: Dimensions.get('window').height / 20,
+        left: wp(4),
+        marginTop: hp(3),
         alignSelf: 'flex-start',
-        width: Dimensions.get('window').width / 1.1,
+        width: wp(90),
         borderRadius: 10
-    },
-    subHeaderTitle: {
-        alignSelf: 'flex-start',
-        color: '#F2FF5D',
-        fontSize: Dimensions.get('window').height / 65,
-        fontFamily: 'Raleway-Medium'
     },
     cardItemStyle: {
         backgroundColor: '#F2FF5D',
-        height: Dimensions.get('window').height / 4,
-        width: Dimensions.get('window').width / 1.1,
+        height: hp(25),
+        width: wp(90),
         borderRadius: 20
     },
     cardItemTitle: {
         color: '#313030',
         fontFamily: 'Saira-Bold',
-        fontSize: Dimensions.get('window').height / 40,
-        width: Dimensions.get('window').width / 3,
-        bottom: Dimensions.get('window').height / 40
+        fontSize: hp(2.3),
+        width: wp(40),
+        bottom: hp(2)
     },
     cardItemDetails: {
         color: '#313030',
         fontFamily: 'Saira-Regular',
-        fontSize: Dimensions.get('window').height / 50
+        fontSize: hp(2)
     },
     cardLinkingParentView: {
         backgroundColor: '#5B5A5A',
@@ -113,93 +97,49 @@ export const styles = StyleSheet.create({
     },
     cardLinkingIframeView: {
         backgroundColor: 'transparent',
-        width: Dimensions.get('window').width * 1.3,
+        width: wp(125),
         flexGrow: 1
     },
     disclaimerTextView: {
         position: 'absolute',
-        bottom: Dimensions.get('window').height / 30,
+        bottom: hp(5),
         alignItems: 'center',
         alignSelf: 'center',
         textAlign: 'center'
     },
     disclaimerText: {
         fontFamily: 'Saira-Regular',
-        fontSize: Dimensions.get('window').width / 23,
-        width: Dimensions.get('window').width / 1.5,
-        textAlign: 'center'
-    },
-    disclaimerTextTablet: {
-        fontFamily: 'Saira-Regular',
-        fontSize: Dimensions.get('window').width / 35,
-        width: Dimensions.get('window').width / 1.7,
+        fontSize: hp(2.1),
+        width: wp(70),
         textAlign: 'center'
     },
     walletTextView: {
-        alignSelf: 'flex-start',
         flexDirection: 'column',
-        marginTop: Dimensions.get('window').height / 30,
-        left: Dimensions.get('window').width / 20
+        marginTop: hp(4)
     },
     walletTitle: {
+        alignSelf: 'flex-start',
         fontFamily: 'Saira-SemiBold',
-        fontSize: Dimensions.get('window').width / 13,
-        color: '#FFFFFF'
-    },
-    walletTitleTablet: {
-        fontFamily: 'Saira-SemiBold',
-        fontSize: Dimensions.get('window').width / 19,
-        color: '#FFFFFF'
-    },
-    walletSubtitle: {
-        fontFamily: 'Raleway-Regular',
-        fontSize: Dimensions.get('window').width / 22,
-        width: Dimensions.get('window').width / 1.15,
-        textAlign: 'justify',
-        color: '#FFFFFF'
-    },
-    walletSubtitleTablet: {
-        fontFamily: 'Raleway-Regular',
-        fontSize: Dimensions.get('window').width / 28,
-        width: Dimensions.get('window').width / 1.15,
-        textAlign: 'justify',
+        fontSize: hp(4),
+        left: wp(6),
         color: '#FFFFFF'
     },
     cardRemovalTitle: {
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').width / 13,
-        color: '#FFFFFF'
-    },
-    cardRemovalTitleTablet: {
-        fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').width / 18,
+        fontSize: hp(3.5),
         color: '#FFFFFF'
     },
     cardRemovalDetails: {
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').width / 23,
-        bottom: Dimensions.get('window').height / 80,
-        color: '#F2FF5D'
-    },
-    cardRemovalDetailsTablet: {
-        fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').width / 33,
-        bottom: Dimensions.get('window').height / 80,
+        fontSize: hp(3),
+        bottom: hp(1.5),
         color: '#F2FF5D'
     },
     cardRemovalSubtitle: {
         fontFamily: 'Raleway-Regular',
-        fontSize: Dimensions.get('window').width / 22,
-        width: Dimensions.get('window').width / 1.15,
-        top: Dimensions.get('window').height / 100,
-        textAlign: 'center',
-        color: '#FFFFFF'
-    },
-    cardRemovalSubtitleTablet: {
-        fontFamily: 'Raleway-Regular',
-        fontSize: Dimensions.get('window').width / 32,
-        width: Dimensions.get('window').width / 1.15,
-        top: Dimensions.get('window').height / 100,
+        fontSize: hp(2),
+        width: wp(90),
+        top: hp(1),
         textAlign: 'center',
         color: '#FFFFFF'
     },

@@ -1,4 +1,4 @@
-import {Dimensions, Keyboard, Platform, SafeAreaView, StyleSheet, TouchableOpacity, View} from "react-native";
+import {Keyboard, Platform, SafeAreaView, StyleSheet, TouchableOpacity, View} from "react-native";
 import {Dialog, Portal, Text, TextInput} from "react-native-paper";
 import React, {useEffect, useRef, useState} from "react";
 import {commonStyles} from "../../../../../styles/common.module";
@@ -11,10 +11,7 @@ import {Spinner} from "../../../../common/Spinner";
 import {ProfileProps} from "../../../../../models/props/SettingsProps";
 import {appDrawerHeaderShownState, drawerSwipeState, profilePictureURIState} from "../../../../../recoil/AppDrawerAtom";
 import {LinearGradient} from "expo-linear-gradient";
-import * as Device from "expo-device";
-import {DeviceType} from "expo-device";
 import {Avatar, Button} from "@rneui/base";
-import {deviceTypeState} from "../../../../../recoil/RootAtom";
 import DropDownPicker from "react-native-dropdown-picker";
 import {CodeVerificationType, dutyStatusItems} from "../../../../../models/Constants";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
@@ -28,6 +25,7 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import {CodeVerificationBottomSheet} from "./CodeVerificationBottomSheet";
 import {codeVerificationSheetShown, codeVerifiedState} from "../../../../../recoil/CodeVerificationAtom";
 import {CognitoUser} from "amazon-cognito-identity-js";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 /**
  * Profile component
@@ -36,6 +34,7 @@ import {CognitoUser} from "amazon-cognito-identity-js";
  */
 export const Profile = ({navigation}: ProfileProps) => {
     // constants used to keep track of local component state
+    const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -72,14 +71,13 @@ export const Profile = ({navigation}: ProfileProps) => {
     const [dutyStatusErrors, setDutyStatusErrors] = useState<string[]>([]);
     const bottomSheetRef = useRef(null);
     // constants used to keep track of shared states
-    const [globalCache, ] = useRecoilState(globalAmplifyCacheState);
+    const [globalCache,] = useRecoilState(globalAmplifyCacheState);
     const [showBottomSheet, setShowBottomSheet] = useRecoilState(codeVerificationSheetShown);
     const [codeVerified, setCodeVerified] = useRecoilState(codeVerifiedState);
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
     const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
     const [profilePictureURI, setProfilePictureURI] = useRecoilState(profilePictureURIState);
     const [appDrawerHeaderShown, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
-    const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
 
     // initializing the field validator, to be used for validating form field values
     const fieldValidator = new FieldValidator();
@@ -92,6 +90,20 @@ export const Profile = ({navigation}: ProfileProps) => {
      * included in here.
      */
     useEffect(() => {
+        // keyboard listeners
+        const keyboardDidShowListener = Keyboard.addListener(
+            'keyboardDidShow',
+            () => {
+                setIsKeyboardShown(true);
+            }
+        );
+        const keyboardDidHideListener = Keyboard.addListener(
+            'keyboardDidHide',
+            () => {
+                setIsKeyboardShown(false);
+            }
+        );
+
         if (userInformation["custom:userId"]) {
             // if the code has been successfully verified from the code verification component
             if (codeVerified) {
@@ -117,11 +129,6 @@ export const Profile = ({navigation}: ProfileProps) => {
                 // reset the flag
                 setCodeVerified(false);
             }
-
-            // check and set the type of device, to be used throughout the app
-            Device.getDeviceTypeAsync().then(deviceType => {
-                setDeviceType(deviceType);
-            });
 
             // disable the swipe for the drawer
             setDrawerSwipeEnabled(false);
@@ -192,13 +199,18 @@ export const Profile = ({navigation}: ProfileProps) => {
             }
             addressZip === "" && setAddressZipErrors([]);
         }
-    }, [userInformation["custom:userId"],
+
+        // remove keyboard listeners accordingly
+        return () => {
+            keyboardDidHideListener.remove();
+            keyboardDidShowListener.remove();
+        };
+    }, [userInformation["custom:userId"], isKeyboardShown,
         appDrawerHeaderShown, userInformation, profilePictureURI,
         email, emailFocus, phoneNumber, phoneNumberFocus, dutyStatus,
         addressLine, addressLineFocus, addressCity, addressCityFocus,
         addressState, addressStateFocus, addressZip, addressZipFocus,
-        showBottomSheet, bottomSheetRef, deviceType, editingFlag,
-        codeVerified]);
+        showBottomSheet, bottomSheetRef, editingFlag, codeVerified]);
 
     /**
      * Function used to retrieve the user information from the shared user info
@@ -287,7 +299,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                         const photoAsset = result.assets[0];
 
                         // if a photo of their document was picked successfully, then check against its size
-                        if (photoAsset.fileSize && isValidSize(photoAsset.fileSize!)) {
+                        if (!photoAsset.fileSize || (photoAsset.fileSize && isValidSize(photoAsset.fileSize!))) {
                             /**
                              * build a new upload URI, used to upload the photo to the file system storage
                              * in order to obtain a valid URI/URL that can be use for further steps
@@ -484,7 +496,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                         <Dialog style={[commonStyles.dialogStyle, {backgroundColor: '#313030'}]} visible={modalVisible}
                                 onDismiss={() => setModalVisible(false)}>
                             <Dialog.Icon icon="alert" color={"#F2FF5D"}
-                                         size={Dimensions.get('window').height / 14}/>
+                                         size={hp(10)}/>
                             <Dialog.Title
                                 style={commonStyles.dialogTitle}>{modalButtonMessage === 'Ok' ? 'Great' : 'We hit a snag!'}</Dialog.Title>
                             <Dialog.Content>
@@ -522,319 +534,230 @@ export const Profile = ({navigation}: ProfileProps) => {
                                 enableAutomaticScroll={(Platform.OS === 'ios')}
                                 keyboardShouldPersistTaps={'handled'}
                             >
-                                <LinearGradient
-                                    start={{x: 0.5, y: 0.05}}
-                                    end={{x: 0.5, y: 1}}
-                                    colors={['#313030', 'transparent']}>
-                                    <View>
-                                        <Avatar
-                                            {...(profilePictureURI && profilePictureURI !== "") && {
-                                                source: {
-                                                    uri: profilePictureURI,
-                                                    cache: 'reload'
+                                <View style={Platform.OS === 'android' && isKeyboardShown && {height: hp(220)}}>
+                                    <LinearGradient
+                                        start={{x: 0.5, y: 0.05}}
+                                        end={{x: 0.5, y: 1}}
+                                        colors={['#313030', 'transparent']}>
+                                        <View>
+                                            <Avatar
+                                                {...(profilePictureURI && profilePictureURI !== "") && {
+                                                    source: {
+                                                        uri: profilePictureURI,
+                                                        cache: 'reload'
+                                                    }
                                                 }
-                                            }
-                                            }
-                                            avatarStyle={{
-                                                resizeMode: 'cover',
-                                                borderColor: '#F2FF5D',
-                                                borderWidth: 3
-                                            }}
-                                            size={deviceType === DeviceType.TABLET ? 300 : Dimensions.get('window').height / 5}
-                                            rounded
-                                            title={(!profilePictureURI || profilePictureURI === "") ? currentUserTitle : undefined}
-                                            {...(!profilePictureURI || profilePictureURI === "") && {
-                                                titleStyle: [
-                                                    styles.titleStyle, deviceType === DeviceType.TABLET ? {fontSize: 84} : {fontSize: Dimensions.get('window').width / 6}
-                                                ]
-                                            }}
-                                            containerStyle={styles.avatarStyle}
-                                            onPress={async () => {
-                                                // first pick and upload a photo to storage
-                                                await pickPhoto();
-                                            }}
-                                        >
-                                            <Avatar.Accessory
-                                                size={deviceType == DeviceType.TABLET ? 60 : Dimensions.get('window').width / 10}
-                                                style={styles.avatarAccessoryStyle}
-                                                color={'#F2FF5D'}
-                                                iconProps={{
-                                                    name: 'camera-alt'
+                                                }
+                                                avatarStyle={{
+                                                    resizeMode: 'cover',
+                                                    borderColor: '#F2FF5D',
+                                                    borderWidth: 3
                                                 }}
+                                                size={hp(20)}
+                                                rounded
+                                                title={(!profilePictureURI || profilePictureURI === "") ? currentUserTitle : undefined}
+                                                {...(!profilePictureURI || profilePictureURI === "") && {
+                                                    titleStyle: [
+                                                        styles.titleStyle
+                                                    ]
+                                                }}
+                                                containerStyle={styles.avatarStyle}
                                                 onPress={async () => {
                                                     // first pick and upload a photo to storage
                                                     await pickPhoto();
                                                 }}
-                                            />
-                                        </Avatar>
-                                        <Text numberOfLines={3} textBreakStrategy={"simple"}
-                                              style={[styles.userNameStyle,
-                                                  deviceType === DeviceType.TABLET
-                                                      ? {
-                                                          fontSize: 45,
-                                                          top: '7%',
-                                                          marginBottom: '30%',
-                                                          width: Dimensions.get('window').width / 2.1
-                                                      }
-                                                      : {
-                                                          fontSize: Dimensions.get('window').width / 15,
-                                                          top: '7%',
-                                                          marginBottom: '30%',
-                                                          width: Dimensions.get('window').width / 1.6
-                                                      }]}>{currentUserName}</Text>
-                                        <TouchableOpacity
-                                            style={styles.editButton}
-                                            onPress={
-                                                async () => {
-                                                    // check if we are editing, and we want to save
-                                                    if (editingFlag) {
-                                                        if (email === "" || phoneNumber === "" || addressLine === "" || addressCity === "" || addressState === "" || addressZip === "" ||
-                                                            dutyStatus === "" || emailErrors.length !== 0 || phoneErrors.length !== 0 || addressLineErrors.length !== 0 || addressCityErrors.length !== 0 ||
-                                                            addressStateErrors.length !== 0 || addressZipErrors.length !== 0 || dutyStatusErrors.length !== 0) {
-                                                            // only populate main error if there are no other errors showing
-                                                            if (emailErrors.length === 0 && phoneErrors.length === 0 &&
-                                                                addressLineErrors.length === 0 && addressCityErrors.length === 0 && addressStateErrors.length === 0 &&
-                                                                addressZipErrors.length === 0 && dutyStatusErrors.length === 0) {
-                                                                setProfileUpdatesMainError(true);
+                                            >
+                                                <Avatar.Accessory
+                                                    size={hp(5)}
+                                                    style={styles.avatarAccessoryStyle}
+                                                    color={'#F2FF5D'}
+                                                    iconProps={{
+                                                        name: 'camera-alt'
+                                                    }}
+                                                    onPress={async () => {
+                                                        // first pick and upload a photo to storage
+                                                        await pickPhoto();
+                                                    }}
+                                                />
+                                            </Avatar>
+                                            <Text numberOfLines={3} textBreakStrategy={"simple"}
+                                                  style={[styles.userNameStyle]}>{currentUserName}</Text>
+                                            <TouchableOpacity
+                                                style={styles.editButton}
+                                                onPress={
+                                                    async () => {
+                                                        // check if we are editing, and we want to save
+                                                        if (editingFlag) {
+                                                            if (email === "" || phoneNumber === "" || addressLine === "" || addressCity === "" || addressState === "" || addressZip === "" ||
+                                                                dutyStatus === "" || emailErrors.length !== 0 || phoneErrors.length !== 0 || addressLineErrors.length !== 0 || addressCityErrors.length !== 0 ||
+                                                                addressStateErrors.length !== 0 || addressZipErrors.length !== 0 || dutyStatusErrors.length !== 0) {
+                                                                // only populate main error if there are no other errors showing
+                                                                if (emailErrors.length === 0 && phoneErrors.length === 0 &&
+                                                                    addressLineErrors.length === 0 && addressCityErrors.length === 0 && addressStateErrors.length === 0 &&
+                                                                    addressZipErrors.length === 0 && dutyStatusErrors.length === 0) {
+                                                                    setProfileUpdatesMainError(true);
+                                                                }
+                                                            } else {
+                                                                setProfileUpdatesMainError(false);
+
+                                                                // we first need to decide whether there's a need for an email or phone verification screen to show up
+                                                                if (email.toLowerCase() !== userInformation["email"].toLowerCase()) {
+                                                                    // show the bottom sheet
+                                                                    setShowBottomSheet(true);
+
+                                                                    // close the keyboard so it doesn't overlap with anything
+                                                                    Keyboard.dismiss();
+
+                                                                    // performs the actual saving of fields in the bottom sheet
+                                                                } else {
+                                                                    // performs the actual saving of fields here
+                                                                    await updateProfile();
+
+                                                                    // changes the editing flag accordingly
+                                                                    setEditingFlag(false);
+                                                                }
                                                             }
                                                         } else {
-                                                            setProfileUpdatesMainError(false);
-
-                                                            // we first need to decide whether there's a need for an email or phone verification screen to show up
-                                                            if (email.toLowerCase() !== userInformation["email"].toLowerCase()) {
-                                                                // show the bottom sheet
-                                                                setShowBottomSheet(true);
-
-                                                                // close the keyboard so it doesn't overlap with anything
-                                                                Keyboard.dismiss();
-
-                                                                // performs the actual saving of fields in the bottom sheet
-                                                            } else {
-                                                                // performs the actual saving of fields here
-                                                                await updateProfile();
-
-                                                                // changes the editing flag accordingly
-                                                                setEditingFlag(false);
-                                                            }
+                                                            // set the editing flag accordingly
+                                                            setEditingFlag(true);
                                                         }
-                                                    } else {
-                                                        // set the editing flag accordingly
-                                                        setEditingFlag(true);
                                                     }
                                                 }
-                                            }
-                                        >
+                                            >
+                                                <Text
+                                                    style={styles.buttonText}>{!editingFlag ? 'Edit Profile' : 'Save Changes'}</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                        {profileUpdatesMainError
+                                            ?
                                             <Text
-                                                style={styles.buttonText}>{!editingFlag ? 'Edit Profile' : 'Save Changes'}</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                    {profileUpdatesMainError
-                                        ?
-                                        <Text
-                                            style={deviceType === DeviceType.TABLET ? styles.errorMessageTablet : styles.errorMessage}>Please
-                                            fill out the information below!</Text>
-                                        : (emailErrors.length !== 0 && !profileUpdatesMainError)
-                                            ? <Text
-                                                style={deviceType === DeviceType.TABLET ? styles.errorMessageTablet : styles.errorMessage}>{emailErrors[0]}</Text>
-                                            : (phoneErrors.length !== 0 && !profileUpdatesMainError)
+                                                style={styles.errorMessage}>Please
+                                                fill out the information below!</Text>
+                                            : (emailErrors.length !== 0 && !profileUpdatesMainError)
                                                 ? <Text
-                                                    style={deviceType === DeviceType.TABLET ? styles.errorMessageTablet : styles.errorMessage}>{phoneErrors[0]}</Text>
-                                                : (addressLineErrors.length !== 0 && !profileUpdatesMainError)
+                                                    style={styles.errorMessage}>{emailErrors[0]}</Text>
+                                                : (phoneErrors.length !== 0 && !profileUpdatesMainError)
                                                     ? <Text
-                                                        style={deviceType === DeviceType.TABLET ? styles.errorMessageTablet : styles.errorMessage}>{addressLineErrors[0]}</Text>
-                                                    : (addressCityErrors.length !== 0 && !profileUpdatesMainError)
-                                                        ?
-                                                        <Text
-                                                            style={deviceType === DeviceType.TABLET ? styles.errorMessageTablet : styles.errorMessage}>{addressCityErrors[0]}</Text>
-                                                        : (addressStateErrors.length !== 0 && !profileUpdatesMainError)
-                                                            ? <Text
-                                                                style={deviceType === DeviceType.TABLET ? styles.errorMessageTablet : styles.errorMessage}>{addressStateErrors[0]}</Text>
-                                                            : (addressZipErrors.length !== 0 && !profileUpdatesMainError)
+                                                        style={styles.errorMessage}>{phoneErrors[0]}</Text>
+                                                    : (addressLineErrors.length !== 0 && !profileUpdatesMainError)
+                                                        ? <Text
+                                                            style={styles.errorMessage}>{addressLineErrors[0]}</Text>
+                                                        : (addressCityErrors.length !== 0 && !profileUpdatesMainError)
+                                                            ?
+                                                            <Text
+                                                                style={styles.errorMessage}>{addressCityErrors[0]}</Text>
+                                                            : (addressStateErrors.length !== 0 && !profileUpdatesMainError)
                                                                 ? <Text
-                                                                    style={deviceType === DeviceType.TABLET ? styles.errorMessageTablet : styles.errorMessage}>{addressZipErrors[0]}</Text>
-                                                                : (dutyStatusErrors.length !== 0 && !profileUpdatesMainError)
+                                                                    style={styles.errorMessage}>{addressStateErrors[0]}</Text>
+                                                                : (addressZipErrors.length !== 0 && !profileUpdatesMainError)
                                                                     ? <Text
-                                                                        style={deviceType === DeviceType.TABLET ? styles.errorMessageTablet : styles.errorMessage}>{dutyStatusErrors[0]}</Text>
-                                                                    : <></>
-                                    }
-                                    <View
-                                        style={deviceType === DeviceType.TABLET ? styles.profileContentViewTablet : styles.profileContentView}>
-                                        <TextInput
-                                            autoCorrect={false}
-                                            autoComplete={"off"}
-                                            disabled={true}
-                                            placeholderTextColor={'#D9D9D9'}
-                                            activeUnderlineColor={'#F2FF5D'}
-                                            underlineColor={'#D9D9D9'}
-                                            outlineColor={'#D9D9D9'}
-                                            activeOutlineColor={'#F2FF5D'}
-                                            selectionColor={'#F2FF5D'}
-                                            mode={'flat'}
-                                            value={birthday}
-                                            contentStyle={styles.textInputContentStyle}
-                                            style={styles.textInputNonEditable}
-                                            label="Birthday"
-                                            textColor={"#FFFFFF"}
-                                            left={<TextInput.Icon icon="cake" iconColor="#FFFFFF"/>}
-                                        />
-                                        <TextInput
-                                            autoCapitalize={"none"}
-                                            autoCorrect={false}
-                                            autoComplete={"off"}
-                                            disabled={!editingFlag}
-                                            keyboardType={"email-address"}
-                                            placeholderTextColor={'#D9D9D9'}
-                                            activeUnderlineColor={'#F2FF5D'}
-                                            underlineColor={'#D9D9D9'}
-                                            outlineColor={'#D9D9D9'}
-                                            activeOutlineColor={'#F2FF5D'}
-                                            selectionColor={'#F2FF5D'}
-                                            mode={'flat'}
-                                            onChangeText={(value: React.SetStateAction<string>) => {
-                                                setIsEmailFocus(true);
-                                                setProfileUpdatesMainError(false);
-                                                setEmail(value);
-                                            }}
-                                            onBlur={() => {
-                                                setIsEmailFocus(false);
-                                            }}
-                                            value={email}
-                                            contentStyle={styles.textInputContentStyle}
-                                            style={[emailFocus ? styles.textInputFocus : !editingFlag ? styles.textInputNonEditable : styles.textInput, {marginTop: Dimensions.get('window').height / 30}]}
-                                            onFocus={() => {
-                                                setIsEmailFocus(true);
-
-                                                // close the dropdown if opened
-                                                dropdownDutyState && setDropdownDutyState(false);
-                                            }}
-                                            placeholder={'Required'}
-                                            label="Email"
-                                            textColor={"#FFFFFF"}
-                                            left={<TextInput.Icon icon="email" iconColor="#FFFFFF"/>}
-                                            {...editingFlag && {
-                                                right: <TextInput.Icon icon="pencil" iconColor="#F2FF5D"/>
-                                            }}
-                                        />
-                                        <TextInput
-                                            autoCorrect={false}
-                                            autoComplete={"off"}
-                                            disabled={!editingFlag}
-                                            keyboardType={"phone-pad"}
-                                            placeholderTextColor={'#D9D9D9'}
-                                            activeUnderlineColor={'#F2FF5D'}
-                                            underlineColor={'#D9D9D9'}
-                                            outlineColor={'#D9D9D9'}
-                                            activeOutlineColor={'#F2FF5D'}
-                                            selectionColor={'#F2FF5D'}
-                                            mode={'flat'}
-                                            onChangeText={(value: React.SetStateAction<string>) => {
-                                                setIsPhoneNumberFocus(true);
-                                                setProfileUpdatesMainError(false);
-
-                                                // format value
-                                                value = fieldValidator.formatPhoneNumber(phoneNumber, value.toString());
-
-                                                setPhoneNumber(value);
-                                            }}
-                                            onBlur={() => {
-                                                setIsPhoneNumberFocus(false);
-                                            }}
-                                            value={phoneNumber}
-                                            contentStyle={styles.textInputContentStyle}
-                                            style={[phoneNumberFocus ? styles.textInputFocus : !editingFlag ? styles.textInputNonEditable : styles.textInput, {marginTop: Dimensions.get('window').height / 30}]}
-                                            onFocus={() => {
-                                                setIsPhoneNumberFocus(true);
-
-                                                // close the dropdown if opened
-                                                dropdownDutyState && setDropdownDutyState(false);
-                                            }}
-                                            placeholder={'Required +1 (XXX)-XXX-XXXX'}
-                                            label="Phone Number"
-                                            textColor={"#FFFFFF"}
-                                            left={<TextInput.Icon icon="phone" iconColor="#FFFFFF"/>}
-                                            {...editingFlag && {
-                                                right: <TextInput.Icon icon="pencil" iconColor="#F2FF5D"/>
-                                            }}
-                                        />
-                                        <TextInput
-                                            autoCapitalize={"sentences"}
-                                            autoCorrect={false}
-                                            autoComplete={"off"}
-                                            disabled={!editingFlag}
-                                            keyboardType={"default"}
-                                            placeholderTextColor={'#D9D9D9'}
-                                            activeUnderlineColor={'#F2FF5D'}
-                                            underlineColor={'#D9D9D9'}
-                                            outlineColor={'#D9D9D9'}
-                                            activeOutlineColor={'#F2FF5D'}
-                                            selectionColor={'#F2FF5D'}
-                                            mode={'flat'}
-                                            onChangeText={(value: React.SetStateAction<string>) => {
-                                                setIsAddressLineFocus(true);
-                                                setProfileUpdatesMainError(false);
-                                                setAddressLine(value);
-                                            }}
-                                            onBlur={() => {
-                                                setIsAddressLineFocus(false);
-                                            }}
-                                            value={addressLine}
-                                            contentStyle={styles.textInputContentStyle}
-                                            style={[addressLineFocus ? styles.textInputFocus : !editingFlag ? styles.textInputNonEditable : styles.textInput, {marginTop: Dimensions.get('window').height / 30}]}
-                                            onFocus={() => {
-                                                setIsAddressLineFocus(true);
-
-                                                // close the dropdown if opened
-                                                dropdownDutyState && setDropdownDutyState(false);
-                                            }}
-                                            placeholder={'Required (1 West Example Street)'}
-                                            label="Street Address"
-                                            textColor={"#FFFFFF"}
-                                            left={<TextInput.Icon icon="home-map-marker" iconColor="#FFFFFF"/>}
-                                            {...editingFlag && {
-                                                right: <TextInput.Icon icon="pencil" iconColor="#F2FF5D"/>
-                                            }}
-                                        />
-                                        <TextInput
-                                            autoCapitalize={"sentences"}
-                                            autoCorrect={false}
-                                            autoComplete={"off"}
-                                            disabled={!editingFlag}
-                                            keyboardType={"default"}
-                                            placeholderTextColor={'#D9D9D9'}
-                                            activeUnderlineColor={'#F2FF5D'}
-                                            underlineColor={'#D9D9D9'}
-                                            outlineColor={'#D9D9D9'}
-                                            activeOutlineColor={'#F2FF5D'}
-                                            selectionColor={'#F2FF5D'}
-                                            mode={'flat'}
-                                            onChangeText={(value: React.SetStateAction<string>) => {
-                                                setIsAddressCityFocus(true);
-                                                setProfileUpdatesMainError(false);
-                                                setAddressCity(value);
-                                            }}
-                                            onBlur={() => {
-                                                setIsAddressCityFocus(false);
-                                            }}
-                                            value={addressCity}
-                                            contentStyle={styles.textInputContentStyle}
-                                            style={[addressCityFocus ? styles.textInputFocus : !editingFlag ? styles.textInputNonEditable : styles.textInput, {marginTop: Dimensions.get('window').height / 30}]}
-                                            onFocus={() => {
-                                                setIsAddressCityFocus(true);
-
-                                                // close the dropdown if opened
-                                                dropdownDutyState && setDropdownDutyState(false);
-                                            }}
-                                            placeholder={'Required'}
-                                            label="City"
-                                            textColor={"#FFFFFF"}
-                                            left={<TextInput.Icon icon="home-city" iconColor="#FFFFFF"/>}
-                                            {...editingFlag && {
-                                                right: <TextInput.Icon icon="pencil" iconColor="#F2FF5D"/>
-                                            }}
-                                        />
-                                        <View style={styles.inputColumnViewAddress}>
+                                                                        style={styles.errorMessage}>{addressZipErrors[0]}</Text>
+                                                                    : (dutyStatusErrors.length !== 0 && !profileUpdatesMainError)
+                                                                        ? <Text
+                                                                            style={styles.errorMessage}>{dutyStatusErrors[0]}</Text>
+                                                                        : <></>
+                                        }
+                                        <View
+                                            style={styles.profileContentView}>
                                             <TextInput
-                                                autoCapitalize={"characters"}
+                                                autoCorrect={false}
+                                                autoComplete={"off"}
+                                                disabled={true}
+                                                placeholderTextColor={'#D9D9D9'}
+                                                activeUnderlineColor={'#F2FF5D'}
+                                                underlineColor={'#D9D9D9'}
+                                                outlineColor={'#D9D9D9'}
+                                                activeOutlineColor={'#F2FF5D'}
+                                                selectionColor={'#F2FF5D'}
+                                                mode={'flat'}
+                                                value={birthday}
+                                                contentStyle={styles.textInputContentStyle}
+                                                style={styles.textInputNonEditable}
+                                                label="Birthday"
+                                                textColor={"#FFFFFF"}
+                                                left={<TextInput.Icon icon="cake" iconColor="#FFFFFF"/>}
+                                            />
+                                            <TextInput
+                                                autoCapitalize={"none"}
+                                                autoCorrect={false}
+                                                autoComplete={"off"}
+                                                disabled={!editingFlag}
+                                                keyboardType={"email-address"}
+                                                placeholderTextColor={'#D9D9D9'}
+                                                activeUnderlineColor={'#F2FF5D'}
+                                                underlineColor={'#D9D9D9'}
+                                                outlineColor={'#D9D9D9'}
+                                                activeOutlineColor={'#F2FF5D'}
+                                                selectionColor={'#F2FF5D'}
+                                                mode={'flat'}
+                                                onChangeText={(value: React.SetStateAction<string>) => {
+                                                    setIsEmailFocus(true);
+                                                    setProfileUpdatesMainError(false);
+                                                    setEmail(value);
+                                                }}
+                                                onBlur={() => {
+                                                    setIsEmailFocus(false);
+                                                }}
+                                                value={email}
+                                                contentStyle={styles.textInputContentStyle}
+                                                style={[emailFocus ? styles.textInputFocus : !editingFlag ? styles.textInputNonEditable : styles.textInput, {marginTop: hp(3)}]}
+                                                onFocus={() => {
+                                                    setIsEmailFocus(true);
+
+                                                    // close the dropdown if opened
+                                                    dropdownDutyState && setDropdownDutyState(false);
+                                                }}
+                                                placeholder={'Required'}
+                                                label="Email"
+                                                textColor={"#FFFFFF"}
+                                                left={<TextInput.Icon icon="email" iconColor="#FFFFFF"/>}
+                                                {...editingFlag && {
+                                                    right: <TextInput.Icon icon="pencil" iconColor="#F2FF5D"/>
+                                                }}
+                                            />
+                                            <TextInput
+                                                autoCorrect={false}
+                                                autoComplete={"off"}
+                                                disabled={!editingFlag}
+                                                keyboardType={"phone-pad"}
+                                                placeholderTextColor={'#D9D9D9'}
+                                                activeUnderlineColor={'#F2FF5D'}
+                                                underlineColor={'#D9D9D9'}
+                                                outlineColor={'#D9D9D9'}
+                                                activeOutlineColor={'#F2FF5D'}
+                                                selectionColor={'#F2FF5D'}
+                                                mode={'flat'}
+                                                onChangeText={(value: React.SetStateAction<string>) => {
+                                                    setIsPhoneNumberFocus(true);
+                                                    setProfileUpdatesMainError(false);
+
+                                                    // format value
+                                                    value = fieldValidator.formatPhoneNumber(phoneNumber, value.toString());
+
+                                                    setPhoneNumber(value);
+                                                }}
+                                                onBlur={() => {
+                                                    setIsPhoneNumberFocus(false);
+                                                }}
+                                                value={phoneNumber}
+                                                contentStyle={styles.textInputContentStyle}
+                                                style={[phoneNumberFocus ? styles.textInputFocus : !editingFlag ? styles.textInputNonEditable : styles.textInput, {marginTop: hp(3)}]}
+                                                onFocus={() => {
+                                                    setIsPhoneNumberFocus(true);
+
+                                                    // close the dropdown if opened
+                                                    dropdownDutyState && setDropdownDutyState(false);
+                                                }}
+                                                placeholder={'Required +1 (XXX)-XXX-XXXX'}
+                                                label="Phone Number"
+                                                textColor={"#FFFFFF"}
+                                                left={<TextInput.Icon icon="phone" iconColor="#FFFFFF"/>}
+                                                {...editingFlag && {
+                                                    right: <TextInput.Icon icon="pencil" iconColor="#F2FF5D"/>
+                                                }}
+                                            />
+                                            <TextInput
+                                                autoCapitalize={"sentences"}
                                                 autoCorrect={false}
                                                 autoComplete={"off"}
                                                 disabled={!editingFlag}
@@ -847,35 +770,36 @@ export const Profile = ({navigation}: ProfileProps) => {
                                                 selectionColor={'#F2FF5D'}
                                                 mode={'flat'}
                                                 onChangeText={(value: React.SetStateAction<string>) => {
-                                                    setIsAddressStateFocus(true);
+                                                    setIsAddressLineFocus(true);
                                                     setProfileUpdatesMainError(false);
-                                                    setAddressState(value);
+                                                    setAddressLine(value);
                                                 }}
                                                 onBlur={() => {
-                                                    setIsAddressStateFocus(false);
+                                                    setIsAddressLineFocus(false);
                                                 }}
-                                                value={addressState}
-                                                contentStyle={styles.textInputNarrowContentStyle}
-                                                style={[addressStateFocus ? styles.textInputNarrowFocus : !editingFlag ? styles.textInputNarrowNonEditable : styles.textInputNarrow]}
+                                                value={addressLine}
+                                                contentStyle={styles.textInputContentStyle}
+                                                style={[addressLineFocus ? styles.textInputFocus : !editingFlag ? styles.textInputNonEditable : styles.textInput, {marginTop: hp(3)}]}
                                                 onFocus={() => {
-                                                    setIsAddressStateFocus(true);
+                                                    setIsAddressLineFocus(true);
 
                                                     // close the dropdown if opened
                                                     dropdownDutyState && setDropdownDutyState(false);
                                                 }}
-                                                placeholder={'Required'}
-                                                label="State"
+                                                placeholder={'Required (1 West Example Street)'}
+                                                label="Street Address"
                                                 textColor={"#FFFFFF"}
-                                                left={<TextInput.Icon icon="flag" iconColor="#FFFFFF"/>}
+                                                left={<TextInput.Icon icon="home-map-marker" iconColor="#FFFFFF"/>}
                                                 {...editingFlag && {
                                                     right: <TextInput.Icon icon="pencil" iconColor="#F2FF5D"/>
                                                 }}
                                             />
                                             <TextInput
+                                                autoCapitalize={"sentences"}
                                                 autoCorrect={false}
                                                 autoComplete={"off"}
                                                 disabled={!editingFlag}
-                                                keyboardType={"number-pad"}
+                                                keyboardType={"default"}
                                                 placeholderTextColor={'#D9D9D9'}
                                                 activeUnderlineColor={'#F2FF5D'}
                                                 underlineColor={'#D9D9D9'}
@@ -884,116 +808,196 @@ export const Profile = ({navigation}: ProfileProps) => {
                                                 selectionColor={'#F2FF5D'}
                                                 mode={'flat'}
                                                 onChangeText={(value: React.SetStateAction<string>) => {
-                                                    setIsAddressZipFocus(true);
+                                                    setIsAddressCityFocus(true);
                                                     setProfileUpdatesMainError(false);
-                                                    setAddressZip(value);
+                                                    setAddressCity(value);
                                                 }}
                                                 onBlur={() => {
-                                                    setIsAddressZipFocus(false);
+                                                    setIsAddressCityFocus(false);
                                                 }}
-                                                value={addressZip}
-                                                contentStyle={styles.textInputNarrowContentStyle}
-                                                style={[addressZipFocus ? styles.textInputNarrowFocus : !editingFlag ? styles.textInputNarrowNonEditable : styles.textInputNarrow, {marginLeft: Dimensions.get('window').width / 15}]}
+                                                value={addressCity}
+                                                contentStyle={styles.textInputContentStyle}
+                                                style={[addressCityFocus ? styles.textInputFocus : !editingFlag ? styles.textInputNonEditable : styles.textInput, {marginTop: hp(3)}]}
                                                 onFocus={() => {
-                                                    setIsAddressZipFocus(true);
+                                                    setIsAddressCityFocus(true);
 
                                                     // close the dropdown if opened
                                                     dropdownDutyState && setDropdownDutyState(false);
                                                 }}
                                                 placeholder={'Required'}
-                                                label="Zip"
+                                                label="City"
                                                 textColor={"#FFFFFF"}
-                                                left={<TextInput.Icon icon="dialpad" iconColor="#FFFFFF"/>}
+                                                left={<TextInput.Icon icon="home-city" iconColor="#FFFFFF"/>}
                                                 {...editingFlag && {
                                                     right: <TextInput.Icon icon="pencil" iconColor="#F2FF5D"/>
                                                 }}
                                             />
-                                        </View>
-                                        <View style={styles.pickerView}>
-                                            <DropDownPicker
-                                                showArrowIcon={editingFlag}
-                                                ArrowDownIconComponent={({}) => (
-                                                    <TextInput.Icon
-                                                        style={{right: 30, bottom: 10}}
-                                                        iconColor="#F2FF5D"
-                                                        icon="pencil"
-                                                        onPress={() => {
-                                                            setDropdownDutyState(true);
-                                                        }}
-                                                    />
-                                                )}
-                                                disabled={!editingFlag}
-                                                zIndex={5000}
-                                                placeholder={"Duty Status"}
-                                                dropDownContainerStyle={!editingFlag ? styles.dropdownContainerNonEditable : styles.dropdownContainer}
-                                                style={!editingFlag
-                                                    ? (deviceType === DeviceType.TABLET ? styles.dropdownPickerNonEditableTablet : styles.dropdownPickerNonEditable)
-                                                    : (deviceType === DeviceType.TABLET ? styles.dropdownPickerTablet : styles.dropdownPicker)}
-                                                textStyle={[styles.textInputContentStyle, {color: '#D9D9D9'}]}
-                                                dropDownDirection={"BOTTOM"}
-                                                open={dropdownDutyState}
-                                                value={dutyStatus === "" ? null : dutyStatus}
-                                                items={dutyItems}
-                                                setOpen={setDropdownDutyState}
-                                                setValue={setDutyStatus}
-                                                setItems={setDutyItems}
-                                                onOpen={() => {
-                                                    setProfileUpdatesMainError(false);
-                                                }}
-                                                onClose={() => {
-                                                    setDropdownDutyState(false);
-                                                }}
-                                                onSelectItem={(item) => {
-                                                    setDutyStatus(item.value!);
+                                            <View style={styles.inputColumnViewAddress}>
+                                                <TextInput
+                                                    autoCapitalize={"characters"}
+                                                    autoCorrect={false}
+                                                    autoComplete={"off"}
+                                                    disabled={!editingFlag}
+                                                    keyboardType={"default"}
+                                                    placeholderTextColor={'#D9D9D9'}
+                                                    activeUnderlineColor={'#F2FF5D'}
+                                                    underlineColor={'#D9D9D9'}
+                                                    outlineColor={'#D9D9D9'}
+                                                    activeOutlineColor={'#F2FF5D'}
+                                                    selectionColor={'#F2FF5D'}
+                                                    mode={'flat'}
+                                                    onChangeText={(value: React.SetStateAction<string>) => {
+                                                        setIsAddressStateFocus(true);
+                                                        setProfileUpdatesMainError(false);
+                                                        setAddressState(value);
+                                                    }}
+                                                    onBlur={() => {
+                                                        setIsAddressStateFocus(false);
+                                                    }}
+                                                    value={addressState}
+                                                    contentStyle={styles.textInputNarrowContentStyle}
+                                                    style={[addressStateFocus ? styles.textInputNarrowFocus : !editingFlag ? styles.textInputNarrowNonEditable : styles.textInputNarrow]}
+                                                    onFocus={() => {
+                                                        setIsAddressStateFocus(true);
 
-                                                    // validate value
-                                                    fieldValidator.validateField(item.value!, "dutyStatus", setDutyStatusErrors);
-                                                }}
-                                                theme="DARK"
-                                                multiple={false}
-                                                mode="SIMPLE"
-                                                searchable={true}
+                                                        // close the dropdown if opened
+                                                        dropdownDutyState && setDropdownDutyState(false);
+                                                    }}
+                                                    placeholder={'Required'}
+                                                    label="State"
+                                                    textColor={"#FFFFFF"}
+                                                    left={<TextInput.Icon icon="flag" iconColor="#FFFFFF"/>}
+                                                    {...editingFlag && {
+                                                        right: <TextInput.Icon icon="pencil" iconColor="#F2FF5D"/>
+                                                    }}
+                                                />
+                                                <TextInput
+                                                    autoCorrect={false}
+                                                    autoComplete={"off"}
+                                                    disabled={!editingFlag}
+                                                    keyboardType={"number-pad"}
+                                                    placeholderTextColor={'#D9D9D9'}
+                                                    activeUnderlineColor={'#F2FF5D'}
+                                                    underlineColor={'#D9D9D9'}
+                                                    outlineColor={'#D9D9D9'}
+                                                    activeOutlineColor={'#F2FF5D'}
+                                                    selectionColor={'#F2FF5D'}
+                                                    mode={'flat'}
+                                                    onChangeText={(value: React.SetStateAction<string>) => {
+                                                        setIsAddressZipFocus(true);
+                                                        setProfileUpdatesMainError(false);
+                                                        setAddressZip(value);
+                                                    }}
+                                                    onBlur={() => {
+                                                        setIsAddressZipFocus(false);
+                                                    }}
+                                                    value={addressZip}
+                                                    contentStyle={styles.textInputNarrowContentStyle}
+                                                    style={[addressZipFocus ? styles.textInputNarrowFocus : !editingFlag ? styles.textInputNarrowNonEditable : styles.textInputNarrow, {
+                                                        marginTop: hp(0),
+                                                        marginLeft: wp(7)
+                                                    }]}
+                                                    onFocus={() => {
+                                                        setIsAddressZipFocus(true);
+
+                                                        // close the dropdown if opened
+                                                        dropdownDutyState && setDropdownDutyState(false);
+                                                    }}
+                                                    placeholder={'Required'}
+                                                    label="Zip"
+                                                    textColor={"#FFFFFF"}
+                                                    left={<TextInput.Icon icon="dialpad" iconColor="#FFFFFF"/>}
+                                                    {...editingFlag && {
+                                                        right: <TextInput.Icon icon="pencil" iconColor="#F2FF5D"/>
+                                                    }}
+                                                />
+                                            </View>
+                                            <View style={styles.pickerView}>
+                                                <DropDownPicker
+                                                    showArrowIcon={editingFlag}
+                                                    ArrowDownIconComponent={({}) => (
+                                                        <TextInput.Icon
+                                                            style={{right: 30, bottom: 10}}
+                                                            iconColor="#F2FF5D"
+                                                            icon="pencil"
+                                                            onPress={() => {
+                                                                setDropdownDutyState(true);
+                                                            }}
+                                                        />
+                                                    )}
+                                                    disabled={!editingFlag}
+                                                    zIndex={5000}
+                                                    placeholder={"Duty Status"}
+                                                    containerStyle={dropdownDutyState && Platform.OS === 'android' && {height: hp(25)}}
+                                                    dropDownContainerStyle={[!editingFlag ? styles.dropdownContainerNonEditable : styles.dropdownContainer, Platform.OS === 'android' ? {height: hp(20)} : {height: hp(15)}]}
+                                                    style={!editingFlag
+                                                        ? (styles.dropdownPickerNonEditable)
+                                                        : (styles.dropdownPicker)}
+                                                    textStyle={[styles.textInputContentStyle, {color: '#D9D9D9'}]}
+                                                    dropDownDirection={"BOTTOM"}
+                                                    open={dropdownDutyState}
+                                                    value={dutyStatus === "" ? null : dutyStatus}
+                                                    items={dutyItems}
+                                                    setOpen={setDropdownDutyState}
+                                                    setValue={setDutyStatus}
+                                                    setItems={setDutyItems}
+                                                    onOpen={() => {
+                                                        setProfileUpdatesMainError(false);
+                                                    }}
+                                                    onClose={() => {
+                                                        setDropdownDutyState(false);
+                                                    }}
+                                                    onSelectItem={(item) => {
+                                                        setDutyStatus(item.value!);
+
+                                                        // validate value
+                                                        fieldValidator.validateField(item.value!, "dutyStatus", setDutyStatusErrors);
+                                                    }}
+                                                    theme="DARK"
+                                                    multiple={false}
+                                                    listMode="SCROLLVIEW"
+                                                />
+                                            </View>
+                                            <TextInput
+                                                autoCorrect={false}
+                                                autoComplete={"off"}
+                                                disabled={true}
+                                                placeholderTextColor={'#D9D9D9'}
+                                                activeUnderlineColor={'#F2FF5D'}
+                                                underlineColor={'#D9D9D9'}
+                                                outlineColor={'#D9D9D9'}
+                                                activeOutlineColor={'#F2FF5D'}
+                                                selectionColor={'#F2FF5D'}
+                                                mode={'flat'}
+                                                value={enlistingYear}
+                                                contentStyle={styles.textInputContentStyle}
+                                                style={[styles.textInputNonEditable, {marginTop: hp(7.5)}]}
+                                                label="Year of Enlistment/Commission"
+                                                textColor={"#FFFFFF"}
+                                                left={<TextInput.Icon icon="calendar" iconColor="#FFFFFF"/>}
+                                            />
+                                            <TextInput
+                                                autoCapitalize={"sentences"}
+                                                autoCorrect={false}
+                                                autoComplete={"off"}
+                                                disabled={true}
+                                                placeholderTextColor={'#D9D9D9'}
+                                                activeUnderlineColor={'#F2FF5D'}
+                                                underlineColor={'#D9D9D9'}
+                                                outlineColor={'#D9D9D9'}
+                                                activeOutlineColor={'#F2FF5D'}
+                                                selectionColor={'#F2FF5D'}
+                                                mode={'flat'}
+                                                value={militaryBranch}
+                                                contentStyle={styles.textInputContentStyle}
+                                                style={[styles.textInputNonEditable, {marginTop: hp(3)}]}
+                                                label="Military Branch"
+                                                textColor={"#FFFFFF"}
+                                                left={<TextInput.Icon icon="tank" iconColor="#FFFFFF"/>}
                                             />
                                         </View>
-                                        <TextInput
-                                            autoCorrect={false}
-                                            autoComplete={"off"}
-                                            disabled={true}
-                                            placeholderTextColor={'#D9D9D9'}
-                                            activeUnderlineColor={'#F2FF5D'}
-                                            underlineColor={'#D9D9D9'}
-                                            outlineColor={'#D9D9D9'}
-                                            activeOutlineColor={'#F2FF5D'}
-                                            selectionColor={'#F2FF5D'}
-                                            mode={'flat'}
-                                            value={enlistingYear}
-                                            contentStyle={styles.textInputContentStyle}
-                                            style={[styles.textInputNonEditable, {marginTop: Dimensions.get('window').height / 14}]}
-                                            label="Year of Enlistment/Commission"
-                                            textColor={"#FFFFFF"}
-                                            left={<TextInput.Icon icon="calendar" iconColor="#FFFFFF"/>}
-                                        />
-                                        <TextInput
-                                            autoCapitalize={"sentences"}
-                                            autoCorrect={false}
-                                            autoComplete={"off"}
-                                            disabled={true}
-                                            placeholderTextColor={'#D9D9D9'}
-                                            activeUnderlineColor={'#F2FF5D'}
-                                            underlineColor={'#D9D9D9'}
-                                            outlineColor={'#D9D9D9'}
-                                            activeOutlineColor={'#F2FF5D'}
-                                            selectionColor={'#F2FF5D'}
-                                            mode={'flat'}
-                                            value={militaryBranch}
-                                            contentStyle={styles.textInputContentStyle}
-                                            style={[styles.textInputNonEditable, {marginTop: Dimensions.get('window').height / 30}]}
-                                            label="Military Branch"
-                                            textColor={"#FFFFFF"}
-                                            left={<TextInput.Icon icon="tank" iconColor="#FFFFFF"/>}
-                                        />
-                                    </View>
-                                </LinearGradient>
+                                    </LinearGradient>
+                                </View>
                             </KeyboardAwareScrollView>
                         </View>
                     </SafeAreaView>
@@ -1002,7 +1006,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                         backgroundStyle={styles.bottomSheet}
                         enablePanDownToClose={true}
                         index={showBottomSheet ? 0 : -1}
-                        snapPoints={['70%', '70%']}
+                        snapPoints={[hp(65), hp(65)]}
                         onChange={(index) => {
                             setShowBottomSheet(index !== -1);
                         }}

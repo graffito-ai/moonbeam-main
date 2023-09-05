@@ -1,12 +1,13 @@
 import 'react-native-get-random-values';
 import React, {useEffect} from "react";
-import {Dimensions, SafeAreaView, ScrollView, StyleSheet, View} from "react-native";
+import {SafeAreaView, ScrollView, StyleSheet, View} from "react-native";
 import {commonStyles} from "../../../../styles/common.module";
 import {Divider, List} from "react-native-paper";
 import {styles} from "../../../../styles/documentsCenter.module";
 import {DocumentsCenterProps} from '../../../../models/props/DocumentsProps';
 import {useRecoilState} from "recoil";
 import {drawerSwipeState} from "../../../../recoil/AppDrawerAtom";
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 /**
  * DocumentsCenter component.
@@ -59,7 +60,7 @@ export const DocumentsCenter = ({navigation}: DocumentsCenterProps) => {
                                 });
                             }}
                             left={() => <List.Icon color={'#F2FF5D'} icon="text"/>}
-                            right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
+                            right={() => <List.Icon style={{left: hp(1)}}
                                                     color={'#F2FF5D'} icon="chevron-right"/>}
                         />
                         <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>
@@ -80,7 +81,7 @@ export const DocumentsCenter = ({navigation}: DocumentsCenterProps) => {
                                 });
                             }}
                             left={() => <List.Icon color={'#F2FF5D'} icon="eye-off"/>}
-                            right={() => <List.Icon style={{left: Dimensions.get('window').width / 60}}
+                            right={() => <List.Icon style={{left: hp(1)}}
                                                     color={'#F2FF5D'} icon="chevron-right"/>}
                         />
                     </List.Section>

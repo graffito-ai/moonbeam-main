@@ -1,4 +1,5 @@
-import {Dimensions, StyleSheet} from "react-native";
+import {StyleSheet} from "react-native";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 // styles to be used within the DocumentsCenter component
 export const styles = StyleSheet.create({
@@ -6,9 +7,9 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
     },
     listSectionView: {
-        marginTop: '10%',
+        marginTop: hp(5),
         alignSelf: 'center',
-        width: Dimensions.get('window').width/1.15,
+        width: wp(90),
         backgroundColor: '#5B5A5A',
         borderRadius: 10
     },
@@ -19,28 +20,30 @@ export const styles = StyleSheet.create({
         backgroundColor: '#313030'
     },
     subHeaderTitle: {
-        marginTop: '1.5%',
+        marginTop: hp(1),
         alignSelf: 'center',
         color: '#F2FF5D',
-        fontSize: Dimensions.get('window').width/23,
+        fontSize: hp(2.2),
         fontFamily: 'Saira-Medium'
     },
     divider: {
-        width: Dimensions.get('window').width / 1.15,
+        width: wp(90),
         backgroundColor: '#FFFFFF'
     },
     documentsItemStyle: {
         alignSelf: 'center',
         alignItems: 'center',
-        marginLeft: Dimensions.get('window').width/30
+        marginLeft: wp(2)
     },
     documentsItemTitle: {
         color: '#FFFFFF',
-        fontFamily: 'Saira-Medium'
+        fontFamily: 'Saira-Medium',
+        fontSize: hp(2)
     },
     documentsItemDescription: {
         color: '#FFFFFF',
         fontFamily: 'Saira-Light',
-        width: Dimensions.get('window').width / 1.7
+        width: wp(65),
+        fontSize: hp(1.6)
     },
 });

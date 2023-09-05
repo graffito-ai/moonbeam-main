@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import 'react-native-get-random-values';
-import {Dimensions, Image, ImageBackground, Platform, TouchableOpacity, View} from "react-native";
+import {Image, ImageBackground, Platform, TouchableOpacity, View} from "react-native";
 import {commonStyles} from '../../../../../styles/common.module';
 import {styles} from '../../../../../styles/appWall.module';
 import {Dialog, IconButton, Portal, Text} from "react-native-paper";
@@ -26,6 +26,7 @@ import {
     additionalAppWallDocumentationNeeded,
     appWallStepNumber, isReadyAppWallState
 } from "../../../../../recoil/AppDrawerAtom";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 // @ts-ignore
 import StatusPendingImage from '../../../../../../assets/art/military-status-pending.png';
 // @ts-ignore
@@ -319,7 +320,7 @@ export const AppWall = ({navigation}: AppWallProps) => {
                             <Dialog style={commonStyles.dialogStyle} visible={supportModalVisible}
                                     onDismiss={() => setSupportModalVisible(false)}>
                                 <Dialog.Icon icon="alert" color={"#F2FF5D"}
-                                             size={Dimensions.get('window').height / 14}/>
+                                             size={hp(10)}/>
                                 <Dialog.Title
                                     style={commonStyles.dialogTitle}>{supportModalButtonMessage === 'Retry' ? 'We hit a snag!' : ('Dismiss' ? 'Great' : 'Heads up')}</Dialog.Title>
                                 <Dialog.Content>
@@ -348,7 +349,7 @@ export const AppWall = ({navigation}: AppWallProps) => {
                             {stepNumber !== 0 && stepNumber !== 3 &&
                                 <>
                                     <View
-                                        style={[styles.titleView, {marginTop: Dimensions.get('window').height / 6}]}>
+                                        style={[styles.titleView, {marginTop: hp(10)}]}>
                                         <View style={[styles.titleViewDescription]}>
                                             <Text style={styles.stepTitle}>
                                                 {applicationWallSteps[stepNumber].stepTitle}
@@ -356,7 +357,7 @@ export const AppWall = ({navigation}: AppWallProps) => {
                                             <IconButton
                                                 icon={"triangle"}
                                                 iconColor={"#F2FF5D"}
-                                                size={Dimensions.get('window').width / 20}
+                                                size={hp(2.5)}
                                                 style={styles.triangleIcon}
                                             />
                                         </View>
@@ -433,19 +434,21 @@ export const AppWall = ({navigation}: AppWallProps) => {
                                                 />
                                                 : <></>
                             }
-                            <View style={[styles.bottomContainerButtonView]}>
+                            <View style={[stepNumber === 0 ? styles.bottomContainerSplashView : styles.bottomContainerButtonView]}>
                                 <TouchableOpacity
                                     disabled={(!militaryStatusDisclaimer && stepNumber === 1) || (additionalDocumentsNeeded && stepNumber === 2)}
                                     style={[(!militaryStatusDisclaimer && stepNumber === 1) || (additionalDocumentsNeeded && stepNumber === 2) ? styles.bottomButtonDisabled : stepNumber == 0 ? styles.bottomButtonStep1 : styles.bottomButton,
+                                        (stepNumber === 0) && {
+                                            left: wp(0.25)
+                                        },
                                         (stepNumber === 1 || stepNumber === 2)
                                         && {
-                                            marginTop: -Dimensions.get('window').height / 10,
-                                            marginBottom: Dimensions.get('window').height / 10
+                                            marginTop: -hp(30)
                                         },
                                         (stepNumber === 3)
                                         && {
-                                            marginBottom: Dimensions.get('window').height / 4,
-                                            marginLeft: Dimensions.get('window').width / 10
+                                            marginBottom: hp(30),
+                                            marginLeft: wp(10)
                                         }
                                     ]}
                                     onPress={

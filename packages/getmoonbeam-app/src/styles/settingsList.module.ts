@@ -1,11 +1,12 @@
-import {Dimensions, StyleSheet} from "react-native";
+import {StyleSheet} from "react-native";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 // styles to be used within the SettingsList component
 export const styles = StyleSheet.create({
     listSectionView: {
-        marginTop: '10%',
+        marginTop: hp(5),
         alignSelf: 'center',
-        width: Dimensions.get('window').width/1.15,
+        width: wp(90),
         backgroundColor: '#5B5A5A',
         borderRadius: 10
     },
@@ -16,43 +17,35 @@ export const styles = StyleSheet.create({
         backgroundColor: '#313030'
     },
     subHeaderTitle: {
-        marginTop: '1.5%',
+        marginTop: hp(1),
         alignSelf: 'center',
         color: '#F2FF5D',
-        fontSize: Dimensions.get('window').width/23,
-        fontFamily: 'Saira-Medium'
-    },
-    subHeaderTitleTablet: {
-        marginTop: '1.5%',
-        alignSelf: 'center',
-        color: '#F2FF5D',
-        fontSize: Dimensions.get('window').width/43,
+        fontSize: hp(2.2),
         fontFamily: 'Saira-Medium'
     },
     settingsItemTitle: {
         color: '#FFFFFF',
-        fontFamily: 'Saira-Medium'
+        fontFamily: 'Saira-Medium',
+        fontSize: hp(2)
     },
     settingsItemDescription: {
         color: '#FFFFFF',
         fontFamily: 'Saira-Light',
-        width: Dimensions.get('window').width / 1.7
+        width: wp(65),
+        fontSize: hp(1.6)
     },
     divider: {
-        width: Dimensions.get('window').width / 1.15,
+        width: wp(90),
         backgroundColor: '#FFFFFF'
     },
     settingsItemStyle: {
         alignSelf: 'center',
         alignItems: 'center',
-        marginLeft: Dimensions.get('window').width/30
+        marginLeft: wp(2)
     },
     backButton: {
-        marginTop: '-5%',
-        marginLeft: `-10%`
-    },
-    backButtonTablet: {
-        marginTop: '-5%',
-        marginLeft: `-5%`
+        alignSelf: 'flex-start',
+        right: wp(5),
+        bottom: hp(1.5)
     }
 });

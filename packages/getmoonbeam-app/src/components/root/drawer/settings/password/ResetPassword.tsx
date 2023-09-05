@@ -7,13 +7,15 @@ import {appDrawerHeaderShownState, drawerSwipeState} from "../../../../../recoil
 import {CognitoUser} from "amazon-cognito-identity-js";
 import {Auth} from "aws-amplify";
 import {Spinner} from "../../../../common/Spinner";
-import {Dimensions, SafeAreaView, StyleSheet, TouchableOpacity, View} from "react-native";
+import {Keyboard, Platform, TouchableOpacity, View} from "react-native";
 import {Dialog, Portal, Text, TextInput} from "react-native-paper";
 import {commonStyles} from "../../../../../styles/common.module";
 import {Button} from "@rneui/base";
 import {styles} from "../../../../../styles/resetPw.module";
 import {LinearGradient} from "expo-linear-gradient";
 import {FieldValidator} from "../../../../../utils/FieldValidator";
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 
 /**
  * ResetPassword component
@@ -22,6 +24,7 @@ import {FieldValidator} from "../../../../../utils/FieldValidator";
  */
 export const ResetPassword = ({}: ResetPasswordProps) => {
     // constants used to keep track of local component state
+    const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -56,6 +59,20 @@ export const ResetPassword = ({}: ResetPasswordProps) => {
      * included in here.
      */
     useEffect(() => {
+        // keyboard listeners
+        const keyboardDidShowListener = Keyboard.addListener(
+            'keyboardDidShow',
+            () => {
+                setIsKeyboardShown(true);
+            }
+        );
+        const keyboardDidHideListener = Keyboard.addListener(
+            'keyboardDidHide',
+            () => {
+                setIsKeyboardShown(false);
+            }
+        );
+
         // disable the swipe for the drawer
         setDrawerSwipeEnabled(false);
 
@@ -82,7 +99,13 @@ export const ResetPassword = ({}: ResetPasswordProps) => {
             // @ts-ignore
             setOldPasswordErrors(["Your New Password cannot be the same as the old one."]);
         }
-    }, [oldPassword, oldPasswordFocus,
+
+        // remove keyboard listeners accordingly
+        return () => {
+            keyboardDidHideListener.remove();
+            keyboardDidShowListener.remove();
+        };
+    }, [isKeyboardShown, oldPassword, oldPasswordFocus,
         password, passwordFocus,
         confirmPassword, confirmPasswordFocus]);
 
@@ -143,7 +166,7 @@ export const ResetPassword = ({}: ResetPasswordProps) => {
             // Filter the error based on the message received, in order to properly narrow down the reason for the failure
             // @ts-ignore
             if (error && error.code && error.code === 'NotAuthorizedException') {
-               errorMessage = `Incorrect old password!`;
+                errorMessage = `Incorrect old password!`;
             }
 
             setModalCustomMessage(errorMessage);
@@ -167,7 +190,7 @@ export const ResetPassword = ({}: ResetPasswordProps) => {
                         <Dialog style={[commonStyles.dialogStyle, {backgroundColor: '#313030'}]} visible={modalVisible}
                                 onDismiss={() => setModalVisible(false)}>
                             <Dialog.Icon icon="alert" color={"#F2FF5D"}
-                                         size={Dimensions.get('window').height / 14}/>
+                                         size={hp(10)}/>
                             <Dialog.Title
                                 style={commonStyles.dialogTitle}>{modalButtonMessage === 'Ok' ? 'Great' : 'We hit a snag!'}</Dialog.Title>
                             <Dialog.Content>
@@ -185,179 +208,190 @@ export const ResetPassword = ({}: ResetPasswordProps) => {
                             </Dialog.Actions>
                         </Dialog>
                     </Portal>
-                    <SafeAreaView style={styles.mainContainer}>
-                        <View style={[styles.topContainer, StyleSheet.absoluteFill]}>
-                            <LinearGradient
-                                style={{height: '100%'}}
-                                start={{x: 0.5, y: 0.05}}
-                                end={{x: 0.5, y: 1}}
-                                colors={['#313030', 'transparent']}>
-                                <View style={styles.topTextView}>
-                                    <Text style={styles.resetPwTitle}>Create a new Password</Text>
-                                    <Text style={styles.resetPwSubtitle}>Your new password must be different than your
-                                        existing one.</Text>
-                                </View>
-                                <View style={styles.inputFieldsView}>
-                                    {resetPasswordError
-                                        ?
-                                        <Text style={styles.errorMessage}>Please fill out the information below!</Text>
-                                        : (oldPasswordErrors.length !== 0 && !resetPasswordError)
-                                            ? <Text style={styles.errorMessage}>{oldPasswordErrors[0]}</Text>
-                                            : (passwordErrors.length !== 0 && !resetPasswordError)
-                                                ? <Text style={styles.errorMessage}>{passwordErrors[0]}</Text>
-                                                : (confirmPasswordErrors.length !== 0 && !resetPasswordError)
-                                                    ?
-                                                    <Text style={styles.errorMessage}>{confirmPasswordErrors[0]}</Text>
-                                                    : <></>
-                                    }
-                                    <TextInput
-                                        autoCapitalize={"none"}
-                                        autoCorrect={false}
-                                        autoComplete={"off"}
-                                        keyboardType={"default"}
-                                        placeholderTextColor={'#D9D9D9'}
-                                        activeUnderlineColor={'#F2FF5D'}
-                                        underlineColor={'#D9D9D9'}
-                                        outlineColor={'#D9D9D9'}
-                                        activeOutlineColor={'#F2FF5D'}
-                                        selectionColor={'#F2FF5D'}
-                                        mode={'outlined'}
-                                        onChangeText={(value: React.SetStateAction<string>) => {
-                                            setIsOldPasswordFocus(true);
-                                            setResetPasswordError(false);
-                                            setOldPasswordErrors([]);
-
-                                            setOldPassword(value);
-                                        }}
-                                        onBlur={() => {
-                                            setIsOldPasswordFocus(false);
-                                        }}
-                                        value={oldPassword}
-                                        secureTextEntry={!isOldPasswordShown}
-                                        contentStyle={styles.textInputContentStyle}
-                                        style={oldPasswordFocus ? styles.textInputFocus : styles.textInput}
-                                        onFocus={() => {
-                                            setIsOldPasswordFocus(true);
-                                        }}
-                                        placeholder={'Required'}
-                                        label="Old Password"
-                                        textColor={"#FFFFFF"}
-                                        left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
-                                        right={<TextInput.Icon icon="eye"
-                                                               iconColor={isOldPasswordShown ? "#F2FF5D" : "#FFFFFF"}
-                                                               onPress={() => setIsOldPasswordShown(!isOldPasswordShown)}/>}
-                                    />
-                                    <TextInput
-                                        autoCapitalize={"none"}
-                                        autoCorrect={false}
-                                        autoComplete={"off"}
-                                        keyboardType={"default"}
-                                        placeholderTextColor={'#D9D9D9'}
-                                        activeUnderlineColor={'#F2FF5D'}
-                                        underlineColor={'#D9D9D9'}
-                                        outlineColor={'#D9D9D9'}
-                                        activeOutlineColor={'#F2FF5D'}
-                                        selectionColor={'#F2FF5D'}
-                                        mode={'outlined'}
-                                        onChangeText={(value: React.SetStateAction<string>) => {
-                                            setIsPasswordFocus(true);
-                                            setResetPasswordError(false);
-                                            setPasswordErrors([]);
-
-                                            setPassword(value);
-                                        }}
-                                        onBlur={() => {
-                                            setIsPasswordFocus(false);
-                                        }}
-                                        value={password}
-                                        secureTextEntry={!isPasswordShown}
-                                        contentStyle={styles.textInputContentStyle}
-                                        style={passwordFocus ? styles.textPasswordInputFocus : styles.textPasswordInput}
-                                        onFocus={() => {
-                                            setIsPasswordFocus(true);
-                                        }}
-                                        placeholder={'Required'}
-                                        label="New Password"
-                                        textColor={"#FFFFFF"}
-                                        left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
-                                        right={<TextInput.Icon icon="eye"
-                                                               iconColor={isPasswordShown ? "#F2FF5D" : "#FFFFFF"}
-                                                               onPress={() => setIsPasswordShown(!isPasswordShown)}/>}
-                                    />
-                                    <TextInput
-                                        autoCapitalize={"none"}
-                                        autoCorrect={false}
-                                        autoComplete={"off"}
-                                        keyboardType={"default"}
-                                        placeholderTextColor={'#D9D9D9'}
-                                        activeUnderlineColor={'#F2FF5D'}
-                                        underlineColor={'#D9D9D9'}
-                                        outlineColor={'#D9D9D9'}
-                                        activeOutlineColor={'#F2FF5D'}
-                                        selectionColor={'#F2FF5D'}
-                                        mode={'outlined'}
-                                        onChangeText={(value: React.SetStateAction<string>) => {
-                                            setIsConfirmPasswordFocus(true);
-                                            setResetPasswordError(false);
-                                            setConfirmPasswordErrors([]);
-
-                                            setConfirmPassword(value);
-                                        }}
-                                        onBlur={() => {
-                                            setIsConfirmPasswordFocus(false);
-                                        }}
-                                        value={confirmPassword}
-                                        secureTextEntry={!isConfirmPasswordShown}
-                                        contentStyle={styles.textInputContentStyle}
-                                        style={confirmPasswordFocus ? styles.textPasswordInputFocus : styles.textPasswordInput}
-                                        onFocus={() => {
-                                            setIsConfirmPasswordFocus(true);
-                                        }}
-                                        placeholder={'Must match New Password'}
-                                        label="Confirm New Password"
-                                        textColor={"#FFFFFF"}
-                                        left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
-                                        right={<TextInput.Icon icon="eye"
-                                                               iconColor={isConfirmPasswordShown ? "#F2FF5D" : "#FFFFFF"}
-                                                               onPress={() => setIsConfirmPasswordShown(!isConfirmPasswordShown)}/>}
-                                    />
-                                </View>
-                                <TouchableOpacity
-                                    style={styles.button}
-                                    onPress={async () => {
-                                        if (oldPassword === "" || password === "" || confirmPassword === "" ||
-                                        oldPasswordErrors.length !== 0 || passwordErrors.length !== 0 || confirmPasswordErrors.length !== 0) {
-                                            // only populate main error if there are no other errors showing
-                                            if (oldPasswordErrors.length === 0 || passwordErrors.length === 0 || confirmPasswordErrors.length === 0) {
-                                                setResetPasswordError(true);
-                                            }
-                                        } else {
-                                            // validations passed, perform the password reset action
-                                            const passwordResetFlag = await updatePassword(oldPassword, password);
-                                            if (passwordResetFlag) {
-                                                // shown a successful modal
-                                                setModalButtonMessage('Ok');
-                                                setModalCustomMessage('Your password has been successfully changed!');
-                                                setModalVisible(true);
-
-                                                // clear the fields for a success
-                                                setOldPassword('');
-                                                setIsOldPasswordFocus(false);
-                                                setPassword('');
-                                                setIsPasswordFocus(false);
-                                                setConfirmPassword('');
-                                                setIsConfirmPasswordFocus(false);
-                                            }
+                    <KeyboardAwareScrollView
+                        enableOnAndroid={true}
+                        showsVerticalScrollIndicator={false}
+                        enableAutomaticScroll={(Platform.OS === 'ios')}
+                        contentContainerStyle={styles.mainContainer}
+                        keyboardShouldPersistTaps={'handled'}
+                    >
+                        <View style={Platform.OS === 'android' && isKeyboardShown && {height: hp(120)}}>
+                            <View style={[styles.topContainer]}>
+                                <LinearGradient
+                                    style={{height: '100%'}}
+                                    start={{x: 0.5, y: 0.05}}
+                                    end={{x: 0.5, y: 1}}
+                                    colors={['#313030', 'transparent']}>
+                                    <View style={styles.topTextView}>
+                                        <Text style={styles.resetPwTitle}>Create a new Password</Text>
+                                        <Text style={styles.resetPwSubtitle}>Your new password must be different than
+                                            your
+                                            existing one.</Text>
+                                    </View>
+                                    <View style={styles.inputFieldsView}>
+                                        {resetPasswordError
+                                            ?
+                                            <Text style={styles.errorMessage}>Please fill out the information
+                                                below!</Text>
+                                            : (oldPasswordErrors.length !== 0 && !resetPasswordError)
+                                                ? <Text style={styles.errorMessage}>{oldPasswordErrors[0]}</Text>
+                                                : (passwordErrors.length !== 0 && !resetPasswordError)
+                                                    ? <Text style={styles.errorMessage}>{passwordErrors[0]}</Text>
+                                                    : (confirmPasswordErrors.length !== 0 && !resetPasswordError)
+                                                        ?
+                                                        <Text
+                                                            style={styles.errorMessage}>{confirmPasswordErrors[0]}</Text>
+                                                        : <></>
                                         }
-                                    }}
-                                >
-                                    <Text
-                                        style={styles.buttonText}>Reset Password</Text>
-                                </TouchableOpacity>
+                                        <TextInput
+                                            autoCapitalize={"none"}
+                                            autoCorrect={false}
+                                            autoComplete={"off"}
+                                            keyboardType={"default"}
+                                            placeholderTextColor={'#D9D9D9'}
+                                            activeUnderlineColor={'#F2FF5D'}
+                                            underlineColor={'#D9D9D9'}
+                                            outlineColor={'#D9D9D9'}
+                                            activeOutlineColor={'#F2FF5D'}
+                                            selectionColor={'#F2FF5D'}
+                                            mode={'outlined'}
+                                            onChangeText={(value: React.SetStateAction<string>) => {
+                                                setIsOldPasswordFocus(true);
+                                                setResetPasswordError(false);
+                                                setOldPasswordErrors([]);
 
-                            </LinearGradient>
+                                                setOldPassword(value);
+                                            }}
+                                            onBlur={() => {
+                                                setIsOldPasswordFocus(false);
+                                            }}
+                                            value={oldPassword}
+                                            secureTextEntry={!isOldPasswordShown}
+                                            contentStyle={styles.textInputContentStyle}
+                                            style={oldPasswordFocus ? styles.textInputFocus : styles.textInput}
+                                            onFocus={() => {
+                                                setIsOldPasswordFocus(true);
+                                            }}
+                                            placeholder={'Required'}
+                                            label="Old Password"
+                                            textColor={"#FFFFFF"}
+                                            left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
+                                            right={<TextInput.Icon icon="eye"
+                                                                   iconColor={isOldPasswordShown ? "#F2FF5D" : "#FFFFFF"}
+                                                                   onPress={() => setIsOldPasswordShown(!isOldPasswordShown)}/>}
+                                        />
+                                        <TextInput
+                                            autoCapitalize={"none"}
+                                            autoCorrect={false}
+                                            autoComplete={"off"}
+                                            keyboardType={"default"}
+                                            placeholderTextColor={'#D9D9D9'}
+                                            activeUnderlineColor={'#F2FF5D'}
+                                            underlineColor={'#D9D9D9'}
+                                            outlineColor={'#D9D9D9'}
+                                            activeOutlineColor={'#F2FF5D'}
+                                            selectionColor={'#F2FF5D'}
+                                            mode={'outlined'}
+                                            onChangeText={(value: React.SetStateAction<string>) => {
+                                                setIsPasswordFocus(true);
+                                                setResetPasswordError(false);
+                                                setPasswordErrors([]);
+
+                                                setPassword(value);
+                                            }}
+                                            onBlur={() => {
+                                                setIsPasswordFocus(false);
+                                            }}
+                                            value={password}
+                                            secureTextEntry={!isPasswordShown}
+                                            contentStyle={styles.textInputContentStyle}
+                                            style={passwordFocus ? styles.textPasswordInputFocus : styles.textPasswordInput}
+                                            onFocus={() => {
+                                                setIsPasswordFocus(true);
+                                            }}
+                                            placeholder={'Required'}
+                                            label="New Password"
+                                            textColor={"#FFFFFF"}
+                                            left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
+                                            right={<TextInput.Icon icon="eye"
+                                                                   iconColor={isPasswordShown ? "#F2FF5D" : "#FFFFFF"}
+                                                                   onPress={() => setIsPasswordShown(!isPasswordShown)}/>}
+                                        />
+                                        <TextInput
+                                            autoCapitalize={"none"}
+                                            autoCorrect={false}
+                                            autoComplete={"off"}
+                                            keyboardType={"default"}
+                                            placeholderTextColor={'#D9D9D9'}
+                                            activeUnderlineColor={'#F2FF5D'}
+                                            underlineColor={'#D9D9D9'}
+                                            outlineColor={'#D9D9D9'}
+                                            activeOutlineColor={'#F2FF5D'}
+                                            selectionColor={'#F2FF5D'}
+                                            mode={'outlined'}
+                                            onChangeText={(value: React.SetStateAction<string>) => {
+                                                setIsConfirmPasswordFocus(true);
+                                                setResetPasswordError(false);
+                                                setConfirmPasswordErrors([]);
+
+                                                setConfirmPassword(value);
+                                            }}
+                                            onBlur={() => {
+                                                setIsConfirmPasswordFocus(false);
+                                            }}
+                                            value={confirmPassword}
+                                            secureTextEntry={!isConfirmPasswordShown}
+                                            contentStyle={styles.textInputContentStyle}
+                                            style={confirmPasswordFocus ? styles.textPasswordInputFocus : styles.textPasswordInput}
+                                            onFocus={() => {
+                                                setIsConfirmPasswordFocus(true);
+                                            }}
+                                            placeholder={'Must match'}
+                                            label="Confirm New Password"
+                                            textColor={"#FFFFFF"}
+                                            left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
+                                            right={<TextInput.Icon icon="eye"
+                                                                   iconColor={isConfirmPasswordShown ? "#F2FF5D" : "#FFFFFF"}
+                                                                   onPress={() => setIsConfirmPasswordShown(!isConfirmPasswordShown)}/>}
+                                        />
+                                    </View>
+
+                                    <TouchableOpacity
+                                        style={styles.button}
+                                        onPress={async () => {
+                                            if (oldPassword === "" || password === "" || confirmPassword === "" ||
+                                                oldPasswordErrors.length !== 0 || passwordErrors.length !== 0 || confirmPasswordErrors.length !== 0) {
+                                                // only populate main error if there are no other errors showing
+                                                if (oldPasswordErrors.length === 0 || passwordErrors.length === 0 || confirmPasswordErrors.length === 0) {
+                                                    setResetPasswordError(true);
+                                                }
+                                            } else {
+                                                // validations passed, perform the password reset action
+                                                const passwordResetFlag = await updatePassword(oldPassword, password);
+                                                if (passwordResetFlag) {
+                                                    // shown a successful modal
+                                                    setModalButtonMessage('Ok');
+                                                    setModalCustomMessage('Your password has been successfully changed!');
+                                                    setModalVisible(true);
+
+                                                    // clear the fields for a success
+                                                    setOldPassword('');
+                                                    setIsOldPasswordFocus(false);
+                                                    setPassword('');
+                                                    setIsPasswordFocus(false);
+                                                    setConfirmPassword('');
+                                                    setIsConfirmPasswordFocus(false);
+                                                }
+                                            }
+                                        }}
+                                    >
+                                        <Text
+                                            style={styles.buttonText}>Reset Password</Text>
+                                    </TouchableOpacity>
+                                </LinearGradient>
+                            </View>
                         </View>
-                    </SafeAreaView>
+                    </KeyboardAwareScrollView>
                 </>
             }
         </>

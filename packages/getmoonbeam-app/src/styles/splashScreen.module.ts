@@ -1,35 +1,38 @@
-import {Dimensions, StyleSheet} from "react-native";
+import {StyleSheet} from "react-native";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 // styles to be used within the Splash component
 export const styles = StyleSheet.create({
     splashScreenView: {
         flex: 1,
-        width: Dimensions.get('window').width,
+        width: wp(100),
         flexDirection: 'column',
         alignContent: 'center',
         alignItems: 'center',
         alignSelf: 'center'
     },
     splashArt: {
-        height: Dimensions.get('window').height * 0.65,
-        width: Dimensions.get('window').width * 0.65,
+        height: hp(65),
+        width: wp(65),
+        alignSelf: 'center'
     },
     splashTitle: {
         alignSelf: 'center',
         fontFamily: 'Saira-Bold',
-        fontSize: Dimensions.get('window').height / 35,
-        marginBottom: Dimensions.get('window').height / 70,
+        fontSize: hp(3),
+        marginBottom: hp(1.5),
         color: '#F2FF5D'
     },
     splashDescription: {
         alignSelf: 'center',
         textAlign: 'center',
         fontFamily: 'Saira-Regular',
-        fontSize: Dimensions.get('window').height / 40,
-        width:  Dimensions.get('window').width/1.1,
+        fontSize: hp(2.5),
+        width:  wp(90),
         color: '#FFFFFF'
     },
     splashContentView: {
-        bottom: Dimensions.get('window').height/ 10
+        bottom: hp(10),
+        alignSelf: "center"
     }
 });

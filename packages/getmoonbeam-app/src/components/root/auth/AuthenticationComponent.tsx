@@ -37,7 +37,7 @@ import {
     registrationStepNumber
 } from '../../../recoil/AuthAtom';
 import {AccountRecoveryComponent} from "./AccountRecoveryComponent";
-import {Dimensions, TouchableOpacity} from "react-native";
+import {TouchableOpacity} from "react-native";
 import {commonStyles} from "../../../styles/common.module";
 import {AppDrawer} from "../drawer/AppDrawer";
 import {Spinner} from "../../common/Spinner";
@@ -45,6 +45,7 @@ import {DocumentsViewer} from "../../common/DocumentsViewer";
 import * as SMS from "expo-sms";
 import {styles} from "../../../styles/registration.module";
 import {retrieveFidelisPartnerList, retrieveOffersNearLocation, retrieveOnlineOffersList} from "../../../utils/AppSync";
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 /**
  * Authentication component.
@@ -167,16 +168,18 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                     headerShown: true,
                                     headerTransparent: true,
                                     headerRight: () => {
-                                        return (<IconButton
-                                            icon="help-circle-outline"
+                                        return useRecoilValue(registrationBackButtonShown) || (stepNumber >= 3 && stepNumber !== 8)
+                                            ? (
+                                            <IconButton
+                                            icon="help"
                                             iconColor={"#F2FF5D"}
-                                            size={Dimensions.get('window').height / 20}
-                                            style={[commonStyles.supportRegistrationButton, (!isRegistrationReady || stepNumber === 8 || stepNumber === 5) && {display: 'none'}]}
+                                            size={hp(3)}
+                                            style={[commonStyles.backButton, !isRegistrationReady && {display: 'none'}]}
                                             onPress={async () => {
                                                 // go to the support
                                                 await contactSupport();
                                             }}
-                                        />)
+                                        />) : <>{}</>
                                     },
                                     headerLeft: () => {
                                         return useRecoilValue(registrationBackButtonShown)
@@ -184,7 +187,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                             (<IconButton
                                                 icon="chevron-left"
                                                 iconColor={"#FFFFFF"}
-                                                size={Dimensions.get('window').height / 30}
+                                                size={hp(3)}
                                                 style={[commonStyles.backButton, !isRegistrationReady && {display: 'none'}]}
                                                 onPress={() => {
                                                     // clear the registration values

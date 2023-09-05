@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Image, ImageBackground, Platform, TouchableOpacity, View} from "react-native";
+import {Image, ImageBackground, Keyboard, Platform, TouchableOpacity, View} from "react-native";
 import {commonStyles} from '../../../styles/common.module';
 import {styles} from '../../../styles/signIn.module';
 import {SignInProps} from "../../../models/props/AuthenticationProps";
@@ -20,6 +20,7 @@ import {Spinner} from "../../common/Spinner";
 import AuthenticationGradientImage from '../../../../assets/backgrounds/authentication-gradient.png';
 // @ts-ignore
 import MilitaryBranchImage from '../../../../assets/art/military-branch-logos.png';
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 /**
  * Sign In component.
@@ -39,6 +40,7 @@ export const SignInComponent = ({navigation}: SignInProps) => {
     const [passwordFocus, setIsPasswordFocus] = useState<boolean>(false);
     const [loginMainError, setLoginMainError] = useState<boolean>(false);
     const [passwordShown, setIsPasswordShown] = useState<boolean>(false);
+    const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     // constants used to keep track of shared states
     const [mainRootNavigation, ] = useRecoilState(mainRootNavigationState);
     const [, setIsLoadingAppOverviewNeeded] = useRecoilState(isLoadingAppOverviewNeededState);
@@ -55,6 +57,19 @@ export const SignInComponent = ({navigation}: SignInProps) => {
      * included in here.
      */
     useEffect(() => {
+        // keyboard listeners
+        const keyboardDidShowListener = Keyboard.addListener(
+            'keyboardDidShow',
+            () => {
+                setIsKeyboardShown(true);
+            }
+        );
+        const keyboardDidHideListener = Keyboard.addListener(
+            'keyboardDidHide',
+            () => {
+                setIsKeyboardShown(false);
+            }
+        );
         /**
          * signal that there will be no need to go back to the App Overview component from here, unless we press
          * on the appropriate prompt, located under the Sign-In button.
@@ -71,7 +86,13 @@ export const SignInComponent = ({navigation}: SignInProps) => {
             fieldValidator.validateField(password, "password", setPasswordErrors);
         }
         password === "" && setPasswordErrors([]);
-    }, [email, emailFocus, password, passwordFocus]);
+
+        // remove keyboard listeners accordingly
+        return () => {
+            keyboardDidHideListener.remove();
+            keyboardDidShowListener.remove();
+        };
+    }, [isKeyboardShown, email, emailFocus, password, passwordFocus]);
 
     /**
      * Function used to authenticate a user, given their username and password.
@@ -160,151 +181,154 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                             enableOnAndroid={true}
                             showsVerticalScrollIndicator={false}
                             enableAutomaticScroll={(Platform.OS === 'ios')}
-                            contentContainerStyle={commonStyles.rowContainer}
+                            contentContainerStyle={[commonStyles.rowContainer]}
                             keyboardShouldPersistTaps={'handled'}
                         >
-                            <View style={styles.topContainer}>
-                                <Text style={styles.greetingTitle}>Hello</Text>
-                                <Text style={styles.gettingSubtitle}>Get ready to <Text
-                                    style={styles.gettingSubtitleHighlighted}>Earn</Text></Text>
-                                <Image resizeMethod={"scale"}
-                                       resizeMode={'contain'}
-                                       source={MilitaryBranchImage}
-                                       style={styles.topContainerImage}/>
-                            </View>
-                            <View style={[styles.bottomContainer]}>
-                                <Text style={styles.bottomTitle}>Login</Text>
-                                {loginMainError ?
-                                    <Text style={styles.errorMessage}>Please fill out the information below!</Text>
-                                    : (emailErrors.length !== 0 && !loginMainError) ?
-                                        <Text style={styles.errorMessage}>{emailErrors[0]}</Text>
-                                        : (passwordErrors.length !== 0 && !loginMainError) ?
-                                            <Text style={styles.errorMessage}>{passwordErrors[0]}</Text>
-                                            : <></>
-                                }
-                                <TextInput
-                                    autoCapitalize={"none"}
-                                    autoCorrect={false}
-                                    autoComplete={"off"}
-                                    keyboardType={"email-address"}
-                                    placeholderTextColor={'#D9D9D9'}
-                                    activeUnderlineColor={'#F2FF5D'}
-                                    underlineColor={'#D9D9D9'}
-                                    outlineColor={'#D9D9D9'}
-                                    activeOutlineColor={'#F2FF5D'}
-                                    selectionColor={'#F2FF5D'}
-                                    mode={'outlined'}
-                                    onChangeText={(value: React.SetStateAction<string>) => {
-                                        setIsEmailFocus(true);
-                                        setLoginMainError(false);
-                                        setEmail(value);
-                                    }}
-                                    value={email}
-                                    contentStyle={styles.textInputContentStyle}
-                                    style={emailFocus ? styles.textInputFocus : styles.textInput}
-                                    onFocus={() => {
-                                        setIsEmailFocus(true);
-                                    }}
-                                    placeholder={'Type in your email...'}
-                                    label="Email"
-                                    textColor={"#FFFFFF"}
-                                    left={<TextInput.Icon icon="email" iconColor="#FFFFFF"/>}
-                                />
-                                <TextInput
-                                    autoCapitalize={"none"}
-                                    autoCorrect={false}
-                                    autoComplete={"off"}
-                                    keyboardType={"default"}
-                                    placeholderTextColor={'#D9D9D9'}
-                                    activeUnderlineColor={'#F2FF5D'}
-                                    underlineColor={'#D9D9D9'}
-                                    outlineColor={'#D9D9D9'}
-                                    activeOutlineColor={'#F2FF5D'}
-                                    selectionColor={'#F2FF5D'}
-                                    mode={'outlined'}
-                                    onChangeText={(value: React.SetStateAction<string>) => {
-                                        setIsPasswordFocus(true);
-                                        setLoginMainError(false);
-                                        setPassword(value);
-                                    }}
-                                    value={password}
-                                    contentStyle={styles.textInputContentStyle}
-                                    style={passwordFocus ? styles.textInputFocus : styles.textInput}
-                                    onFocus={() => {
-                                        setIsPasswordFocus(true);
-                                    }}
-                                    placeholder={'Type in your password...'}
-                                    label="Password"
-                                    secureTextEntry={!passwordShown}
-                                    textColor={"#FFFFFF"}
-                                    right={<TextInput.Icon icon={!passwordShown ? "eye" : "eye-off"}
-                                                           iconColor={passwordShown ? "#F2FF5D" : "#FFFFFF"}
-                                                           onPress={() => setIsPasswordShown(!passwordShown)}/>}
-                                    left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
-                                />
-                                <View style={styles.forgotPasswordView}>
-                                    <Text style={styles.forgotPasswordButton}
-                                          onPress={() => {
-                                              setIsEmailFocus(false);
-                                              setEmail("");
-                                              setIsPasswordFocus(false);
-                                              setPassword("");
-                                              setEmailErrors([]);
-                                              setPasswordErrors([]);
-                                              setLoginMainError(false);
-                                              navigation.navigate('AccountRecovery', {})
-                                          }}>Forgot Password ?
-                                    </Text>
+                            <View style={Platform.OS === 'android' && isKeyboardShown && {height: hp(220)}}>
+                                <View style={styles.topContainer}>
+                                    <Text style={styles.greetingTitle}>Hello</Text>
+                                    <Text style={styles.gettingSubtitle}>Get ready to <Text
+                                        style={styles.gettingSubtitleHighlighted}>Earn</Text></Text>
+                                    <Image resizeMethod={"scale"}
+                                           resizeMode={'contain'}
+                                           source={MilitaryBranchImage}
+                                           style={styles.topContainerImage}/>
                                 </View>
-                                <TouchableOpacity
-                                    style={styles.logInButton}
-                                    onPress={async () => {
-                                        if (email === "" || password === "" || passwordErrors.length !== 0
-                                            || emailErrors.length !== 0) {
-                                            // only populate main error if there are no other errors showing
-                                            if (passwordErrors.length === 0 && emailErrors.length === 0) {
-                                                setLoginMainError(true);
-                                            }
-                                        } else {
-                                            // authenticate user through Amplify
-                                            const signInFlag = await signIn();
-
-                                            // check if authentication was successful
-                                            if (signInFlag) {
-                                                setLoginMainError(false);
-
-                                                // navigate to the App Drawer
-                                                navigation.navigate("AppDrawer", {});
-                                            }
-                                        }
-                                    }}
-                                >
-                                    <Text style={styles.loginButtonContentStyle}>Sign In</Text>
-                                </TouchableOpacity>
-                                <View style={styles.bottomView}>
-                                    <Image source={LoginLogo}
-                                           style={styles.loginLogo}
-                                           resizeMode={'contain'}/>
-                                    <Text style={styles.loginFooter}>Don't have an account ?
-                                        <Text style={styles.loginFooterButton}
+                                <View style={[styles.bottomContainer]}>
+                                    <Text style={styles.bottomTitle}>Login</Text>
+                                    {loginMainError ?
+                                        <Text style={styles.errorMessage}>Please fill out the information below!</Text>
+                                        : (emailErrors.length !== 0 && !loginMainError) ?
+                                            <Text style={styles.errorMessage}>{emailErrors[0]}</Text>
+                                            : (passwordErrors.length !== 0 && !loginMainError) ?
+                                                <Text style={styles.errorMessage}>{passwordErrors[0]}</Text>
+                                                : <></>
+                                    }
+                                    <TextInput
+                                        autoCapitalize={"none"}
+                                        autoCorrect={false}
+                                        autoComplete={"off"}
+                                        keyboardType={"email-address"}
+                                        placeholderTextColor={'#D9D9D9'}
+                                        activeUnderlineColor={'#F2FF5D'}
+                                        underlineColor={'#D9D9D9'}
+                                        outlineColor={'#D9D9D9'}
+                                        activeOutlineColor={'#F2FF5D'}
+                                        selectionColor={'#F2FF5D'}
+                                        mode={'outlined'}
+                                        onChangeText={(value: React.SetStateAction<string>) => {
+                                            setIsEmailFocus(true);
+                                            setLoginMainError(false);
+                                            setEmail(value);
+                                        }}
+                                        value={email}
+                                        contentStyle={styles.textInputContentStyle}
+                                        style={emailFocus ? styles.textInputFocus : styles.textInput}
+                                        onFocus={() => {
+                                            setIsEmailFocus(true);
+                                        }}
+                                        placeholder={'Type in your email...'}
+                                        label="Email"
+                                        textColor={"#FFFFFF"}
+                                        left={<TextInput.Icon icon="email" iconColor="#FFFFFF"/>}
+                                    />
+                                    <TextInput
+                                        autoCapitalize={"none"}
+                                        autoCorrect={false}
+                                        autoComplete={"off"}
+                                        keyboardType={"default"}
+                                        placeholderTextColor={'#D9D9D9'}
+                                        activeUnderlineColor={'#F2FF5D'}
+                                        underlineColor={'#D9D9D9'}
+                                        outlineColor={'#D9D9D9'}
+                                        activeOutlineColor={'#F2FF5D'}
+                                        selectionColor={'#F2FF5D'}
+                                        mode={'outlined'}
+                                        onChangeText={(value: React.SetStateAction<string>) => {
+                                            setIsPasswordFocus(true);
+                                            setLoginMainError(false);
+                                            setPassword(value);
+                                        }}
+                                        value={password}
+                                        contentStyle={styles.textInputContentStyle}
+                                        style={passwordFocus ? styles.textInputFocus : styles.textInput}
+                                        onFocus={() => {
+                                            setIsPasswordFocus(true);
+                                        }}
+                                        placeholder={'Type in your password...'}
+                                        label="Password"
+                                        secureTextEntry={!passwordShown}
+                                        textColor={"#FFFFFF"}
+                                        right={<TextInput.Icon icon={!passwordShown ? "eye" : "eye-off"}
+                                                               iconColor={passwordShown ? "#F2FF5D" : "#FFFFFF"}
+                                                               onPress={() => setIsPasswordShown(!passwordShown)}/>}
+                                        left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
+                                    />
+                                    <View style={styles.forgotPasswordView}>
+                                        <Text style={styles.forgotPasswordButton}
                                               onPress={() => {
-                                                  // clear the username and password
-                                                  setPassword("");
+                                                  setIsEmailFocus(false);
                                                   setEmail("");
-                                                  navigation.navigate('Registration', {});
-                                              }}>{"  "}Sign up</Text>
-                                    </Text>
-                                    <Text style={styles.loginFooter}>
-                                        <Text style={styles.loginFooterButton}
-                                              onPress={() => {
-                                                  // clear the username and password
+                                                  setIsPasswordFocus(false);
                                                   setPassword("");
-                                                  setEmail("");
-                                                  // reset the App Overview flag and go back, to the App Overview screen
-                                                  setIsLoadingAppOverviewNeeded(true);
-                                                  mainRootNavigation && mainRootNavigation.goBack();
-                                              }}>{"  "}Learn More</Text>
-                                    </Text>
+                                                  setEmailErrors([]);
+                                                  setPasswordErrors([]);
+                                                  setLoginMainError(false);
+                                                  navigation.navigate('AccountRecovery', {})
+                                              }}>Forgot Password ?
+                                        </Text>
+                                    </View>
+                                    <TouchableOpacity
+                                        style={styles.logInButton}
+                                        onPress={async () => {
+                                            if (email === "" || password === "" || passwordErrors.length !== 0
+                                                || emailErrors.length !== 0) {
+                                                // only populate main error if there are no other errors showing
+                                                if (passwordErrors.length === 0 && emailErrors.length === 0) {
+                                                    setLoginMainError(true);
+                                                }
+                                            } else {
+                                                // authenticate user through Amplify
+                                                const signInFlag = await signIn();
+
+                                                // check if authentication was successful
+                                                if (signInFlag) {
+                                                    setLoginMainError(false);
+
+                                                    // navigate to the App Drawer
+                                                    navigation.navigate("AppDrawer", {});
+                                                }
+                                            }
+                                        }}
+                                    >
+                                        <Text style={styles.loginButtonContentStyle}>Sign In</Text>
+                                    </TouchableOpacity>
+                                    <View style={(emailErrors.length !== 0 || passwordErrors.length !== 0 || !loginMainError)
+                                        ? {marginTop: hp(5)} : {marginTop: hp(1)}}>
+                                        <Image source={LoginLogo}
+                                               style={styles.loginLogo}
+                                               resizeMode={'contain'}/>
+                                        <Text style={styles.loginFooter}>Don't have an account ?
+                                            <Text style={styles.loginFooterButton}
+                                                  onPress={() => {
+                                                      // clear the username and password
+                                                      setPassword("");
+                                                      setEmail("");
+                                                      navigation.navigate('Registration', {});
+                                                  }}>{"  "}Sign up</Text>
+                                        </Text>
+                                        <Text style={styles.loginFooter}>
+                                            <Text style={styles.loginFooterButton}
+                                                  onPress={() => {
+                                                      // clear the username and password
+                                                      setPassword("");
+                                                      setEmail("");
+                                                      // reset the App Overview flag and go back, to the App Overview screen
+                                                      setIsLoadingAppOverviewNeeded(true);
+                                                      mainRootNavigation && mainRootNavigation.goBack();
+                                                  }}>{"  "}Learn More</Text>
+                                        </Text>
+                                    </View>
                                 </View>
                             </View>
                         </KeyboardAwareScrollView>

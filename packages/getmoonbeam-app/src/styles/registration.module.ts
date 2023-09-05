@@ -1,4 +1,5 @@
-import {Dimensions, StyleSheet} from "react-native";
+import {StyleSheet} from "react-native";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 // styles to be used within the Registration component
 export const styles = StyleSheet.create({
@@ -6,8 +7,8 @@ export const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'flex-start',
         width: '100%',
-        marginLeft: Dimensions.get('window').width/ 10,
-        bottom: Dimensions.get('window').height / 10
+        marginLeft: wp(5),
+        bottom: hp(10)
     },
     titleViewDescription: {
         flexDirection: 'row',
@@ -15,33 +16,34 @@ export const styles = StyleSheet.create({
     },
     inputColumnView: {
         flexDirection: 'row',
-        width: '100%',
+        width: wp(100),
     },
     inputColumnViewAddress: {
-        marginTop: Dimensions.get('window').height/55,
+        marginTop: hp(1),
         flexDirection: 'row',
         width: '100%',
     },
     codeInputColumnView: {
-        marginRight: Dimensions.get('window').width/15,
         flexDirection: 'row',
-        width: '100%',
+        width: wp(100),
+        left: wp(3.5)
     },
     resendCodeView: {
         flexDirection: 'row',
-        width: Dimensions.get('window').width / 3,
-        bottom: Dimensions.get('window').height / 15
+        width: wp(30),
+        bottom: hp(5),
+        left: wp(3.5)
     },
     resendCode: {
-        width: Dimensions.get('window').width / 3,
+        width: wp(80),
         alignSelf: 'flex-start',
         fontFamily: 'Changa-Medium',
-        fontSize: Dimensions.get('window').height/40,
+        fontSize: hp(3),
         textDecorationLine: 'underline',
         color: '#F2FF5D'
     },
     countdownTimer: {
-        width: Dimensions.get('window').width /3,
+        width: wp(30),
         alignSelf: 'flex-start',
         fontFamily: 'Changa-Medium',
         fontSize: 25,
@@ -50,157 +52,171 @@ export const styles = StyleSheet.create({
     stepTitle: {
         fontFamily: 'Saira-Medium',
         alignSelf: 'flex-start',
-        fontSize: Dimensions.get('window').height / 22,
+        fontSize: hp(5),
         color: '#FFFFFF'
     },
     stepDescription: {
         fontFamily: 'Raleway-Regular',
         alignSelf: 'flex-start',
-        marginLeft: Dimensions.get('window').width/ 18,
-        bottom: Dimensions.get('window').height / 10,
-        fontSize: Dimensions.get('window').height / 52,
-        width: Dimensions.get('window').width/ 1.15,
+        marginLeft: wp(6),
+        bottom: hp(10),
+        fontSize: hp(2),
+        width: wp(85),
         color: '#FFFFFF'
     },
     stepDescriptionUnderline: {
         fontFamily: 'Raleway-Bold',
         alignSelf: 'flex-start',
         textDecorationLine: 'underline',
-        marginLeft: Dimensions.get('window').width/ 18,
-        bottom: Dimensions.get('window').height / 10,
-        fontSize: Dimensions.get('window').height / 52,
-        width: Dimensions.get('window').width/ 1.15,
+        marginLeft: wp(6),
+        bottom: hp(10),
+        fontSize: hp(2),
+        width: wp(85),
         color: '#F2FF5D'
     },
     permissionsStepTitle: {
         fontFamily: 'Raleway-Bold',
         alignSelf: 'center',
         textAlign: 'center',
-        marginRight: Dimensions.get('window').width/ 10,
-        top: Dimensions.get('window').height / 35,
-        fontSize: Dimensions.get('window').height / 42,
-        width: Dimensions.get('window').width/ 1.35,
+        top: hp(3),
+        fontSize: hp(2.3),
+        width: wp(90),
         color: '#F2FF5D'
     },
     permissionsStepDescription: {
         fontFamily: 'Raleway-Regular',
         alignSelf: 'center',
         textAlign: 'center',
-        marginRight: Dimensions.get('window').width/ 10,
-        top: Dimensions.get('window').height / 35,
-        fontSize: Dimensions.get('window').height / 52,
-        width: Dimensions.get('window').width/ 1.35,
+        top: hp(3),
+        fontSize: hp(2),
+        width: wp(80),
         color: '#FFFFFF'
     },
     triangleIcon: {
-        marginRight: Dimensions.get('window').width/ 60
+        marginRight: wp(5)
     },
     fileUploadTextInputContentStyle: {
-        fontSize: Dimensions.get('window').height/105,
-        fontFamily: 'Saira-Regular'
-    },
-    textInputContentStyle: {
-        fontSize: Dimensions.get('window').height/55,
+        fontSize: hp(1),
         fontFamily: 'Saira-Regular'
     },
     textInputNarrowContentStyle: {
-        fontSize: Dimensions.get('window').height/55,
+        fontSize: hp(1.8),
+        height: hp(6),
+        width: wp(40),
         fontFamily: 'Saira-Regular'
     },
-    textInputNarrowCardLinked: {
-        bottom: Dimensions.get('window').height / 16,
-        alignSelf: 'flex-start',
-        width: Dimensions.get('window').width / 2.5,
-    },
-    textInputNarrowFocusCardLinked: {
-        bottom: Dimensions.get('window').height / 16,
-        alignSelf: 'flex-start',
-        width: Dimensions.get('window').width / 2.5,
-    },
     textInputNarrow: {
-        bottom: Dimensions.get('window').height / 14,
+        bottom: hp(7.25),
         alignSelf: 'flex-start',
-        width: Dimensions.get('window').width / 2.5,
+        height: hp(5),
+        width: wp(40),
+        marginLeft: wp(5),
     },
     textInputNarrowFocus: {
-        bottom: Dimensions.get('window').height / 14,
+        bottom: hp(7.25),
         alignSelf: 'flex-start',
-        width: Dimensions.get('window').width / 2.5,
+        height: hp(5),
+        width: wp(40),
+        marginLeft: wp(5),
     },
     textInputCodeContentStyle: {
-        fontSize: Dimensions.get('window').height/25,
+        fontSize: hp(4),
+        height: hp(6),
+        width: wp(15),
+        marginLeft: wp(1.2),
         fontFamily: 'Saira-Regular',
         alignSelf: 'center',
+        textAlign: 'center'
     },
     textInputCode: {
-        marginTop: Dimensions.get('window').height / 50,
-        bottom: Dimensions.get('window').height / 14,
+        marginTop: hp(2),
+        bottom: hp(7),
         alignSelf: 'flex-start',
-        marginRight: Dimensions.get('window').width / 80,
-        width: Dimensions.get('window').width / 7,
+        marginRight: wp(1.7),
+        width: wp(14),
     },
     textInputCodeFocus: {
-        marginTop: Dimensions.get('window').height / 50,
-        bottom: Dimensions.get('window').height / 14,
+        marginTop: hp(2),
+        bottom: hp(7),
         alignSelf: 'flex-start',
-        marginRight: Dimensions.get('window').width /80,
-        width: Dimensions.get('window').width / 7,
+        marginRight: wp(1.7),
+        width: wp(14),
     },
     fileUploadedTextInput: {
-        bottom: Dimensions.get('window').width / 50,
-        right: Dimensions.get('window').width / 220,
-        width: Dimensions.get('window').width / 2
+        bottom: wp(2),
+        right: wp(5),
+        width: wp(50)
+    },
+    pictureUploadedTextInput: {
+        bottom: wp(2),
+        width: wp(50)
     },
     textInput: {
-        marginTop: Dimensions.get('window').height / 50,
-        bottom: Dimensions.get('window').height / 14,
+        marginTop: hp(2),
+        bottom: hp(8),
         alignSelf: 'flex-start',
-        marginRight: Dimensions.get('window').width / 8,
-        width: Dimensions.get('window').width / 1.15
+        marginLeft: wp(5),
+        height: hp(5),
+        width: wp(87),
     },
     textInputFocus: {
-        marginTop: Dimensions.get('window').height / 50,
-        bottom: Dimensions.get('window').height / 14,
+        marginTop: hp(2),
+        bottom: hp(8),
         alignSelf: 'flex-start',
-        marginRight: Dimensions.get('window').width / 8,
-        width: Dimensions.get('window').width / 1.15,
+        marginLeft: wp(5),
+        height: hp(5),
+        width: wp(87),
+    },
+    textInputContentStyle: {
+        height: hp(6),
+        width: wp(87),
+        fontSize: hp(1.8),
+        fontFamily: 'Saira-Regular'
+    },
+    dropdownTextInputContentStyle: {
+        height: hp(6),
+        width: wp(87),
+        fontSize: hp(1.5),
+        top: hp(1.5),
+        fontFamily: 'Saira-Regular'
     },
     errorMessage: {
-        width: Dimensions.get('window').width / 1.15,
-        bottom: Dimensions.get('window').height / 12,
-        marginLeft: Dimensions.get('window').width/ 17,
+        width: wp(90),
+        bottom: hp(8),
+        marginLeft: wp(5.5),
         alignSelf: 'flex-start',
         fontFamily: 'Saira-Medium',
-        fontSize: 15,
+        fontSize: hp(2),
         color: '#F2FF5D'
     },
     disclaimerView: {
-        marginTop: Dimensions.get('window').height/55,
+        left: wp(5),
+        marginTop: hp(2),
         flexDirection: 'row',
         alignContent: 'space-between',
-        width: '100%'
+        width: wp(100)
     },
     disclaimerCheckbox: {
         alignSelf: 'flex-start'
     },
     disclaimerText: {
-        left: Dimensions.get('window').width/50,
+        left: wp(2),
+        textAlign: 'justify',
         fontFamily: 'Raleway-Regular',
         alignSelf: 'flex-end',
-        fontSize: Dimensions.get('window').height / 65,
-        width: Dimensions.get('window').width/ 1.25,
+        fontSize: hp(1.5),
+        width: wp(80),
         color: '#FFFFFF'
     },
     disclaimerTextHighlighted: {
         fontFamily: 'Raleway-Bold',
-        fontStyle: 'italic',
         textDecorationLine: 'underline',
         color: '#F2FF5D'
     },
     buttonSkip: {
         backgroundColor: 'transparent',
-        width: Dimensions.get('window').width/10,
-        height: Dimensions.get('window').height/30,
+        width: wp(10),
+        height: hp(3),
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'flex-start',
@@ -208,18 +224,19 @@ export const styles = StyleSheet.create({
     },
     buttonLeft: {
         backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width/3,
-        height: Dimensions.get('window').height/20,
+        width: wp(30),
+        height: hp(5),
         flexDirection: 'row',
         flexWrap: 'wrap',
+        alignSelf: 'flex-start',
+        left: wp(15),
         alignItems: 'center',
         justifyContent: 'center'
     },
     buttonRightDisabled: {
         backgroundColor: '#D9D9D9',
-        width: Dimensions.get('window').width/3,
-        height: Dimensions.get('window').height/20,
-        right: Dimensions.get('window').width/20,
+        width: wp(30),
+        height: hp(5),
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignSelf: 'center',
@@ -228,9 +245,8 @@ export const styles = StyleSheet.create({
     },
     buttonRight: {
         backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width/3,
-        height: Dimensions.get('window').height/20,
-        right: Dimensions.get('window').width/20,
+        width: wp(30),
+        height: hp(5),
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignSelf: 'center',
@@ -240,96 +256,109 @@ export const styles = StyleSheet.create({
     buttonSkipText: {
         color: '#F2FF5D',
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').height/55,
-        marginTop: Dimensions.get('window').height / 200
+        fontSize: hp(2)
     },
     documentButtonText: {
         color: '#313030',
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').height/55,
-        marginTop: Dimensions.get('window').height / 90
+        fontSize: hp(1.8),
+        marginTop: hp(1)
     },
     buttonText: {
         color: '#313030',
         fontFamily: 'Saira-Medium',
-        fontSize: Dimensions.get('window').height/45,
-        marginTop: Dimensions.get('window').height / 90
+        fontSize: hp(2.2),
+        marginTop: hp(1)
     },
     bottomContainerButtons: {
         flexDirection: 'row',
-        marginTop: Dimensions.get('window').height / 40,
-        alignSelf: 'center'
+        marginTop: hp(3),
+        alignSelf: 'center',
+        width: wp(100)
     },
     documentSelectionView: {
         zIndex: 1000,
-        bottom: Dimensions.get('window').height/30,
+        bottom: hp(5),
         flexDirection: 'column',
-        width: '100%'
+        width: wp(100),
+        alignItems: 'center',
+        alignContent: 'center',
+        alignSelf: 'center'
     },
     documentSelectionOptionTop: {
         zIndex: 2000,
-        marginBottom: Dimensions.get('window').height/20,
-        alignSelf: 'flex-start',
+        marginBottom: hp(3.5),
+        marginLeft: wp(12),
+        alignSelf: 'center',
         flexDirection: 'column',
-        width: '100%'
+        width: wp(100)
     },
     documentSelectionOptionBottom: {
-        marginTop: Dimensions.get('window').height/70,
-        marginBottom: Dimensions.get('window').height/70,
+        marginTop: hp(2),
+        marginBottom: hp(2),
+        marginLeft: wp(5),
         alignSelf: 'flex-start',
         flexDirection: 'row',
-        width: '50%'
-    },
-    documentSelectionOptionImage: {
-        height: Dimensions.get('window').height/8,
-        width: Dimensions.get('window').height/6
+        width: wp(50)
     },
     photoUploadOptionImage: {
-        height: Dimensions.get('window').height/6,
-        width: Dimensions.get('window').height/6
+        height: hp(15),
+        width: wp(28)
     },
     documentUploadOptionImage: {
-        height: Dimensions.get('window').height/7,
-        width: Dimensions.get('window').height/6
+        height: hp(15),
+        width: wp(33)
     },
     documentCapturingDescriptionView: {
-        top: Dimensions.get('window').height / 25,
-        left: Dimensions.get('window').width / 20,
+        top: hp(3),
+        left: wp(10),
         flexDirection: 'column',
-        width: '100%'
+        width: wp(100)
     },
     documentCapturingOptionDescription: {
-        alignSelf: 'center',
-        fontFamily: 'Raleway-Medium',
-        bottom: Dimensions.get('window').height / 60,
-        fontSize: Dimensions.get('window').height / 55,
-        width: Dimensions.get('window').width/ 2,
-        color: '#FFFFFF'
-    },
-    documentSelectionOptionDescription: {
         alignSelf: 'flex-start',
         fontFamily: 'Raleway-Medium',
-        marginBottom: Dimensions.get('window').height / 55,
-        fontSize: Dimensions.get('window').height / 55,
-        width: Dimensions.get('window').width,
+        bottom: hp(4),
+        fontSize: hp(2),
+        width: wp(50),
         color: '#FFFFFF'
     },
-    documentSelectionOptionDescriptionButton: {
+    documentUploadOptionDescription: {
         alignSelf: 'flex-start',
         fontFamily: 'Raleway-Medium',
-        fontSize: Dimensions.get('window').height / 55,
-        width: Dimensions.get('window').width/ 1.5,
-        color: '#F2FF5D',
-        textDecorationLine: 'underline'
+        right: wp(5),
+        bottom: hp(2),
+        fontSize: hp(2),
+        width: wp(50),
+        color: '#FFFFFF'
     },
     documentSelectionDivider: {
-        width: Dimensions.get('window').width / 1.15,
+        width: wp(90),
         backgroundColor: '#D9D9D9'
+    },
+    captureSelectionButton: {
+        backgroundColor: '#F2FF5D',
+        width: wp(30),
+        height: hp(4.3),
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    captureSelectionButtonDisabled: {
+        backgroundColor: '#D9D9D9',
+        width: wp(30),
+        height: hp(4.3),
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     documentSelectionButton: {
         backgroundColor: '#F2FF5D',
-        width: Dimensions.get('window').width / 3.5,
-        height: Dimensions.get('window').height / 25,
+        right: wp(5),
+        width: wp(30),
+        height: hp(4.3),
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -337,8 +366,9 @@ export const styles = StyleSheet.create({
     },
     documentSelectionButtonDisabled: {
         backgroundColor: '#D9D9D9',
-        width: Dimensions.get('window').width / 3.5,
-        height: Dimensions.get('window').height / 25,
+        right: wp(5),
+        width: wp(30),
+        height: hp(4.3),
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -346,68 +376,69 @@ export const styles = StyleSheet.create({
     },
     pickerView: {
         zIndex: 2000,
-        bottom: Dimensions.get('window').height / 20
+        bottom: hp(5),
+        marginLeft: wp(5)
     },
     documentsDropdownPicker: {
+        marginBottom: hp(3.5),
+        alignSelf: 'center',
         backgroundColor: '#1c1a1f',
         borderColor: "#D9D9D9",
-        width: Dimensions.get('window').width / 1.15,
-        height: Dimensions.get('window').height / 25,
+        width: wp(87),
+        height: hp(5)
     },
     documentsDropdownContainer: {
+        alignSelf: 'center',
         backgroundColor: '#1c1a1f',
         borderColor: "#D9D9D9",
-        width: Dimensions.get('window').width / 1.15,
-        height: Dimensions.get('window').height / 5
+        width: wp(87)
     },
     dropdownContainer: {
         backgroundColor: '#1c1a1f',
         borderColor: "#D9D9D9",
-        width: Dimensions.get('window').width / 1.15,
-        height: Dimensions.get('window').height / 8
+        width: wp(87)
     },
     dropdownPicker: {
         backgroundColor: '#1c1a1f',
         borderColor: "#D9D9D9",
-        width: Dimensions.get('window').width / 1.15,
-        height: Dimensions.get('window').height / 25
-    },
-    dropdownImage: {
-        height: Dimensions.get('window').height / 45,
-        width: Dimensions.get('window').height / 45
+        width: wp(87),
+        height: hp(5)
     },
     militaryRegistrationView: {
         zIndex: 1000,
-        marginBottom: Dimensions.get('window').height/30
+        marginBottom: hp(5)
     },
     permissionsView: {
         flex: 1,
-        bottom: Dimensions.get('window').height/20,
-        alignSelf: 'center',
-        alignContent: 'center'
+        bottom: hp(5),
+        alignContent: 'center',
+        alignItems: 'center',
+        width: wp(100)
     },
     permissionsImage: {
         resizeMode: 'contain',
-        height: Dimensions.get('window').height * 0.65,
-        width: Dimensions.get('window').width * 0.75,
+        height: hp(65),
+        width: wp(75),
+        alignSelf: 'center',
         flex: 0.75
     },
     militaryVerificationImage: {
         resizeMode: 'contain',
-        height: Dimensions.get('window').height * 0.65,
-        width: Dimensions.get('window').width * 0.75,
-        flex: 0.55
+        height: hp(25),
+        width: wp(55),
+        alignSelf: 'center'
     },
     cardLinkingParentView: {
         backgroundColor: '#313030',
-        paddingTop: Dimensions.get('window').height/10,
+        marginTop: hp(10),
         alignContent: 'center',
         alignSelf: 'center',
         alignItems: 'center'
     },
     cardLinkingIframeView: {
         backgroundColor: 'transparent',
-        width: Dimensions.get('window').width*1.3,
+        width: wp(130),
+        right: wp(15),
         flexGrow: 1
     }
 });
