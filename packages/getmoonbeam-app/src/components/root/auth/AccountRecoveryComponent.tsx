@@ -666,9 +666,10 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                             />
                                                         </View>
                                                         <View style={styles.resendCodeView}>
-                                                            {countdownValue > 0
-                                                                ? <Text style={styles.countdownTimer}>{``}</Text>
-                                                                :
+                                                            {/*{countdownValue > 0*/}
+                                                            {/*    ? <Text style={styles.countdownTimer}>{``}</Text>*/}
+                                                            {/*    :*/}
+                                                            {
                                                                 <TouchableOpacity
                                                                     onPress={
                                                                         async () => {

@@ -579,9 +579,10 @@ export const CodeVerificationBottomSheet = (props: {
                                                 />
                                             </View>
                                             <View style={styles.resendCodeView}>
-                                                {countdownValue > 0 && Platform.OS !== 'android' // this flickers on Android so we will enable it by default
-                                                    ? <Text style={styles.countdownTimer}>{``}</Text>
-                                                    :
+                                                {/*{countdownValue > 0 && Platform.OS !== 'android' // this flickers on Android so we will enable it by default*/}
+                                                {/*    ? <Text style={styles.countdownTimer}>{``}</Text>*/}
+                                                {/*    :*/}
+                                                {
                                                     <TouchableOpacity
                                                         onPress={
                                                             async () => {

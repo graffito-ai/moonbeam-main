@@ -1,4 +1,4 @@
-import {Platform, TouchableOpacity, View} from "react-native";
+import {TouchableOpacity, View} from "react-native";
 import {styles} from "../../../../styles/registration.module";
 import {Text, TextInput} from "react-native-paper";
 import React, {useEffect, useRef, useState} from "react";
@@ -362,9 +362,10 @@ export const CodeVerificationStep = () => {
                     />
                 </View>
                 <View style={styles.resendCodeView}>
-                    {countdownValue > 0 && Platform.OS !== 'android' // this flickers on Android so we will enable it by default
-                        ? <Text style={styles.countdownTimer}>{``}</Text>
-                        :
+                    {/*{countdownValue > 0 && Platform.OS !== 'android' // this flickers on Android so we will enable it by default*/}
+                    {/*    ? <Text style={styles.countdownTimer}>{``}</Text>*/}
+                    {/*    :*/}
+                    {
                         <TouchableOpacity
                             onPress={
                                 async () => {
