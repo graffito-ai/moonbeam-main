@@ -209,6 +209,19 @@ export const CardLinkingBottomSheet = () => {
                         setCardLinkingStatus(true);
                         setBannerShown(false);
 
+                        // if the card was successfully linked, then we can cache it accordingly
+                        if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCardFlag`) !== null) {
+                            console.log('old card is cached, needs cleaning up');
+                            await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCard`);
+                            await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCardFlag`);
+                            await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, signupCardLinkedMemberResult);
+                            await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
+                        } else {
+                            console.log('card is not cached');
+                            globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, signupCardLinkedMemberResult);
+                            globalCache && await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
+                        }
+
                         // update the user information object accordingly
                         setUserInformation({
                             ...userInformation,
