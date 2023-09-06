@@ -1422,6 +1422,8 @@ export const Store = ({navigation}: StoreProps) => {
                                 <Searchbar
                                     selectionColor={'#F2FF5D'}
                                     iconColor={'#F2FF5D'}
+                                    placeholderTextColor={'#FFFFFF'}
+                                    cursorColor={'#F2FF5D'}
                                     inputStyle={styles.searchBarInput}
                                     style={styles.searchBar}
                                     placeholder="Search for a merchant partner"

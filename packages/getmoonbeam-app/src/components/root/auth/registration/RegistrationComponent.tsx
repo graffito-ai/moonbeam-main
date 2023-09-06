@@ -701,8 +701,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                                         : <></>
                                 }
                                 <View style={[
-                                    styles.bottomContainerButtons,
-                                    stepNumber == 2 && {marginRight: wp(10)}
+                                    styles.bottomContainerButtons
                                 ]}>
                                     {(stepNumber === 1 || stepNumber === 2) &&
                                         <TouchableOpacity
@@ -744,16 +743,16 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                             )
                                                 ? styles.buttonRightDisabled
                                                 : styles.buttonRight,
-                                            (stepNumber === 0 || stepNumber === 3 || stepNumber === 6) && {marginLeft: wp(33)},
+                                            (stepNumber === 0 || stepNumber === 3 || stepNumber === 6) && {alignSelf: 'center'},
                                             (stepNumber === 1 || stepNumber === 2) && {marginLeft: wp(25)},
                                             (stepNumber === 4)
                                             && {
-                                                marginLeft: wp(33),
+                                                alignSelf: 'center',
                                                 marginBottom: hp(5)
                                             },
                                             (stepNumber === 5)
                                             && {
-                                                marginLeft: wp(33),
+                                                alignSelf: 'center',
                                                 marginBottom: hp(5)
                                             },
                                             stepNumber === 8

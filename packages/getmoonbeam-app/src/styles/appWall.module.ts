@@ -247,9 +247,11 @@ export const styles = StyleSheet.create({
         width: wp(87)
     },
     fileUploadTextInputContentStyle: {
-        fontSize: hp(1),
+        fontSize: hp(1.25),
+        width: wp(15),
         fontFamily: 'Saira-Regular',
-        color: '#FFFFFF'
+        color: '#FFFFFF',
+        textAlign: 'center'
     },
     textInputContentStyle: {
         height: hp(5.2),

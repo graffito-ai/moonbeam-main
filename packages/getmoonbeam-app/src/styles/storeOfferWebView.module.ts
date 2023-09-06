@@ -69,7 +69,7 @@ export const styles = StyleSheet.create({
         fontSize: hp(1.7),
         textAlign: 'center',
         width: wp(80),
-        color: '#FFFFFF'
+        color: '#313030'
     },
     urlBarOutline: {
         borderColor: '#dbdbdb',

@@ -110,10 +110,10 @@ export const StoreOfferWebView = ({navigation}: StoreOfferWebViewProps) => {
             <View style={styles.webViewNavbar}>
                 <View style={{alignSelf: 'center', flexDirection: 'row', width: wp(25)}}>
                     <IconButton
-                        disabled={isBackButtonDisabled}
-                        rippleColor={'grey'}
+                        disabled={false}
+                        rippleColor={'transparent'}
                         icon="chevron-left"
-                        iconColor={"#F2FF5D"}
+                        iconColor={!isBackButtonDisabled ? "#F2FF5D" : '#FFFFFF'}
                         size={hp(4)}
                         style={styles.webViewBackButton}
                         onPress={() => {
@@ -122,10 +122,10 @@ export const StoreOfferWebView = ({navigation}: StoreOfferWebViewProps) => {
                         }}
                     />
                     <IconButton
-                        disabled={isForwardButtonDisabled}
-                        rippleColor={'grey'}
+                        disabled={false}
+                        rippleColor={'transparent'}
                         icon="chevron-right"
-                        iconColor={"#F2FF5D"}
+                        iconColor={!isForwardButtonDisabled ? "#F2FF5D" : '#FFFFFF'}
                         size={hp(4)}
                         style={styles.webViewForwardButton}
                         onPress={() => {

@@ -26,7 +26,7 @@
       "backgroundColor": "#313030"
     },
     "ios": {
-      "buildNumber": "8",
+      "buildNumber": "9",
       "bundleIdentifier": "com.moonbeam.moonbeamfinance",
       "supportsTablet": false,
       "infoPlist": {
@@ -44,7 +44,7 @@
       }
     },
     "android": {
-      "versionCode": 7,
+      "versionCode": 8,
       "package": "com.moonbeam.moonbeamfin",
       "googleServicesFile": "./google-services.json",
       "softwareKeyboardLayoutMode": "pan",

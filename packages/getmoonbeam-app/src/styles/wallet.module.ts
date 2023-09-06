@@ -111,7 +111,8 @@ export const styles = StyleSheet.create({
         fontFamily: 'Saira-Regular',
         fontSize: hp(2.1),
         width: wp(70),
-        textAlign: 'center'
+        textAlign: 'center',
+        color: '#FFFFFF'
     },
     walletTextView: {
         flexDirection: 'column',

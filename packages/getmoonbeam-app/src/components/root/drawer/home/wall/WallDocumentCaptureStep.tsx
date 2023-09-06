@@ -493,7 +493,7 @@ export const WallDocumentCaptureStep = () => {
                                 containerStyle={dropdownDocumentState && Platform.OS === 'android' && {height: hp(25)}}
                                 dropDownContainerStyle={[styles.documentsDropdownContainer, Platform.OS === 'android' ? {height: hp(20)} : {height: hp(15)}]}
                                 style={styles.documentsDropdownPicker}
-                                textStyle={[styles.dropdownTextInputContentStyle, {color: '#D9D9D9'}]}
+                                textStyle={[styles.dropdownTextInputContentStyle, {color: '#FFFFFF'}]}
                                 dropDownDirection={"BOTTOM"}
                                 open={dropdownDocumentState}
                                 onOpen={() => {
@@ -586,7 +586,7 @@ export const WallDocumentCaptureStep = () => {
                                                     mode={'outlined'}
                                                     contentStyle={styles.fileUploadTextInputContentStyle}
                                                     style={styles.fileUploadedTextInput}
-                                                    label="document"
+                                                    value={"document"}
                                                     textColor={"#FFFFFF"}
                                                     left={<TextInput.Icon icon="file" iconColor="#FFFFFF"/>}
                                                     right={
@@ -660,7 +660,7 @@ export const WallDocumentCaptureStep = () => {
                                                     mode={'outlined'}
                                                     contentStyle={styles.fileUploadTextInputContentStyle}
                                                     style={styles.pictureUploadedTextInput}
-                                                    label="document"
+                                                    value={"document"}
                                                     textColor={"#FFFFFF"}
                                                     left={<TextInput.Icon icon="file" iconColor="#FFFFFF"/>}
                                                     right={

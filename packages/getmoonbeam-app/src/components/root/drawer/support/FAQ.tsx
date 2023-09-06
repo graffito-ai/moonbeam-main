@@ -207,7 +207,7 @@ export const FAQ = ({navigation}: FAQProps) => {
                             descriptionNumberOfLines={500}
                             title={''}
                             description={
-                                <Text>
+                                <Text style={styles.factItemDescription}>
                                     {factDescription}
                                 </Text>
                             }/>);
@@ -220,7 +220,7 @@ export const FAQ = ({navigation}: FAQProps) => {
                             descriptionNumberOfLines={500}
                             title={''}
                             description={
-                                <Text>
+                                <Text style={styles.factItemDescription}>
                                     {fact!.description}
                                 </Text>
                             }/>);

@@ -269,7 +269,7 @@ export const AdditionalRegistrationStep = () => {
                         containerStyle={dropdownBranchState && Platform.OS === 'android' && {height: hp(25)}}
                         dropDownContainerStyle={[styles.dropdownContainer, Platform.OS === 'android' ? {height: hp(20)} : {height: hp(15)}]}
                         style={styles.dropdownPicker}
-                        textStyle={[styles.dropdownTextInputContentStyle, {color: '#D9D9D9'}]}
+                        textStyle={[styles.dropdownTextInputContentStyle, {color: '#FFFFFF'}]}
                         dropDownDirection={"BOTTOM"}
                         open={dropdownBranchState}
                         onOpen={() => {

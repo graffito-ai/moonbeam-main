@@ -99,6 +99,7 @@ export default function App() {
     // Setting up the  theme to be used in application
     const theme = useTheme();
     theme.colors.secondaryContainer = 'transparent';
+    theme.colors.onSurfaceVariant = '#FFFFFF';
 
     // constants used to keep track of local component state
     const [marketplaceCache, setMarketplaceCache] = useState<typeof Cache | null>(null);
@@ -263,7 +264,7 @@ export default function App() {
         // return the main component for the application stack
         return (
             <RecoilRoot>
-                <PaperProvider>
+                <PaperProvider theme={theme}>
                     <StatusBar style="light" animated={true}/>
                     <NavigationContainer
                         fallback={

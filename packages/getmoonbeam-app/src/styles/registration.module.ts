@@ -38,7 +38,7 @@ export const styles = StyleSheet.create({
         width: wp(80),
         alignSelf: 'flex-start',
         fontFamily: 'Changa-Medium',
-        fontSize: hp(3),
+        fontSize: hp(2.3),
         textDecorationLine: 'underline',
         color: '#F2FF5D'
     },
@@ -52,7 +52,7 @@ export const styles = StyleSheet.create({
     stepTitle: {
         fontFamily: 'Saira-Medium',
         alignSelf: 'flex-start',
-        fontSize: hp(5),
+        fontSize: hp(3.75),
         color: '#FFFFFF'
     },
     stepDescription: {
@@ -96,9 +96,11 @@ export const styles = StyleSheet.create({
         marginRight: wp(5)
     },
     fileUploadTextInputContentStyle: {
-        fontSize: hp(1),
+        fontSize: hp(1.25),
+        width: wp(15),
         fontFamily: 'Saira-Regular',
         color: '#FFFFFF',
+        textAlign: 'center'
     },
     textInputNarrowContentStyle: {
         fontSize: hp(1.8),
@@ -229,7 +231,11 @@ export const styles = StyleSheet.create({
     buttonSkip: {
         backgroundColor: 'transparent',
         width: wp(10),
-        height: hp(3),
+        height: hp(6),
+        top: wp(3.2),
+        left: wp(2.5),
+        marginTop: wp(0.5),
+        marginBottom: wp(0.5),
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'flex-start',
@@ -242,7 +248,6 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignSelf: 'flex-start',
-        left: wp(15),
         alignItems: 'center',
         justifyContent: 'center'
     },
@@ -252,7 +257,7 @@ export const styles = StyleSheet.create({
         height: hp(5),
         flexDirection: 'row',
         flexWrap: 'wrap',
-        alignSelf: 'center',
+        alignSelf: 'flex-end',
         alignItems: 'center',
         justifyContent: 'center'
     },
@@ -262,14 +267,15 @@ export const styles = StyleSheet.create({
         height: hp(5),
         flexDirection: 'row',
         flexWrap: 'wrap',
-        alignSelf: 'center',
+        alignSelf: 'flex-end',
         alignItems: 'center',
         justifyContent: 'center'
     },
     buttonSkipText: {
         color: '#F2FF5D',
         fontFamily: 'Saira-Medium',
-        fontSize: hp(2)
+        fontSize: hp(1.65),
+        width: wp(10)
     },
     documentButtonText: {
         color: '#313030',
@@ -286,8 +292,12 @@ export const styles = StyleSheet.create({
     bottomContainerButtons: {
         flexDirection: 'row',
         marginTop: hp(3),
+        width: wp(100),
+        flexWrap: 'wrap',
         alignSelf: 'center',
-        width: wp(100)
+        alignItems: 'center',
+        alignContent: 'space-between',
+        justifyContent: 'center'
     },
     documentSelectionView: {
         zIndex: 1000,

@@ -162,7 +162,7 @@ export const styles = StyleSheet.create({
         width: wp(50),
         alignSelf: 'flex-start',
         fontFamily: 'Changa-Medium',
-        fontSize: hp(2.5),
+        fontSize: hp(2.3),
         textDecorationLine: 'underline',
         color: '#F2FF5D'
     },

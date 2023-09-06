@@ -56,6 +56,7 @@ export const styles = StyleSheet.create({
     filterChipText: {
         alignSelf: 'center',
         fontFamily: 'Raleway-Medium',
+        fontSize: hp(1.4),
         color: '#F2FF5D'
     },
     filterChipView: {
