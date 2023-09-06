@@ -1,11 +1,8 @@
 import React, {useEffect, useRef, useState} from "react";
 import {Image, SafeAreaView, StyleSheet, TouchableOpacity, View} from "react-native";
-import {useRecoilState} from "recoil";
 import {Text} from "react-native-paper";
-import {deviceTypeState} from "../../../../../../recoil/RootAtom";
-import * as Device from "expo-device";
 import {styles} from "../../../../../../styles/dashboard.module";
-import MapView, {Marker} from "react-native-maps";
+import MapView, {Marker, PROVIDER_GOOGLE} from "react-native-maps";
 import * as Location from 'expo-location';
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
@@ -20,7 +17,7 @@ interface TransactionStoreLocation {
     longitudeDelta: number
 }
 
-/**
+ /**
  * TransactionsBottomSheet component.
  *
  * @param props component properties to be passed in.
@@ -40,8 +37,6 @@ export const TransactionsBottomSheet = (props: {
     const [transactionStoreGeoLocation, setTransactionStoreGeoLocation] = useState<TransactionStoreLocation | null>(null);
     const mapViewRef = useRef(null);
     const discountPercentage = `${Math.round((Number(props.transactionDiscountAmount) / Number(props.transactionAmount)) * 100)}%`;
-    // constants used to keep track of shared states
-    const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -51,43 +46,49 @@ export const TransactionsBottomSheet = (props: {
      * included in here.
      */
     useEffect(() => {
-        // check and set the type of device, to be used throughout the app
-        Device.getDeviceTypeAsync().then(deviceType => {
-            setDeviceType(deviceType);
-        });
         mapViewRef && mapViewRef.current && !transactionStoreGeoLocation && props.transactionStoreAddress && retrieveStoreGeolocation();
-    }, [deviceType, transactionStoreGeoLocation, mapViewRef]);
+    }, [transactionStoreGeoLocation, mapViewRef]);
 
     // retrieve the geolocation (latitude and longitude of the store which the transaction was made at)
     const retrieveStoreGeolocation = async (): Promise<void> => {
-        const geoLocationArray = await Location.geocodeAsync(props.transactionStoreAddress!);
-        /**
-         * get the first location point in the array of geolocation returned, since we will have the full address of the store,
-         * which will result in a 100% accuracy for 1 location match
-         */
-        const geoLocation = geoLocationArray[0];
+        // first retrieve the necessary permissions for location purposes
+        const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
+        // const backgroundPermissionStatus = await Location.requestBackgroundPermissionsAsync(); || backgroundPermissionStatus.status !== 'granted'
+        if (foregroundPermissionStatus.status !== 'granted') {
+            console.log(`Necessary location permissions not granted`);
+        } else {
+            const geoLocationArray = await Location.geocodeAsync(props.transactionStoreAddress!, {
+                useGoogleMaps: true
+            });
+            console.log(geoLocationArray);
+            /**
+             * get the first location point in the array of geolocation returned, since we will have the full address of the store,
+             * which will result in a 100% accuracy for 1 location match
+             */
+            const geoLocation = geoLocationArray[0];
 
-        // building the transaction store geolocation object
-        let transactionStoreGeoLocation: TransactionStoreLocation | null = null;
-        if (geoLocation) {
-            // set the store location details accordingly
-            transactionStoreGeoLocation = {
-                latitude: geoLocation.latitude!,
-                longitude: geoLocation.longitude!,
-                latitudeDelta: 0.001,
-                longitudeDelta: 0.003
+            // building the transaction store geolocation object
+            let transactionStoreGeoLocation: TransactionStoreLocation | null = null;
+            if (geoLocation) {
+                // set the store location details accordingly
+                transactionStoreGeoLocation = {
+                    latitude: geoLocation.latitude!,
+                    longitude: geoLocation.longitude!,
+                    latitudeDelta: 0.001,
+                    longitudeDelta: 0.003
+                }
+
+                // go to the current region on the map, based on the retrieved store location
+                // @ts-ignore
+                mapViewRef && mapViewRef.current && mapViewRef.current.animateToRegion({
+                    latitude: transactionStoreGeoLocation.latitude,
+                    longitude: transactionStoreGeoLocation.longitude,
+                    latitudeDelta: transactionStoreGeoLocation.latitudeDelta,
+                    longitudeDelta: transactionStoreGeoLocation.longitudeDelta,
+                }, 0);
             }
-
-            // go to the current region on the map, based on the retrieved store location
-            // @ts-ignore
-            mapViewRef && mapViewRef.current && mapViewRef.current.animateToRegion({
-                latitude: transactionStoreGeoLocation.latitude,
-                longitude: transactionStoreGeoLocation.longitude,
-                latitudeDelta: transactionStoreGeoLocation.latitudeDelta,
-                longitudeDelta: transactionStoreGeoLocation.longitudeDelta,
-            }, 0);
+            setTransactionStoreGeoLocation(transactionStoreGeoLocation);
         }
-        setTransactionStoreGeoLocation(transactionStoreGeoLocation);
     }
 
 
@@ -141,6 +142,7 @@ export const TransactionsBottomSheet = (props: {
                     props.transactionStoreAddress &&
                     <View style={styles.transactionMapView}>
                         <MapView
+                            provider={PROVIDER_GOOGLE}
                             userInterfaceStyle={'dark'}
                             zoomControlEnabled={true}
                             ref={mapViewRef}

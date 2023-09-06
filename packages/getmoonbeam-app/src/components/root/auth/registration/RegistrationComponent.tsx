@@ -854,7 +854,6 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
 
                                                             await addSupportToContacts();
                                                             await requestForegroundLocationPermission();
-                                                            await Location.getCurrentPositionAsync();
                                                             // await requestBackgroundLocationPermission();
                                                             await requestNotificationsPermission();
                                                             await requestMediaLibraryPermission();

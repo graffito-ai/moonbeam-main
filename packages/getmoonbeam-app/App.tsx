@@ -20,6 +20,7 @@ import Constants from "expo-constants";
 import {Platform} from "react-native";
 import * as Device from 'expo-device';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Location from 'expo-location';
 
 // this handler determines how your app handles notifications that come in while the app is foregrounded.
 Notifications.setNotificationHandler({
@@ -199,6 +200,11 @@ export default function App() {
                     warningThreshold: 0.8, // when to get warned that the cache is full, at 80% capacity
                     storage: AsyncStorage
                 }));
+
+                // set appropriate Google API Key
+                Location.setGoogleApiKey(Platform.OS === 'android'
+                    ? 'AIzaSyB8OpXoKULaEO8t46npUBbmIAM-ranxVfk'
+                    : 'AIzaSyBlj5BVB9ZxZS0V_Usf9pAhuCnw2mQhcaQ');
 
                 // tell the application to render
                 setAppIsReady(true);
