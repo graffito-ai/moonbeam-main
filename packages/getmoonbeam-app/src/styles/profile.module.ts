@@ -43,7 +43,8 @@ export const styles = StyleSheet.create({
     },
     textInputContentStyle: {
         fontSize: hp(2),
-        fontFamily: 'Saira-Regular'
+        fontFamily: 'Saira-Regular',
+        color: '#FFFFFF',
     },
     titleStyle: {
         fontFamily: 'Raleway-Regular',
@@ -111,7 +112,8 @@ export const styles = StyleSheet.create({
     },
     textInputNarrowContentStyle: {
         fontSize: hp(2),
-        fontFamily: 'Saira-Regular'
+        fontFamily: 'Saira-Regular',
+        color: '#FFFFFF',
     },
     textInputNarrow: {
         backgroundColor: '#313030',

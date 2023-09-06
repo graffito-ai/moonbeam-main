@@ -44,7 +44,8 @@ export const styles = StyleSheet.create({
         width: wp(87),
         fontSize: hp(1.5),
         top: hp(1.5),
-        fontFamily: 'Saira-Regular'
+        fontFamily: 'Saira-Regular',
+        color: '#FFFFFF'
     },
     bottomContainerButtonView: {
         flexDirection: 'row',
@@ -247,13 +248,15 @@ export const styles = StyleSheet.create({
     },
     fileUploadTextInputContentStyle: {
         fontSize: hp(1),
-        fontFamily: 'Saira-Regular'
+        fontFamily: 'Saira-Regular',
+        color: '#FFFFFF'
     },
     textInputContentStyle: {
         height: hp(5.2),
         width: wp(87),
         fontSize: hp(1.8),
-        fontFamily: 'Saira-Regular'
+        fontFamily: 'Saira-Regular',
+        color: '#FFFFFF'
     },
     documentButtonText: {
         color: '#313030',
@@ -262,11 +265,13 @@ export const styles = StyleSheet.create({
         marginTop: hp(1)
     },
     fileUploadedTextInput: {
+        backgroundColor: '#1c1a1f',
         bottom: wp(2),
         right: wp(1),
         width: wp(50)
     },
     pictureUploadedTextInput: {
+        backgroundColor: '#1c1a1f',
         bottom: wp(2),
         width: wp(50),
         right: wp(6),

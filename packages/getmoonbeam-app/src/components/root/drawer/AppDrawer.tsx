@@ -777,7 +777,8 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                         },
                                         drawerLabelStyle: {
                                             fontFamily: 'Raleway-Medium',
-                                            fontSize: hp(2)
+                                            fontSize: hp(2),
+                                            color: '#FFFFFF'
                                         },
                                         headerTitleAlign: 'center',
                                         drawerActiveBackgroundColor: 'transparent',

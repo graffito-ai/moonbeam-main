@@ -195,9 +195,9 @@ export const FAQ = ({navigation}: FAQProps) => {
                                 }
                                 descriptionIndex++;
                             })
-                            factDescription = <Text>{descriptionContent}</Text>;
+                            factDescription = <Text style={styles.factItemDescription}>{descriptionContent}</Text>;
                         } else {
-                            factDescription = <Text>{fact!.description}</Text>
+                            factDescription = <Text style={styles.factItemDescription}>{fact!.description}</Text>
                         }
                         facts.push(<List.Item
                             style={styles.factItem}

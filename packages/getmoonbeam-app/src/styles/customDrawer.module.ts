@@ -17,7 +17,7 @@ export const styles = StyleSheet.create({
     userNameStyle: {
         alignSelf: 'flex-start',
         fontFamily: 'Saira-Medium',
-        color: 'white',
+        color: '#FFFFFF',
         textAlign: 'left',
         fontSize: hp(3),
         top: hp(2),

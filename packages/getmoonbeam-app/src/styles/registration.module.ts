@@ -97,15 +97,18 @@ export const styles = StyleSheet.create({
     },
     fileUploadTextInputContentStyle: {
         fontSize: hp(1),
-        fontFamily: 'Saira-Regular'
+        fontFamily: 'Saira-Regular',
+        color: '#FFFFFF',
     },
     textInputNarrowContentStyle: {
         fontSize: hp(1.8),
         height: hp(6),
         width: wp(40),
-        fontFamily: 'Saira-Regular'
+        fontFamily: 'Saira-Regular',
+        color: '#FFFFFF'
     },
     textInputNarrow: {
+        backgroundColor: '#1c1a1f',
         bottom: hp(7.25),
         alignSelf: 'flex-start',
         height: hp(5),
@@ -113,6 +116,7 @@ export const styles = StyleSheet.create({
         marginLeft: wp(5),
     },
     textInputNarrowFocus: {
+        backgroundColor: '#1c1a1f',
         bottom: hp(7.25),
         alignSelf: 'flex-start',
         height: hp(5),
@@ -126,9 +130,11 @@ export const styles = StyleSheet.create({
         marginLeft: wp(1.2),
         fontFamily: 'Saira-Regular',
         alignSelf: 'center',
-        textAlign: 'center'
+        textAlign: 'center',
+        color: '#FFFFFF'
     },
     textInputCode: {
+        backgroundColor: '#1c1a1f',
         marginTop: hp(2),
         bottom: hp(7),
         alignSelf: 'flex-start',
@@ -136,6 +142,7 @@ export const styles = StyleSheet.create({
         width: wp(14),
     },
     textInputCodeFocus: {
+        backgroundColor: '#1c1a1f',
         marginTop: hp(2),
         bottom: hp(7),
         alignSelf: 'flex-start',
@@ -143,15 +150,18 @@ export const styles = StyleSheet.create({
         width: wp(14),
     },
     fileUploadedTextInput: {
+        backgroundColor: '#1c1a1f',
         bottom: wp(2),
         right: wp(5),
         width: wp(50)
     },
     pictureUploadedTextInput: {
+        backgroundColor: '#1c1a1f',
         bottom: wp(2),
         width: wp(50)
     },
     textInput: {
+        backgroundColor: '#1c1a1f',
         marginTop: hp(2),
         bottom: hp(8),
         alignSelf: 'flex-start',
@@ -160,6 +170,7 @@ export const styles = StyleSheet.create({
         width: wp(87),
     },
     textInputFocus: {
+        backgroundColor: '#1c1a1f',
         marginTop: hp(2),
         bottom: hp(8),
         alignSelf: 'flex-start',
@@ -171,14 +182,16 @@ export const styles = StyleSheet.create({
         height: hp(6),
         width: wp(87),
         fontSize: hp(1.8),
-        fontFamily: 'Saira-Regular'
+        fontFamily: 'Saira-Regular',
+        color: '#FFFFFF'
     },
     dropdownTextInputContentStyle: {
         height: hp(6),
         width: wp(87),
         fontSize: hp(1.5),
         top: hp(1.5),
-        fontFamily: 'Saira-Regular'
+        fontFamily: 'Saira-Regular',
+        color: '#FFFFFF'
     },
     errorMessage: {
         width: wp(90),

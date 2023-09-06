@@ -67,9 +67,11 @@ export const styles = StyleSheet.create({
         marginLeft: wp(1.2),
         fontFamily: 'Saira-Regular',
         alignSelf: 'center',
-        textAlign: 'center'
+        textAlign: 'center',
+        color: '#FFFFFF'
     },
     textInputCode: {
+        backgroundColor: '#1c1a1f',
         marginTop: hp(2),
         bottom: hp(7),
         alignSelf: 'flex-start',
@@ -77,6 +79,7 @@ export const styles = StyleSheet.create({
         width: wp(14),
     },
     textInputCodeFocus: {
+        backgroundColor: '#1c1a1f',
         marginTop: hp(2),
         bottom: hp(7),
         alignSelf: 'flex-start',

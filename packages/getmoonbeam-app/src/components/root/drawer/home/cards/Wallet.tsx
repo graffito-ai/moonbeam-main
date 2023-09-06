@@ -149,7 +149,7 @@ export const Wallet = ({navigation}: CardsProps) => {
             // set the custom banner state for future screens accordingly
             setBannerState({
                 bannerVisibilityState: cardLinkingStatusState,
-                bannerMessage: "You currently do not have a linked card to your Moonbeam account. In order to see more dashboard details, you will need to have a card in your wallet. Get started now!",
+                bannerMessage: "You do not have a linked card. You will need to have a card in your wallet to see more details.",
                 bannerButtonLabel: "Link Now",
                 bannerButtonLabelActionSource: "home/wallet",
                 bannerArtSource: CardLinkingImage,

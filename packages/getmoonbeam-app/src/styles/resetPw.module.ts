@@ -38,27 +38,32 @@ export const styles = StyleSheet.create({
     },
     textInputContentStyle: {
         fontSize: hp(2.5),
-        fontFamily: 'Saira-Regular'
+        fontFamily: 'Saira-Regular',
+        color: '#FFFFFF'
     },
     textInputFocus: {
+        backgroundColor: '#1c1a1f',
         marginTop: hp(10),
         bottom: hp(8),
         alignSelf: 'flex-start',
         width: wp(90)
     },
     textInput: {
+        backgroundColor: '#1c1a1f',
         marginTop: hp(10),
         bottom: hp(8),
         alignSelf: 'flex-start',
         width: wp(90)
     },
     textPasswordInputFocus: {
+        backgroundColor: '#1c1a1f',
         marginTop: hp(2),
         bottom: hp(8),
         alignSelf: 'flex-start',
         width: wp(90)
     },
     textPasswordInput: {
+        backgroundColor: '#1c1a1f',
         marginTop: hp(2),
         bottom: hp(8),
         alignSelf: 'flex-start',

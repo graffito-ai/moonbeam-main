@@ -14,7 +14,10 @@ export const styles = StyleSheet.create({
     buttonLabel: {
         fontFamily: 'Saira-Bold',
         color: '#F2FF5D',
-        fontSize: hp(2)
+        marginTop: hp(2),
+        marginBottom: hp(2),
+        height: hp(2.3),
+        fontSize: hp(1.8)
     },
     bannerImage: {
         width: wp(18),
@@ -23,6 +26,7 @@ export const styles = StyleSheet.create({
     },
     bannerDescription: {
         fontFamily: 'Saira-Medium',
-        fontSize: hp(1.8)
+        fontSize: hp(1.7),
+        color: '#FFFFFF'
     }
 });

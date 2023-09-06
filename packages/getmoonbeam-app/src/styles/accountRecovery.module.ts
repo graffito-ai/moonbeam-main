@@ -58,27 +58,32 @@ export const styles = StyleSheet.create({
     },
     textInputContentStyle: {
         fontSize: hp(2),
-        fontFamily: 'Saira-Regular'
+        fontFamily: 'Saira-Regular',
+        color: '#FFFFFF'
     },
     textInput: {
+        backgroundColor: '#1c1a1f',
         marginTop: hp(2),
         alignSelf: 'flex-start',
         marginLeft: hp(3),
         width: wp(87)
     },
     textInputFocus: {
+        backgroundColor: '#1c1a1f',
         marginTop: hp(2),
         alignSelf: 'flex-start',
         marginLeft: hp(3),
         width: wp(87)
     },
     textPasswordInputFocus: {
+        backgroundColor: '#1c1a1f',
         marginTop: hp(2),
         alignSelf: 'flex-start',
         marginLeft: hp(3),
         width: wp(87)
     },
     textPasswordInput: {
+        backgroundColor: '#1c1a1f',
         marginTop: hp(2),
         alignSelf: 'flex-start',
         marginLeft: hp(3),
@@ -127,9 +132,11 @@ export const styles = StyleSheet.create({
         marginLeft: wp(1.2),
         fontFamily: 'Saira-Regular',
         alignSelf: 'center',
-        textAlign: 'center'
+        textAlign: 'center',
+        color: '#FFFFFF'
     },
     textInputCode: {
+        backgroundColor: '#1c1a1f',
         marginTop: hp(2),
         bottom: hp(7),
         alignSelf: 'flex-start',
@@ -137,6 +144,7 @@ export const styles = StyleSheet.create({
         width: wp(14),
     },
     textInputCodeFocus: {
+        backgroundColor: '#1c1a1f',
         marginTop: hp(2),
         bottom: hp(7),
         alignSelf: 'flex-start',

@@ -55,15 +55,18 @@ export const styles = StyleSheet.create({
     },
     textInputContentStyle: {
         fontSize: hp(2),
-        fontFamily: 'Saira-Regular'
+        fontFamily: 'Saira-Regular',
+        color: '#FFFFFF'
     },
     textInput: {
+        backgroundColor: '#1c1a1f',
         marginTop: hp(2),
         alignSelf: 'flex-start',
         marginLeft: hp(3),
         width: wp(87),
     },
     textInputFocus: {
+        backgroundColor: '#1c1a1f',
         marginTop: hp(2),
         alignSelf: 'flex-start',
         marginLeft: hp(3),

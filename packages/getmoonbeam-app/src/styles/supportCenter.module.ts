@@ -33,7 +33,8 @@ export const styles = StyleSheet.create({
     supportItemStyle: {
         alignSelf: 'center',
         alignItems: 'center',
-        marginLeft: wp(2)
+        marginLeft: wp(2),
+        color: '#FFFFFF',
     },
     supportItemTitle: {
         color: '#FFFFFF',

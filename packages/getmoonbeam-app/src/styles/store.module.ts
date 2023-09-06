@@ -39,7 +39,7 @@ export const styles = StyleSheet.create({
         height: hp(5),
         alignSelf: 'flex-start',
         marginLeft: wp(4),
-        backgroundColor: '#5B5A5A',
+        backgroundColor: '#1c1a1f',
         borderRadius: 10
     },
     searchBarInput: {
@@ -84,14 +84,16 @@ export const styles = StyleSheet.create({
         fontSize: hp(3),
         fontFamily: 'Changa-Medium',
         left: wp(6),
-        alignSelf: 'flex-start'
+        alignSelf: 'flex-start',
+        color: '#FFFFFF'
     },
     featuredPartnersTitle: {
         fontSize: hp(2.5),
         fontFamily: 'Changa-Medium',
         textDecorationLine: 'underline',
         left: wp(6),
-        alignSelf: 'flex-start'
+        alignSelf: 'flex-start',
+        color: '#FFFFFF'
     },
     featuredPartnersScrollView: {
         bottom: hp(2)
@@ -113,14 +115,16 @@ export const styles = StyleSheet.create({
         fontSize: hp(3),
         fontFamily: 'Changa-Medium',
         left: wp(4),
-        alignSelf: 'flex-start'
+        alignSelf: 'flex-start',
+        color: '#FFFFFF'
     },
     onlineOffersTitle: {
         fontSize: hp(2.5),
         fontFamily: 'Changa-Medium',
         textDecorationLine: 'underline',
         left: wp(4),
-        alignSelf: 'flex-start'
+        alignSelf: 'flex-start',
+        color: '#FFFFFF'
     },
     onlineOffersTitleButton: {
         right: wp(5),
@@ -151,7 +155,8 @@ export const styles = StyleSheet.create({
         fontSize: hp(2),
         lineHeight: hp(2.2),
         alignSelf: 'center',
-        textAlign: 'center'
+        textAlign: 'center',
+        color: '#FFFFFF'
     },
     onlineOfferCardSubtitle: {
         top: hp(0.5),
@@ -184,13 +189,15 @@ export const styles = StyleSheet.create({
         fontSize: hp(3),
         fontFamily: 'Changa-Medium',
         left: wp(4),
-        alignSelf: 'flex-start'
+        alignSelf: 'flex-start',
+        color: '#FFFFFF'
     },
     nearbyLoadingOffersTitleMain: {
         fontSize: hp(3),
         fontFamily: 'Changa-Medium',
         left: wp(4),
-        alignSelf: 'flex-start'
+        alignSelf: 'flex-start',
+        color: '#FFFFFF'
     },
     nearbyLoadingOffersTitle: {
         fontSize: hp(2.5),
@@ -204,7 +211,8 @@ export const styles = StyleSheet.create({
         fontFamily: 'Changa-Medium',
         textDecorationLine: 'underline',
         left: wp(4),
-        alignSelf: 'flex-start'
+        alignSelf: 'flex-start',
+        color: '#FFFFFF'
     },
     nearbyOffersTitleSub: {
         fontSize: hp(1.5),
@@ -304,12 +312,14 @@ export const styles = StyleSheet.create({
     loadCardActionButtonLabel: {
         alignSelf: 'center',
         fontFamily: 'Saira-SemiBold',
-        fontSize: hp(1.8)
+        fontSize: hp(1.8),
+        color: '#FFFFFF'
     },
     loadOnlineCardActionButtonLabel: {
         alignSelf: 'center',
         fontFamily: 'Saira-SemiBold',
-        fontSize: hp(2)
+        fontSize: hp(2),
+        color: '#FFFFFF'
     },
     nearbyOfferCardParagraph: {
         top: hp(1.5),

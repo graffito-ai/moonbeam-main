@@ -48,7 +48,8 @@ export const styles = StyleSheet.create({
     bottomBarDiscountsLabel: {
         fontFamily: 'Raleway-Medium',
         fontSize: hp(2),
-        textAlign: 'center'
+        textAlign: 'center',
+        color: '#FFFFFF'
     },
     topBar: {
         width: wp(100),
@@ -67,7 +68,8 @@ export const styles = StyleSheet.create({
         fontFamily: 'Raleway-Medium',
         fontSize: hp(1.7),
         textAlign: 'center',
-        width: wp(80)
+        width: wp(80),
+        color: '#FFFFFF'
     },
     urlBarOutline: {
         borderColor: '#dbdbdb',

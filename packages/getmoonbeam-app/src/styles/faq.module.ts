@@ -46,7 +46,7 @@ export const styles = StyleSheet.create({
     },
     factItemDescription: {
         fontFamily: 'Saira-Medium',
-        fontSize: wp(3.2),
+        fontSize: wp(3.5),
         width: wp(85),
         bottom: hp(1),
         textAlign: 'left',
