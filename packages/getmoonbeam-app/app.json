@@ -17,7 +17,7 @@
       "./amplify/.config/local-env-info.json"
     ],
     "notification": {
-      "icon": "./assets/app-icon.png",
+      "icon": "./assets/icon.png",
       "androidMode": "default",
       "androidCollapsedTitle": "Updates from Moonbeam",
       "iosDisplayInForeground": true
@@ -46,7 +46,7 @@
       "googleServicesFile": "./google-services.json",
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-app-icon.png",
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "permissions": [
