@@ -30,7 +30,7 @@
       "bundleIdentifier": "com.moonbeam.moonbeamfinance",
       "supportsTablet": false,
       "infoPlist": {
-        "NSUserTrackingUsageDescription": "$(PRODUCT_NAME) will collect data, such as your Precise Location and Physical Address, that can be used for tracking you or your device. This data, will enable us to provide you with the more personalized military offers.",
+        "NSUserTrackingUsageDescription": "$(PRODUCT_NAME) will collect data, such as your Precise Location and Physical Address, that can be used for tracking you or your device. This data, will enable us to provide you with more personalized military offers.",
         "NSContactsUsageDescription": "$(PRODUCT_NAME) will access your contacts, in order to automatically add our support information in your list of contacts, for ease of access.",
         "NSLocationWhenInUseUsageDescription": "$(PRODUCT_NAME) will access your location once, while using the app, in order to provide you with accurate military offers nearby.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "$(PRODUCT_NAME) will access your location while using the app, in order to provide you with accurate military offers nearby.",
