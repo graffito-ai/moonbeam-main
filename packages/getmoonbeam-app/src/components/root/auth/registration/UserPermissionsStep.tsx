@@ -36,7 +36,9 @@ export const UserPermissionsStep = () => {
                     style={styles.permissionsImage}
                     source={Permissions}/>
                 <Text style={styles.permissionsStepTitle}>{"Make the most out of Moonbeam.\n"}</Text>
-                <Text style={styles.permissionsStepDescription}>{"• Get notified when you receive cash back for your purchases.\n• Get help faster, by enabling access to your contacts.\n• Enable location services so you don't miss any deals."}</Text>
+                <Text style={styles.permissionsStepDescription}>
+                    {"• Get notified when you receive cash back.\n• Get help faster, by enabling access to your contacts.\n• Enable location access, so you don't miss any nearby deals.\n• Get verified faster, by uploading or taking pictures of your military documentation."}
+                </Text>
             </View>
         </>
     );

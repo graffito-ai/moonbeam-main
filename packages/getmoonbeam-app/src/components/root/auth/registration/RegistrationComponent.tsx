@@ -97,6 +97,7 @@ import {
     sendNotification
 } from "../../../../utils/AppSync";
 import * as ImagePicker from "expo-image-picker";
+import { requestTrackingPermissionsAsync } from 'expo-tracking-transparency';
 
 /**
  * RegistrationComponent component.
@@ -520,16 +521,14 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     }
 
     /**
-     * Function used to add the necessary location background permissions, needed for the application
-     * to access a user's geolocation.
+     * Function used to add the necessary app tracking transparency permissions, needed for iOS devices.
      */
-        // @ts-ignore
-    const requestBackgroundLocationPermission = async () => {
-            const {status} = await Location.requestBackgroundPermissionsAsync();
-            if (status !== 'granted') {
-                console.log('Permission to access location in background not granted!');
-            }
+    const requestAppTrackingTransparencyPermission = async () => {
+        const {status} = await requestTrackingPermissionsAsync();
+        if (status !== 'granted') {
+            console.log('Permission to track your data not granted!');
         }
+    }
 
     /**
      * Function used to add the necessary notification permissions, needed for the application
@@ -853,7 +852,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
 
                                                             await addSupportToContacts();
                                                             await requestForegroundLocationPermission();
-                                                            // await requestBackgroundLocationPermission();
+                                                            await requestAppTrackingTransparencyPermission();
                                                             await requestNotificationsPermission();
                                                             await requestMediaLibraryPermission();
                                                             await requestCameraPermission();

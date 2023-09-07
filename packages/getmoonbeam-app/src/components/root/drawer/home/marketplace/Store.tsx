@@ -526,7 +526,6 @@ export const Store = ({navigation}: StoreProps) => {
 
             // first retrieve the necessary permissions for location purposes
             const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
-            // const backgroundPermissionStatus = await Location.requestBackgroundPermissionsAsync(); || backgroundPermissionStatus.status !== 'granted'
             if (foregroundPermissionStatus.status !== 'granted') {
                 console.log(`Necessary location permissions not granted`);
             } else {
