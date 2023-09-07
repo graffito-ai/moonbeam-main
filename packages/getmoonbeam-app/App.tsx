@@ -21,6 +21,11 @@ import {Platform} from "react-native";
 import * as Device from 'expo-device';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from 'expo-location';
+import {
+    requestCameraPermission, requestContactPermission,
+    requestForegroundLocationPermission, requestMediaLibraryPermission,
+    requestNotificationsPermission
+} from "./src/utils/Permissions";
 
 // this handler determines how your app handles notifications that come in while the app is foregrounded.
 Notifications.setNotificationHandler({
@@ -201,6 +206,13 @@ export default function App() {
                     warningThreshold: 0.8, // when to get warned that the cache is full, at 80% capacity
                     storage: AsyncStorage
                 }));
+
+                // permissions for user device (in case they haven't already approved them)
+                await requestContactPermission();
+                await requestForegroundLocationPermission();
+                await requestNotificationsPermission();
+                await requestMediaLibraryPermission();
+                await requestCameraPermission();
 
                 // set appropriate Google API Key
                 Location.setGoogleApiKey(Platform.OS === 'android'

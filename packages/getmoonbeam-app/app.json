@@ -26,7 +26,7 @@
       "backgroundColor": "#313030"
     },
     "ios": {
-      "buildNumber": "10",
+      "buildNumber": "11",
       "bundleIdentifier": "com.moonbeam.moonbeamfinance",
       "supportsTablet": false,
       "infoPlist": {

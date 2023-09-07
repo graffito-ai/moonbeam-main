@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import 'react-native-get-random-values';
 import {ImageBackground, Keyboard, Platform, TouchableOpacity, View} from "react-native";
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {commonStyles} from '../../../../styles/common.module';
 import {styles} from '../../../../styles/registration.module';
 import {RegistrationProps} from "../../../../models/props/AuthenticationProps";
@@ -34,10 +34,12 @@ import {
     enlistingYearState,
     expoPushTokenState,
     firstNameErrorsState,
-    firstNameState, globalAmplifyCacheState,
+    firstNameState,
+    globalAmplifyCacheState,
     isReadyRegistrationState,
     lastNameErrorsState,
-    lastNameState, marketplaceAmplifyCacheState,
+    lastNameState,
+    marketplaceAmplifyCacheState,
     militaryBranchErrorsState,
     militaryBranchValueState,
     militaryRegistrationDisclaimerCheckState,
@@ -80,8 +82,6 @@ import {MilitaryStatusSplashStep} from "./MilitaryStatusSplashStep";
 import {CardLinkingStatusSplashStep} from "./CardLinkingStatusSplash";
 import {UserPermissionsStep} from "./UserPermissionsStep";
 import * as Contacts from "expo-contacts";
-import * as Location from 'expo-location';
-import * as Notifications from 'expo-notifications';
 import {fetchFile} from "../../../../utils/File";
 import {Spinner} from "../../../common/Spinner";
 import {splashStatusState} from "../../../../recoil/SplashAtom";
@@ -93,11 +93,17 @@ import RegistrationBackgroundImage from '../../../../../assets/backgrounds/regis
 import {
     createPhysicalDevice,
     proceedWithDeviceCreation,
-    retrieveFidelisPartnerList, retrieveOffersNearLocation, retrieveOnlineOffersList,
+    retrieveFidelisPartnerList,
+    retrieveOffersNearLocation,
+    retrieveOnlineOffersList,
     sendNotification
 } from "../../../../utils/AppSync";
-import * as ImagePicker from "expo-image-picker";
-import { requestTrackingPermissionsAsync } from 'expo-tracking-transparency';
+import {
+    requestCameraPermission,
+    requestForegroundLocationPermission,
+    requestMediaLibraryPermission,
+    requestNotificationsPermission
+} from "../../../../utils/Permissions";
 
 /**
  * RegistrationComponent component.
@@ -510,60 +516,6 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     };
 
     /**
-     * Function used to add the necessary location foreground permissions, needed for the application
-     * to access a user's geolocation.
-     */
-    const requestForegroundLocationPermission = async () => {
-        const {status} = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-            console.log('Permission to access location in foreground not granted!');
-        }
-    }
-
-    /**
-     * Function used to add the necessary app tracking transparency permissions, needed for iOS devices.
-     */
-    const requestAppTrackingTransparencyPermission = async () => {
-        const {status} = await requestTrackingPermissionsAsync();
-        if (status !== 'granted') {
-            console.log('Permission to track your data not granted!');
-        }
-    }
-
-    /**
-     * Function used to add the necessary notification permissions, needed for the application
-     * to send push, as well as other types of notifications.
-     */
-    const requestNotificationsPermission = async () => {
-        const {status} = await Notifications.requestPermissionsAsync();
-        if (status !== 'granted') {
-            console.log('Permission for notifications not granted!');
-        }
-    }
-
-    /**
-     * Function used to add the necessary media library permissions, needed to upload pictures
-     * through the Image picker for various documentation purposes.
-     */
-    const requestMediaLibraryPermission = async () => {
-        const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-            console.log('Permission for media library not granted!');
-        }
-    }
-
-    /**
-     * Function used to add the necessary camera permissions, needed to upload pictures
-     * through the Image picker for various documentation purposes.
-     */
-    const requestCameraPermission = async () => {
-        const {status} = await ImagePicker.requestCameraPermissionsAsync();
-        if (status !== 'granted') {
-            console.log('Permission for camera not granted!');
-        }
-    }
-
-    /**
      * Function used to add the support number to the user's contacts,
      * in order to ensure a better experience when they message support.
      *
@@ -646,8 +598,8 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                             keyboardShouldPersistTaps={'handled'}
                         >
                             <View style={[Platform.OS === 'android' && isKeyboardShown && {height: hp(110)},
-                                          Platform.OS === 'android' && isKeyboardShown && stepNumber === 2 && {height: hp(100)},
-                                          Platform.OS === 'android' && isKeyboardShown && stepNumber === 3 && {height: hp(85)}]}>
+                                Platform.OS === 'android' && isKeyboardShown && stepNumber === 2 && {height: hp(100)},
+                                Platform.OS === 'android' && isKeyboardShown && stepNumber === 3 && {height: hp(85)}]}>
                                 {stepNumber !== 8 && stepNumber !== 7 &&
                                     <View
                                         style={[styles.titleView, {marginTop: hp(18)},
@@ -850,9 +802,9 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                             // set the loader
                                                             setIsReady(false);
 
+                                                            // permissions for user device for newly registered user
                                                             await addSupportToContacts();
                                                             await requestForegroundLocationPermission();
-                                                            await requestAppTrackingTransparencyPermission();
                                                             await requestNotificationsPermission();
                                                             await requestMediaLibraryPermission();
                                                             await requestCameraPermission();

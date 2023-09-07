@@ -9,6 +9,7 @@ import GestureRecognizer from 'react-native-swipe-gestures';
 import {useRecoilState} from "recoil";
 import {initialAuthenticationScreen} from "../../recoil/AuthAtom";
 import {appOverviewSteps} from "../../models/Constants";
+import {requestAppTrackingTransparencyPermission} from "../../utils/Permissions";
 
 /**
  * AppOverview component.
@@ -31,6 +32,8 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
      * included in here.
      */
     useEffect(() => {
+        // necessary for iOS compliance purposes
+        requestAppTrackingTransparencyPermission().then(_ => {});
     }, []);
 
     // return the component for the AppOverview page
