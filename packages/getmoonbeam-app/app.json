@@ -71,7 +71,7 @@
       [
         "expo-tracking-transparency",
         {
-          "userTrackingPermission": "$(PRODUCT_NAME) will collect data, such as your Precise Location and Physical Address, that can be used for tracking you or your device. This data, will enable us to provide you with the more personalized military offers."
+          "userTrackingPermission": "$(PRODUCT_NAME) will collect data, such as your Precise Location and Physical Address, that can be used for tracking you or your device. This data, will enable us to provide you with more personalized military offers."
         }
       ],
       [
