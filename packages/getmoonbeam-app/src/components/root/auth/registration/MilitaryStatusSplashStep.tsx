@@ -72,7 +72,8 @@ export const MilitaryStatusSplashStep = () => {
                             />
                             <Text
                                 style={styles.disclaimerText}>{'By checking this box, you are confirming your status as a military service member, thereby granting Moonbeam the authority to document and review ' +
-                                'this claim, as well as pursue legal action in accordance with U.S. federal statutes and penal codes, if the claim is proven to be fraudulent.\n' +
+                                'this claim, as well as pursue legal action in accordance with U.S. federal statutes and penal codes, if the claim is proven to be fraudulent.\nIn addition, this represents your consent ' +
+                                'to Moonbeam storing any documentation or media that you have and/or will provide during this process.\n' +
                                 'You also acknowledge that you read and agree to our '}
                                 <Text style={styles.disclaimerTextHighlighted}
                                       onPress={() => {

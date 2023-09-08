@@ -212,9 +212,11 @@ export const styles = StyleSheet.create({
         width: wp(100)
     },
     disclaimerCheckbox: {
+        bottom: hp(2),
         alignSelf: 'flex-start'
     },
     disclaimerText: {
+        bottom: hp(2),
         left: wp(2),
         textAlign: 'justify',
         fontFamily: 'Raleway-Regular',

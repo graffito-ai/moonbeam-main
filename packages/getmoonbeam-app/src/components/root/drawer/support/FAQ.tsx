@@ -179,11 +179,20 @@ export const FAQ = ({navigation}: FAQProps) => {
                                                             bottomBarNavigation && bottomBarNavigation!.navigate('Marketplace', {});
                                                             drawerNavigation && drawerNavigation!.navigate('Home', {});
                                                             break;
+                                                        case 'settings':
+                                                            // show the drawer header
+                                                            setDrawerHeaderShown(true);
+
+                                                            // enable the drawer swipe
+                                                            setDrawerSwipeEnabled(true);
+
+                                                            navigation.goBack();
+                                                            drawerNavigation && drawerNavigation!.navigate('Settings', {});
+                                                            break;
                                                         default:
                                                             console.log('Unknown location from FAQ');
                                                             break
                                                     }
-                                                    console.log(fact!.linkLocation);
                                                 }}
                                             >
                                                 {word}

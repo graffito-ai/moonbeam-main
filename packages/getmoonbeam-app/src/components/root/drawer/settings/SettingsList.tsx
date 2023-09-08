@@ -1,4 +1,4 @@
-import {SafeAreaView, ScrollView, StyleSheet, View} from "react-native";
+import {Linking, SafeAreaView, ScrollView, StyleSheet, View} from "react-native";
 import {Dialog, Divider, List, Portal, Text} from "react-native-paper";
 import React, {useEffect, useState} from "react";
 import {SettingsListProps} from "../../../../models/props/SettingsProps";
@@ -64,7 +64,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
         if (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0) {
             // set the opt-out information accordingly
             setOptionTitle('Opt Out');
-            setOptionDescription('Are your sure you want to opt-out of all our sweet discount programs?');
+            setOptionDescription('Are you sure you want to opt-out of all our sweet discount programs?');
             setOptionIcon('credit-card-remove-outline');
         } else {
             // set the opt-out information accordingly
@@ -246,6 +246,33 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                         onPress={() => {
                                             // go to the Profile screen
                                             navigation.navigate('ResetPassword', {});
+                                        }}
+                                    />
+                                    <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>
+                                    <Divider style={[styles.divider, {backgroundColor: '#313030'}]}/>
+                                    <List.Item
+                                        rippleColor={'transparent'}
+                                        style={styles.settingsItemStyle}
+                                        titleStyle={styles.settingsItemTitle}
+                                        descriptionStyle={styles.settingsItemDescription}
+                                        titleNumberOfLines={10}
+                                        descriptionNumberOfLines={10}
+                                        title="Delete Account"
+                                        description='WARNING: This button will initiate self-destruction.'
+                                        left={() => <List.Icon color={'#F2FF5D'} icon="hand-wave"/>}
+                                        right={() => <List.Icon style={{left: hp(1)}}
+                                                                color={'#F2FF5D'} icon="chevron-right"/>}
+                                        onPress={() => {
+                                            // go to Account Deletion Typeform
+                                            const accountDeletionUrl = 'https://moonbeam-vet.typeform.com/to/sl9nxMru?typeform-source=www.moonbeam.vet'
+                                            Linking.canOpenURL(accountDeletionUrl).then(supported => {
+                                                if (supported) {
+                                                    Linking.openURL(accountDeletionUrl).then(() => {
+                                                    });
+                                                } else {
+                                                    console.log(`Don't know how to open URI: ${accountDeletionUrl}`);
+                                                }
+                                            });
                                         }}
                                     />
                                 </List.Section>
