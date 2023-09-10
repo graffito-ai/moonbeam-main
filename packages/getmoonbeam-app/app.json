@@ -55,8 +55,10 @@
         "android.permission.WRITE_CONTACTS",
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.FOREGROUND_SERVICE",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.FOREGROUND_SERVICE"
+      ],
+      "blockedPermissions": [
+        "com.google.android.gms.permission.AD_ID"
       ],
       "config": {
         "googleMaps": {
