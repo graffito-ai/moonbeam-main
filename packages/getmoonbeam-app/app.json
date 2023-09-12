@@ -41,7 +41,7 @@
       }
     },
     "android": {
-      "versionCode": 1,
+      "versionCode": 10,
       "package": "com.moonbeam.moonbeamfin",
       "googleServicesFile": "./google-services.json",
       "softwareKeyboardLayoutMode": "pan",
