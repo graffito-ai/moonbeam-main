@@ -131,7 +131,7 @@ export const AdditionalRegistrationStep = () => {
                     }}
                     value={addressLine}
                     contentStyle={styles.textInputContentStyle}
-                    style={addressLineFocus ? styles.textInputFocus : styles.textInput}
+                    style={[addressLineFocus ? styles.textInputFocus : styles.textInput, addressLine.length === 0 && {height: hp(6)}]}
                     onFocus={() => {
                         setIsAddressLineFocus(true);
                         setIsBackButtonShown(false);
@@ -143,7 +143,7 @@ export const AdditionalRegistrationStep = () => {
                     label="Street Address"
                     textColor={"#FFFFFF"}
                     left={
-                        <TextInput.Icon icon="home-map-marker" size={hp(2.8)} style={{marginTop: hp(2)}} iconColor="#FFFFFF"/>
+                        <TextInput.Icon icon="home-map-marker" size={hp(3)} style={{marginTop: hp(2)}} iconColor="#FFFFFF"/>
                     }
                 />
                 <TextInput
@@ -169,7 +169,7 @@ export const AdditionalRegistrationStep = () => {
                     }}
                     value={addressCity}
                     contentStyle={styles.textInputContentStyle}
-                    style={addressCityFocus ? styles.textInputFocus : styles.textInput}
+                    style={[addressCityFocus ? styles.textInputFocus : styles.textInput, addressCity.length === 0 && {height: hp(6)}]}
                     onFocus={() => {
                         setIsAddressCityFocus(true);
                         setIsBackButtonShown(false);
@@ -209,7 +209,7 @@ export const AdditionalRegistrationStep = () => {
                         }}
                         value={addressState}
                         contentStyle={styles.textInputNarrowContentStyle}
-                        style={[addressStateFocus ? styles.textInputNarrowFocus : styles.textInputNarrow]}
+                        style={[addressStateFocus ? styles.textInputNarrowFocus : styles.textInputNarrow, addressState.length === 0 && {height: hp(6)}]}
                         onFocus={() => {
                             setIsAddressStateFocus(true);
                             setIsBackButtonShown(false);
@@ -246,7 +246,7 @@ export const AdditionalRegistrationStep = () => {
                         }}
                         value={addressZip}
                         contentStyle={styles.textInputNarrowContentStyle}
-                        style={[addressZipFocus ? styles.textInputNarrowFocus : styles.textInputNarrow, {marginLeft: wp(7)}]}
+                        style={[addressZipFocus ? styles.textInputNarrowFocus : styles.textInputNarrow, {marginLeft: wp(7)}, addressZip.length === 0 && {height: hp(6)}]}
                         onFocus={() => {
                             setIsAddressZipFocus(true);
                             setIsBackButtonShown(false);

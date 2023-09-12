@@ -17,7 +17,7 @@ import {Spinner} from "./src/components/common/Spinner";
 import * as Notifications from 'expo-notifications';
 import {AndroidNotificationPriority, ExpoPushToken} from 'expo-notifications';
 import Constants from "expo-constants";
-import {Platform} from "react-native";
+import {Platform, Text, TextInput} from "react-native";
 import * as Device from 'expo-device';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from 'expo-location';
@@ -218,6 +218,16 @@ export default function App() {
                 Location.setGoogleApiKey(Platform.OS === 'android'
                     ? 'AIzaSyB8OpXoKULaEO8t46npUBbmIAM-ranxVfk'
                     : 'AIzaSyBlj5BVB9ZxZS0V_Usf9pAhuCnw2mQhcaQ');
+
+                // disable the Text scaling for the entire application
+                // @ts-ignore
+                Text.defaultProps = Text.defaultProps || {};
+                // @ts-ignore
+                Text.defaultProps.allowFontScaling = false;
+                // @ts-ignore
+                TextInput.defaultProps = TextInput.defaultProps || {};
+                // @ts-ignore
+                TextInput.defaultProps.allowFontScaling = false;
 
                 // tell the application to render
                 setAppIsReady(true);

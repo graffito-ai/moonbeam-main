@@ -156,7 +156,7 @@ export const ProfileRegistrationStep = () => {
                         }}
                         value={firstName}
                         contentStyle={styles.textInputNarrowContentStyle}
-                        style={firstNameFocus ? styles.textInputNarrowFocus : styles.textInputNarrow}
+                        style={[firstNameFocus ? styles.textInputNarrowFocus : styles.textInputNarrow, firstName.length === 0 && {height: hp(6)}]}
                         onFocus={() => {
                             setIsFirstNameFocus(true);
                             setIsBackButtonShown(false);
@@ -191,7 +191,7 @@ export const ProfileRegistrationStep = () => {
                         }}
                         value={lastName}
                         contentStyle={styles.textInputNarrowContentStyle}
-                        style={[lastNameFocus ? styles.textInputNarrowFocus : styles.textInputNarrow, {marginLeft: wp(7)}]}
+                        style={[lastNameFocus ? styles.textInputNarrowFocus : styles.textInputNarrow, {marginLeft: wp(7)}, lastName.length === 0 && {height: hp(6)}]}
                         onFocus={() => {
                             setIsLastNameFocus(true);
                             setIsBackButtonShown(false);
@@ -227,7 +227,7 @@ export const ProfileRegistrationStep = () => {
                     }}
                     value={email}
                     contentStyle={styles.textInputContentStyle}
-                    style={emailFocus ? styles.textInputFocus : styles.textInput}
+                    style={[emailFocus ? styles.textInputFocus : styles.textInput, email.length === 0 && {height: hp(6)}]}
                     onFocus={() => {
                         setIsEmailFocus(true);
                         setIsBackButtonShown(false);
@@ -268,7 +268,7 @@ export const ProfileRegistrationStep = () => {
                     }}
                     value={birthday}
                     contentStyle={styles.textInputContentStyle}
-                    style={birthdayFocus ? styles.textInputFocus : styles.textInput}
+                    style={[birthdayFocus ? styles.textInputFocus : styles.textInput, birthday.length === 0 && {height: hp(6)}]}
                     onFocus={() => {
                         setIsBirthdayFocus(true);
                         setIsBackButtonShown(false);
@@ -309,7 +309,7 @@ export const ProfileRegistrationStep = () => {
                     }}
                     value={phoneNumber}
                     contentStyle={styles.textInputContentStyle}
-                    style={phoneNumberFocus ? styles.textInputFocus : styles.textInput}
+                    style={[phoneNumberFocus ? styles.textInputFocus : styles.textInput, phoneNumber.length === 0 && {height: hp(6)}]}
                     onFocus={() => {
                         setIsPhoneNumberFocus(true);
                         setIsBackButtonShown(false);
@@ -350,7 +350,7 @@ export const ProfileRegistrationStep = () => {
                     }}
                     value={enlistingYear}
                     contentStyle={styles.textInputContentStyle}
-                    style={enlistingYearFocus ? styles.textInputFocus : styles.textInput}
+                    style={[enlistingYearFocus ? styles.textInputFocus : styles.textInput, enlistingYear.length === 0 && {height: hp(6)}]}
                     onFocus={() => {
                         setIsEnlistingYearFocus(true);
                         setIsBackButtonShown(false);
