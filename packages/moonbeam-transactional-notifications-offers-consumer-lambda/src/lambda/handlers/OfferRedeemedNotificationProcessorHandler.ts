@@ -68,7 +68,7 @@ export const processOfferRedeemedTransactionNotifications = async (event: SQSEve
                     // initialize the Moonbeam Client API here, in order to call the appropriate endpoints for this handler
                     const moonbeamClient = new MoonbeamClient(process.env.ENV_NAME!, region);
 
-                    // 3) Call the getDevicesForUser Moonbeam Appsync API endpoint (need to add this in the internal Moonbeam Client first).
+                    // 3) Call the getDevicesForUser Moonbeam Appsync API endpoint.
                     const devicesForUserResponse: UserDevicesResponse = await moonbeamClient.getDevicesForUser({
                         id: transaction.id
                     });
@@ -96,11 +96,11 @@ export const processOfferRedeemedTransactionNotifications = async (event: SQSEve
                                 status: NotificationStatus.Sent
                             });
 
-                            // check to see if the member details call was successful or not
+                            // check to see if the notifications call was successful or not
                             if (createNotificationResponse && !createNotificationResponse.errorMessage && !createNotificationResponse.errorType && createNotificationResponse.data) {
                                 console.log(`Notification event successfully processed, with notification id ${createNotificationResponse.data.notificationId}`);
                             } else {
-                                console.log(`UserID mapping through GET member details call failed`);
+                                console.log(`Notification event through Create Notification call failed`);
 
                                 // adds an item failure, for the SQS message which failed processing, as part of the incoming event
                                 itemFailures.push({

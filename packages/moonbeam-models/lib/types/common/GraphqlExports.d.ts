@@ -231,6 +231,12 @@ export type EligibleLinkedUsersResponse = {
     errorMessage?: Maybe<Scalars['String']>;
     errorType?: Maybe<CardLinkErrorType>;
 };
+export type EmailFromCognitoResponse = {
+    __typename?: 'EmailFromCognitoResponse';
+    data?: Maybe<Scalars['String']>;
+    errorMessage?: Maybe<Scalars['String']>;
+    errorType?: Maybe<NotificationsErrorType>;
+};
 export type Faq = {
     __typename?: 'FAQ';
     createdAt: Scalars['AWSDateTime'];
@@ -390,6 +396,7 @@ export declare enum MilitaryDutyStatus {
 export declare enum MilitaryVerificationErrorType {
     NoneOrAbsent = "NONE_OR_ABSENT",
     UnexpectedError = "UNEXPECTED_ERROR",
+    Unprocessable = "UNPROCESSABLE",
     ValidationError = "VALIDATION_ERROR"
 }
 export type MilitaryVerificationInformation = {
@@ -408,6 +415,20 @@ export type MilitaryVerificationInformation = {
     militaryVerificationStatus: MilitaryVerificationStatusType;
     state: Scalars['String'];
     updatedAt: Scalars['AWSDateTime'];
+    zipCode: Scalars['String'];
+};
+export type MilitaryVerificationNotificationUpdate = {
+    __typename?: 'MilitaryVerificationNotificationUpdate';
+    addressLine: Scalars['String'];
+    city: Scalars['String'];
+    dateOfBirth: Scalars['String'];
+    enlistmentYear: Scalars['String'];
+    firstName: Scalars['String'];
+    id: Scalars['ID'];
+    lastName: Scalars['String'];
+    newMilitaryVerificationStatus: MilitaryVerificationStatusType;
+    originalMilitaryVerificationStatus: MilitaryVerificationStatusType;
+    state: Scalars['String'];
     zipCode: Scalars['String'];
 };
 export type MilitaryVerificationStatus = {
@@ -590,6 +611,8 @@ export declare enum NotificationType {
     ExpirationLinkedCardNotice = "EXPIRATION_LINKED_CARD_NOTICE",
     ExpiredLinkedCard = "EXPIRED_LINKED_CARD",
     MarketingRelated = "MARKETING_RELATED",
+    MilitaryStatusChangedPendingToRejected = "MILITARY_STATUS_CHANGED_PENDING_TO_REJECTED",
+    MilitaryStatusChangedPendingToVerified = "MILITARY_STATUS_CHANGED_PENDING_TO_VERIFIED",
     NewQualifyingOfferAvailable = "NEW_QUALIFYING_OFFER_AVAILABLE",
     NewUserSignup = "NEW_USER_SIGNUP",
     QualifyingOffer = "QUALIFYING_OFFER"
@@ -855,8 +878,8 @@ export type SendEmailNotificationInput = {
 };
 export type SendMobilePushNotificationInput = {
     expoPushTokens: Array<InputMaybe<Scalars['String']>>;
-    merchantName: Scalars['String'];
-    pendingCashback: Scalars['Float'];
+    merchantName?: InputMaybe<Scalars['String']>;
+    pendingCashback?: InputMaybe<Scalars['Float']>;
 };
 export declare enum StorageErrorType {
     DuplicateObjectFound = "DUPLICATE_OBJECT_FOUND",

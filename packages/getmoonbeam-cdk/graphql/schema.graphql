@@ -88,6 +88,7 @@ input GetStorageInput {
 # graphql/MilitaryVerificationSchema.graphql
 # Military Verification Schema File
 enum MilitaryVerificationErrorType {
+    UNPROCESSABLE
     VALIDATION_ERROR
     UNEXPECTED_ERROR
     NONE_OR_ABSENT
@@ -163,6 +164,20 @@ type UpdateMilitaryVerificationResponse @aws_cognito_user_pools {
     militaryVerificationStatus: MilitaryVerificationStatusType
     errorType: MilitaryVerificationErrorType
     errorMessage: String
+}
+
+type MilitaryVerificationNotificationUpdate @aws_cognito_user_pools @aws_api_key {
+    id: ID!
+    originalMilitaryVerificationStatus: MilitaryVerificationStatusType!
+    newMilitaryVerificationStatus: MilitaryVerificationStatusType!
+    firstName: String!
+    lastName: String!
+    dateOfBirth: String!
+    enlistmentYear: String!
+    addressLine: String!
+    city: String!
+    state: String!
+    zipCode: String!
 }
 
 input UpdateMilitaryVerificationInput {
@@ -708,6 +723,8 @@ enum NotificationsErrorType {
 enum NotificationType {
     NEW_USER_SIGNUP
     QUALIFYING_OFFER
+    MILITARY_STATUS_CHANGED_PENDING_TO_VERIFIED
+    MILITARY_STATUS_CHANGED_PENDING_TO_REJECTED
     EXPIRATION_LINKED_CARD_NOTICE
     EXPIRED_LINKED_CARD
     NEW_QUALIFYING_OFFER_AVAILABLE
@@ -769,8 +786,8 @@ input SendEmailNotificationInput {
 # this input is specific for sending mobile push notifications and will be used solely as an input object, outside of any AppSync related queries and/or mutations
 input SendMobilePushNotificationInput {
     expoPushTokens: [String]!
-    pendingCashback: Float!
-    merchantName: String!
+    pendingCashback: Float
+    merchantName: String
 }
 
 # this type is a specific response for sending notifications and will be used solely as an input object, outside of any AppSync related queries and/or mutations
@@ -783,6 +800,13 @@ type NotificationResponse @aws_cognito_user_pools @aws_api_key {
 type CreateNotificationResponse @aws_cognito_user_pools @aws_api_key {
     id: ID # this represents the userID of the notification, and the reason we repeat it in the parent response is for the subscription filtering to work properly
     data: Notification
+    errorType: NotificationsErrorType
+    errorMessage: String
+}
+
+# this input is specific for sending email notifications and will be used outside of any AppSync related queries and/or mutations
+type EmailFromCognitoResponse @aws_cognito_user_pools @aws_api_key {
+    data: String
     errorType: NotificationsErrorType
     errorMessage: String
 }

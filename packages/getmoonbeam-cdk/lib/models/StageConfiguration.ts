@@ -4,7 +4,7 @@ import {
     APIGatewayServiceConfiguration,
     AppSyncConfiguration,
     CardLinkingConfiguration, FAQConfiguration,
-    MilitaryVerificationConfiguration,
+    MilitaryVerificationConfiguration, MilitaryVerificationProducerConsumerConfiguration,
     NotificationsConfiguration, OffersConfiguration,
     PhysicalDevicesConfiguration,
     ReimbursementEligibilityConfiguration,
@@ -33,6 +33,7 @@ export interface StageConfiguration {
     readonly reimbursementsConfig: ReimbursementsConfiguration;
     readonly reimbursementEligibilityConfig: ReimbursementEligibilityConfiguration;
     readonly transactionsProducerConsumerConfig: TransactionsProducerConsumerConfiguration;
+    readonly militaryVerificationProducerConsumerConfig: MilitaryVerificationProducerConsumerConfiguration;
     readonly updatedTransactionsProducerConsumerConfig: UpdatedTransactionsProducerConsumerConfiguration;
     readonly transactionsConfig: TransactionsConfiguration;
     readonly offersConfig: OffersConfiguration;

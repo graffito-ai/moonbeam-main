@@ -1,6 +1,7 @@
 # graphql/MilitaryVerificationSchema.graphql
 # Military Verification Schema File
 enum MilitaryVerificationErrorType {
+    UNPROCESSABLE
     VALIDATION_ERROR
     UNEXPECTED_ERROR
     NONE_OR_ABSENT
@@ -76,6 +77,20 @@ type UpdateMilitaryVerificationResponse @aws_cognito_user_pools {
     militaryVerificationStatus: MilitaryVerificationStatusType
     errorType: MilitaryVerificationErrorType
     errorMessage: String
+}
+
+type MilitaryVerificationNotificationUpdate @aws_cognito_user_pools @aws_api_key {
+    id: ID!
+    originalMilitaryVerificationStatus: MilitaryVerificationStatusType!
+    newMilitaryVerificationStatus: MilitaryVerificationStatusType!
+    firstName: String!
+    lastName: String!
+    dateOfBirth: String!
+    enlistmentYear: String!
+    addressLine: String!
+    city: String!
+    state: String!
+    zipCode: String!
 }
 
 input UpdateMilitaryVerificationInput {

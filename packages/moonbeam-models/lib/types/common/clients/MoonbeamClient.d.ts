@@ -1,5 +1,5 @@
 import { BaseAPIClient } from "./BaseAPIClient";
-import { CreateNotificationInput, CreateNotificationResponse, CreateReimbursementEligibilityInput, CreateReimbursementInput, EligibleLinkedUser, EligibleLinkedUsersResponse, GetDevicesForUserInput, GetReimbursementByStatusInput, GetTransactionByStatusInput, GetTransactionInput, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, ReimbursementByStatusResponse, ReimbursementEligibilityResponse, ReimbursementResponse, UpdatedTransactionEvent, UpdateReimbursementEligibilityInput, UpdateReimbursementInput, UpdateTransactionInput, UserDevicesResponse } from "../GraphqlExports";
+import { CreateNotificationInput, CreateNotificationResponse, CreateReimbursementEligibilityInput, CreateReimbursementInput, EligibleLinkedUser, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetReimbursementByStatusInput, GetTransactionByStatusInput, GetTransactionInput, MilitaryVerificationNotificationUpdate, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, ReimbursementByStatusResponse, ReimbursementEligibilityResponse, ReimbursementResponse, UpdatedTransactionEvent, UpdateReimbursementEligibilityInput, UpdateReimbursementInput, UpdateTransactionInput, UserDevicesResponse } from "../GraphqlExports";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 /**
  * Class used as the base/generic client for all Moonbeam internal AppSync
@@ -13,6 +13,27 @@ export declare class MoonbeamClient extends BaseAPIClient {
      * @param region the AWS region passed in from the Lambda resolver.
      */
     constructor(environment: string, region: string);
+    /**
+     * Function used to get all the offers, given certain filters to be passed in.
+     *
+     * @param militaryVerificationNotificationUpdate the military verification notification update
+     * objects, used to filter through the Cognito user pool, in order to obtain a user's email.
+     *
+     * @returns a {@link EmailFromCognitoResponse} representing the user's email obtained
+     * from Cognito.
+     */
+    getEmailForUser(militaryVerificationNotificationUpdate: MilitaryVerificationNotificationUpdate): Promise<EmailFromCognitoResponse>;
+    /**
+     * Function used to send a new military verification status acknowledgment, so we can kick-start the military verification
+     * status update notification process through the producer.
+     *
+     * @param militaryVerificationNotificationUpdate military verification update object
+     *
+     * @return a {@link Promise} of {@link APIGatewayProxyResult} representing the API Gateway result
+     * sent by the military verification update producer Lambda, to validate whether the military verification
+     * notification update process kick-started or not
+     */
+    militaryVerificationUpdatesAcknowledgment(militaryVerificationNotificationUpdate: MilitaryVerificationNotificationUpdate): Promise<APIGatewayProxyResult>;
     /**
      * Function used to send a new transaction acknowledgment, for an updated transaction, so we can kick-start the
      * transaction process through the transaction producer.

@@ -17,6 +17,7 @@ import {PhysicalDevicesResolverStack} from "../stacks/PhysicalDevicesResolverSta
 import {OffersResolverStack} from "../stacks/OffersResolverStack";
 import {FAQResolverStack} from "../stacks/FAQResolverStack";
 import {UpdateTransactionsProducerConsumerStack} from "../stacks/UpdateTransactionsProducerConsumerStack";
+import {MilitaryVerificationProducerConsumerStack} from "../stacks/MilitaryVerificationProducerConsumerStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -273,6 +274,17 @@ export class StageUtils {
                 });
                 transactionsProducerConsumerStack.addDependency(appSyncStack);
 
+                // create the Military Verification Notification/Updates Producer Consumer stack && add it to the CDK app
+                const militaryVerificationUpdatesProducerConsumerStack = new MilitaryVerificationProducerConsumerStack(this.app, `moonbeam-military-verification-updates-producer-consumer-${stageKey}`, {
+                    stackName: `moonbeam-military-verification-updates-producer-consumer-${stageKey}`,
+                    description: 'This stack will contain all the resources needed for the military verification update-related consumers, as well as producers',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    militaryVerificationProducerConsumerConfig: stageConfiguration.militaryVerificationProducerConsumerConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                militaryVerificationUpdatesProducerConsumerStack.addDependency(appSyncStack);
+
                 // create the API Gateway Service API stack && add it to the CDK app
                 const apiGatewayStack = new APIGatewayServiceStack(this.app, `moonbeam-api-gateway-${stageKey}`, {
                     stackName: `moonbeam-api-gateway-${stageKey}`,
@@ -282,12 +294,14 @@ export class StageUtils {
                     transactionsProducerLambda: transactionsProducerConsumerStack.transactionsProducerLambda,
                     updatedTransactionsProducerLambda: updatedTransactionsProducerConsumerStack.updatedTransactionalOffersProducerLambda,
                     reimbursementsProducerLambda: reimbursementsProducerConsumerStack.reimbursementsProducerLambda,
+                    militaryVerificationNotificationProducerLambda: militaryVerificationUpdatesProducerConsumerStack.militaryVerificationNotificationProducerLambda,
                     apiGatewayServiceConfig: stageConfiguration.apiGatewayServiceConfig,
                     environmentVariables: stageConfiguration.environmentVariables,
                 });
                 apiGatewayStack.addDependency(transactionsProducerConsumerStack);
                 apiGatewayStack.addDependency(updatedTransactionsProducerConsumerStack);
                 apiGatewayStack.addDependency(reimbursementsProducerConsumerStack);
+                apiGatewayStack.addDependency(militaryVerificationUpdatesProducerConsumerStack);
             }
         }
     };

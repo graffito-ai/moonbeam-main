@@ -1,5 +1,6 @@
 import {BaseAPIClient} from "./BaseAPIClient";
 import {
+    NotificationChannelType,
     NotificationResponse,
     NotificationsErrorType,
     NotificationType,
@@ -29,19 +30,20 @@ export class CourierClient extends BaseAPIClient {
      *
      * @param sendMobilePushNotificationInput the notification input details to be passed in, in order to send
      * a mobile push notification
+     * @param notificationType the type of notification to send mobile push notifications for
      *
      * @returns a {@link NotificationResponse} representing the Courier notification response
      *
      * @protected
      */
-    async sendMobilePushNotification(sendMobilePushNotificationInput: SendMobilePushNotificationInput): Promise<NotificationResponse> {
+    async sendMobilePushNotification(sendMobilePushNotificationInput: SendMobilePushNotificationInput, notificationType: NotificationType): Promise<NotificationResponse> {
         // easily identifiable API endpoint information
         const endpointInfo = 'POST /send mobile push Courier API';
 
         try {
             // retrieve the API Key and Base URL, needed in order to make the POST send mobile push notification through the client
             const [courierBaseURL, notificationAuthToken, notificationTemplateId] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.COURIER_INTERNAL_SECRET_NAME,
-                undefined, NotificationType.NewQualifyingOfferAvailable);
+                undefined, notificationType, undefined, undefined, NotificationChannelType.Push);
 
             // check to see if we obtained any invalid secret values from the call above
             if (courierBaseURL === null || courierBaseURL.length === 0 ||
@@ -81,10 +83,14 @@ export class CourierClient extends BaseAPIClient {
                             }
                         }
                     },
-                    data: {
-                        pendingCashback: sendMobilePushNotificationInput.pendingCashback.toString(),
-                        merchantName: sendMobilePushNotificationInput.merchantName
-                    }
+                    ...(sendMobilePushNotificationInput.pendingCashback !== null && sendMobilePushNotificationInput.pendingCashback !== undefined
+                        && sendMobilePushNotificationInput.merchantName !== null && sendMobilePushNotificationInput.merchantName !== undefined
+                        && sendMobilePushNotificationInput.merchantName.length !== 0 && {
+                            data: {
+                                pendingCashback: sendMobilePushNotificationInput.pendingCashback!.toString(),
+                                merchantName: sendMobilePushNotificationInput.merchantName!
+                            }
+                        }),
                 }
             };
             console.log(`Courier API request Object: ${JSON.stringify(requestData)}`);
@@ -167,17 +173,18 @@ export class CourierClient extends BaseAPIClient {
      *
      * @param sendEmailNotificationInput the notification input details to be passed in, in order to send
      * an email notification
+     * @param notificationType the type of notification to send email notifications for
      *
      * @returns a {@link NotificationResponse} representing the Courier notification response
      */
-    async sendEmailNotification(sendEmailNotificationInput: SendEmailNotificationInput): Promise<NotificationResponse> {
+    async sendEmailNotification(sendEmailNotificationInput: SendEmailNotificationInput, notificationType: NotificationType): Promise<NotificationResponse> {
         // easily identifiable API endpoint information
         const endpointInfo = 'POST /send email Courier API';
 
         try {
             // retrieve the API Key and Base URL, needed in order to make the POST send email notification through the client
             const [courierBaseURL, notificationAuthToken, notificationTemplateId] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.COURIER_INTERNAL_SECRET_NAME,
-                undefined, NotificationType.NewUserSignup);
+                undefined, notificationType, undefined, undefined, NotificationChannelType.Email);
 
             // check to see if we obtained any invalid secret values from the call above
             if (courierBaseURL === null || courierBaseURL.length === 0 ||

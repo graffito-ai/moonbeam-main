@@ -9,18 +9,26 @@ import {
     CreateReimbursementEligibilityInput,
     CreateReimbursementInput,
     EligibleLinkedUser,
-    EligibleLinkedUsersResponse, GetDevicesForUserInput, GetOffersInput,
+    EligibleLinkedUsersResponse,
+    EmailFromCognitoResponse,
+    GetDevicesForUserInput,
+    GetOffersInput,
     GetReimbursementByStatusInput,
-    GetTransactionByStatusInput, GetTransactionInput,
+    GetTransactionByStatusInput,
+    GetTransactionInput,
     MemberDetailsResponse,
     MemberResponse,
+    MilitaryVerificationNotificationUpdate,
     MilitaryVerificationStatusType,
     MoonbeamTransaction,
     MoonbeamTransactionResponse,
-    MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse,
+    MoonbeamTransactionsByStatusResponse,
+    MoonbeamTransactionsResponse,
     MoonbeamUpdatedTransactionResponse,
+    NotificationChannelType,
     NotificationResponse,
-    NotificationType, OffersResponse,
+    NotificationType,
+    OffersResponse,
     ReimbursementByStatusResponse,
     ReimbursementEligibilityResponse,
     ReimbursementResponse,
@@ -34,7 +42,8 @@ import {
     UpdatedTransactionEventResponse,
     UpdateReimbursementEligibilityInput,
     UpdateReimbursementInput,
-    UpdateTransactionInput, UserDevicesResponse
+    UpdateTransactionInput,
+    UserDevicesResponse
 } from "../GraphqlExports";
 
 /**
@@ -75,11 +84,16 @@ export abstract class BaseAPIClient {
      *                          specific secret configuration for
      * @param includeLoyaltyPrograms optional type indicating whether to include the loyalty program secret keys,
      *                               used for Olive calls
+     * @param cognitoClientAccess optional type indicating whether to include the cognito access credentials/keys,
+     *                            used for internal-based calls
+     * @param channelType optional type indicating the type of channel, for which we are retrieving specific secret
+     *                    configuration for
      *
      * @return a {@link Promise} of a {@link string} pair, containing various secrets to be used
      */
     protected async retrieveServiceCredentials(verificationClientSecretsName: string, internalRestBased?: boolean,
-                                               notificationType?: NotificationType, includeLoyaltyPrograms?: boolean)
+                                               notificationType?: NotificationType, includeLoyaltyPrograms?: boolean,
+                                               cognitoClientAccess?: boolean, channelType?: NotificationChannelType)
         : Promise<[string | null, string | null, (string | null)?, (string | null)?, (string | null)?, (string | null)?]> {
         try {
             // retrieve the secrets pair for the API client, depending on the current environment and region
@@ -94,9 +108,14 @@ export abstract class BaseAPIClient {
                 // filter out and set the necessary API Client API credentials, depending on the client secret name passed in
                 switch (verificationClientSecretsName) {
                     case Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME:
-                        return internalRestBased !== undefined && internalRestBased
-                            ? [clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_REST_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_REST_API_KEY]]
-                            : [clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_API_KEY]];
+                        if (cognitoClientAccess !== undefined && cognitoClientAccess) {
+                            return [clientPairAsJson[Constants.AWSPairConstants.CONGITO_CLI_ACCESS_KEY_ID], clientPairAsJson[Constants.AWSPairConstants.COGNITO_CLI_SECRET_ACCESS_KEY],
+                                clientPairAsJson[Constants.AWSPairConstants.COGNITO_USER_POOL_ID]]
+                        } else {
+                            return internalRestBased !== undefined && internalRestBased
+                                ? [clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_REST_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_REST_API_KEY]]
+                                : [clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_API_KEY]];
+                        }
                     case Constants.AWSPairConstants.COURIER_INTERNAL_SECRET_NAME:
                         // return the appropriate secrets, depending on the type of notification passed in
                         if (!notificationType) {
@@ -112,6 +131,34 @@ export abstract class BaseAPIClient {
                                     return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
                                         clientPairAsJson[Constants.AWSPairConstants.NEW_QUALIFYING_OFFER_NOTIFICATION_AUTH_TOKEN],
                                         clientPairAsJson[Constants.AWSPairConstants.NEW_QUALIFYING_OFFER_NOTIFICATION_TEMPLATE_ID]];
+                                case NotificationType.MilitaryStatusChangedPendingToRejected:
+                                    if (channelType !== undefined) {
+                                        return channelType === NotificationChannelType.Email
+                                            ? [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_STATUS_CHANGED_PENDING_TO_REJECTED_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_STATUS_CHANGED_PENDING_TO_REJECTED_TEMPLATE_ID]]
+                                            : [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_STATUS_CHANGED_PENDING_TO_REJECTED_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_STATUS_CHANGED_PENDING_TO_REJECTED_TEMPLATE_ID]]
+                                    } else {
+                                        return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_STATUS_CHANGED_PENDING_TO_REJECTED_AUTH_TOKEN],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_STATUS_CHANGED_PENDING_TO_REJECTED_TEMPLATE_ID]];
+                                    }
+                                case NotificationType.MilitaryStatusChangedPendingToVerified:
+                                    if (channelType !== undefined) {
+                                        return channelType === NotificationChannelType.Email
+                                            ? [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_STATUS_CHANGED_PENDING_TO_VERIFIED_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_STATUS_CHANGED_PENDING_TO_VERIFIED_TEMPLATE_ID]]
+                                            : [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_STATUS_CHANGED_PENDING_TO_VERIFIED_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_STATUS_CHANGED_PENDING_TO_VERIFIED_TEMPLATE_ID]];
+                                    } else {
+                                        return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_STATUS_CHANGED_PENDING_TO_VERIFIED_AUTH_TOKEN],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_STATUS_CHANGED_PENDING_TO_VERIFIED_TEMPLATE_ID]];
+                                    }
                                 default:
                                     console.log(`Unknown notifications type to retrieve secrets in ${verificationClientSecretsName}`);
                                     return [null, null];
@@ -152,6 +199,19 @@ export abstract class BaseAPIClient {
     /**
      * Function used to get all the offers, given certain filters to be passed in.
      *
+     * @param militaryVerificationNotificationUpdate the military verification notification update
+     * objects, used to filter through the Cognito user pool, in order to obtain a user's email.
+     *
+     * @returns a {@link EmailFromCognitoResponse} representing the user's email obtained
+     * from Cognito.
+     *
+     * @protected
+     */
+    protected getEmailForUser?(militaryVerificationNotificationUpdate: MilitaryVerificationNotificationUpdate): Promise<EmailFromCognitoResponse>;
+
+    /**
+     * Function used to get all the offers, given certain filters to be passed in.
+     *
      * @param getOffersInput the offers input, containing the filtering information
      * used to retrieve all the applicable/matching offers.
      *
@@ -178,24 +238,26 @@ export abstract class BaseAPIClient {
      *
      * @param sendMobilePushNotificationInput the notification input details to be passed in, in order to send
      * a mobile push notification
+     * @param notificationType the type of notification to send mobile push notifications for
      *
      * @returns a {@link NotificationResponse} representing the Courier notification response
      *
      * @protected
      */
-    protected sendMobilePushNotification?(sendMobilePushNotificationInput: SendMobilePushNotificationInput): Promise<NotificationResponse>;
+    protected sendMobilePushNotification?(sendMobilePushNotificationInput: SendMobilePushNotificationInput, notificationType: NotificationType): Promise<NotificationResponse>;
 
     /**
      * Function used to send an email notification.
      *
      * @param sendEmailNotificationInput the notification input details to be passed in, in order to send
      * an email notification
+     * @param notificationType the type of notification to send email notifications for
      *
      * @returns a {@link NotificationResponse} representing the Courier notification response
      *
      * @protected
      */
-    protected sendEmailNotification?(sendEmailNotificationInput: SendEmailNotificationInput): Promise<NotificationResponse>;
+    protected sendEmailNotification?(sendEmailNotificationInput: SendEmailNotificationInput, notificationType: NotificationType): Promise<NotificationResponse>;
 
     /**
      * Function used to create a notification.
@@ -311,6 +373,20 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected updateReimbursement?(updateReimbursementInput: UpdateReimbursementInput): Promise<ReimbursementResponse>;
+
+    /**
+     * Function used to send a new military verification status acknowledgment, so we can kick-start the military verification
+     * status update notification process through the producer.
+     *
+     * @param militaryVerificationNotificationUpdate military verification update object
+     *
+     * @return a {@link Promise} of {@link APIGatewayProxyResult} representing the API Gateway result
+     * sent by the military verification update producer Lambda, to validate whether the military verification
+     * notification update process kick-started or not
+     *
+     * @protected
+     */
+    protected militaryVerificationUpdatesAcknowledgment?(militaryVerificationNotificationUpdate: MilitaryVerificationNotificationUpdate): Promise<APIGatewayProxyResult>;
 
     /**
      * Function used to send a new reimbursement acknowledgment, for an eligible user with

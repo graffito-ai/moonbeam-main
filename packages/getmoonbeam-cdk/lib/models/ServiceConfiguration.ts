@@ -94,6 +94,7 @@ export interface APIGatewayServiceConfiguration {
     readonly transactionsAcknowledgmentMethodName: string;
     readonly updatedTransactionsAcknowledgmentMethodName: string;
     readonly reimbursementsAcknowledgmentMethodName: string;
+    readonly militaryVerificationUpdatesAcknowledgmentMethodName: string;
 }
 
 /**
@@ -192,6 +193,28 @@ export interface UpdatedTransactionsProducerConsumerConfiguration {
     readonly updatedTransactionsProducerFunctionName: string;
     readonly updatedTransactionsConsumerFunctionName: string;
     readonly updatedTransactionsFanOutConfig: UpdatedTransactionsFanOutConfiguration;
+}
+
+/**
+ * Interface used to define the configuration for the military verifications-related fan-out pattern, composed
+ * of an event-based process, driven by SNS and SQS.
+ */
+export interface MilitaryVerificationNotificationFanOutConfiguration {
+    readonly militaryVerificationNotificationProcessingTopicName: string;
+    readonly militaryVerificationNotificationProcessingQueueName: string;
+    readonly militaryVerificationNotificationProcessingDLQName: string;
+    readonly militaryVerificationNotificationProcessingTopicDLQName: string;
+    readonly militaryVerificationNotificationProcessingEventSourceMapping: string;
+}
+
+/**
+ * Interface used to define all the resources for the producer and consumers, taking advantage
+ * of the async military verification notifications data.
+ */
+export interface MilitaryVerificationProducerConsumerConfiguration {
+    readonly militaryVerificationNotificationProducerFunctionName: string;
+    readonly militaryVerificationNotificationConsumerFunctionName: string;
+    readonly militaryVerificationNotificationFanOutConfig: MilitaryVerificationNotificationFanOutConfiguration;
 }
 
 /**

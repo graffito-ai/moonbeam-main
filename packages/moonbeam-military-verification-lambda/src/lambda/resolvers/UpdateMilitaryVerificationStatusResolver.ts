@@ -1,9 +1,11 @@
 import {DynamoDBClient, GetItemCommand, UpdateItemCommand} from "@aws-sdk/client-dynamodb";
 import {
-    MilitaryVerificationErrorType,
+    MilitaryVerificationErrorType, MilitaryVerificationStatusType,
+    MoonbeamClient,
     UpdateMilitaryVerificationInput,
     UpdateMilitaryVerificationResponse,
 } from "@moonbeam/moonbeam-models";
+import {APIGatewayProxyResult} from "aws-lambda";
 
 /**
  * UpdateMilitaryVerificationStatus resolver
@@ -25,22 +27,12 @@ export const updateMilitaryVerificationStatus = async (fieldName: string, update
         updateMilitaryVerificationInput.updatedAt = updateMilitaryVerificationInput.updatedAt ? updateMilitaryVerificationInput.updatedAt : updatedAt;
 
         // check to see if there is a military verification object to update. If there's none, then return an error accordingly.
-        const preExistingVerificationObject =  await dynamoDbClient.send(new GetItemCommand({
+        const preExistingVerificationObject = await dynamoDbClient.send(new GetItemCommand({
             TableName: process.env.MILITARY_VERIFICATION_TABLE!,
             Key: {
                 id: {
                     S: updateMilitaryVerificationInput.id
                 }
-            },
-            /**
-             * we're not interested in getting all the data for this call, just the minimum for us to determine whether this is a duplicate or not
-             *
-             * @link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ReservedWords.html
-             * @link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.ExpressionAttributeNames.html
-             */
-            ProjectionExpression: '#idf',
-            ExpressionAttributeNames: {
-                '#idf': 'id'
             }
         }));
 
@@ -70,10 +62,59 @@ export const updateMilitaryVerificationStatus = async (fieldName: string, update
                 ReturnValues: "UPDATED_NEW"
             }));
 
-            // return the updated military verification status
-            return {
+            /**
+             * once the military verification status has been successfully updated, send a notification accordingly,
+             * by triggering the military verification update producer accordingly.
+             *
+             * call the POST/militaryVerificationUpdatesAcknowledgment Moonbeam internal endpoint
+             */
+            const response: APIGatewayProxyResult = await new MoonbeamClient(process.env.ENV_NAME!, region).militaryVerificationUpdatesAcknowledgment({
                 id: updateMilitaryVerificationInput.id,
-                militaryVerificationStatus: updateMilitaryVerificationInput.militaryVerificationStatus
+                newMilitaryVerificationStatus: updateMilitaryVerificationInput.militaryVerificationStatus,
+                originalMilitaryVerificationStatus: preExistingVerificationObject.Item.militaryVerificationStatus.S! as MilitaryVerificationStatusType,
+                addressLine: preExistingVerificationObject.Item.addressLine.S!,
+                city: preExistingVerificationObject.Item.city.S!,
+                dateOfBirth: preExistingVerificationObject.Item.dateOfBirth.S!,
+                enlistmentYear: preExistingVerificationObject.Item.enlistmentYear.S!,
+                firstName: preExistingVerificationObject.Item.firstName.S!,
+                lastName: preExistingVerificationObject.Item.lastName.S!,
+                state: preExistingVerificationObject.Item.state.S!,
+                zipCode: preExistingVerificationObject.Item.zipCode.S!,
+            });
+
+            // check to see if the military verification update acknowledgment call was executed successfully
+            if (response.statusCode === 202 && response.body !== null && response.body !== undefined &&
+                response.body === "Military verification update acknowledged!") {
+                console.log(`Successfully acknowledged military verification status update for user - ${updateMilitaryVerificationInput.id}!`);
+
+                // return the updated military verification status
+                return {
+                    id: updateMilitaryVerificationInput.id,
+                    militaryVerificationStatus: updateMilitaryVerificationInput.militaryVerificationStatus
+                }
+            } else {
+                // for military status updates which won't trigger a notification, acknowledge that but don't return an error
+                if (response.statusCode === 400 && response.body !== null && response.body !== undefined &&
+                    response.body.includes("Invalid military verification status transition for notification process to get triggered!")) {
+                    console.log(`Not necessary to acknowledge the military verification status update for user - ${updateMilitaryVerificationInput.id}!`);
+
+                    // return the updated military verification status
+                    return {
+                        id: updateMilitaryVerificationInput.id,
+                        militaryVerificationStatus: updateMilitaryVerificationInput.militaryVerificationStatus
+                    }
+                } else {
+                    /**
+                     * for any users which the military verification status update has not been acknowledged for, return the errors accordingly.
+                     */
+                    const errorMessage = `Unexpected response structure returned from the military verification status update acknowledgment call!`;
+                    console.log(`${errorMessage} ${response && JSON.stringify(response)}`);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: MilitaryVerificationErrorType.UnexpectedError
+                    }
+                }
             }
         } else {
             const errorMessage = `Unknown military verification object to update!`;

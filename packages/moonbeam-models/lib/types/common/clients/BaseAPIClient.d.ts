@@ -1,6 +1,6 @@
 import { SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import { Card, CardLinkResponse, CreateNotificationInput, CreateNotificationResponse, CreateReimbursementEligibilityInput, CreateReimbursementInput, EligibleLinkedUser, EligibleLinkedUsersResponse, GetDevicesForUserInput, GetOffersInput, GetReimbursementByStatusInput, GetTransactionByStatusInput, GetTransactionInput, MemberDetailsResponse, MemberResponse, MilitaryVerificationStatusType, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationResponse, NotificationType, OffersResponse, ReimbursementByStatusResponse, ReimbursementEligibilityResponse, ReimbursementResponse, RemoveCardResponse, SendEmailNotificationInput, SendMobilePushNotificationInput, Transaction, TransactionResponse, TransactionStatusDetailsResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse, UpdateReimbursementEligibilityInput, UpdateReimbursementInput, UpdateTransactionInput, UserDevicesResponse } from "../GraphqlExports";
+import { Card, CardLinkResponse, CreateNotificationInput, CreateNotificationResponse, CreateReimbursementEligibilityInput, CreateReimbursementInput, EligibleLinkedUser, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetOffersInput, GetReimbursementByStatusInput, GetTransactionByStatusInput, GetTransactionInput, MemberDetailsResponse, MemberResponse, MilitaryVerificationNotificationUpdate, MilitaryVerificationStatusType, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationChannelType, NotificationResponse, NotificationType, OffersResponse, ReimbursementByStatusResponse, ReimbursementEligibilityResponse, ReimbursementResponse, RemoveCardResponse, SendEmailNotificationInput, SendMobilePushNotificationInput, Transaction, TransactionResponse, TransactionStatusDetailsResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse, UpdateReimbursementEligibilityInput, UpdateReimbursementInput, UpdateTransactionInput, UserDevicesResponse } from "../GraphqlExports";
 /**
  * Class used as the base/generic client for all API clients that
  * we will be connecting to.
@@ -27,10 +27,26 @@ export declare abstract class BaseAPIClient {
      *                          specific secret configuration for
      * @param includeLoyaltyPrograms optional type indicating whether to include the loyalty program secret keys,
      *                               used for Olive calls
+     * @param cognitoClientAccess optional type indicating whether to include the cognito access credentials/keys,
+     *                            used for internal-based calls
+     * @param channelType optional type indicating the type of channel, for which we are retrieving specific secret
+     *                    configuration for
      *
      * @return a {@link Promise} of a {@link string} pair, containing various secrets to be used
      */
-    protected retrieveServiceCredentials(verificationClientSecretsName: string, internalRestBased?: boolean, notificationType?: NotificationType, includeLoyaltyPrograms?: boolean): Promise<[string | null, string | null, (string | null)?, (string | null)?, (string | null)?, (string | null)?]>;
+    protected retrieveServiceCredentials(verificationClientSecretsName: string, internalRestBased?: boolean, notificationType?: NotificationType, includeLoyaltyPrograms?: boolean, cognitoClientAccess?: boolean, channelType?: NotificationChannelType): Promise<[string | null, string | null, (string | null)?, (string | null)?, (string | null)?, (string | null)?]>;
+    /**
+     * Function used to get all the offers, given certain filters to be passed in.
+     *
+     * @param militaryVerificationNotificationUpdate the military verification notification update
+     * objects, used to filter through the Cognito user pool, in order to obtain a user's email.
+     *
+     * @returns a {@link EmailFromCognitoResponse} representing the user's email obtained
+     * from Cognito.
+     *
+     * @protected
+     */
+    protected getEmailForUser?(militaryVerificationNotificationUpdate: MilitaryVerificationNotificationUpdate): Promise<EmailFromCognitoResponse>;
     /**
      * Function used to get all the offers, given certain filters to be passed in.
      *
@@ -58,23 +74,25 @@ export declare abstract class BaseAPIClient {
      *
      * @param sendMobilePushNotificationInput the notification input details to be passed in, in order to send
      * a mobile push notification
+     * @param notificationType the type of notification to send mobile push notifications for
      *
      * @returns a {@link NotificationResponse} representing the Courier notification response
      *
      * @protected
      */
-    protected sendMobilePushNotification?(sendMobilePushNotificationInput: SendMobilePushNotificationInput): Promise<NotificationResponse>;
+    protected sendMobilePushNotification?(sendMobilePushNotificationInput: SendMobilePushNotificationInput, notificationType: NotificationType): Promise<NotificationResponse>;
     /**
      * Function used to send an email notification.
      *
      * @param sendEmailNotificationInput the notification input details to be passed in, in order to send
      * an email notification
+     * @param notificationType the type of notification to send email notifications for
      *
      * @returns a {@link NotificationResponse} representing the Courier notification response
      *
      * @protected
      */
-    protected sendEmailNotification?(sendEmailNotificationInput: SendEmailNotificationInput): Promise<NotificationResponse>;
+    protected sendEmailNotification?(sendEmailNotificationInput: SendEmailNotificationInput, notificationType: NotificationType): Promise<NotificationResponse>;
     /**
      * Function used to create a notification.
      *
@@ -181,6 +199,19 @@ export declare abstract class BaseAPIClient {
      * @protected
      */
     protected updateReimbursement?(updateReimbursementInput: UpdateReimbursementInput): Promise<ReimbursementResponse>;
+    /**
+     * Function used to send a new military verification status acknowledgment, so we can kick-start the military verification
+     * status update notification process through the producer.
+     *
+     * @param militaryVerificationNotificationUpdate military verification update object
+     *
+     * @return a {@link Promise} of {@link APIGatewayProxyResult} representing the API Gateway result
+     * sent by the military verification update producer Lambda, to validate whether the military verification
+     * notification update process kick-started or not
+     *
+     * @protected
+     */
+    protected militaryVerificationUpdatesAcknowledgment?(militaryVerificationNotificationUpdate: MilitaryVerificationNotificationUpdate): Promise<APIGatewayProxyResult>;
     /**
      * Function used to send a new reimbursement acknowledgment, for an eligible user with
      * a linked card, so we can kick-start the reimbursement process through the reimbursement

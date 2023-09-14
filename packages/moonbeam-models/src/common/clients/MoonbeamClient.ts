@@ -8,27 +8,37 @@ import {
     CreateReimbursementInput,
     CreateTransactionInput,
     EligibleLinkedUser,
-    EligibleLinkedUsersResponse, GetDevicesForUserInput,
+    EligibleLinkedUsersResponse,
+    EmailFromCognitoResponse,
+    GetDevicesForUserInput,
     GetReimbursementByStatusInput,
-    GetTransactionByStatusInput, GetTransactionInput,
+    GetTransactionByStatusInput,
+    GetTransactionInput,
+    MilitaryVerificationErrorType,
+    MilitaryVerificationNotificationUpdate,
     MoonbeamTransaction,
     MoonbeamTransactionByStatus,
     MoonbeamTransactionResponse,
-    MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse,
+    MoonbeamTransactionsByStatusResponse,
+    MoonbeamTransactionsResponse,
     MoonbeamUpdatedTransaction,
     MoonbeamUpdatedTransactionResponse,
     Notification,
-    NotificationsErrorType, PushDevice,
+    NotificationsErrorType,
+    PushDevice,
     Reimbursement,
     ReimbursementByStatusResponse,
     ReimbursementEligibility,
     ReimbursementEligibilityResponse,
     ReimbursementResponse,
     ReimbursementsErrorType,
-    TransactionsErrorType, UpdatedTransactionEvent,
+    TransactionsErrorType,
+    UpdatedTransactionEvent,
     UpdateReimbursementEligibilityInput,
     UpdateReimbursementInput,
-    UpdateTransactionInput, UserDeviceErrorType, UserDevicesResponse
+    UpdateTransactionInput,
+    UserDeviceErrorType,
+    UserDevicesResponse
 } from "../GraphqlExports";
 import axios from "axios";
 import {
@@ -39,8 +49,19 @@ import {
     updateReimbursementEligibility,
     updateTransaction
 } from "../../graphql/mutations/Mutations";
-import {getEligibleLinkedUsers, getReimbursementByStatus, getTransactionByStatus, getTransaction, getDevicesForUser} from "../../graphql/queries/Queries";
+import {
+    getDevicesForUser,
+    getEligibleLinkedUsers,
+    getReimbursementByStatus,
+    getTransaction,
+    getTransactionByStatus
+} from "../../graphql/queries/Queries";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
+import {
+    CognitoIdentityProviderClient,
+    ListUsersCommand,
+    ListUsersCommandOutput
+} from "@aws-sdk/client-cognito-identity-provider";
 
 /**
  * Class used as the base/generic client for all Moonbeam internal AppSync
@@ -56,6 +77,272 @@ export class MoonbeamClient extends BaseAPIClient {
      */
     constructor(environment: string, region: string) {
         super(region, environment);
+    }
+
+    /**
+     * Function used to get all the offers, given certain filters to be passed in.
+     *
+     * @param militaryVerificationNotificationUpdate the military verification notification update
+     * objects, used to filter through the Cognito user pool, in order to obtain a user's email.
+     *
+     * @returns a {@link EmailFromCognitoResponse} representing the user's email obtained
+     * from Cognito.
+     */
+    async getEmailForUser(militaryVerificationNotificationUpdate: MilitaryVerificationNotificationUpdate): Promise<EmailFromCognitoResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = '/listUsers Cognito SDK call';
+
+        try {
+            // retrieve the Cognito access key, secret key and user pool id, needed in order to retrieve the user email through the Cognito Identity provider client
+            const [cognitoAccessKeyId, cognitoSecretKey, cognitoUserPoolId] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME,
+                undefined,
+                undefined,
+                undefined,
+                true);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (cognitoAccessKeyId === null || cognitoAccessKeyId.length === 0 ||
+                cognitoSecretKey === null || cognitoSecretKey.length === 0 ||
+                cognitoUserPoolId === null || (cognitoUserPoolId && cognitoUserPoolId.length === 0)) {
+                const errorMessage = "Invalid Secrets obtained for Cognito SDK call call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: NotificationsErrorType.UnexpectedError
+                };
+            }
+
+            // initialize the Cognito Identity Provider client using the credentials obtained above
+            const cognitoIdentityProviderClient = new CognitoIdentityProviderClient({
+                region: this.region,
+                credentials: {
+                    accessKeyId: cognitoAccessKeyId,
+                    secretAccessKey: cognitoSecretKey
+                }
+            });
+
+            /**
+             * execute thew List Users command, using filters, in order to retrieve a user's email from their attributes.
+             *
+             * Retrieve the user by their family_name. If there are is more than 1 match returned, then we will match
+             * the user based on their unique id, from the custom:userId attribute
+             */
+            const listUsersResponse: ListUsersCommandOutput = await cognitoIdentityProviderClient.send(new ListUsersCommand({
+                UserPoolId: cognitoUserPoolId,
+                AttributesToGet: ['email', 'custom:userId'],
+                Filter: `family_name= "${`${militaryVerificationNotificationUpdate.lastName}`.replaceAll("\"", "\\\"")}"`
+            }));
+            // check for a valid response from the Cognito List Users Command call
+            if (listUsersResponse !== null && listUsersResponse.$metadata !== null && listUsersResponse.$metadata.httpStatusCode !== null &&
+                listUsersResponse.$metadata.httpStatusCode !== undefined && listUsersResponse.$metadata.httpStatusCode === 200 &&
+                listUsersResponse.Users !== null && listUsersResponse.Users !== undefined && listUsersResponse.Users!.length !== 0) {
+                // If there are is more than 1 match returned, then we will match the user based on their unique id, from the custom:userId attribute
+                let invalidAttributesFlag = false;
+                listUsersResponse.Users.forEach(cognitoUser => {
+                   if (cognitoUser.Attributes === null || cognitoUser.Attributes === undefined || cognitoUser.Attributes.length !== 2) {
+                       invalidAttributesFlag = true;
+                   }
+                });
+                // check for valid user attributes
+                if (!invalidAttributesFlag) {
+                    let matchedEmail: string | null = null;
+                    let noOfMatches = 0;
+                    listUsersResponse.Users.forEach(cognitoUser => {
+                        if (cognitoUser.Attributes![1].Value!.trim() === militaryVerificationNotificationUpdate.id.trim()) {
+                            matchedEmail = cognitoUser.Attributes![0].Value!;
+                            noOfMatches += 1;
+                        }
+                    });
+                    if (noOfMatches === 1) {
+                        return {
+                            data: matchedEmail
+                        }
+                    } else {
+                        const errorMessage = `Couldn't find user in Cognito for ${militaryVerificationNotificationUpdate.id}`;
+                        console.log(`${errorMessage}`);
+
+                        return {
+                            data: null,
+                            errorType: NotificationsErrorType.ValidationError,
+                            errorMessage: errorMessage
+                        };
+                    }
+                } else {
+                    const errorMessage = `Invalid user attributes obtained`;
+                    console.log(`${errorMessage}`);
+
+                    return {
+                        data: null,
+                        errorType: NotificationsErrorType.ValidationError,
+                        errorMessage: errorMessage
+                    };
+                }
+            } else {
+                const errorMessage = `Invalid structure obtained while calling the get List Users Cognito command`;
+                console.log(`${errorMessage}`);
+
+                return {
+                    data: null,
+                    errorType: NotificationsErrorType.ValidationError,
+                    errorMessage: errorMessage
+                };
+            }
+        } catch (err) {
+            const errorMessage = `Unexpected error while retrieving email for user from Cognito through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                data: null,
+                errorType: NotificationsErrorType.UnexpectedError,
+                errorMessage: errorMessage
+            };
+        }
+    }
+
+
+    /**
+     * Function used to send a new military verification status acknowledgment, so we can kick-start the military verification
+     * status update notification process through the producer.
+     *
+     * @param militaryVerificationNotificationUpdate military verification update object
+     *
+     * @return a {@link Promise} of {@link APIGatewayProxyResult} representing the API Gateway result
+     * sent by the military verification update producer Lambda, to validate whether the military verification
+     * notification update process kick-started or not
+     */
+    async militaryVerificationUpdatesAcknowledgment(militaryVerificationNotificationUpdate: MilitaryVerificationNotificationUpdate): Promise<APIGatewayProxyResult> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'POST /militaryVerificationUpdatesAcknowledgment Moonbeam REST API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the military status updates acknowledgment call through the client
+            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME, true);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
+                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Moonbeam REST API call!";
+                console.log(errorMessage);
+
+                return {
+                    statusCode: 500,
+                    body: JSON.stringify({
+                        data: null,
+                        errorType: ReimbursementsErrorType.UnexpectedError,
+                        errorMessage: errorMessage
+                    })
+                };
+            }
+
+            /**
+             * POST /militaryVerificationUpdatesAcknowledgment
+             *
+             * build the internal Moonbeam API request body to be passed in, and perform a POST to it with the appropriate information
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            console.log(`Moonbeam REST API request Object: ${JSON.stringify(militaryVerificationNotificationUpdate)}`);
+            return axios.post(`${moonbeamBaseURL}/militaryVerificationUpdatesAcknowledgment`, JSON.stringify(militaryVerificationNotificationUpdate), {
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": moonbeamPrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Moonbeam REST API timed out after 15000ms!'
+            }).then(militaryStatusUpdateResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(militaryStatusUpdateResponse.data)}`);
+
+                // check if there are any errors in the returned response
+                if (militaryStatusUpdateResponse.data && militaryStatusUpdateResponse.data.data !== null
+                    && !militaryStatusUpdateResponse.data.errorMessage && !militaryStatusUpdateResponse.data.errorType
+                    && militaryStatusUpdateResponse.status === 202) {
+                    // returned the military verification update acknowledgment response
+                    return {
+                        statusCode: militaryStatusUpdateResponse.status,
+                        body: militaryStatusUpdateResponse.data.data
+                    }
+                } else {
+                    return militaryStatusUpdateResponse.data && militaryStatusUpdateResponse.data.errorMessage !== undefined
+                    && militaryStatusUpdateResponse.data.errorMessage !== null ?
+                        // return the error message and type, from the original REST API call
+                        {
+                            statusCode: militaryStatusUpdateResponse.status,
+                            body: militaryStatusUpdateResponse.data.errorMessage
+                        } :
+                        // return the error response indicating an invalid structure returned
+                        {
+                            statusCode: 500,
+                            body: JSON.stringify({
+                                data: null,
+                                errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                                errorType: ReimbursementsErrorType.ValidationError
+                            })
+                        }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam REST API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        statusCode: error.response.status,
+                        body: JSON.stringify({
+                            data: null,
+                            errorType: error.response.data.errorType,
+                            errorMessage: error.response.data.errorMessage
+                        })
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        statusCode: 500,
+                        body: JSON.stringify({
+                            data: null,
+                            errorType: MilitaryVerificationErrorType.UnexpectedError,
+                            errorMessage: errorMessage
+                        })
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        statusCode: 500,
+                        body: JSON.stringify({
+                            data: null,
+                            errorType: MilitaryVerificationErrorType.UnexpectedError,
+                            errorMessage: errorMessage
+                        })
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while posting the military verification status acknowledgment object through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                statusCode: 500,
+                body: JSON.stringify({
+                    data: null,
+                    errorType: MilitaryVerificationErrorType.UnexpectedError,
+                    errorMessage: errorMessage
+                })
+            };
+        }
     }
 
     /**
@@ -121,7 +408,7 @@ export class MoonbeamClient extends BaseAPIClient {
                     }
                 } else {
                     return transactionsAcknowledgmentResponse.data && transactionsAcknowledgmentResponse.data.errorMessage !== undefined
-                    && transactionsAcknowledgmentResponse.data.errorMessage !== null  ?
+                    && transactionsAcknowledgmentResponse.data.errorMessage !== null ?
                         // return the error message and type, from the original REST API call
                         {
                             statusCode: transactionsAcknowledgmentResponse.status,
@@ -266,7 +553,7 @@ export class MoonbeamClient extends BaseAPIClient {
                     }
                 } else {
                     return reimbursementsAcknowledgmentResponse.data && reimbursementsAcknowledgmentResponse.data.errorMessage !== undefined
-                    && reimbursementsAcknowledgmentResponse.data.errorMessage !== null  ?
+                    && reimbursementsAcknowledgmentResponse.data.errorMessage !== null ?
                         // return the error message and type, from the original REST API call
                         {
                             statusCode: reimbursementsAcknowledgmentResponse.status,

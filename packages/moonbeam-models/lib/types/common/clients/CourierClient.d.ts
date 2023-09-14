@@ -1,5 +1,5 @@
 import { BaseAPIClient } from "./BaseAPIClient";
-import { NotificationResponse, SendEmailNotificationInput, SendMobilePushNotificationInput } from "../GraphqlExports";
+import { NotificationResponse, NotificationType, SendEmailNotificationInput, SendMobilePushNotificationInput } from "../GraphqlExports";
 /**
  * Class used as the base/generic client for all Courier/notification-related calls.
  */
@@ -16,19 +16,21 @@ export declare class CourierClient extends BaseAPIClient {
      *
      * @param sendMobilePushNotificationInput the notification input details to be passed in, in order to send
      * a mobile push notification
+     * @param notificationType the type of notification to send mobile push notifications for
      *
      * @returns a {@link NotificationResponse} representing the Courier notification response
      *
      * @protected
      */
-    sendMobilePushNotification(sendMobilePushNotificationInput: SendMobilePushNotificationInput): Promise<NotificationResponse>;
+    sendMobilePushNotification(sendMobilePushNotificationInput: SendMobilePushNotificationInput, notificationType: NotificationType): Promise<NotificationResponse>;
     /**
      * Function used to send an email notification.
      *
      * @param sendEmailNotificationInput the notification input details to be passed in, in order to send
      * an email notification
+     * @param notificationType the type of notification to send email notifications for
      *
      * @returns a {@link NotificationResponse} representing the Courier notification response
      */
-    sendEmailNotification(sendEmailNotificationInput: SendEmailNotificationInput): Promise<NotificationResponse>;
+    sendEmailNotification(sendEmailNotificationInput: SendEmailNotificationInput, notificationType: NotificationType): Promise<NotificationResponse>;
 }

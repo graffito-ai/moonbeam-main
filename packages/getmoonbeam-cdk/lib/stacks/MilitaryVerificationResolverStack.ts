@@ -86,6 +86,20 @@ export class MilitaryVerificationResolverStack extends Stack {
                 ]
             })
         );
+        // enable the Lambda function the retrieval of the Moonbeam internal API secrets
+        militaryVerificationLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "secretsmanager:GetSecretValue"
+                ],
+                resources: [
+                    // this ARN is retrieved post secret creation
+                    ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:moonbeam-internal-secret-pair-dev-us-west-2-vgMpp2"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:moonbeam-internal-secret-pair-prod-us-west-2-9xP6tj"] : []
+                ]
+            })
+        );
         // enable the Lambda function the retrieval of the Quandis API secrets
         militaryVerificationLambda.addToRolePolicy(
             new PolicyStatement({

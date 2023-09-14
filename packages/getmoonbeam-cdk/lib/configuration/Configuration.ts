@@ -61,7 +61,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 internalUsagePlan: `internalUsagePlan`,
                 transactionsAcknowledgmentMethodName: `transactionsAcknowledgment`,
                 updatedTransactionsAcknowledgmentMethodName: `updatedTransactionsAcknowledgment`,
-                reimbursementsAcknowledgmentMethodName: `reimbursementsAcknowledgment`
+                reimbursementsAcknowledgmentMethodName: `reimbursementsAcknowledgment`,
+                militaryVerificationUpdatesAcknowledgmentMethodName: `militaryVerificationUpdatesAcknowledgment`
             },
             reimbursementsProducerConsumerConfig: {
                 reimbursementsProducerFunctionName: 'reimbursementsProducerLambdaFunction',
@@ -161,6 +162,17 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             sesConfig: {
                 emailAddress: `noreply-${Stages.DEV}@moonbeam.vet`
             },
+            militaryVerificationProducerConsumerConfig: {
+                militaryVerificationNotificationProducerFunctionName: 'militaryVerificationNotificationProducerFunction',
+                militaryVerificationNotificationConsumerFunctionName: 'militaryVerificationNotificationConsumerFunction',
+                militaryVerificationNotificationFanOutConfig: {
+                    militaryVerificationNotificationProcessingTopicName: 'militaryVerificationNotificationProcessingTopic',
+                    militaryVerificationNotificationProcessingQueueName: 'militaryVerificationNotificationProcessingQueue',
+                    militaryVerificationNotificationProcessingDLQName: 'militaryVerificationNotificationProcessingQueueDLQ',
+                    militaryVerificationNotificationProcessingTopicDLQName: 'militaryVerificationNotificationProcessingTopicDLQ',
+                    militaryVerificationNotificationProcessingEventSourceMapping: 'militaryVerificationNotificationProcessingEventSourceMapping'
+                }
+            },
             environmentVariables: new Map<string, string>([])
         },
         [`${Stages.PROD}-${Regions.PDX}`]: {
@@ -218,7 +230,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 internalUsagePlan: `internalUsagePlan`,
                 transactionsAcknowledgmentMethodName: `transactionsAcknowledgment`,
                 updatedTransactionsAcknowledgmentMethodName: `updatedTransactionsAcknowledgment`,
-                reimbursementsAcknowledgmentMethodName: `reimbursementsAcknowledgment`
+                reimbursementsAcknowledgmentMethodName: `reimbursementsAcknowledgment`,
+                militaryVerificationUpdatesAcknowledgmentMethodName: `militaryVerificationUpdatesAcknowledgment`
             },
             reimbursementsProducerConsumerConfig: {
                 reimbursementsProducerFunctionName: 'reimbursementsProducerLambdaFunction',
@@ -317,6 +330,17 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             },
             sesConfig: {
                 emailAddress: `noreply@moonbeam.vet`
+            },
+            militaryVerificationProducerConsumerConfig: {
+                militaryVerificationNotificationProducerFunctionName: 'militaryVerificationNotificationProducerFunction',
+                militaryVerificationNotificationConsumerFunctionName: 'militaryVerificationNotificationConsumerFunction',
+                militaryVerificationNotificationFanOutConfig: {
+                    militaryVerificationNotificationProcessingTopicName: 'militaryVerificationNotificationProcessingTopic',
+                    militaryVerificationNotificationProcessingQueueName: 'militaryVerificationNotificationProcessingQueue',
+                    militaryVerificationNotificationProcessingDLQName: 'militaryVerificationNotificationProcessingQueueDLQ',
+                    militaryVerificationNotificationProcessingTopicDLQName: 'militaryVerificationNotificationProcessingTopicDLQ',
+                    militaryVerificationNotificationProcessingEventSourceMapping: 'militaryVerificationNotificationProcessingEventSourceMapping'
+                }
             },
             environmentVariables: new Map<string, string>([])
         },

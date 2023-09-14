@@ -12,6 +12,7 @@
     "clean": "rm -rf build/ lib/ node_modules/"
   },
   "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "3.350.0",
     "@aws-sdk/client-secrets-manager": "^3.335.0",
     "@graphql-codegen/cli": "^3.2.1",
     "@graphql-codegen/typescript": "^3.0.1",

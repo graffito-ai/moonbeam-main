@@ -34,7 +34,8 @@ export class APIGatewayServiceStack extends Stack {
         & {
         transactionsProducerLambda: aws_lambda_nodejs.NodejsFunction,
         updatedTransactionsProducerLambda: aws_lambda_nodejs.NodejsFunction,
-        reimbursementsProducerLambda: aws_lambda_nodejs.NodejsFunction
+        reimbursementsProducerLambda: aws_lambda_nodejs.NodejsFunction,
+        militaryVerificationNotificationProducerLambda: aws_lambda_nodejs.NodejsFunction
     }) {
         super(scope, id, props);
 
@@ -130,6 +131,25 @@ export class APIGatewayServiceStack extends Stack {
             }
         });
 
+        // create a new API Integration for military verification updates/notifications
+        const postMilitaryVerificationUpdatesIntegration = new aws_apigateway.LambdaIntegration(props.militaryVerificationNotificationProducerLambda, {
+            allowTestInvoke: true,
+            timeout: Duration.seconds(29)
+        });
+        /**
+         * create a new POST method for the API/Lambda integration, used for posting military verification updates/notifications.
+         * This method will be secured via an API key
+         */
+        const militaryVerificationUpdatesAcknowledgmentMethod = new Method(this, `${props.apiGatewayServiceConfig.militaryVerificationUpdatesAcknowledgmentMethodName}-${props.stage}-${props.env!.region}`, {
+            httpMethod: "POST",
+            resource: cardLinkingServiceAPI.root.addResource(`${props.apiGatewayServiceConfig.militaryVerificationUpdatesAcknowledgmentMethodName}`),
+            integration: postMilitaryVerificationUpdatesIntegration,
+            options: {
+                apiKeyRequired: true,
+                operationName: props.apiGatewayServiceConfig.militaryVerificationUpdatesAcknowledgmentMethodName
+            }
+        });
+
         // retrieve the value for the API Key, created specifically for Olive from Secrets Manager
         const oliveSecretPair = aws_secretsmanager.Secret.fromSecretNameV2(this, `${Constants.AWSPairConstants.OLIVE_SECRET_NAME}-id-${props.stage}-${props.env!.region}`,
             `${Constants.AWSPairConstants.OLIVE_SECRET_NAME}-${props.stage}-${props.env!.region}`);
@@ -187,6 +207,13 @@ export class APIGatewayServiceStack extends Stack {
                         },
                         {
                             method: updatedTransactionAcknowledgmentMethod,
+                            throttle: {
+                                burstLimit: 5000,
+                                rateLimit: 10000
+                            }
+                        },
+                        {
+                            method: militaryVerificationUpdatesAcknowledgmentMethod,
                             throttle: {
                                 burstLimit: 5000,
                                 rateLimit: 10000
