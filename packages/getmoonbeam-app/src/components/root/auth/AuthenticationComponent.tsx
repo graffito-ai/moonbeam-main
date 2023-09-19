@@ -44,8 +44,16 @@ import {Spinner} from "../../common/Spinner";
 import {DocumentsViewer} from "../../common/DocumentsViewer";
 import * as SMS from "expo-sms";
 import {styles} from "../../../styles/registration.module";
-import {retrieveFidelisPartnerList, retrieveOffersNearLocation, retrieveOnlineOffersList} from "../../../utils/AppSync";
+import {
+    retrieveFidelisPartnerList,
+    retrieveOffersNearLocation,
+    retrieveOnlineOffersList,
+    updateUserAuthStat
+} from "../../../utils/AppSync";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {Hub} from "aws-amplify";
+import {UserAuthSessionResponse} from "@moonbeam/moonbeam-models";
+import {firstTimeLoggedInState} from "../../../recoil/RootAtom";
 
 /**
  * Authentication component.
@@ -66,6 +74,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [stepNumber, setStepNumber] = useRecoilState(registrationStepNumber);
         const [userInformation,] = useRecoilState(currentUserInformation);
         const [, setExpoPushToken] = useRecoilState(expoPushTokenState);
+        const [, setFirstTimeLoggedIn] = useRecoilState(firstTimeLoggedInState);
         // step 1
         const [, setFirstName] = useRecoilState(firstNameState);
         const [, setLastName] = useRecoilState(lastNameState);
@@ -107,6 +116,47 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
 
             // set the expo push token accordingly, to be used in later stages, as part of the current user information object
             setExpoPushToken(route.params.expoPushToken);
+
+            /**
+             * initialize the Amplify Hub, and start listening to various events, that would help in capturing important metrics,
+             * and/or making specific decisions.
+             */
+            Hub.listen('auth', async (data) => {
+                switch (data.payload.event) {
+                    case 'signIn':
+                        console.log(`user signed in`);
+                        // update the user auth session statistics
+                        const userAuthSessionResponse: UserAuthSessionResponse = await updateUserAuthStat(data.payload.data.attributes["custom:userId"]);
+                        // check if the user auth stat has successfully been updated
+                        if (userAuthSessionResponse !== null && userAuthSessionResponse !== undefined &&
+                            userAuthSessionResponse.data !== null && userAuthSessionResponse.data !== undefined) {
+                            console.log('Successfully updated user auth stat during sign in!');
+                            // check if this sign in session, is the first time that the user logged in
+                            if (userAuthSessionResponse.data.numberOfSessions === 1 &&
+                                userAuthSessionResponse.data.createdAt === userAuthSessionResponse.data.updatedAt) {
+                                console.log(`User ${userAuthSessionResponse.data.id} logged in for the first time!`);
+                                setFirstTimeLoggedIn(true);
+                            } else {
+                                console.log(`User ${userAuthSessionResponse.data.id} not logged in for the first time!`);
+                                setFirstTimeLoggedIn(false);
+                            }
+                        } else {
+                            console.log('Unsuccessfully updated user auth stat during sign in!');
+                        }
+                        break;
+                    case 'signOut':
+                        /**
+                         * Amplify automatically manages the sessions, and when the session token expires, it will log out the user and send an event
+                         * here. What we do then is intercept that event, and since the user Sign-Out has already happened, we will perform the cleanup that
+                         * we usually do in our Sign-Out functionality, without actually signing the user out.
+                         */
+                        console.log(`user signed out`);
+                        break;
+                    case 'configured':
+                        console.log('the Auth module is successfully configured!');
+                        break;
+                }
+            });
         }, []);
 
         /**

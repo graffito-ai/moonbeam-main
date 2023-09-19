@@ -1,5 +1,17 @@
 # graphql/Queries.graphql
 # Queries Schema File
+query GetUserAuthSession($getUserAuthSessionInput: GetUserAuthSessionInput!) {
+    getUserAuthSession(getUserAuthSessionInput: $getUserAuthSessionInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            createdAt
+            updatedAt
+            numberOfSessions
+        }
+    }
+}
 query GetFAQs {
     getFAQs {
         errorMessage

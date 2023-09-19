@@ -12,7 +12,7 @@ import {AppOverviewComponent} from './src/components/root/AppOverviewComponent';
 import {AuthenticationComponent} from "./src/components/root/auth/AuthenticationComponent";
 import {RootStackParamList} from "./src/models/props/RootProps";
 import {PaperProvider, useTheme} from "react-native-paper";
-import {Cache, Hub} from "aws-amplify";
+import {Cache} from "aws-amplify";
 import {Spinner} from "./src/components/common/Spinner";
 import * as Notifications from 'expo-notifications';
 import {AndroidNotificationPriority, ExpoPushToken} from 'expo-notifications';
@@ -21,11 +21,6 @@ import {Platform, Text, TextInput} from "react-native";
 import * as Device from 'expo-device';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from 'expo-location';
-import {
-    requestCameraPermission, requestContactPermission,
-    requestForegroundLocationPermission, requestMediaLibraryPermission,
-    requestNotificationsPermission
-} from "./src/utils/Permissions";
 
 // this handler determines how your app handles notifications that come in while the app is foregrounded.
 Notifications.setNotificationHandler({
@@ -207,13 +202,6 @@ export default function App() {
                     storage: AsyncStorage
                 }));
 
-                // permissions for user device (in case they haven't already approved them)
-                await requestContactPermission();
-                await requestForegroundLocationPermission();
-                await requestNotificationsPermission();
-                await requestMediaLibraryPermission();
-                await requestCameraPermission();
-
                 // set appropriate Google API Key
                 Location.setGoogleApiKey(Platform.OS === 'android'
                     ? 'AIzaSyB8OpXoKULaEO8t46npUBbmIAM-ranxVfk'
@@ -235,30 +223,6 @@ export default function App() {
                 return () => {
                     notificationListener.current && Notifications.removeNotificationSubscription(notificationListener.current!);
                     responseListener.current && Notifications.removeNotificationSubscription(responseListener.current!);
-
-                    /**
-                     * initialize the Amplify Hub, and start listening to various events, that would help in capturing important metrics,
-                     * and/or making specific decisions.
-                     */
-                    Hub.listen('auth', (data) => {
-                        switch (data.payload.event) {
-                            case 'signIn':
-                                console.log(`user signed in`);
-                                break;
-                            case 'signOut':
-                                /**
-                                 * Amplify automatically manages the sessions, and when the session token expires, it will log out the user and send an event
-                                 * here. What we do then is intercept that event, and since the user Sign-Out has already happened, we will perform the cleanup that
-                                 * we usually do in our Sign-Out functionality, without actually signing the user out.
-                                 */
-                                console.log(`user signed out ${JSON.stringify(data.payload)}`);
-                                console.log(`user signed out ${JSON.stringify(data)}`);
-                                break;
-                            case 'configured':
-                                console.log('the Auth module is successfully configured!');
-                                break;
-                        }
-                    });
                 };
             }
         }

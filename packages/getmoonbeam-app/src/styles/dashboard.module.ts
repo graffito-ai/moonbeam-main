@@ -235,6 +235,43 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#313030',
     },
+    locationServicesEnableView: {
+        height: hp(30),
+        width: wp(95),
+        top: hp(5),
+        backgroundColor: '#2c2c2c',
+        flexDirection: 'column',
+        alignItems: 'center',
+        alignContent: 'center'
+    },
+    locationServicesEnableWarningMessage: {
+        top: hp(2),
+        width: wp(85),
+        fontSize: hp(2),
+        fontFamily: 'Saira-Medium',
+        textAlign: 'center',
+        color: '#FFFFFF'
+    },
+    locationServicesButton: {
+        backgroundColor: '#F2FF5D',
+        width: wp(50),
+        height: hp(5),
+        top: hp(1),
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    locationServicesImage: {
+        width: wp(30),
+        height: hp(15),
+    },
+    locationServicesButtonText: {
+        color: '#313030',
+        fontFamily: 'Saira-Medium',
+        fontSize: hp(2.3),
+        marginTop: hp(1)
+    },
     transactionMapView: {
         height: hp(30),
         width: wp(95),

@@ -64,6 +64,19 @@ export const commonStyles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     },
+    permissionsDialogStyle: {
+        backgroundColor: '#313030',
+        borderColor: '#F2FF5D',
+        borderWidth: hp(0.05),
+        height: hp(85),
+        width: wp(95),
+        alignSelf: 'center'
+    },
+    permissionsDialogImage: {
+        height: hp(40),
+        width: wp(80),
+        alignSelf: 'center'
+    },
     dialogStyle: {
         backgroundColor: '#5B5A5A',
         borderRadius: wp(5)
@@ -74,10 +87,24 @@ export const commonStyles = StyleSheet.create({
         fontSize: hp(1.8),
         textAlign: 'left'
     },
+    dialogParagraphInstructions: {
+        top: hp(2),
+        color: '#FFFFFF',
+        fontFamily: 'Raleway-Bold',
+        fontSize: hp(1.8),
+        textAlign: 'center'
+    },
     dialogTitle: {
         color: '#F2FF5D',
         fontFamily: 'Raleway-Bold',
         fontSize: hp(2.2)
+    },
+    dialogButtonSkip: {
+        backgroundColor: 'transparent'
+    },
+    dialogButtonSkipText: {
+        color: '#FFFFFF',
+        fontFamily: 'Saira-Bold',
     },
     dialogButton: {
         backgroundColor: '#F2FF5D'

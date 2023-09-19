@@ -3,9 +3,12 @@ import {
     AmplifyConfiguration,
     APIGatewayServiceConfiguration,
     AppSyncConfiguration,
-    CardLinkingConfiguration, FAQConfiguration,
-    MilitaryVerificationConfiguration, MilitaryVerificationProducerConsumerConfiguration,
-    NotificationsConfiguration, OffersConfiguration,
+    CardLinkingConfiguration,
+    FAQConfiguration,
+    MilitaryVerificationConfiguration,
+    MilitaryVerificationProducerConsumerConfiguration,
+    NotificationsConfiguration,
+    OffersConfiguration,
     PhysicalDevicesConfiguration,
     ReimbursementEligibilityConfiguration,
     ReimbursementsConfiguration,
@@ -13,7 +16,9 @@ import {
     SESConfiguration,
     StorageConfiguration,
     TransactionsConfiguration,
-    TransactionsProducerConsumerConfiguration, UpdatedTransactionsProducerConsumerConfiguration
+    TransactionsProducerConsumerConfiguration,
+    UpdatedTransactionsProducerConsumerConfiguration,
+    UserAuthSessionConfiguration
 } from "./ServiceConfiguration";
 
 /**
@@ -38,6 +43,7 @@ export interface StageConfiguration {
     readonly transactionsConfig: TransactionsConfiguration;
     readonly offersConfig: OffersConfiguration;
     readonly faqConfig: FAQConfiguration;
+    readonly userAuthSessionConfig: UserAuthSessionConfiguration;
     readonly notificationsConfig: NotificationsConfiguration;
     readonly physicalDevicesConfig: PhysicalDevicesConfiguration;
     readonly environmentVariables: Map<string, string>;

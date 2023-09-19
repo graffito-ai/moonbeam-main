@@ -1,5 +1,29 @@
 # graphql/Mutations.graphql
 # Mutations Schema File
+mutation CreateUserAuthSession($createUserAuthSessionInput: CreateUserAuthSessionInput!) {
+    createUserAuthSession(createUserAuthSessionInput: $createUserAuthSessionInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            createdAt
+            updatedAt
+            numberOfSessions
+        }
+    }
+}
+mutation UpdateUserAuthSession($updateUserAuthSessionInput: UpdateUserAuthSessionInput!) {
+    updateUserAuthSession(updateUserAuthSessionInput: $updateUserAuthSessionInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            createdAt
+            updatedAt
+            numberOfSessions
+        }
+    }
+}
 mutation CreateFAQ($createFAQInput: CreateFAQInput!) {
     createFAQ(createFAQInput: $createFAQInput) {
         errorMessage

@@ -21,6 +21,9 @@ import AuthenticationGradientImage from '../../../../assets/backgrounds/authenti
 // @ts-ignore
 import MilitaryBranchImage from '../../../../assets/art/military-branch-logos.png';
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {moonbeamUserIdPassState, moonbeamUserIdState} from "../../../recoil/RootAtom";
+import * as SecureStore from "expo-secure-store";
+import * as LocalAuthentication from 'expo-local-authentication';
 
 /**
  * Sign In component.
@@ -30,6 +33,7 @@ import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
  */
 export const SignInComponent = ({navigation}: SignInProps) => {
     // constants used to keep track of local component state
+    const [biometricCheckReady, setBiometricCheckReady] = useState<boolean>(false);
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [email, setEmail] = useState<string>("");
@@ -42,6 +46,8 @@ export const SignInComponent = ({navigation}: SignInProps) => {
     const [passwordShown, setIsPasswordShown] = useState<boolean>(false);
     const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [, setMoonbeamUserId] = useRecoilState(moonbeamUserIdState);
+    const [, setMoonbeamUserIdPass] = useRecoilState(moonbeamUserIdPassState);
     const [mainRootNavigation, ] = useRecoilState(mainRootNavigationState);
     const [, setIsLoadingAppOverviewNeeded] = useRecoilState(isLoadingAppOverviewNeededState);
     const [, setUserInformation] = useRecoilState(currentUserInformation);
@@ -57,6 +63,11 @@ export const SignInComponent = ({navigation}: SignInProps) => {
      * included in here.
      */
     useEffect(() => {
+        // determine whether biometric sign-in is enabled or not, and sign-in user using biometrics if that's available
+        !biometricCheckReady && signInWithBiometrics().then(_ => {
+            setBiometricCheckReady(true);
+        });
+
         // keyboard listeners
         const keyboardDidShowListener = Keyboard.addListener(
             'keyboardDidShow',
@@ -94,6 +105,107 @@ export const SignInComponent = ({navigation}: SignInProps) => {
         };
     }, [isKeyboardShown, email, emailFocus, password, passwordFocus]);
 
+
+    /**
+     * Function used to authenticate a user with biometric data (if available),
+     * given their username and password.
+     *
+     * @return a {@link Promise} of a {@link Boolean} representing a flag indicating whether
+     * a user biometric data sign-in was successfully attempted or not.
+     */
+    const signInWithBiometrics = async(): Promise<boolean> => {
+        try {
+            // set a loader on button press
+            setIsReady(false);
+
+            // we will retrieve the user's biometrics preferences, and check if we should attempt biometric login
+            const biometricsEnabled = await SecureStore.getItemAsync(`biometrics-enabled`, {
+                requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+            });
+            if (biometricsEnabled !== null && biometricsEnabled.length !== 0 && biometricsEnabled === '1') {
+                console.log('Biometric sign-in enabled for device! Attempting to sign-in.');
+                // attempt biometric authentication in order to retrieve necessary data
+                const localAuthenticationResult: LocalAuthentication.LocalAuthenticationResult = await LocalAuthentication.authenticateAsync({
+                    promptMessage: 'Use your biometrics or FingerPrint/TouchID to authenticate with Moonbeam!',
+                });
+                // check if the authentication was successful or not
+                if (localAuthenticationResult.success) {
+                    console.log('Biometric login successful. Logging user in.');
+                    const moonbeamUserId = await SecureStore.getItemAsync(`moonbeam-user-id`, {
+                        requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                    });
+                    const moonbeamUserPass = await SecureStore.getItemAsync(`moonbeam-user-passcode`, {
+                        requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                    });
+
+                    if (moonbeamUserId !== null && moonbeamUserPass !== null && moonbeamUserId.length !== 0 && moonbeamUserPass.length !== 0) {
+                        // use Amplify to sign in the user, given the retrieve Secure Store data.
+                        const user = await Auth.signIn(moonbeamUserId, moonbeamUserPass);
+                        if (user) {
+                            // we will autofill these values
+                            setIsPasswordShown(false);
+                            setPassword(moonbeamUserPass);
+                            setEmail(moonbeamUserId);
+
+                            // retrieve the user information payload from the authenticated session.
+                            const userInfo = user.signInUserSession.idToken.payload;
+
+                            // set the current user information accordingly
+                            setUserInformation({
+                                ...userInfo
+                            });
+
+                            // release the loader on button press
+                            setIsReady(true);
+
+                            // check if authentication was successful
+                            setLoginMainError(false);
+
+                            /**
+                             * set the already signed in flag to true, so next time user logs in, they
+                             * can skip on the overview screen.
+                             */
+                            await SecureStore.setItemAsync(`moonbeam-skip-overview`, '1', {
+                                requireAuthentication: false // can only retrieve this if a valid authentication mechanism was successfully passed.
+                            });
+
+                            // navigate to the App Drawer
+                            navigation.navigate("AppDrawer", {});
+
+                            return true;
+                        } else {
+                            // release the loader on button press
+                            setIsReady(true);
+                            console.log(`No user object available: ${JSON.stringify(user)}`);
+                            return true;
+                        }
+                    } else {
+                        // release the loader on button press
+                        setIsReady(true);
+                        console.log(`Unable to retrieve appropriate SecureStore data for biometrics.`);
+                        return true;
+                    }
+                } else {
+                    // release the loader on button press
+                    setIsReady(true);
+                    console.log('Biometric login not successful. Falling back to regular login.');
+                    return true;
+                }
+            } else {
+                // release the loader on button press
+                setIsReady(true);
+                console.log('Biometric data not available/Biometric sign-in not enabled for device');
+                return true;
+            }
+        } catch (error) {
+            // release the loader on button press
+            setIsReady(true);
+            console.log(`Unexpected error while attempting to biometrically sign in - ${error} ${JSON.stringify(error)}`);
+            return true;
+        }
+    }
+
+
     /**
      * Function used to authenticate a user, given their username and password.
      *
@@ -111,7 +223,36 @@ export const SignInComponent = ({navigation}: SignInProps) => {
             // use Amplify to sign in the user, given the inputted email and password combination.
             const user = await Auth.signIn(email, password);
             if (user) {
-                // remove the email and password fields, since we don't need them beyond this point
+                /**
+                 * we also check to see whether this new user is different from any existing ones in keychain.
+                 * if so, and we have biometrics set up, we will reset biometrics for this new user, so it does
+                 * not inherit the other user's settings.
+                 */
+                const moonbeamUserId = await SecureStore.getItemAsync(`moonbeam-user-id`, {
+                    requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                });
+                if (moonbeamUserId !== null && moonbeamUserId.length !== 0 && moonbeamUserId.trim() !== email.trim()) {
+                    console.log('Inheriting biometrics from old user. Resetting.');
+                    await SecureStore.deleteItemAsync(`biometrics-enabled`, {
+                        requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                    });
+                    await SecureStore.deleteItemAsync(`moonbeam-user-id`, {
+                        requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                    });
+                    await SecureStore.deleteItemAsync(`moonbeam-user-passcode`, {
+                        requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                    });
+                    await SecureStore.deleteItemAsync(`biometrics-type`, {
+                        requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                    });
+                }
+
+                /**
+                 * we will store these values in a Recoil state, so we can use them through Keychain/Secure Store in case the user wants to enable biometrics
+                 * we will remove the values in these fields for readability purposes.
+                 */
+                setMoonbeamUserId(email);
+                setMoonbeamUserIdPass(password);
                 setPassword("");
                 setEmail("");
 
@@ -125,6 +266,14 @@ export const SignInComponent = ({navigation}: SignInProps) => {
 
                 // release the loader on button press
                 setIsReady(true);
+
+                /**
+                 * set the already signed in flag to true, so next time user logs in, they
+                 * can skip on the overview screen.
+                 */
+                await SecureStore.setItemAsync(`moonbeam-skip-overview`, '1', {
+                    requireAuthentication: false // can only retrieve this if a valid authentication mechanism was successfully passed.
+                });
 
                 return true;
             } else {

@@ -1,5 +1,37 @@
 // This is a file used to define the all GraphQL query constants
 
+// Mutation used to create a new User Auth Session.
+export const createUserAuthSession = /* GraphQL */ `
+    mutation CreateUserAuthSession($createUserAuthSessionInput: CreateUserAuthSessionInput!) {
+        createUserAuthSession(createUserAuthSessionInput: $createUserAuthSessionInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                createdAt
+                updatedAt
+                numberOfSessions
+            }
+        }
+    }
+`;
+
+// Mutation used to update a User Auth Session's details for a user.
+export const updateUserAuthSession = /* GraphQL */ `
+    mutation UpdateUserAuthSession($updateUserAuthSessionInput: UpdateUserAuthSessionInput!) {
+        updateUserAuthSession(updateUserAuthSessionInput: $updateUserAuthSessionInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                createdAt
+                updatedAt
+                numberOfSessions
+            }
+        }
+    }
+`
+
 // Mutation used to create a new FAQ.
 export const createFAQ = /* GraphQL */ `
     mutation CreateFAQ($createFAQInput: CreateFAQInput!) {

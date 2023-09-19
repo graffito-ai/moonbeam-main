@@ -1,4 +1,4 @@
-import {Keyboard, Platform, SafeAreaView, StyleSheet, TouchableOpacity, View} from "react-native";
+import {Image, Keyboard, Linking, Platform, SafeAreaView, StyleSheet, TouchableOpacity, View} from "react-native";
 import {Dialog, Portal, Text, TextInput} from "react-native-paper";
 import React, {useEffect, useRef, useState} from "react";
 import {commonStyles} from "../../../../../styles/common.module";
@@ -26,6 +26,10 @@ import {CodeVerificationBottomSheet} from "./CodeVerificationBottomSheet";
 import {codeVerificationSheetShown, codeVerifiedState} from "../../../../../recoil/CodeVerificationAtom";
 import {CognitoUser} from "amazon-cognito-identity-js";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
+// @ts-ignore
+import MoonbeamPreferencesIOS from "../../../../../../assets/art/moonbeam-preferences-ios.jpg";
+// @ts-ignore
+import MoonbeamPreferencesAndroid from "../../../../../../assets/art/moonbeam-preferences-android.jpg";
 
 /**
  * Profile component
@@ -37,9 +41,12 @@ export const Profile = ({navigation}: ProfileProps) => {
     const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
+    const [permissionsModalVisible, setPermissionsModalVisible] = useState<boolean>(false);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [modalCustomMessage, setModalCustomMessage] = useState<string>("");
     const [modalButtonMessage, setModalButtonMessage] = useState<string>("");
+    const [permissionsModalCustomMessage, setPermissionsModalCustomMessage] = useState<string>("");
+    const [permissionsInstructionsCustomMessage, setPermissionsInstructionsCustomMessage] = useState<string>("");
     const [enlistingYear, setEnlistingYear] = useState<string>("");
     const [email, setEmail] = useState<string>("");
     const [emailFocus, setIsEmailFocus] = useState<boolean>(false);
@@ -383,9 +390,11 @@ export const Profile = ({navigation}: ProfileProps) => {
                 const errorMessage = `Permission to access media library was not granted!`;
                 console.log(errorMessage);
 
-                setModalCustomMessage(errorMessage);
-                setModalButtonMessage('Try Again!');
-                setModalVisible(true);
+                setPermissionsModalCustomMessage(errorMessage);
+                setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
+                    ? "In order to upload a profile picture, go to Settings -> Moonbeam Finance, and allow Photo access by tapping on the \'Photos\' option."
+                    : "In order to upload a profile picture, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Photo access by tapping on the \"Photos and videos\" option.");
+                setPermissionsModalVisible(true);
 
                 // release the loader on button press
                 setIsReady(true);
@@ -492,6 +501,59 @@ export const Profile = ({navigation}: ProfileProps) => {
                 <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                 :
                 <>
+                    <Portal>
+                        <Dialog style={commonStyles.permissionsDialogStyle} visible={permissionsModalVisible}
+                                onDismiss={() => setPermissionsModalVisible(false)}>
+                            <Dialog.Title
+                                style={commonStyles.dialogTitle}>{'Permissions not granted!'}</Dialog.Title>
+                            <Dialog.Content>
+                                <Text
+                                    style={commonStyles.dialogParagraph}>{permissionsModalCustomMessage}</Text>
+                            </Dialog.Content>
+                            <Image source={
+                                Platform.OS === 'ios'
+                                    ? MoonbeamPreferencesIOS
+                                    : MoonbeamPreferencesAndroid
+                            }
+                                   style={commonStyles.permissionsDialogImage}/>
+                            <Dialog.Content>
+                                <Text
+                                    style={commonStyles.dialogParagraphInstructions}>{permissionsInstructionsCustomMessage}</Text>
+                            </Dialog.Content>
+                            <Dialog.Actions style={{alignSelf: 'center', flexDirection: 'column'}}>
+                                <Button buttonStyle={commonStyles.dialogButton}
+                                        titleStyle={commonStyles.dialogButtonText}
+                                        onPress={async () => {
+                                            // go to the appropriate settings page depending on the OS
+                                            if (Platform.OS === 'ios') {
+                                                await Linking.openURL("app-settings:");
+                                            } else {
+                                                await Linking.openSettings();
+                                            }
+                                            setPermissionsModalVisible(false);
+                                            // close the bottom sheet if open
+                                            showBottomSheet && setShowBottomSheet(false);
+                                            // check if media library permissions have been re-enabled
+                                            const mediaLibraryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                                            // if the status is granted
+                                            if (mediaLibraryStatus && mediaLibraryStatus.status === 'granted') {
+                                                await pickPhoto();
+                                            }
+                                        }}>
+                                    {"Go to App Settings"}
+                                </Button>
+                                <Button buttonStyle={commonStyles.dialogButtonSkip}
+                                        titleStyle={commonStyles.dialogButtonSkipText}
+                                        onPress={() => {
+                                            setPermissionsModalVisible(false);
+                                            // close the bottom sheet if open
+                                            showBottomSheet && setShowBottomSheet(false);
+                                        }}>
+                                    {"Skip"}
+                                </Button>
+                            </Dialog.Actions>
+                        </Dialog>
+                    </Portal>
                     <Portal>
                         <Dialog style={[commonStyles.dialogStyle, {backgroundColor: '#313030'}]} visible={modalVisible}
                                 onDismiss={() => setModalVisible(false)}>

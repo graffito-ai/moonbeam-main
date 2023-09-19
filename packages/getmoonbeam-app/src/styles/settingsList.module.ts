@@ -31,7 +31,7 @@ export const styles = StyleSheet.create({
     settingsItemDescription: {
         color: '#FFFFFF',
         fontFamily: 'Saira-Light',
-        width: wp(65),
+        width: wp(60),
         fontSize: hp(1.6)
     },
     divider: {
@@ -47,5 +47,9 @@ export const styles = StyleSheet.create({
         alignSelf: 'flex-start',
         right: wp(5),
         bottom: hp(1.5)
+    },
+    biometricsToggleSwitch: {
+        alignSelf: 'center',
+        left: wp(2),
     }
 });

@@ -44,6 +44,7 @@ export declare namespace Constants {
         const APPSYNC_AUTH_TYPE: string;
     }
     namespace MoonbeamConstants {
+        const USER_AUTH_SESSION_TABLE = "USER_AUTH_SESSION_TABLE";
         const FAQ_TABLE: string;
         const MILITARY_VERIFICATION_TABLE: string;
         const PARTNER_MERCHANT_TABLE: string;

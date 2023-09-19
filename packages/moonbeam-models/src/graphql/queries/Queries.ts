@@ -1,5 +1,21 @@
 // This is a file used to define the all GraphQL query constants
 
+// Query used to retrieve a User Auth Session, for a particular user
+export const getUserAuthSession = /* GraphQL */ `
+    query GetUserAuthSession($getUserAuthSessionInput: GetUserAuthSessionInput!) {
+        getUserAuthSession(getUserAuthSessionInput: $getUserAuthSessionInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                createdAt
+                updatedAt
+                numberOfSessions
+            }
+        }
+    }
+`;
+
 // Query used to retrieve all the FAQs
 export const getFAQs = /* GraphQL */ `
     query GetFAQs {

@@ -1,0 +1,36 @@
+# graphql/UserAuthSessionSchema.graphql
+# User Auth Session Schema File
+enum UserAuthSessionErrorType {
+    DUPLICATE_OBJECT_FOUND
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+}
+
+type UserAuthSession @aws_cognito_user_pools {
+    id: ID! # this represents the userID which the authentication session belongs to
+    createdAt: AWSDateTime! # this represents the first time that the user logged in at
+    updatedAt: AWSDateTime! # this represents the last time that the user logged in at
+    numberOfSessions: Int!
+}
+
+input CreateUserAuthSessionInput {
+    id: ID!
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+}
+
+input GetUserAuthSessionInput {
+    id: ID!
+}
+
+input UpdateUserAuthSessionInput {
+    id: ID!
+    updatedAt: AWSDateTime
+}
+
+type UserAuthSessionResponse @aws_cognito_user_pools {
+    data: UserAuthSession
+    errorType: UserAuthSessionErrorType
+    errorMessage: String
+}

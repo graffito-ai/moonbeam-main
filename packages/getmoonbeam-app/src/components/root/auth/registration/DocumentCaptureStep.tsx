@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from "react";
-import {Image, Platform, Text, TouchableOpacity, View} from "react-native";
-import {Divider, TextInput} from "react-native-paper";
+import {Image, Linking, Platform, Text, TouchableOpacity, View} from "react-native";
+import {Dialog, Divider, Portal, TextInput} from "react-native-paper";
 import {useRecoilState} from "recoil";
 import {
     additionalDocumentationErrors,
-    additionalDocumentationNeeded, isDocumentUploadedState, isPhotoUploadedState,
+    additionalDocumentationNeeded, currentUserInformation, isDocumentUploadedState, isPhotoUploadedState,
     isReadyRegistrationState, verificationDocumentState
 } from "../../../../recoil/AuthAtom";
 import {styles} from "../../../../styles/registration.module";
@@ -22,6 +22,12 @@ import DocumentationUpload1Picture from '../../../../../assets/art/moonbeam-docu
 // @ts-ignore
 import DocumentationUpload2Picture from '../../../../../assets/art/moonbeam-document-upload-2.png';
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
+import {commonStyles} from "../../../../styles/common.module";
+// @ts-ignore
+import MoonbeamPreferencesIOS from "../../../../../assets/art/moonbeam-preferences-ios.jpg";
+// @ts-ignore
+import MoonbeamPreferencesAndroid from "../../../../../assets/art/moonbeam-preferences-android.jpg";
+import {Button} from "@rneui/base";
 
 /**
  * DocumentCaptureStep component.
@@ -30,6 +36,9 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-nativ
  */
 export const DocumentCaptureStep = () => {
     // constants used to keep track of local component state
+    const [permissionsModalVisible, setPermissionsModalVisible] = useState<boolean>(false);
+    const [permissionsModalCustomMessage, setPermissionsModalCustomMessage] = useState<string>("");
+    const [permissionsInstructionsCustomMessage, setPermissionsInstructionsCustomMessage] = useState<string>("");
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [dropdownDocumentState, setDropdownDocumentState] = useState<boolean>(false);
     const [photoSelectionButtonState, setPhotoSelectionButtonState] = useState<boolean>(false);
@@ -38,6 +47,7 @@ export const DocumentCaptureStep = () => {
     const [documentItems, setDocumentItems] = useState(documentSelectionItems);
 
     // constants used to keep track of shared states
+    const [userInformation,] = useRecoilState(currentUserInformation);
     const [verificationDocument, setVerificationDocument] = useRecoilState(verificationDocumentState);
     const [capturedFileName, setCapturedFileName] = useRecoilState(isPhotoUploadedState);
     const [uploadedFileName, setUploadedFileName] = useRecoilState(isDocumentUploadedState);
@@ -125,8 +135,12 @@ export const DocumentCaptureStep = () => {
                                 from: photoAsset.uri,
                                 to: uri
                             });
-                            // upload the photo to Cloud storage
-                            const [uploadFlag, fileName] = await uploadFile(uri, true);
+                            /**
+                             * upload the photo to Cloud storage - we upload these to the /public path under a customized path defined by the user id's, since if we upload it
+                             * under the /private path, we won't be able to see who this belongs to.
+                             */
+                            const [uploadFlag, fileName] = await uploadFile(uri, false,
+                                `${userInformation["custom:userId"]}-${uri.split('/')[uri.split('/').length - 1]}`);
                             if (!uploadFlag || fileName === null) {
                                 const errorMessage = "Error while picking a photo to upload!";
                                 console.log(errorMessage);
@@ -200,6 +214,12 @@ export const DocumentCaptureStep = () => {
 
                 setVerificationDocument("");
 
+                setPermissionsModalCustomMessage(errorMessage);
+                setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
+                    ? "In order to upload a picture of your documentation from your library, go to Settings -> Moonbeam Finance, and allow Photo access by tapping on the \'Photos\' option."
+                    : "In order to upload a picture of your documentation from your library, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Photo access by tapping on the \"Photos and videos\" option.");
+                setPermissionsModalVisible(true);
+
                 // release the loader on button press
                 setIsReady(true);
                 return false;
@@ -263,8 +283,12 @@ export const DocumentCaptureStep = () => {
                                 from: photoAsset.uri,
                                 to: uri
                             });
-                            // upload the photo to Cloud storage
-                            const [uploadFlag, fileName] = await uploadFile(uri, true);
+                            /**
+                             * upload the photo to Cloud storage - we upload these to the /public path under a customized path defined by the user id's, since if we upload it
+                             * under the /private path, we won't be able to see who this belongs to.
+                             */
+                            const [uploadFlag, fileName] = await uploadFile(uri, false,
+                                `${userInformation["custom:userId"]}-${uri.split('/')[uri.split('/').length - 1]}`);
                             if (!uploadFlag || fileName === null) {
                                 const errorMessage = "Error while uploading photo!";
                                 console.log(errorMessage);
@@ -338,6 +362,12 @@ export const DocumentCaptureStep = () => {
 
                 setVerificationDocument("");
 
+                setPermissionsModalCustomMessage(errorMessage);
+                setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
+                    ? "In order to take a picture of your documentation from your library, go to Settings -> Moonbeam Finance, and allow Camera access by tapping on the \'Camera\' option."
+                    : "In order to take a picture of your documentation from your library, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Camera access by tapping on the \"Camera\" option.");
+                setPermissionsModalVisible(true);
+
                 // release the loader on button press
                 setIsReady(true);
                 return false;
@@ -400,8 +430,12 @@ export const DocumentCaptureStep = () => {
                         from: result.uri,
                         to: uri
                     });
-                    // upload the file to Cloud storage
-                    const [uploadFlag, fileName] = await uploadFile(uri, true);
+                    /**
+                     * upload the photo to Cloud storage - we upload these to the /public path under a customized path defined by the user id's, since if we upload it
+                     * under the /private path, we won't be able to see who this belongs to.
+                     */
+                    const [uploadFlag, fileName] = await uploadFile(uri, false,
+                        `${userInformation["custom:userId"]}-${uri.split('/')[uri.split('/').length - 1]}`);
                     if (!uploadFlag || fileName === null) {
                         const errorMessage = "Error while uploading file!";
                         console.log(errorMessage);
@@ -475,6 +509,61 @@ export const DocumentCaptureStep = () => {
                     <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                     :
                     <>
+                        <Portal>
+                            <Dialog style={commonStyles.permissionsDialogStyle} visible={permissionsModalVisible}
+                                    onDismiss={() => setPermissionsModalVisible(false)}>
+                                <Dialog.Title
+                                    style={commonStyles.dialogTitle}>{'Permissions not granted!'}</Dialog.Title>
+                                <Dialog.Content>
+                                    <Text
+                                        style={commonStyles.dialogParagraph}>{permissionsModalCustomMessage}</Text>
+                                </Dialog.Content>
+                                <Image source={
+                                    Platform.OS === 'ios'
+                                        ? MoonbeamPreferencesIOS
+                                        : MoonbeamPreferencesAndroid
+                                }
+                                       style={commonStyles.permissionsDialogImage}/>
+                                <Dialog.Content>
+                                    <Text
+                                        style={commonStyles.dialogParagraphInstructions}>{permissionsInstructionsCustomMessage}</Text>
+                                </Dialog.Content>
+                                <Dialog.Actions style={{alignSelf: 'center', flexDirection: 'column'}}>
+                                    <Button buttonStyle={commonStyles.dialogButton}
+                                            titleStyle={commonStyles.dialogButtonText}
+                                            onPress={async () => {
+                                                // go to the appropriate settings page depending on the OS
+                                                if (Platform.OS === 'ios') {
+                                                    await Linking.openURL("app-settings:");
+                                                } else {
+                                                    await Linking.openSettings();
+                                                }
+                                                setPermissionsModalVisible(false);
+                                                // check if media library permissions have been re-enabled
+                                                const mediaLibraryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                                                // if the status is granted
+                                                if (mediaLibraryStatus && mediaLibraryStatus.status === 'granted') {
+                                                    await pickPhoto();
+                                                }
+                                                // check if camera permissions have been re-enabled
+                                                const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
+                                                // if the status is granted
+                                                if (cameraStatus && cameraStatus.status === 'granted') {
+                                                    await capturePhoto();
+                                                }
+                                            }}>
+                                        {"Go to App Settings"}
+                                    </Button>
+                                    <Button buttonStyle={commonStyles.dialogButtonSkip}
+                                            titleStyle={commonStyles.dialogButtonSkipText}
+                                            onPress={() => {
+                                                setPermissionsModalVisible(false);
+                                            }}>
+                                        {"Skip"}
+                                    </Button>
+                                </Dialog.Actions>
+                            </Dialog>
+                        </Portal>
                         {documentationErrors.length !== 0
                             ? <Text style={styles.errorMessage}>{documentationErrors[0]}</Text>
                             : <></>

@@ -1,6 +1,6 @@
 import 'react-native-get-random-values';
 import React, {useEffect, useState} from "react";
-import {SafeAreaView, ScrollView, StyleSheet, View} from "react-native";
+import {Image, Linking, Platform, SafeAreaView, ScrollView, StyleSheet, View} from "react-native";
 import {Dialog, Divider, List, Portal, Text} from "react-native-paper";
 import {styles} from "../../../../styles/supportCenter.module";
 import {useRecoilState} from "recoil";
@@ -11,6 +11,12 @@ import * as SMS from "expo-sms";
 import {Spinner} from "../../../common/Spinner";
 import {Button} from "@rneui/base";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import * as Contacts from "expo-contacts";
+import {fetchFile} from "../../../../utils/File";
+// @ts-ignore
+import MoonbeamPreferencesIOS from "../../../../../assets/art/moonbeam-preferences-ios.jpg";
+// @ts-ignore
+import MoonbeamPreferencesAndroid from "../../../../../assets/art/moonbeam-preferences-android.jpg";
 
 /**
  * SupportCenter component.
@@ -20,6 +26,9 @@ import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
  */
 export const SupportCenter = ({navigation}: SupportCenterProps) => {
     // constants used to keep track of local component state
+    const [permissionsModalVisible, setPermissionsModalVisible] = useState<boolean>(false);
+    const [permissionsModalCustomMessage, setPermissionsModalCustomMessage] = useState<string>("");
+    const [permissionsInstructionsCustomMessage, setPermissionsInstructionsCustomMessage] = useState<string>("");
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [supportModalVisible, setSupportModalVisible] = useState<boolean>(false);
@@ -39,6 +48,81 @@ export const SupportCenter = ({navigation}: SupportCenterProps) => {
         // enable the swipe for the drawer
         setDrawerSwipeEnabled(true);
     }, []);
+
+    /**
+     * Function used to add the support number to the user's contacts,
+     * in order to ensure a better experience when they message support.
+     *
+     * Note: Right now, this does not check for duplicate contacts. We
+     * can do that later.
+     *
+     * @return a {@link Promise} of a {@link Boolean} flag representing whether
+     * the appropriate permissions and support contact were added in the contact
+     * book.
+     */
+    const addSupportToContacts = async (): Promise<boolean> => {
+        const {status} = await Contacts.requestPermissionsAsync();
+        if (status === 'granted') {
+            // fetch the URI for the image to be retrieved from CloudFront
+            // retrieving the document link from either local cache, or from storage
+            const [returnFlag, shareURI] = await fetchFile('contact-icon.png', false, false, true);
+            if (!returnFlag || shareURI === null) {
+                console.log(`Unable to download contact icon file!`);
+                return false;
+            } else {
+                // create a new contact for Moonbeam Support chat
+                const contact = {
+                    [Contacts.Fields.Name]: 'Moonbeam 🪖',
+                    [Contacts.Fields.FirstName]: 'Moonbeam 🪖',
+                    [Contacts.Fields.ContactType]: Contacts.ContactTypes.Company,
+                    [Contacts.Fields.Birthday]: {
+                        day: 4,
+                        month: 6,
+                        year: 1776
+                    },
+                    [Contacts.Fields.ImageAvailable]: true,
+                    [Contacts.Fields.Image]: {
+                        uri: shareURI
+                    },
+                    [Contacts.Fields.Emails]: [
+                        {
+                            label: 'Moonbeam Support Email',
+                            email: 'info@moonbeam.vet',
+                            isPrimary: true
+                        }
+                    ],
+                    [Contacts.Fields.PhoneNumbers]: [
+                        {
+                            label: 'Moonbeam Support Phone Number',
+                            countryCode: '+1',
+                            number: '2107446222',
+                            isPrimary: true
+                        }
+                    ],
+                    [Contacts.Fields.UrlAddresses]: [
+                        {
+                            label: 'Moonbeam Website',
+                            url: 'https://www.getmoonbeam.vet'
+                        }
+                    ]
+                }
+                // add a new contact for our Support chat
+                // @ts-ignore
+                await Contacts.addContactAsync(contact);
+                return true;
+            }
+        } else {
+            const errorMessage = `Permission to access contacts was not granted!`;
+            console.log(errorMessage);
+
+            setPermissionsModalCustomMessage(errorMessage);
+            setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
+                ? "In order to easily contact our team and store our customer service number in your Contacts, go to Settings -> Moonbeam Finance, and allow Contacts access by tapping on the \'Contacts\' option."
+                : "In order to easily contact our team and store our customer service number in your Contacts, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Contacts access by tapping on the \"Contacts\" option.");
+            setPermissionsModalVisible(true);
+            return false;
+        }
+    }
 
     /**
      * Function used to contact support, via the native messaging application.
@@ -106,6 +190,50 @@ export const SupportCenter = ({navigation}: SupportCenterProps) => {
                     :
                     <>
                         <Portal>
+                            <Dialog style={commonStyles.permissionsDialogStyle} visible={permissionsModalVisible}
+                                    onDismiss={() => setPermissionsModalVisible(false)}>
+                                <Dialog.Title
+                                    style={commonStyles.dialogTitle}>{'Permissions not granted!'}</Dialog.Title>
+                                <Dialog.Content>
+                                    <Text
+                                        style={commonStyles.dialogParagraph}>{permissionsModalCustomMessage}</Text>
+                                </Dialog.Content>
+                                <Image source={
+                                    Platform.OS === 'ios'
+                                        ? MoonbeamPreferencesIOS
+                                        : MoonbeamPreferencesAndroid
+                                }
+                                       style={commonStyles.permissionsDialogImage}/>
+                                <Dialog.Content>
+                                    <Text
+                                        style={commonStyles.dialogParagraphInstructions}>{permissionsInstructionsCustomMessage}</Text>
+                                </Dialog.Content>
+                                <Dialog.Actions style={{alignSelf: 'center', flexDirection: 'column'}}>
+                                    <Button buttonStyle={commonStyles.dialogButton}
+                                            titleStyle={commonStyles.dialogButtonText}
+                                            onPress={async () => {
+                                                // go to the appropriate settings page depending on the OS
+                                                if (Platform.OS === 'ios') {
+                                                    await Linking.openURL("app-settings:");
+                                                } else {
+                                                    await Linking.openSettings();
+                                                }
+                                                setPermissionsModalVisible(false);
+                                            }}>
+                                        {"Go to App Settings"}
+                                    </Button>
+                                    <Button buttonStyle={commonStyles.dialogButtonSkip}
+                                            titleStyle={commonStyles.dialogButtonSkipText}
+                                            onPress={async () => {
+                                                setPermissionsModalVisible(false);
+                                                await contactSupport();
+                                            }}>
+                                        {"Skip"}
+                                    </Button>
+                                </Dialog.Actions>
+                            </Dialog>
+                        </Portal>
+                        <Portal>
                             <Dialog style={commonStyles.dialogStyle} visible={supportModalVisible}
                                     onDismiss={() => setSupportModalVisible(false)}>
                                 <Dialog.Icon icon="alert" color={"#F2FF5D"}
@@ -148,7 +276,9 @@ export const SupportCenter = ({navigation}: SupportCenterProps) => {
                                             title={'Contact'}
                                             description={`Wanna ask us to dinner? Slide into our DMs.`}
                                             onPress={async () => {
-                                                await contactSupport();
+                                                addSupportToContacts().then(async contactsFlag => {
+                                                    contactsFlag && await contactSupport();
+                                                });
                                             }}
                                             left={() => <List.Icon color={'#F2FF5D'} icon="message"/>}
                                             right={() => <List.Icon style={{left: hp(1)}}

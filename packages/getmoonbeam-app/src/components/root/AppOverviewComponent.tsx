@@ -10,6 +10,7 @@ import {useRecoilState} from "recoil";
 import {initialAuthenticationScreen} from "../../recoil/AuthAtom";
 import {appOverviewSteps} from "../../models/Constants";
 import {requestAppTrackingTransparencyPermission} from "../../utils/Permissions";
+import * as SecureStore from "expo-secure-store";
 
 /**
  * AppOverview component.
@@ -34,6 +35,25 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
     useEffect(() => {
         // necessary for iOS compliance purposes
         requestAppTrackingTransparencyPermission().then(_ => {});
+
+        // check if we need to skip on the overview screen
+        SecureStore.getItemAsync(`moonbeam-skip-overview`, {
+            requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+        }).then(moonbeamSkipOverviewPreference => {
+            if(moonbeamSkipOverviewPreference !== null && moonbeamSkipOverviewPreference.length !== 0 && moonbeamSkipOverviewPreference === '1') {
+                /**
+                 * navigate to the Authentication component, and set the recoil state accordingly,
+                 * in order to display the right subcomponent for Authentication.
+                 */
+                setAuthScreen('SignIn');
+                navigation.navigate("Authentication", {
+                    marketplaceCache: route.params.marketplaceCache,
+                    cache: route.params.cache,
+                    expoPushToken: route.params.expoPushToken,
+                    onLayoutRootView: route.params.onLayoutRootView
+                });
+            }
+        });
     }, []);
 
     // return the component for the AppOverview page

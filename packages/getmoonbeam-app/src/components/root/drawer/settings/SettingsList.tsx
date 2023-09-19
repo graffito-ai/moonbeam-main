@@ -1,5 +1,5 @@
 import {Linking, SafeAreaView, ScrollView, StyleSheet, View} from "react-native";
-import {Dialog, Divider, List, Portal, Text} from "react-native-paper";
+import {Dialog, Divider, List, Portal, Switch, Text} from "react-native-paper";
 import React, {useEffect, useState} from "react";
 import {SettingsListProps} from "../../../../models/props/SettingsProps";
 import {commonStyles} from "../../../../styles/common.module";
@@ -19,6 +19,8 @@ import {Button} from "@rneui/base";
 import {bottomBarNavigationState, drawerNavigationState} from "../../../../recoil/HomeAtom";
 import {goToProfileSettingsState} from "../../../../recoil/Settings";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import * as SecureStore from "expo-secure-store";
+import * as LocalAuthentication from "expo-local-authentication";
 
 /**
  * SettingsList component
@@ -28,19 +30,21 @@ import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
  */
 export const SettingsList = ({navigation}: SettingsListProps) => {
     // constants used to keep track of local component state
+    const [biometricsEnabled, setBiometricsEnabled] = useState<boolean>(false);
+    const [biometricsType, setBiometricsType] = useState<string>('Enhanced Security');
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
-    const [optionTitle, setOptionTitle] = useState<string>('');
-    const [optionDescription, setOptionDescription] = useState<string>('');
-    const [optionIcon, setOptionIcon] = useState<string>('');
+    const [cardOptionTitle, setCardOptionTitle] = useState<string>('');
+    const [cardOptionDescription, setCardOptionDescription] = useState<string>('');
+    const [cardOptionIcon, setCardOptionIcon] = useState<string>('');
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [modalCustomMessage, setModalCustomMessage] = useState<string>("");
     const [modalButtonMessage, setModalButtonMessage] = useState<string>("");
     // constants used to keep track of shared states
-    const [goToProfileSettings, ] = useRecoilState(goToProfileSettingsState);
-    const [globalCache, ] = useRecoilState(globalAmplifyCacheState);
-    const [drawerNavigation, ] = useRecoilState(drawerNavigationState);
-    const [bottomBarNavigation, ] = useRecoilState(bottomBarNavigationState);
+    const [goToProfileSettings,] = useRecoilState(goToProfileSettingsState);
+    const [globalCache,] = useRecoilState(globalAmplifyCacheState);
+    const [drawerNavigation,] = useRecoilState(drawerNavigationState);
+    const [bottomBarNavigation,] = useRecoilState(bottomBarNavigationState);
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
     const [, setBannerState] = useRecoilState(customBannerState);
@@ -63,15 +67,35 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
         // check if a member has already been deactivated or never completed the linked card process
         if (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0) {
             // set the opt-out information accordingly
-            setOptionTitle('Opt Out');
-            setOptionDescription('Are you sure you want to opt-out of all our sweet discount programs?');
-            setOptionIcon('credit-card-remove-outline');
+            setCardOptionTitle('Opt Out');
+            setCardOptionDescription('Are you sure you want to opt-out of all our sweet discount programs?');
+            setCardOptionIcon('credit-card-remove-outline');
         } else {
             // set the opt-out information accordingly
-            setOptionTitle("Opt-In");
-            setOptionDescription("Click this button to opt-in to all our sweet discount programs!");
-            setOptionIcon('credit-card-plus-outline');
+            setCardOptionTitle("Opt-In");
+            setCardOptionDescription("Click this button to opt-in to all our sweet discount programs!");
+            setCardOptionIcon('credit-card-plus-outline');
         }
+        // retrieve the type of Biometrics available from the SecureStore
+        SecureStore.getItemAsync(`biometrics-type`, {
+            requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+        }).then(biometricsType => {
+            if (biometricsType !== null && biometricsType.length !== 0) {
+                setBiometricsType(biometricsType);
+            } else {
+                setBiometricsType('Enhanced Security');
+            }
+            // check to see if biometrics are enabled or not
+            SecureStore.getItemAsync(`biometrics-enabled`, {
+                requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+            }).then(biometricsEnabled => {
+                if (biometricsEnabled !== null && biometricsEnabled.length !== 0 && biometricsEnabled !== '0') {
+                    setBiometricsEnabled(true);
+                } else {
+                    setBiometricsEnabled(false);
+                }
+            });
+        });
     }, [goToProfileSettings, userInformation["linkedCard"]]);
 
     /**
@@ -202,10 +226,11 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                     </Portal>
                     <SafeAreaView style={commonStyles.rowContainer}>
                         <View style={[styles.settingsContentView, StyleSheet.absoluteFill]}>
-                            <ScrollView scrollEnabled={false}
+                            <ScrollView scrollEnabled={true}
                                         persistentScrollbar={false}
                                         showsVerticalScrollIndicator={false}
-                                        keyboardShouldPersistTaps={'handled'}>
+                                        keyboardShouldPersistTaps={'handled'}
+                                        contentContainerStyle={{paddingBottom: hp(10)}}>
                                 <List.Section style={styles.listSectionView}>
                                     <List.Subheader
                                         style={styles.subHeaderTitle}>Account
@@ -289,11 +314,94 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                         descriptionStyle={styles.settingsItemDescription}
                                         titleNumberOfLines={10}
                                         descriptionNumberOfLines={10}
-                                        title={optionTitle}
-                                        description={optionDescription}
-                                        left={() => <List.Icon color={'#F2FF5D'} icon={optionIcon}/>}
+                                        title={cardOptionTitle}
+                                        description={cardOptionDescription}
+                                        left={() => <List.Icon color={'#F2FF5D'} icon={cardOptionIcon}/>}
                                         right={() => <List.Icon style={{left: hp(1)}}
                                                                 color={'#F2FF5D'} icon="chevron-right"/>}
+                                        onPress={async () => {
+                                            // check if a member has already been deactivated or never completed the linked card process
+                                            if (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0) {
+                                                // there's a need to deactivate
+                                                await optOut(
+                                                    userInformation["custom:userId"],
+                                                    userInformation["linkedCard"]["memberId"],
+                                                    userInformation["linkedCard"]["cards"][0]["id"]
+                                                );
+                                            } else {
+                                                // there's no need for deactivation, so go to the Card linking screen
+                                                bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
+                                                drawerNavigation && drawerNavigation!.navigate('Home', {});
+                                            }
+                                        }}
+                                    />
+                                </List.Section>
+                                <List.Section style={styles.listSectionView}>
+                                    <List.Subheader
+                                        style={styles.subHeaderTitle}>Security & Privacy</List.Subheader>
+                                    <Divider style={styles.divider}/>
+                                    <Divider style={styles.divider}/>
+                                    <List.Item
+                                        rippleColor={'transparent'}
+                                        style={styles.settingsItemStyle}
+                                        titleStyle={styles.settingsItemTitle}
+                                        descriptionStyle={styles.settingsItemDescription}
+                                        titleNumberOfLines={10}
+                                        descriptionNumberOfLines={10}
+                                        title={`${biometricsType}`}
+                                        description={
+                                            biometricsEnabled
+                                                ? `Decrease the robustness of your authentication, by disabling ${biometricsType}.`
+                                                : `Enhance your authentication experience, by enabling ${biometricsType}.`
+                                        }
+                                        left={() =>
+                                            <List.Icon
+                                                color={'#F2FF5D'}
+                                                icon={
+                                                    biometricsType === 'Face ID'
+                                                        ? 'face-recognition'
+                                                        : biometricsType === 'Fingerprint/TouchID'
+                                                            ? 'fingerprint'
+                                                            : biometricsType === 'Iris Recognition'
+                                                                ? 'eye-check'
+                                                                : 'lock-pattern'
+                                                }/>}
+                                        right={() =>
+                                            <Switch
+                                                thumbColor={biometricsEnabled ? '#313030': '#F2FF5D'}
+                                                trackColor={{true: '#F2FF5D', false: '#313030'}}
+                                                ios_backgroundColor={biometricsEnabled ? '#F2FF5D': '#313030'}
+                                                style={styles.biometricsToggleSwitch}
+                                                value={biometricsEnabled}
+                                                onValueChange={async (value) => {
+                                                    // enable the biometrics authentication set up
+                                                    if (value) {
+                                                        // authenticate using the chosen authentication option
+                                                        const localAuthenticationResult: LocalAuthentication.LocalAuthenticationResult = await LocalAuthentication.authenticateAsync({
+                                                            promptMessage: 'Use your biometrics or FingerPrint/TouchID to authenticate with Moonbeam!',
+                                                        });
+                                                        // check if the authentication was successful or not
+                                                        if (localAuthenticationResult.success) {
+                                                            console.log('successfully opted in to set up biometrics');
+                                                            // we will store the user's biometrics preferences.
+                                                            await SecureStore.setItemAsync(`biometrics-enabled`, '1', {
+                                                                requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                                                            });
+                                                            setBiometricsEnabled(value);
+                                                        } else {
+                                                            console.log('failed to opt in to set up biometrics');
+                                                        }
+                                                    } else {
+                                                        // disable the biometrics authentication set up
+                                                        await SecureStore.setItemAsync(`biometrics-enabled`, '0', {
+                                                            requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                                                        });
+                                                        setBiometricsEnabled(value);
+                                                    }
+
+                                                }}
+                                            />
+                                        }
                                         onPress={async () => {
                                             // check if a member has already been deactivated or never completed the linked card process
                                             if (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0) {

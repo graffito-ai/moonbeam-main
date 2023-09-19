@@ -281,3 +281,16 @@ export interface FAQConfiguration {
     readonly createFAQResolverName: string;
     readonly getFAQsResolverName: string;
 }
+
+/**
+ * Interface used to define the configuration for the User Auth service resolvers
+ * (GraphQL based), and other afferent data stores.
+ */
+export interface UserAuthSessionConfiguration {
+    readonly userAuthSessionFunctionName: string;
+    readonly userAuthSessionTableName: string;
+    readonly createUserAuthSessionResolverName: string;
+    readonly updateUserAuthSessionResolverName: string;
+    readonly getUserAuthSessionResolverName: string;
+}
+

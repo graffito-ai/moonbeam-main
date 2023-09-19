@@ -210,6 +210,11 @@ export type CreateTransactionInput = {
     transactionType: TransactionType;
     updatedAt: Scalars['AWSDateTime'];
 };
+export type CreateUserAuthSessionInput = {
+    createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+    id: Scalars['ID'];
+    updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
 export declare enum CurrencyCodeType {
     Usd = "USD"
 }
@@ -353,6 +358,9 @@ export type GetTransactionInput = {
     endDate: Scalars['AWSDateTime'];
     id: Scalars['ID'];
     startDate?: InputMaybe<Scalars['AWSDateTime']>;
+};
+export type GetUserAuthSessionInput = {
+    id: Scalars['ID'];
 };
 export type Member = {
     __typename?: 'Member';
@@ -522,12 +530,14 @@ export type Mutation = {
     createReimbursement: ReimbursementResponse;
     createReimbursementEligibility: ReimbursementEligibilityResponse;
     createTransaction: MoonbeamTransactionResponse;
+    createUserAuthSession: UserAuthSessionResponse;
     deleteCard: CardResponse;
     updateDevice: UserDeviceResponse;
     updateMilitaryVerificationStatus: UpdateMilitaryVerificationResponse;
     updateReimbursement: ReimbursementResponse;
     updateReimbursementEligibility: ReimbursementEligibilityResponse;
     updateTransaction: MoonbeamUpdatedTransactionResponse;
+    updateUserAuthSession: UserAuthSessionResponse;
 };
 export type MutationAddCardArgs = {
     addCardInput: AddCardInput;
@@ -556,6 +566,9 @@ export type MutationCreateReimbursementEligibilityArgs = {
 export type MutationCreateTransactionArgs = {
     createTransactionInput: CreateTransactionInput;
 };
+export type MutationCreateUserAuthSessionArgs = {
+    createUserAuthSessionInput: CreateUserAuthSessionInput;
+};
 export type MutationDeleteCardArgs = {
     deleteCardInput: DeleteCardInput;
 };
@@ -573,6 +586,9 @@ export type MutationUpdateReimbursementEligibilityArgs = {
 };
 export type MutationUpdateTransactionArgs = {
     updateTransactionInput: UpdateTransactionInput;
+};
+export type MutationUpdateUserAuthSessionArgs = {
+    updateUserAuthSessionInput: UpdateUserAuthSessionInput;
 };
 export type Notification = {
     __typename?: 'Notification';
@@ -741,6 +757,7 @@ export type Query = {
     getStorage: StorageResponse;
     getTransaction: MoonbeamTransactionsResponse;
     getTransactionByStatus: MoonbeamTransactionsByStatusResponse;
+    getUserAuthSession: UserAuthSessionResponse;
 };
 export type QueryGetCardLinkArgs = {
     getCardLinkInput: GetCardLinkInput;
@@ -771,6 +788,9 @@ export type QueryGetTransactionArgs = {
 };
 export type QueryGetTransactionByStatusArgs = {
     getTransactionByStatusInput: GetTransactionByStatusInput;
+};
+export type QueryGetUserAuthSessionArgs = {
+    getUserAuthSessionInput: GetUserAuthSessionInput;
 };
 export declare enum RedemptionTrigger {
     CumulativePurchaseAmount = "cumulative_purchase_amount",
@@ -1028,6 +1048,10 @@ export type UpdateTransactionInput = {
     transactionStatus: TransactionsStatus;
     updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
+export type UpdateUserAuthSessionInput = {
+    id: Scalars['ID'];
+    updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
 export type UpdatedTransactionEvent = {
     __typename?: 'UpdatedTransactionEvent';
     callbackUrl: Scalars['String'];
@@ -1051,6 +1075,25 @@ export type UpdatedTransactionEventResponse = {
     errorMessage?: Maybe<Scalars['String']>;
     errorType?: Maybe<TransactionsErrorType>;
 };
+export type UserAuthSession = {
+    __typename?: 'UserAuthSession';
+    createdAt: Scalars['AWSDateTime'];
+    id: Scalars['ID'];
+    numberOfSessions: Scalars['Int'];
+    updatedAt: Scalars['AWSDateTime'];
+};
+export declare enum UserAuthSessionErrorType {
+    DuplicateObjectFound = "DUPLICATE_OBJECT_FOUND",
+    NoneOrAbsent = "NONE_OR_ABSENT",
+    UnexpectedError = "UNEXPECTED_ERROR",
+    ValidationError = "VALIDATION_ERROR"
+}
+export type UserAuthSessionResponse = {
+    __typename?: 'UserAuthSessionResponse';
+    data?: Maybe<UserAuthSession>;
+    errorMessage?: Maybe<Scalars['String']>;
+    errorType?: Maybe<UserAuthSessionErrorType>;
+};
 export declare enum UserDeviceErrorType {
     DuplicateObjectFound = "DUPLICATE_OBJECT_FOUND",
     NoneOrAbsent = "NONE_OR_ABSENT",
@@ -1072,6 +1115,42 @@ export type UserDevicesResponse = {
     data?: Maybe<Array<Maybe<PushDevice>>>;
     errorMessage?: Maybe<Scalars['String']>;
     errorType?: Maybe<UserDeviceErrorType>;
+};
+export type CreateUserAuthSessionMutationVariables = Exact<{
+    createUserAuthSessionInput: CreateUserAuthSessionInput;
+}>;
+export type CreateUserAuthSessionMutation = {
+    __typename?: 'Mutation';
+    createUserAuthSession: {
+        __typename?: 'UserAuthSessionResponse';
+        errorMessage?: string | null;
+        errorType?: UserAuthSessionErrorType | null;
+        data?: {
+            __typename?: 'UserAuthSession';
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            numberOfSessions: number;
+        } | null;
+    };
+};
+export type UpdateUserAuthSessionMutationVariables = Exact<{
+    updateUserAuthSessionInput: UpdateUserAuthSessionInput;
+}>;
+export type UpdateUserAuthSessionMutation = {
+    __typename?: 'Mutation';
+    updateUserAuthSession: {
+        __typename?: 'UserAuthSessionResponse';
+        errorMessage?: string | null;
+        errorType?: UserAuthSessionErrorType | null;
+        data?: {
+            __typename?: 'UserAuthSession';
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            numberOfSessions: number;
+        } | null;
+    };
 };
 export type CreateFaqMutationVariables = Exact<{
     createFAQInput: CreateFaqInput;
@@ -1444,6 +1523,24 @@ export type UpdateMilitaryVerificationStatusMutation = {
         errorMessage?: string | null;
         id?: string | null;
         militaryVerificationStatus?: MilitaryVerificationStatusType | null;
+    };
+};
+export type GetUserAuthSessionQueryVariables = Exact<{
+    getUserAuthSessionInput: GetUserAuthSessionInput;
+}>;
+export type GetUserAuthSessionQuery = {
+    __typename?: 'Query';
+    getUserAuthSession: {
+        __typename?: 'UserAuthSessionResponse';
+        errorMessage?: string | null;
+        errorType?: UserAuthSessionErrorType | null;
+        data?: {
+            __typename?: 'UserAuthSession';
+            id: string;
+            createdAt: string;
+            updatedAt: string;
+            numberOfSessions: number;
+        } | null;
     };
 };
 export type GetFaQsQueryVariables = Exact<{

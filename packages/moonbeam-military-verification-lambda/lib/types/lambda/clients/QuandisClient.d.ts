@@ -20,8 +20,13 @@ export declare class QuandisClient extends BaseAPIClient {
     /**
      * Function used to verify an individuals military service status.
      *
+     * @param numberOfCalls optional param, used for use cases when we recursively call
+     *                      this function in order to make additional calls to Quandis
+     *                      for users who list an incorrect enlistment year at first.
+     * @param newEnlistmentYear new enlistment year for recursive call.
+     *
      * @return a {@link Promise} of {@link MilitaryVerificationStatusType} representing the
      * military verification status obtained from the client verification call
      */
-    verify(): Promise<MilitaryVerificationStatusType>;
+    verify(numberOfCalls?: number, newEnlistmentYear?: number): Promise<MilitaryVerificationStatusType>;
 }

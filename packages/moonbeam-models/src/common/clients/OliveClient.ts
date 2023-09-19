@@ -980,12 +980,13 @@ export class OliveClient extends BaseAPIClient {
                  * check the contents of the response, and act appropriately.
                  */
                 if (transactionDetailsResponse.data !== undefined && transactionDetailsResponse.data["storeId"] && transactionDetailsResponse.data["brandId"] &&
-                    transactionDetailsResponse.data["loyaltyProgramId"] && transactionDetailsResponse.data["roundingRuleId"] && transactionDetailsResponse.data["merchantCategoryCode"]) {
+                    transactionDetailsResponse.data["loyaltyProgramId"] && transactionDetailsResponse.data["merchantCategoryCode"]) {
                     // set the transaction details for the updated transaction object, from the response, and convert any information accordingly
                     updatedTransactionEvent.data.transaction.storeId = transactionDetailsResponse.data["storeId"];
                     updatedTransactionEvent.data.transaction.brandId = transactionDetailsResponse.data["brandId"];
                     updatedTransactionEvent.data.transaction.loyaltyProgramId = transactionDetailsResponse.data["loyaltyProgramId"];
-                    updatedTransactionEvent.data.transaction.roundingRuleId = transactionDetailsResponse.data["roundingRuleId"];
+                    updatedTransactionEvent.data.transaction.roundingRuleId = transactionDetailsResponse.data["roundingRuleId"] !== undefined
+                    && transactionDetailsResponse.data["roundingRuleId"] !== null ? transactionDetailsResponse.data["roundingRuleId"] : 'N/A';
                     updatedTransactionEvent.data.transaction.merchantCategoryCode = transactionDetailsResponse.data["merchantCategoryCode"];
                     updatedTransactionEvent.data.transaction.amount = transactionDetailsResponse.data["amount"] !== undefined
                     && transactionDetailsResponse.data["amount"] !== null ? transactionDetailsResponse.data["amount"] : 0;
@@ -998,8 +999,10 @@ export class OliveClient extends BaseAPIClient {
                         data: updatedTransactionEvent
                     }
                 } else {
+                    const errorMessage = `Invalid response structure returned from ${endpointInfo} response!`;
+                    console.log(errorMessage);
                     return {
-                        errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                        errorMessage: errorMessage,
                         errorType: TransactionsErrorType.ValidationError
                     }
                 }

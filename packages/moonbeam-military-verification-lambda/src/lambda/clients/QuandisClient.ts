@@ -26,17 +26,21 @@ export class QuandisClient extends BaseAPIClient {
      */
     constructor(verificationInformation: MilitaryVerificationInformation, environment: string, region: string) {
         super(region, environment);
-
         this.verificationInformation = verificationInformation;
     }
 
     /**
      * Function used to verify an individuals military service status.
      *
+     * @param numberOfCalls optional param, used for use cases when we recursively call
+     *                      this function in order to make additional calls to Quandis
+     *                      for users who list an incorrect enlistment year at first.
+     * @param newEnlistmentYear new enlistment year for recursive call.
+     *
      * @return a {@link Promise} of {@link MilitaryVerificationStatusType} representing the
      * military verification status obtained from the client verification call
      */
-    async verify(): Promise<MilitaryVerificationStatusType> {
+    async verify(numberOfCalls?: number, newEnlistmentYear?: number): Promise<MilitaryVerificationStatusType> {
         try {
             // retrieve the API Key and Base URL, needed in order to make the verification call through the client
             const [quandisBaseURL, quandisAPIKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.QUANDIS_SECRET_NAME);
@@ -55,7 +59,9 @@ export class QuandisClient extends BaseAPIClient {
             dob = `${dob.split('/')[2]}-${dob.split('/')[0]}-${dob.split('/')[1]}`;
 
             // convert the date of interest from the enlistment year into the appropriate format (YYYY-12-31), accepted by Quandis
-            let dateOfInterest = `${this.verificationInformation.enlistmentYear}-12-31`;
+            let dateOfInterest = newEnlistmentYear === undefined
+                ? `${this.verificationInformation.enlistmentYear}-12-31`
+                : `${newEnlistmentYear}-12-31`;
 
             /**
              * POST /api/military/scra/instant/{clientID}
@@ -81,7 +87,7 @@ export class QuandisClient extends BaseAPIClient {
                 },
                 timeout: 10000, // in milliseconds here
                 timeoutErrorMessage: 'Quandis API timed out after 4000ms!'
-            }).then(verificationResponse => {
+            }).then(async verificationResponse => {
                 console.log(`Quandis API response ${JSON.stringify(verificationResponse.data)}`);
 
                 /**
@@ -91,7 +97,19 @@ export class QuandisClient extends BaseAPIClient {
                 if (verificationResponse.data && verificationResponse.data["covered"] === true) {
                     return MilitaryVerificationStatusType.Verified;
                 } else {
-                    return MilitaryVerificationStatusType.Pending;
+                    /**
+                     * In some instances, users provide Moonbeam with their commission/enlistment year. However, Quandis fails to verify them because their true EAD date is a year later.
+                     * In most cases, we believe this is due to users who entered into Delayed Entry Programs or who had "sworn in" at the end of a given year, but did not report to basic
+                     * training until the following year
+                     */
+                    if (numberOfCalls === undefined) {
+                        await delay(2000); // delay 2 seconds
+                        const newEnlistmentYear = Number(this.verificationInformation.enlistmentYear) + 1;
+                        console.log(`Re-attempting to verify user ${this.verificationInformation.id} with new enlistment year ${newEnlistmentYear}`)
+                        return this.verify(1, newEnlistmentYear); // only calls this function once
+                    } else {
+                        return MilitaryVerificationStatusType.Pending;
+                    }
                 }
             }).catch(error => {
                 if (error.response) {
@@ -129,4 +147,15 @@ export class QuandisClient extends BaseAPIClient {
             return MilitaryVerificationStatusType.Pending;
         }
     }
+}
+
+/**
+ * Function used as a delay
+ *
+ * @param ms number of milliseconds to delay by
+ *
+ * @returns a {@link Promise}
+ */
+const delay = (ms: number): Promise<any> => {
+    return new Promise( resolve => setTimeout(resolve, ms) );
 }

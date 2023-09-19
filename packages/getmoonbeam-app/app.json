@@ -3,7 +3,7 @@
     "name": "Moonbeam Finance",
     "owner": "moonbeamfin",
     "slug": "moonbeam-app",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -30,6 +30,7 @@
       "bundleIdentifier": "com.moonbeam.moonbeamfinance",
       "supportsTablet": false,
       "infoPlist": {
+        "NSFaceIDUsageDescription": "$(PRODUCT_NAME) will access and use Face ID, in order to allow you to easily authenticate, either for the purposes of accessing your account, or for various protected account-related functionalities. Please note that Moonbeam will not store any of your biometric information.",
         "NSUserTrackingUsageDescription": "$(PRODUCT_NAME) will collect data, such as your Precise Location and Physical Address, that can be used for tracking you or your device. This data, will enable us to provide you with more personalized military offers.",
         "NSContactsUsageDescription": "$(PRODUCT_NAME) will access your contacts, in order to automatically add our support information in your list of contacts, for ease of access. Please note that Moonbeam will not store any of your contact information.",
         "NSLocationWhenInUseUsageDescription": "$(PRODUCT_NAME) will access your location once, while using the app, in order to provide you with accurate military offers nearby. Please note that any location information will be stored according to our Privacy Policy and Terms and Conditions, which are presented during account registration, and can also be accessed in the Documents section of our app.",
@@ -37,11 +38,12 @@
         "NSLocationAlwaysUsageDescription": "$(PRODUCT_NAME) will always have access to your location, in order to provide you with accurate military offers nearby. Please note that any location information will be stored according to our Privacy Policy and Terms and Conditions, which are presented during account registration, and can also be accessed in the Documents section of our app."
       },
       "config": {
-        "googleMapsApiKey": "AIzaSyBlj5BVB9ZxZS0V_Usf9pAhuCnw2mQhcaQ"
+        "googleMapsApiKey": "AIzaSyBlj5BVB9ZxZS0V_Usf9pAhuCnw2mQhcaQ",
+        "usesNonExemptEncryption": false
       }
     },
     "android": {
-      "versionCode": 10,
+      "versionCode": 11,
       "package": "com.moonbeam.moonbeamfin",
       "googleServicesFile": "./google-services.json",
       "softwareKeyboardLayoutMode": "pan",
@@ -102,6 +104,12 @@
         {
           "photosPermission": "$(PRODUCT_NAME) will access your photos, in order to allow you to either upload pictures of documentation necessary for verifying your military identity, or to help you set a profile picture. Please note that any media will be stored according to our Privacy Policy and Terms and Conditions, which are presented during account registration, and can also be accessed in the Documents section of our app.",
           "cameraPermission": "$(PRODUCT_NAME) will access your camera, in order to allow you to either take pictures of documentation necessary for verifying your military identity, or to help you set a profile picture. Please note that any media will be stored according to our Privacy Policy and Terms and Conditions, which are presented during account registration, and can also be accessed in the Documents section of our app."
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "$(PRODUCT_NAME) will access and use Face ID, in order to allow you to easily authenticate, either for the purposes of accessing your account, or for various protected account-related functionalities. Please note that Moonbeam will not store any of your biometric information."
         }
       ]
     ],

@@ -14,6 +14,7 @@ type Query {
     getStorage(getStorageInput: GetStorageInput!): StorageResponse! @aws_cognito_user_pools
     getMilitaryVerificationStatus(getMilitaryVerificationInput: GetMilitaryVerificationInput!): GetMilitaryVerificationResponse! @aws_cognito_user_pools
     getEligibleLinkedUsers: EligibleLinkedUsersResponse! @aws_cognito_user_pools @aws_api_key
+    getUserAuthSession(getUserAuthSessionInput: GetUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
 }
 
 type Mutation {
@@ -32,6 +33,8 @@ type Mutation {
     deleteCard(deleteCardInput: DeleteCardInput!): CardResponse! @aws_cognito_user_pools
     updateMilitaryVerificationStatus(updateMilitaryVerificationInput: UpdateMilitaryVerificationInput!): UpdateMilitaryVerificationResponse! @aws_cognito_user_pools
     createMilitaryVerification(createMilitaryVerificationInput: CreateMilitaryVerificationInput!): CreateMilitaryVerificationResponse! @aws_cognito_user_pools
+    createUserAuthSession(createUserAuthSessionInput: CreateUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
+    updateUserAuthSession(updateUserAuthSessionInput: UpdateUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
 }
 
 type Subscription {

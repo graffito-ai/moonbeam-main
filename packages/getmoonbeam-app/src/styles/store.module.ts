@@ -353,6 +353,44 @@ export const styles = StyleSheet.create({
         shadowRadius: 2,
         elevation: 15
     },
+    locationServicesEnableView: {
+        top: hp(2),
+        right: wp(4),
+        height: hp(33),
+        backgroundColor: '#2c2c2c',
+        flexDirection: 'column',
+        alignItems: 'center',
+        alignContent: 'center',
+        alignSelf: 'flex-start'
+    },
+    locationServicesEnableWarningMessage: {
+        top: hp(2),
+        width: wp(85),
+        fontSize: hp(1.8),
+        fontFamily: 'Saira-Medium',
+        textAlign: 'center',
+        color: '#FFFFFF'
+    },
+    locationServicesButton: {
+        backgroundColor: '#F2FF5D',
+        width: wp(50),
+        height: hp(5),
+        top: hp(1),
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    locationServicesImage: {
+        width: wp(30),
+        height: hp(15),
+    },
+    locationServicesButtonText: {
+        color: '#313030',
+        fontFamily: 'Saira-Medium',
+        fontSize: hp(2.3),
+        marginTop: hp(1)
+    },
     nearbyLoadingOfferCardCover: {
         alignSelf: 'center',
         bottom: hp(15),

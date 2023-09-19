@@ -1,10 +1,20 @@
 import React, {useEffect, useRef, useState} from "react";
-import {Image, SafeAreaView, StyleSheet, TouchableOpacity, View} from "react-native";
-import {Text} from "react-native-paper";
+import {Image, Linking, Platform, SafeAreaView, StyleSheet, TouchableOpacity, View} from "react-native";
+import {Dialog, Portal, Text} from "react-native-paper";
 import {styles} from "../../../../../../styles/dashboard.module";
 import MapView, {Marker, PROVIDER_GOOGLE} from "react-native-maps";
 import * as Location from 'expo-location';
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
+// @ts-ignore
+import MoonbeamLocationServices from "../../../../../../../assets/art/moonbeam-location-services-1.png";
+import {commonStyles} from "../../../../../../styles/common.module";
+// @ts-ignore
+import MoonbeamPreferencesIOS from "../../../../../../../assets/art/moonbeam-preferences-ios.jpg";
+// @ts-ignore
+import MoonbeamPreferencesAndroid from "../../../../../../../assets/art/moonbeam-preferences-android.jpg";
+import {Button} from "@rneui/base";
+import {showTransactionBottomSheetState} from "../../../../../../recoil/DashboardAtom";
+import {useRecoilState} from "recoil";
 
 /**
  * Interface to be used for determining the location of transaction
@@ -17,7 +27,7 @@ interface TransactionStoreLocation {
     longitudeDelta: number
 }
 
- /**
+/**
  * TransactionsBottomSheet component.
  *
  * @param props component properties to be passed in.
@@ -34,9 +44,15 @@ export const TransactionsBottomSheet = (props: {
     transactionTimestamp: string
 }) => {
     // constants used to keep track of local component state
+    const [permissionsModalVisible, setPermissionsModalVisible] = useState<boolean>(false);
+    const [permissionsModalCustomMessage, setPermissionsModalCustomMessage] = useState<string>("");
+    const [permissionsInstructionsCustomMessage, setPermissionsInstructionsCustomMessage] = useState<string>("");
+    const [locationServicesButton, setLocationServicesButton] = useState<boolean>(false);
     const [transactionStoreGeoLocation, setTransactionStoreGeoLocation] = useState<TransactionStoreLocation | null>(null);
     const mapViewRef = useRef(null);
     const discountPercentage = `${Math.round((Number(props.transactionDiscountAmount) / Number(props.transactionAmount)) * 100)}%`;
+    // constants used to keep track of shared states
+    const [, setShowTransactionBottomSheet] = useRecoilState(showTransactionBottomSheetState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -54,12 +70,13 @@ export const TransactionsBottomSheet = (props: {
         // first retrieve the necessary permissions for location purposes
         const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
         if (foregroundPermissionStatus.status !== 'granted') {
-            console.log(`Necessary location permissions not granted`);
+            const errorMessage = `Permission to access location was not granted!`;
+            console.log(errorMessage);
+            setLocationServicesButton(true);
         } else {
             const geoLocationArray = await Location.geocodeAsync(props.transactionStoreAddress!, {
                 useGoogleMaps: true
             });
-            console.log(geoLocationArray);
             /**
              * get the first location point in the array of geolocation returned, since we will have the full address of the store,
              * which will result in a 100% accuracy for 1 location match
@@ -87,6 +104,7 @@ export const TransactionsBottomSheet = (props: {
                 }, 0);
             }
             setTransactionStoreGeoLocation(transactionStoreGeoLocation);
+            setShowTransactionBottomSheet(true);
         }
     }
 
@@ -94,6 +112,51 @@ export const TransactionsBottomSheet = (props: {
     // return the component for the TransactionsBottomSheet, part of the Dashboard page
     return (
         <>
+            <Portal>
+                <Dialog style={commonStyles.permissionsDialogStyle} visible={permissionsModalVisible}
+                        onDismiss={() => setPermissionsModalVisible(false)}>
+                    <Dialog.Title
+                        style={commonStyles.dialogTitle}>{'Permissions not granted!'}</Dialog.Title>
+                    <Dialog.Content>
+                        <Text
+                            style={commonStyles.dialogParagraph}>{permissionsModalCustomMessage}</Text>
+                    </Dialog.Content>
+                    <Image source={
+                        Platform.OS === 'ios'
+                            ? MoonbeamPreferencesIOS
+                            : MoonbeamPreferencesAndroid
+                    }
+                           style={commonStyles.permissionsDialogImage}/>
+                    <Dialog.Content>
+                        <Text
+                            style={commonStyles.dialogParagraphInstructions}>{permissionsInstructionsCustomMessage}</Text>
+                    </Dialog.Content>
+                    <Dialog.Actions style={{alignSelf: 'center', flexDirection: 'column'}}>
+                        <Button buttonStyle={commonStyles.dialogButton}
+                                titleStyle={commonStyles.dialogButtonText}
+                                onPress={async () => {
+                                    // go to the appropriate settings page depending on the OS
+                                    if (Platform.OS === 'ios') {
+                                        await Linking.openURL("app-settings:");
+                                    } else {
+                                        await Linking.openSettings();
+                                    }
+                                    setPermissionsModalVisible(false);
+                                    setShowTransactionBottomSheet(false);
+                                }}>
+                            {"Go to App Settings"}
+                        </Button>
+                        <Button buttonStyle={commonStyles.dialogButtonSkip}
+                                titleStyle={commonStyles.dialogButtonSkipText}
+                                onPress={async () => {
+                                    setPermissionsModalVisible(false);
+                                    setShowTransactionBottomSheet(false);
+                                }}>
+                            {"Skip"}
+                        </Button>
+                    </Dialog.Actions>
+                </Dialog>
+            </Portal>
             <SafeAreaView
                 // @ts-ignore
                 style={[StyleSheet.absoluteFill, styles.transactionParentView, props.transactionOnlineAddress && {backgroundColor: '#5B5A5A'}]}>
@@ -138,54 +201,83 @@ export const TransactionsBottomSheet = (props: {
                     </View>
                 </View>
                 {
-                    props.transactionStoreAddress &&
-                    <View style={styles.transactionMapView}>
-                        <MapView
-                            provider={PROVIDER_GOOGLE}
-                            userInterfaceStyle={'dark'}
-                            zoomControlEnabled={true}
-                            ref={mapViewRef}
-                            style={[StyleSheet.absoluteFillObject, {borderRadius: 30}]}
-                        >
-                            {
-                                transactionStoreGeoLocation &&
-                                <Marker
-                                    onPress={async () => {
-                                        await retrieveStoreGeolocation();
-                                    }}
-                                    coordinate={{
-                                        latitude: transactionStoreGeoLocation.latitude!,
-                                        longitude: transactionStoreGeoLocation.longitude!
-                                    }}
+                    locationServicesButton
+                        ?
+                        <>
+                            <View style={styles.locationServicesEnableView}>
+                                <Image style={styles.locationServicesImage} source={MoonbeamLocationServices}/>
+                                <TouchableOpacity
+                                    style={styles.locationServicesButton}
+                                    onPress={
+                                        async () => {
+                                            const errorMessage = `Permission to access location was not granted!`;
+                                            console.log(errorMessage);
+
+                                            setPermissionsModalCustomMessage(errorMessage);
+                                            setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
+                                                ? "In order to display the exact locations of your in-person transactions, go to Settings -> Moonbeam Finance, and allow Location Services access by tapping on the \'Location\' option."
+                                                : "In order to display the exact locations of your in-person transactions, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Location Services access by tapping on the \"Location\" option.");
+                                            setPermissionsModalVisible(true);
+                                        }
+                                    }
                                 >
-                                    <TouchableOpacity onPress={async () => {
-                                        await retrieveStoreGeolocation();
-                                    }}>
-                                        {/*<View style={styles.mapTooltipArrow}/>*/}
-                                        <View style={styles.mapTooltip}>
-                                            {/*<View style={styles.mapTooltipArrowOverlay}/>*/}
-                                            <View style={styles.mapTooltipSquare}/>
-                                        </View>
-                                        <View
-                                            style={styles.toolTipDetailsView}>
-                                            <Image style={styles.toolTipImageDetail}
-                                                   resizeMethod={"scale"}
-                                                   resizeMode={'cover'}
-                                                   source={{
-                                                       uri: props.brandImage,
-                                                       height: hp(2.5),
-                                                       width: wp(6)
-                                                   }}
-                                            />
-                                            <Text style={styles.toolTipImagePrice}>
-                                                {discountPercentage} Off
-                                            </Text>
-                                        </View>
-                                    </TouchableOpacity>
-                                </Marker>
-                            }
-                        </MapView>
-                    </View>
+                                    <Text
+                                        style={styles.locationServicesButtonText}>{'Enable'}</Text>
+                                </TouchableOpacity>
+                                <Text style={styles.locationServicesEnableWarningMessage}>
+                                    Display transaction location, by enabling Location Services permissions!
+                                </Text>
+                            </View>
+                        </>
+                        :
+                        props.transactionStoreAddress &&
+                        <View style={styles.transactionMapView}>
+                            <MapView
+                                provider={PROVIDER_GOOGLE}
+                                userInterfaceStyle={'dark'}
+                                zoomControlEnabled={true}
+                                ref={mapViewRef}
+                                style={[StyleSheet.absoluteFillObject, {borderRadius: 30}]}
+                            >
+                                {
+                                    transactionStoreGeoLocation &&
+                                    <Marker
+                                        onPress={async () => {
+                                            await retrieveStoreGeolocation();
+                                        }}
+                                        coordinate={{
+                                            latitude: transactionStoreGeoLocation.latitude!,
+                                            longitude: transactionStoreGeoLocation.longitude!
+                                        }}
+                                    >
+                                        <TouchableOpacity onPress={async () => {
+                                            await retrieveStoreGeolocation();
+                                        }}>
+                                            {/*<View style={styles.mapTooltipArrow}/>*/}
+                                            <View style={styles.mapTooltip}>
+                                                {/*<View style={styles.mapTooltipArrowOverlay}/>*/}
+                                                <View style={styles.mapTooltipSquare}/>
+                                            </View>
+                                            <View
+                                                style={styles.toolTipDetailsView}>
+                                                <Image style={styles.toolTipImageDetail}
+                                                       resizeMethod={"scale"}
+                                                       resizeMode={'cover'}
+                                                       source={{
+                                                           uri: props.brandImage,
+                                                           height: hp(2.5),
+                                                           width: wp(6)
+                                                       }}
+                                                />
+                                                <Text style={styles.toolTipImagePrice}>
+                                                    {discountPercentage} Off
+                                                </Text>
+                                            </View>
+                                        </TouchableOpacity>
+                                    </Marker>
+                                }
+                            </MapView>
+                        </View>
                 }
             </SafeAreaView>
         </>

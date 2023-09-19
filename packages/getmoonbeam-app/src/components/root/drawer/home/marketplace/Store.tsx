@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {StoreProps} from "../../../../../models/props/MarketplaceProps";
 import {Spinner} from '../../../../common/Spinner';
-import {Platform, ScrollView, TouchableOpacity, View} from "react-native";
+import {Image, Linking, Platform, ScrollView, TouchableOpacity, View} from "react-native";
 import {commonStyles} from "../../../../../styles/common.module";
 import {
     ActivityIndicator,
@@ -40,7 +40,14 @@ import {storeOfferPhysicalLocationState, storeOfferState} from "../../../../../r
 import {dynamicSort} from '../../../../../utils/Main';
 // @ts-ignore
 import MoonbeamOffersLoading from '../../../../../../assets/art/moonbeam-offers-loading.png';
+// @ts-ignore
+import MoonbeamLocationServices from "../../../../../../assets/art/moonbeam-location-services-1.png";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
+// @ts-ignore
+import MoonbeamPreferencesIOS from "../../../../../../assets/art/moonbeam-preferences-ios.jpg";
+// @ts-ignore
+import MoonbeamPreferencesAndroid from "../../../../../../assets/art/moonbeam-preferences-android.jpg";
+import {Button as ModalButton} from "@rneui/base";
 
 /**
  * Store component.
@@ -50,6 +57,10 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-nativ
  */
 export const Store = ({navigation}: StoreProps) => {
     // constants used to keep track of local component state
+    const [permissionsModalVisible, setPermissionsModalVisible] = useState<boolean>(false);
+    const [permissionsModalCustomMessage, setPermissionsModalCustomMessage] = useState<string>("");
+    const [permissionsInstructionsCustomMessage, setPermissionsInstructionsCustomMessage] = useState<string>("");
+    const [locationServicesButton, setLocationServicesButton] = useState<boolean>(false);
     const [areNearbyOffersReady, setAreNearbyOffersReady] = useState<boolean>(false);
     const [isReady, setIsReady] = useState<boolean>(false);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
@@ -527,7 +538,9 @@ export const Store = ({navigation}: StoreProps) => {
             // first retrieve the necessary permissions for location purposes
             const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
             if (foregroundPermissionStatus.status !== 'granted') {
-                console.log(`Necessary location permissions not granted`);
+                const errorMessage = `Permission to access location was not granted!`;
+                console.log(errorMessage);
+                setLocationServicesButton(true);
             } else {
                 // first retrieve the latitude and longitude of the current user
                 const currentUserLocation: LocationObject = await Location.getCurrentPositionAsync();
@@ -681,7 +694,8 @@ export const Store = ({navigation}: StoreProps) => {
                                                             }}
                                                         >
                                                             {/*@ts-ignore*/}
-                                                            <Text style={styles.viewOfferButtonContent}>View Offer</Text>
+                                                            <Text style={styles.viewOfferButtonContent}>View
+                                                                Offer</Text>
                                                         </TouchableOpacity>
                                                     </View>
                                                     <View>
@@ -740,7 +754,8 @@ export const Store = ({navigation}: StoreProps) => {
                                                             }}
                                                         >
                                                             {/*@ts-ignore*/}
-                                                            <Text style={styles.viewOfferButtonContent}>View Offer</Text>
+                                                            <Text style={styles.viewOfferButtonContent}>View
+                                                                Offer</Text>
                                                         </TouchableOpacity>
                                                     </View>
                                                     <View>
@@ -1297,8 +1312,7 @@ export const Store = ({navigation}: StoreProps) => {
             !isReady && setIsReady(true);
 
             // retrieve the nearby offers list
-            retrieveNearbyOffersList().then(() => {
-            });
+            retrieveNearbyOffersList().then(() => {});
         });
 
         // change the filtered list, based on the search query
@@ -1341,6 +1355,55 @@ export const Store = ({navigation}: StoreProps) => {
                              setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                     :
                     <>
+                        <Portal>
+                            <Dialog style={commonStyles.permissionsDialogStyle} visible={permissionsModalVisible}
+                                    onDismiss={() => setPermissionsModalVisible(false)}>
+                                <Dialog.Title
+                                    style={commonStyles.dialogTitle}>{'Permissions not granted!'}</Dialog.Title>
+                                <Dialog.Content>
+                                    <Text
+                                        style={commonStyles.dialogParagraph}>{permissionsModalCustomMessage}</Text>
+                                </Dialog.Content>
+                                <Image source={
+                                    Platform.OS === 'ios'
+                                        ? MoonbeamPreferencesIOS
+                                        : MoonbeamPreferencesAndroid
+                                }
+                                       style={commonStyles.permissionsDialogImage}/>
+                                <Dialog.Content>
+                                    <Text
+                                        style={commonStyles.dialogParagraphInstructions}>{permissionsInstructionsCustomMessage}</Text>
+                                </Dialog.Content>
+                                <Dialog.Actions style={{alignSelf: 'center', flexDirection: 'column'}}>
+                                    <ModalButton buttonStyle={commonStyles.dialogButton}
+                                                 titleStyle={commonStyles.dialogButtonText}
+                                                 onPress={async () => {
+                                                     // go to the appropriate settings page depending on the OS
+                                                     if (Platform.OS === 'ios') {
+                                                         await Linking.openURL("app-settings:");
+                                                     } else {
+                                                         await Linking.openSettings();
+                                                     }
+                                                     setPermissionsModalVisible(false);
+                                                     // force reload whole application
+                                                     const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
+                                                     if (foregroundPermissionStatus.status === 'granted') {
+                                                         setLocationServicesButton(false);
+                                                         await retrieveNearbyOffersList();
+                                                     }
+                                                 }}>
+                                        {"Go to App Settings"}
+                                    </ModalButton>
+                                    <ModalButton buttonStyle={commonStyles.dialogButtonSkip}
+                                                 titleStyle={commonStyles.dialogButtonSkipText}
+                                                 onPress={async () => {
+                                                     setPermissionsModalVisible(false);
+                                                 }}>
+                                        {"Skip"}
+                                    </ModalButton>
+                                </Dialog.Actions>
+                            </Dialog>
+                        </Portal>
                         <Portal>
                             <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
                                     onDismiss={() => setModalVisible(false)}>
@@ -1592,7 +1655,8 @@ export const Store = ({navigation}: StoreProps) => {
                                                                 </Text>{`   🎖`}️
                                                             </Text>
                                                             <ScrollView
-                                                                style={[styles.featuredPartnersScrollView, nearbyOfferList.length === 0 && areNearbyOffersReady && {left: -wp(0.5)}]}
+                                                                style={[styles.featuredPartnersScrollView,
+                                                                    nearbyOfferList.length === 0 && areNearbyOffersReady && {left: -wp(0.5)}]}
                                                                 horizontal={true}
                                                                 decelerationRate={"fast"}
                                                                 snapToInterval={wp(70) + wp(20)}
@@ -1610,56 +1674,126 @@ export const Store = ({navigation}: StoreProps) => {
                                                             </ScrollView>
                                                         </View>
                                                         {
-                                                            !areNearbyOffersReady && nearbyOfferList.length === 0 &&
-                                                            <>
-                                                                <View style={styles.nearbyOffersView}>
-                                                                    <View style={styles.nearbyOffersTitleView}>
-                                                                        <View style={styles.nearbyOffersLeftTitleView}>
-                                                                            <Text
-                                                                                style={[styles.nearbyLoadingOffersTitleMain]}>
+                                                            locationServicesButton ?
+                                                                <>
+                                                                    <View
+                                                                        style={[styles.nearbyOffersView, {bottom: hp(60)}]}>
+                                                                        <View style={styles.nearbyOffersTitleView}>
+                                                                            <View
+                                                                                style={styles.nearbyOffersLeftTitleView}>
                                                                                 <Text
-                                                                                    style={styles.nearbyLoadingOffersTitle}>
-                                                                                    {'Retrieving offers near you...'}
-                                                                                </Text>{`   🌎️`}
-                                                                            </Text>
+                                                                                    style={[styles.nearbyLoadingOffersTitleMain]}>
+                                                                                    <Text
+                                                                                        style={styles.nearbyLoadingOffersTitle}>
+                                                                                        {'Offers near you'}
+                                                                                    </Text>{`   🌎️`}
+                                                                                </Text>
+                                                                            </View>
                                                                         </View>
+                                                                        <ScrollView
+                                                                            style={styles.nearbyOffersScrollView}
+                                                                            horizontal={true}
+                                                                            decelerationRate={"fast"}
+                                                                            snapToAlignment={"start"}
+                                                                            scrollEnabled={true}
+                                                                            persistentScrollbar={false}
+                                                                            showsHorizontalScrollIndicator={false}>
+                                                                            {
+                                                                                <>
+                                                                                    <Card
+                                                                                        style={styles.nearbyLoadingOfferCard}>
+                                                                                        <Card.Content>
+                                                                                            <View
+                                                                                                style={styles.locationServicesEnableView}>
+                                                                                                <Image
+                                                                                                    style={styles.locationServicesImage}
+                                                                                                    source={MoonbeamLocationServices}/>
+                                                                                                <TouchableOpacity
+                                                                                                    style={styles.locationServicesButton}
+                                                                                                    onPress={
+                                                                                                        async () => {
+                                                                                                            const errorMessage = `Permission to access location was not granted!`;
+                                                                                                            console.log(errorMessage);
+
+                                                                                                            setPermissionsModalCustomMessage(errorMessage);
+                                                                                                            setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
+                                                                                                                ? "In order to display the closest offers near your location, go to Settings -> Moonbeam Finance, and allow Location Services access by tapping on the \'Location\' option."
+                                                                                                                : "In order to display the closest offers near your location, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Location Services access by tapping on the \"Location\" option.");
+                                                                                                            setPermissionsModalVisible(true);
+                                                                                                        }
+                                                                                                    }
+                                                                                                >
+                                                                                                    <Text
+                                                                                                        style={styles.locationServicesButtonText}>{'Enable'}</Text>
+                                                                                                </TouchableOpacity>
+                                                                                                <Text
+                                                                                                    style={styles.locationServicesEnableWarningMessage}>
+                                                                                                    Display transaction
+                                                                                                    location, by
+                                                                                                    enabling Location
+                                                                                                    Services
+                                                                                                    permissions!
+                                                                                                </Text>
+                                                                                            </View>
+                                                                                        </Card.Content>
+                                                                                    </Card>
+                                                                                </>
+                                                                            }
+                                                                        </ScrollView>
                                                                     </View>
-                                                                    <ScrollView
-                                                                        style={styles.nearbyOffersScrollView}
-                                                                        horizontal={true}
-                                                                        decelerationRate={"fast"}
-                                                                        snapToAlignment={"start"}
-                                                                        scrollEnabled={true}
-                                                                        persistentScrollbar={false}
-                                                                        showsHorizontalScrollIndicator={false}>
-                                                                        {
-                                                                            <>
-                                                                                <Card
-                                                                                    style={styles.nearbyLoadingOfferCard}>
-                                                                                    <Card.Content>
-                                                                                        <View
-                                                                                            style={{flexDirection: 'column'}}>
-                                                                                            <ActivityIndicator
-                                                                                                style={{top: hp(10)}}
-                                                                                                animating={nearbyOffersSpinnerShown}
-                                                                                                color={'#F2FF5D'}
-                                                                                                size={hp(6)}
+                                                                </> :
+                                                                !areNearbyOffersReady && nearbyOfferList.length === 0 &&
+                                                                <>
+                                                                    <View
+                                                                        style={[styles.nearbyOffersView, {bottom: hp(62)}]}>
+                                                                        <View style={styles.nearbyOffersTitleView}>
+                                                                            <View
+                                                                                style={styles.nearbyOffersLeftTitleView}>
+                                                                                <Text
+                                                                                    style={[styles.nearbyLoadingOffersTitleMain]}>
+                                                                                    <Text
+                                                                                        style={styles.nearbyLoadingOffersTitle}>
+                                                                                        {'Retrieving offers near you...'}
+                                                                                    </Text>{`   🌎️`}
+                                                                                </Text>
+                                                                            </View>
+                                                                        </View>
+                                                                        <ScrollView
+                                                                            style={styles.nearbyOffersScrollView}
+                                                                            horizontal={true}
+                                                                            decelerationRate={"fast"}
+                                                                            snapToAlignment={"start"}
+                                                                            scrollEnabled={true}
+                                                                            persistentScrollbar={false}
+                                                                            showsHorizontalScrollIndicator={false}>
+                                                                            {
+                                                                                <>
+                                                                                    <Card
+                                                                                        style={styles.nearbyLoadingOfferCard}>
+                                                                                        <Card.Content>
+                                                                                            <View
+                                                                                                style={{flexDirection: 'column'}}>
+                                                                                                <ActivityIndicator
+                                                                                                    style={{top: hp(10)}}
+                                                                                                    animating={nearbyOffersSpinnerShown}
+                                                                                                    color={'#F2FF5D'}
+                                                                                                    size={hp(6)}
+                                                                                                />
+                                                                                            </View>
+                                                                                            <Avatar
+                                                                                                containerStyle={styles.nearbyLoadingOfferCardCover}
+                                                                                                imageProps={{
+                                                                                                    resizeMode: 'contain'
+                                                                                                }}
+                                                                                                source={MoonbeamOffersLoading}
                                                                                             />
-                                                                                        </View>
-                                                                                        <Avatar
-                                                                                            containerStyle={styles.nearbyLoadingOfferCardCover}
-                                                                                            imageProps={{
-                                                                                                resizeMode: 'contain'
-                                                                                            }}
-                                                                                            source={MoonbeamOffersLoading}
-                                                                                        />
-                                                                                    </Card.Content>
-                                                                                </Card>
-                                                                            </>
-                                                                        }
-                                                                    </ScrollView>
-                                                                </View>
-                                                            </>
+                                                                                        </Card.Content>
+                                                                                    </Card>
+                                                                                </>
+                                                                            }
+                                                                        </ScrollView>
+                                                                    </View>
+                                                                </>
                                                         }
                                                         {nearbyOfferList.length > 0 &&
                                                             <View style={styles.nearbyOffersView}>
@@ -1717,7 +1851,10 @@ export const Store = ({navigation}: StoreProps) => {
                                                             </View>
                                                         }
                                                         <View
-                                                            style={[styles.onlineOffersView, nearbyOfferList.length == 0 && areNearbyOffersReady && {bottom: hp(25)}]}>
+                                                            style={[styles.onlineOffersView,
+                                                                !areNearbyOffersReady && nearbyOfferList.length === 0 && {bottom: hp(125)},
+                                                                nearbyOfferList.length == 0 && areNearbyOffersReady && {bottom: hp(25)},
+                                                                locationServicesButton && {bottom: hp(115)}]}>
                                                             <View style={styles.onlineOffersTitleView}>
                                                                 <View style={styles.onlineOffersLeftTitleView}>
                                                                     <Text style={styles.onlineOffersTitleMain}>

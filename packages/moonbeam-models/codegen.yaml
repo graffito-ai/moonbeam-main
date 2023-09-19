@@ -11,6 +11,7 @@ schema:
   - ./src/graphql/schemas/PhysicalDevicesSchema.graphql
   - ./src/graphql/schemas/OffersSchema.graphql
   - ./src/graphql/schemas/FAQSchema.graphql
+  - ./src/graphql/schemas/UserAuthSessionSchema.graphql
 documents:
   - ./src/graphql/queries/Queries.graphql
   - ./src/graphql/mutations/Mutations.graphql

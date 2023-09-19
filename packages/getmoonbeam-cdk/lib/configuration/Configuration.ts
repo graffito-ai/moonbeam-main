@@ -173,6 +173,13 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     militaryVerificationNotificationProcessingEventSourceMapping: 'militaryVerificationNotificationProcessingEventSourceMapping'
                 }
             },
+            userAuthSessionConfig: {
+                userAuthSessionFunctionName: 'userAuthSessionFunction',
+                userAuthSessionTableName: 'userAuthSessionTable',
+                createUserAuthSessionResolverName: 'createUserAuthSession',
+                updateUserAuthSessionResolverName: 'updateUserAuthSession',
+                getUserAuthSessionResolverName: 'getUserAuthSession'
+            },
             environmentVariables: new Map<string, string>([])
         },
         [`${Stages.PROD}-${Regions.PDX}`]: {
@@ -341,6 +348,13 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     militaryVerificationNotificationProcessingTopicDLQName: 'militaryVerificationNotificationProcessingTopicDLQ',
                     militaryVerificationNotificationProcessingEventSourceMapping: 'militaryVerificationNotificationProcessingEventSourceMapping'
                 }
+            },
+            userAuthSessionConfig: {
+                userAuthSessionFunctionName: 'userAuthSessionFunction',
+                userAuthSessionTableName: 'userAuthSessionTable',
+                createUserAuthSessionResolverName: 'createUserAuthSession',
+                updateUserAuthSessionResolverName: 'updateUserAuthSession',
+                getUserAuthSessionResolverName: 'getUserAuthSession'
             },
             environmentVariables: new Map<string, string>([])
         },

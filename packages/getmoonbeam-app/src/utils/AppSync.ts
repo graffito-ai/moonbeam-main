@@ -2,16 +2,133 @@ import {
     CountryCode,
     createDevice,
     createNotification,
-    CreateNotificationInput, FidelisPartner,
-    getDeviceByToken, getFidelisPartners, getOffers, Offer, OfferAvailability, OfferFilter, OfferState,
-    PushDevice, RedemptionType,
+    CreateNotificationInput,
+    createUserAuthSession,
+    FidelisPartner,
+    getDeviceByToken,
+    getFidelisPartners,
+    getOffers,
+    getUserAuthSession,
+    Offer,
+    OfferAvailability,
+    OfferFilter,
+    OfferState,
+    PushDevice,
+    RedemptionType,
     updateDevice,
+    updateUserAuthSession,
+    UserAuthSession,
+    UserAuthSessionErrorType,
+    UserAuthSessionResponse,
     UserDeviceErrorType,
     UserDeviceState
 } from "@moonbeam/moonbeam-models";
 import {API, graphqlOperation} from "aws-amplify";
 import {dynamicSort} from "./Main";
 import * as Location from "expo-location";
+
+/**
+ * Function used to update a user authentication statistic. This will ensure that a user
+ * session exists for the user before updating it, otherwise it will create a new user
+ * session for the user.
+ *
+ * @param userId generated for the user
+ *
+ * @return a {@link Promise} containing a {@link UserAuthSessionResponse}, representing whether the
+ * user authentication statistic was successfully updated or not, and if it was, what the user auth
+ * session contains.
+ */
+export const updateUserAuthStat = async (userId: string): Promise<UserAuthSessionResponse> => {
+    try {
+        // first call the getUserAuthSession API, to check if user already has an associated session
+        const getUserAuthSessionResult = await API.graphql(graphqlOperation(getUserAuthSession, {
+            getUserAuthSessionInput: {
+                id: userId
+            }
+        }));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const getUserAuthSessionResponseData = getUserAuthSessionResult ? getUserAuthSessionResult.data : null;
+
+        // check if there are any errors in the returned response
+        if (getUserAuthSessionResponseData !== null && getUserAuthSessionResponseData !== undefined &&
+            getUserAuthSessionResponseData.getUserAuthSession.errorMessage === null) {
+            // there is an existent user session associated with the user, proceed wth updating it
+            const updateUserAuthSessionResult = await API.graphql(graphqlOperation(updateUserAuthSession, {
+                updateUserAuthSessionInput: {
+                    id: userId
+                }
+            }));
+
+            // retrieve the data block from the response
+            // @ts-ignore
+            const updateUserAuthSessionResponseData = updateUserAuthSessionResult ? updateUserAuthSessionResult.data : null;
+
+            // check if there are any errors in the returned response
+            if (updateUserAuthSessionResponseData !== null && updateUserAuthSessionResponseData !== undefined &&
+                updateUserAuthSessionResponseData.updateUserAuthSession.errorMessage === null) {
+                // return the updated user auth session object
+                return {
+                    data: updateUserAuthSessionResponseData.updateUserAuthSession.data as UserAuthSession
+                };
+            } else {
+                const errorMessage = `Unexpected error while updating existing user session through the updateUserAuthSession API ${JSON.stringify(updateUserAuthSessionResponseData)}`;
+                console.log(errorMessage);
+                return {
+                    errorMessage: errorMessage,
+                    errorType: UserAuthSessionErrorType.UnexpectedError
+                }
+            }
+        } else {
+            // filter through the error message, in order to determine whether there's no user session associated with the user
+            if (getUserAuthSessionResponseData !== null && getUserAuthSessionResponseData !== undefined &&
+                getUserAuthSessionResponseData.getUserAuthSession.errorType === UserAuthSessionErrorType.NoneOrAbsent) {
+                // proceed with creating a user session for the user
+                const createUserAuthSessionResult = await API.graphql(graphqlOperation(createUserAuthSession, {
+                    createUserAuthSessionInput: {
+                        id: userId
+                    }
+                }));
+
+                // retrieve the data block from the response
+                // @ts-ignore
+                const createUserAuthSessionResponseData = createUserAuthSessionResult ? createUserAuthSessionResult.data : null;
+
+                // check if there are any errors in the returned response
+                if (createUserAuthSessionResponseData !== null && createUserAuthSessionResponseData !== undefined &&
+                    createUserAuthSessionResponseData.createUserAuthSession.errorMessage === null) {
+                    // return the newly create user auth session object
+                    return {
+                        data: createUserAuthSessionResponseData.createUserAuthSession.data as UserAuthSession
+                    };
+                } else {
+                    const errorMessage = `Unexpected error while creating existing user session through the createUserAuthSession API ${JSON.stringify(createUserAuthSessionResponseData)}`;
+                    console.log(errorMessage);
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: UserAuthSessionErrorType.UnexpectedError
+                    }
+                }
+            } else {
+                const errorMessage = `Unexpected error while retrieving existing user session through the getUserAuthSession API ${JSON.stringify(getUserAuthSessionResponseData)}`;
+                console.log(errorMessage);
+                return {
+                    errorMessage: errorMessage,
+                    errorType: UserAuthSessionErrorType.UnexpectedError
+                }
+            }
+        }
+    } catch (error) {
+        const errorMessage = `Unexpected error while updating user auth stat ${error} ${JSON.stringify(error)}`;
+        console.log(errorMessage);
+        return {
+            errorMessage: errorMessage,
+            errorType: UserAuthSessionErrorType.UnexpectedError
+        }
+    }
+}
+
 
 /**
  * Function used to send a notification (depending on type and channel)
@@ -42,7 +159,6 @@ export const sendNotification = async (createNotificationInput: CreateNotificati
         }
     } catch (error) {
         console.log(`Unexpected error while sending a notification with details ${JSON.stringify(createNotificationInput)} ${error}`);
-
         return false;
     }
 };

@@ -18,6 +18,7 @@ import {OffersResolverStack} from "../stacks/OffersResolverStack";
 import {FAQResolverStack} from "../stacks/FAQResolverStack";
 import {UpdateTransactionsProducerConsumerStack} from "../stacks/UpdateTransactionsProducerConsumerStack";
 import {MilitaryVerificationProducerConsumerStack} from "../stacks/MilitaryVerificationProducerConsumerStack";
+import {UserAuthSessionResolverStack} from "../stacks/UserAuthSessionResolverStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -262,6 +263,19 @@ export class StageUtils {
                     environmentVariables: stageConfiguration.environmentVariables
                 });
                 faqStack.addDependency(appSyncStack);
+
+                // create the User Auth Session resolver stack && add it to the CDK app
+                const userAuthSessionStack = new UserAuthSessionResolverStack(this.app, `moonbeam-user-auth-session-resolver-${stageKey}`, {
+                    stackName: `moonbeam-user-auth-session-resolver-${stageKey}`,
+                    description: 'This stack will contain all the AppSync related resources needed by the Lambda User Auth Session resolver',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    graphqlApiId: appSyncStack.graphqlApiId,
+                    graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
+                    userAuthSessionConfig: stageConfiguration.userAuthSessionConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                userAuthSessionStack.addDependency(appSyncStack);
 
                 // create the Reimbursements Producer Consumer stack && add it to the CDK app
                 const reimbursementsProducerConsumerStack = new ReimbursementsProducerConsumerStack(this.app, `moonbeam-reimbursements-producer-consumer-${stageKey}`, {

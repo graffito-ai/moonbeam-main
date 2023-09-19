@@ -89,10 +89,16 @@ import {
     transactionDataState
 } from "../../recoil/DashboardAtom";
 import {faqListState} from "../../recoil/FaqAtom";
-import {deviceTypeState} from "../../recoil/RootAtom";
+import {
+    deviceTypeState,
+    firstTimeLoggedInState,
+    moonbeamUserIdPassState,
+    moonbeamUserIdState
+} from "../../recoil/RootAtom";
 import {splashStatusState} from "../../recoil/SplashAtom";
 import {storeOfferPhysicalLocationState, storeOfferState} from "../../recoil/StoreOfferAtom";
 import {cardLinkingBottomSheetState} from "../../recoil/WalletAtom";
+import * as SecureStore from 'expo-secure-store';
 
 /**
  * CustomDrawer component. This component will be used to further tailor our sidebar navigation drawer, mainly
@@ -203,6 +209,9 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const storeOfferStateReset = useResetRecoilState(storeOfferState);
     const storeOfferPhysicalLocationStateReset = useResetRecoilState(storeOfferPhysicalLocationState);
     const cardLinkingBottomSheetStateReset = useResetRecoilState(cardLinkingBottomSheetState);
+    const firstTimeLoggedInStateReset = useResetRecoilState(firstTimeLoggedInState);
+    const moonbeamUserIdStateReset = useResetRecoilState(moonbeamUserIdState);
+    const moonbeamUserIdPassStateReset = useResetRecoilState(moonbeamUserIdPassState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -403,6 +412,29 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                         storeOfferStateReset();
                                         storeOfferPhysicalLocationStateReset();
                                         cardLinkingBottomSheetStateReset();
+                                        firstTimeLoggedInStateReset();
+                                        moonbeamUserIdStateReset();
+                                        moonbeamUserIdPassStateReset();
+
+                                        /**
+                                         * ensure that the current user's biometric session is interrupted, and that the already signed in flag is reset
+                                         * so next user can set up biometrics once more, and they can also benefit from skipping the overview screen.
+                                         */
+                                        await SecureStore.deleteItemAsync(`biometrics-enabled`, {
+                                            requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                                        });
+                                        await SecureStore.deleteItemAsync(`moonbeam-user-id`, {
+                                            requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                                        });
+                                        await SecureStore.deleteItemAsync(`moonbeam-user-passcode`, {
+                                            requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                                        });
+                                        await SecureStore.deleteItemAsync(`moonbeam-skip-overview`, {
+                                            requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                                        });
+                                        await SecureStore.deleteItemAsync(`biometrics-type`, {
+                                            requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                                        });
 
                                         // performing the Sign-Out action through Amplify
                                         await Auth.signOut();

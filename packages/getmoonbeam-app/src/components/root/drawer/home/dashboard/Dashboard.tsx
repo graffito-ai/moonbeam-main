@@ -24,6 +24,7 @@ import {
     sortedTransactionDataState
 } from "../../../../../recoil/DashboardAtom";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
+import {BiometricsPopUp} from "./biometrics/Biometrics";
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -33,7 +34,7 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-nativ
  */
 export const Dashboard = ({}) => {
     // constants used to keep track of local component state
-    const [isReady, ] = useState<boolean>(true);
+    const [isReady,] = useState<boolean>(true);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [statsDialogVisible, setStatsDialogVisible] = useState(false);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
@@ -221,6 +222,7 @@ export const Dashboard = ({}) => {
                     <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                     :
                     <>
+                        <BiometricsPopUp/>
                         <Portal>
                             <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
                                     onDismiss={() => setModalVisible(false)}>
