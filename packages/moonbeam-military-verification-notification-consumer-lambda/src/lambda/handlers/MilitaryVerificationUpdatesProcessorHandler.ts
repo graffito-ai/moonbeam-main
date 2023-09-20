@@ -5,8 +5,11 @@ import {
     EmailFromCognitoResponse,
     MilitaryVerificationNotificationUpdate,
     MilitaryVerificationStatusType,
-    MoonbeamClient, NotificationChannelType, NotificationStatus,
+    MoonbeamClient,
+    NotificationChannelType,
+    NotificationStatus,
     NotificationType,
+    UserDeviceErrorType,
     UserDevicesResponse,
     UserDeviceState
 } from "@moonbeam/moonbeam-models";
@@ -57,14 +60,28 @@ export const processMilitaryVerificationUpdate = async (event: SQSEvent): Promis
                 id: militaryVerificationNotificationUpdate.id
             });
 
-            // check to see if the get devices for user call was successful or not
-            if (devicesForUserResponse && !devicesForUserResponse.errorMessage && !devicesForUserResponse.errorType &&
-                devicesForUserResponse.data && devicesForUserResponse.data.length !== 0) {
+            /**
+             * check to see if the get devices for user call was successful or not.
+             *
+             * we also consider the failure message, for users with no physical devices. In that case we only send an
+             * email.
+             */
+            if ((devicesForUserResponse && !devicesForUserResponse.errorMessage && !devicesForUserResponse.errorType &&
+                devicesForUserResponse.data && devicesForUserResponse.data.length !== 0) ||
+                (devicesForUserResponse && devicesForUserResponse.errorType !== null && devicesForUserResponse.errorType !== undefined &&
+                devicesForUserResponse.errorType === UserDeviceErrorType.NoneOrAbsent)) {
 
-                // 2) Filter obtained devices based on their status (only consider the ones that are ACTIVE for the user).
                 const deviceTokenIds: string[] = [];
-                for (const userDevice of devicesForUserResponse.data) {
-                    userDevice!.deviceState === UserDeviceState.Active && deviceTokenIds.push(userDevice!.tokenId);
+                if (devicesForUserResponse && devicesForUserResponse.errorType !== null && devicesForUserResponse.errorType !== undefined &&
+                    devicesForUserResponse.errorType === UserDeviceErrorType.NoneOrAbsent) {
+                    console.log(`No physical devices found for user ${militaryVerificationNotificationUpdate.id}`);
+                } else {
+                    if (devicesForUserResponse.data !== null && devicesForUserResponse.data !== undefined) {
+                        // 2) Filter obtained devices based on their status (only consider the ones that are ACTIVE for the user).
+                        for (const userDevice of devicesForUserResponse.data) {
+                            userDevice!.deviceState === UserDeviceState.Active && deviceTokenIds.push(userDevice!.tokenId);
+                        }
+                    }
                 }
 
                 // 3) Retrieve the email of a user based on their information (name, address, and birthday)
