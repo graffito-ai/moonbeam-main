@@ -370,7 +370,7 @@ export const BiometricsPopUp = () => {
                                             </Dialog.Actions>
                                             <Dialog.Content>
                                                 <Text
-                                                    style={styles.dialogParagraph}>{`We will use your ${enabledBiometric}, in order to allow you to sign into the app or access various sensitive data! You can change this preference this in your app settings.`}</Text>
+                                                    style={styles.dialogParagraph}>{`We will use your ${enabledBiometric}, in order to allow you to sign into the app or access various sensitive data! You can change this preference in your app settings.`}</Text>
                                             </Dialog.Content>
                                         </>
                                 }

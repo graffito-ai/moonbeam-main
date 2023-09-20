@@ -33,6 +33,7 @@ import * as LocalAuthentication from 'expo-local-authentication';
  */
 export const SignInComponent = ({navigation}: SignInProps) => {
     // constants used to keep track of local component state
+    const [biometricCheckInitiated, setBiometricCheckInitiated] = useState<boolean>(false);
     const [biometricCheckReady, setBiometricCheckReady] = useState<boolean>(false);
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
@@ -64,7 +65,7 @@ export const SignInComponent = ({navigation}: SignInProps) => {
      */
     useEffect(() => {
         // determine whether biometric sign-in is enabled or not, and sign-in user using biometrics if that's available
-        !biometricCheckReady && signInWithBiometrics().then(_ => {
+        !biometricCheckReady && !biometricCheckInitiated && signInWithBiometrics().then(_ => {
             setBiometricCheckReady(true);
         });
 
@@ -113,8 +114,11 @@ export const SignInComponent = ({navigation}: SignInProps) => {
      * @return a {@link Promise} of a {@link Boolean} representing a flag indicating whether
      * a user biometric data sign-in was successfully attempted or not.
      */
-    const signInWithBiometrics = async(): Promise<boolean> => {
+    const signInWithBiometrics = async (): Promise<boolean> => {
         try {
+            // so we don't repeat the biometric login attempt
+            setBiometricCheckInitiated(true);
+
             // set a loader on button press
             setIsReady(false);
 

@@ -10,8 +10,8 @@
     "config": {
       "SourceDir": "src",
       "DistributionDir": "/",
-      "BuildCommand": "tsc",
-      "StartCommand": "expo start"
+      "BuildCommand": "yarn build",
+      "StartCommand": "yarn start"
     }
   }
 }
