@@ -17,7 +17,8 @@
       "./amplify/.config/local-env-info.json"
     ],
     "notification": {
-      "icon": "./assets/icon.png",
+      "icon": "./assets/adaptive-icon.png",
+      "color": "#313030",
       "androidMode": "default",
       "androidCollapsedTitle": "Updates from Moonbeam",
       "iosDisplayInForeground": true

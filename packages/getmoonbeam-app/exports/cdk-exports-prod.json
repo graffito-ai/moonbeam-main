@@ -17,6 +17,9 @@
     "awsappsyncregion": "us-west-2",
     "awsappsyncgraphqlEndpoint": "https://6eflmnclyzh55bk7kjcn7a7xae.appsync-api.us-west-2.amazonaws.com/graphql"
   },
+  "moonbeam-military-verification-updates-producer-consumer-prod-us-west-2": {
+    "ExportsOutputFnGetAttmilitaryVerificationNotificationProducerFunctionproduswest2B19246F7Arn70BEA2B5": "arn:aws:lambda:us-west-2:251312580862:function:militaryVerificationNotificationProducerFunction-prod-us-west-2"
+  },
   "moonbeam-storage-resolver-prod-us-west-2": {
     "awsuserfiless3bucketregion": "us-west-2",
     "awsuserfiless3bucket": "moonbeam-files-bucket-prod-us-west-2"
