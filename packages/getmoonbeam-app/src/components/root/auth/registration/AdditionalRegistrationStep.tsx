@@ -170,7 +170,8 @@ export const AdditionalRegistrationStep = () => {
                     container: {
                         flex: 1,
                         left: wp(5),
-                        ...(addressLineErrors.length !== 0 ? {
+                        ...(addressLineErrors.length !== 0 || registrationMainError ||
+                        addressCityErrors.length !== 0 || addressStateErrors.length !== 0 || addressZipErrors.length !== 0 ? {
                             top: hp(26),
                         } : {
                             top: hp(23),

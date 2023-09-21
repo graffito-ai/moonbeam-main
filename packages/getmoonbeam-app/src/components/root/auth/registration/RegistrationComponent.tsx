@@ -26,6 +26,8 @@ import {
     birthdayState,
     cardLinkingRegistrationStatusState,
     currentUserInformation,
+    documentsReCapturePhotoState,
+    documentsRePickPhotoState,
     dutyStatusErrorsState,
     dutyStatusValueState,
     emailErrorsState,
@@ -109,6 +111,7 @@ import MoonbeamPreferencesIOS from "../../../../../assets/art/moonbeam-preferenc
 import MoonbeamPreferencesAndroid from "../../../../../assets/art/moonbeam-preferences-android.jpg";
 import {Button} from "@rneui/base";
 import * as Notifications from "expo-notifications";
+import * as ImagePicker from 'expo-image-picker';
 
 /**
  * RegistrationComponent component.
@@ -121,6 +124,8 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [, setDocumentsRePickPhoto] = useRecoilState(documentsRePickPhotoState);
+    const [, setDocumentsReCapturePhoto] = useRecoilState(documentsReCapturePhotoState);
     const [permissionsModalVisible, setPermissionsModalVisible] = useRecoilState(permissionsModalVisibleState);
     const [permissionsModalCustomMessage, setPermissionsModalCustomMessage] = useRecoilState(permissionsModalCustomMessageState);
     const [permissionsInstructionsCustomMessage, setPermissionsInstructionsCustomMessage] = useRecoilState(permissionsInstructionsCustomMessageState);
@@ -662,6 +667,20 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                     await Linking.openSettings();
                                                 }
                                                 setPermissionsModalVisible(false);
+
+                                                // check if media library permissions have been re-enabled
+                                                const mediaLibraryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                                                // if the status is granted
+                                                if (mediaLibraryStatus && mediaLibraryStatus.status === 'granted') {
+                                                    setDocumentsRePickPhoto(true);
+                                                }
+
+                                                // check if camera permissions have been re-enabled
+                                                const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
+                                                // if the status is granted
+                                                if (cameraStatus && cameraStatus.status === 'granted') {
+                                                    setDocumentsReCapturePhoto(true);
+                                                }
                                             }}>
                                         {"Go to App Settings"}
                                     </Button>

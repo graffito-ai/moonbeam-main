@@ -5,7 +5,7 @@ import {useRecoilState} from "recoil";
 import {
     additionalDocumentationErrors,
     additionalDocumentationNeeded,
-    currentUserInformation,
+    currentUserInformation, documentsReCapturePhotoState, documentsRePickPhotoState,
     isDocumentUploadedState,
     isPhotoUploadedState,
     isReadyRegistrationState,
@@ -48,6 +48,8 @@ export const DocumentCaptureStep = () => {
     const [uploadButtonState, setUploadButtonState] = useState<boolean>(false);
     const [documentItems, setDocumentItems] = useState(documentSelectionItems);
     // constants used to keep track of shared states
+    const [documentsRePickPhoto, setDocumentsRePickPhoto] = useRecoilState(documentsRePickPhotoState);
+    const [documentsReCapturePhoto, setDocumentsReCapturePhoto] = useRecoilState(documentsReCapturePhotoState);
     const [, setPermissionsModalVisible] = useRecoilState(permissionsModalVisibleState);
     const [, setPermissionsModalCustomMessage] = useRecoilState(permissionsModalCustomMessageState);
     const [, setPermissionsInstructionsCustomMessage] = useRecoilState(permissionsInstructionsCustomMessageState);
@@ -70,6 +72,16 @@ export const DocumentCaptureStep = () => {
      * included in here.
      */
     useEffect(() => {
+        // re-pick or re-capture accordingly, in case of reset permissions
+        if (documentsRePickPhoto) {
+            setDocumentsRePickPhoto(false);
+            pickPhoto().then(_ => {});
+        }
+        if (documentsReCapturePhoto) {
+            setDocumentsReCapturePhoto(false);
+            capturePhoto().then(_ => {});
+        }
+
         // enable/disable the buttons, depending on the document name
         if (capturedFileName !== "") {
             // Enable the next button and disable the upload button
@@ -95,7 +107,9 @@ export const DocumentCaptureStep = () => {
             setUploadButtonState(false);
             setPhotoSelectionButtonState(false);
         }
-    }, [captureButtonState, uploadButtonState, photoSelectionButtonState, documentationErrors, capturedFileName, uploadedFileName]);
+    }, [documentsReCapturePhoto, documentsRePickPhoto,
+        captureButtonState, uploadButtonState, photoSelectionButtonState
+        , documentationErrors, capturedFileName, uploadedFileName]);
 
     /**
      * Function used to pick a verification picture, based on the photo library storage,

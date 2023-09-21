@@ -28,7 +28,7 @@ import {
     birthdayErrorState,
     birthdayState,
     cardLinkingRegistrationStatusState,
-    currentUserInformation,
+    currentUserInformation, documentsReCapturePhotoState, documentsRePickPhotoState,
     dutyStatusErrorsState,
     dutyStatusState,
     dutyStatusValueState,
@@ -228,6 +228,8 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const permissionsModalVisibleStateReset = useResetRecoilState(permissionsModalVisibleState);
     const permissionsModalCustomMessageStateReset = useResetRecoilState(permissionsModalCustomMessageState);
     const permissionsInstructionsCustomMessageStateReset = useResetRecoilState(permissionsInstructionsCustomMessageState);
+    const documentsRePickPhotoStateReset = useResetRecoilState(documentsRePickPhotoState);
+    const documentsReCapturePhotoStateReset = useResetRecoilState(documentsReCapturePhotoState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -434,6 +436,8 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                         permissionsModalVisibleStateReset();
                                         permissionsModalCustomMessageStateReset();
                                         permissionsInstructionsCustomMessageStateReset();
+                                        documentsRePickPhotoStateReset();
+                                        documentsReCapturePhotoStateReset();
 
                                         /**
                                          * ensure that the current user's biometric session is interrupted, and that the already signed in flag is reset

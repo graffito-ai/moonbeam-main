@@ -523,9 +523,29 @@ const permissionsInstructionsCustomMessageState = atom<string>({
 });
 
 /**
+ * Atom used to keep track if whether we need to re-pick photo after permissions update, during
+ * registration.
+ */
+const documentsRePickPhotoState = atom<boolean>({
+    key: "documentsRePickPhotoState",
+    default: false
+});
+
+/**
+ * Atom used to keep track if whether we need to re-capture photo after permissions update, during
+ * registration.
+ */
+const documentsReCapturePhotoState = atom<boolean>({
+    key: "documentsRePickPhotoState",
+    default: false
+});
+
+/**
  * Export all atoms and/or selectors
  */
 export {
+    documentsRePickPhotoState,
+    documentsReCapturePhotoState,
     permissionsModalVisibleState,
     permissionsModalCustomMessageState,
     permissionsInstructionsCustomMessageState,
