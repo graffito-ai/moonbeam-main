@@ -4,13 +4,7 @@ import {styles} from "../../../../../../styles/biometrics.module";
 import {useRecoilState, useResetRecoilState} from "recoil";
 import {firstTimeLoggedInState, moonbeamUserIdPassState, moonbeamUserIdState} from "../../../../../../recoil/RootAtom";
 // @ts-ignore
-import MoonbeamBiometricsFaceId from "../../../../../../../assets/art/moonbeam-biometrics-faceid.png";
-// @ts-ignore
-import MoonbeamBiometricsIris from "../../../../../../../assets/art/moonbeam-biometrics-iris.png";
-// @ts-ignore
-import MoonbeamBiometricsFingerprint from "../../../../../../../assets/art/moonbeam-biometrics-fingerprint.png";
-// @ts-ignore
-import MoonbeamBiometricsPin from "../../../../../../../assets/art/moonbeam-biometrics-pin.png";
+import MoonbeamBiometrics from "../../../../../../../assets/art/moonbeam-biometrics.png";
 import {Image, Platform} from "react-native";
 import {Button} from "@rneui/base";
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -313,25 +307,17 @@ export const BiometricsPopUp = () => {
                                         <Spinner loadingSpinnerShown={loadingSpinnerShown}
                                                  setLoadingSpinnerShown={setLoadingSpinnerShown}/> :
                                         <>
-                                            <Image source={
-                                                enabledBiometric === 'Face ID'
-                                                    ? MoonbeamBiometricsFaceId
-                                                    : enabledBiometric === 'Fingerprint/TouchID'
-                                                        ? MoonbeamBiometricsFingerprint
-                                                        : enabledBiometric === 'Iris Recognition'
-                                                            ? MoonbeamBiometricsIris
-                                                            : MoonbeamBiometricsPin
-                                            }
+                                            <Image source={MoonbeamBiometrics}
                                                    style={styles.topBiometricsImage}/>
                                             <Dialog.Title
-                                                style={styles.dialogTitle}>{`Allow authentication with ${enabledBiometric} ?`}</Dialog.Title>
+                                                style={styles.dialogTitle}>{`Allow authentication with Biometrics or PIN/Pattern ?`}</Dialog.Title>
                                             <Dialog.Actions style={styles.dialogActionButtons}>
                                                 <Button buttonStyle={styles.enableButton}
                                                         titleStyle={styles.enableButtonText}
                                                         onPress={async () => {
                                                             // authenticate using the chosen authentication option
                                                             const localAuthenticationResult: LocalAuthentication.LocalAuthenticationResult = await LocalAuthentication.authenticateAsync({
-                                                                promptMessage: 'Use your biometrics or FingerPrint/TouchID to authenticate with Moonbeam!',
+                                                                promptMessage: 'Use your Biometrics or Pin/Pattern authenticate with Moonbeam!',
                                                             });
                                                             // check if the authentication was successful or not
                                                             if (localAuthenticationResult.success) {
@@ -348,7 +334,7 @@ export const BiometricsPopUp = () => {
                                                                 setFirstTimeLoggedIn(false);
                                                             }
                                                         }}>
-                                                    {`Use ${enabledBiometric}`}
+                                                    {`Use Biometrics or PIN/Pattern`}
                                                 </Button>
                                                 <Button buttonStyle={styles.dismissButton}
                                                         titleStyle={styles.dismissButtonText}
@@ -370,7 +356,7 @@ export const BiometricsPopUp = () => {
                                             </Dialog.Actions>
                                             <Dialog.Content>
                                                 <Text
-                                                    style={styles.dialogParagraph}>{`We will use your ${enabledBiometric}, in order to allow you to sign into the app or access various sensitive data! You can change this preference in your app settings.`}</Text>
+                                                    style={styles.dialogParagraph}>{`We will use your Biometrics or PIN/Pattern, in order to allow you to sign into the app or access various sensitive data! You can change this preference in your app settings.`}</Text>
                                             </Dialog.Content>
                                         </>
                                 }

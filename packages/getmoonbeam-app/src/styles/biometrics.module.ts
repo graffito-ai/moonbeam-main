@@ -6,29 +6,30 @@ export const styles = StyleSheet.create({
     dialogStyle: {
         backgroundColor: '#5B5A5A',
         borderRadius: wp(5),
-        height: hp(65),
+        height: hp(85),
         width: wp(95),
         alignSelf: 'center'
     },
     topBiometricsImage: {
-        top: hp(3),
-        height: hp(25),
-        width: wp(60),
+        top: hp(5),
+        height: hp(30),
+        width: wp(65),
         alignSelf: 'center'
     },
     dialogParagraph: {
         color: '#FFFFFF',
         fontFamily: 'Raleway-Regular',
-        fontSize: hp(1.6),
+        fontSize: hp(1.5),
         width: wp(80),
+        bottom: hp(3),
         alignSelf: 'center',
         textAlign: 'center'
     },
     dialogTitle: {
-        top: hp(3),
+        top: hp(9),
         color: '#F2FF5D',
         fontFamily: 'Raleway-Bold',
-        width: wp(60),
+        width: wp(75),
         fontSize: hp(2.5),
         alignSelf: 'center',
         textAlign: 'center'
@@ -38,18 +39,18 @@ export const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'center',
         alignContent: 'center',
-        top: hp(1)
+        bottom: hp(3)
     },
     enableButton: {
         backgroundColor: '#F2FF5D',
         height: hp(6.5),
-        width: wp(45),
+        width: wp(80),
         alignSelf: 'center'
     },
     enableButtonText: {
         color: '#313030',
         fontFamily: 'Saira-Medium',
-        fontSize: hp(2.3),
+        fontSize: hp(2.2),
         textAlign: 'center',
         alignSelf: 'center'
     },

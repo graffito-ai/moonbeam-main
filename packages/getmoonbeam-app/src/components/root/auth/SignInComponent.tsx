@@ -20,7 +20,7 @@ import {Spinner} from "../../common/Spinner";
 import AuthenticationGradientImage from '../../../../assets/backgrounds/authentication-gradient.png';
 // @ts-ignore
 import MilitaryBranchImage from '../../../../assets/art/military-branch-logos.png';
-import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {moonbeamUserIdPassState, moonbeamUserIdState} from "../../../recoil/RootAtom";
 import * as SecureStore from "expo-secure-store";
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -403,7 +403,7 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                                             setPassword(value);
                                         }}
                                         value={password}
-                                        contentStyle={styles.textInputContentStyle}
+                                        contentStyle={[styles.textInputContentStyle, {width: wp(60)}]}
                                         style={passwordFocus ? styles.textInputFocus : styles.textInput}
                                         onFocus={() => {
                                             setIsPasswordFocus(true);

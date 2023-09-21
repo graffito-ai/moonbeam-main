@@ -238,7 +238,8 @@ export const styles = StyleSheet.create({
         backgroundColor: '#1c1a1f',
         borderColor: "#D9D9D9",
         width: wp(87),
-        height: hp(5)
+        height: hp(6),
+        borderRadius: 4
     },
     documentsDropdownContainer: {
         alignSelf: 'center',
@@ -252,13 +253,6 @@ export const styles = StyleSheet.create({
         fontFamily: 'Saira-Regular',
         color: '#FFFFFF',
         textAlign: 'center'
-    },
-    textInputContentStyle: {
-        height: hp(5.2),
-        width: wp(87),
-        fontSize: hp(1.8),
-        fontFamily: 'Saira-Regular',
-        color: '#FFFFFF'
     },
     documentButtonText: {
         color: '#313030',

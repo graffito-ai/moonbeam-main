@@ -44,6 +44,9 @@ import {
     militaryBranchValueState,
     militaryRegistrationDisclaimerCheckState,
     militaryVerificationStatus,
+    permissionsInstructionsCustomMessageState,
+    permissionsModalCustomMessageState,
+    permissionsModalVisibleState,
     phoneNumberErrorsState,
     phoneNumberState,
     registrationBackButtonShown,
@@ -115,12 +118,12 @@ import * as Notifications from "expo-notifications";
  */
 export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     // constants used to keep track of local component state
-    const [permissionsModalVisible, setPermissionsModalVisible] = useState<boolean>(false);
-    const [permissionsModalCustomMessage, setPermissionsModalCustomMessage] = useState<string>("");
-    const [permissionsInstructionsCustomMessage, setPermissionsInstructionsCustomMessage] = useState<string>("");
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [permissionsModalVisible, setPermissionsModalVisible] = useRecoilState(permissionsModalVisibleState);
+    const [permissionsModalCustomMessage, setPermissionsModalCustomMessage] = useRecoilState(permissionsModalCustomMessageState);
+    const [permissionsInstructionsCustomMessage, setPermissionsInstructionsCustomMessage] = useRecoilState(permissionsInstructionsCustomMessageState);
     const [, setMoonbeamUserId] = useRecoilState(moonbeamUserIdState);
     const [, setMoonbeamUserIdPass] = useRecoilState(moonbeamUserIdPassState);
     const [marketplaceCache,] = useRecoilState(marketplaceAmplifyCacheState);
@@ -790,7 +793,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                 (stepNumber === 4)
                                                 && {
                                                     alignSelf: 'center',
-                                                    marginBottom: hp(5)
+                                                    marginBottom: hp(12)
                                                 },
                                                 (stepNumber === 5)
                                                 && {

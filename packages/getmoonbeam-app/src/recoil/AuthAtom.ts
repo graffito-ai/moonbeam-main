@@ -496,12 +496,39 @@ const isLoadingAppOverviewNeededState = atom<boolean>({
 const mainRootNavigationState = atom<NativeStackNavigationProp<any> | null>({
     key: "mainRootNavigationState",
     default: null
-})
+});
+
+/**
+ * Atom used to keep track of the permissions modal during the registration step.
+ */
+const permissionsModalVisibleState = atom<boolean>({
+    key: "permissionsModalVisibleState",
+    default: false
+});
+
+/**
+ * Atom used to keep track of the permissions modal's custom message, during the registration step.
+ */
+const permissionsModalCustomMessageState = atom<string>({
+    key: "permissionsModalCustomMessageState",
+    default: ""
+});
+
+/**
+ * Atom used to keep track of the permissions modal's permissions instructions custom message, during the registration step.
+ */
+const permissionsInstructionsCustomMessageState = atom<string>({
+    key: "permissionsInstructionsCustomMessageState",
+    default: ""
+});
 
 /**
  * Export all atoms and/or selectors
  */
 export {
+    permissionsModalVisibleState,
+    permissionsModalCustomMessageState,
+    permissionsInstructionsCustomMessageState,
     verificationDocumentState,
     mainRootNavigationState,
     isLoadingAppOverviewNeededState,

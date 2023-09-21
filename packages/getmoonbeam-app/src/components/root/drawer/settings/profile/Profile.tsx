@@ -990,12 +990,11 @@ export const Profile = ({navigation}: ProfileProps) => {
                                                     disabled={!editingFlag}
                                                     zIndex={5000}
                                                     placeholder={"Duty Status"}
-                                                    containerStyle={dropdownDutyState && Platform.OS === 'android' && {height: hp(25)}}
+                                                    // containerStyle={dropdownDutyState && Platform.OS === 'android' && {height: hp(25)}}
                                                     dropDownContainerStyle={[!editingFlag ? styles.dropdownContainerNonEditable : styles.dropdownContainer, Platform.OS === 'android' ? {height: hp(20)} : {height: hp(15)}]}
                                                     style={!editingFlag
                                                         ? (styles.dropdownPickerNonEditable)
                                                         : (styles.dropdownPicker)}
-                                                    textStyle={[styles.textInputContentStyle, {color: '#D9D9D9'}]}
                                                     dropDownDirection={"BOTTOM"}
                                                     open={dropdownDutyState}
                                                     value={dutyStatus === "" ? null : dutyStatus}
@@ -1017,7 +1016,32 @@ export const Profile = ({navigation}: ProfileProps) => {
                                                     }}
                                                     theme="DARK"
                                                     multiple={false}
-                                                    listMode="SCROLLVIEW"
+                                                    listMode="MODAL"
+                                                    modalAnimationType="slide"
+                                                    modalContentContainerStyle={{
+                                                        backgroundColor: '#313030'
+                                                    }}
+                                                    modalTitleStyle={{
+                                                        fontSize: hp(2.3),
+                                                        fontFamily: 'Raleway-Regular',
+                                                        color: '#F2FF5D'
+                                                    }}
+                                                    listItemContainerStyle={{
+                                                        top: hp(1.5)
+                                                    }}
+                                                    listItemLabelStyle={styles.textInputContentStyle}
+                                                    modalTitle={"Select your Duty Status"}
+                                                    // @ts-ignore
+                                                    arrowIconStyle={{tintColor: '#FFFFFF'}}
+                                                    // @ts-ignore
+                                                    closeIconStyle={{tintColor: '#FFFFFF'}}
+                                                    placeholderStyle={styles.textInputContentStyle}
+                                                    // @ts-ignore
+                                                    tickIconStyle={{tintColor: '#313030'}}
+                                                    selectedItemLabelStyle={[styles.textInputContentStyle, {color: '#313030'}]}
+                                                    selectedItemContainerStyle={{backgroundColor: '#D9D9D9'}}
+                                                    itemSeparator={false}
+                                                    labelStyle={styles.textInputContentStyle}
                                                 />
                                             </View>
                                             <TextInput

@@ -42,6 +42,7 @@ export const styles = StyleSheet.create({
         width: wp(87)
     },
     textInputContentStyle: {
+        width: wp(75),
         fontSize: hp(2),
         fontFamily: 'Saira-Regular',
         color: '#FFFFFF',
@@ -103,7 +104,8 @@ export const styles = StyleSheet.create({
         alignSelf: 'center',
         marginTop: hp(3),
         width: wp(87),
-        height: hp(7)
+        height: hp(7),
+        borderRadius: 4
     },
     inputColumnViewAddress: {
         bottom: hp(30),
@@ -111,6 +113,7 @@ export const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     textInputNarrowContentStyle: {
+        width: wp(40),
         fontSize: hp(2),
         fontFamily: 'Saira-Regular',
         color: '#FFFFFF',

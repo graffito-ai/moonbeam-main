@@ -60,7 +60,7 @@ export const registrationSteps = [
     },
     {
         stepTitle: "Additional Info",
-        stepDescription: "Enter your address, duty status and military branch to help us verify your eligibility.",
+        stepDescription: "Enter your address and military branch to help us verify your eligibility.",
     },
     {
         stepTitle: "Account Security",

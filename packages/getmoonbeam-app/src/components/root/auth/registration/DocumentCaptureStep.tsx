@@ -1,11 +1,18 @@
 import React, {useEffect, useState} from "react";
-import {Image, Linking, Platform, Text, TouchableOpacity, View} from "react-native";
-import {Dialog, Divider, Portal, TextInput} from "react-native-paper";
+import {Image, Platform, Text, TouchableOpacity, View} from "react-native";
+import {Divider, TextInput} from "react-native-paper";
 import {useRecoilState} from "recoil";
 import {
     additionalDocumentationErrors,
-    additionalDocumentationNeeded, currentUserInformation, isDocumentUploadedState, isPhotoUploadedState,
-    isReadyRegistrationState, verificationDocumentState
+    additionalDocumentationNeeded,
+    currentUserInformation,
+    isDocumentUploadedState,
+    isPhotoUploadedState,
+    isReadyRegistrationState,
+    permissionsInstructionsCustomMessageState,
+    permissionsModalCustomMessageState,
+    permissionsModalVisibleState,
+    verificationDocumentState
 } from "../../../../recoil/AuthAtom";
 import {styles} from "../../../../styles/registration.module";
 import * as DocumentPicker from 'expo-document-picker';
@@ -22,12 +29,10 @@ import DocumentationUpload1Picture from '../../../../../assets/art/moonbeam-docu
 // @ts-ignore
 import DocumentationUpload2Picture from '../../../../../assets/art/moonbeam-document-upload-2.png';
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
-import {commonStyles} from "../../../../styles/common.module";
 // @ts-ignore
 import MoonbeamPreferencesIOS from "../../../../../assets/art/moonbeam-preferences-ios.jpg";
 // @ts-ignore
 import MoonbeamPreferencesAndroid from "../../../../../assets/art/moonbeam-preferences-android.jpg";
-import {Button} from "@rneui/base";
 
 /**
  * DocumentCaptureStep component.
@@ -36,17 +41,16 @@ import {Button} from "@rneui/base";
  */
 export const DocumentCaptureStep = () => {
     // constants used to keep track of local component state
-    const [permissionsModalVisible, setPermissionsModalVisible] = useState<boolean>(false);
-    const [permissionsModalCustomMessage, setPermissionsModalCustomMessage] = useState<string>("");
-    const [permissionsInstructionsCustomMessage, setPermissionsInstructionsCustomMessage] = useState<string>("");
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [dropdownDocumentState, setDropdownDocumentState] = useState<boolean>(false);
     const [photoSelectionButtonState, setPhotoSelectionButtonState] = useState<boolean>(false);
     const [captureButtonState, setCaptureButtonState] = useState<boolean>(false);
     const [uploadButtonState, setUploadButtonState] = useState<boolean>(false);
     const [documentItems, setDocumentItems] = useState(documentSelectionItems);
-
     // constants used to keep track of shared states
+    const [, setPermissionsModalVisible] = useRecoilState(permissionsModalVisibleState);
+    const [, setPermissionsModalCustomMessage] = useRecoilState(permissionsModalCustomMessageState);
+    const [, setPermissionsInstructionsCustomMessage] = useRecoilState(permissionsInstructionsCustomMessageState);
     const [userInformation,] = useRecoilState(currentUserInformation);
     const [verificationDocument, setVerificationDocument] = useRecoilState(verificationDocumentState);
     const [capturedFileName, setCapturedFileName] = useRecoilState(isPhotoUploadedState);
@@ -208,12 +212,6 @@ export const DocumentCaptureStep = () => {
                 const errorMessage = `Permission to access media library was not granted!`;
                 console.log(errorMessage);
 
-                // set the documentation errors accordingly
-                // @ts-ignore
-                setDocumentationErrors([errorMessage]);
-
-                setVerificationDocument("");
-
                 setPermissionsModalCustomMessage(errorMessage);
                 setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
                     ? "In order to upload a picture of your documentation from your library, go to Settings -> Moonbeam Finance, and allow Photo access by tapping on the \'Photos\' option."
@@ -222,6 +220,7 @@ export const DocumentCaptureStep = () => {
 
                 // release the loader on button press
                 setIsReady(true);
+
                 return false;
             }
         } catch (error) {
@@ -355,12 +354,6 @@ export const DocumentCaptureStep = () => {
             } else {
                 const errorMessage = `Permission to access camera was not granted!`;
                 console.log(errorMessage);
-
-                // set the documentation errors accordingly
-                // @ts-ignore
-                setDocumentationErrors([errorMessage]);
-
-                setVerificationDocument("");
 
                 setPermissionsModalCustomMessage(errorMessage);
                 setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
@@ -509,61 +502,6 @@ export const DocumentCaptureStep = () => {
                     <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                     :
                     <>
-                        <Portal>
-                            <Dialog style={commonStyles.permissionsDialogStyle} visible={permissionsModalVisible}
-                                    onDismiss={() => setPermissionsModalVisible(false)}>
-                                <Dialog.Title
-                                    style={commonStyles.dialogTitle}>{'Permissions not granted!'}</Dialog.Title>
-                                <Dialog.Content>
-                                    <Text
-                                        style={commonStyles.dialogParagraph}>{permissionsModalCustomMessage}</Text>
-                                </Dialog.Content>
-                                <Image source={
-                                    Platform.OS === 'ios'
-                                        ? MoonbeamPreferencesIOS
-                                        : MoonbeamPreferencesAndroid
-                                }
-                                       style={commonStyles.permissionsDialogImage}/>
-                                <Dialog.Content>
-                                    <Text
-                                        style={commonStyles.dialogParagraphInstructions}>{permissionsInstructionsCustomMessage}</Text>
-                                </Dialog.Content>
-                                <Dialog.Actions style={{alignSelf: 'center', flexDirection: 'column'}}>
-                                    <Button buttonStyle={commonStyles.dialogButton}
-                                            titleStyle={commonStyles.dialogButtonText}
-                                            onPress={async () => {
-                                                // go to the appropriate settings page depending on the OS
-                                                if (Platform.OS === 'ios') {
-                                                    await Linking.openURL("app-settings:");
-                                                } else {
-                                                    await Linking.openSettings();
-                                                }
-                                                setPermissionsModalVisible(false);
-                                                // check if media library permissions have been re-enabled
-                                                const mediaLibraryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
-                                                // if the status is granted
-                                                if (mediaLibraryStatus && mediaLibraryStatus.status === 'granted') {
-                                                    await pickPhoto();
-                                                }
-                                                // check if camera permissions have been re-enabled
-                                                const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
-                                                // if the status is granted
-                                                if (cameraStatus && cameraStatus.status === 'granted') {
-                                                    await capturePhoto();
-                                                }
-                                            }}>
-                                        {"Go to App Settings"}
-                                    </Button>
-                                    <Button buttonStyle={commonStyles.dialogButtonSkip}
-                                            titleStyle={commonStyles.dialogButtonSkipText}
-                                            onPress={() => {
-                                                setPermissionsModalVisible(false);
-                                            }}>
-                                        {"Skip"}
-                                    </Button>
-                                </Dialog.Actions>
-                            </Dialog>
-                        </Portal>
                         {documentationErrors.length !== 0
                             ? <Text style={styles.errorMessage}>{documentationErrors[0]}</Text>
                             : <></>
@@ -571,12 +509,10 @@ export const DocumentCaptureStep = () => {
                         <View style={styles.documentSelectionView}>
                             <DropDownPicker
                                 zIndex={5000}
-                                searchPlaceholder={"Search for a document type"}
                                 placeholder={"Select a document to continue"}
-                                containerStyle={dropdownDocumentState && Platform.OS === 'android' && {height: hp(25)}}
+                                // containerStyle={dropdownDocumentState && Platform.OS === 'android' && {height: hp(25)}}
                                 dropDownContainerStyle={[styles.documentsDropdownContainer, Platform.OS === 'android' ? {height: hp(20)} : {height: hp(15)}]}
                                 style={styles.documentsDropdownPicker}
-                                textStyle={[styles.dropdownTextInputContentStyle, {color: '#FFFFFF'}]}
                                 dropDownDirection={"BOTTOM"}
                                 open={dropdownDocumentState}
                                 onOpen={() => {
@@ -602,7 +538,32 @@ export const DocumentCaptureStep = () => {
                                 }}
                                 theme="DARK"
                                 multiple={false}
-                                listMode="SCROLLVIEW"
+                                listMode="MODAL"
+                                modalAnimationType="slide"
+                                modalContentContainerStyle={{
+                                    backgroundColor: '#313030'
+                                }}
+                                modalTitleStyle={{
+                                    fontSize: hp(2.3),
+                                    fontFamily: 'Raleway-Regular',
+                                    color: '#F2FF5D'
+                                }}
+                                listItemContainerStyle={{
+                                    top: hp(1.5)
+                                }}
+                                listItemLabelStyle={styles.dropdownTextInputContentStyle}
+                                modalTitle={"Select you Document Type"}
+                                // @ts-ignore
+                                arrowIconStyle={{tintColor: '#FFFFFF'}}
+                                // @ts-ignore
+                                closeIconStyle={{tintColor: '#FFFFFF'}}
+                                placeholderStyle={styles.dropdownTextInputContentStyle}
+                                // @ts-ignore
+                                tickIconStyle={{tintColor: '#313030'}}
+                                selectedItemLabelStyle={[styles.dropdownTextInputContentStyle, {color: '#313030'}]}
+                                selectedItemContainerStyle={{backgroundColor: '#D9D9D9'}}
+                                itemSeparator={false}
+                                labelStyle={styles.dropdownTextInputContentStyle}
                             />
                             <View style={styles.documentSelectionOptionBottom}>
                                 <Image

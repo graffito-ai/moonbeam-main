@@ -14,6 +14,8 @@ import {deleteCard} from "@moonbeam/moonbeam-models";
 import {cardLinkingStatusState, drawerSwipeState} from "../../../../recoil/AppDrawerAtom";
 // @ts-ignore
 import CardLinkingImage from "../../../../../assets/art/moonbeam-card-linking.png";
+// @ts-ignore
+import MoonbeamBiometrics from "../../../../../assets/art/moonbeam-biometrics.png";
 import {customBannerState} from "../../../../recoil/CustomBannerAtom";
 import {Button} from "@rneui/base";
 import {bottomBarNavigationState, drawerNavigationState} from "../../../../recoil/HomeAtom";
@@ -80,11 +82,8 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
         SecureStore.getItemAsync(`biometrics-type`, {
             requireAuthentication: false // we don't need this to be under authentication, so we can check at login
         }).then(biometricsType => {
-            if (biometricsType !== null && biometricsType.length !== 0) {
-                setBiometricsType(biometricsType);
-            } else {
-                setBiometricsType('Enhanced Security');
-            }
+            console.log(`Type of authentication enabled on device ${biometricsType}`);
+            setBiometricsType('Enhanced Security');
             // check to see if biometrics are enabled or not
             SecureStore.getItemAsync(`biometrics-enabled`, {
                 requireAuthentication: false // we don't need this to be under authentication, so we can check at login
@@ -351,21 +350,14 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                         title={`${biometricsType}`}
                                         description={
                                             biometricsEnabled
-                                                ? `Decrease the robustness of your authentication, by disabling ${biometricsType}.`
-                                                : `Enhance your authentication experience, by enabling ${biometricsType}.`
+                                                ? `Disable authentication through Biometrics or PIN/Pattern.`
+                                                : `Enabling authentication through Biometrics or PIN/Pattern.`
                                         }
                                         left={() =>
                                             <List.Icon
                                                 color={'#F2FF5D'}
-                                                icon={
-                                                    biometricsType === 'Face ID'
-                                                        ? 'face-recognition'
-                                                        : biometricsType === 'Fingerprint/TouchID'
-                                                            ? 'fingerprint'
-                                                            : biometricsType === 'Iris Recognition'
-                                                                ? 'eye-check'
-                                                                : 'lock-pattern'
-                                                }/>}
+                                                icon={'passport-biometric'}
+                                            />}
                                         right={() =>
                                             <Switch
                                                 thumbColor={biometricsEnabled ? '#313030': '#F2FF5D'}

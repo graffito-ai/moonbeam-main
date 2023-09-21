@@ -369,10 +369,9 @@ export const ProfileRegistrationStep = () => {
                     <DropDownPicker
                         zIndex={5000}
                         placeholder={"Duty Status"}
-                        containerStyle={dropdownDutyState && Platform.OS === 'android' && {height: hp(25)}}
-                        dropDownContainerStyle={[styles.dropdownContainer, Platform.OS === 'android' ? {height: hp(20)} : {height: hp(15)}]}
+                        // containerStyle={dropdownDutyState && Platform.OS === 'android' && {height: hp(25)}}
+                        dropDownContainerStyle={[styles.dropdownContainer, Platform.OS === 'android' ? {height: hp(23)} : {height: hp(18)}]}
                         style={styles.dropdownPicker}
-                        textStyle={[styles.dropdownTextInputContentStyle, {color: '#FFFFFF'}]}
                         dropDownDirection={"BOTTOM"}
                         open={dropdownDutyState}
                         value={dutyStatus === "" ? null : dutyStatus}
@@ -396,7 +395,32 @@ export const ProfileRegistrationStep = () => {
                         }}
                         theme="DARK"
                         multiple={false}
-                        listMode="SCROLLVIEW"
+                        listMode="MODAL"
+                        modalAnimationType="slide"
+                        modalContentContainerStyle={{
+                            backgroundColor: '#313030'
+                        }}
+                        modalTitleStyle={{
+                            fontSize: hp(2.3),
+                            fontFamily: 'Raleway-Regular',
+                            color: '#F2FF5D'
+                        }}
+                        listItemContainerStyle={{
+                            top: hp(1.5)
+                        }}
+                        listItemLabelStyle={styles.dropdownTextInputContentStyle}
+                        modalTitle={"Select your Duty Status"}
+                        // @ts-ignore
+                        arrowIconStyle={{tintColor: '#FFFFFF'}}
+                        // @ts-ignore
+                        closeIconStyle={{tintColor: '#FFFFFF'}}
+                        placeholderStyle={styles.dropdownTextInputContentStyle}
+                        // @ts-ignore
+                        tickIconStyle={{tintColor: '#313030'}}
+                        selectedItemLabelStyle={[styles.dropdownTextInputContentStyle, {color: '#313030'}]}
+                        selectedItemContainerStyle={{backgroundColor: '#D9D9D9'}}
+                        itemSeparator={false}
+                        labelStyle={styles.dropdownTextInputContentStyle}
                     />
                 </View>
             </View>

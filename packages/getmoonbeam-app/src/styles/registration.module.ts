@@ -3,6 +3,10 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 
 // styles to be used within the Registration component
 export const styles = StyleSheet.create({
+    additionalRegistrationBottomInputsView: {
+        marginTop: hp(9),
+        width: wp(87)
+    },
     titleView: {
         flexDirection: 'column',
         alignItems: 'flex-start',
@@ -162,6 +166,20 @@ export const styles = StyleSheet.create({
         bottom: wp(2),
         width: wp(50)
     },
+    textInputAddressLine: {
+        zIndex: 2000,
+        backgroundColor: '#1c1a1f',
+        alignSelf: 'flex-start',
+        height: hp(5),
+        width: wp(87),
+    },
+    textInputFocusAddressLine: {
+        zIndex: 2000,
+        backgroundColor: '#1c1a1f',
+        alignSelf: 'flex-start',
+        height: hp(5),
+        width: wp(87),
+    },
     textInput: {
         backgroundColor: '#1c1a1f',
         marginTop: hp(2),
@@ -182,7 +200,7 @@ export const styles = StyleSheet.create({
     },
     textInputContentStyle: {
         height: hp(6),
-        width: wp(87),
+        width: wp(75),
         fontSize: hp(1.8),
         fontFamily: 'Saira-Regular',
         color: '#FFFFFF'
@@ -190,7 +208,7 @@ export const styles = StyleSheet.create({
     dropdownTextInputContentStyle: {
         height: hp(6),
         width: wp(87),
-        fontSize: hp(1.5),
+        fontSize: hp(1.8),
         top: hp(1.5),
         fontFamily: 'Saira-Regular',
         color: '#FFFFFF'
@@ -410,7 +428,8 @@ export const styles = StyleSheet.create({
         backgroundColor: '#1c1a1f',
         borderColor: "#D9D9D9",
         width: wp(87),
-        height: hp(5)
+        height: hp(6),
+        borderRadius: 4
     },
     documentsDropdownContainer: {
         alignSelf: 'center',
@@ -425,9 +444,10 @@ export const styles = StyleSheet.create({
     },
     dropdownPicker: {
         backgroundColor: '#1c1a1f',
+        borderRadius: 4,
         borderColor: "#D9D9D9",
         width: wp(87),
-        height: hp(5)
+        height: hp(6)
     },
     militaryRegistrationView: {
         zIndex: 1000,

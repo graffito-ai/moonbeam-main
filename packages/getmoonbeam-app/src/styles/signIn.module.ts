@@ -54,6 +54,7 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF'
     },
     textInputContentStyle: {
+        width: wp(75),
         fontSize: hp(2),
         fontFamily: 'Saira-Regular',
         color: '#FFFFFF'

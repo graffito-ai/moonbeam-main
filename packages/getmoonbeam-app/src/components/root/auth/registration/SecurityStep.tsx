@@ -15,7 +15,7 @@ import {
 import {useRecoilState} from "recoil";
 import {Checkbox} from "expo-checkbox";
 import {FieldValidator} from "../../../../utils/FieldValidator";
-import {heightPercentageToDP as hp} from "react-native-responsive-screen";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 
 /**
  * SecurityStep component.
@@ -104,7 +104,7 @@ export const SecurityStep = () => {
                     }}
                     value={password}
                     secureTextEntry={!isPasswordShown}
-                    contentStyle={styles.textInputContentStyle}
+                    contentStyle={[styles.textInputContentStyle, {width: wp(60)}]}
                     style={passwordFocus ? styles.textInputFocus : styles.textInput}
                     onFocus={() => {
                         setIsPasswordFocus(true);
@@ -145,7 +145,7 @@ export const SecurityStep = () => {
                     }}
                     value={confirmPassword}
                     secureTextEntry={!isConfirmPasswordShown}
-                    contentStyle={styles.textInputContentStyle}
+                    contentStyle={[styles.textInputContentStyle, {width: wp(60)}]}
                     style={confirmPasswordFocus ? styles.textInputFocus : styles.textInput}
                     onFocus={() => {
                         setIsConfirmPasswordFocus(true);

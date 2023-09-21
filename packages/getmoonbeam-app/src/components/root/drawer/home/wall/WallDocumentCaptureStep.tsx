@@ -578,9 +578,8 @@ export const WallDocumentCaptureStep = () => {
                         <View style={styles.documentSelectionView}>
                             <DropDownPicker
                                 zIndex={5000}
-                                searchPlaceholder={"Search for a document type"}
                                 placeholder={"Select a document to continue"}
-                                containerStyle={dropdownDocumentState && Platform.OS === 'android' && {height: hp(25)}}
+                                // containerStyle={dropdownDocumentState && Platform.OS === 'android' && {height: hp(25)}}
                                 dropDownContainerStyle={[styles.documentsDropdownContainer, Platform.OS === 'android' ? {height: hp(20)} : {height: hp(15)}]}
                                 style={styles.documentsDropdownPicker}
                                 textStyle={[styles.dropdownTextInputContentStyle, {color: '#FFFFFF'}]}
@@ -609,7 +608,32 @@ export const WallDocumentCaptureStep = () => {
                                 }}
                                 theme="DARK"
                                 multiple={false}
-                                listMode="SCROLLVIEW"
+                                listMode="MODAL"
+                                modalAnimationType="slide"
+                                modalContentContainerStyle={{
+                                    backgroundColor: '#313030'
+                                }}
+                                modalTitleStyle={{
+                                    fontSize: hp(2.3),
+                                    fontFamily: 'Raleway-Regular',
+                                    color: '#F2FF5D'
+                                }}
+                                listItemContainerStyle={{
+                                    top: hp(1.5)
+                                }}
+                                listItemLabelStyle={styles.dropdownTextInputContentStyle}
+                                modalTitle={"Select you Document Type"}
+                                // @ts-ignore
+                                arrowIconStyle={{tintColor: '#FFFFFF'}}
+                                // @ts-ignore
+                                closeIconStyle={{tintColor: '#FFFFFF'}}
+                                placeholderStyle={styles.dropdownTextInputContentStyle}
+                                // @ts-ignore
+                                tickIconStyle={{tintColor: '#313030'}}
+                                selectedItemLabelStyle={[styles.dropdownTextInputContentStyle, {color: '#313030'}]}
+                                selectedItemContainerStyle={{backgroundColor: '#D9D9D9'}}
+                                itemSeparator={false}
+                                labelStyle={styles.dropdownTextInputContentStyle}
                             />
                             <View style={styles.documentSelectionOptionBottom}>
                                 <Image

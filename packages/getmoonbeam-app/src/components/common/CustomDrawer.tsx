@@ -25,23 +25,28 @@ import {
     addressZipState,
     amplifySignUpProcessErrorsState,
     authRegistrationNavigation,
-    birthdayErrorState, birthdayState,
+    birthdayErrorState,
+    birthdayState,
     cardLinkingRegistrationStatusState,
     currentUserInformation,
     dutyStatusErrorsState,
     dutyStatusState,
     dutyStatusValueState,
-    emailErrorsState, emailState,
+    emailErrorsState,
+    emailState,
     enlistingYearErrorsState,
     enlistingYearState,
     expoPushTokenState,
-    firstNameErrorsState, firstNameState,
-    globalAmplifyCacheState, initialAuthenticationScreen,
+    firstNameErrorsState,
+    firstNameState,
+    globalAmplifyCacheState,
+    initialAuthenticationScreen,
     isDocumentUploadedState,
     isLoadingAppOverviewNeededState,
     isPhotoUploadedState,
     isReadyRegistrationState,
-    lastNameErrorsState, lastNameState,
+    lastNameErrorsState,
+    lastNameState,
     mainRootNavigationState,
     marketplaceAmplifyCacheState,
     militaryBranchErrorsState,
@@ -49,17 +54,25 @@ import {
     militaryBranchValueState,
     militaryRegistrationDisclaimerCheckState,
     militaryVerificationStatus,
-    phoneNumberErrorsState, phoneNumberState, registrationBackButtonShown,
+    permissionsInstructionsCustomMessageState,
+    permissionsModalCustomMessageState,
+    permissionsModalVisibleState,
+    phoneNumberErrorsState,
+    phoneNumberState,
+    registrationBackButtonShown,
     registrationCodeTimerValue,
     registrationConfirmationPasswordErrorsState,
-    registrationConfirmationPasswordState, registrationMainErrorState,
+    registrationConfirmationPasswordState,
+    registrationMainErrorState,
     registrationPasswordErrorsState,
-    registrationPasswordState, registrationStepNumber,
+    registrationPasswordState,
+    registrationStepNumber,
     registrationVerificationDigit1,
     registrationVerificationDigit2,
     registrationVerificationDigit3,
     registrationVerificationDigit4,
-    registrationVerificationDigit5, registrationVerificationDigit6,
+    registrationVerificationDigit5,
+    registrationVerificationDigit6,
     verificationCodeErrorsState,
     verificationDocumentState
 } from '../../recoil/AuthAtom';
@@ -212,6 +225,9 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const firstTimeLoggedInStateReset = useResetRecoilState(firstTimeLoggedInState);
     const moonbeamUserIdStateReset = useResetRecoilState(moonbeamUserIdState);
     const moonbeamUserIdPassStateReset = useResetRecoilState(moonbeamUserIdPassState);
+    const permissionsModalVisibleStateReset = useResetRecoilState(permissionsModalVisibleState);
+    const permissionsModalCustomMessageStateReset = useResetRecoilState(permissionsModalCustomMessageState);
+    const permissionsInstructionsCustomMessageStateReset = useResetRecoilState(permissionsInstructionsCustomMessageState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -415,6 +431,9 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                         firstTimeLoggedInStateReset();
                                         moonbeamUserIdStateReset();
                                         moonbeamUserIdPassStateReset();
+                                        permissionsModalVisibleStateReset();
+                                        permissionsModalCustomMessageStateReset();
+                                        permissionsInstructionsCustomMessageStateReset();
 
                                         /**
                                          * ensure that the current user's biometric session is interrupted, and that the already signed in flag is reset
