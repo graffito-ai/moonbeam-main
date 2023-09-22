@@ -24,7 +24,7 @@ import {
     addressZipErrorsState,
     addressZipState,
     amplifySignUpProcessErrorsState,
-    authRegistrationNavigation,
+    authRegistrationNavigation, automaticallyVerifyRegistrationCodeState,
     birthdayErrorState,
     birthdayState,
     cardLinkingRegistrationStatusState,
@@ -81,7 +81,11 @@ import SideBarImage from '../../../assets/art/sidebar.png';
 import {
     additionalAppWallDocumentationErrors,
     additionalAppWallDocumentationNeeded,
-    appDrawerHeaderShownState, cardLinkingStatusState, customBannerShown,
+    appDrawerHeaderShownState,
+    appWallDocumentsReCapturePhotoState,
+    appWallDocumentsRePickPhotoState,
+    appWallPermissionsInstructionsCustomMessageState,
+    appWallPermissionsModalCustomMessageState, appWallPermissionsModalVisibleState, cardLinkingStatusState, customBannerShown,
     drawerDashboardState, drawerSwipeState,
     isDocumentUploadAppWallState,
     isPhotoUploadedAppWallState,
@@ -230,6 +234,12 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const permissionsInstructionsCustomMessageStateReset = useResetRecoilState(permissionsInstructionsCustomMessageState);
     const documentsRePickPhotoStateReset = useResetRecoilState(documentsRePickPhotoState);
     const documentsReCapturePhotoStateReset = useResetRecoilState(documentsReCapturePhotoState);
+    const appWallPermissionsModalVisibleStateReset = useResetRecoilState(appWallPermissionsModalVisibleState);
+    const appWallPermissionsModalCustomMessageStateReset = useResetRecoilState(appWallPermissionsModalCustomMessageState);
+    const appWallPermissionsInstructionsCustomMessageStateReset = useResetRecoilState(appWallPermissionsInstructionsCustomMessageState);
+    const appWallDocumentsRePickPhotoStateReset = useResetRecoilState(appWallDocumentsRePickPhotoState);
+    const appWallDocumentsReCapturePhotoStateReset = useResetRecoilState(appWallDocumentsReCapturePhotoState);
+    const automaticallyVerifyRegistrationCodeStateReset = useResetRecoilState(automaticallyVerifyRegistrationCodeState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -438,6 +448,12 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                         permissionsInstructionsCustomMessageStateReset();
                                         documentsRePickPhotoStateReset();
                                         documentsReCapturePhotoStateReset();
+                                        appWallPermissionsModalVisibleStateReset();
+                                        appWallPermissionsModalCustomMessageStateReset();
+                                        appWallPermissionsInstructionsCustomMessageStateReset();
+                                        appWallDocumentsRePickPhotoStateReset();
+                                        appWallDocumentsReCapturePhotoStateReset();
+                                        automaticallyVerifyRegistrationCodeStateReset();
 
                                         /**
                                          * ensure that the current user's biometric session is interrupted, and that the already signed in flag is reset

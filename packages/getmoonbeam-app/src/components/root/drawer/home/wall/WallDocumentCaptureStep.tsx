@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
-import {Image, Linking, Platform, Text, TouchableOpacity, View} from "react-native";
-import {Dialog, Divider, Portal, TextInput} from "react-native-paper";
+import {Image, Platform, Text, TouchableOpacity, View} from "react-native";
+import {Divider, TextInput} from "react-native-paper";
 import {useRecoilState} from "recoil";
 import {styles} from "../../../../../styles/appWall.module";
 import * as DocumentPicker from 'expo-document-picker';
@@ -15,6 +15,11 @@ import {Spinner} from "../../../../common/Spinner";
 import {
     additionalAppWallDocumentationErrors,
     additionalAppWallDocumentationNeeded,
+    appWallDocumentsReCapturePhotoState,
+    appWallDocumentsRePickPhotoState,
+    appWallPermissionsInstructionsCustomMessageState,
+    appWallPermissionsModalCustomMessageState,
+    appWallPermissionsModalVisibleState,
     isDocumentUploadAppWallState,
     isPhotoUploadedAppWallState,
     isReadyAppWallState,
@@ -25,14 +30,11 @@ import DocumentationUpload1Picture from '../../../../../../assets/art/moonbeam-d
 // @ts-ignore
 import DocumentationUpload2Picture from '../../../../../../assets/art/moonbeam-document-upload-2.png';
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
-import {commonStyles} from "../../../../../styles/common.module";
 // @ts-ignore
 import MoonbeamPreferencesIOS from "../../../../../../assets/art/moonbeam-preferences-ios.jpg";
 // @ts-ignore
 import MoonbeamPreferencesAndroid from "../../../../../../assets/art/moonbeam-preferences-android.jpg";
-import {Button} from "@rneui/base";
 import {currentUserInformation} from "../../../../../recoil/AuthAtom";
-
 
 /**
  * WallDocumentCaptureStep component.
@@ -44,9 +46,6 @@ import {currentUserInformation} from "../../../../../recoil/AuthAtom";
  */
 export const WallDocumentCaptureStep = () => {
     // constants used to keep track of local component state
-    const [permissionsModalVisible, setPermissionsModalVisible] = useState<boolean>(false);
-    const [permissionsModalCustomMessage, setPermissionsModalCustomMessage] = useState<string>("");
-    const [permissionsInstructionsCustomMessage, setPermissionsInstructionsCustomMessage] = useState<string>("");
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [dropdownDocumentState, setDropdownDocumentState] = useState<boolean>(false);
     const [photoSelectionButtonState, setPhotoSelectionButtonState] = useState<boolean>(false);
@@ -54,6 +53,11 @@ export const WallDocumentCaptureStep = () => {
     const [uploadButtonState, setUploadButtonState] = useState<boolean>(false);
     const [documentItems, setDocumentItems] = useState(documentSelectionItems);
     // constants used to keep track of shared states
+    const [documentsRePickPhoto, setDocumentsRePickPhoto] = useRecoilState(appWallDocumentsRePickPhotoState);
+    const [documentsReCapturePhoto, setDocumentsReCapturePhoto] = useRecoilState(appWallDocumentsReCapturePhotoState);
+    const [, setPermissionsModalVisible] = useRecoilState(appWallPermissionsModalVisibleState);
+    const [, setPermissionsModalCustomMessage] = useRecoilState(appWallPermissionsModalCustomMessageState);
+    const [, setPermissionsInstructionsCustomMessage] = useRecoilState(appWallPermissionsInstructionsCustomMessageState);
     const [userInformation,] = useRecoilState(currentUserInformation);
     const [isReady, setIsReady] = useRecoilState(isReadyAppWallState);
     const [verificationDocument, setVerificationDocument] = useRecoilState(verificationDocumentAppWallState);
@@ -73,6 +77,17 @@ export const WallDocumentCaptureStep = () => {
      * included in here.
      */
     useEffect(() => {
+        // re-pick or re-capture accordingly, in case of reset permissions
+        if (documentsRePickPhoto) {
+            setDocumentsRePickPhoto(false);
+            pickPhoto().then(_ => {
+            });
+        }
+        if (documentsReCapturePhoto) {
+            setDocumentsReCapturePhoto(false);
+            capturePhoto().then(_ => {
+            });
+        }
         // enable/disable the buttons, depending on the document name
         if (capturedFileName !== "") {
             // Enable the next button and disable the upload button
@@ -212,14 +227,8 @@ export const WallDocumentCaptureStep = () => {
                     return false;
                 }
             } else {
-                const errorMessage = `Permission to access media library was not granted!`;
+                const errorMessage = `Enable permissions to access your verification document pictures, and re-login to upload them!`;
                 console.log(errorMessage);
-
-                // set the documentation errors accordingly
-                // @ts-ignore
-                setDocumentationErrors([errorMessage]);
-
-                setVerificationDocument("");
 
                 setPermissionsModalCustomMessage(errorMessage);
                 setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
@@ -355,25 +364,19 @@ export const WallDocumentCaptureStep = () => {
 
                     setVerificationDocument("");
 
-                    setPermissionsModalCustomMessage(errorMessage);
-                    setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
-                        ? "In order to take a picture of your documentation from your library, go to Settings -> Moonbeam Finance, and allow Camera access by tapping on the \'Camera\' option."
-                        : "In order to take a picture of your documentation from your library, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Camera access by tapping on the \"Camera\" option.");
-                    setPermissionsModalVisible(true);
-
                     // release the loader on button press
                     setIsReady(true);
                     return false;
                 }
             } else {
-                const errorMessage = `Permission to access camera was not granted!`;
+                const errorMessage = `Enable permissions to capture your verification documents, and re-login to upload them!`;
                 console.log(errorMessage);
 
-                // set the documentation errors accordingly
-                // @ts-ignore
-                setDocumentationErrors([errorMessage]);
-
-                setVerificationDocument("");
+                setPermissionsModalCustomMessage(errorMessage);
+                setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
+                    ? "In order to capture a picture of your documentation, go to Settings -> Moonbeam Finance, and allow Camera access by tapping on the \'Camera\' option."
+                    : "In order to capture a picture of your documentation, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Camera access by tapping on the \"Camera\" option.");
+                setPermissionsModalVisible(true);
 
                 // release the loader on button press
                 setIsReady(true);
@@ -516,61 +519,6 @@ export const WallDocumentCaptureStep = () => {
                     <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                     :
                     <>
-                        <Portal>
-                            <Dialog style={commonStyles.permissionsDialogStyle} visible={permissionsModalVisible}
-                                    onDismiss={() => setPermissionsModalVisible(false)}>
-                                <Dialog.Title
-                                    style={commonStyles.dialogTitle}>{'Permissions not granted!'}</Dialog.Title>
-                                <Dialog.Content>
-                                    <Text
-                                        style={commonStyles.dialogParagraph}>{permissionsModalCustomMessage}</Text>
-                                </Dialog.Content>
-                                <Image source={
-                                    Platform.OS === 'ios'
-                                        ? MoonbeamPreferencesIOS
-                                        : MoonbeamPreferencesAndroid
-                                }
-                                       style={commonStyles.permissionsDialogImage}/>
-                                <Dialog.Content>
-                                    <Text
-                                        style={commonStyles.dialogParagraphInstructions}>{permissionsInstructionsCustomMessage}</Text>
-                                </Dialog.Content>
-                                <Dialog.Actions style={{alignSelf: 'center', flexDirection: 'column'}}>
-                                    <Button buttonStyle={commonStyles.dialogButton}
-                                            titleStyle={commonStyles.dialogButtonText}
-                                            onPress={async () => {
-                                                // go to the appropriate settings page depending on the OS
-                                                if (Platform.OS === 'ios') {
-                                                    await Linking.openURL("app-settings:");
-                                                } else {
-                                                    await Linking.openSettings();
-                                                }
-                                                setPermissionsModalVisible(false);
-                                                // check if media library permissions have been re-enabled
-                                                const mediaLibraryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
-                                                // if the status is granted
-                                                if (mediaLibraryStatus && mediaLibraryStatus.status === 'granted') {
-                                                    await pickPhoto();
-                                                }
-                                                // check if camera permissions have been re-enabled
-                                                const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
-                                                // if the status is granted
-                                                if (cameraStatus && cameraStatus.status === 'granted') {
-                                                    await capturePhoto();
-                                                }
-                                            }}>
-                                        {"Go to App Settings"}
-                                    </Button>
-                                    <Button buttonStyle={commonStyles.dialogButtonSkip}
-                                            titleStyle={commonStyles.dialogButtonSkipText}
-                                            onPress={() => {
-                                                setPermissionsModalVisible(false);
-                                            }}>
-                                        {"Skip"}
-                                    </Button>
-                                </Dialog.Actions>
-                            </Dialog>
-                        </Portal>
                         {documentationErrors.length !== 0
                             ? <Text style={styles.errorMessage}>{documentationErrors[0]}</Text>
                             : <></>
@@ -582,7 +530,6 @@ export const WallDocumentCaptureStep = () => {
                                 // containerStyle={dropdownDocumentState && Platform.OS === 'android' && {height: hp(25)}}
                                 dropDownContainerStyle={[styles.documentsDropdownContainer, Platform.OS === 'android' ? {height: hp(20)} : {height: hp(15)}]}
                                 style={styles.documentsDropdownPicker}
-                                textStyle={[styles.dropdownTextInputContentStyle, {color: '#FFFFFF'}]}
                                 dropDownDirection={"BOTTOM"}
                                 open={dropdownDocumentState}
                                 onOpen={() => {
@@ -622,7 +569,7 @@ export const WallDocumentCaptureStep = () => {
                                     top: hp(1.5)
                                 }}
                                 listItemLabelStyle={styles.dropdownTextInputContentStyle}
-                                modalTitle={"Select you Document Type"}
+                                modalTitle={"Select your Document Type"}
                                 // @ts-ignore
                                 arrowIconStyle={{tintColor: '#FFFFFF'}}
                                 // @ts-ignore

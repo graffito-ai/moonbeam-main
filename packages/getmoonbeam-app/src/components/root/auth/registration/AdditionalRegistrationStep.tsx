@@ -122,7 +122,7 @@ export const AdditionalRegistrationStep = () => {
                     components: 'country:us'
                 }}
                 keyboardShouldPersistTaps={"handled"}
-                enablePoweredByContainer={true}
+                enablePoweredByContainer={false}
                 keepResultsAfterBlur={false}
                 fetchDetails={true}
                 onPress={(_, details) => {

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import 'react-native-get-random-values';
-import {Image, ImageBackground, Platform, TouchableOpacity, View} from "react-native";
+import {Image, ImageBackground, Linking, Platform, TouchableOpacity, View} from "react-native";
 import {commonStyles} from '../../../../../styles/common.module';
 import {styles} from '../../../../../styles/appWall.module';
 import {Dialog, IconButton, Portal, Text} from "react-native-paper";
@@ -24,7 +24,13 @@ import {WallDocumentCaptureStep} from "./WallDocumentCaptureStep";
 import {
     additionalAppWallDocumentationErrors,
     additionalAppWallDocumentationNeeded,
-    appWallStepNumber, isReadyAppWallState
+    appWallDocumentsReCapturePhotoState,
+    appWallDocumentsRePickPhotoState,
+    appWallPermissionsInstructionsCustomMessageState,
+    appWallPermissionsModalCustomMessageState,
+    appWallPermissionsModalVisibleState,
+    appWallStepNumber,
+    isReadyAppWallState
 } from "../../../../../recoil/AppDrawerAtom";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 // @ts-ignore
@@ -41,6 +47,11 @@ import RegistrationBackgroundImage from '../../../../../../assets/backgrounds/re
 import MilitaryVerificationImage from '../../../../../../assets/art/military-verification.png';
 import {Button} from "@rneui/base";
 import {AppWallProps} from "../../../../../models/props/AppDrawerProps";
+// @ts-ignore
+import MoonbeamPreferencesIOS from "../../../../../../assets/art/moonbeam-preferences-ios.jpg";
+// @ts-ignore
+import MoonbeamPreferencesAndroid from "../../../../../../assets/art/moonbeam-preferences-android.jpg";
+import * as ImagePicker from "expo-image-picker";
 
 /**
  * AppWall Component.
@@ -56,7 +67,12 @@ export const AppWall = ({navigation}: AppWallProps) => {
     const [supportModalButtonMessage, setSupportModalButtonMessage] = useState<string>('');
     const [appWallError, setAppWallError] = useState<boolean>(false);
     // constants used to keep track of shared states
-    const [globalCache, ] = useRecoilState(globalAmplifyCacheState);
+    const [, setDocumentsRePickPhoto] = useRecoilState(appWallDocumentsRePickPhotoState);
+    const [, setDocumentsReCapturePhoto] = useRecoilState(appWallDocumentsReCapturePhotoState);
+    const [permissionsModalVisible, setPermissionsModalVisible] = useRecoilState(appWallPermissionsModalVisibleState);
+    const [permissionsModalCustomMessage,] = useRecoilState(appWallPermissionsModalCustomMessageState);
+    const [permissionsInstructionsCustomMessage,] = useRecoilState(appWallPermissionsInstructionsCustomMessageState);
+    const [globalCache,] = useRecoilState(globalAmplifyCacheState);
     const [isReady, setIsReady] = useRecoilState(isReadyAppWallState);
     const [stepNumber, setStepNumber] = useRecoilState(appWallStepNumber);
     const [userInformation,] = useRecoilState(currentUserInformation);
@@ -317,6 +333,62 @@ export const AppWall = ({navigation}: AppWallProps) => {
                         }}
                         source={RegistrationBackgroundImage}>
                         <Portal>
+                            <Dialog style={commonStyles.permissionsDialogStyle} visible={permissionsModalVisible}
+                                    onDismiss={() => setPermissionsModalVisible(false)}>
+                                <Dialog.Title
+                                    style={commonStyles.dialogTitle}>{'Permissions not granted!'}</Dialog.Title>
+                                <Dialog.Content>
+                                    <Text
+                                        style={commonStyles.dialogParagraph}>{permissionsModalCustomMessage}</Text>
+                                </Dialog.Content>
+                                <Image source={
+                                    Platform.OS === 'ios'
+                                        ? MoonbeamPreferencesIOS
+                                        : MoonbeamPreferencesAndroid
+                                }
+                                       style={commonStyles.permissionsDialogImage}/>
+                                <Dialog.Content>
+                                    <Text
+                                        style={commonStyles.dialogParagraphInstructions}>{permissionsInstructionsCustomMessage}</Text>
+                                </Dialog.Content>
+                                <Dialog.Actions style={{alignSelf: 'center', flexDirection: 'column'}}>
+                                    <Button buttonStyle={commonStyles.dialogButton}
+                                            titleStyle={commonStyles.dialogButtonText}
+                                            onPress={async () => {
+                                                // go to the appropriate settings page depending on the OS
+                                                if (Platform.OS === 'ios') {
+                                                    await Linking.openURL("app-settings:");
+                                                } else {
+                                                    await Linking.openSettings();
+                                                }
+                                                setPermissionsModalVisible(false);
+
+                                                // check if media library permissions have been re-enabled
+                                                const mediaLibraryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                                                // if the status is granted
+                                                if (mediaLibraryStatus && mediaLibraryStatus.status === 'granted') {
+                                                    setDocumentsRePickPhoto(true);
+                                                }
+                                                // check if camera permissions have been re-enabled
+                                                const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
+                                                // if the status is granted
+                                                if (cameraStatus && cameraStatus.status === 'granted') {
+                                                    setDocumentsReCapturePhoto(true);
+                                                }
+                                            }}>
+                                        {"Go to App Settings"}
+                                    </Button>
+                                    <Button buttonStyle={commonStyles.dialogButtonSkip}
+                                            titleStyle={commonStyles.dialogButtonSkipText}
+                                            onPress={() => {
+                                                setPermissionsModalVisible(false);
+                                            }}>
+                                        {"Skip"}
+                                    </Button>
+                                </Dialog.Actions>
+                            </Dialog>
+                        </Portal>
+                        <Portal>
                             <Dialog style={commonStyles.dialogStyle} visible={supportModalVisible}
                                     onDismiss={() => setSupportModalVisible(false)}>
                                 <Dialog.Icon icon="alert" color={"#F2FF5D"}
@@ -435,7 +507,8 @@ export const AppWall = ({navigation}: AppWallProps) => {
                                                 />
                                                 : <></>
                             }
-                            <View style={[stepNumber === 0 ? styles.bottomContainerSplashView : styles.bottomContainerButtonView]}>
+                            <View
+                                style={[stepNumber === 0 ? styles.bottomContainerSplashView : styles.bottomContainerButtonView]}>
                                 <TouchableOpacity
                                     disabled={(!militaryStatusDisclaimer && stepNumber === 1) || (additionalDocumentsNeeded && stepNumber === 2)}
                                     style={[(!militaryStatusDisclaimer && stepNumber === 1) || (additionalDocumentsNeeded && stepNumber === 2) ? styles.bottomButtonDisabled : stepNumber == 0 ? styles.bottomButtonStep1 : styles.bottomButton,
@@ -444,7 +517,7 @@ export const AppWall = ({navigation}: AppWallProps) => {
                                         },
                                         (stepNumber === 1 || stepNumber === 2)
                                         && {
-                                            marginTop: -hp(30)
+                                            marginTop: -hp(25)
                                         },
                                         (stepNumber === 3)
                                         && {

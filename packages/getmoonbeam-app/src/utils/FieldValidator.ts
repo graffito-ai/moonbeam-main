@@ -83,29 +83,37 @@ export class FieldValidator {
     /**
      * Function used to format a code verification digit's value for text input field
      *
-     * @param codeDigit original digit value
-     * @param value new digit value obtained while typing
+     * @param newDigit new digit value obtained while typing
      */
-    public formatCodeDigit = (codeDigit: string, value: string): string => {
+    public formatCodeDigit = (newDigit: string): string => {
         // for formatting the code verification digit to one single number digit
         try {
-            // detect deletion
-            let deletion: boolean = false;
-            if (codeDigit.length > value.length) {
-                deletion = true;
-            }
-
-            if (!deletion) {
-                const cleaned = ("" + value).replace(/\D/g, "");
-                const match = cleaned.match(/^(\d)?$/);
-
-                return match
-                    ? [
-                        match[1]! ? `${match[1]}` : ""
-                    ].join("")
-                    : "";
+            // we are just adding a new digit to an empty value
+            if (newDigit.length !== 0 ) {
+                // we are just adding one digit
+                if (newDigit.length === 1) {
+                    const match = newDigit.charAt(0).match(/^(\d)?$/);
+                    return match
+                        ? [
+                            match[0]! ? `${match[0]}` : ""
+                        ].join("")
+                        : "";
+                }
+                // we are adding something on top of the old one
+                else if (newDigit.length === 2) {
+                    const match = newDigit.charAt(1).match(/^(\d)?$/);
+                    return match
+                        ? [
+                            match[0]! ? `${match[0]}` : ""
+                        ].join("")
+                        : newDigit.charAt(0);
+                } else {
+                    // we should never get here
+                    return '';
+                }
             } else {
-                return value;
+                // it's just an empty value somehow
+                return '';
             }
         } catch (err) {
             return "";

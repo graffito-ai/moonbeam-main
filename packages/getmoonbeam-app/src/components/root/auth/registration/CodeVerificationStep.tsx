@@ -4,6 +4,7 @@ import {Text, TextInput} from "react-native-paper";
 import React, {useEffect, useRef, useState} from "react";
 import {useRecoilState} from "recoil";
 import {
+    automaticallyVerifyRegistrationCodeState,
     emailState,
     registrationCodeTimerValue,
     registrationMainErrorState,
@@ -34,10 +35,12 @@ export const CodeVerificationStep = () => {
     const [verificationCodeDigit5Focus, setIsVerificationCodeDigit5Focus] = useState<boolean>(false);
     const [verificationCodeDigit6Focus, setIsVerificationCodeDigit6Focus] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [, setAutomaticallyVerifyRegistrationCode] = useRecoilState(automaticallyVerifyRegistrationCodeState);
     const [email,] = useRecoilState(emailState);
     const [countdownValue, setCountDownValue] = useRecoilState(registrationCodeTimerValue);
     const [verificationCodeErrors, setVerificationCodeErrors] = useRecoilState(verificationCodeErrorsState);
     const [verificationCodeDigit1, setVerificationCodeDigit1] = useRecoilState(registrationVerificationDigit1);
+    const verificationCodeDigit1Ref = useRef(null);
     const [verificationCodeDigit2, setVerificationCodeDigit2] = useRecoilState(registrationVerificationDigit2);
     const verificationCodeDigit2Ref = useRef(null);
     const [verificationCodeDigit3, setVerificationCodeDigit3] = useRecoilState(registrationVerificationDigit3);
@@ -122,6 +125,7 @@ export const CodeVerificationStep = () => {
             <View>
                 <View style={styles.codeInputColumnView}>
                     <TextInput
+                        ref={verificationCodeDigit1Ref}
                         autoCorrect={false}
                         autoComplete={"off"}
                         keyboardType={"number-pad"}
@@ -132,20 +136,21 @@ export const CodeVerificationStep = () => {
                         activeOutlineColor={'#F2FF5D'}
                         selectionColor={'#F2FF5D'}
                         mode={'outlined'}
+                        selection={{start: verificationCodeDigit1.length}}
                         onChangeText={(value: React.SetStateAction<string>) => {
                             setIsVerificationCodeDigit1Focus(true);
                             setRegistrationMainError(false);
                             setVerificationCodeErrors([]);
 
                             // format value
-                            value = fieldValidator.formatCodeDigit(verificationCodeDigit1, value.toString());
-
+                            value = fieldValidator.formatCodeDigit(value.toString());
                             setVerificationCodeDigit1(value);
 
-                            // if the value is of length 1, then move to the next digit
+                            // if the value is of length 1, then move to the next digit and clear its contents too
                             if (value.length === 1) {
                                 // @ts-ignore
                                 verificationCodeDigit2Ref.current.focus();
+                                setVerificationCodeDigit2('');
                             }
                         }}
                         onBlur={() => {
@@ -173,20 +178,33 @@ export const CodeVerificationStep = () => {
                         activeOutlineColor={'#F2FF5D'}
                         selectionColor={'#F2FF5D'}
                         mode={'outlined'}
+                        selection={{start: verificationCodeDigit2.length}}
+                        onKeyPress={({nativeEvent}) => {
+                            // for backspace, go back to the previous digit if current digit value is empty
+                            if (nativeEvent.key === 'Backspace' && verificationCodeDigit2.length === 0) {
+                                // @ts-ignore
+                                verificationCodeDigit1Ref.current.focus();
+                            }
+                        }}
                         onChangeText={(value: React.SetStateAction<string>) => {
                             setIsVerificationCodeDigit2Focus(true);
                             setRegistrationMainError(false);
                             setVerificationCodeErrors([]);
 
                             // format value
-                            value = fieldValidator.formatCodeDigit(verificationCodeDigit2, value.toString());
-
+                            value = fieldValidator.formatCodeDigit(value.toString());
                             setVerificationCodeDigit2(value);
 
-                            // if the value is of length 1, then move to the next digit
+                            // if the value is of length 1, then move to the next digit and clear its contents too
                             if (value.length === 1) {
                                 // @ts-ignore
                                 verificationCodeDigit3Ref.current.focus();
+                                setVerificationCodeDigit3('');
+                            }
+                            // if the value is of length 0, then we move to the previous digit
+                            if (value.length === 0) {
+                                // @ts-ignore
+                                verificationCodeDigit1Ref.current.focus();
                             }
                         }}
                         onBlur={() => {
@@ -214,20 +232,33 @@ export const CodeVerificationStep = () => {
                         activeOutlineColor={'#F2FF5D'}
                         selectionColor={'#F2FF5D'}
                         mode={'outlined'}
+                        selection={{start: verificationCodeDigit3.length}}
+                        onKeyPress={({nativeEvent}) => {
+                            // for backspace, go back to the previous digit if current digit value is empty
+                            if (nativeEvent.key === 'Backspace' && verificationCodeDigit3.length === 0) {
+                                // @ts-ignore
+                                verificationCodeDigit2Ref.current.focus();
+                            }
+                        }}
                         onChangeText={(value: React.SetStateAction<string>) => {
                             setIsVerificationCodeDigit3Focus(true);
                             setRegistrationMainError(false);
                             setVerificationCodeErrors([]);
 
                             // format value
-                            value = fieldValidator.formatCodeDigit(verificationCodeDigit3, value.toString());
-
+                            value = fieldValidator.formatCodeDigit(value.toString());
                             setVerificationCodeDigit3(value);
 
-                            // if the value is of length 1, then move to the next digit
+                            // if the value is of length 1, then move to the next digit and clear its contents too
                             if (value.length === 1) {
                                 // @ts-ignore
                                 verificationCodeDigit4Ref.current.focus();
+                                setVerificationCodeDigit4('');
+                            }
+                            // if the value is of length 0, then we move to the previous digit
+                            if (value.length === 0) {
+                                // @ts-ignore
+                                verificationCodeDigit2Ref.current.focus();
                             }
                         }}
                         onBlur={() => {
@@ -255,20 +286,33 @@ export const CodeVerificationStep = () => {
                         activeOutlineColor={'#F2FF5D'}
                         selectionColor={'#F2FF5D'}
                         mode={'outlined'}
+                        selection={{start: verificationCodeDigit4.length}}
+                        onKeyPress={({nativeEvent}) => {
+                            // for backspace, go back to the previous digit if current digit value is empty
+                            if (nativeEvent.key === 'Backspace' && verificationCodeDigit4.length === 0) {
+                                // @ts-ignore
+                                verificationCodeDigit3Ref.current.focus();
+                            }
+                        }}
                         onChangeText={(value: React.SetStateAction<string>) => {
                             setIsVerificationCodeDigit4Focus(true);
                             setRegistrationMainError(false);
                             setVerificationCodeErrors([]);
 
                             // format value
-                            value = fieldValidator.formatCodeDigit(verificationCodeDigit4, value.toString());
-
+                            value = fieldValidator.formatCodeDigit(value.toString());
                             setVerificationCodeDigit4(value);
 
-                            // if the value is of length 1, then move to the next digit
+                            // if the value is of length 1, then move to the next digit and clear its contents too
                             if (value.length === 1) {
                                 // @ts-ignore
                                 verificationCodeDigit5Ref.current.focus();
+                                setVerificationCodeDigit5('');
+                            }
+                            // if the value is of length 0, then we move to the previous digit
+                            if (value.length === 0) {
+                                // @ts-ignore
+                                verificationCodeDigit3Ref.current.focus();
                             }
                         }}
                         onBlur={() => {
@@ -296,20 +340,33 @@ export const CodeVerificationStep = () => {
                         activeOutlineColor={'#F2FF5D'}
                         selectionColor={'#F2FF5D'}
                         mode={'outlined'}
+                        selection={{start: verificationCodeDigit5.length}}
+                        onKeyPress={({nativeEvent}) => {
+                            /// for backspace, go back to the previous digit if current digit value is empty
+                            if (nativeEvent.key === 'Backspace' && verificationCodeDigit5.length === 0) {
+                                // @ts-ignore
+                                verificationCodeDigit4Ref.current.focus();
+                            }
+                        }}
                         onChangeText={(value: React.SetStateAction<string>) => {
                             setIsVerificationCodeDigit5Focus(true);
                             setRegistrationMainError(false);
                             setVerificationCodeErrors([]);
 
                             // format value
-                            value = fieldValidator.formatCodeDigit(verificationCodeDigit5, value.toString());
-
+                            value = fieldValidator.formatCodeDigit(value.toString());
                             setVerificationCodeDigit5(value);
 
-                            // if the value is of length 1, then move to the next digit
+                            // if the value is of length 1, then move to the next digit and clear its contents too
                             if (value.length === 1) {
                                 // @ts-ignore
                                 verificationCodeDigit6Ref.current.focus();
+                                setVerificationCodeDigit6('');
+                            }
+                            // if the value is of length 0, then we move to the previous digit
+                            if (value.length === 0) {
+                                // @ts-ignore
+                                verificationCodeDigit4Ref.current.focus();
                             }
                         }}
                         onBlur={() => {
@@ -337,15 +394,35 @@ export const CodeVerificationStep = () => {
                         activeOutlineColor={'#F2FF5D'}
                         selectionColor={'#F2FF5D'}
                         mode={'outlined'}
+                        selection={{start: verificationCodeDigit6.length}}
+                        onKeyPress={({nativeEvent}) => {
+                            // for backspace, go back to the previous digit if current digit value is empty
+                            if (nativeEvent.key === 'Backspace' && verificationCodeDigit6.length === 0) {
+                                // @ts-ignore
+                                verificationCodeDigit5Ref.current.focus();
+                            }
+                        }}
                         onChangeText={(value: React.SetStateAction<string>) => {
                             setIsVerificationCodeDigit6Focus(true);
                             setRegistrationMainError(false);
                             setVerificationCodeErrors([]);
 
                             // format value
-                            value = fieldValidator.formatCodeDigit(verificationCodeDigit6, value.toString());
-
+                            value = fieldValidator.formatCodeDigit(value.toString());
                             setVerificationCodeDigit6(value);
+
+                            // if the value is of length 1, then verify code automatically
+                            if (value.length === 1) {
+                                // @ts-ignore
+                                verificationCodeDigit6Ref.current.blur();
+                                // automatically verify the code
+                                setAutomaticallyVerifyRegistrationCode(true);
+                            }
+                            // if the value is of length 0, then we move to the previous digit
+                            if (value.length === 0) {
+                                // @ts-ignore
+                                verificationCodeDigit5Ref.current.focus();
+                            }
                         }}
                         onBlur={() => {
                             setIsVerificationCodeDigit6Focus(false);
@@ -362,11 +439,9 @@ export const CodeVerificationStep = () => {
                     />
                 </View>
                 <View style={styles.resendCodeView}>
-                    {/*{countdownValue > 0 && Platform.OS !== 'android' // this flickers on Android so we will enable it by default*/}
-                    {/*    ? <Text style={styles.countdownTimer}>{``}</Text>*/}
-                    {/*    :*/}
                     {
                         <TouchableOpacity
+                            disabled={countdownValue > 0}
                             onPress={
                                 async () => {
                                     // reset the timer
@@ -374,10 +449,14 @@ export const CodeVerificationStep = () => {
 
                                     // resend the verification code
                                     await resendCode();
+
+                                    // reset all error messages
+                                    setRegistrationMainError(false);
+                                    setVerificationCodeErrors([]);
                                 }
                             }
                         >
-                            <Text style={styles.resendCode}>Resend Code</Text>
+                            <Text style={[countdownValue > 0 ? styles.resendCodeDisabled : styles.resendCode]}>Resend Code</Text>
                         </TouchableOpacity>
                     }
                 </View>

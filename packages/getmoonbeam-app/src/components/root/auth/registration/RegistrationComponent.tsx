@@ -21,7 +21,7 @@ import {
     addressZipErrorsState,
     addressZipState,
     amplifySignUpProcessErrorsState,
-    authRegistrationNavigation,
+    authRegistrationNavigation, automaticallyVerifyRegistrationCodeState,
     birthdayErrorState,
     birthdayState,
     cardLinkingRegistrationStatusState,
@@ -124,6 +124,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [automaticallyVerifyRegistrationCode, setAutomaticallyVerifyRegistrationCode] = useRecoilState(automaticallyVerifyRegistrationCodeState);
     const [, setDocumentsRePickPhoto] = useRecoilState(documentsRePickPhotoState);
     const [, setDocumentsReCapturePhoto] = useRecoilState(documentsReCapturePhotoState);
     const [permissionsModalVisible, setPermissionsModalVisible] = useRecoilState(permissionsModalVisibleState);
@@ -200,6 +201,12 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
      * included in here.
      */
     useEffect(() => {
+        // automatically verify the code
+        if (automaticallyVerifyRegistrationCode) {
+            confirmSignUpCode().then(_ => {
+                setAutomaticallyVerifyRegistrationCode(false);
+            });
+        }
         // keyboard listeners
         const keyboardDidShowListener = Keyboard.addListener(
             'keyboardDidShow',
@@ -244,7 +251,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
             keyboardDidHideListener.remove();
             keyboardDidShowListener.remove();
         };
-    }, [isKeyboardShown, countdownValue, stepNumber, cardLinkingStatus]);
+    }, [automaticallyVerifyRegistrationCode, isKeyboardShown, countdownValue, stepNumber, cardLinkingStatus]);
 
     /**
      * Callback function used to decrease the value of the countdown by 1,

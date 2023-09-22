@@ -113,9 +113,56 @@ const isDocumentUploadAppWallState = atom<string>({
 });
 
 /**
+ * Atom used to keep track of the permissions modal during the registration step.
+ */
+const appWallPermissionsModalVisibleState = atom<boolean>({
+    key: "appWallPermissionsModalVisibleState",
+    default: false
+});
+
+/**
+ * Atom used to keep track of the permissions modal's custom message, during the registration step.
+ */
+const appWallPermissionsModalCustomMessageState = atom<string>({
+    key: "appWallPermissionsModalCustomMessageState",
+    default: ""
+});
+
+/**
+ * Atom used to keep track of the permissions modal's permissions instructions custom message, during the registration step.
+ */
+const appWallPermissionsInstructionsCustomMessageState = atom<string>({
+    key: "appWallPermissionsInstructionsCustomMessageState",
+    default: ""
+});
+
+/**
+ * Atom used to keep track if whether we need to re-pick photo after permissions update, during
+ * registration.
+ */
+const appWallDocumentsRePickPhotoState = atom<boolean>({
+    key: "appWallDocumentsRePickPhotoState",
+    default: false
+});
+
+/**
+ * Atom used to keep track if whether we need to re-capture photo after permissions update, during
+ * registration.
+ */
+const appWallDocumentsReCapturePhotoState = atom<boolean>({
+    key: "appWallDocumentsReCapturePhotoState",
+    default: false
+});
+
+/**
  * Export all atoms and/or selectors
  */
 export {
+    appWallPermissionsModalVisibleState,
+    appWallPermissionsModalCustomMessageState,
+    appWallPermissionsInstructionsCustomMessageState,
+    appWallDocumentsRePickPhotoState,
+    appWallDocumentsReCapturePhotoState,
     verificationDocumentAppWallState,
     isReadyAppWallState,
     isPhotoUploadedAppWallState,

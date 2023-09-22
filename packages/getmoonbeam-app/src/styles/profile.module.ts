@@ -42,7 +42,7 @@ export const styles = StyleSheet.create({
         width: wp(87)
     },
     textInputContentStyle: {
-        width: wp(75),
+        width: wp(60),
         fontSize: hp(2),
         fontFamily: 'Saira-Regular',
         color: '#FFFFFF',
@@ -113,7 +113,7 @@ export const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     textInputNarrowContentStyle: {
-        width: wp(40),
+        width: wp(25),
         fontSize: hp(2),
         fontFamily: 'Saira-Regular',
         color: '#FFFFFF',
