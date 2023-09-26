@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 import {ImageBackground, Keyboard, Platform, TouchableOpacity, View} from "react-native";
-import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {commonStyles} from '../../../styles/common.module';
 import {AccountRecoveryProps} from "../../../models/props/AuthenticationProps";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
@@ -32,8 +32,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
     const [emailFocus, setIsEmailFocus] = useState<boolean>(false);
     const [emailErrors, setEmailErrors] = useState<string[]>([]);
     // step 2
-    const [countdownValue, setCountdownValue] = useState<number>(10);
-    const verificationCodeDigit1Ref = useRef(null);
+    const [countdownValue, setCountdownValue] = useState<number>(0);
     const [verificationCodeDigit1, setVerificationCodeDigit1] = useState<string>("");
     const [verificationCodeDigit1Focus, setVerificationCodeDigit1Focus] = useState<boolean>(false);
     const [verificationCodeDigit2, setVerificationCodeDigit2] = useState<string>("");
@@ -87,6 +86,10 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                 setIsKeyboardShown(false);
             }
         );
+        // start the countdown if the value is 10
+        if (countdownValue === 10) {
+            startCountdown(10);
+        }
         // perform field validations on every state change, for the specific field that is being validated
         if (emailFocus && email !== "") {
             fieldValidator.validateField(email, "email", setEmailErrors);
@@ -108,10 +111,6 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
             setConfirmPasswordErrors(["Passwords do not match."]);
         }
 
-        // start the countdown if the value is 10
-        if (countdownValue === 10) {
-            startCountdown(10);
-        }
         // remove keyboard listeners accordingly
         return () => {
             keyboardDidHideListener.remove();
@@ -349,7 +348,6 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                             : stepNumber === 1 ?
                                                 <>
                                                     <TextInput
-                                                        numberOfLines={1}
                                                         autoCapitalize={"none"}
                                                         autoCorrect={false}
                                                         autoComplete={"off"}
@@ -373,7 +371,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                         }}
                                                         value={password}
                                                         secureTextEntry={!isPasswordShown}
-                                                        contentStyle={[styles.textInputContentStyle, {width: wp(60)}]}
+                                                        contentStyle={styles.textInputContentStyle}
                                                         style={passwordFocus ? styles.textInputFocus : styles.textInput}
                                                         onFocus={() => {
                                                             setIsPasswordFocus(true);
@@ -387,7 +385,6 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                                                onPress={() => setIsPasswordShown(!isPasswordShown)}/>}
                                                     />
                                                     <TextInput
-                                                        numberOfLines={1}
                                                         autoCapitalize={"none"}
                                                         autoCorrect={false}
                                                         autoComplete={"off"}
@@ -411,7 +408,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                         }}
                                                         value={confirmPassword}
                                                         secureTextEntry={!isConfirmPasswordShown}
-                                                        contentStyle={[styles.textInputContentStyle, {width: wp(60)}]}
+                                                        contentStyle={styles.textInputContentStyle}
                                                         style={confirmPasswordFocus ? styles.textPasswordInputFocus : styles.textPasswordInput}
                                                         onFocus={() => {
                                                             setIsConfirmPasswordFocus(true);
@@ -429,7 +426,6 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                     <>
                                                         <View style={styles.codeInputColumnView}>
                                                             <TextInput
-                                                                ref={verificationCodeDigit1Ref}
                                                                 autoCorrect={false}
                                                                 autoComplete={"off"}
                                                                 keyboardType={"number-pad"}
@@ -440,21 +436,20 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                                 activeOutlineColor={'#F2FF5D'}
                                                                 selectionColor={'#F2FF5D'}
                                                                 mode={'outlined'}
-                                                                selection={{start: verificationCodeDigit1.length}}
                                                                 onChangeText={(value: React.SetStateAction<string>) => {
                                                                     setVerificationCodeDigit1Focus(true);
                                                                     setAccountRecoveryError(false);
                                                                     setVerificationCodeErrors([]);
 
                                                                     // format value
-                                                                    value = fieldValidator.formatCodeDigit(value.toString());
+                                                                    value = fieldValidator.formatCodeDigit(verificationCodeDigit1, value.toString());
+
                                                                     setVerificationCodeDigit1(value);
 
-                                                                    // if the value is of length 1, then move to the next digit and clear its contents too
+                                                                    // if the value is of length 1, then move to the next digit
                                                                     if (value.length === 1) {
                                                                         // @ts-ignore
                                                                         verificationCodeDigit2Ref.current.focus();
-                                                                        setVerificationCodeDigit2('');
                                                                     }
                                                                 }}
                                                                 onBlur={() => {
@@ -482,33 +477,20 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                                 activeOutlineColor={'#F2FF5D'}
                                                                 selectionColor={'#F2FF5D'}
                                                                 mode={'outlined'}
-                                                                selection={{start: verificationCodeDigit2.length}}
-                                                                onKeyPress={({nativeEvent}) => {
-                                                                    // for backspace, go back to the previous digit if current digit value is empty
-                                                                    if (nativeEvent.key === 'Backspace' && verificationCodeDigit2.length === 0) {
-                                                                        // @ts-ignore
-                                                                        verificationCodeDigit1Ref.current.focus();
-                                                                    }
-                                                                }}
                                                                 onChangeText={(value: React.SetStateAction<string>) => {
                                                                     setVerificationCodeDigit2Focus(true);
                                                                     setAccountRecoveryError(false);
                                                                     setVerificationCodeErrors([]);
 
                                                                     // format value
-                                                                    value = fieldValidator.formatCodeDigit(value.toString());
+                                                                    value = fieldValidator.formatCodeDigit(verificationCodeDigit2, value.toString());
+
                                                                     setVerificationCodeDigit2(value);
 
-                                                                    // if the value is of length 1, then move to the next digit and clear its contents too
+                                                                    // if the value is of length 1, then move to the next digit
                                                                     if (value.length === 1) {
                                                                         // @ts-ignore
                                                                         verificationCodeDigit3Ref.current.focus();
-                                                                        setVerificationCodeDigit3('');
-                                                                    }
-                                                                    // if the value is of length 0, then we move to the previous digit
-                                                                    if (value.length === 0) {
-                                                                        // @ts-ignore
-                                                                        verificationCodeDigit1Ref.current.focus();
                                                                     }
                                                                 }}
                                                                 onBlur={() => {
@@ -536,33 +518,20 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                                 activeOutlineColor={'#F2FF5D'}
                                                                 selectionColor={'#F2FF5D'}
                                                                 mode={'outlined'}
-                                                                selection={{start: verificationCodeDigit3.length}}
-                                                                onKeyPress={({nativeEvent}) => {
-                                                                    // for backspace, go back to the previous digit if current digit value is empty
-                                                                    if (nativeEvent.key === 'Backspace' && verificationCodeDigit3.length === 0) {
-                                                                        // @ts-ignore
-                                                                        verificationCodeDigit2Ref.current.focus();
-                                                                    }
-                                                                }}
                                                                 onChangeText={(value: React.SetStateAction<string>) => {
                                                                     setVerificationCodeDigit3Focus(true);
                                                                     setAccountRecoveryError(false);
                                                                     setVerificationCodeErrors([]);
 
                                                                     // format value
-                                                                    value = fieldValidator.formatCodeDigit(value.toString());
+                                                                    value = fieldValidator.formatCodeDigit(verificationCodeDigit3, value.toString());
+
                                                                     setVerificationCodeDigit3(value);
 
-                                                                    // if the value is of length 1, then move to the next digit and clear its contents too
+                                                                    // if the value is of length 1, then move to the next digit
                                                                     if (value.length === 1) {
                                                                         // @ts-ignore
                                                                         verificationCodeDigit4Ref.current.focus();
-                                                                        setVerificationCodeDigit4('');
-                                                                    }
-                                                                    // if the value is of length 0, then we move to the previous digit
-                                                                    if (value.length === 0) {
-                                                                        // @ts-ignore
-                                                                        verificationCodeDigit2Ref.current.focus();
                                                                     }
                                                                 }}
                                                                 onBlur={() => {
@@ -590,33 +559,20 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                                 activeOutlineColor={'#F2FF5D'}
                                                                 selectionColor={'#F2FF5D'}
                                                                 mode={'outlined'}
-                                                                selection={{start: verificationCodeDigit4.length}}
-                                                                onKeyPress={({nativeEvent}) => {
-                                                                    // for backspace, go back to the previous digit if current digit value is empty
-                                                                    if (nativeEvent.key === 'Backspace' && verificationCodeDigit4.length === 0) {
-                                                                        // @ts-ignore
-                                                                        verificationCodeDigit3Ref.current.focus();
-                                                                    }
-                                                                }}
                                                                 onChangeText={(value: React.SetStateAction<string>) => {
                                                                     setVerificationCodeDigit4Focus(true);
                                                                     setAccountRecoveryError(false);
                                                                     setVerificationCodeErrors([]);
 
                                                                     // format value
-                                                                    value = fieldValidator.formatCodeDigit(value.toString());
+                                                                    value = fieldValidator.formatCodeDigit(verificationCodeDigit4, value.toString());
+
                                                                     setVerificationCodeDigit4(value);
 
-                                                                    // if the value is of length 1, then move to the next digit and clear its contents too
+                                                                    // if the value is of length 1, then move to the next digit
                                                                     if (value.length === 1) {
                                                                         // @ts-ignore
                                                                         verificationCodeDigit5Ref.current.focus();
-                                                                        setVerificationCodeDigit5('');
-                                                                    }
-                                                                    // if the value is of length 0, then we move to the previous digit
-                                                                    if (value.length === 0) {
-                                                                        // @ts-ignore
-                                                                        verificationCodeDigit3Ref.current.focus();
                                                                     }
                                                                 }}
                                                                 onBlur={() => {
@@ -644,33 +600,20 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                                 activeOutlineColor={'#F2FF5D'}
                                                                 selectionColor={'#F2FF5D'}
                                                                 mode={'outlined'}
-                                                                selection={{start: verificationCodeDigit5.length}}
-                                                                onKeyPress={({nativeEvent}) => {
-                                                                    /// for backspace, go back to the previous digit if current digit value is empty
-                                                                    if (nativeEvent.key === 'Backspace' && verificationCodeDigit5.length === 0) {
-                                                                        // @ts-ignore
-                                                                        verificationCodeDigit4Ref.current.focus();
-                                                                    }
-                                                                }}
                                                                 onChangeText={(value: React.SetStateAction<string>) => {
                                                                     setVerificationCodeDigit5Focus(true);
                                                                     setAccountRecoveryError(false);
                                                                     setVerificationCodeErrors([]);
 
                                                                     // format value
-                                                                    value = fieldValidator.formatCodeDigit(value.toString());
+                                                                    value = fieldValidator.formatCodeDigit(verificationCodeDigit5, value.toString());
+
                                                                     setVerificationCodeDigit5(value);
 
-                                                                    // if the value is of length 1, then move to the next digit and clear its contents too
+                                                                    // if the value is of length 1, then move to the next digit
                                                                     if (value.length === 1) {
                                                                         // @ts-ignore
                                                                         verificationCodeDigit6Ref.current.focus();
-                                                                        setVerificationCodeDigit6('');
-                                                                    }
-                                                                    // if the value is of length 0, then we move to the previous digit
-                                                                    if (value.length === 0) {
-                                                                        // @ts-ignore
-                                                                        verificationCodeDigit4Ref.current.focus();
                                                                     }
                                                                 }}
                                                                 onBlur={() => {
@@ -698,41 +641,15 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                                 activeOutlineColor={'#F2FF5D'}
                                                                 selectionColor={'#F2FF5D'}
                                                                 mode={'outlined'}
-                                                                selection={{start: verificationCodeDigit6.length}}
-                                                                onKeyPress={({nativeEvent}) => {
-                                                                    // for backspace, go back to the previous digit if current digit value is empty
-                                                                    if (nativeEvent.key === 'Backspace' && verificationCodeDigit6.length === 0) {
-                                                                        // @ts-ignore
-                                                                        verificationCodeDigit5Ref.current.focus();
-                                                                    }
-                                                                }}
-                                                                onChangeText={async (value: React.SetStateAction<string>) => {
+                                                                onChangeText={(value: React.SetStateAction<string>) => {
                                                                     setVerificationCodeDigit6Focus(true);
                                                                     setAccountRecoveryError(false);
                                                                     setVerificationCodeErrors([]);
 
                                                                     // format value
-                                                                    value = fieldValidator.formatCodeDigit(value.toString());
-                                                                    setVerificationCodeDigit6(value);
+                                                                    value = fieldValidator.formatCodeDigit(verificationCodeDigit6, value.toString());
 
-                                                                    // if the value is of length 1, then verify code automatically
-                                                                    if (value.length === 1) {
-                                                                        // @ts-ignore
-                                                                        verificationCodeDigit6Ref.current.blur();
-                                                                        // confirm password reset
-                                                                        const passwordResetFlag = await passwordReset(email,
-                                                                            password,
-                                                                            `${verificationCodeDigit1}${verificationCodeDigit2}${verificationCodeDigit3}${verificationCodeDigit4}${verificationCodeDigit5}${verificationCodeDigit6}`);
-                                                                        if (passwordResetFlag) {
-                                                                            // display a success message
-                                                                            setModalVisible(true);
-                                                                        }
-                                                                    }
-                                                                    // if the value is of length 0, then we move to the previous digit
-                                                                    if (value.length === 0) {
-                                                                        // @ts-ignore
-                                                                        verificationCodeDigit5Ref.current.focus();
-                                                                    }
+                                                                    setVerificationCodeDigit6(value);
                                                                 }}
                                                                 onBlur={() => {
                                                                     setVerificationCodeDigit6Focus(false);
@@ -749,9 +666,11 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                             />
                                                         </View>
                                                         <View style={styles.resendCodeView}>
+                                                            {/*{countdownValue > 0*/}
+                                                            {/*    ? <Text style={styles.countdownTimer}>{``}</Text>*/}
+                                                            {/*    :*/}
                                                             {
                                                                 <TouchableOpacity
-                                                                    disabled={countdownValue > 0}
                                                                     onPress={
                                                                         async () => {
                                                                             // reset the timer
@@ -766,13 +685,10 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                                             setVerificationCodeDigit5("");
                                                                             setVerificationCodeDigit6("");
                                                                             setVerificationCodeErrors([]);
-
-                                                                            // reset all error messages
-                                                                            setVerificationCodeErrors([]);
                                                                         }
                                                                     }
                                                                 >
-                                                                    <Text style={[countdownValue > 0 ? styles.resendCodeDisabled : styles.resendCode]}>Resend Code</Text>
+                                                                    <Text style={styles.resendCode}>Resend Code</Text>
                                                                 </TouchableOpacity>
                                                             }
                                                         </View>

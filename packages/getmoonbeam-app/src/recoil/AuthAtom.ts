@@ -541,20 +541,9 @@ const documentsReCapturePhotoState = atom<boolean>({
 });
 
 /**
- * Atom used to keep track of whether we need to automatically verify a code at sign-up
- * once all the digits are entered or not.
- */
-const automaticallyVerifyRegistrationCodeState = atom<boolean>({
-    key: "automaticallyVerifyRegistrationCodeState",
-    default: false
-});
-
-
-/**
  * Export all atoms and/or selectors
  */
 export {
-    automaticallyVerifyRegistrationCodeState,
     documentsRePickPhotoState,
     documentsReCapturePhotoState,
     permissionsModalVisibleState,

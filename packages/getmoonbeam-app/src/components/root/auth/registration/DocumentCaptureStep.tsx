@@ -81,6 +81,7 @@ export const DocumentCaptureStep = () => {
             setDocumentsReCapturePhoto(false);
             capturePhoto().then(_ => {});
         }
+
         // enable/disable the buttons, depending on the document name
         if (capturedFileName !== "") {
             // Enable the next button and disable the upload button
@@ -222,7 +223,7 @@ export const DocumentCaptureStep = () => {
                     return false;
                 }
             } else {
-                const errorMessage = `Enable permissions to access your verification document pictures, and re-login to upload them!`;
+                const errorMessage = `Permission to access media library was not granted!`;
                 console.log(errorMessage);
 
                 setPermissionsModalCustomMessage(errorMessage);
@@ -365,13 +366,13 @@ export const DocumentCaptureStep = () => {
                     return false;
                 }
             } else {
-                const errorMessage = `Enable permissions to capture your verification documents, and re-login to upload them!`;
+                const errorMessage = `Permission to access camera was not granted!`;
                 console.log(errorMessage);
 
                 setPermissionsModalCustomMessage(errorMessage);
                 setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
-                    ? "In order to capture a picture of your documentation, go to Settings -> Moonbeam Finance, and allow Camera access by tapping on the \'Camera\' option."
-                    : "In order to capture a picture of your documentation, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Camera access by tapping on the \"Camera\" option.");
+                    ? "In order to take a picture of your documentation from your library, go to Settings -> Moonbeam Finance, and allow Camera access by tapping on the \'Camera\' option."
+                    : "In order to take a picture of your documentation from your library, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Camera access by tapping on the \"Camera\" option.");
                 setPermissionsModalVisible(true);
 
                 // release the loader on button press
@@ -565,7 +566,7 @@ export const DocumentCaptureStep = () => {
                                     top: hp(1.5)
                                 }}
                                 listItemLabelStyle={styles.dropdownTextInputContentStyle}
-                                modalTitle={"Select your Document Type"}
+                                modalTitle={"Select you Document Type"}
                                 // @ts-ignore
                                 arrowIconStyle={{tintColor: '#FFFFFF'}}
                                 // @ts-ignore

@@ -46,14 +46,6 @@ export const styles = StyleSheet.create({
         textDecorationLine: 'underline',
         color: '#F2FF5D'
     },
-    resendCodeDisabled: {
-        width: wp(80),
-        alignSelf: 'flex-start',
-        fontFamily: 'Changa-Medium',
-        fontSize: hp(2.3),
-        textDecorationLine: 'underline',
-        color: '#D9D9D9'
-    },
     countdownTimer: {
         width: wp(30),
         alignSelf: 'flex-start',

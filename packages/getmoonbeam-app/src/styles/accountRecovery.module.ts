@@ -11,19 +11,17 @@ export const styles = StyleSheet.create({
     greetingTitle: {
         fontFamily: 'Saira-Medium',
         alignSelf: 'flex-start',
-        top: hp(2),
         marginLeft: wp(5),
         marginTop: hp(4),
-        fontSize: hp(5),
+        fontSize: hp(5.5),
         color: '#FFFFFF'
     },
     gettingSubtitle: {
         fontFamily: 'Saira-Medium',
         alignSelf: 'flex-start',
-        top: hp(0.05),
         marginLeft: wp(5),
         bottom: hp(2),
-        fontSize: hp(2.5),
+        fontSize: hp(2.8),
         color: '#FFFFFF'
     },
     gettingSubtitleHighlighted: {
@@ -38,7 +36,7 @@ export const styles = StyleSheet.create({
         marginLeft: wp(5),
         marginBottom: hp(2),
         top: hp(2),
-        fontSize: hp(3.5),
+        fontSize: hp(4.2),
         width: wp(90),
         color: '#FFFFFF'
     },
@@ -60,8 +58,6 @@ export const styles = StyleSheet.create({
     },
     textInputContentStyle: {
         width: wp(75),
-        top: hp(0.5),
-        height: hp(4),
         fontSize: hp(2),
         fontFamily: 'Saira-Regular',
         color: '#FFFFFF'
@@ -170,14 +166,6 @@ export const styles = StyleSheet.create({
         fontSize: hp(2.3),
         textDecorationLine: 'underline',
         color: '#F2FF5D'
-    },
-    resendCodeDisabled: {
-        width: wp(50),
-        alignSelf: 'flex-start',
-        fontFamily: 'Changa-Medium',
-        fontSize: hp(2.3),
-        textDecorationLine: 'underline',
-        color: '#D9D9D9'
     },
     countdownTimer: {
         width: wp(50),

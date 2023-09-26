@@ -40,9 +40,9 @@ export const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     dropdownTextInputContentStyle: {
-        height: hp(6),
+        height: hp(5.2),
         width: wp(87),
-        fontSize: hp(1.8),
+        fontSize: hp(1.5),
         top: hp(1.5),
         fontFamily: 'Saira-Regular',
         color: '#FFFFFF'
@@ -111,7 +111,7 @@ export const styles = StyleSheet.create({
         fontFamily: 'Raleway-Regular',
         alignSelf: 'flex-end',
         textAlign: 'justify',
-        fontSize: hp(1.5),
+        fontSize: hp(1.6),
         width: wp(80),
         color: '#FFFFFF'
     },
@@ -131,8 +131,8 @@ export const styles = StyleSheet.create({
     },
     militaryVerificationImage: {
         resizeMode: 'contain',
-        height: hp(25),
-        width: wp(60)
+        height: hp(35),
+        width: wp(65)
     },
     documentSelectionView: {
         zIndex: 1000,
