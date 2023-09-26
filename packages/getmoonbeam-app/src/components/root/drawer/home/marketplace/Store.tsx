@@ -366,22 +366,32 @@ export const Store = ({navigation}: StoreProps) => {
                                     <Card style={styles.onlineOfferCard}>
                                         <Card.Content>
                                             <View style={{top: hp(2)}}>
-                                                <TouchableOpacity
-                                                    style={styles.viewOfferButton}
-                                                    onPress={async () => {
-                                                        // set the loader
-                                                        setOnlineOffersSpinnerShown(true);
+                                                {
+                                                    onlineOffersSpinnerShown ?
+                                                        <ActivityIndicator
+                                                            style={{top: hp(2)}}
+                                                            animating={onlineOffersSpinnerShown}
+                                                            color={'#F2FF5D'}
+                                                            size={hp(5)}
+                                                        />
+                                                        :
+                                                        <TouchableOpacity
+                                                            style={styles.viewOfferButton}
+                                                            onPress={async () => {
+                                                                // set the loader
+                                                                setOnlineOffersSpinnerShown(true);
 
-                                                        // retrieve additional offers
-                                                        await retrieveOnlineOffersList();
+                                                                // retrieve additional offers
+                                                                await retrieveOnlineOffersList();
 
-                                                        // release the loader
-                                                        setOnlineOffersSpinnerShown(false);
-                                                    }}
-                                                >
-                                                    {/*@ts-ignore*/}
-                                                    <Text style={styles.viewOfferButtonContent}>More</Text>
-                                                </TouchableOpacity>
+                                                                // release the loader
+                                                                setOnlineOffersSpinnerShown(false);
+                                                            }}
+                                                        >
+                                                            {/*@ts-ignore*/}
+                                                            <Text style={styles.viewOfferButtonContent}>More</Text>
+                                                        </TouchableOpacity>
+                                                }
                                             </View>
                                         </Card.Content>
                                     </Card>
@@ -789,24 +799,38 @@ export const Store = ({navigation}: StoreProps) => {
                                                     flexDirection: 'row'
                                                 }}>
                                                     <View style={{top: hp(5)}}>
-                                                        <TouchableOpacity
-                                                            style={styles.viewOfferButton}
-                                                            onPress={async () => {
-                                                                // set the loader
-                                                                setNearbyOffersSpinnerShown(true);
+                                                        {
+                                                            nearbyOffersSpinnerShown ?
+                                                                <ActivityIndicator
+                                                                    style={{
+                                                                        top: hp(2),
+                                                                        left: wp(10)
+                                                                    }}
+                                                                    animating={nearbyOffersSpinnerShown}
+                                                                    color={'#F2FF5D'}
+                                                                    size={hp(5)}
+                                                                />
+                                                                :
+                                                                <TouchableOpacity
+                                                                    style={styles.viewOfferButton}
+                                                                    onPress={async () => {
+                                                                        // set the loader
+                                                                        setNearbyOffersSpinnerShown(true);
 
-                                                                // retrieve additional offers (either nearby, or near user's home location)
-                                                                !offersNearUserLocationFlag
-                                                                    ? await retrieveNearbyOffersList()
-                                                                    : await retrieveOffersNearLocation(userInformation["address"]["formatted"]);
+                                                                        // retrieve additional offers (either nearby, or near user's home location)
+                                                                        !offersNearUserLocationFlag
+                                                                            ? await retrieveNearbyOffersList()
+                                                                            : await retrieveOffersNearLocation(userInformation["address"]["formatted"]);
 
-                                                                // release the loader
-                                                                setNearbyOffersSpinnerShown(false);
-                                                            }}
-                                                        >
-                                                            {/*@ts-ignore*/}
-                                                            <Text style={styles.viewOfferButtonContent}>More</Text>
-                                                        </TouchableOpacity>
+                                                                        // release the loader
+                                                                        setNearbyOffersSpinnerShown(false);
+                                                                    }}
+                                                                >
+                                                                    {/*@ts-ignore*/}
+                                                                    <Text
+                                                                        style={styles.viewOfferButtonContent}>More</Text>
+                                                                </TouchableOpacity>
+                                                        }
                                                     </View>
                                                 </View>
                                             </View>
@@ -834,12 +858,15 @@ export const Store = ({navigation}: StoreProps) => {
     const populateVerticalOffers = (filtered: boolean): React.ReactNode | React.ReactNode[] => {
         let results: React.ReactNode[] = [];
         let verticalOffersNumber = 0;
+        let offersShown = false;
+
 
         // check which offer arrays to observe (filtered or all the other ones)
         const offerList: Offer[] = filtered ? filteredOfferList : nearbyOfferList.concat(onlineOfferList);
 
         // fidelis partner listing - filtered
         if (filtered && filteredFidelisList.length !== 0) {
+            offersShown = true;
             for (const fidelisPartner of filteredFidelisList) {
                 // retrieve appropriate offer for partner (everyday)
                 let offer: Offer | null = null;
@@ -898,6 +925,7 @@ export const Store = ({navigation}: StoreProps) => {
 
         // fidelis partner listing - not filtered
         if (!filtered && !noFilteredOffersAvailable) {
+            offersShown = true;
             for (const fidelisPartner of fidelisPartnerList) {
                 // retrieve appropriate offer for partner (everyday)
                 let offer: Offer | null = null;
@@ -956,6 +984,7 @@ export const Store = ({navigation}: StoreProps) => {
 
         // offer listing
         if (offerList.length !== 0 && !noFilteredOffersAvailable) {
+            offersShown = true;
             for (const verticalOffer of offerList) {
                 results.push(
                     <>
@@ -1106,9 +1135,20 @@ export const Store = ({navigation}: StoreProps) => {
         }
 
         // filtered no offers to be displayed
-        if (filtered && filteredOfferList.length === 0 && filteredFidelisList.length === 0) {
+        if (filteredOfferList.length === 0 && filteredFidelisList.length === 0 && !offersShown) {
             results.push(
-                <></>
+                <List.Item disabled={true}
+                           rippleColor={'transparent'}
+                           onPress={async () => {
+                           }}
+                           style={{
+                               marginLeft: wp(28),
+                               top: hp(5)
+                           }}
+                           titleStyle={[styles.verticalOfferName, {color: '#F2FF5D'}]}
+                           titleNumberOfLines={1}
+                           title={'No Matched Offers'}
+                />
             )
         }
         return results;
@@ -1312,7 +1352,8 @@ export const Store = ({navigation}: StoreProps) => {
             !isReady && setIsReady(true);
 
             // retrieve the nearby offers list
-            retrieveNearbyOffersList().then(() => {});
+            retrieveNearbyOffersList().then(() => {
+            });
         });
 
         // change the filtered list, based on the search query
@@ -1462,6 +1503,18 @@ export const Store = ({navigation}: StoreProps) => {
                                                     // set the no filtered offers available flag accordingly
                                                     setNoFilteredOffersAvailable(false);
                                                 }
+                                                // reset the search query
+                                                if (value === 'horizontal' && filteredOfferList.length === 0 && searchQuery.length !== 0) {
+                                                    // clear the filtered list and set appropriate flags
+                                                    setFilteredOfferList([]);
+                                                    setFilteredFidelisList([]);
+
+                                                    // set the no filtered offers available flag accordingly
+                                                    setNoFilteredOffersAvailable(false);
+
+                                                    // set the caching flag for images accordingly
+                                                    setShouldCacheImages(false);
+                                                }
                                             }}
                                             value={toggleViewPressed}>
                                             <ToggleButton
@@ -1501,7 +1554,6 @@ export const Store = ({navigation}: StoreProps) => {
                                         setShouldCacheImages(false);
                                     }}
                                     onSubmitEditing={async (event) => {
-                                        console.log("searching", event.nativeEvent.text);
                                         // flag to ensure that we are not looking up a previously filtered offer/partner
                                         let reSearchFlag = false;
 
@@ -1826,10 +1878,6 @@ export const Store = ({navigation}: StoreProps) => {
                                                                     </TouchableOpacity>
                                                                 </View>
                                                                 <Portal.Host>
-                                                                    <Spinner
-                                                                        loadingSpinnerShown={nearbyOffersSpinnerShown}
-                                                                        setLoadingSpinnerShown={setNearbyOffersSpinnerShown}
-                                                                        fullScreen={false}/>
                                                                     <ScrollView
                                                                         style={styles.nearbyOffersScrollView}
                                                                         horizontal={true}
@@ -1875,10 +1923,6 @@ export const Store = ({navigation}: StoreProps) => {
                                                                 </TouchableOpacity>
                                                             </View>
                                                             <Portal.Host>
-                                                                <Spinner
-                                                                    loadingSpinnerShown={onlineOffersSpinnerShown}
-                                                                    setLoadingSpinnerShown={setOnlineOffersSpinnerShown}
-                                                                    fullScreen={false}/>
                                                                 <ScrollView
                                                                     style={[styles.onlineOffersScrollView, nearbyOfferList.length === 0 && areNearbyOffersReady && {left: -wp(0.5)}]}
                                                                     horizontal={true}

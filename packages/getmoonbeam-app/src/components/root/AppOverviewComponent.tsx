@@ -7,7 +7,7 @@ import {LinearGradient} from "expo-linear-gradient";
 import {Text} from "react-native-paper";
 import GestureRecognizer from 'react-native-swipe-gestures';
 import {useRecoilState} from "recoil";
-import {initialAuthenticationScreen} from "../../recoil/AuthAtom";
+import {initialAuthenticationScreen, deferToLoginState} from "../../recoil/AuthAtom";
 import {appOverviewSteps} from "../../models/Constants";
 import {requestAppTrackingTransparencyPermission} from "../../utils/Permissions";
 import * as SecureStore from "expo-secure-store";
@@ -22,6 +22,7 @@ import * as SecureStore from "expo-secure-store";
 export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
     // constants used to keep track of shared states
     const [_, setAuthScreen] = useRecoilState(initialAuthenticationScreen);
+    const [deferToLogin, setDeferToLogin] = useRecoilState(deferToLoginState);
     // constants used to keep track of local component state
     const [stepNumber, setStepNumber] = useState<number>(0);
 
@@ -54,7 +55,21 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
                 });
             }
         });
-    }, []);
+        if (deferToLogin) {
+            /**
+             * navigate to the Authentication component, and set the recoil state accordingly,
+             * in order to display the right subcomponent for Authentication.
+             */
+            setAuthScreen('SignIn');
+            navigation.navigate("Authentication", {
+                marketplaceCache: route.params.marketplaceCache,
+                cache: route.params.cache,
+                expoPushToken: route.params.expoPushToken,
+                onLayoutRootView: route.params.onLayoutRootView
+            });
+            setDeferToLogin(false);
+        }
+    }, [deferToLogin]);
 
     // return the component for the AppOverview page
     return (

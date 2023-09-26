@@ -21,7 +21,9 @@ export const Spinner = (props: { loadingSpinnerShown: boolean, setLoadingSpinner
                     ?
                     <Portal>
                         <Modal dismissable={false} visible={props.loadingSpinnerShown}
-                               onDismiss={() => props.setLoadingSpinnerShown(false)}><></>
+                               onDismiss={() => props.setLoadingSpinnerShown(false)}>
+                            <ActivityIndicator animating={true} color={'#F2FF5D'}
+                                               size={wp(13)}/>
                         </Modal>
                     </Portal>
                     :

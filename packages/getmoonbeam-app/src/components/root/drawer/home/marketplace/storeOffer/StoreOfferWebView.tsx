@@ -5,10 +5,8 @@ import {storeOfferState} from "../../../../../../recoil/StoreOfferAtom";
 import {styles} from '../../../../../../styles/storeOfferWebView.module';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {View} from "react-native";
-import {FAB, IconButton, Portal, Text, TextInput} from "react-native-paper";
+import {IconButton, Text, TextInput} from "react-native-paper";
 import WebView from "react-native-webview";
-import * as Clipboard from 'expo-clipboard';
-import {currentUserInformation} from "../../../../../../recoil/AuthAtom";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 /**
@@ -19,7 +17,7 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-nativ
  */
 export const StoreOfferWebView = ({navigation}: StoreOfferWebViewProps) => {
     // constants used to keep track of local component state
-    const [cardDetailsMenuOpen, setCardDetailsMenuOpen] = useState<any>(false);
+    // const [cardDetailsMenuOpen, setCardDetailsMenuOpen] = useState<any>(false);
     const [isBackButtonDisabled, setIsBackButtonDisabled] = useState<boolean>(true);
     const [isForwardButtonDisabled, setIsForwardButtonDisabled] = useState<boolean>(true);
     const [initialOfferWebsite, setInitialOfferWebsite] = useState<string>('https://www.google.com');
@@ -27,7 +25,7 @@ export const StoreOfferWebView = ({navigation}: StoreOfferWebViewProps) => {
 
     // constants used to keep track of shared states
     const [storeOfferClicked,] = useRecoilState(storeOfferState);
-    const [userInformation,] = useRecoilState(currentUserInformation);
+    // const [userInformation,] = useRecoilState(currentUserInformation);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -142,58 +140,58 @@ export const StoreOfferWebView = ({navigation}: StoreOfferWebViewProps) => {
                         </Text>
                     </Text>
                 </View>
-                <View style={{
-                    alignSelf: 'center',
-                    flexDirection: 'column',
-                    backgroundColor: 'red'
-                }}>
-                    <Portal>
-                        <FAB.Group
-                            visible={true}
-                            label={'Copy'}
-                            style={{
-                                flexDirection: 'row',
-                                backgroundColor: 'transparent',
-                                position: 'absolute',
-                                top: hp(55)
-                            }}
-                            fabStyle={styles.cardDetailsButton}
-                            color={'#F2FF5D'}
-                            open={cardDetailsMenuOpen['open']}
-                            icon={cardDetailsMenuOpen['open'] ? require('../../../../../../../assets/card-details-close.png') : require('../../../../../../../assets/card-details-open.png')}
-                            actions={[
-                                ...userInformation["linkedCard"] && userInformation["linkedCard"].length !== 0 ?
-                                    [{
-                                        labelStyle: styles.cardDetailsSectionLabel,
-                                        color: '#F2FF5D',
-                                        icon: 'credit-card',
-                                        label: 'Linked Card Last 4 Digits',
-                                        onPress: async () => {
-                                            await Clipboard.setStringAsync(`${userInformation["linkedCard"]["cards"][0].last4}`);
-                                        },
-                                    }] : [],
-                                {
-                                    labelStyle: styles.cardDetailsSectionLabel,
-                                    color: '#F2FF5D',
-                                    icon: 'map-marker-multiple',
-                                    label: 'Billing Address',
-                                    onPress: async () => {
-                                        await Clipboard.setStringAsync(`${userInformation["address"]["formatted"]}`);
-                                    },
-                                }
-                            ]}
-                            onStateChange={setCardDetailsMenuOpen}
-                            onPress={() => {
-                                if (cardDetailsMenuOpen['open']) {
-                                    setCardDetailsMenuOpen(false);
-                                }
-                                if (!cardDetailsMenuOpen['open']) {
-                                    setCardDetailsMenuOpen(true);
-                                }
-                            }}
-                        />
-                    </Portal>
-                </View>
+                {/*<View style={{*/}
+                {/*    alignSelf: 'center',*/}
+                {/*    flexDirection: 'column',*/}
+                {/*    backgroundColor: 'red'*/}
+                {/*}}>*/}
+                {/*    <Portal>*/}
+                {/*        <FAB.Group*/}
+                {/*            visible={true}*/}
+                {/*            label={'Copy'}*/}
+                {/*            style={{*/}
+                {/*                flexDirection: 'row',*/}
+                {/*                backgroundColor: 'transparent',*/}
+                {/*                position: 'absolute',*/}
+                {/*                top: hp(55)*/}
+                {/*            }}*/}
+                {/*            fabStyle={styles.cardDetailsButton}*/}
+                {/*            color={'#F2FF5D'}*/}
+                {/*            open={cardDetailsMenuOpen['open']}*/}
+                {/*            icon={cardDetailsMenuOpen['open'] ? require('../../../../../../../assets/card-details-close.png') : require('../../../../../../../assets/card-details-open.png')}*/}
+                {/*            actions={[*/}
+                {/*                ...userInformation["linkedCard"] && userInformation["linkedCard"].length !== 0 ?*/}
+                {/*                    [{*/}
+                {/*                        labelStyle: styles.cardDetailsSectionLabel,*/}
+                {/*                        color: '#F2FF5D',*/}
+                {/*                        icon: 'credit-card',*/}
+                {/*                        label: 'Linked Card Last 4 Digits',*/}
+                {/*                        onPress: async () => {*/}
+                {/*                            await Clipboard.setStringAsync(`${userInformation["linkedCard"]["cards"][0].last4}`);*/}
+                {/*                        },*/}
+                {/*                    }] : [],*/}
+                {/*                {*/}
+                {/*                    labelStyle: styles.cardDetailsSectionLabel,*/}
+                {/*                    color: '#F2FF5D',*/}
+                {/*                    icon: 'map-marker-multiple',*/}
+                {/*                    label: 'Billing Address',*/}
+                {/*                    onPress: async () => {*/}
+                {/*                        await Clipboard.setStringAsync(`${userInformation["address"]["formatted"]}`);*/}
+                {/*                    },*/}
+                {/*                }*/}
+                {/*            ]}*/}
+                {/*            onStateChange={setCardDetailsMenuOpen}*/}
+                {/*            onPress={() => {*/}
+                {/*                if (cardDetailsMenuOpen['open']) {*/}
+                {/*                    setCardDetailsMenuOpen(false);*/}
+                {/*                }*/}
+                {/*                if (!cardDetailsMenuOpen['open']) {*/}
+                {/*                    setCardDetailsMenuOpen(true);*/}
+                {/*                }*/}
+                {/*            }}*/}
+                {/*        />*/}
+                {/*    </Portal>*/}
+                {/*</View>*/}
             </View>
         </SafeAreaView>
     );

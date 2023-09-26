@@ -61,6 +61,7 @@ import * as ImagePicker from "expo-image-picker";
  */
 export const AppWall = ({navigation}: AppWallProps) => {
     // constants used to keep track of local component state
+    const [dismissButtonVisible, setIsDismissButtonVisible] = useState<boolean>(false);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [supportModalVisible, setSupportModalVisible] = useState<boolean>(false);
     const [supportModalMessage, setSupportModalMessage] = useState<string>('');
@@ -103,16 +104,18 @@ export const AppWall = ({navigation}: AppWallProps) => {
             // the splash state information will depend on the military status
             switch (userInformation["militaryStatus"]) {
                 case MilitaryVerificationStatusType.Pending:
-                    splashTitle = `Sorry for the wait!`;
+                    splashTitle = `Thanks for registering!`;
                     splashDescription = `We're working on verifying your account, and will hear back from our team shortly.`;
                     splashArtSource = StatusPendingImage;
                     splashButtonText = `Contact Us`;
+                    setIsDismissButtonVisible(true);
                     break;
                 case MilitaryVerificationStatusType.Rejected:
                     splashTitle = `Sorry for the inconvenience!`;
                     splashDescription = `We were not able to verify your military status. Contact our team for more information!`;
                     splashArtSource = StatusRejectedImage;
                     splashButtonText = `Contact Us`;
+                    setIsDismissButtonVisible(true);
                     break;
                 case "UNKNOWN":
                     splashTitle = `Resume your registration!`;
@@ -411,7 +414,7 @@ export const AppWall = ({navigation}: AppWallProps) => {
                             </Dialog>
                         </Portal>
                         <KeyboardAwareScrollView
-                            scrollEnabled={stepNumber !== 1}
+                            scrollEnabled={stepNumber !== 0 && stepNumber !== 1}
                             showsVerticalScrollIndicator={false}
                             enableOnAndroid={true}
                             enableAutomaticScroll={(Platform.OS === 'ios')}
@@ -446,6 +449,12 @@ export const AppWall = ({navigation}: AppWallProps) => {
                                         splashButtonText={splashState.splashButtonText}
                                         splashTitle={splashState.splashTitle}
                                         splashDescription={splashState.splashDescription}
+                                        {
+                                            ...dismissButtonVisible &&
+                                            {
+                                                splashDismissButton:true
+                                            }
+                                        }
                                     />
                                     : stepNumber === 1
                                         ?

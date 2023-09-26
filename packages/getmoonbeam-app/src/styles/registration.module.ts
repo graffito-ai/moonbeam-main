@@ -3,6 +3,11 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 
 // styles to be used within the Registration component
 export const styles = StyleSheet.create({
+    duplicateEmailImage: {
+        height: hp(25),
+        width: wp(75),
+        alignSelf: 'center'
+    },
     additionalRegistrationBottomInputsView: {
         marginTop: hp(9),
         width: wp(87)

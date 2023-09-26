@@ -341,6 +341,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                     <Divider style={styles.divider}/>
                                     <Divider style={styles.divider}/>
                                     <List.Item
+                                        disabled={true}
                                         rippleColor={'transparent'}
                                         style={styles.settingsItemStyle}
                                         titleStyle={styles.settingsItemTitle}
@@ -395,19 +396,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                             />
                                         }
                                         onPress={async () => {
-                                            // check if a member has already been deactivated or never completed the linked card process
-                                            if (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0) {
-                                                // there's a need to deactivate
-                                                await optOut(
-                                                    userInformation["custom:userId"],
-                                                    userInformation["linkedCard"]["memberId"],
-                                                    userInformation["linkedCard"]["cards"][0]["id"]
-                                                );
-                                            } else {
-                                                // there's no need for deactivation, so go to the Card linking screen
-                                                bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
-                                                drawerNavigation && drawerNavigation!.navigate('Home', {});
-                                            }
+                                            // do nothing
                                         }}
                                     />
                                 </List.Section>

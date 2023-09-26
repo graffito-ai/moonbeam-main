@@ -3,6 +3,10 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 
 // styles to be used within the Splash component
 export const styles = StyleSheet.create({
+    loginButton: {
+        left: wp(10),
+        alignSelf: 'flex-start'
+    },
     splashScreenView: {
         flex: 1,
         width: wp(100),

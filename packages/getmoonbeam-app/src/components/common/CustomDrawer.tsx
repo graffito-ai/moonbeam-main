@@ -72,7 +72,7 @@ import {
     registrationVerificationDigit3,
     registrationVerificationDigit4,
     registrationVerificationDigit5,
-    registrationVerificationDigit6,
+    registrationVerificationDigit6, deferToLoginState,
     verificationCodeErrorsState,
     verificationDocumentState
 } from '../../recoil/AuthAtom';
@@ -240,6 +240,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const appWallDocumentsRePickPhotoStateReset = useResetRecoilState(appWallDocumentsRePickPhotoState);
     const appWallDocumentsReCapturePhotoStateReset = useResetRecoilState(appWallDocumentsReCapturePhotoState);
     const automaticallyVerifyRegistrationCodeStateReset = useResetRecoilState(automaticallyVerifyRegistrationCodeState);
+    const deferToLoginStateReset = useResetRecoilState(deferToLoginState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -454,6 +455,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                         appWallDocumentsRePickPhotoStateReset();
                                         appWallDocumentsReCapturePhotoStateReset();
                                         automaticallyVerifyRegistrationCodeStateReset();
+                                        deferToLoginStateReset();
 
                                         /**
                                          * ensure that the current user's biometric session is interrupted, and that the already signed in flag is reset

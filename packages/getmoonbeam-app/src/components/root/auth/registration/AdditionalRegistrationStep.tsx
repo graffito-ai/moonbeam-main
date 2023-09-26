@@ -31,6 +31,7 @@ import DropDownPicker from "react-native-dropdown-picker";
  */
 export const AdditionalRegistrationStep = () => {
     // constants used to keep track of local component state
+    const [autoFilledAddressLine, setAutoFilledAddressLine] = useState<boolean>(false);
     const [branchItems, setBranchItems] = useState(militaryBranchItems);
     const [addressLineFocus, setIsAddressLineFocus] = useState<boolean>(false);
     const [addressCityFocus, setIsAddressCityFocus] = useState<boolean>(false);
@@ -127,6 +128,7 @@ export const AdditionalRegistrationStep = () => {
                 fetchDetails={true}
                 onPress={(_, details) => {
                     if (details && details.address_components && details.address_components.length !== 0) {
+                        setAutoFilledAddressLine(true);
                         // autofilled address details
                         let autoFilledAddressLine = '';
                         let autoFilledCity = '';
@@ -156,10 +158,10 @@ export const AdditionalRegistrationStep = () => {
                                     : `${component.long_name}`;
                             }
                         });
-                        setAddressLine(autoFilledAddressLine);
                         setAddressCity(autoFilledCity);
                         setAddressState(autoFilledState);
                         setAddressZip(autoFilledZip);
+                        setAddressLine(autoFilledAddressLine);
                         setAddressCityErrors([]);
                         setAddressLineErrors([]);
                         setAddressStateErrors([]);
@@ -226,13 +228,15 @@ export const AdditionalRegistrationStep = () => {
                     onChangeText: (value: React.SetStateAction<string>) => {
                         setIsAddressLineFocus(true);
                         setRegistrationMainError(false);
-                        setAddressLine(value.toString());
+                        !autoFilledAddressLine && setAddressLine(value.toString());
                     },
                     onBlur: () => {
                         setIsAddressLineFocus(false);
                         setIsBackButtonShown(true);
                     },
                     onFocus: () => {
+                        setAutoFilledAddressLine(false);
+
                         setIsAddressLineFocus(true);
                         setIsBackButtonShown(false);
 

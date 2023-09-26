@@ -549,11 +549,21 @@ const automaticallyVerifyRegistrationCodeState = atom<boolean>({
     default: false
 });
 
+/**
+ * Atom used to keep track of whether we need to re-evaluate whether we go to the SignIn screen,
+ * from the App Overview component, in case of button dismissal coming from the Pending or Rejected
+ * screens.
+ */
+const deferToLoginState = atom<boolean>({
+    key: "deferToLoginState",
+    default: false
+});
 
 /**
  * Export all atoms and/or selectors
  */
 export {
+    deferToLoginState,
     automaticallyVerifyRegistrationCodeState,
     documentsRePickPhotoState,
     documentsReCapturePhotoState,

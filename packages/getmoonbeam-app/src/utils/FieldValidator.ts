@@ -268,7 +268,7 @@ export class FieldValidator {
                 }
                 break;
             case 'email':
-                if (!/^([^\s@]+@[^\s@]+\.[^\s@]+)$/.test(fieldValue)) {
+                if (!/^([^\s@]+@[^\s@]+\.[^\s@]+)$/.test(fieldValue.trimStart().trimEnd())) {
                     setErrorsArray(["Invalid Email."]);
                 } else {
                     setErrorsArray([]);

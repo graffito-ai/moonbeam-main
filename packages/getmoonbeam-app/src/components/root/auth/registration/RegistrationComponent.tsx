@@ -25,7 +25,7 @@ import {
     birthdayErrorState,
     birthdayState,
     cardLinkingRegistrationStatusState,
-    currentUserInformation,
+    currentUserInformation, deferToLoginState,
     documentsReCapturePhotoState,
     documentsRePickPhotoState,
     dutyStatusErrorsState,
@@ -40,7 +40,7 @@ import {
     globalAmplifyCacheState,
     isReadyRegistrationState,
     lastNameErrorsState,
-    lastNameState,
+    lastNameState, mainRootNavigationState,
     marketplaceAmplifyCacheState,
     militaryBranchErrorsState,
     militaryBranchValueState,
@@ -92,6 +92,8 @@ import {Spinner} from "../../../common/Spinner";
 import {splashStatusState} from "../../../../recoil/SplashAtom";
 import {CardLinkingStep} from "./CardLinkingStep";
 // @ts-ignore
+import MoonbeamDuplicateEmail from '../../../../../assets/art/moonbeam-duplicate-email.png';
+// @ts-ignore
 import CardLinkedSuccessImage from '../../../../../assets/art/card-linked-success.png';
 // @ts-ignore
 import RegistrationBackgroundImage from '../../../../../assets/backgrounds/registration-background.png';
@@ -123,7 +125,10 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     // constants used to keep track of local component state
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
+    const [existentAccountVisible, setExistentAccountVisible] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [mainRootNavigation,] = useRecoilState(mainRootNavigationState);
+    const [, setDeferToLogin] = useRecoilState(deferToLoginState);
     const [automaticallyVerifyRegistrationCode, setAutomaticallyVerifyRegistrationCode] = useRecoilState(automaticallyVerifyRegistrationCodeState);
     const [, setDocumentsRePickPhoto] = useRecoilState(documentsRePickPhotoState);
     const [, setDocumentsReCapturePhoto] = useRecoilState(documentsReCapturePhotoState);
@@ -143,36 +148,36 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
     const [expoPushToken,] = useRecoilState(expoPushTokenState);
     // step 1
-    const [firstName,] = useRecoilState(firstNameState);
-    const [firstNameErrors,] = useRecoilState(firstNameErrorsState);
-    const [lastName,] = useRecoilState(lastNameState);
-    const [lastNameErrors,] = useRecoilState(lastNameErrorsState);
-    const [birthday,] = useRecoilState(birthdayState);
-    const [birthdayErrors,] = useRecoilState(birthdayErrorState);
-    const [phoneNumber,] = useRecoilState(phoneNumberState);
-    const [phoneNumberErrors,] = useRecoilState(phoneNumberErrorsState);
-    const [email,] = useRecoilState(emailState);
-    const [emailErrors,] = useRecoilState(emailErrorsState);
-    const [dutyStatus,] = useRecoilState(dutyStatusValueState);
-    const [dutyStatusErrors,] = useRecoilState(dutyStatusErrorsState);
-    const [enlistingYear,] = useRecoilState(enlistingYearState);
-    const [enlistingYearErrors,] = useRecoilState(enlistingYearErrorsState);
+    const [firstName, setFirstName] = useRecoilState(firstNameState);
+    const [firstNameErrors, setFirstNameErrors] = useRecoilState(firstNameErrorsState);
+    const [lastName, setLastName] = useRecoilState(lastNameState);
+    const [lastNameErrors, setLastNameErrors] = useRecoilState(lastNameErrorsState);
+    const [birthday, setBirthday] = useRecoilState(birthdayState);
+    const [birthdayErrors, setBirthdayErrors] = useRecoilState(birthdayErrorState);
+    const [phoneNumber, setPhoneNumber] = useRecoilState(phoneNumberState);
+    const [phoneNumberErrors, setPhoneNumberErrors] = useRecoilState(phoneNumberErrorsState);
+    const [email, setEmail] = useRecoilState(emailState);
+    const [emailErrors, setEmailErrors] = useRecoilState(emailErrorsState);
+    const [dutyStatus, setDutyStatus] = useRecoilState(dutyStatusValueState);
+    const [dutyStatusErrors, setDutyStatusErrors] = useRecoilState(dutyStatusErrorsState);
+    const [enlistingYear, setEnlistingYear] = useRecoilState(enlistingYearState);
+    const [enlistingYearErrors, setEnlistingYearErrors] = useRecoilState(enlistingYearErrorsState);
     // step 2
-    const [addressLine,] = useRecoilState(addressLineState);
-    const [addressLineErrors,] = useRecoilState(addressLineErrorsState);
-    const [addressCity,] = useRecoilState(addressCityState);
-    const [addressCityErrors,] = useRecoilState(addressCityErrorsState);
-    const [addressState,] = useRecoilState(addressStateState);
-    const [addressStateErrors,] = useRecoilState(addressStateErrorsState);
-    const [addressZip,] = useRecoilState(addressZipState);
-    const [addressZipErrors,] = useRecoilState(addressZipErrorsState);
-    const [militaryBranch,] = useRecoilState(militaryBranchValueState);
-    const [militaryBranchErrors,] = useRecoilState(militaryBranchErrorsState);
+    const [addressLine, setAddressLine] = useRecoilState(addressLineState);
+    const [addressLineErrors, setAddressLineErrors] = useRecoilState(addressLineErrorsState);
+    const [addressCity, setAddressCity] = useRecoilState(addressCityState);
+    const [addressCityErrors, setAddressCityErrors] = useRecoilState(addressCityErrorsState);
+    const [addressState, setAddressState] = useRecoilState(addressStateState);
+    const [addressStateErrors, setAddressStateErrors] = useRecoilState(addressStateErrorsState);
+    const [addressZip, setAddressZip] = useRecoilState(addressZipState);
+    const [addressZipErrors, setAddressZipErrors] = useRecoilState(addressZipErrorsState);
+    const [militaryBranch, setMilitaryBranch] = useRecoilState(militaryBranchValueState);
+    const [militaryBranchErrors, setMilitaryBranchErrors] = useRecoilState(militaryBranchErrorsState);
     // step 3
     const [password, setPassword] = useRecoilState(registrationPasswordState);
     const [confirmPassword, setConfirmPassword] = useRecoilState(registrationConfirmationPasswordState);
-    const [passwordErrors,] = useRecoilState(registrationPasswordErrorsState);
-    const [confirmPasswordErrors,] = useRecoilState(registrationConfirmationPasswordErrorsState);
+    const [passwordErrors, setPasswordErrors] = useRecoilState(registrationPasswordErrorsState);
+    const [confirmPasswordErrors, setConfirmPasswordErrors] = useRecoilState(registrationConfirmationPasswordErrorsState);
     const [accountRegistrationDisclaimer,] = useRecoilState(accountCreationDisclaimerCheckState);
     // step 4
     const [countdownValue, setCountdownValue] = useRecoilState(registrationCodeTimerValue);
@@ -290,17 +295,17 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
             const eligibilityResult = await API.graphql(graphqlOperation(createMilitaryVerification, {
                 createMilitaryVerificationInput: {
                     id: userId,
-                    firstName: firstName,
-                    lastName: lastName,
+                    firstName: firstName.trimStart().trimEnd(),
+                    lastName: lastName.trimStart().trimEnd(),
                     dateOfBirth: birthday,
-                    enlistmentYear: enlistingYear,
-                    addressLine: addressLine,
-                    city: addressCity,
-                    state: addressState,
-                    zipCode: addressZip,
+                    enlistmentYear: enlistingYear.trimStart().trimEnd(),
+                    addressLine: addressLine.trimStart().trimEnd(),
+                    city: addressCity.trimStart().trimEnd(),
+                    state: addressState.trimStart().trimEnd(),
+                    zipCode: addressZip.trimStart().trimEnd(),
                     militaryAffiliation: MilitaryAffiliation.ServiceMember, // ToDo: in the future when we add family members, we need a mechanism for that
-                    militaryBranch: militaryBranch,
-                    militaryDutyStatus: dutyStatus
+                    militaryBranch: militaryBranch.trimStart().trimEnd(),
+                    militaryDutyStatus: dutyStatus.trimStart().trimEnd()
                 }
             }));
 
@@ -359,25 +364,25 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                 autoSignIn: {
                     enabled: false
                 },
-                username: email,
+                username: email.trimStart().trimEnd(),
                 password: password,
                 attributes: {
-                    email: email,
+                    email: email.trimStart().trimEnd(),
                     phone_number: `${phoneNumber.replaceAll('(', '')
                         .replaceAll(')', '')
                         .replaceAll('-', '')
                         .replaceAll(' ', '')}`,
-                    given_name: firstName,
-                    family_name: lastName,
+                    given_name: firstName.trimStart().trimEnd(),
+                    family_name: lastName.trimStart().trimEnd(),
                     birthdate: dob,
-                    address: `${addressLine}, ${addressCity}, ${addressState}, ${addressZip}`,
+                    address: `${addressLine.trimStart().trimEnd()}, ${addressCity.trimStart().trimEnd()}, ${addressState.trimStart().trimEnd()}, ${addressZip.trimStart().trimEnd()}`,
                     updated_at: Date.now().toString(),
-                    'custom:branch': militaryBranch,
-                    'custom:duty_status': dutyStatus,
+                    'custom:branch': militaryBranch.trimStart().trimEnd(),
+                    'custom:duty_status': dutyStatus.trimStart().trimEnd(),
                     'custom:userId': userId,
                     // we sign up the user with a single expo push token, representing the token of the physical device that they signed up from
                     'custom:expoPushToken': expoPushToken.data,
-                    'custom:enlistmentYear': enlistingYear
+                    'custom:enlistmentYear': enlistingYear.trimStart().trimEnd()
                 }
             });
 
@@ -394,6 +399,8 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                 // set Amplify errors accordingly
                 // @ts-ignore
                 setAmplifySignUpErrors([errorMessage]);
+                // show the appropriate modal
+                setExistentAccountVisible(true);
             } else {
                 // set Amplify errors accordingly
                 // @ts-ignore
@@ -645,6 +652,100 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                     :
                     <>
                         <Portal>
+                            <Dialog style={[commonStyles.dialogStyle, {height: hp(60)}]} visible={existentAccountVisible}
+                                    onDismiss={() => setExistentAccountVisible(false)}>
+                                <Dialog.Title
+                                    style={commonStyles.dialogTitle}>{'Duplicate email!'}</Dialog.Title>
+                                <Dialog.Content>
+                                    <Image
+                                        resizeMethod={"scale"}
+                                        source={MoonbeamDuplicateEmail}
+                                        style={styles.duplicateEmailImage}
+                                    />
+                                    <Text
+                                        style={commonStyles.dialogParagraph}>{"An account with the given email already exists. Login with your existing account or try again with a new email!"}</Text>
+                                </Dialog.Content>
+                                <Dialog.Actions style={{alignSelf: 'center', flexDirection: 'column'}}>
+                                    <Button buttonStyle={commonStyles.dialogButton}
+                                            titleStyle={commonStyles.dialogButtonText}
+                                            onPress={async () => {
+                                                // go to the Login page
+                                                setDeferToLogin(true);
+                                                mainRootNavigation && mainRootNavigation!.navigate('AppOverview', {});
+
+                                                // reset all registration fields as needed, for steps 0,1 and 2
+                                                setStepNumber(0);
+                                                setIsBackButtonShown(true);
+                                                setRegistrationMainError(false);
+                                                // reset step 0
+                                                setFirstNameErrors([]);
+                                                setLastNameErrors([]);
+                                                setEmailErrors([]);
+                                                setBirthdayErrors([]);
+                                                setPhoneNumberErrors([]);
+                                                setEnlistingYearErrors([]);
+                                                setDutyStatusErrors([]);
+                                                setFirstName("");
+                                                setLastName("");
+                                                setEmail("");
+                                                setBirthday("");
+                                                setPhoneNumber("");
+                                                setEnlistingYear("");
+                                                setDutyStatus("");
+                                                // reset step 1
+                                                setAddressLineErrors([]);
+                                                setAddressCityErrors([]);
+                                                setAddressStateErrors([]);
+                                                setAddressZipErrors([]);
+                                                setMilitaryBranchErrors([]);
+                                                setAddressLine("");
+                                                setAddressCity("");
+                                                setAddressState("");
+                                                setAddressZip("");
+                                                setMilitaryBranch("");
+                                                // reset step 2
+                                                setAmplifySignUpErrors([]);
+                                                setPasswordErrors([]);
+                                                setConfirmPasswordErrors([]);
+                                                setPassword("");
+                                                setConfirmPassword("");
+                                            }}>
+                                        {"Go to Login"}
+                                    </Button>
+                                    <Button buttonStyle={commonStyles.dialogButtonSkip}
+                                            titleStyle={commonStyles.dialogButtonSkipText}
+                                            onPress={async () => {
+                                                // close modal
+                                                setExistentAccountVisible(false);
+
+                                                // go back to initial email step
+                                                setStepNumber(0);
+                                                setIsBackButtonShown(true);
+                                                setRegistrationMainError(false);
+                                                // reset step 1
+                                                setAddressLineErrors([]);
+                                                setAddressCityErrors([]);
+                                                setAddressStateErrors([]);
+                                                setAddressZipErrors([]);
+                                                setMilitaryBranchErrors([]);
+                                                setAddressLine("");
+                                                setAddressCity("");
+                                                setAddressState("");
+                                                setAddressZip("");
+                                                setMilitaryBranch("");
+                                                // reset step 2
+                                                setAmplifySignUpErrors([]);
+                                                setPasswordErrors([]);
+                                                setConfirmPasswordErrors([]);
+                                                setPassword("");
+                                                setConfirmPassword("");
+                                            }}>
+                                        {"Back"}
+                                    </Button>
+                                </Dialog.Actions>
+                            </Dialog>
+                        </Portal>
+                        <Portal>
                             <Dialog style={commonStyles.permissionsDialogStyle} visible={permissionsModalVisible}
                                     onDismiss={() => setPermissionsModalVisible(false)}>
                                 <Dialog.Title
@@ -694,6 +795,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                     <Button buttonStyle={commonStyles.dialogButtonSkip}
                                             titleStyle={commonStyles.dialogButtonSkipText}
                                             onPress={async () => {
+                                                // close modal
                                                 setPermissionsModalVisible(false);
                                             }}>
                                         {"Skip"}
@@ -785,15 +887,31 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                         // clean the registration error on previous step
                                                         setRegistrationMainError(false);
 
-                                                        // clean any Amplify Sign Up errors
-                                                        if (stepNumber === 2) {
-                                                            setAmplifySignUpErrors([]);
-                                                        }
-
                                                         // decrease the step number
                                                         if (stepNumber > 0) {
                                                             let newStepValue = stepNumber - 1;
                                                             setStepNumber(newStepValue);
+                                                        }
+
+                                                        // reset all the text fields according to the step number
+                                                        if (stepNumber === 2) {
+                                                            setAmplifySignUpErrors([]);
+                                                            setPasswordErrors([]);
+                                                            setConfirmPasswordErrors([]);
+                                                            setPassword("");
+                                                            setConfirmPassword("");
+                                                        }
+                                                        if (stepNumber === 1) {
+                                                            setAddressLineErrors([]);
+                                                            setAddressCityErrors([]);
+                                                            setAddressStateErrors([]);
+                                                            setAddressZipErrors([]);
+                                                            setMilitaryBranchErrors([]);
+                                                            setAddressLine("");
+                                                            setAddressCity("");
+                                                            setAddressState("");
+                                                            setAddressZip("");
+                                                            setMilitaryBranch("");
                                                         }
                                                     }
                                                 }
