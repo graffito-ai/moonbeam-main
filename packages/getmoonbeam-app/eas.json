@@ -8,28 +8,29 @@
       "developmentClient": true,
       "distribution": "internal",
       "ios": {
-        "resourceClass": "m1-medium",
         "enterpriseProvisioning": "adhoc"
       }
     },
     "preview": {
       "channel": "preview",
-      "distribution": "internal",
-      "ios": {
-        "resourceClass": "m1-medium"
-      }
+      "distribution": "internal"
     },
     "production": {
-      "channel": "production",
-      "ios": {
-        "resourceClass": "m1-medium"
-      }
+      "channel": "production"
     }
   },
   "submit": {
     "production": {
       "ios": {
-        "ascAppId": "6450375130"
+        "appleId": "marius@moonbeam.vet",
+        "ascAppId": "6450375130",
+        "appleTeamId": "FLKY88A7AJ"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./credentials/moonbeamfin-181f4384ad35.json",
+        "track": "production",
+        "releaseStatus": "completed",
+        "changesNotSentForReview": "false"
       }
     }
   }
