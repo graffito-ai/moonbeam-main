@@ -206,10 +206,12 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
      * included in here.
      */
     useEffect(() => {
-        // automatically verify the code
+        // automatically verify the code without having to press next
         if (automaticallyVerifyRegistrationCode) {
             confirmSignUpCode().then(_ => {
                 setAutomaticallyVerifyRegistrationCode(false);
+                // move to next step
+                setStepNumber(stepNumber + 1);
             });
         }
         // keyboard listeners

@@ -751,7 +751,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                         <View style={styles.resendCodeView}>
                                                             {
                                                                 <TouchableOpacity
-                                                                    disabled={countdownValue > 0}
+                                                                    // disabled={countdownValue > 0}
                                                                     onPress={
                                                                         async () => {
                                                                             // reset the timer
@@ -772,7 +772,8 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                                         }
                                                                     }
                                                                 >
-                                                                    <Text style={[countdownValue > 0 ? styles.resendCodeDisabled : styles.resendCode]}>Resend Code</Text>
+                                                                    <Text style={styles.resendCode}>Resend Code</Text>
+                                                                    {/*<Text style={[countdownValue > 0 ? styles.resendCodeDisabled : styles.resendCode]}>Resend Code</Text>*/}
                                                                 </TouchableOpacity>
                                                             }
                                                         </View>
