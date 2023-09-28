@@ -25,7 +25,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [stepNumber, setStepNumber] = useState<number>(0);
-    const [accountRecoveryError, setAccountRecoveryError] = useState<boolean>(false);
+    const [accountRecoveryError, setAccountRecoveryError] = useState<string[]>([]);
     const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     // step 1
     const [email, setEmail] = useState<string>("");
@@ -144,9 +144,10 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
      * Function used to capture the password reset code action
      *
      * @param username username inputted by the user
-     * @return {@link Boolean} a flag representing whether the code retrieval was successful or not
+     * @return a {@link Pair} of a {@link Boolean} a flag representing whether the code retrieval was successful or not,
+     * and a {@link String} representing the error message when applicable
      */
-    const passwordCodeRetrieval = async (username: string): Promise<boolean> => {
+    const passwordCodeRetrieval = async (username: string): Promise<[boolean, string]> => {
         try {
             // set the loader
             setIsReady(false);
@@ -156,7 +157,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                 // release the loader
                 setIsReady(true);
 
-                return !!forgotPasswordRequest;
+                return [!!forgotPasswordRequest, ''];
             } else {
                 // release the loader
                 setIsReady(true);
@@ -165,7 +166,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                 console.log(`${errorMessage} - Invalid response received from the forgotPassword call!`);
 
                 setVerificationCodeErrors([errorMessage]);
-                return false;
+                return [false, errorMessage];
             }
         } catch (error) {
             // release the loader
@@ -175,16 +176,24 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
 
             // @ts-ignore
             const errorCode = error && error.code ? error.code : null;
+            console.log(errorCode);
             // based on the error code, return the appropriate error to the user
             if (errorCode === 'UserNotFoundException') {
                 errorMessage = 'User not found!';
-            } else if (errorCode === 'LimitExceededException') {
-                errorMessage = 'Password reset limit exceeded! Please try again later!';
+                console.log(`${errorMessage} ${error}`);
+                setEmailErrors([errorMessage]);
+                return [false, errorMessage];
             }
-            console.log(`${errorMessage} ${error}`);
-
-            setEmailErrors([errorMessage]);
-            return false;
+            else if (errorCode === 'LimitExceededException') {
+                errorMessage = 'Password reset limit exceeded! Please try again later!';
+                console.log(`${errorMessage} ${error}`);
+                setEmailErrors([errorMessage]);
+                return [false, errorMessage];
+            } else {
+                console.log(`${errorMessage} ${error}`);
+                setEmailErrors([errorMessage]);
+                return [false, errorMessage];
+            }
         }
     };
 
@@ -294,16 +303,16 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                         style={styles.contentTitle}>{accountRecoverySteps[stepNumber].contentTitle}</Text>
                                     <Text
                                         style={styles.contentDescription}>{accountRecoverySteps[stepNumber].contentDescription}</Text>
-                                    {accountRecoveryError
+                                    {accountRecoveryError.length !== 0
                                         ?
-                                        <Text style={styles.errorMessage}>Please fill out the information below!</Text>
-                                        : (emailErrors.length !== 0 && !accountRecoveryError)
+                                        <Text style={styles.errorMessage}>{accountRecoveryError[0]}</Text>
+                                        : (emailErrors.length !== 0)
                                             ? <Text style={styles.errorMessage}>{emailErrors[0]}</Text>
-                                            : (verificationCodeErrors.length !== 0 && !accountRecoveryError)
+                                            : (verificationCodeErrors.length !== 0)
                                                 ? <Text style={styles.errorMessage}>{verificationCodeErrors[0]}</Text>
-                                                : (passwordErrors.length !== 0 && !accountRecoveryError)
+                                                : (passwordErrors.length !== 0)
                                                     ? <Text style={styles.errorMessage}>{passwordErrors[0]}</Text>
-                                                    : (confirmPasswordErrors.length !== 0 && !accountRecoveryError)
+                                                    : (confirmPasswordErrors.length !== 0)
                                                         ?
                                                         <Text
                                                             style={styles.errorMessage}>{confirmPasswordErrors[0]}</Text>
@@ -326,7 +335,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                     mode={'outlined'}
                                                     onChangeText={(value: React.SetStateAction<string>) => {
                                                         setIsEmailFocus(true);
-                                                        setAccountRecoveryError(false);
+                                                        setAccountRecoveryError([]);
                                                         setEmailErrors([]);
 
                                                         setEmail(value);
@@ -363,7 +372,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                         mode={'outlined'}
                                                         onChangeText={(value: React.SetStateAction<string>) => {
                                                             setIsPasswordFocus(true);
-                                                            setAccountRecoveryError(false);
+                                                            setAccountRecoveryError([]);
                                                             setPasswordErrors([]);
 
                                                             setPassword(value);
@@ -401,7 +410,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                         mode={'outlined'}
                                                         onChangeText={(value: React.SetStateAction<string>) => {
                                                             setIsConfirmPasswordFocus(true);
-                                                            setAccountRecoveryError(false);
+                                                            setAccountRecoveryError([]);
                                                             setConfirmPasswordErrors([]);
 
                                                             setConfirmPassword(value);
@@ -443,7 +452,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                                 selection={{start: verificationCodeDigit1.length}}
                                                                 onChangeText={(value: React.SetStateAction<string>) => {
                                                                     setVerificationCodeDigit1Focus(true);
-                                                                    setAccountRecoveryError(false);
+                                                                    setAccountRecoveryError([]);
                                                                     setVerificationCodeErrors([]);
 
                                                                     // format value
@@ -492,7 +501,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                                 }}
                                                                 onChangeText={(value: React.SetStateAction<string>) => {
                                                                     setVerificationCodeDigit2Focus(true);
-                                                                    setAccountRecoveryError(false);
+                                                                    setAccountRecoveryError([]);
                                                                     setVerificationCodeErrors([]);
 
                                                                     // format value
@@ -546,7 +555,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                                 }}
                                                                 onChangeText={(value: React.SetStateAction<string>) => {
                                                                     setVerificationCodeDigit3Focus(true);
-                                                                    setAccountRecoveryError(false);
+                                                                    setAccountRecoveryError([]);
                                                                     setVerificationCodeErrors([]);
 
                                                                     // format value
@@ -600,7 +609,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                                 }}
                                                                 onChangeText={(value: React.SetStateAction<string>) => {
                                                                     setVerificationCodeDigit4Focus(true);
-                                                                    setAccountRecoveryError(false);
+                                                                    setAccountRecoveryError([]);
                                                                     setVerificationCodeErrors([]);
 
                                                                     // format value
@@ -654,7 +663,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                                 }}
                                                                 onChangeText={(value: React.SetStateAction<string>) => {
                                                                     setVerificationCodeDigit5Focus(true);
-                                                                    setAccountRecoveryError(false);
+                                                                    setAccountRecoveryError([]);
                                                                     setVerificationCodeErrors([]);
 
                                                                     // format value
@@ -708,7 +717,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                                 }}
                                                                 onChangeText={async (value: React.SetStateAction<string>) => {
                                                                     setVerificationCodeDigit6Focus(true);
-                                                                    setAccountRecoveryError(false);
+                                                                    setAccountRecoveryError([]);
                                                                     setVerificationCodeErrors([]);
 
                                                                     // format value
@@ -722,7 +731,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                                         // confirm password reset
                                                                         const passwordResetFlag = await passwordReset(email,
                                                                             password,
-                                                                            `${verificationCodeDigit1}${verificationCodeDigit2}${verificationCodeDigit3}${verificationCodeDigit4}${verificationCodeDigit5}${verificationCodeDigit6}`);
+                                                                            `${verificationCodeDigit1}${verificationCodeDigit2}${verificationCodeDigit3}${verificationCodeDigit4}${verificationCodeDigit5}${value}`);
                                                                         if (passwordResetFlag) {
                                                                             // display a success message
                                                                             setModalVisible(true);
@@ -789,14 +798,16 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                         if (email === "" || emailErrors.length !== 0) {
                                                             // only populate main error if there are no other errors showing
                                                             if (emailErrors.length === 0) {
-                                                                setAccountRecoveryError(true);
+                                                                setAccountRecoveryError(['Please fill out all the information below!']);
                                                             }
                                                         } else {
                                                             // send a verification code to the email
-                                                            const codeRetrievalFlag = await passwordCodeRetrieval(email);
+                                                            const [codeRetrievalFlag, errorMessage] = await passwordCodeRetrieval(email);
                                                             if (codeRetrievalFlag) {
                                                                 // set the next step
                                                                 setStepNumber(1);
+                                                            } else {
+                                                                setEmailErrors([errorMessage]);
                                                             }
                                                         }
                                                         break;
@@ -804,7 +815,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                         if (password === "" || confirmPassword === "" || passwordErrors.length !== 0 || confirmPasswordErrors.length !== 0) {
                                                             // only populate main error if there are no other errors showing
                                                             if (passwordErrors.length === 0 || confirmPasswordErrors.length === 0) {
-                                                                setAccountRecoveryError(true);
+                                                                setAccountRecoveryError(['Please fill out all the information below!']);
                                                             }
                                                         } else {
                                                             // continue to next step, in order to verify code
@@ -817,7 +828,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                             verificationCodeErrors.length !== 0) {
                                                             // only populate main error if there are no other errors showing
                                                             if (verificationCodeErrors.length === 0) {
-                                                                setAccountRecoveryError(true);
+                                                                setAccountRecoveryError(['Please fill out all the information below!']);
                                                             }
                                                         } else {
                                                             // confirm password reset
