@@ -462,9 +462,14 @@ export const styles = StyleSheet.create({
         width: wp(87),
         height: hp(6)
     },
-    militaryRegistrationView: {
+    additionalRegistrationView: {
         zIndex: 1000,
-        marginBottom: hp(5)
+        marginBottom: hp(24)
+    },
+    securityRegistrationView: {
+        zIndex: 1000,
+        top: hp(8),
+        marginBottom: hp(24)
     },
     permissionsView: {
         flex: 1,

@@ -728,13 +728,22 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                                     if (value.length === 1) {
                                                                         // @ts-ignore
                                                                         verificationCodeDigit6Ref.current.blur();
-                                                                        // confirm password reset
-                                                                        const passwordResetFlag = await passwordReset(email,
-                                                                            password,
-                                                                            `${verificationCodeDigit1}${verificationCodeDigit2}${verificationCodeDigit3}${verificationCodeDigit4}${verificationCodeDigit5}${value}`);
-                                                                        if (passwordResetFlag) {
-                                                                            // display a success message
-                                                                            setModalVisible(true);
+                                                                        if (verificationCodeDigit1 === "" || verificationCodeDigit2 === "" || verificationCodeDigit3 === "" ||
+                                                                            verificationCodeDigit4 === "" || verificationCodeDigit5 === "" || value === "" ||
+                                                                            verificationCodeErrors.length !== 0) {
+                                                                            // only populate main error if there are no other errors showing
+                                                                            if (verificationCodeErrors.length === 0) {
+                                                                                setAccountRecoveryError(['Please fill out all the information below!']);
+                                                                            }
+                                                                        } else {
+                                                                            // confirm password reset
+                                                                            const passwordResetFlag = await passwordReset(email,
+                                                                                password,
+                                                                                `${verificationCodeDigit1}${verificationCodeDigit2}${verificationCodeDigit3}${verificationCodeDigit4}${verificationCodeDigit5}${value}`);
+                                                                            if (passwordResetFlag) {
+                                                                                // display a success message
+                                                                                setModalVisible(true);
+                                                                            }
                                                                         }
                                                                     }
                                                                     // if the value is of length 0, then we move to the previous digit

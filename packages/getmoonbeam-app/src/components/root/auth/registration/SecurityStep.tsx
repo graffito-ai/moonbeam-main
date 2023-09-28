@@ -70,16 +70,16 @@ export const SecurityStep = () => {
     return (
         <>
             {registrationMainError
-                ? <Text style={styles.errorMessage}>Please fill out the information below!</Text>
+                ? <Text style={[styles.errorMessage, {bottom: hp(1)}]}>Please fill out the information below!</Text>
                 : (passwordErrors.length !== 0 && !registrationMainError)
-                    ? <Text style={styles.errorMessage}>{passwordErrors[0]}</Text>
+                    ? <Text style={[styles.errorMessage, {bottom: hp(1)}]}>{passwordErrors[0]}</Text>
                     : (confirmPasswordErrors.length !== 0 && !registrationMainError)
-                        ? <Text style={styles.errorMessage}>{confirmPasswordErrors[0]}</Text>
+                        ? <Text style={[styles.errorMessage, {bottom: hp(1)}]}>{confirmPasswordErrors[0]}</Text>
                         : (amplifySignUpErrors.length !== 0 && !registrationMainError)
-                            ? <Text style={styles.errorMessage}>{amplifySignUpErrors[0]}</Text>
+                            ? <Text style={[styles.errorMessage, {bottom: hp(1)}]}>{amplifySignUpErrors[0]}</Text>
                             : <></>
             }
-            <View style={styles.militaryRegistrationView}>
+            <View style={styles.securityRegistrationView}>
                 <TextInput
                     autoCapitalize={"none"}
                     autoCorrect={false}

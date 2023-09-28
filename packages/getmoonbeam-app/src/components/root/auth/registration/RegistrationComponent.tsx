@@ -208,15 +208,25 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     useEffect(() => {
         // automatically verify the code without having to press next
         if (automaticallyVerifyRegistrationCode) {
-            confirmSignUpCode().then(signUpFlag => {
-                if (signUpFlag) {
-                    setAutomaticallyVerifyRegistrationCode(false);
-                    // move to next step
-                    setStepNumber(stepNumber + 1);
-                } else {
-                    setAutomaticallyVerifyRegistrationCode(false);
-                }
-            });
+            if (verificationCodeDigit1 === "" || verificationCodeDigit2 === "" || verificationCodeDigit3 === "" ||
+                verificationCodeDigit4 === "" || verificationCodeDigit5 === "" || verificationCodeDigit6 === "") {
+                setAutomaticallyVerifyRegistrationCode(false);
+                setRegistrationMainError(true);
+            } else {
+                setAutomaticallyVerifyRegistrationCode(false);
+                // check on the code validity through Amplify sign-in/sign-up
+                confirmSignUpCode().then(signUpConfirmationFlag => {
+                    // check if the confirmation was successful
+                    if (signUpConfirmationFlag) {
+                        setRegistrationMainError(false);
+                        let newStepValue = stepNumber + 1;
+                        setStepNumber(newStepValue);
+                    } else {
+                        setAutomaticallyVerifyRegistrationCode(false);
+                    }
+                });
+            }
+
         }
         // keyboard listeners
         const keyboardDidShowListener = Keyboard.addListener(
@@ -830,6 +840,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                     {stepNumber !== 8 && stepNumber !== 7 &&
                                         <View
                                             style={[styles.titleView, {marginTop: hp(18)},
+                                                (stepNumber === 1 || stepNumber === 2) && {bottom: hp(3.5)},
                                                 (stepNumber === 4 || (stepNumber === 5 && militaryStatus !== MilitaryVerificationStatusType.Rejected)) && {marginTop: hp(25)}]}>
                                             <View style={[styles.titleViewDescription]}>
                                                 <Text style={styles.stepTitle}>
@@ -852,7 +863,8 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                     trash
                                                     inboxes.</Text>
                                                 </Text>
-                                                : <Text style={styles.stepDescription}>{
+                                                : <Text style={[styles.stepDescription,
+                                                    (stepNumber === 1 || stepNumber === 2) && {bottom: hp(3.5)},]}>{
                                                     registrationSteps[stepNumber].stepDescription
                                                 }</Text>
                                         )
@@ -880,7 +892,8 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                                             : <></>
                                     }
                                     <View style={[
-                                        styles.bottomContainerButtons
+                                        styles.bottomContainerButtons,
+                                        (stepNumber === 1 || stepNumber === 2) && {bottom: hp(10)}
                                     ]}>
                                         {(stepNumber === 1 || stepNumber === 2) &&
                                             <TouchableOpacity

@@ -630,15 +630,25 @@ export const CodeVerificationBottomSheet = (props: {
                                                         if (value.length === 1) {
                                                             // @ts-ignore
                                                             verificationCodeDigit6Ref.current.blur();
-                                                            const verificationCodeFlag = await verifyCode(`${verificationCodeDigit1}${verificationCodeDigit2}${verificationCodeDigit3}${verificationCodeDigit4}${verificationCodeDigit5}${value}`);
 
-                                                            // check if the code has been successfully verified, otherwise a modal will be shown
-                                                            if (verificationCodeFlag) {
-                                                                // set the verification flag accordingly, so we can display a success modal in the profile component
-                                                                setCodeVerified(true);
+                                                            if (verificationCodeDigit1 === "" || verificationCodeDigit2 === "" || verificationCodeDigit3 === "" || verificationCodeDigit4 === "" ||
+                                                                verificationCodeDigit5 === "" || value === "" || verificationCodeErrors.length !== 0) {
+                                                                // only populate main error if there are no other errors showing
+                                                                if (verificationCodeErrors.length === 0) {
+                                                                    setCodeVerificationErrors(true);
+                                                                }
+                                                            } else {
+                                                                // verify the inputted code
+                                                                const verificationCodeFlag = await verifyCode(`${verificationCodeDigit1}${verificationCodeDigit2}${verificationCodeDigit3}${verificationCodeDigit4}${verificationCodeDigit5}${value}`);
 
-                                                                // hide the bottom sheet if everything has been successfully verified
-                                                                setShowBottomSheet(false);
+                                                                // check if the code has been successfully verified, otherwise a modal will be shown
+                                                                if (verificationCodeFlag) {
+                                                                    // set the verification flag accordingly, so we can display a success modal in the profile component
+                                                                    setCodeVerified(true);
+
+                                                                    // hide the bottom sheet if everything has been successfully verified
+                                                                    setShowBottomSheet(false);
+                                                                }
                                                             }
                                                         }
                                                         // if the value is of length 0, then we move to the previous digit

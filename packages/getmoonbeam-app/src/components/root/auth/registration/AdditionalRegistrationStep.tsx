@@ -96,17 +96,17 @@ export const AdditionalRegistrationStep = () => {
     return (
         <>
             {registrationMainError
-                ? <Text style={styles.errorMessage}>Please fill out the information below!</Text>
+                ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>Please fill out the information below!</Text>
                 : (addressLineErrors.length !== 0 && !registrationMainError)
-                    ? <Text style={styles.errorMessage}>{addressLineErrors[0]}</Text>
+                    ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressLineErrors[0]}</Text>
                     : (addressCityErrors.length !== 0 && !registrationMainError)
-                        ? <Text style={styles.errorMessage}>{addressCityErrors[0]}</Text>
+                        ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressCityErrors[0]}</Text>
                         : (addressStateErrors.length !== 0 && !registrationMainError)
-                            ? <Text style={styles.errorMessage}>{addressStateErrors[0]}</Text>
+                            ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressStateErrors[0]}</Text>
                             : (addressZipErrors.length !== 0 && !registrationMainError)
-                                ? <Text style={styles.errorMessage}>{addressZipErrors[0]}</Text>
+                                ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressZipErrors[0]}</Text>
                                 : (militaryBranchErrors.length !== 0 && !registrationMainError)
-                                    ? <Text style={styles.errorMessage}>{militaryBranchErrors[0]}</Text>
+                                    ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{militaryBranchErrors[0]}</Text>
                                     : <></>
             }
             <GooglePlacesAutocomplete
@@ -124,7 +124,6 @@ export const AdditionalRegistrationStep = () => {
                 }}
                 keyboardShouldPersistTaps={"handled"}
                 enablePoweredByContainer={false}
-                keepResultsAfterBlur={false}
                 fetchDetails={true}
                 onPress={(_, details) => {
                     if (details && details.address_components && details.address_components.length !== 0) {
@@ -158,6 +157,7 @@ export const AdditionalRegistrationStep = () => {
                                     : `${component.long_name}`;
                             }
                         });
+                        console.log(autoFilledAddressLine);
                         setAddressCity(autoFilledCity);
                         setAddressState(autoFilledState);
                         setAddressZip(autoFilledZip);
@@ -170,20 +170,19 @@ export const AdditionalRegistrationStep = () => {
                 }}
                 styles={{
                     container: {
-                        flex: 1,
-                        left: wp(5),
                         ...(addressLineErrors.length !== 0 || registrationMainError ||
                         addressCityErrors.length !== 0 || addressStateErrors.length !== 0 || addressZipErrors.length !== 0 ? {
-                            top: hp(26),
+                            bottom: hp(1.75),
                         } : {
-                            top: hp(23),
+                            top: hp(1.4),
                         }),
-                        position: 'absolute',
+                        left: wp(5),
                         ...(addressLineFocus && addressLine.length !== 0) && {
                             zIndex: 1000000
                         }
                     },
                     listView: {
+                        height: hp(10),
                         width: wp(87)
                     },
                     separator: {
@@ -193,7 +192,7 @@ export const AdditionalRegistrationStep = () => {
                     row: {
                         backgroundColor: '#808080',
                         width: wp(87),
-                        height: hp(6)
+                        height: hp(7.5)
                     },
                     description: {
                         paddingTop: hp(0.5),
@@ -247,7 +246,7 @@ export const AdditionalRegistrationStep = () => {
                     clearButtonMode: 'never'
                 }}
             />
-            <View style={styles.militaryRegistrationView}>
+            <View style={[styles.additionalRegistrationView, addressLineFocus && addressLine.length !== 0 && {display: 'none'}]}>
                 <View style={styles.additionalRegistrationBottomInputsView}>
                     <TextInput
                         autoCapitalize={"sentences"}
