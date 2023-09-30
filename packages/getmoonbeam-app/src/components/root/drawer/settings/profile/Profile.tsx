@@ -30,6 +30,9 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-nativ
 import MoonbeamPreferencesIOS from "../../../../../../assets/art/moonbeam-preferences-ios.jpg";
 // @ts-ignore
 import MoonbeamPreferencesAndroid from "../../../../../../assets/art/moonbeam-preferences-android.jpg";
+import {Image as ExpoImage} from "expo-image/build/Image"
+// @ts-ignore
+import MoonbeamProfilePlaceholder from "../../../../../../assets/art/moonbeam-profile-placeholder.png";
 
 /**
  * Profile component
@@ -602,46 +605,80 @@ export const Profile = ({navigation}: ProfileProps) => {
                                         end={{x: 0.5, y: 1}}
                                         colors={['#313030', 'transparent']}>
                                         <View>
-                                            <Avatar
-                                                {...(profilePictureURI && profilePictureURI !== "") && {
-                                                    source: {
-                                                        uri: profilePictureURI,
-                                                        cache: 'reload'
-                                                    }
-                                                }
-                                                }
-                                                avatarStyle={{
-                                                    resizeMode: 'cover',
-                                                    borderColor: '#F2FF5D',
-                                                    borderWidth: 3
-                                                }}
-                                                size={hp(20)}
-                                                rounded
-                                                title={(!profilePictureURI || profilePictureURI === "") ? currentUserTitle : undefined}
-                                                {...(!profilePictureURI || profilePictureURI === "") && {
-                                                    titleStyle: [
-                                                        styles.titleStyle
-                                                    ]
-                                                }}
-                                                containerStyle={styles.avatarStyle}
-                                                onPress={async () => {
-                                                    // first pick and upload a photo to storage
-                                                    await pickPhoto();
-                                                }}
-                                            >
-                                                <Avatar.Accessory
-                                                    size={hp(5)}
-                                                    style={styles.avatarAccessoryStyle}
-                                                    color={'#F2FF5D'}
-                                                    iconProps={{
-                                                        name: 'camera-alt'
-                                                    }}
-                                                    onPress={async () => {
-                                                        // first pick and upload a photo to storage
-                                                        await pickPhoto();
-                                                    }}
-                                                />
-                                            </Avatar>
+                                            {
+                                                (!profilePictureURI || profilePictureURI === "") ?
+                                                    <Avatar
+                                                        {...(profilePictureURI && profilePictureURI !== "") && {
+                                                            source: {
+                                                                uri: profilePictureURI,
+                                                                cache: 'reload'
+                                                            }
+                                                        }
+                                                        }
+                                                        avatarStyle={{
+                                                            resizeMode: 'cover',
+                                                            borderColor: '#F2FF5D',
+                                                            borderWidth: 3
+                                                        }}
+                                                        size={hp(20)}
+                                                        rounded
+                                                        title={(!profilePictureURI || profilePictureURI === "") ? currentUserTitle : undefined}
+                                                        {...(!profilePictureURI || profilePictureURI === "") && {
+                                                            titleStyle: [
+                                                                styles.titleStyle
+                                                            ]
+                                                        }}
+                                                        containerStyle={styles.avatarStyle}
+                                                        onPress={async () => {
+                                                            // first pick and upload a photo to storage
+                                                            await pickPhoto();
+                                                        }}
+                                                    >
+                                                        <Avatar.Accessory
+                                                            size={hp(5)}
+                                                            style={styles.avatarAccessoryStyle}
+                                                            color={'#F2FF5D'}
+                                                            iconProps={{
+                                                                name: 'camera-alt'
+                                                            }}
+                                                            onPress={async () => {
+                                                                // first pick and upload a photo to storage
+                                                                await pickPhoto();
+                                                            }}
+                                                        />
+                                                    </Avatar>
+                                                    :
+                                                    <TouchableOpacity
+                                                        onPress={async () => {
+                                                            // first pick and upload a photo to storage
+                                                            await pickPhoto();
+                                                        }}
+                                                    >
+                                                        <ExpoImage
+                                                            style={styles.profileImage}
+                                                            source={{
+                                                                uri: profilePictureURI
+                                                            }}
+                                                            placeholder={MoonbeamProfilePlaceholder}
+                                                            placeholderContentFit={'fill'}
+                                                            contentFit={'fill'}
+                                                            transition={1000}
+                                                            cachePolicy={'memory-disk'}
+                                                        />
+                                                        <Avatar.Accessory
+                                                            size={hp(5)}
+                                                            style={styles.profileImageAccessoryStyle}
+                                                            color={'#F2FF5D'}
+                                                            iconProps={{
+                                                                name: 'camera-alt'
+                                                            }}
+                                                            onPress={async () => {
+                                                                // first pick and upload a photo to storage
+                                                                await pickPhoto();
+                                                            }}
+                                                        />
+                                                    </TouchableOpacity>
+                                            }
                                             <Text numberOfLines={3} textBreakStrategy={"simple"}
                                                   style={[styles.userNameStyle]}>{currentUserName}</Text>
                                             <TouchableOpacity

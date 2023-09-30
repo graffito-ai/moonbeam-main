@@ -3,6 +3,20 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-nativ
 
 // styles to be used within the Profile component
 export const styles = StyleSheet.create({
+    profileImage: {
+        alignSelf: 'center',
+        top: hp(2),
+        height: wp(50),
+        width: wp(50),
+        borderRadius: wp(50)/2,
+        borderWidth: hp(0.40),
+        borderColor: '#F2FF5D'
+    },
+    profileImageAccessoryStyle: {
+        right: wp(28),
+        top: hp(18),
+        backgroundColor: '#303030'
+    },
     mainContainer: {
         flex: 1,
         flexGrow: 1,
@@ -66,7 +80,7 @@ export const styles = StyleSheet.create({
         color: '#F2FF5D',
         textAlign: 'center',
         fontSize: hp(3),
-        top: hp(2.2),
+        top: hp(2.6),
         marginBottom: hp(15),
         width: wp(80)
     },

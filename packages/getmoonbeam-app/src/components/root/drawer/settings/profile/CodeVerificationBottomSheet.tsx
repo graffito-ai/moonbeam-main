@@ -9,9 +9,7 @@ import {CodeVerificationType, emailCodeVerificationSteps} from "../../../../../m
 import EmailVerificationPicture from "../../../../../../assets/art/moonbeam-email-verification-code.png";
 import {FieldValidator} from "../../../../../utils/FieldValidator";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
-import * as Device from "expo-device";
 import {useRecoilState} from "recoil";
-import {deviceTypeState} from "../../../../../recoil/RootAtom";
 import {codeVerificationSheetShown, codeVerifiedState} from "../../../../../recoil/CodeVerificationAtom";
 import {Auth} from "aws-amplify";
 import {currentUserInformation} from "../../../../../recoil/AuthAtom";
@@ -40,7 +38,6 @@ export const CodeVerificationBottomSheet = (props: {
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [stepNumber, setStepNumber] = useState<number>(0);
     // constants used to keep track of shared states
-    const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
     const [, setShowBottomSheet] = useRecoilState(codeVerificationSheetShown);
     // step 0
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
@@ -79,16 +76,11 @@ export const CodeVerificationBottomSheet = (props: {
      * included in here.
      */
     useEffect(() => {
-        // check and set the type of device, to be used throughout the app
-        Device.getDeviceTypeAsync().then(deviceType => {
-            setDeviceType(deviceType);
-        });
-
         // start the countdown if the value is 10
         if (countdownValue === 10) {
             startCountdown(10);
         }
-    }, [countdownValue, deviceType]);
+    }, [countdownValue]);
 
     /**
      * Callback function used to decrease the value of the countdown by 1,

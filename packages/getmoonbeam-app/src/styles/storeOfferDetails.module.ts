@@ -20,7 +20,9 @@ export const styles = StyleSheet.create({
         flexDirection: 'column'
     },
     brandLogo: {
-        alignSelf: 'center'
+        alignSelf: 'center',
+        height: hp(16),
+        width: hp(16)
     },
     brandTitle: {
         top: hp(2),

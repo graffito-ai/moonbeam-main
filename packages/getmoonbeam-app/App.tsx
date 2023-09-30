@@ -131,7 +131,6 @@ export default function App() {
             // navigate to your desired screen
             console.log('incoming notification and/or notification response received (last notification handle)');
         }
-
         const prepare = async () => {
             try {
                 // preload fonts, make any API calls that we need in here
@@ -226,8 +225,8 @@ export default function App() {
                 };
             }
         }
-        prepare().then(() => {
-        });
+        // prepare the app
+        prepare().then(() => {});
     }, [lastNotificationResponse]);
 
     /**

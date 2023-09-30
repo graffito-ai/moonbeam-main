@@ -238,7 +238,7 @@ export const styles = StyleSheet.create({
         height: '50%'
     },
     loadCard: {
-        left: wp(3),
+        left: wp(1),
         width: wp(85),
         height: hp(30),
         backgroundColor: 'transparent',
@@ -458,4 +458,9 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: hp(1.8)
     },
+    verticalOfferLogo: {
+        marginRight: wp(4),
+        height: hp(7),
+        width: hp(7)
+    }
 });

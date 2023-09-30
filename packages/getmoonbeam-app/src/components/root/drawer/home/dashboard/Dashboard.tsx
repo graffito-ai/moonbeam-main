@@ -4,8 +4,6 @@ import {Dialog, List, Portal, SegmentedButtons, Text} from "react-native-paper";
 import {styles} from "../../../../../styles/dashboard.module";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {currentUserInformation} from "../../../../../recoil/AuthAtom";
-import * as Device from "expo-device";
-import {deviceTypeState} from "../../../../../recoil/RootAtom";
 import {Spinner} from "../../../../common/Spinner";
 // @ts-ignore
 import DashboardBackgroundImage from "../../../../../../assets/backgrounds/dashboard-background.png";
@@ -25,6 +23,9 @@ import {
 } from "../../../../../recoil/DashboardAtom";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {BiometricsPopUp} from "./biometrics/Biometrics";
+import {Image as ExpoImage} from 'expo-image';
+// @ts-ignore
+import MoonbeamProfilePlaceholder from "../../../../../../assets/art/moonbeam-profile-placeholder.png";
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -45,7 +46,6 @@ export const Dashboard = ({}) => {
     const bottomSheetRef = useRef(null);
     const [selectedTransaction, setSelectedTransaction] = useState<MoonbeamTransaction | null>(null);
     // constants used to keep track of shared states
-    const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
     const [userInformation,] = useRecoilState(currentUserInformation);
     const [profilePictureURI,] = useRecoilState(profilePictureURIState);
     const [bannerState,] = useRecoilState(customBannerState);
@@ -64,10 +64,6 @@ export const Dashboard = ({}) => {
      */
     useEffect(() => {
         if (userInformation["custom:userId"]) {
-            // check and set the type of device, to be used throughout the app
-            Device.getDeviceTypeAsync().then(deviceType => {
-                setDeviceType(deviceType);
-            });
             // check to see if the user information object has been populated accordingly
             if (userInformation["given_name"] && userInformation["family_name"]) {
                 setCurrentUserTitle(`${Array.from(userInformation["given_name"].split(" ")[0])[0] as string}${Array.from(userInformation["family_name"].split(" ")[0])[0] as string}`);
@@ -86,7 +82,7 @@ export const Dashboard = ({}) => {
                 bottomSheetRef.current?.expand?.();
             }
         }
-    }, [deviceType, userInformation["given_name"], userInformation["family_name"],
+    }, [userInformation["given_name"], userInformation["family_name"],
         userInformation["custom:userId"], showTransactionsBottomSheet, bottomSheetRef]);
 
     /**
@@ -318,30 +314,45 @@ export const Dashboard = ({}) => {
                                         <Text
                                             style={styles.greetingNameText}>{currentUserName}</Text>
                                     </View>
-                                    <Avatar
-                                        {...profilePictureURI && profilePictureURI !== "" && {
-                                            source: {
-                                                uri: profilePictureURI,
-                                                cache: 'reload'
-                                            }
-                                        }}
-                                        avatarStyle={{
-                                            resizeMode: 'cover',
-                                            borderColor: '#F2FF5D',
-                                            borderWidth: 3
-                                        }}
-                                        size={hp(15)}
-                                        rounded
-                                        title={(!profilePictureURI || profilePictureURI === "") ? currentUserTitle : undefined}
-                                        {...(!profilePictureURI || profilePictureURI === "") && {
-                                            titleStyle: [
-                                                styles.titleStyle
-                                            ]
-                                        }}
-                                        containerStyle={styles.avatarStyle}
-                                        onPress={async () => {
-                                        }}
-                                    />
+                                    {
+                                        (!profilePictureURI || profilePictureURI === "") ?
+                                            <Avatar
+                                                {...profilePictureURI && profilePictureURI !== "" && {
+                                                    source: {
+                                                        uri: profilePictureURI,
+                                                        cache: 'reload'
+                                                    }
+                                                }}
+                                                avatarStyle={{
+                                                    resizeMode: 'cover',
+                                                    borderColor: '#F2FF5D',
+                                                    borderWidth: 3
+                                                }}
+                                                size={hp(15)}
+                                                rounded
+                                                title={(!profilePictureURI || profilePictureURI === "") ? currentUserTitle : undefined}
+                                                {...(!profilePictureURI || profilePictureURI === "") && {
+                                                    titleStyle: [
+                                                        styles.titleStyle
+                                                    ]
+                                                }}
+                                                containerStyle={styles.avatarStyle}
+                                                onPress={async () => {
+                                                }}
+                                            />
+                                            :
+                                            <ExpoImage
+                                                style={styles.profileImage}
+                                                source={{
+                                                    uri: profilePictureURI
+                                                }}
+                                                placeholder={MoonbeamProfilePlaceholder}
+                                                placeholderContentFit={'fill'}
+                                                contentFit={'fill'}
+                                                transition={1000}
+                                                cachePolicy={'memory-disk'}
+                                            />
+                                    }
                                     <View style={styles.statisticsView}>
                                         <View style={styles.statLeftView}>
                                             <View style={styles.statInfoViewLeft}>

@@ -4,7 +4,7 @@ import {
     DrawerItem,
     DrawerItemList
 } from '@react-navigation/drawer';
-import {ImageBackground, Text, View} from 'react-native';
+import {ImageBackground, Text, TouchableOpacity, View} from 'react-native';
 import {Avatar, Divider} from "@rneui/base";
 import React, {useEffect, useState} from "react";
 import {commonStyles} from "../../styles/common.module";
@@ -85,8 +85,12 @@ import {
     appWallDocumentsReCapturePhotoState,
     appWallDocumentsRePickPhotoState,
     appWallPermissionsInstructionsCustomMessageState,
-    appWallPermissionsModalCustomMessageState, appWallPermissionsModalVisibleState, cardLinkingStatusState, customBannerShown,
-    drawerDashboardState, drawerSwipeState,
+    appWallPermissionsModalCustomMessageState,
+    appWallPermissionsModalVisibleState,
+    cardLinkingStatusState,
+    customBannerShown,
+    drawerDashboardState,
+    drawerSwipeState,
     isDocumentUploadAppWallState,
     isPhotoUploadedAppWallState,
     isReadyAppWallState,
@@ -113,9 +117,21 @@ import {
     moonbeamUserIdState
 } from "../../recoil/RootAtom";
 import {splashStatusState} from "../../recoil/SplashAtom";
-import {storeOfferPhysicalLocationState, storeOfferState} from "../../recoil/StoreOfferAtom";
+import {
+    nearbyOffersListState,
+    nearbyOffersPageNumberState,
+    noNearbyOffersToLoadState,
+    noOnlineOffersToLoadState, offersNearUserLocationFlagState,
+    onlineOffersListState,
+    onlineOffersPageNumberState,
+    storeOfferPhysicalLocationState,
+    storeOfferState
+} from "../../recoil/StoreOfferAtom";
 import {cardLinkingBottomSheetState} from "../../recoil/WalletAtom";
 import * as SecureStore from 'expo-secure-store';
+// @ts-ignore
+import MoonbeamProfilePlaceholder from "../../../assets/art/moonbeam-profile-placeholder.png";
+import {Image as ExpoImage} from "expo-image/build/Image";
 
 /**
  * CustomDrawer component. This component will be used to further tailor our sidebar navigation drawer, mainly
@@ -241,6 +257,13 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const appWallDocumentsReCapturePhotoStateReset = useResetRecoilState(appWallDocumentsReCapturePhotoState);
     const automaticallyVerifyRegistrationCodeStateReset = useResetRecoilState(automaticallyVerifyRegistrationCodeState);
     const deferToLoginStateReset = useResetRecoilState(deferToLoginState);
+    const nearbyOffersPageNumberStateReset = useResetRecoilState(nearbyOffersPageNumberState)
+    const onlineOffersPageNumberStateReset = useResetRecoilState(onlineOffersPageNumberState);
+    const onlineOffersListStateReset = useResetRecoilState(onlineOffersListState);
+    const nearbyOffersListStateReset = useResetRecoilState(nearbyOffersListState);
+    const noOnlineOffersToLoadStateReset = useResetRecoilState(noOnlineOffersToLoadState);
+    const noNearbyOffersToLoadStateReset = useResetRecoilState(noNearbyOffersToLoadState);
+    const offersNearUserLocationFlagStateReset = useResetRecoilState(offersNearUserLocationFlagState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -284,45 +307,77 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                     resizeMode: 'stretch'
                                 }}
                                 source={SideBarImage}>
-                                <Avatar
-                                    {...profilePictureURI && profilePictureURI !== "" && {
-                                        source: {
-                                            uri: profilePictureURI,
-                                            cache: 'reload'
-                                        }
-                                    }
-                                    }
-                                    avatarStyle={{
-                                        resizeMode: 'cover',
-                                        borderColor: '#F2FF5D',
-                                        borderWidth: 3
-                                    }}
-                                    size={hp(15)}
-                                    rounded
-                                    title={(!profilePictureURI || profilePictureURI === "") ? currentUserTitle : undefined}
-                                    {...(!profilePictureURI || profilePictureURI === "") && {
-                                        titleStyle: [
-                                            styles.titleStyle
-                                        ]
-                                    }}
-                                    containerStyle={styles.avatarStyle}
-                                    onPress={async () => {
-                                        // go to the Profile screen
-                                        setGoToProfileSettings(true);
-                                        drawerNavigation && drawerNavigation!.navigate('Settings', {});
-                                    }}
-                                >
-                                    <Avatar.Accessory
-                                        size={hp(3.5)}
-                                        style={styles.avatarAccessoryStyle}
-                                        color={'#F2FF5D'}
-                                        onPress={async () => {
-                                            // go to the Profile screen
-                                            setGoToProfileSettings(true);
-                                            drawerNavigation && drawerNavigation!.navigate('Settings', {});
-                                        }}
-                                    />
-                                </Avatar>
+                                {
+                                    (!profilePictureURI || profilePictureURI === "") ?
+                                        <Avatar
+                                            {...profilePictureURI && profilePictureURI !== "" && {
+                                                source: {
+                                                    uri: profilePictureURI,
+                                                    cache: 'reload'
+                                                }
+                                            }
+                                            }
+                                            avatarStyle={{
+                                                resizeMode: 'cover',
+                                                borderColor: '#F2FF5D',
+                                                borderWidth: 3
+                                            }}
+                                            size={hp(15)}
+                                            rounded
+                                            title={(!profilePictureURI || profilePictureURI === "") ? currentUserTitle : undefined}
+                                            {...(!profilePictureURI || profilePictureURI === "") && {
+                                                titleStyle: [
+                                                    styles.titleStyle
+                                                ]
+                                            }}
+                                            containerStyle={styles.avatarStyle}
+                                            onPress={async () => {
+                                                // go to the Profile screen
+                                                setGoToProfileSettings(true);
+                                                drawerNavigation && drawerNavigation!.navigate('Settings', {});
+                                            }}
+                                        >
+                                            <Avatar.Accessory
+                                                size={hp(3.5)}
+                                                style={styles.avatarAccessoryStyle}
+                                                color={'#F2FF5D'}
+                                                onPress={async () => {
+                                                    // go to the Profile screen
+                                                    setGoToProfileSettings(true);
+                                                    drawerNavigation && drawerNavigation!.navigate('Settings', {});
+                                                }}
+                                            />
+                                        </Avatar> :
+                                        <TouchableOpacity
+                                            onPress={async () => {
+                                                // go to the Profile screen
+                                                setGoToProfileSettings(true);
+                                                drawerNavigation && drawerNavigation!.navigate('Settings', {});
+                                            }}
+                                        >
+                                            <ExpoImage
+                                                style={styles.profileImage}
+                                                source={{
+                                                    uri: profilePictureURI
+                                                }}
+                                                placeholder={MoonbeamProfilePlaceholder}
+                                                placeholderContentFit={'fill'}
+                                                contentFit={'fill'}
+                                                transition={1000}
+                                                cachePolicy={'memory-disk'}
+                                            />
+                                            <Avatar.Accessory
+                                                size={hp(3.5)}
+                                                style={styles.profileImageAccessoryStyle}
+                                                color={'#F2FF5D'}
+                                                onPress={async () => {
+                                                    // go to the Profile screen
+                                                    setGoToProfileSettings(true);
+                                                    drawerNavigation && drawerNavigation!.navigate('Settings', {});
+                                                }}
+                                            />
+                                        </TouchableOpacity>
+                                }
                                 <Text numberOfLines={3} textBreakStrategy={"simple"}
                                       style={[styles.userNameStyle]}>{currentUserName}</Text>
                             </ImageBackground>
@@ -456,6 +511,13 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                         appWallDocumentsReCapturePhotoStateReset();
                                         automaticallyVerifyRegistrationCodeStateReset();
                                         deferToLoginStateReset();
+                                        nearbyOffersPageNumberStateReset();
+                                        onlineOffersPageNumberStateReset();
+                                        onlineOffersListStateReset();
+                                        nearbyOffersListStateReset();
+                                        noNearbyOffersToLoadStateReset();
+                                        noOnlineOffersToLoadStateReset();
+                                        offersNearUserLocationFlagStateReset();
 
                                         /**
                                          * ensure that the current user's biometric session is interrupted, and that the already signed in flag is reset
@@ -476,6 +538,8 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                         await SecureStore.deleteItemAsync(`biometrics-type`, {
                                             requireAuthentication: false // we don't need this to be under authentication, so we can check at login
                                         });
+
+                                        //
 
                                         // performing the Sign-Out action through Amplify
                                         await Auth.signOut();

@@ -31,7 +31,12 @@ import {
 } from "@moonbeam/moonbeam-models";
 import {API, Auth, graphqlOperation} from "aws-amplify";
 import {Observable} from "zen-observable-ts";
-import {currentUserInformation, expoPushTokenState, globalAmplifyCacheState} from "../../../recoil/AuthAtom";
+import {
+    currentUserInformation,
+    expoPushTokenState,
+    globalAmplifyCacheState,
+    marketplaceAmplifyCacheState
+} from "../../../recoil/AuthAtom";
 import {Spinner} from "../../common/Spinner";
 import {Dialog, IconButton, Portal} from "react-native-paper";
 import {commonStyles} from "../../../styles/common.module";
@@ -52,8 +57,19 @@ import {fetchFile} from "../../../utils/File";
 import {Documents} from './documents/Documents';
 import {DocumentsViewer} from "../../common/DocumentsViewer";
 import {Support} from "./support/Support";
-import {createPhysicalDevice, proceedWithDeviceCreation} from "../../../utils/AppSync";
+import {
+    createPhysicalDevice,
+    proceedWithDeviceCreation,
+    retrieveOffersNearby,
+    retrieveOnlineOffersList
+} from "../../../utils/AppSync";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
+import {
+    nearbyOffersListState,
+    nearbyOffersPageNumberState, noNearbyOffersToLoadState, noOnlineOffersToLoadState, offersNearUserLocationFlagState,
+    onlineOffersListState,
+    onlineOffersPageNumberState
+} from "../../../recoil/StoreOfferAtom";
 import Image = Animated.Image;
 
 /**
@@ -63,6 +79,8 @@ import Image = Animated.Image;
  */
 export const AppDrawer = ({}: AppDrawerProps) => {
         // constants used to keep track of local component state
+        const [loadingOnlineInProgress, setIsLoadingOnlineInProgress] = useState<boolean>(false);
+        const [loadingNearbyOffersInProgress, setIsLoadingNearbyOffersInProgress] = useState<boolean>(false);
         const [isReady, setIsReady] = useState<boolean>(true);
         const [modalVisible, setModalVisible] = useState<boolean>(false);
         const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
@@ -78,6 +96,9 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         const [isLoaded, setIsLoaded] = useState<boolean>(false);
         const [updatedMilitaryStatus, setUpdatedMilitaryStatus] = useState<MilitaryVerificationStatusType | null>(null);
         // constants used to keep track of shared states
+        const [marketplaceCache,] = useRecoilState(marketplaceAmplifyCacheState);
+        const [nearbyOfferList, setNearbyOfferList] = useRecoilState(nearbyOffersListState);
+        const [onlineOfferList, setOnlineOfferList] = useRecoilState(onlineOffersListState);
         const [expoPushToken,] = useRecoilState(expoPushTokenState);
         const [globalCache,] = useRecoilState(globalAmplifyCacheState);
         const [transactionData, setTransactionData] = useRecoilState(transactionDataState);
@@ -92,6 +113,11 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         const [drawerInDashboard,] = useRecoilState(drawerDashboardState);
         const [, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
         const [, setShowWalletBottomSheet] = useRecoilState(showWalletBottomSheetState);
+        const [nearbyOffersPageNumber, setNearbyOffersPageNumber] = useRecoilState(nearbyOffersPageNumberState);
+        const [onlineOffersPageNumber, setOnlineOffersPageNumber] = useRecoilState(onlineOffersPageNumberState);
+        const [noOnlineOffersToLoad,] = useRecoilState(noOnlineOffersToLoadState);
+        const [noNearbyOffersToLoad,] = useRecoilState(noNearbyOffersToLoadState);
+        const [, setOffersNearUserLocationFlag] = useRecoilState(offersNearUserLocationFlagState);
 
         /**
          * create a drawer navigator, to be used for our sidebar navigation, which is the main driving
@@ -107,10 +133,31 @@ export const AppDrawer = ({}: AppDrawerProps) => {
          * included in here.
          */
         useEffect(() => {
+            const loadProfilePicture = async () => {
+                /**
+                 * retrieve the user profile picture - attempt to retrieve it from cache first
+                 *
+                 * We handle clearing and/or updating the cache in the Profile component
+                 */
+                let profilePictureURI: string | null;
+                if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
+                    console.log('profile picture is cached');
+                    profilePictureURI = await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`);
+                } else {
+                    console.log('profile picture is not cached');
+                    profilePictureURI = await retrieveProfilePicture();
+                    globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, profilePictureURI !== null && profilePictureURI.length !== 0 ? profilePictureURI : "")
+                }
+                setProfilePictureRetrieved(true);
+                setProfilePictureURI(profilePictureURI !== null && profilePictureURI.length !== 0
+                    ? profilePictureURI
+                    : "");
+            }
+
             if (userInformation["custom:userId"]) {
                 // initial app load
                 (!isLoaded && !militaryStatusRetrieved && !cardLinkRetrieved && !profilePictureRetrieved && !transactionsRetrieved)
-                && loadAppData(false).then(([updatedUserInformation, updatedTransactionalData, updateProfilePictureURI]) => {
+                && loadAppData(false).then(([updatedUserInformation, updatedTransactionalData]) => {
                     // if the retrieved status is verified, set the user as verified, so we bypass the App Wall screen
                     if (updatedUserInformation["militaryStatus"] === MilitaryVerificationStatusType.Verified) {
                         setUserVerified(true);
@@ -144,12 +191,12 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     // set the user information, transactional data and profile picture URI accordingly, from what we have loaded
                     setUserInformation(updatedUserInformation);
                     setTransactionData(updatedTransactionalData);
-                    setProfilePictureURI(updateProfilePictureURI);
+                    loadProfilePicture().then(_ => {});
                 });
 
                 // incoming military status updates
                 (!isLoaded && militaryStatusRetrieved && !cardLinkRetrieved && !profilePictureRetrieved && !transactionsRetrieved)
-                && loadAppData(true).then(([updatedUserInformation, updatedTransactionalData, updateProfilePictureURI]) => {
+                && loadAppData(true).then(([updatedUserInformation, updatedTransactionalData]) => {
                     setIsReady(true);
                     setUserVerified(true);
 
@@ -179,7 +226,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                         }
                     });
                     setTransactionData(updatedTransactionalData);
-                    setProfilePictureURI(updateProfilePictureURI);
+                    loadProfilePicture().then(_ => {});
                 });
 
                 // post app load
@@ -228,8 +275,63 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                 Device.getDeviceTypeAsync().then(deviceType => {
                     setDeviceType(deviceType);
                 });
+
+                // load the online data
+                const loadOnlineData = async (): Promise<void> => {
+                    setIsLoadingOnlineInProgress(true);
+
+                    // check to see if we have cached  Online Offers. If we do, we don't need to retrieve them again for a week.
+                    const onlineOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`);
+                    if (marketplaceCache && onlineOffersCached !== null) {
+                        console.log('pre-emptively loading - online offers are cached');
+                        setOnlineOfferList(await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`));
+
+                        // we want to increase the page number of online offers, since we already have the first page obtained from cache
+                        setOnlineOffersPageNumber(onlineOffersPageNumber + 1);
+                        setIsLoadingOnlineInProgress(false);
+                    } else {
+                        console.log('pre-emptively loading - online offers are not cached');
+                        setOnlineOfferList(onlineOfferList.concat(await retrieveOnlineOffersList(onlineOffersPageNumber, setOnlineOffersPageNumber)));
+                        setIsLoadingOnlineInProgress(false);
+                    }
+                }
+                /**
+                 * pre-emptively load online offers until we reach 100 online offers,
+                 * or until we run out of offers to load.
+                 */
+                !loadingOnlineInProgress && !noOnlineOffersToLoad && onlineOfferList.length < 100 && loadOnlineData();
+                /**
+                 * do not cache online offers until we reach at least 100 offers,
+                 * or until we run out of offers to load.
+                 */
+                if ((marketplaceCache && onlineOfferList.length >= 100) || (marketplaceCache && noOnlineOffersToLoad)) {
+                    marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`).then(onlineOffersCached => {
+                        // check if there's really a need for caching
+                        if ((onlineOffersCached !== null && onlineOffersCached.length < onlineOfferList.length) || onlineOffersCached === null) {
+                            console.log('Caching online offers (additional/initial)');
+                            marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, onlineOfferList);
+                        }
+                    });
+                }
+
+                // load the nearby offer data
+                const loadNearbyData = async (): Promise<void> => {
+                    console.log('retrieving offers nearby');
+                    setIsLoadingNearbyOffersInProgress(true);
+
+                    setNearbyOfferList(nearbyOfferList.concat(await
+                        retrieveOffersNearby(nearbyOffersPageNumber, setNearbyOffersPageNumber, userInformation, setOffersNearUserLocationFlag, marketplaceCache)
+                    ));
+                    setIsLoadingNearbyOffersInProgress(false);
+                }
+                /**
+                 * pre-emptively load nearby offers until we reach 100 nearby offers,
+                 * or until we run out of offers to load.
+                 */
+                !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && nearbyOfferList.length < 100 && loadNearbyData();
             }
-        }, [
+        }, [loadingNearbyOffersInProgress, noNearbyOffersToLoad, nearbyOfferList,
+            onlineOfferList, marketplaceCache, loadingOnlineInProgress, noOnlineOffersToLoad,
             deviceType, userInformation["custom:userId"], isLoaded,
             militaryStatusRetrieved, cardLinkRetrieved, profilePictureRetrieved,
             transactionsRetrieved, updatedMilitaryStatus
@@ -242,17 +344,16 @@ export const AppDrawer = ({}: AppDrawerProps) => {
          * and verification needs to take place (since this already does take place at initial load, no
          * matter what)
          *
-         * @return a tuple of {@link Object} - {@link Array} of {@link MoonbeamTransaction}, and {@link string}, representing
+         * @return a tuple of {@link Object} - {@link Array} of {@link MoonbeamTransaction} and {@link Object}, representing
          * the user information details retrieved, the user's transactional data retrieved as well as the
          * user's profile picture URI if applicable, to be used when updating the current user information.
          */
-        const loadAppData = async (militaryStatusAlreadyVerified: boolean): Promise<[Object, MoonbeamTransaction[], string]> => {
+        const loadAppData = async (militaryStatusAlreadyVerified: boolean): Promise<[Object, MoonbeamTransaction[]]> => {
             setIsReady(false);
             setIsLoaded(true);
 
             let updatedTransactionalData: MoonbeamTransaction[] = [];
             let updatedUserInformation: Object = userInformation;
-            let updatedProfilePicture: string = "";
             let militaryStatus: MilitaryVerificationStatusType | 'UNKNOWN' | null = null;
 
             // only subscribe to military status updates and retrieve the status, if needed
@@ -341,33 +442,14 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     ...(linkedCard !== null && {linkedCard: linkedCard})
                 };
 
-                /**
-                 * retrieve the user profile picture - attempt to retrieve it from cache first
-                 *
-                 * We handle clearing and/or updating the cache in the Profile component
-                 */
-                let profilePictureURI: string | null;
-                if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
-                    console.log('profile picture is cached');
-                    profilePictureURI = await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`);
-                } else {
-                    console.log('profile picture is not cached');
-                    profilePictureURI = await retrieveProfilePicture();
-                    globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, profilePictureURI !== null && profilePictureURI.length !== 0 ? profilePictureURI : "")
-                }
-                setProfilePictureRetrieved(true);
-                updatedProfilePicture = (profilePictureURI !== null && profilePictureURI.length !== 0)
-                    ? profilePictureURI
-                    : "";
-
                 // retrieve the transactional data for the user
                 const retrievedTransactionalData = await retrieveTransactionalData(userInformation["custom:userId"]);
                 setTransactionsRetrieved(true);
                 updatedTransactionalData = retrievedTransactionalData !== null ? retrievedTransactionalData : [];
 
-                return [updatedUserInformation, updatedTransactionalData, updatedProfilePicture];
+                return [updatedUserInformation, updatedTransactionalData];
             } else {
-                return [updatedUserInformation, updatedTransactionalData, updatedProfilePicture];
+                return [updatedUserInformation, updatedTransactionalData];
             }
         }
 
@@ -756,17 +838,17 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                                                           navigation.openDrawer();
                                                                       }}/>,
                                         headerTitle: () =>
-                                                <Image resizeMode={"contain"}
-                                                       style={{
-                                                           height: hp(10),
-                                                           width: wp(10),
-                                                           alignSelf: 'center',
-                                                           ...(Platform.OS === 'android' && {
-                                                               alignSelf: 'center'
-                                                           })
-                                                       }}
-                                                       source={MoonbeamNavigationLogo}
-                                                />,
+                                            <Image resizeMode={"contain"}
+                                                   style={{
+                                                       height: hp(10),
+                                                       width: wp(10),
+                                                       alignSelf: 'center',
+                                                       ...(Platform.OS === 'android' && {
+                                                           alignSelf: 'center'
+                                                       })
+                                                   }}
+                                                   source={MoonbeamNavigationLogo}
+                                            />,
                                         headerStyle: drawerInDashboard ? {
                                             width: wp(100),
                                             backgroundColor: '#5B5A5A',

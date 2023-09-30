@@ -4,7 +4,6 @@ import {ImageBackground, ScrollView, Text, TouchableOpacity, View} from "react-n
 import {styles} from '../../../../../../styles/storeOfferDetails.module';
 import {useRecoilState} from "recoil";
 import {storeOfferPhysicalLocationState, storeOfferState} from "../../../../../../recoil/StoreOfferAtom";
-import {Avatar} from "@rneui/base";
 import {List} from 'react-native-paper';
 import {FidelisPartner, Offer, RewardType} from "@moonbeam/moonbeam-models";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -13,6 +12,9 @@ import {commonStyles} from "../../../../../../styles/common.module";
 import StoreDetailsBackgroundImage from "../../../../../../../assets/backgrounds/store-details-background.png";
 import {LinearGradient} from "expo-linear-gradient";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
+import {Image} from 'expo-image';
+// @ts-ignore
+import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 
 /**
  * StoreOfferDetails component.
@@ -323,14 +325,15 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                     storeOfferClicked!.numberOfOffers !== undefined
                         ?
                         <>
-                            <Avatar
-                                containerStyle={styles.brandLogo}
-                                imageProps={{
-                                    resizeMode: 'contain'
-                                }}
-                                size={hp(15)}
+                            <Image
+                                style={styles.brandLogo}
                                 // @ts-ignore
                                 source={{uri: storeOfferClicked!.offers[0].brandLogoSm!}}
+                                placeholder={MoonbeamPlaceholderImage}
+                                placeholderContentFit={'contain'}
+                                contentFit={'contain'}
+                                transition={1000}
+                                cachePolicy={'memory-disk'}
                             />
                             {
                                 !hasOnlineStore
@@ -352,14 +355,15 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                         </>
                         :
                         <>
-                            <Avatar
-                                containerStyle={styles.brandLogo}
-                                imageProps={{
-                                    resizeMode: 'contain'
-                                }}
-                                size={hp(15)}
+                            <Image
+                                style={styles.brandLogo}
                                 // @ts-ignore
                                 source={{uri: storeOfferClicked!.brandLogoSm!}}
+                                placeholder={MoonbeamPlaceholderImage}
+                                placeholderContentFit={'contain'}
+                                contentFit={'contain'}
+                                transition={1000}
+                                cachePolicy={'memory-disk'}
                             />
                             {
                                 !hasOnlineStore

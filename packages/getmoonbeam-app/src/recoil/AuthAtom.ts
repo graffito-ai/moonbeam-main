@@ -536,7 +536,7 @@ const documentsRePickPhotoState = atom<boolean>({
  * registration.
  */
 const documentsReCapturePhotoState = atom<boolean>({
-    key: "documentsRePickPhotoState",
+    key: "documentsReCapturePhotoState",
     default: false
 });
 

@@ -60,6 +60,15 @@ export const styles = StyleSheet.create({
         alignSelf: 'center',
         backgroundColor: 'white'
     },
+    profileImage: {
+        top: hp(5),
+        alignSelf: 'center',
+        height: wp(35),
+        width: wp(35),
+        borderRadius: wp(35)/2,
+        borderWidth: hp(0.40),
+        borderColor: '#F2FF5D'
+    },
     avatarAccessoryStyle: {
         left: '72%',
         top: '75%',

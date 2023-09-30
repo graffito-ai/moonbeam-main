@@ -39,8 +39,6 @@ import MoonbeamVisaImage from '../../../../../../assets/moonbeam-visa-icon.png';
 import MoonbeamMasterCardImage from '../../../../../../assets/moonbeam-mastercard-icon.png';
 // @ts-ignore
 import RegistrationBackgroundImage from '../../../../../../assets/backgrounds/registration-background.png';
-import {deviceTypeState} from "../../../../../recoil/RootAtom";
-import * as Device from "expo-device";
 import {showWalletBottomSheetState} from "../../../../../recoil/DashboardAtom";
 import {LinearGradient} from "expo-linear-gradient";
 import {Divider} from '@rneui/base';
@@ -72,7 +70,6 @@ export const Wallet = ({navigation}: CardsProps) => {
     const [splashState, setSplashState] = useRecoilState(splashStatusState);
     const [cardLinkingBottomSheet, setCardLinkingBottomSheet] = useRecoilState(cardLinkingBottomSheetState);
     const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
-    const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
     const [showBottomSheet, setShowBottomSheet] = useRecoilState(showWalletBottomSheetState);
 
     /**
@@ -83,10 +80,6 @@ export const Wallet = ({navigation}: CardsProps) => {
      * included in here.
      */
     useEffect(() => {
-        // check and set the type of device, to be used throughout the app
-        Device.getDeviceTypeAsync().then(deviceType => {
-            setDeviceType(deviceType);
-        });
         // set the app drawer status accordingly, custom banner visibility and drawer swipe actions accordingly
         if (navigation.getState().index === 2) {
             setAppDrawerHeaderShown(false);
@@ -116,7 +109,7 @@ export const Wallet = ({navigation}: CardsProps) => {
             // @ts-ignore
             bottomSheetRef.current?.expand?.();
         }
-    }, [navigation.getState(), showBottomSheet, bottomSheetRef, userInformation, cardLinkingBottomSheet, deviceType]);
+    }, [navigation.getState(), showBottomSheet, bottomSheetRef, userInformation, cardLinkingBottomSheet]);
 
     /**
      * Function used to handle the delete card action, from the bottom sheet

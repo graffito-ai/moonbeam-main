@@ -23,9 +23,11 @@ import {
     UserDeviceErrorType,
     UserDeviceState
 } from "@moonbeam/moonbeam-models";
-import {API, graphqlOperation} from "aws-amplify";
+import {API, Cache, graphqlOperation} from "aws-amplify";
 import {dynamicSort} from "./Main";
 import * as Location from "expo-location";
+import {LocationObject} from "expo-location";
+import {SetterOrUpdater} from "recoil";
 
 /**
  * Function used to update a user authentication statistic. This will ensure that a user
@@ -290,10 +292,14 @@ export const createPhysicalDevice = async (userId: string, tokenId: string): Pro
  * Function used to retrieve the list of online offers that we will
  * use for caching purposes.
  *
+ * @param pageNumber optional parameter specifying a page number that we will get the locations
+ * near offers from, in case we are not using this for caching purposes
+ * @param setPageNumber setter or updater used to update the page number, if passed in.
+ *
  * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function will
  * be used to cache the list of online offers.
  */
-export const retrieveOnlineOffersList = async (): Promise<Offer[]> => {
+export const retrieveOnlineOffersList = async (pageNumber?: number, setPageNumber?: SetterOrUpdater<number>): Promise<Offer[]> => {
     // result to return
     let onlineOffers: Offer[] = [];
 
@@ -305,7 +311,7 @@ export const retrieveOnlineOffersList = async (): Promise<Offer[]> => {
                 countryCode: CountryCode.Us,
                 filterType: OfferFilter.Online,
                 offerStates: [OfferState.Active, OfferState.Scheduled],
-                pageNumber: 1, // cache the first page only
+                pageNumber: pageNumber !== undefined ? pageNumber : 1, // cache the first page only, otherwise retrieve the appropriate page number
                 pageSize: 7, // load 7 nearby offers at a time
                 redemptionType: RedemptionType.Cardlinked
             }
@@ -322,6 +328,10 @@ export const retrieveOnlineOffersList = async (): Promise<Offer[]> => {
 
             // ensure that there is at least one online offer in the list
             if (onlineOffers.length > 0) {
+                // increase the page number, if needed
+                pageNumber !== null && pageNumber !== undefined &&
+                setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
+
                 return onlineOffers;
             } else {
                 console.log(`No online offers to display ${JSON.stringify(onlineOffersResult)}`);
@@ -378,65 +388,201 @@ export const retrieveFidelisPartnerList = async (): Promise<FidelisPartner[]> =>
     }
 }
 
-
 /**
- * Function used to retrieve the list of offers near the user's home location,
- * that we will use for caching purposes.
+ * Function used to retrieve the list of offers nearby, that we will use
+ * for background loading purposes.
  *
- * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function will
- * be used to cache the list of offers near the user's home location.
+ * @param pageNumber parameter specifying a page number that we will get the nearby locations
+ * from
+ * @param setPageNumber setter or updater used to update the page number.
+ * @param userInformation user information to be passed in, in case we need to fall back the
+ * offers near a user's home location.
+ * @param setOffersNearUserLocationFlag setter or updated used to update the flag indicating whether
+ * the nearby offers are based on a user's geolocation or their home address.
+ * @param marketplaceCache the marketplace cache to be passed in
+ * @param userInformation relevant user information
+ *
+ * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function
+ * will be used to get the list of offers nearby.
  */
-export const retrieveOffersNearLocation = async (address: string): Promise<Offer[]> => {
+export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: SetterOrUpdater<number>,
+                                           userInformation: any, setOffersNearUserLocationFlag: SetterOrUpdater<boolean>,
+                                           marketplaceCache: typeof Cache | null): Promise<Offer[]> => {
     // result to return
     let nearbyOffers: Offer[] = [];
 
     try {
-        // first retrieve the necessary geolocation information based on the user's home address
-        const geoLocationArray = await Location.geocodeAsync(address);
-        /**
-         * get the first location point in the array of geolocation returned
-         */
-        const geoLocation = geoLocationArray && geoLocationArray.length !== 0 ? geoLocationArray[0] : null;
-        if (!geoLocation) {
-            console.log(`Unable to retrieve user's home location's geolocation ${address}`);
+        // first retrieve the necessary permissions for location purposes
+        const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
+        if (foregroundPermissionStatus.status !== 'granted') {
+            const errorMessage = `Permission to access location was not granted!`;
+            console.log(errorMessage);
+
             return nearbyOffers;
         } else {
-            // call the getOffers API
-            const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
-                getOffersInput: {
-                    availability: OfferAvailability.Global,
-                    countryCode: CountryCode.Us,
-                    filterType: OfferFilter.Nearby,
-                    offerStates: [OfferState.Active, OfferState.Scheduled],
-                    pageNumber: 1, // cache the first page only
-                    pageSize: 7, // load 7 nearby offers at a time
-                    radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
-                    radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
-                    radiusLatitude: geoLocation.latitude,
-                    radiusLongitude: geoLocation.longitude,
-                    redemptionType: RedemptionType.Cardlinked
-                }
-            }));
+            // first retrieve the latitude and longitude of the current user
+            const currentUserLocation: LocationObject = await Location.getCurrentPositionAsync();
+            if (currentUserLocation && currentUserLocation.coords && currentUserLocation.coords.latitude && currentUserLocation.coords.longitude) {
+                // call the getOffers API
+                const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
+                    getOffersInput: {
+                        availability: OfferAvailability.Global,
+                        countryCode: CountryCode.Us,
+                        filterType: OfferFilter.Nearby,
+                        offerStates: [OfferState.Active, OfferState.Scheduled],
+                        pageNumber: pageNumber,
+                        pageSize: 7, // load 7 nearby offers at a time
+                        radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
+                        radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
+                        radiusLatitude: currentUserLocation.coords.latitude,
+                        radiusLongitude: currentUserLocation.coords.longitude,
+                        redemptionType: RedemptionType.Cardlinked
+                    }
+                }));
 
-            // retrieve the data block from the response
-            // @ts-ignore
-            const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
+                // retrieve the data block from the response
+                // @ts-ignore
+                const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
 
-            // check if there are any errors in the returned response
-            if (responseData && responseData.getOffers.errorMessage === null) {
-                // retrieve the array of nearby offers from the API call
-                nearbyOffers = responseData.getOffers.data.offers;
+                // check if there are any errors in the returned response
+                if (responseData && responseData.getOffers.errorMessage === null) {
+                    // retrieve the array of nearby offers from the API call
+                    nearbyOffers = responseData.getOffers.data.offers;
 
-                // ensure that there is at least one nearby offer in the list
-                if (nearbyOffers.length > 0) {
-                    return nearbyOffers;
+                    // ensure that there is at least one nearby offer in the list
+                    if (nearbyOffers.length > 0) {
+                        // increase the page number
+                        setPageNumber(pageNumber + 1);
+
+                        // retrieve the array of nearby offers from the API call
+                        return nearbyOffers;
+                    } else {
+                        console.log(`No nearby offers to display ${JSON.stringify(nearbyOffersResult)}`);
+                        // fall back to offers near their home address
+                        return userInformation["address"] && userInformation["address"]["formatted"]
+                            ? await retrieveOffersNearLocation(userInformation["address"]["formatted"], pageNumber,
+                                setPageNumber, setOffersNearUserLocationFlag, marketplaceCache, userInformation)
+                            : nearbyOffers;
+                    }
                 } else {
-                    console.log(`No offers near user's home location to display ${JSON.stringify(nearbyOffersResult)}`);
+                    console.log(`Unexpected error while retrieving nearby offers ${JSON.stringify(nearbyOffersResult)}`);
                     return nearbyOffers;
                 }
             } else {
-                console.log(`Unexpected error while retrieving offers near user's home location ${JSON.stringify(nearbyOffersResult)}`);
+                console.log(`Unable to retrieve the current user's location coordinates!`);
                 return nearbyOffers;
+            }
+        }
+    } catch (error) {
+        console.log(`Unexpected error while attempting to retrieve nearby offers ${JSON.stringify(error)} ${error}`);
+
+        // @ts-ignore
+        if (!error.code || error.code !== 'ERR_LOCATION_INFO_PLIST') {
+            return nearbyOffers;
+        } else {
+            // fall back to offers near their home address
+            return userInformation["address"] && userInformation["address"]["formatted"]
+                ? await retrieveOffersNearLocation(userInformation["address"]["formatted"], pageNumber,
+                    setPageNumber, setOffersNearUserLocationFlag, marketplaceCache, userInformation)
+                : nearbyOffers;
+        }
+    }
+}
+
+/**
+ * Function used to retrieve the list of offers near the user's home location,
+ * that we will use either for caching and/or for background loading purposes.
+ *
+ * @param address user's home location that we wil use to retrieve offers near location
+ * @param pageNumber optional parameter specifying a page number that we will get the locations
+ * near offers from, in case we are not using this for caching purposes
+ * @param setPageNumber setter or updater used to update the page number, if passed in.
+ * @param setOffersNearUserLocationFlag optional setter or updated used to update the flag indicating whether
+ * the nearby offers are based on a user's geolocation or their home address.
+ * @param marketplaceCache optional marketplace cache to be passed in
+ * @param userInformation relevant user information
+ *
+ * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function will
+ * be used to get the list of offers near the user's home location.
+ */
+export const retrieveOffersNearLocation = async (address: string, pageNumber?: number, setPageNumber?: SetterOrUpdater<number>,
+                                                 setOffersNearUserLocationFlag?: SetterOrUpdater<boolean>,
+                                                 marketplaceCache?: typeof Cache | null, userInformation?: any): Promise<Offer[]> => {
+    // result to return
+    let nearbyOffers: Offer[] = [];
+
+    try {
+        // check to see if we already have these offers cached, for the first page, if we do retrieve them from cache instead
+        if (pageNumber === 1 && marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-offerNearUserHome`) !== null) {
+            console.log('offers near user home are cached');
+
+            // increase the page number, if needed
+            pageNumber !== null && pageNumber !== undefined &&
+            setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
+
+            // set the nearby user location flag
+            setOffersNearUserLocationFlag !== null && setOffersNearUserLocationFlag !== undefined && setOffersNearUserLocationFlag(true);
+
+            return await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-offerNearUserHome`);
+        } else {
+            console.log('offers near user home are not cached, or page number is not 1');
+            // first retrieve the necessary geolocation information based on the user's home address
+            const geoLocationArray = await Location.geocodeAsync(address);
+            /**
+             * get the first location point in the array of geolocation returned
+             */
+            const geoLocation = geoLocationArray && geoLocationArray.length !== 0 ? geoLocationArray[0] : null;
+            if (!geoLocation) {
+                console.log(`Unable to retrieve user's home location's geolocation ${address}`);
+                return nearbyOffers;
+            } else {
+                // call the getOffers API
+                const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
+                    getOffersInput: {
+                        availability: OfferAvailability.Global,
+                        countryCode: CountryCode.Us,
+                        filterType: OfferFilter.Nearby,
+                        offerStates: [OfferState.Active, OfferState.Scheduled],
+                        pageNumber: pageNumber !== undefined ? pageNumber : 1, // cache the first page only, otherwise retrieve the appropriate page number
+                        pageSize: 7, // load 7 nearby offers at a time
+                        radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
+                        radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
+                        radiusLatitude: geoLocation.latitude,
+                        radiusLongitude: geoLocation.longitude,
+                        redemptionType: RedemptionType.Cardlinked
+                    }
+                }));
+
+                // retrieve the data block from the response
+                // @ts-ignore
+                const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.getOffers.errorMessage === null) {
+                    // retrieve the array of nearby offers from the API call
+                    nearbyOffers = responseData.getOffers.data.offers;
+
+                    // ensure that there is at least one nearby offer in the list
+                    if (nearbyOffers.length > 0) {
+                        // if the page number is 1, then cache the first page of offers near user home
+                        pageNumber === 1 && marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-offerNearUserHome`, nearbyOffers);
+
+                        // increase the page number, if needed
+                        pageNumber !== null && pageNumber !== undefined &&
+                        setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
+
+                        // set the nearby user location flag
+                        setOffersNearUserLocationFlag !== null && setOffersNearUserLocationFlag !== undefined && setOffersNearUserLocationFlag(true);
+
+                        return nearbyOffers;
+                    } else {
+                        console.log(`No offers near user's home location to display ${JSON.stringify(nearbyOffersResult)}`);
+                        return nearbyOffers;
+                    }
+                } else {
+                    console.log(`Unexpected error while retrieving offers near user's home location ${JSON.stringify(nearbyOffersResult)}`);
+                    return nearbyOffers;
+                }
             }
         }
     } catch (error) {
