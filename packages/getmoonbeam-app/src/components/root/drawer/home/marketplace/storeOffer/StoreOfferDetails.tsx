@@ -321,7 +321,7 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                 colors={['transparent', '#313030']}
                 style={styles.brandView}>
                 {
-                    /*// @ts-ignore*/
+                    // @ts-ignore
                     storeOfferClicked!.numberOfOffers !== undefined
                         ?
                         <>
@@ -419,6 +419,7 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                                     style={styles.onlineShoppingButton}
                                     onPress={async () => {
                                         // go to the offer's web view
+                                        // @ts-ignore
                                         navigation.navigate('StoreOfferWebView', {});
                                     }}
                                 >
@@ -464,6 +465,7 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                                         style={styles.onlineShoppingButton}
                                         onPress={async () => {
                                             // go to the offer's web view
+                                            // @ts-ignore
                                             navigation.navigate('StoreOfferWebView', {});
                                         }}
                                     >

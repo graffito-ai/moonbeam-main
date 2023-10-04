@@ -1,13 +1,13 @@
 import 'react-native-get-random-values';
 import React, {useEffect} from "react";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
-import {NavigationContainer} from "@react-navigation/native";
 import {DocumentsCenter} from './DocumentsCenter';
 import {DocumentsStackParamList} from '../../../../models/props/DocumentsProps';
 import {DocumentsViewer} from '../../../common/DocumentsViewer';
 import {DocumentsProps} from '../../../../models/props/AppDrawerProps';
 import {useRecoilState} from "recoil";
 import {drawerDashboardState} from "../../../../recoil/AppDrawerAtom";
+import {View} from "react-native";
 
 /**
  * Documents component.
@@ -38,7 +38,7 @@ export const Documents = ({navigation}: DocumentsProps) => {
 
     // return the component for the Documents page
     return (
-        <NavigationContainer independent={true}>
+        <View style={{flex: 1, backgroundColor: '#313030'}}>
             <Stack.Navigator
                 initialRouteName={"DocumentsCenter"}
                 screenOptions={{
@@ -63,6 +63,6 @@ export const Documents = ({navigation}: DocumentsProps) => {
                     }}
                 />
             </Stack.Navigator>
-        </NavigationContainer>
+        </View>
     );
 }

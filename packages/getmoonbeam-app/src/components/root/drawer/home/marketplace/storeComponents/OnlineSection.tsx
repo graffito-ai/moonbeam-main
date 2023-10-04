@@ -1,16 +1,21 @@
-import React, {useEffect, useState} from "react";
-import {ScrollView, TouchableOpacity, View} from "react-native";
+import React, {useEffect, useMemo, useRef, useState} from "react";
+import {Platform, TouchableOpacity, View} from "react-native";
 import {ActivityIndicator, Card, Paragraph, Portal, Text} from "react-native-paper";
 import {styles} from "../../../../../../styles/store.module";
 import {Offer, RewardType} from "@moonbeam/moonbeam-models";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
-import {useRecoilState} from "recoil";
-import {noOnlineOffersToLoadState, storeOfferState} from "../../../../../../recoil/StoreOfferAtom";
+import {useRecoilState, useRecoilValue} from "recoil";
+import {
+    noOnlineOffersToLoadState,
+    onlineOffersListState,
+    storeOfferState, toggleViewPressedState, uniqueOnlineOffersListState, verticalSectionActiveState
+} from "../../../../../../recoil/StoreOfferAtom";
 import {Image} from 'expo-image';
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
+import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
 
 /**
  * OnlineSection component.
@@ -19,164 +24,80 @@ import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-s
  * @constructor constructor for the component.
  */
 export const OnlineSection = (props: {
-    onlineOfferList: Offer[],
     navigation: NativeStackNavigationProp<MarketplaceStackParamList, 'Store'>,
     retrieveOnlineOffersList: () => Promise<void>,
     areNearbyOffersReady: boolean,
-    nearbyOfferList: Offer[],
-    locationServicesButton: boolean,
-    setToggleViewPressed: React.Dispatch<React.SetStateAction<'horizontal' | 'vertical'>>,
-    setSearchQuery: React.Dispatch<React.SetStateAction<string>>
+    locationServicesButton: boolean
 }) => {
     // constants used to keep track of local component state
+    const onlineListView = useRef();
+    const [horizontalListLoading, setHorizontalListLoading] = useState<boolean>(false);
+    const [dataProvider, setDataProvider] = useState<DataProvider | null>(null);
+    const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
     const [onlineOffersSpinnerShown, setOnlineOffersSpinnerShown] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [, setToggleViewPressed] = useRecoilState(toggleViewPressedState);
+    const [, setWhichVerticalSectionActive] = useRecoilState(verticalSectionActiveState);
+    const deDuplicatedOnlineOfferList = useRecoilValue(uniqueOnlineOffersListState);
+    const [onlineOfferList,] = useRecoilState(onlineOffersListState);
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
     const [noOnlineOffersToLoad,] = useRecoilState(noOnlineOffersToLoadState);
 
     /**
-     * Function used to populate the online offers.
+     * Function used to populate the rows containing the online offers data.
      *
-     * @return a {@link React.ReactNode} or {@link React.ReactNode[]} representing the
-     * React node and/or nodes, representing the online offers.
+     * @param type row type to be passed in
+     * @param data data to be passed in for the row
+     * @param index row index
+     *
+     * @return a {@link JSX.Element} or an {@link Array} of {@link JSX.Element} representing the
+     * React node and/or nodes containing the online offers.
      */
-    const populateOnlineOffers = (): React.ReactNode | React.ReactNode[] => {
-        let results: React.ReactNode[] = [];
-        let onlineOfferNumber = 0;
-        if (props.onlineOfferList.length !== 0) {
-            for (const onlineOffer of props.onlineOfferList) {
-                results.push(
-                    <>
-                        {onlineOfferNumber !== props.onlineOfferList.length - 1
-                            ?
-                            <TouchableOpacity style={{left: '3%'}}
-                                              onPress={() => {
-                                                  // set the clicked offer/partner accordingly
-                                                  setStoreOfferClicked(onlineOffer);
-                                                  props.navigation.navigate('StoreOffer', {});
-                                              }}>
-                                <Card style={styles.onlineOfferCard}>
-                                    <Card.Content>
-                                        <View style={{flexDirection: 'column'}}>
-                                            <Image
-                                                style={styles.onlineOfferCardCover}
-                                                source={{
-                                                    uri: onlineOffer.brandLogoSm!
-                                                }}
-                                                placeholder={MoonbeamPlaceholderImage}
-                                                placeholderContentFit={'fill'}
-                                                contentFit={'fill'}
-                                                transition={1000}
-                                                cachePolicy={'memory-disk'}
-                                            />
-                                            <Paragraph
-                                                style={styles.onlineOfferCardTitle}>{onlineOffer.brandDba}
-                                            </Paragraph>
-                                            <Paragraph
-                                                style={styles.onlineOfferCardSubtitle}>
-                                                {onlineOffer.reward!.type! === RewardType.RewardPercent
-                                                    ? `${onlineOffer.reward!.value}% Off`
-                                                    : `$${onlineOffer.reward!.value} Off`}
-                                            </Paragraph>
-                                        </View>
-                                    </Card.Content>
-                                </Card>
-                                <View
-                                    style={{width: wp(5)}}/>
-                            </TouchableOpacity>
-                            :
-                            <>
-                                <TouchableOpacity style={{left: wp(5)}}
-                                                  onPress={() => {
-                                                      // set the clicked offer/partner accordingly
-                                                      setStoreOfferClicked(onlineOffer);
-                                                      props.navigation.navigate('StoreOffer', {});
-                                                  }}>
-                                    <Card style={styles.onlineOfferCard}>
-                                        <Card.Content>
-                                            <View style={{flexDirection: 'column'}}>
-                                                <Image
-                                                    style={styles.onlineOfferCardCover}
-                                                    source={{
-                                                        uri: onlineOffer.brandLogoSm!
-                                                    }}
-                                                    placeholder={MoonbeamPlaceholderImage}
-                                                    placeholderContentFit={'fill'}
-                                                    contentFit={'fill'}
-                                                    transition={1000}
-                                                    cachePolicy={'memory-disk'}
-                                                />
-                                                <Paragraph
-                                                    style={styles.onlineOfferCardTitle}>{onlineOffer.brandDba}
-                                                </Paragraph>
-                                                <Paragraph
-                                                    style={styles.onlineOfferCardSubtitle}>
-                                                    {onlineOffer.reward!.type! === RewardType.RewardPercent
-                                                        ? `${onlineOffer.reward!.value}% Off`
-                                                        : `$${onlineOffer.reward!.value} Off`}
-                                                </Paragraph>
-                                            </View>
-                                        </Card.Content>
-                                    </Card>
-                                    <View style={{width: wp(5)}}/>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={{left: wp(5)}}
-                                                  onPress={() => {
-                                                      // set the clicked offer/partner accordingly
-                                                      setStoreOfferClicked(onlineOffer);
-                                                      props.navigation.navigate('StoreOffer', {});
-                                                  }}>
-                                    <Card style={styles.onlineOfferCard}>
-                                        <Card.Content>
-                                            <View style={{top: hp(2)}}>
-                                                {
-                                                    onlineOffersSpinnerShown ?
-                                                        <ActivityIndicator
-                                                            style={{top: hp(2)}}
-                                                            animating={onlineOffersSpinnerShown}
-                                                            color={'#F2FF5D'}
-                                                            size={hp(5)}
-                                                        />
-                                                        :
-                                                        <TouchableOpacity
-                                                            disabled={noOnlineOffersToLoad}
-                                                            style={[styles.viewOfferButton, noOnlineOffersToLoad && {backgroundColor: '#D9D9D9'}]}
-                                                            onPress={async () => {
-                                                                // set the loader
-                                                                setOnlineOffersSpinnerShown(true);
-
-                                                                // retrieve additional offers
-                                                                await props.retrieveOnlineOffersList();
-
-                                                                // release the loader
-                                                                setOnlineOffersSpinnerShown(false);
-                                                            }}
-                                                        >
-                                                            {/*@ts-ignore*/}
-                                                            <Text style={styles.viewOfferButtonContent}>More</Text>
-                                                        </TouchableOpacity>
-                                                }
-                                            </View>
-                                        </Card.Content>
-                                    </Card>
-                                    <View
-                                        style={{width: wp(5)}}/>
-                                </TouchableOpacity>
-                                <TouchableOpacity>
-                                    <Card style={styles.onlineOfferCard}>
-                                        <Card.Content>
-                                        </Card.Content>
-                                    </Card>
-                                </TouchableOpacity>
-                            </>
-                        }
-                    </>
-                );
-                onlineOfferNumber += 1;
-            }
+    const renderRowData = useMemo(() => (_type: string | number, data: Offer, index: number): JSX.Element | JSX.Element[] => {
+        if (onlineOfferList.length !== 0) {
+            return (
+                <TouchableOpacity style={{left: '3%'}}
+                                  onPress={() => {
+                                      // set the clicked offer/partner accordingly
+                                      setStoreOfferClicked(data);
+                                      // @ts-ignore
+                                      props.navigation.navigate('StoreOffer', {});
+                                  }}>
+                    <Card style={styles.onlineOfferCard}>
+                        <Card.Content>
+                            <View style={{flexDirection: 'column'}}>
+                                <Image
+                                    style={styles.onlineOfferCardCover}
+                                    source={{
+                                        uri: data.brandLogoSm!
+                                    }}
+                                    placeholder={MoonbeamPlaceholderImage}
+                                    placeholderContentFit={'fill'}
+                                    contentFit={'fill'}
+                                    transition={1000}
+                                    cachePolicy={'memory-disk'}
+                                />
+                                <Paragraph
+                                    numberOfLines={3}
+                                    style={styles.onlineOfferCardTitle}>{data.brandDba}
+                                </Paragraph>
+                                <Paragraph
+                                    style={styles.onlineOfferCardSubtitle}>
+                                    {data.reward!.type! === RewardType.RewardPercent
+                                        ? `${data.reward!.value}% Off`
+                                        : `$${data.reward!.value} Off`}
+                                </Paragraph>
+                            </View>
+                        </Card.Content>
+                    </Card>
+                    <View
+                        style={{width: index === onlineOfferList.length - 1 ? wp(10) : wp(5)}}/>
+                </TouchableOpacity>
+            );
+        } else {
+            return (<></>);
         }
-        return results;
-    }
+    }, [onlineOfferList]);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -186,16 +107,37 @@ export const OnlineSection = (props: {
      * included in here.
      */
     useEffect(() => {
-    }, []);
+        // update the list data providers if we are loading more offers accordingly
+        if (horizontalListLoading) {
+            setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedOnlineOfferList));
+            setHorizontalListLoading(false);
+            setOnlineOffersSpinnerShown(false);
+
+            setTimeout(() => {
+                setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedOnlineOfferList));
+                setHorizontalListLoading(false);
+                setOnlineOffersSpinnerShown(false);
+            }, 2000);
+        }
+
+        // populate the online offer data provider and list view
+        if (onlineOfferList.length > 0 && layoutProvider === null && dataProvider === null) {
+            setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedOnlineOfferList));
+            setLayoutProvider(new LayoutProvider(
+                _ => 0,
+                (_, dim) => {
+                    dim.width = wp(33);
+                    dim.height = hp(25);
+                }
+            ));
+        }
+    }, [dataProvider, layoutProvider, onlineOfferList, horizontalListLoading]);
 
     // return the component for the OnlineSection page
     return (
         <>
             <View
-                style={[styles.onlineOffersView,
-                    !props.areNearbyOffersReady && props.nearbyOfferList.length === 0 && {bottom: hp(125)},
-                    props.nearbyOfferList.length == 0 && props.areNearbyOffersReady && {bottom: hp(25)},
-                    props.locationServicesButton && {bottom: hp(115)}]}>
+                style={styles.onlineOffersView}>
                 <View style={styles.onlineOffersTitleView}>
                     <View style={styles.onlineOffersLeftTitleView}>
                         <Text style={styles.onlineOffersTitleMain}>
@@ -205,10 +147,9 @@ export const OnlineSection = (props: {
                         </Text>
                     </View>
                     <TouchableOpacity onPress={() => {
-                        props.setToggleViewPressed('vertical');
-
-                        // set the search query manually
-                        props.setSearchQuery('sort by: online');
+                        setToggleViewPressed('vertical');
+                        // set the active vertical section manually
+                        setWhichVerticalSectionActive('online');
                     }}>
                         <Text style={styles.onlineOffersTitleButton}>
                             See All
@@ -216,20 +157,80 @@ export const OnlineSection = (props: {
                     </TouchableOpacity>
                 </View>
                 <Portal.Host>
-                    <ScrollView
-                        style={[styles.onlineOffersScrollView, props.nearbyOfferList.length === 0 && props.areNearbyOffersReady && {left: -wp(0.5)}]}
-                        horizontal={true}
-                        decelerationRate={"fast"}
-                        snapToInterval={wp(33) * 3}
-                        snapToAlignment={"start"}
-                        scrollEnabled={true}
-                        persistentScrollbar={false}
-                        showsHorizontalScrollIndicator={false}
-                    >
-                        {
-                            populateOnlineOffers()
-                        }
-                    </ScrollView>
+                    <View style={{flexDirection: 'row', height: hp(30), width: wp(100)}}>
+                        <RecyclerListView
+                            // @ts-ignore
+                            ref={onlineListView}
+                            style={styles.onlineOffersScrollView}
+                            layoutProvider={layoutProvider!}
+                            dataProvider={dataProvider!}
+                            rowRenderer={renderRowData}
+                            isHorizontal={true}
+                            forceNonDeterministicRendering={true}
+                            renderFooter={() => {
+                                return (
+                                    horizontalListLoading || onlineOffersSpinnerShown ?
+                                        <>
+                                            <View
+                                                style={{width: wp(30)}}/>
+                                            <Card
+                                                style={styles.loadCard}>
+                                                <Card.Content>
+                                                    <View style={{flexDirection: 'column'}}>
+                                                        <View style={{
+                                                            flexDirection: 'row'
+                                                        }}>
+                                                            <View style={{top: hp(5)}}>
+                                                                <ActivityIndicator
+                                                                    style={{
+                                                                        top: hp(2),
+                                                                        left: wp(10)
+                                                                    }}
+                                                                    animating={true}
+                                                                    color={'#F2FF5D'}
+                                                                    size={hp(5)}
+                                                                />
+
+                                                            </View>
+                                                        </View>
+                                                    </View>
+                                                </Card.Content>
+                                            </Card>
+                                        </> : <></>
+                                )
+                            }}
+                            {
+                                ...(Platform.OS === 'ios') ?
+                                    {onEndReachedThreshold: 0} :
+                                    {onEndReachedThreshold: 1}
+                            }
+                            onEndReached={async () => {
+                                console.log(`End of list reached. Trying to refresh more items.`);
+
+                                // if there are items to load
+                                if (!noOnlineOffersToLoad) {
+                                    // set the loader
+                                    setOnlineOffersSpinnerShown(true);
+                                    // retrieving more online offers
+                                    await props.retrieveOnlineOffersList();
+                                    setHorizontalListLoading(true);
+                                    // this makes the scrolling seem infinite - we artificially scroll up a little, so we have enough time to load
+                                    // @ts-ignore
+                                    onlineListView.current?.scrollToIndex(deDuplicatedOnlineOfferList.length - 5);
+                                } else {
+                                    console.log(`Maximum number of online offers reached ${deDuplicatedOnlineOfferList.length}`);
+                                }
+                            }}
+                            scrollViewProps={{
+                                pagingEnabled: "true",
+                                decelerationRate: "fast",
+                                snapToInterval: wp(33) * 3,
+                                snapToAlignment: "center",
+                                persistentScrollbar: false,
+                                showsHorizontalScrollIndicator: false
+                            }}
+                        />
+                    </View>
                 </Portal.Host>
             </View>
         </>

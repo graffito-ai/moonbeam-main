@@ -2,7 +2,6 @@ import React, {useEffect, useState} from "react";
 import {AuthenticationProps} from "../../../models/props/RootProps";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {AuthenticationStackParamList} from "../../../models/props/AuthenticationProps";
-import {NavigationContainer} from "@react-navigation/native";
 import {IconButton, Text} from "react-native-paper";
 import {SignInComponent} from "./SignInComponent";
 import {RegistrationComponent} from "./registration/RegistrationComponent";
@@ -37,23 +36,45 @@ import {
     registrationStepNumber
 } from '../../../recoil/AuthAtom';
 import {AccountRecoveryComponent} from "./AccountRecoveryComponent";
-import {TouchableOpacity} from "react-native";
+import {TouchableOpacity, View} from "react-native";
 import {commonStyles} from "../../../styles/common.module";
 import {AppDrawer} from "../drawer/AppDrawer";
-import {Spinner} from "../../common/Spinner";
 import {DocumentsViewer} from "../../common/DocumentsViewer";
 import * as SMS from "expo-sms";
 import {styles} from "../../../styles/registration.module";
 import {
     retrieveFidelisPartnerList,
+    retrieveOffersNearby,
     retrieveOffersNearLocation,
     retrieveOnlineOffersList,
+    retrievePremierOffersNearby,
+    retrievePremierOnlineOffersList,
     updateUserAuthStat
 } from "../../../utils/AppSync";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
-import {Hub} from "aws-amplify";
-import {UserAuthSessionResponse} from "@moonbeam/moonbeam-models";
+import {
+    PremierOnlineDevOfferIds,
+    PremierOnlineProdOfferIds,
+    Stages,
+    UserAuthSessionResponse
+} from "@moonbeam/moonbeam-models";
 import {firstTimeLoggedInState} from "../../../recoil/RootAtom";
+import * as envInfo from "../../../../local-env-info.json";
+import {
+    locationServicesButtonState,
+    nearbyOffersListState,
+    nearbyOffersPageNumberState,
+    nearbyOffersSpinnerShownState,
+    noNearbyOffersToLoadState,
+    noOnlineOffersToLoadState,
+    offersNearUserLocationFlagState,
+    onlineOffersListState,
+    onlineOffersPageNumberState,
+    premierNearbyOffersPageNumberState,
+    premierOnlineOffersPageNumberState,
+    reloadNearbyDueToPermissionsChangeState,
+} from "../../../recoil/StoreOfferAtom";
+import {registerListener, removeListener} from "../../../utils/AmplifyHub";
 
 /**
  * Authentication component.
@@ -62,8 +83,23 @@ import {firstTimeLoggedInState} from "../../../recoil/RootAtom";
  */
 export const AuthenticationComponent = ({route, navigation}: AuthenticationProps) => {
         // constants used to keep track of local component state
-        const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
+        const [userIsAuthenticated, setIsUserAuthenticated] = useState<boolean>(false);
+        const [premierNearbyOffersLoadingStopped, setPremierNearbyOffersLoadingStopped] = useState<boolean>(false);
+        const [loadingOnlineInProgress, setIsLoadingOnlineInProgress] = useState<boolean>(false);
+        const [noPremierOnlineOffersToLoad, setNoPremierOnlineOffersToLoad] = useState<boolean>(false);
         // constants used to keep track of shared states
+        const [nearbyOffersPageNumber, setNearbyOffersPageNumber] = useRecoilState(nearbyOffersPageNumberState);
+        const [premierNearbyOffersPageNumber, setPremierNearbyOffersPageNumber] = useRecoilState(premierNearbyOffersPageNumberState);
+        const [onlineOffersPageNumber, setOnlineOffersPageNumber] = useRecoilState(onlineOffersPageNumberState);
+        const [premierOnlineOffersPageNumber, setPremierOnlineOffersPageNumber] = useRecoilState(premierOnlineOffersPageNumberState);
+        const [noOnlineOffersToLoad, setNoOnlineOffersToLoad] = useRecoilState(noOnlineOffersToLoadState);
+        const [noNearbyOffersToLoad, setNoNearbyOffersToLoad] = useRecoilState(noNearbyOffersToLoadState);
+        const [, setOffersNearUserLocationFlag] = useRecoilState(offersNearUserLocationFlagState);
+        const [reloadNearbyDueToPermissionsChange, setReloadNearbyDueToPermissionsChange] = useRecoilState(reloadNearbyDueToPermissionsChangeState);
+        const [, setNearbyOffersSpinnerShown] = useRecoilState(nearbyOffersSpinnerShownState);
+        const [, setLocationServicesButtonState] = useRecoilState(locationServicesButtonState);
+        const [nearbyOfferList, setNearbyOfferList] = useRecoilState(nearbyOffersListState);
+        const [onlineOfferList, setOnlineOfferList] = useRecoilState(onlineOffersListState);
         const [mainRootNavigation, setMainRootNavigation] = useRecoilState(mainRootNavigationState);
         const [isLoadingAppOverviewNeeded,] = useRecoilState(isLoadingAppOverviewNeededState);
         const [, setIsReady] = useRecoilState(isReadyRegistrationState);
@@ -117,19 +153,22 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             // set the expo push token accordingly, to be used in later stages, as part of the current user information object
             setExpoPushToken(route.params.expoPushToken);
 
+            userIsAuthenticated && loadStoreData().then(() => {
+            });
+
             /**
              * initialize the Amplify Hub, and start listening to various events, that would help in capturing important metrics,
              * and/or making specific decisions.
              */
-            Hub.listen('auth', async (data) => {
+            registerListener('auth', 'amplify_auth_listener', async (data) => {
                 switch (data.payload.event) {
                     case 'signIn':
                         console.log(`user signed in`);
+                        setIsUserAuthenticated(true);
                         // update the user auth session statistics
                         const userAuthSessionResponse: UserAuthSessionResponse = await updateUserAuthStat(data.payload.data.attributes["custom:userId"]);
                         // check if the user auth stat has successfully been updated
-                        if (userAuthSessionResponse !== null && userAuthSessionResponse !== undefined &&
-                            userAuthSessionResponse.data !== null && userAuthSessionResponse.data !== undefined) {
+                        if (userAuthSessionResponse.data !== null && userAuthSessionResponse.data !== undefined) {
                             console.log('Successfully updated user auth stat during sign in!');
                             // check if this sign in session, is the first time that the user logged in
                             if (userAuthSessionResponse.data.numberOfSessions === 1 &&
@@ -145,19 +184,261 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                         }
                         break;
                     case 'signOut':
+                        setIsUserAuthenticated(true);
                         /**
                          * Amplify automatically manages the sessions, and when the session token expires, it will log out the user and send an event
                          * here. What we do then is intercept that event, and since the user Sign-Out has already happened, we will perform the cleanup that
                          * we usually do in our Sign-Out functionality, without actually signing the user out.
                          */
                         console.log(`user signed out`);
+                        // remove listener on sign out action
+                        removeListener('auth', 'amplify_auth_listener');
                         break;
                     case 'configured':
                         console.log('the Auth module is successfully configured!');
                         break;
                 }
             });
-        }, []);
+        }, [userIsAuthenticated, premierNearbyOffersLoadingStopped,
+            reloadNearbyDueToPermissionsChange, noNearbyOffersToLoad, nearbyOfferList,
+            onlineOfferList, marketplaceCache, loadingOnlineInProgress, noOnlineOffersToLoad]);
+
+        /**
+         * Function used to load the marketplace/store data.
+         *
+         * @return a tuple of {@link Promise} of {@link void}
+         */
+        const loadStoreData = async (): Promise<void> => {
+            // load the online data
+            const loadOnlineData = async (): Promise<void> => {
+                setIsLoadingOnlineInProgress(true);
+
+                // check to see if we have cached  Online Offers. If we do, we don't need to retrieve them again for a week.
+                const onlineOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`);
+                if (marketplaceCache && onlineOffersCached !== null) {
+                    console.log('pre-emptively loading - online offers are cached');
+                    const cachedOnlineOffers = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`);
+                    setOnlineOfferList(cachedOnlineOffers);
+                    // increase the page number to the next page
+                    setOnlineOffersPageNumber(onlineOffersPageNumber + 1);
+
+                    setIsLoadingOnlineInProgress(false);
+                    (cachedOnlineOffers === null || cachedOnlineOffers.length === 0) && setNoOnlineOffersToLoad(true);
+                    (cachedOnlineOffers === null || cachedOnlineOffers.length < 100) && await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, null);
+                } else {
+                    console.log('pre-emptively loading - online offers are not cached');
+                    const additionalOnlineOffers = await retrieveOnlineOffersList(onlineOffersPageNumber, setOnlineOffersPageNumber);
+                    setOnlineOfferList(oldOnlineOfferList => {
+                        return [...oldOnlineOfferList, ...additionalOnlineOffers]
+                    });
+                    setIsLoadingOnlineInProgress(false);
+                }
+            }
+            // load the premier online data
+            const loadPremierOnlineData = async (): Promise<void> => {
+                setIsLoadingOnlineInProgress(true);
+
+                // check to see if we have cached  Online Offers. If we do, we don't need to retrieve them again for a week.
+                const onlineOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`);
+                if (marketplaceCache && onlineOffersCached !== null) {
+                    console.log('pre-emptively loading - online offers are cached');
+                    const cachedOnlineOffers = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`);
+                    setOnlineOfferList(cachedOnlineOffers);
+                    // increase the page number to the next page
+                    setOnlineOffersPageNumber(onlineOffersPageNumber + 1);
+
+                    setIsLoadingOnlineInProgress(false);
+                    (cachedOnlineOffers === null || cachedOnlineOffers.length === 0) && setNoPremierOnlineOffersToLoad(true);
+                    (cachedOnlineOffers === null || cachedOnlineOffers.length < PremierOnlineDevOfferIds.length) && await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, null);
+                } else {
+                    console.log('pre-emptively loading - online offers are not cached');
+                    const premierOnlineOffers = await retrievePremierOnlineOffersList(premierOnlineOffersPageNumber, setPremierOnlineOffersPageNumber);
+
+                    if (premierOnlineOffers.length !== 0) {
+                        setOnlineOfferList(oldOnlineOfferList => {
+                            return [...oldOnlineOfferList, ...premierOnlineOffers]
+                        });
+                    } else {
+                        setNoPremierOnlineOffersToLoad(true);
+                        setOnlineOfferList(oldOnlineOfferList => {
+                            return [...oldOnlineOfferList, ...premierOnlineOffers]
+                        });
+                    }
+                    setIsLoadingOnlineInProgress(false);
+                }
+            }
+            if (envInfo.envName === Stages.DEV) {
+                /**
+                 * pre-emptively load the premier online offers until we reach the expected premier
+                 * online offers number.
+                 */
+                !loadingOnlineInProgress && !noPremierOnlineOffersToLoad && onlineOfferList.length < PremierOnlineDevOfferIds.length && await loadPremierOnlineData();
+                /**
+                 * pre-emptively load online offers until we reach 100 online offers,
+                 * or until we run out of offers to load.
+                 */
+                !loadingOnlineInProgress && !noOnlineOffersToLoad &&
+                PremierOnlineDevOfferIds.length <= onlineOfferList.length && onlineOfferList.length < 100 && await loadOnlineData();
+            }
+            if (envInfo.envName === Stages.PROD) {
+                /**
+                 * pre-emptively load the premier online offers until we reach the expected premier
+                 * online offers number.
+                 */
+                !loadingOnlineInProgress && !noPremierOnlineOffersToLoad && onlineOfferList.length < PremierOnlineProdOfferIds.length && await loadPremierOnlineData();
+                /**
+                 * pre-emptively load online offers until we reach 100 online offers,
+                 * or until we run out of offers to load.
+                 */
+                !loadingOnlineInProgress && !noOnlineOffersToLoad &&
+                PremierOnlineProdOfferIds.length <= onlineOfferList.length && onlineOfferList.length < 100 && await loadOnlineData();
+            }
+            /**
+             * do not cache online offers until we reach at least 100 offers,
+             * or until we run out of offers to load.
+             */
+            if ((marketplaceCache && onlineOfferList.length >= 100) || (marketplaceCache && noOnlineOffersToLoad)) {
+                marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`).then(onlineOffersCached => {
+                    // check if there's really a need for caching
+                    if ((onlineOffersCached !== null && onlineOffersCached.length < onlineOfferList.length) || onlineOffersCached === null) {
+                        console.log('Caching additional online offers');
+                        marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, onlineOfferList);
+                    }
+                });
+            }
+
+            // load the nearby offer data
+            const loadNearbyData = async (): Promise<void> => {
+                const offersNearby = await
+                    retrieveOffersNearby(nearbyOffersPageNumber, setNearbyOffersPageNumber, userInformation, setOffersNearUserLocationFlag, marketplaceCache);
+                if (offersNearby === null) {
+                    setNoNearbyOffersToLoad(true);
+                    setLocationServicesButtonState(true);
+                } else if (offersNearby.length === 0) {
+                    setNoNearbyOffersToLoad(true);
+                } else {
+                    setNearbyOffersSpinnerShown(false);
+                    setNearbyOfferList(oldNearbyOfferList => {
+                        return [...oldNearbyOfferList, ...offersNearby]
+                    });
+                }
+            }
+            // load the premier nearby offer data
+            const loadPremierNearbyData = async (): Promise<void> => {
+                // setIsLoadingNearbyOffersInProgress(true);
+
+                const premierOffersNearby = await
+                    retrievePremierOffersNearby(premierNearbyOffersPageNumber, setPremierNearbyOffersPageNumber);
+                if (premierOffersNearby === null) {
+                    setPremierNearbyOffersLoadingStopped(true);
+                } else if (premierOffersNearby.length === 0 || nearbyOfferList.length >= 1) {
+                    // only go up to one premier brand to show
+                    setPremierNearbyOffersLoadingStopped(true);
+                } else {
+                    setNearbyOfferList(oldNearbyOfferList => {
+                        return [...oldNearbyOfferList, ...premierOffersNearby]
+                    });
+                }
+            }
+            if (envInfo.envName === Stages.DEV) {
+                if (reloadNearbyDueToPermissionsChange) {
+                    setNoNearbyOffersToLoad(false);
+                    setPremierNearbyOffersLoadingStopped(false);
+                    setReloadNearbyDueToPermissionsChange(false);
+                }
+
+                /**
+                 * pre-emptively load the premier nearby offers until we reach the expected premier
+                 * nearby offers number or there's no premier nearby offers to load (due to location issues).
+                 */
+                !noNearbyOffersToLoad && !premierNearbyOffersLoadingStopped && await loadPremierNearbyData();
+
+                /**
+                 * pre-emptively load nearby offers until we reach 100 nearby offers,
+                 * or until we run out of offers to load.
+                 */
+                !noNearbyOffersToLoad && premierNearbyOffersLoadingStopped &&
+                nearbyOfferList.length < 100 && await loadNearbyData();
+            }
+            if (envInfo.envName === Stages.PROD) {
+                if (reloadNearbyDueToPermissionsChange) {
+                    setNoNearbyOffersToLoad(false);
+                    setPremierNearbyOffersLoadingStopped(false);
+                    setReloadNearbyDueToPermissionsChange(false);
+                }
+
+                /**
+                 * pre-emptively load the premier nearby offers until we reach the expected premier
+                 * nearby offers number or there's no premier nearby offers to load (due to location issues).
+                 */
+                !noNearbyOffersToLoad && !premierNearbyOffersLoadingStopped && await loadPremierNearbyData();
+
+                /**
+                 * pre-emptively load nearby offers until we reach 100 nearby offers,
+                 * or until we run out of offers to load.
+                 */
+                !noNearbyOffersToLoad && premierNearbyOffersLoadingStopped &&
+                nearbyOfferList.length < 100 && await loadNearbyData();
+            }
+            // /**
+            //  * do not cache nearby offers until we reach at least 100 offers,
+            //  * or until we run out of offers to load.
+            //  */
+            // if ((marketplaceCache && nearbyOfferList.length >= 100) || (marketplaceCache && noNearbyOffersToLoad)) {
+            //     marketplaceCache!.getItem(`${userInformation["custom:userId"]}-nearbyOffers`).then(async nearbyOffersCached => {
+            //         // check if there's really a need for caching
+            //         if ((nearbyOffersCached !== null && nearbyOffersCached.length < nearbyOfferList.length) || nearbyOffersCached === null) {
+            //             console.log('Caching additional nearby offers');
+            //             marketplaceCache!.setItem(`${userInformation["custom:userId"]}-nearbyOffers`, nearbyOfferList);
+            //         }
+            //         // cache if the ip codes to not match
+            //         if (!worksWithNearbyCache) {
+            //             console.log('Caching additional nearby offers');
+            //             marketplaceCache!.setItem(`${userInformation["custom:userId"]}-nearbyOffers`, nearbyOfferList);
+            //         }
+            //     });
+            // }
+        }
+
+        /**
+         * Function used to return whether we should work with nearby cache or not.
+         */
+        // const shouldWorkWithNearbyCache = async (): Promise<boolean> => {
+        //     // first determine whether we should retrieve from cache or not
+        //     const currentUserLocation: LocationObject = await Location.getCurrentPositionAsync();
+        //     if (currentUserLocation && currentUserLocation.coords && currentUserLocation.coords.latitude && currentUserLocation.coords.longitude) {
+        //         // check if we can cache the nearby offers based on the reversed geolocation of the user (zipcode mainly)
+        //         const retrievedLocation = await Location.reverseGeocodeAsync({
+        //             latitude: currentUserLocation.coords.latitude,
+        //             longitude: currentUserLocation.coords.longitude
+        //         }, {useGoogleMaps: true});
+        //         if (retrievedLocation.length !== 0) {
+        //             let postalCode = '';
+        //             // retrieve the postal code from the address (we only cache nearby offers in the same postal code)
+        //             retrievedLocation.forEach(geocodedAddress => {
+        //                 if (geocodedAddress.postalCode !== null && postalCode === '') {
+        //                     postalCode = geocodedAddress.postalCode;
+        //                 }
+        //             });
+        //
+        //             // check to see if the user has moved outside the last known, cached postal code location
+        //             const lastKnownPostalCodeCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-lastKnownPostalCode`);
+        //             if (lastKnownPostalCodeCached !== null && lastKnownPostalCodeCached === postalCode) {
+        //                 console.log('Nearby offers can be retrieved from cache - zip codes match!');
+        //                 return true;
+        //             } else {
+        //                 console.log('Nearby offers should not be retrieved from cache - zip codes do not match!');
+        //                 await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-lastKnownPostalCode`, postalCode);
+        //                 return false;
+        //             }
+        //         } else {
+        //             return false;
+        //         }
+        //     } else {
+        //         console.log(`Unable to retrieve the current user's location coordinates!`);
+        //         return false;
+        //     }
+        // }
 
         /**
          * Function used to contact support, via the native messaging application.
@@ -192,11 +473,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         // return the component for the Authentication stack
         return (
             <>
-                <NavigationContainer independent={true}
-                                     fallback={
-                                         <Spinner loadingSpinnerShown={loadingSpinnerShown}
-                                                  setLoadingSpinnerShown={setLoadingSpinnerShown}/>
-                                     }>
+                <View style={{flex: 1, backgroundColor: '#313030'}}>
                     <Stack.Navigator
                         initialRouteName={useRecoilValue(initialAuthenticationScreen) == 'SignIn' ? "SignIn" : 'Registration'}
                         screenOptions={{
@@ -220,16 +497,16 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                     headerRight: () => {
                                         return useRecoilValue(registrationBackButtonShown) || (stepNumber >= 3 && stepNumber !== 8)
                                             ? (
-                                            <IconButton
-                                            icon="help"
-                                            iconColor={"#F2FF5D"}
-                                            size={hp(3)}
-                                            style={[commonStyles.backButton, !isRegistrationReady && {display: 'none'}]}
-                                            onPress={async () => {
-                                                // go to the support
-                                                await contactSupport();
-                                            }}
-                                        />) : <>{}</>
+                                                <IconButton
+                                                    icon="help"
+                                                    iconColor={"#F2FF5D"}
+                                                    size={hp(3)}
+                                                    style={[commonStyles.backButton, !isRegistrationReady && {display: 'none'}]}
+                                                    onPress={async () => {
+                                                        // go to the support
+                                                        await contactSupport();
+                                                    }}
+                                                />) : <>{}</>
                                     },
                                     headerLeft: () => {
                                         return useRecoilValue(registrationBackButtonShown)
@@ -368,7 +645,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                             initialParams={{}}
                         />
                     </Stack.Navigator>
-                </NavigationContainer>
+                </View>
             </>
         );
     }

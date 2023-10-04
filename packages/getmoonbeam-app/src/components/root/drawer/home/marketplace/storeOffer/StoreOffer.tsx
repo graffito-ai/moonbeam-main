@@ -1,6 +1,5 @@
 import React, {useEffect} from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {NavigationContainer} from '@react-navigation/native';
 import {StoreOfferProps} from "../../../../../../models/props/MarketplaceProps";
 import {StoreOfferStackParamList} from "../../../../../../models/props/StoreOfferProps";
 import {IconButton} from "react-native-paper";
@@ -11,6 +10,7 @@ import {StoreOfferDetails} from "./StoreOfferDetails";
 import {StoreOfferWebView} from "./StoreOfferWebView";
 import {appDrawerHeaderShownState, customBannerShown, drawerSwipeState} from "../../../../../../recoil/AppDrawerAtom";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {View} from "react-native";
 
 /**
  * StoreOffer component.
@@ -45,7 +45,7 @@ export const StoreOffer = ({navigation}: StoreOfferProps) => {
 
     // return the component for the StoreOffer page
     return (
-        <NavigationContainer independent={true}>
+        <View style={{flex: 1, backgroundColor: '#313030'}}>
             <Stack.Navigator
                 initialRouteName={"StoreOfferDetails"}
                 screenOptions={{
@@ -82,6 +82,6 @@ export const StoreOffer = ({navigation}: StoreOfferProps) => {
                     }}
                 />
             </Stack.Navigator>
-        </NavigationContainer>
+        </View>
     );
 };

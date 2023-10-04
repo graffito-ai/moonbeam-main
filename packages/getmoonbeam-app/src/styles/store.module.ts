@@ -48,12 +48,11 @@ export const styles = StyleSheet.create({
         fontSize: hp(1.8),
         color: '#FFFFFF'
     },
-    filterChip: {
+    verticalSectionActiveChip: {
         marginRight: wp(6),
-        width: wp(27),
         borderColor: 'transparent'
     },
-    filterChipText: {
+    verticalSectionActiveChipText: {
         alignSelf: 'center',
         fontFamily: 'Raleway-Medium',
         fontSize: hp(1.4),
@@ -73,13 +72,14 @@ export const styles = StyleSheet.create({
     },
     horizontalScrollView: {
         marginTop: hp(1),
-        paddingBottom: hp(3),
         flexDirection: 'column',
+        justifyContent: 'space-between',
         flex: 1,
         flexGrow: 1
     },
     featuredPartnersView: {
-        height: '100%'
+        height: hp(40),
+        width: wp(100)
     },
     featuredPartnersTitleMain: {
         fontSize: hp(3),
@@ -97,12 +97,12 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF'
     },
     featuredPartnersScrollView: {
-        bottom: hp(2)
+        bottom: hp(2),
+        height: hp(35),
+        width: wp(100)
     },
     onlineOffersView: {
-        height: '100%',
-        bottom: hp(130),
-        left: wp(2)
+        height: hp(30)
     },
     onlineOffersTitleView: {
         justifyContent: 'space-between',
@@ -115,7 +115,7 @@ export const styles = StyleSheet.create({
     onlineOffersTitleMain: {
         fontSize: hp(3),
         fontFamily: 'Changa-Medium',
-        left: wp(4),
+        left: wp(6),
         alignSelf: 'flex-start',
         color: '#FFFFFF'
     },
@@ -137,8 +137,9 @@ export const styles = StyleSheet.create({
         top: hp(1.5)
     },
     onlineOffersScrollView: {
-        right: wp(3),
-        height: '50%'
+        left: wp(3),
+        width: wp(100),
+        height: hp(25),
     },
     onlineOfferCard: {
         right: wp(2),
@@ -146,9 +147,10 @@ export const styles = StyleSheet.create({
         width: wp(33),
         height: hp(25),
         shadowColor: 'transparent',
-        shadowOffset: {width: 0, height: 0},
-        shadowOpacity: 0.5,
-        shadowRadius: 0
+        shadowOffset: {width: -2, height: 1},
+        shadowOpacity: 0.6,
+        shadowRadius: 2,
+        elevation: 15
     },
     onlineOfferCardTitle: {
         top: hp(0.5),
@@ -174,14 +176,13 @@ export const styles = StyleSheet.create({
         borderBottomLeftRadius: 5,
     },
     nearbyOffersView: {
-        height: '100%',
-        bottom: hp(65),
-        left: wp(2)
+        height: hp(40),
+        width: wp(100),
     },
     nearbyOffersTitleView: {
         justifyContent: 'space-between',
         flexDirection: 'row',
-        top: hp(0.5)
+        top: hp(0.5),
     },
     nearbyOffersLeftTitleView: {
         flexDirection: 'column'
@@ -189,14 +190,14 @@ export const styles = StyleSheet.create({
     nearbyOffersTitleMain: {
         fontSize: hp(3),
         fontFamily: 'Changa-Medium',
-        left: wp(4),
+        left: wp(6),
         alignSelf: 'flex-start',
         color: '#FFFFFF'
     },
     nearbyLoadingOffersTitleMain: {
         fontSize: hp(3),
         fontFamily: 'Changa-Medium',
-        left: wp(4),
+        left: wp(6),
         alignSelf: 'flex-start',
         color: '#FFFFFF'
     },
@@ -204,14 +205,14 @@ export const styles = StyleSheet.create({
         fontSize: hp(2.5),
         fontFamily: 'Changa-Medium',
         textDecorationLine: 'underline',
-        left: wp(4),
+        left: wp(6),
         color: '#F2FF5D'
     },
     nearbyOffersTitle: {
         fontSize: hp(2.5),
         fontFamily: 'Changa-Medium',
         textDecorationLine: 'underline',
-        left: wp(4),
+        left: wp(6),
         alignSelf: 'flex-start',
         color: '#FFFFFF'
     },
@@ -220,7 +221,7 @@ export const styles = StyleSheet.create({
         fontFamily: 'Changa-Medium',
         textDecorationLine: 'none',
         color: '#F2FF5D',
-        left: wp(4),
+        left: wp(6),
         bottom: hp(0.5),
         alignSelf: 'flex-start'
     },
@@ -235,7 +236,10 @@ export const styles = StyleSheet.create({
     },
     nearbyOffersScrollView: {
         top: hp(1),
-        height: '50%'
+        left: wp(0.5),
+        right: wp(2),
+        height: hp(50),
+        width: wp(100)
     },
     loadCard: {
         left: wp(1),
@@ -243,13 +247,14 @@ export const styles = StyleSheet.create({
         height: hp(30),
         backgroundColor: 'transparent',
         shadowColor: 'transparent',
-        shadowOffset: {width: 0, height: 0},
-        shadowOpacity: 0.5,
-        shadowRadius: 0
+        shadowOffset: {width: -2, height: 1},
+        shadowOpacity: 0.6,
+        shadowRadius: 2,
+        elevation: 15
     },
     featuredPartnerCard: {
         top: hp(2.5),
-        left: wp(4),
+        marginLeft: wp(5),
         backgroundColor: '#5B5A5A',
         width: wp(85),
         height: hp(30),
@@ -259,17 +264,21 @@ export const styles = StyleSheet.create({
         shadowRadius: 2,
         elevation: 15
     },
+    veteranOwnedBadge: {
+        alignSelf: 'flex-start',
+        width: wp(20),
+        height: hp(10),
+    },
     featuredPartnerCardCover: {
-        alignSelf: 'flex-end',
-        top: hp(1),
-        left: wp(20),
+        alignSelf: 'flex-start',
         width: wp(25),
         height: hp(12),
     },
     featuredPartnerCardTitleMain: {
         top: hp(0.5),
         width: wp(40),
-        marginBottom: hp(1)
+        marginBottom: hp(1),
+        alignSelf: 'flex-start'
     },
     featuredPartnerCardTitle: {
         right: wp(1),
@@ -291,10 +300,10 @@ export const styles = StyleSheet.create({
         color: '#F2FF5D',
     },
     featuredPartnerCardParagraph: {
-        top: hp(3),
-        padding: 8,
+        top: hp(1),
+        left: wp(2),
         fontFamily: 'Raleway-Bold',
-        width: wp(80),
+        width: wp(50),
         fontSize: hp(1.5),
         lineHeight: hp(2),
         color: '#FFFFFF'
@@ -323,27 +332,27 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF'
     },
     nearbyOfferCardParagraph: {
-        top: hp(1.5),
-        left: wp(2),
-        padding: 8,
+        left: wp(1),
         fontFamily: 'Raleway-Bold',
-        width: wp(80),
+        width: wp(40),
         fontSize: hp(1.5),
         lineHeight: hp(2),
         color: '#FFFFFF'
     },
     nearbyLoadingOfferCard: {
-        left: wp(2),
+        left: wp(4),
+        bottom: hp(4),
         backgroundColor: 'transparent',
         width: wp(85),
         height: hp(30),
         shadowColor: 'transparent',
-        shadowOffset: {width: 0, height: 0},
-        shadowOpacity: 0.5,
-        shadowRadius: 0
+        shadowOffset: {width: -2, height: 1},
+        shadowOpacity: 0.6,
+        shadowRadius: 2,
+        elevation: 15
     },
     nearbyOfferCard: {
-        left: wp(3),
+        marginLeft: wp(5),
         backgroundColor: '#5B5A5A',
         width: wp(85),
         height: hp(27),
@@ -399,11 +408,9 @@ export const styles = StyleSheet.create({
         height: hp(45),
     },
     nearbyOfferCardCover: {
-        alignSelf: 'flex-end',
-        top: hp(1),
-        left: wp(20),
+        alignSelf: 'flex-start',
         width: wp(25),
-        height: hp(12),
+        height: hp(12)
     },
     nearbyOfferCardTitleMain: {
         marginTop: hp(1),
@@ -427,21 +434,42 @@ export const styles = StyleSheet.create({
         color: '#F2FF5D',
     },
     viewOfferButton: {
-        top: hp(1.5),
-        alignSelf: 'center',
+        top: hp(2),
+        alignSelf: 'flex-end',
         backgroundColor: '#F2FF5D',
-        width: wp(30),
-        height: hp(4.5),
-        left: wp(4),
+        width: wp(25),
+        height: hp(4),
         borderRadius: 5
     },
     viewOfferButtonContent: {
         color: '#313030',
         fontFamily: 'Changa-Medium',
-        fontSize: hp(1.8),
+        fontSize: hp(1.6),
         marginTop: hp(0.5),
         alignItems: 'center',
         alignSelf: 'center'
+    },
+    verticalOffersBannerCard: {
+        backgroundColor: '#2c2c2c',
+        borderRadius: 0,
+        width: wp(100),
+        height: hp(10),
+        shadowColor: 'transparent',
+        shadowOffset: {width: -2, height: 1},
+        shadowOpacity: 0.6,
+        shadowRadius: 2,
+        elevation: 15
+    },
+    verticalOfferCard: {
+        backgroundColor: 'transparent',
+        marginLeft: wp(2),
+        width: wp(100),
+        height: hp(10),
+        shadowColor: 'transparent',
+        shadowOffset: {width: -2, height: 1},
+        shadowOpacity: 0.6,
+        shadowRadius: 2,
+        elevation: 15
     },
     verticalOfferBenefit: {
         fontFamily: 'Raleway-Bold',
@@ -453,12 +481,37 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: hp(1.8)
     },
+    verticalOfferBannerName: {
+        alignSelf: 'center',
+        fontFamily: 'Saira-SemiBold',
+        color: '#F2FF5D',
+        fontSize: hp(2.5),
+        top: hp(1)
+    },
+    verticalOfferBannerSubtitleName: {
+        alignSelf: 'center',
+        fontFamily: 'Saira-Medium',
+        color: '#FFFFFF',
+        fontSize: hp(1.8),
+        top: hp(0.5)
+    },
+    verticalNoOffersName: {
+        fontFamily: 'Raleway-SemiBold',
+        color: '#FFFFFF',
+        fontSize: hp(1.8),
+        width: wp(50),
+        top: hp(2),
+        left: wp(26)
+    },
     verticalOfferName: {
         fontFamily: 'Raleway-SemiBold',
         color: '#FFFFFF',
-        fontSize: hp(1.8)
+        fontSize: hp(1.8),
+        width: wp(50)
     },
     verticalOfferLogo: {
+        bottom: hp(1.5),
+        alignSelf: 'flex-start',
         marginRight: wp(4),
         height: hp(7),
         width: hp(7)

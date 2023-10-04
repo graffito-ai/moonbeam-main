@@ -24,11 +24,15 @@ import {
     addressZipErrorsState,
     addressZipState,
     amplifySignUpProcessErrorsState,
-    authRegistrationNavigation, automaticallyVerifyRegistrationCodeState,
+    authRegistrationNavigation,
+    automaticallyVerifyRegistrationCodeState,
     birthdayErrorState,
     birthdayState,
     cardLinkingRegistrationStatusState,
-    currentUserInformation, documentsReCapturePhotoState, documentsRePickPhotoState,
+    currentUserInformation,
+    deferToLoginState,
+    documentsReCapturePhotoState,
+    documentsRePickPhotoState,
     dutyStatusErrorsState,
     dutyStatusState,
     dutyStatusValueState,
@@ -72,7 +76,7 @@ import {
     registrationVerificationDigit3,
     registrationVerificationDigit4,
     registrationVerificationDigit5,
-    registrationVerificationDigit6, deferToLoginState,
+    registrationVerificationDigit6,
     verificationCodeErrorsState,
     verificationDocumentState
 } from '../../recoil/AuthAtom';
@@ -118,14 +122,25 @@ import {
 } from "../../recoil/RootAtom";
 import {splashStatusState} from "../../recoil/SplashAtom";
 import {
+    filteredByDiscountPressedState, filtersActiveState,
+    locationServicesButtonState,
     nearbyOffersListState,
     nearbyOffersPageNumberState,
+    nearbyOffersSpinnerShownState,
     noNearbyOffersToLoadState,
-    noOnlineOffersToLoadState, offersNearUserLocationFlagState,
+    noOnlineOffersToLoadState,
+    offersNearUserLocationFlagState,
     onlineOffersListState,
     onlineOffersPageNumberState,
+    premierNearbyOffersPageNumberState,
+    premierOnlineOffersPageNumberState,
+    reloadNearbyDueToPermissionsChangeState,
+    resetSearchState,
+    searchQueryState,
     storeOfferPhysicalLocationState,
-    storeOfferState
+    storeOfferState,
+    toggleViewPressedState,
+    verticalSectionActiveState
 } from "../../recoil/StoreOfferAtom";
 import {cardLinkingBottomSheetState} from "../../recoil/WalletAtom";
 import * as SecureStore from 'expo-secure-store';
@@ -147,6 +162,8 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const [isReady,] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
+    const [marketplaceCache,] = useRecoilState(marketplaceAmplifyCacheState);
+    const [cache,] = useRecoilState(globalAmplifyCacheState);
     const [, setGoToProfileSettings] = useRecoilState(goToProfileSettingsState);
     const [drawerNavigation,] = useRecoilState(drawerNavigationState);
     const [, setIsLoadingAppOverviewNeeded] = useRecoilState(isLoadingAppOverviewNeededState);
@@ -264,7 +281,17 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const noOnlineOffersToLoadStateReset = useResetRecoilState(noOnlineOffersToLoadState);
     const noNearbyOffersToLoadStateReset = useResetRecoilState(noNearbyOffersToLoadState);
     const offersNearUserLocationFlagStateReset = useResetRecoilState(offersNearUserLocationFlagState);
-
+    const premierNearbyOffersPageNumberStateReset = useResetRecoilState(premierNearbyOffersPageNumberState);
+    const premierOnlineOffersPageNumberStateReset = useResetRecoilState(premierOnlineOffersPageNumberState);
+    const locationServicesButtonStateReset = useResetRecoilState(locationServicesButtonState);
+    const reloadNearbyDueToPermissionsChangeStateReset = useResetRecoilState(reloadNearbyDueToPermissionsChangeState);
+    const nearbyOffersSpinnerShownStateReset = useResetRecoilState(nearbyOffersSpinnerShownState);
+    const resetSearchStateReset = useResetRecoilState(resetSearchState);
+    const toggleViewPressedStateReset = useResetRecoilState(toggleViewPressedState);
+    const verticalSectionActiveStateReset = useResetRecoilState(verticalSectionActiveState);
+    const searchQueryStateReset = useResetRecoilState(searchQueryState);
+    const filteredByDiscountPressedStateReset = useResetRecoilState(filteredByDiscountPressedState);
+    const filtersActiveStateReset = useResetRecoilState(filtersActiveState);
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
      * auth-related functionality for example), as well as any afferent API calls.
@@ -334,6 +361,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                             onPress={async () => {
                                                 // go to the Profile screen
                                                 setGoToProfileSettings(true);
+                                                // @ts-ignore
                                                 drawerNavigation && drawerNavigation!.navigate('Settings', {});
                                             }}
                                         >
@@ -344,6 +372,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                                 onPress={async () => {
                                                     // go to the Profile screen
                                                     setGoToProfileSettings(true);
+                                                    // @ts-ignore
                                                     drawerNavigation && drawerNavigation!.navigate('Settings', {});
                                                 }}
                                             />
@@ -352,6 +381,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                             onPress={async () => {
                                                 // go to the Profile screen
                                                 setGoToProfileSettings(true);
+                                                // @ts-ignore
                                                 drawerNavigation && drawerNavigation!.navigate('Settings', {});
                                             }}
                                         >
@@ -361,8 +391,8 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                                     uri: profilePictureURI
                                                 }}
                                                 placeholder={MoonbeamProfilePlaceholder}
-                                                placeholderContentFit={'fill'}
-                                                contentFit={'fill'}
+                                                placeholderContentFit={'cover'}
+                                                contentFit={'cover'}
                                                 transition={1000}
                                                 cachePolicy={'memory-disk'}
                                             />
@@ -373,6 +403,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                                 onPress={async () => {
                                                     // go to the Profile screen
                                                     setGoToProfileSettings(true);
+                                                    // @ts-ignore
                                                     drawerNavigation && drawerNavigation!.navigate('Settings', {});
                                                 }}
                                             />
@@ -404,6 +435,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                     try {
                                         // navigate to the Login Screen
                                         setIsLoadingAppOverviewNeeded(true);
+                                        // @ts-ignore
                                         mainRootNavigation && mainRootNavigation!.navigate('AppOverview', {});
 
                                         // reset all Recoil atoms
@@ -518,6 +550,17 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                         noNearbyOffersToLoadStateReset();
                                         noOnlineOffersToLoadStateReset();
                                         offersNearUserLocationFlagStateReset();
+                                        premierNearbyOffersPageNumberStateReset();
+                                        premierOnlineOffersPageNumberStateReset();
+                                        locationServicesButtonStateReset();
+                                        reloadNearbyDueToPermissionsChangeStateReset();
+                                        nearbyOffersSpinnerShownStateReset();
+                                        resetSearchStateReset();
+                                        toggleViewPressedStateReset();
+                                        verticalSectionActiveStateReset();
+                                        searchQueryStateReset();
+                                        filteredByDiscountPressedStateReset();
+                                        filtersActiveStateReset();
 
                                         /**
                                          * ensure that the current user's biometric session is interrupted, and that the already signed in flag is reset
@@ -539,7 +582,9 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                             requireAuthentication: false // we don't need this to be under authentication, so we can check at login
                                         });
 
-                                        //
+                                        // clear the cache
+                                        marketplaceCache !== null && marketplaceCache.clear();
+                                        cache !== null && cache.clear();
 
                                         // performing the Sign-Out action through Amplify
                                         await Auth.signOut();

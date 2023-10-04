@@ -1,5 +1,4 @@
-import React, {useEffect, useState} from 'react';
-import {NavigationContainer} from '@react-navigation/native';
+import React, {useEffect} from 'react';
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {IconButton} from "react-native-paper";
 import {SettingsProps} from "../../../../models/props/AppDrawerProps";
@@ -9,10 +8,10 @@ import {Profile} from './profile/Profile';
 import {useRecoilState} from "recoil";
 import {appDrawerHeaderShownState, drawerDashboardState, drawerSwipeState} from "../../../../recoil/AppDrawerAtom";
 import {styles} from "../../../../styles/settingsList.module";
-import {Spinner} from "../../../common/Spinner";
 import {ResetPassword} from "./password/ResetPassword";
 import {goToProfileSettingsState} from "../../../../recoil/Settings";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {View} from "react-native";
 
 /**
  * Settings component
@@ -21,8 +20,6 @@ import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
  * @constructor constructor for the component.
  */
 export const Settings = ({navigation}: SettingsProps) => {
-    // constants used to keep track of local component state
-    const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
     const [, setGoToProfileSettings] = useRecoilState(goToProfileSettingsState);
     const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
@@ -48,11 +45,7 @@ export const Settings = ({navigation}: SettingsProps) => {
 
     // return the component for the Settings page
     return (
-        <NavigationContainer independent={true}
-                             fallback={
-                                 <Spinner loadingSpinnerShown={loadingSpinnerShown}
-                                          setLoadingSpinnerShown={setLoadingSpinnerShown}/>
-                             }>
+        <View style={{flex: 1, backgroundColor: '#313030'}}>
             <Stack.Navigator
                 initialRouteName={"SettingsList"}
                 screenOptions={({navigation}) => {
@@ -110,6 +103,6 @@ export const Settings = ({navigation}: SettingsProps) => {
                     initialParams={{}}
                 />
             </Stack.Navigator>
-        </NavigationContainer>
+        </View>
     );
 };

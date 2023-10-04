@@ -347,8 +347,8 @@ export const Dashboard = ({}) => {
                                                     uri: profilePictureURI
                                                 }}
                                                 placeholder={MoonbeamProfilePlaceholder}
-                                                placeholderContentFit={'fill'}
-                                                contentFit={'fill'}
+                                                placeholderContentFit={'cover'}
+                                                contentFit={'cover'}
                                                 transition={1000}
                                                 cachePolicy={'memory-disk'}
                                             />

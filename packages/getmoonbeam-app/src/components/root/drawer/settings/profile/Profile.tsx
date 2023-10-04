@@ -395,8 +395,8 @@ export const Profile = ({navigation}: ProfileProps) => {
 
                 setPermissionsModalCustomMessage(errorMessage);
                 setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
-                    ? "In order to upload a profile picture, go to Settings -> Moonbeam Finance, and allow Photo access by tapping on the \'Photos\' option."
-                    : "In order to upload a profile picture, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Photo access by tapping on the \"Photos and videos\" option.");
+                    ? "In order to upload a profile picture, go to Settings -> Moonbeam, and allow Photo access by tapping on the \'Photos\' option."
+                    : "In order to upload a profile picture, go to Settings -> Apps -> Moonbeam -> Permissions, and allow Photo access by tapping on the \"Photos and videos\" option.");
                 setPermissionsModalVisible(true);
 
                 // release the loader on button press
@@ -660,8 +660,8 @@ export const Profile = ({navigation}: ProfileProps) => {
                                                                 uri: profilePictureURI
                                                             }}
                                                             placeholder={MoonbeamProfilePlaceholder}
-                                                            placeholderContentFit={'fill'}
-                                                            contentFit={'fill'}
+                                                            placeholderContentFit={'cover'}
+                                                            contentFit={'cover'}
                                                             transition={1000}
                                                             cachePolicy={'memory-disk'}
                                                         />

@@ -7,7 +7,7 @@ import {
     FidelisPartner,
     getDeviceByToken,
     getFidelisPartners,
-    getOffers,
+    getOffers, getPremierOffers,
     getUserAuthSession,
     Offer,
     OfferAvailability,
@@ -289,6 +289,65 @@ export const createPhysicalDevice = async (userId: string, tokenId: string): Pro
 }
 
 /**
+ * Function used to retrieve the list of premier online offers that we will
+ * use for caching purposes.
+ *
+ * @param pageNumber optional parameter specifying a page number that we will get the locations
+ * near offers from, in case we are not using this for caching purposes
+ * @param setPageNumber setter or updater used to update the page number, if passed in.
+ *
+ * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function will
+ * be used to cache the list of premier online offers.
+ */
+export const retrievePremierOnlineOffersList = async (pageNumber?: number, setPageNumber?: SetterOrUpdater<number>): Promise<Offer[]> => {
+    // result to return
+    let premierOnlineOffers: Offer[] = [];
+
+    try {
+        // call the getOffers API
+        const premierOnlineOffersResult = await API.graphql(graphqlOperation(getPremierOffers, {
+            getOffersInput: {
+                availability: OfferAvailability.Global,
+                countryCode: CountryCode.Us,
+                filterType: OfferFilter.PremierOnline,
+                offerStates: [OfferState.Active, OfferState.Scheduled],
+                pageNumber: pageNumber !== undefined ? pageNumber : 1,
+                pageSize: 14, // load all the premier online offers, so we can sort them appropriately
+                redemptionType: RedemptionType.Cardlinked
+            }
+        }));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const responseData = premierOnlineOffersResult ? premierOnlineOffersResult.data : null;
+
+        // check if there are any errors in the returned response
+        if (responseData && responseData.getPremierOffers.errorMessage === null) {
+            // retrieve the array of online offers from the API call
+            premierOnlineOffers = responseData.getPremierOffers.data.offers;
+
+            // ensure that there is at least one online offer in the list
+            if (premierOnlineOffers.length > 0) {
+                // increase the page number, if needed
+                pageNumber !== null && pageNumber !== undefined &&
+                setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
+
+                return premierOnlineOffers;
+            } else {
+                console.log(`No premier online offers to display ${JSON.stringify(premierOnlineOffersResult)}`);
+                return premierOnlineOffers;
+            }
+        } else {
+            console.log(`Unexpected error while retrieving premier online offers ${JSON.stringify(premierOnlineOffersResult)}`);
+            return premierOnlineOffers;
+        }
+    } catch (error) {
+        console.log(`Unexpected error while attempting to retrieve premier online offers ${JSON.stringify(error)} ${error}`);
+        return premierOnlineOffers;
+    }
+}
+
+/**
  * Function used to retrieve the list of online offers that we will
  * use for caching purposes.
  *
@@ -312,7 +371,7 @@ export const retrieveOnlineOffersList = async (pageNumber?: number, setPageNumbe
                 filterType: OfferFilter.Online,
                 offerStates: [OfferState.Active, OfferState.Scheduled],
                 pageNumber: pageNumber !== undefined ? pageNumber : 1, // cache the first page only, otherwise retrieve the appropriate page number
-                pageSize: 7, // load 7 nearby offers at a time
+                pageSize: 15, // load 15 offers
                 redemptionType: RedemptionType.Cardlinked
             }
         }));
@@ -389,6 +448,85 @@ export const retrieveFidelisPartnerList = async (): Promise<FidelisPartner[]> =>
 }
 
 /**
+ * Function used to retrieve the list of premier offers nearby, that we will use
+ * for background loading purposes.
+ *
+ * @param pageNumber parameter specifying a page number that we will get the nearby locations
+ * from
+ * @param setPageNumber setter or updater used to update the page number.
+ *
+ * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function
+ * will be used to get the list of offers nearby.
+ */
+export const retrievePremierOffersNearby = async (pageNumber: number, setPageNumber: SetterOrUpdater<number>): Promise<Offer[] | null> => {
+    // result to return
+    let nearbyOffers: Offer[] = [];
+
+    try {
+        // first retrieve the necessary permissions for location purposes
+        const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
+        if (foregroundPermissionStatus.status !== 'granted') {
+            const errorMessage = `Permission to access location was not granted!`;
+            console.log(errorMessage);
+
+            return null;
+        } else {
+            // first retrieve the latitude and longitude of the current user
+            const currentUserLocation: LocationObject = await Location.getCurrentPositionAsync();
+            if (currentUserLocation && currentUserLocation.coords && currentUserLocation.coords.latitude && currentUserLocation.coords.longitude) {
+                // call the getOffers API
+                const premierNearbyOffersResult = await API.graphql(graphqlOperation(getPremierOffers, {
+                    getOffersInput: {
+                        availability: OfferAvailability.Global,
+                        countryCode: CountryCode.Us,
+                        filterType: OfferFilter.PremierNearby,
+                        offerStates: [OfferState.Active, OfferState.Scheduled],
+                        pageNumber: pageNumber,
+                        pageSize: 1, // load 1 premier nearby offer at a time
+                        radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
+                        radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
+                        radiusLatitude: currentUserLocation.coords.latitude,
+                        radiusLongitude: currentUserLocation.coords.longitude,
+                        redemptionType: RedemptionType.Cardlinked
+                    }
+                }));
+
+                // retrieve the data block from the response
+                // @ts-ignore
+                const responseData = premierNearbyOffersResult ? premierNearbyOffersResult.data : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.getPremierOffers.errorMessage === null) {
+                    // retrieve the array of nearby offers from the API call
+                    nearbyOffers = responseData.getPremierOffers.data.offers;
+
+                    // ensure that there is at least one nearby offer in the list
+                    if (nearbyOffers.length > 0) {
+                        // increase the page number
+                        setPageNumber(pageNumber + 1);
+
+                        // retrieve the array of nearby offers from the API call
+                        return nearbyOffers;
+                    } else {
+                        console.log(`No premier nearby offers to display ${JSON.stringify(premierNearbyOffersResult)}`);
+                        return [];
+                    }
+                } else {
+                    console.log(`Unexpected error while retrieving premier nearby offers ${JSON.stringify(premierNearbyOffersResult)}`);
+                    return null;
+                }
+            } else {
+                console.log(`Unable to retrieve the current user's location coordinates!`);
+                return null;
+            }
+        }
+    } catch (error) {
+        console.log(`Unexpected error while attempting to retrieve premier nearby offers ${JSON.stringify(error)} ${error}`);
+        return null;
+    }
+}
+
+/**
  * Function used to retrieve the list of offers nearby, that we will use
  * for background loading purposes.
  *
@@ -407,7 +545,7 @@ export const retrieveFidelisPartnerList = async (): Promise<FidelisPartner[]> =>
  */
 export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: SetterOrUpdater<number>,
                                            userInformation: any, setOffersNearUserLocationFlag: SetterOrUpdater<boolean>,
-                                           marketplaceCache: typeof Cache | null): Promise<Offer[]> => {
+                                           marketplaceCache: typeof Cache | null): Promise<Offer[] | null> => {
     // result to return
     let nearbyOffers: Offer[] = [];
 
@@ -418,7 +556,7 @@ export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: Se
             const errorMessage = `Permission to access location was not granted!`;
             console.log(errorMessage);
 
-            return nearbyOffers;
+            return null;
         } else {
             // first retrieve the latitude and longitude of the current user
             const currentUserLocation: LocationObject = await Location.getCurrentPositionAsync();
@@ -431,7 +569,7 @@ export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: Se
                         filterType: OfferFilter.Nearby,
                         offerStates: [OfferState.Active, OfferState.Scheduled],
                         pageNumber: pageNumber,
-                        pageSize: 7, // load 7 nearby offers at a time
+                        pageSize: 15, // load 15 offers
                         radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
                         radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
                         radiusLatitude: currentUserLocation.coords.latitude,
@@ -477,7 +615,7 @@ export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: Se
         console.log(`Unexpected error while attempting to retrieve nearby offers ${JSON.stringify(error)} ${error}`);
 
         // @ts-ignore
-        if (!error.code || error.code !== 'ERR_LOCATION_INFO_PLIST') {
+        if (!error.code && (error.code !== 'ERR_LOCATION_INFO_PLIST' || error.code !== 'E_LOCATION_UNAVAILABLE')) {
             return nearbyOffers;
         } else {
             // fall back to offers near their home address
@@ -544,7 +682,7 @@ export const retrieveOffersNearLocation = async (address: string, pageNumber?: n
                         filterType: OfferFilter.Nearby,
                         offerStates: [OfferState.Active, OfferState.Scheduled],
                         pageNumber: pageNumber !== undefined ? pageNumber : 1, // cache the first page only, otherwise retrieve the appropriate page number
-                        pageSize: 7, // load 7 nearby offers at a time
+                        pageSize: 15, // load 15 offers
                         radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
                         radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
                         radiusLatitude: geoLocation.latitude,

@@ -34,7 +34,7 @@ export declare abstract class BaseAPIClient {
      *
      * @return a {@link Promise} of a {@link string} pair, containing various secrets to be used
      */
-    protected retrieveServiceCredentials(verificationClientSecretsName: string, internalRestBased?: boolean, notificationType?: NotificationType, includeLoyaltyPrograms?: boolean, cognitoClientAccess?: boolean, channelType?: NotificationChannelType): Promise<[string | null, string | null, (string | null)?, (string | null)?, (string | null)?, (string | null)?]>;
+    protected retrieveServiceCredentials(verificationClientSecretsName: string, internalRestBased?: boolean, notificationType?: NotificationType, includeLoyaltyPrograms?: boolean, cognitoClientAccess?: boolean, channelType?: NotificationChannelType): Promise<[string | null, string | null, (string | null)?, (string | null)?, (string | null)?, (string | null)?, (string | null)?, (string | null)?]>;
     /**
      * Function used to get all the offers, given certain filters to be passed in.
      *

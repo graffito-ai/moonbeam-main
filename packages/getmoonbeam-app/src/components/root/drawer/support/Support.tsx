@@ -1,6 +1,5 @@
 import 'react-native-get-random-values';
 import React, {useEffect} from "react";
-import {NavigationContainer} from "@react-navigation/native";
 import {SupportProps} from '../../../../models/props/AppDrawerProps';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {SupportStackParamList} from '../../../../models/props/SupportProps';
@@ -43,7 +42,7 @@ export const Support = ({navigation}: SupportProps) => {
 
     // return the component for the Support page
     return (
-        <NavigationContainer independent={true}>
+        <View style={{flex: 1, backgroundColor: '#313030'}}>
             <Stack.Navigator
                 initialRouteName={"SupportCenter"}
                 screenOptions={{
@@ -100,6 +99,6 @@ export const Support = ({navigation}: SupportProps) => {
                     })}
                 />
             </Stack.Navigator>
-        </NavigationContainer>
+        </View>
     );
 }

@@ -1,14 +1,13 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {DashboardProps} from "../../../../../models/props/HomeProps";
 import {useRecoilState} from "recoil";
 import {appDrawerHeaderShownState, customBannerShown, drawerSwipeState} from "../../../../../recoil/AppDrawerAtom";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
-import {NavigationContainer} from "@react-navigation/native";
 import {DashboardControllerStackParamList} from "../../../../../models/props/DashboardControllerProps";
 import {Dashboard} from "./Dashboard";
 import {showTransactionBottomSheetState, showWalletBottomSheetState} from "../../../../../recoil/DashboardAtom";
-import {Spinner} from "../../../../common/Spinner";
 import {bottomBarNavigationState} from "../../../../../recoil/HomeAtom";
+import {View} from "react-native";
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -18,8 +17,6 @@ import {bottomBarNavigationState} from "../../../../../recoil/HomeAtom";
  * @constructor constructor for the component.
  */
 export const DashboardController = ({navigation}: DashboardProps) => {
-        // constants used to keep track of local component state
-        const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
         // constants used to keep track of shared states
         const [, setBottomBarNavigation] = useRecoilState(bottomBarNavigationState);
         const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
@@ -64,11 +61,7 @@ export const DashboardController = ({navigation}: DashboardProps) => {
          */
         return (
             <>
-                <NavigationContainer independent={true}
-                                     fallback={
-                                         <Spinner loadingSpinnerShown={loadingSpinnerShown}
-                                                  setLoadingSpinnerShown={setLoadingSpinnerShown}/>
-                                     }>
+                <View style={{flex: 1, backgroundColor: '#313030'}}>
                     <DashboardStack.Navigator
                         initialRouteName={'Dashboard'}
                         screenOptions={{
@@ -96,7 +89,7 @@ export const DashboardController = ({navigation}: DashboardProps) => {
                             initialParams={{}}
                         />
                     </DashboardStack.Navigator>
-                </NavigationContainer>
+                </View>
             </>
         );
     }

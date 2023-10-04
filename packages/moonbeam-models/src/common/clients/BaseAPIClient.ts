@@ -94,7 +94,7 @@ export abstract class BaseAPIClient {
     protected async retrieveServiceCredentials(verificationClientSecretsName: string, internalRestBased?: boolean,
                                                notificationType?: NotificationType, includeLoyaltyPrograms?: boolean,
                                                cognitoClientAccess?: boolean, channelType?: NotificationChannelType)
-        : Promise<[string | null, string | null, (string | null)?, (string | null)?, (string | null)?, (string | null)?]> {
+        : Promise<[string | null, string | null, (string | null)?, (string | null)?, (string | null)?, (string | null)?, (string | null)?, (string | null)?]> {
         try {
             // retrieve the secrets pair for the API client, depending on the current environment and region
             const verificationClientAPIPair = await this.secretsClient
@@ -176,7 +176,9 @@ export abstract class BaseAPIClient {
                                 clientPairAsJson[Constants.AWSPairConstants.OLIVE_PRIVATE_KEY],
                                 clientPairAsJson[Constants.AWSPairConstants.OLIVE_MOONBEAM_DEFAULT_LOYALTY],
                                 clientPairAsJson[Constants.AWSPairConstants.OLIVE_MOONBEAM_FIDELIS_DEFAULT_LOYALTY],
-                                clientPairAsJson[Constants.AWSPairConstants.OLIVE_MOONBEAM_ONLINE_LOYALTY]
+                                clientPairAsJson[Constants.AWSPairConstants.OLIVE_MOONBEAM_ONLINE_LOYALTY],
+                                clientPairAsJson[Constants.AWSPairConstants.OLIVE_MOONBEAM_PREMIER_ONLINE_LOYALTY],
+                                clientPairAsJson[Constants.AWSPairConstants.OLIVE_MOONBEAM_PREMIER_NEARBY_LOYALTY],
                             ]
                             : [clientPairAsJson[Constants.AWSPairConstants.OLIVE_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.OLIVE_PUBLIC_KEY], clientPairAsJson[Constants.AWSPairConstants.OLIVE_PRIVATE_KEY]];
                     default:

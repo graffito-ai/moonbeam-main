@@ -10,3 +10,8 @@ export * from './common/clients/BaseAPIClient';
 export * from './common/clients/MoonbeamClient';
 export * from './common/clients/OliveClient';
 export * from './common/clients/CourierClient';
+export * from './common/PremierNearbyOfferIds';
+export * from './common/PremierOnlineOfferIds';
+export * from './common/FidelisPartnerOrder';
+export * from './common/FidelisVeteranOwnedPartners';
+export * from './common/PremierOnlineOfferOrder';

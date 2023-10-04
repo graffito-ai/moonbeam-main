@@ -232,8 +232,8 @@ export const WallDocumentCaptureStep = () => {
 
                 setPermissionsModalCustomMessage(errorMessage);
                 setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
-                    ? "In order to upload a picture of your documentation from your library, go to Settings -> Moonbeam Finance, and allow Photo access by tapping on the \'Photos\' option."
-                    : "In order to upload a picture of your documentation from your library, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Photo access by tapping on the \"Photos and videos\" option.");
+                    ? "In order to upload a picture of your documentation from your library, go to Settings -> Moonbeam, and allow Photo access by tapping on the \'Photos\' option."
+                    : "In order to upload a picture of your documentation from your library, go to Settings -> Apps -> Moonbeam -> Permissions, and allow Photo access by tapping on the \"Photos and videos\" option.");
                 setPermissionsModalVisible(true);
 
                 // release the loader on button press
@@ -374,8 +374,8 @@ export const WallDocumentCaptureStep = () => {
 
                 setPermissionsModalCustomMessage(errorMessage);
                 setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
-                    ? "In order to capture a picture of your documentation, go to Settings -> Moonbeam Finance, and allow Camera access by tapping on the \'Camera\' option."
-                    : "In order to capture a picture of your documentation, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Camera access by tapping on the \"Camera\" option.");
+                    ? "In order to capture a picture of your documentation, go to Settings -> Moonbeam, and allow Camera access by tapping on the \'Camera\' option."
+                    : "In order to capture a picture of your documentation, go to Settings -> Apps -> Moonbeam -> Permissions, and allow Camera access by tapping on the \"Camera\" option.");
                 setPermissionsModalVisible(true);
 
                 // release the loader on button press

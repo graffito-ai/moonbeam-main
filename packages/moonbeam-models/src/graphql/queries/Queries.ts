@@ -46,6 +46,7 @@ export const getFidelisPartners = /* GraphQL */ `
             errorType
             data {
                 brandName
+                veteranOwned
                 numberOfOffers
                 offers {
                     id
@@ -112,6 +113,76 @@ export const getFidelisPartners = /* GraphQL */ `
 export const getOffers = /* GraphQL */ `
     query GetOffers($getOffersInput: GetOffersInput!) {
         getOffers(getOffersInput: $getOffersInput) {
+            errorMessage
+            errorType
+            data {
+                totalNumberOfPages
+                totalNumberOfRecords
+                offers {
+                    id
+                    corporateId
+                    created
+                    offerState
+                    availability
+                    brandId
+                    brandDba
+                    brandLogo
+                    brandLogoSm
+                    brandBanner
+                    brandParentCategory
+                    brandStubCopy
+                    brandWebsite
+                    storeDetails {
+                        id
+                        name
+                        phone
+                        address1
+                        city
+                        state
+                        countryCode
+                        postCode
+                        geoLocation {
+                            latitude
+                            longitude
+                        }
+                        isOnline
+                        distance
+                    }
+                    description
+                    reach
+                    title
+                    qualifier
+                    tile
+                    startDate
+                    endDate
+                    currency
+                    extOfferId
+                    supplierOfferKey
+                    redemptionType
+                    redemptionInstructionUrl
+                    redemptionTrigger
+                    budget
+                    daysAvailability
+                    stores
+                    totalRedeemLimit
+                    redeemLimitPerUser
+                    purchaseAmount
+                    purchaseFrequency
+                    reward {
+                        type
+                        value
+                        maxValue
+                    }
+                }
+            }
+        }
+    }
+`;
+
+// Query used to retrieve available premier offers using certain filtering (this will pass through premier offers from Olive directly)
+export const getPremierOffers = /* GraphQL */ `
+    query GetPremierOffers($getOffersInput: GetOffersInput!) {
+        getPremierOffers(getOffersInput: $getOffersInput) {
             errorMessage
             errorType
             data {

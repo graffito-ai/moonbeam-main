@@ -1,12 +1,13 @@
 {
   "expo": {
-    "name": "Moonbeam Finance",
+    "name": "Moonbeam",
     "owner": "moonbeamfin",
     "slug": "moonbeam-app",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
+    "backgroundColor": "#313030",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "cover"
@@ -27,7 +28,7 @@
       "backgroundColor": "#313030"
     },
     "ios": {
-      "buildNumber": "1",
+      "buildNumber": "4",
       "bundleIdentifier": "com.moonbeam.moonbeamfinance",
       "supportsTablet": false,
       "infoPlist": {
@@ -44,7 +45,7 @@
       }
     },
     "android": {
-      "versionCode": 16,
+      "versionCode": 19,
       "package": "com.moonbeam.moonbeamfin",
       "googleServicesFile": "./google-services.json",
       "softwareKeyboardLayoutMode": "pan",

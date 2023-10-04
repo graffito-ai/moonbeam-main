@@ -38,7 +38,7 @@ export const styles = StyleSheet.create({
         top: hp(2),
         alignSelf: 'center',
         fontFamily: 'Saira-Regular',
-        fontSize: hp(2.3),
+        fontSize: hp(2),
         width: wp(90),
         lineHeight: hp(3),
         textAlign: 'center',

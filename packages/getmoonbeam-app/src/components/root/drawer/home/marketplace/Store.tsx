@@ -23,7 +23,6 @@ import {
 import {API, graphqlOperation} from "aws-amplify";
 import {currentUserInformation, marketplaceAmplifyCacheState} from "../../../../../recoil/AuthAtom";
 import {useRecoilState} from "recoil";
-import {dynamicSort} from '../../../../../utils/Main';
 // @ts-ignore
 import MoonbeamOffersLoading from '../../../../../../assets/art/moonbeam-offers-loading.png';
 // @ts-ignore
@@ -39,10 +38,17 @@ import {NearbySection} from "./storeComponents/NearbySection";
 import {OnlineSection} from "./storeComponents/OnlineSection";
 import {SearchSection} from "./storeComponents/SearchSection";
 import {
+    locationServicesButtonState,
     nearbyOffersListState,
-    nearbyOffersPageNumberState, noNearbyOffersToLoadState, noOnlineOffersToLoadState, offersNearUserLocationFlagState,
+    nearbyOffersPageNumberState,
+    nearbyOffersSpinnerShownState,
+    noNearbyOffersToLoadState,
+    noOnlineOffersToLoadState,
+    offersNearUserLocationFlagState,
     onlineOffersListState,
-    onlineOffersPageNumberState
+    onlineOffersPageNumberState,
+    reloadNearbyDueToPermissionsChangeState,
+    toggleViewPressedState
 } from "../../../../../recoil/StoreOfferAtom";
 
 /**
@@ -56,24 +62,19 @@ export const Store = ({navigation}: StoreProps) => {
     const [permissionsModalVisible, setPermissionsModalVisible] = useState<boolean>(false);
     const [permissionsModalCustomMessage, setPermissionsModalCustomMessage] = useState<string>("");
     const [permissionsInstructionsCustomMessage, setPermissionsInstructionsCustomMessage] = useState<string>("");
-    const [locationServicesButton, setLocationServicesButton] = useState<boolean>(false);
     const [areNearbyOffersReady, setAreNearbyOffersReady] = useState<boolean>(false);
     const [isReady, setIsReady] = useState<boolean>(false);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [filteredOffersSpinnerShown, setFilteredOffersSpinnerShown] = useState<boolean>(false);
-    const [nearbyOffersSpinnerShown, setNearbyOffersSpinnerShown] = useState<boolean>(false);
-    const [toggleViewPressed, setToggleViewPressed] = useState<'horizontal' | 'vertical'>('horizontal');
-    const [searchQuery, setSearchQuery] = React.useState('');
     const [noFilteredOffersAvailable, setNoFilteredOffersAvailable] = useState<boolean>(false);
-    const [fidelisOfferList,] = useState<Offer[]>([]);
     const [fidelisPartnerList, setFidelisPartnerList] = useState<FidelisPartner[]>([]);
-    const [filteredFidelisList, setFilteredFidelisList] = useState<FidelisPartner[]>([]);
-    const [filteredOfferList, setFilteredOfferList] = useState<Offer[]>([]);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
-    const [userLatitude, setUserLatitude] = useState<number>(1);
-    const [userLongitude, setUserLongitude] = useState<number>(1);
     const [shouldCacheImages, setShouldCacheImages] = useState<boolean>(true);
     // constants used to keep track of shared states
+    const [toggleViewPressed,] = useRecoilState(toggleViewPressedState);
+    const [, setNearbyOffersSpinnerShown] = useRecoilState(nearbyOffersSpinnerShownState);
+    const [, setReloadNearbyDueToPermissionsChange] = useRecoilState(reloadNearbyDueToPermissionsChangeState);
+    const [locationServicesButton, setLocationServicesButton] = useRecoilState(locationServicesButtonState);
     const [nearbyOfferList, setNearbyOfferList] = useRecoilState(nearbyOffersListState);
     const [onlineOfferList, setOnlineOfferList] = useRecoilState(onlineOffersListState);
     const [marketplaceCache,] = useRecoilState(marketplaceAmplifyCacheState);
@@ -108,11 +109,11 @@ export const Store = ({navigation}: StoreProps) => {
 
                 // ensure that there is at least one featured partner in the list
                 if (fidelisPartners.length > 0) {
-                    const fidelisPartnersSorted = fidelisPartners.sort(dynamicSort("brandName"));
-                    setFidelisPartnerList(fidelisPartnersSorted);
+                    // const fidelisPartnersSorted = fidelisPartners.sort(dynamicSort("brandName"));
+                    setFidelisPartnerList(fidelisPartners);
 
                     // set the cache appropriately
-                    marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, fidelisPartnersSorted);
+                    marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, fidelisPartners);
                 } else {
                     console.log(`No Fidelis partners to display ${JSON.stringify(fidelisPartnersResult)}`);
                     setModalVisible(true);
@@ -144,7 +145,7 @@ export const Store = ({navigation}: StoreProps) => {
                     filterType: OfferFilter.Online,
                     offerStates: [OfferState.Active, OfferState.Scheduled],
                     pageNumber: onlineOffersPageNumber,
-                    pageSize: 7, // load 7 nearby offers at a time
+                    pageSize: 15, // load 15 offers
                     redemptionType: RedemptionType.Cardlinked
                 }
             }));
@@ -164,7 +165,9 @@ export const Store = ({navigation}: StoreProps) => {
                     setOnlineOffersPageNumber(onlineOffersPageNumber + 1);
 
                     // push any old offers into the list to return
-                    setOnlineOfferList(onlineOfferList.concat(onlineOffers));
+                    setOnlineOfferList(oldOnlineOfferList => {
+                        return [...oldOnlineOfferList, ...onlineOffers];
+                    });
                 } else {
                     console.log(`No online offers to display ${JSON.stringify(onlineOffersResult)}`);
                     /**
@@ -172,7 +175,7 @@ export const Store = ({navigation}: StoreProps) => {
                      * otherwise display an error.
                      */
                     if (onlineOfferList.length === 0) {
-                         setModalVisible(true);
+                        setModalVisible(true);
                     } else {
                         // set the online offers to load flag
                         setNoOnlineOffersToLoad(true);
@@ -220,9 +223,6 @@ export const Store = ({navigation}: StoreProps) => {
                     setAreNearbyOffersReady(true);
                     setNearbyOffersSpinnerShown(false);
                 } else {
-                    // set the user geolocation information
-                    setUserLatitude(geoLocation.latitude);
-                    setUserLongitude(geoLocation.longitude);
                     setAreNearbyOffersReady(true);
                     setNearbyOffersSpinnerShown(false);
                 }
@@ -247,7 +247,7 @@ export const Store = ({navigation}: StoreProps) => {
                             filterType: OfferFilter.Nearby,
                             offerStates: [OfferState.Active, OfferState.Scheduled],
                             pageNumber: nearbyOffersPageNumber,
-                            pageSize: 3, // load 3 nearby offers at a time
+                            pageSize: 15, // load 15 offers
                             radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
                             radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
                             radiusLatitude: geoLocation.latitude,
@@ -274,14 +274,12 @@ export const Store = ({navigation}: StoreProps) => {
                             setNearbyOffersPageNumber(nearbyOffersPageNumber + 1);
 
                             // push any old offers into the list to return
-                            setNearbyOfferList(nearbyOfferList.concat(nearbyOffers));
+                            setOnlineOfferList(oldNearbyOfferList => {
+                                return [...oldNearbyOfferList, ...nearbyOffers];
+                            });
 
                             // set the nearby user location flag
                             setOffersNearUserLocationFlag(true);
-
-                            // set the user geolocation information
-                            setUserLatitude(geoLocation.latitude);
-                            setUserLongitude(geoLocation.longitude);
 
                             setAreNearbyOffersReady(true);
                             setNearbyOffersSpinnerShown(false);
@@ -348,7 +346,7 @@ export const Store = ({navigation}: StoreProps) => {
                             filterType: OfferFilter.Nearby,
                             offerStates: [OfferState.Active, OfferState.Scheduled],
                             pageNumber: nearbyOffersPageNumber,
-                            pageSize: 3, // load 3 nearby offers at a time
+                            pageSize: 15, // load 15 offers
                             radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
                             radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
                             radiusLatitude: currentUserLocation.coords.latitude,
@@ -373,10 +371,6 @@ export const Store = ({navigation}: StoreProps) => {
 
                             // push any old offers into the list to return
                             setNearbyOfferList(nearbyOfferList.concat(nearbyOffers));
-
-                            // set the user geolocation information
-                            setUserLatitude(currentUserLocation.coords.latitude);
-                            setUserLongitude(currentUserLocation.coords.longitude);
 
                             setAreNearbyOffersReady(true);
                             setNearbyOffersSpinnerShown(false);
@@ -411,7 +405,7 @@ export const Store = ({navigation}: StoreProps) => {
             console.log(`Unexpected error while attempting to retrieve nearby offers ${JSON.stringify(error)} ${error}`);
 
             // @ts-ignore
-            if (!error.code || error.code !== 'ERR_LOCATION_INFO_PLIST') {
+            if (!error.code && (error.code !== 'ERR_LOCATION_INFO_PLIST' || error.code !== 'E_LOCATION_UNAVAILABLE')) {
                 setModalVisible(true);
                 setAreNearbyOffersReady(true);
                 setNearbyOffersSpinnerShown(false);
@@ -441,44 +435,17 @@ export const Store = ({navigation}: StoreProps) => {
                 await retrieveFidelisPartnerList();
             }
         }
+
         // load the Fidelis partners if their list is empty
-        fidelisPartnerList.length === 0 && loadFidelisData().then(_ => {});
+        fidelisPartnerList.length === 0 && loadFidelisData().then(_ => {
+        });
 
         // make sure to stop loading the store when we have a list of Fidelis partners and at least 7 online offers
-        if (fidelisPartnerList.length !== 0 && onlineOfferList.length >= 7) {
+        if (fidelisPartnerList.length !== 0) {
             // release the loader on button press
             !isReady && setIsReady(true);
         }
-
-        // change the filtered list, based on the search query
-        if (searchQuery !== '') {
-            switch (searchQuery) {
-                case 'sort by: online':
-                    setFilteredOfferList(onlineOfferList);
-                    setToggleViewPressed('vertical');
-                    break;
-                case 'sort by: nearby locations':
-                    setFilteredOfferList(nearbyOfferList);
-                    setToggleViewPressed('vertical');
-                    break;
-                case 'sort by: discount percentage':
-                    // get the Fidelis offers to filter
-                    for (const fidelisPartner of fidelisPartnerList) {
-                        for (const matchedOffer of fidelisPartner.offers) {
-                            // push the Fidelis offer in the list of Fidelis offers, later to be able to use in filtering
-                            fidelisOfferList.push(matchedOffer!);
-                        }
-                    }
-                    const offersToSort = nearbyOfferList.concat(onlineOfferList).concat(fidelisOfferList);
-                    setFilteredOfferList(offersToSort.sort((a, b) =>
-                        a.reward!.value! > b.reward!.value! ? -1 : a.reward!.value! < b.reward!.value! ? 1 : 0));
-                    setToggleViewPressed('vertical');
-                    break
-                default:
-                    break;
-            }
-        }
-    }, [fidelisPartnerList, onlineOfferList, nearbyOfferList, searchQuery]);
+    }, [fidelisPartnerList, onlineOfferList, marketplaceCache]);
 
     // return the component for the Store page
     return (
@@ -523,7 +490,8 @@ export const Store = ({navigation}: StoreProps) => {
                                                      const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
                                                      if (foregroundPermissionStatus.status === 'granted') {
                                                          setLocationServicesButton(false);
-                                                         await retrieveNearbyOffersList();
+                                                         setReloadNearbyDueToPermissionsChange(true);
+                                                         setNearbyOffersSpinnerShown(true);
                                                      }
                                                  }}>
                                         {"Go to App Settings"}
@@ -569,19 +537,7 @@ export const Store = ({navigation}: StoreProps) => {
                         >
                             <View style={[styles.mainView]}>
                                 <SearchSection
-                                    searchQuery={searchQuery}
-                                    setSearchQuery={setSearchQuery}
-                                    toggleViewPressed={toggleViewPressed}
-                                    setToggleViewPressed={setToggleViewPressed}
-                                    fidelisPartnerList={fidelisPartnerList}
-                                    filteredFidelisList={filteredFidelisList}
-                                    filteredOfferList={filteredOfferList}
-                                    nearbyOfferList={nearbyOfferList}
-                                    setFilteredFidelisList={setFilteredFidelisList}
-                                    setFilteredOfferList={setFilteredOfferList}
                                     setNoFilteredOffersAvailable={setNoFilteredOffersAvailable}
-                                    userLatitude={userLatitude}
-                                    userLongitude={userLongitude}
                                     setModalVisible={setModalVisible}
                                     setShouldCacheImages={setShouldCacheImages}
                                     setFilteredOffersSpinnerShown={setFilteredOffersSpinnerShown}
@@ -590,82 +546,66 @@ export const Store = ({navigation}: StoreProps) => {
                                     height: hp(1),
                                     backgroundColor: '#313030'
                                 }}/>
-                                <Portal.Host>
-                                    <Spinner loadingSpinnerShown={filteredOffersSpinnerShown}
-                                             setLoadingSpinnerShown={setFilteredOffersSpinnerShown}
-                                             fullScreen={false}
-                                    />
-                                    <View style={styles.content}>
-                                        <ScrollView
-                                            scrollEnabled={true}
-                                            persistentScrollbar={false}
-                                            showsVerticalScrollIndicator={false}
-                                            keyboardShouldPersistTaps={'handled'}
-                                            contentContainerStyle={{paddingBottom: hp(10)}}
-                                        >
-                                            <VerticalOffers
-                                                filteredFidelisList={filteredFidelisList}
-                                                filteredOffersList={filteredOfferList}
-                                                nearbyOfferList={nearbyOfferList}
-                                                onlineOfferList={onlineOfferList}
-                                                navigation={navigation}
-                                                noFilteredOffersAvailable={noFilteredOffersAvailable}
-                                                shouldCacheImages={shouldCacheImages}
-                                                fidelisPartnerList={fidelisPartnerList}
-                                                setFilteredOffersSpinnerShown={setFilteredOffersSpinnerShown}
-                                                retrieveOnlineOffersList={retrieveOnlineOffersList}
-                                                offersNearUserLocationFlag={offersNearUserLocationFlag}
-                                                retrieveNearbyOffersList={retrieveNearbyOffersList}
-                                                searchQuery={searchQuery}
-                                                retrieveOffersNearLocation={retrieveOffersNearLocation}
-                                                toggleViewPressed={toggleViewPressed}
-                                            />
-                                            {
-                                                toggleViewPressed === 'horizontal' &&
+                                <View style={styles.content}>
+                                    {
+                                        toggleViewPressed === 'horizontal' ?
+                                            <ScrollView
+                                                scrollEnabled={true}
+                                                horizontal={false}
+                                                persistentScrollbar={false}
+                                                showsVerticalScrollIndicator={false}
+                                                keyboardShouldPersistTaps={'handled'}
+                                                showsHorizontalScrollIndicator={false}
+                                            >
                                                 <>
                                                     <View style={styles.horizontalScrollView}>
                                                         <FidelisSection
                                                             fidelisPartnerList={fidelisPartnerList}
                                                             navigation={navigation}
                                                             areNearbyOffersReady={areNearbyOffersReady}
-                                                            nearbyOfferList={nearbyOfferList}
                                                         />
                                                         <NearbySection
                                                             navigation={navigation}
-                                                            nearbyOfferList={nearbyOfferList}
-                                                            nearbyOffersSpinnerShown={nearbyOffersSpinnerShown}
                                                             offersNearUserLocationFlag={offersNearUserLocationFlag}
                                                             retrieveNearbyOffersList={retrieveNearbyOffersList}
                                                             retrieveOffersNearLocation={retrieveOffersNearLocation}
-                                                            setNearbyOffersSpinnerShown={setNearbyOffersSpinnerShown}
                                                             areNearbyOffersReady={areNearbyOffersReady}
-                                                            locationServicesButton={locationServicesButton}
                                                             setPermissionsInstructionsCustomMessage={setPermissionsInstructionsCustomMessage}
                                                             setPermissionsModalCustomMessage={setPermissionsModalCustomMessage}
                                                             setPermissionsModalVisible={setPermissionsModalVisible}
-                                                            setSearchQuery={setSearchQuery}
-                                                            setToggleViewPressed={setToggleViewPressed}
                                                         />
                                                         <OnlineSection
                                                             navigation={navigation}
-                                                            onlineOfferList={onlineOfferList}
                                                             retrieveOnlineOffersList={retrieveOnlineOffersList}
                                                             areNearbyOffersReady={areNearbyOffersReady}
                                                             locationServicesButton={locationServicesButton}
-                                                            nearbyOfferList={nearbyOfferList}
-                                                            setSearchQuery={setSearchQuery}
-                                                            setToggleViewPressed={setToggleViewPressed}
                                                         />
                                                     </View>
                                                 </>
-                                            }
-                                        </ScrollView>
-                                    </View>
-                                </Portal.Host>
+                                            </ScrollView> :
+                                            <Portal.Host>
+                                                <VerticalOffers
+                                                    navigation={navigation}
+                                                    noFilteredOffersAvailable={noFilteredOffersAvailable}
+                                                    shouldCacheImages={shouldCacheImages}
+                                                    fidelisPartnerList={fidelisPartnerList}
+                                                    filteredOffersSpinnerShown={filteredOffersSpinnerShown}
+                                                    setFilteredOffersSpinnerShown={setFilteredOffersSpinnerShown}
+                                                    retrieveOnlineOffersList={retrieveOnlineOffersList}
+                                                    offersNearUserLocationFlag={offersNearUserLocationFlag}
+                                                    retrieveNearbyOffersList={retrieveNearbyOffersList}
+                                                    retrieveOffersNearLocation={retrieveOffersNearLocation}
+                                                    setNoFilteredOffersAvailable={setNoFilteredOffersAvailable}
+                                                />
+                                            </Portal.Host>
+
+                                    }
+                                </View>
                             </View>
                         </KeyboardAwareScrollView>
                     </>
             }
         </>
-    );
+    )
+        ;
 };

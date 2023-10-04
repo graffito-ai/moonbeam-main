@@ -310,6 +310,7 @@ export type FidelisPartner = {
   brandName: Scalars['String'];
   numberOfOffers: Scalars['Int'];
   offers: Array<Maybe<Offer>>;
+  veteranOwned: Scalars['Boolean'];
 };
 
 export type FidelisPartnerResponse = {
@@ -788,7 +789,9 @@ export enum OfferAvailability {
 export enum OfferFilter {
   Fidelis = 'FIDELIS',
   Nearby = 'NEARBY',
-  Online = 'ONLINE'
+  Online = 'ONLINE',
+  PremierNearby = 'PREMIER_NEARBY',
+  PremierOnline = 'PREMIER_ONLINE'
 }
 
 export enum OfferReach {
@@ -866,6 +869,7 @@ export type Query = {
   getFidelisPartners: FidelisPartnerResponse;
   getMilitaryVerificationStatus: GetMilitaryVerificationResponse;
   getOffers: OffersResponse;
+  getPremierOffers: OffersResponse;
   getReimbursementByStatus: ReimbursementByStatusResponse;
   getStorage: StorageResponse;
   getTransaction: MoonbeamTransactionsResponse;
@@ -900,6 +904,11 @@ export type QueryGetMilitaryVerificationStatusArgs = {
 
 
 export type QueryGetOffersArgs = {
+  getOffersInput: GetOffersInput;
+};
+
+
+export type QueryGetPremierOffersArgs = {
   getOffersInput: GetOffersInput;
 };
 
@@ -1435,7 +1444,7 @@ export type GetFaQsQuery = { __typename?: 'Query', getFAQs: { __typename?: 'FAQR
 export type GetFidelisPartnersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetFidelisPartnersQuery = { __typename?: 'Query', getFidelisPartners: { __typename?: 'FidelisPartnerResponse', errorMessage?: string | null, errorType?: OffersErrorType | null, data?: Array<{ __typename?: 'FidelisPartner', brandName: string, numberOfOffers: number, offers: Array<{ __typename?: 'Offer', id?: string | null, corporateId?: string | null, created?: string | null, offerState?: OfferState | null, availability?: OfferAvailability | null, brandId?: string | null, brandDba?: string | null, brandLogo?: string | null, brandLogoSm?: string | null, brandBanner?: string | null, brandParentCategory?: string | null, brandStubCopy?: string | null, brandWebsite?: string | null, description?: string | null, reach?: OfferReach | null, title?: string | null, qualifier?: string | null, tile?: string | null, startDate?: string | null, endDate?: string | null, currency?: CurrencyCodeType | null, extOfferId?: string | null, supplierOfferKey?: string | null, redemptionType?: RedemptionType | null, redemptionInstructionUrl?: string | null, redemptionTrigger?: RedemptionTrigger | null, budget?: number | null, daysAvailability?: Array<number | null> | null, stores?: Array<string | null> | null, totalRedeemLimit?: number | null, redeemLimitPerUser?: number | null, purchaseAmount?: number | null, purchaseFrequency?: number | null, storeDetails?: Array<{ __typename?: 'OfferStore', id?: string | null, name?: string | null, phone?: string | null, address1?: string | null, city?: string | null, state?: string | null, countryCode?: CountryCode | null, postCode?: string | null, isOnline?: boolean | null, distance?: number | null, geoLocation?: { __typename?: 'OfferStoreGeoLocation', latitude?: number | null, longitude?: number | null } | null } | null> | null, reward?: { __typename?: 'Reward', type?: RewardType | null, value?: number | null, maxValue?: number | null } | null } | null> } | null> | null } };
+export type GetFidelisPartnersQuery = { __typename?: 'Query', getFidelisPartners: { __typename?: 'FidelisPartnerResponse', errorMessage?: string | null, errorType?: OffersErrorType | null, data?: Array<{ __typename?: 'FidelisPartner', brandName: string, veteranOwned: boolean, numberOfOffers: number, offers: Array<{ __typename?: 'Offer', id?: string | null, corporateId?: string | null, created?: string | null, offerState?: OfferState | null, availability?: OfferAvailability | null, brandId?: string | null, brandDba?: string | null, brandLogo?: string | null, brandLogoSm?: string | null, brandBanner?: string | null, brandParentCategory?: string | null, brandStubCopy?: string | null, brandWebsite?: string | null, description?: string | null, reach?: OfferReach | null, title?: string | null, qualifier?: string | null, tile?: string | null, startDate?: string | null, endDate?: string | null, currency?: CurrencyCodeType | null, extOfferId?: string | null, supplierOfferKey?: string | null, redemptionType?: RedemptionType | null, redemptionInstructionUrl?: string | null, redemptionTrigger?: RedemptionTrigger | null, budget?: number | null, daysAvailability?: Array<number | null> | null, stores?: Array<string | null> | null, totalRedeemLimit?: number | null, redeemLimitPerUser?: number | null, purchaseAmount?: number | null, purchaseFrequency?: number | null, storeDetails?: Array<{ __typename?: 'OfferStore', id?: string | null, name?: string | null, phone?: string | null, address1?: string | null, city?: string | null, state?: string | null, countryCode?: CountryCode | null, postCode?: string | null, isOnline?: boolean | null, distance?: number | null, geoLocation?: { __typename?: 'OfferStoreGeoLocation', latitude?: number | null, longitude?: number | null } | null } | null> | null, reward?: { __typename?: 'Reward', type?: RewardType | null, value?: number | null, maxValue?: number | null } | null } | null> } | null> | null } };
 
 export type GetOffersQueryVariables = Exact<{
   getOffersInput: GetOffersInput;
@@ -1443,6 +1452,13 @@ export type GetOffersQueryVariables = Exact<{
 
 
 export type GetOffersQuery = { __typename?: 'Query', getOffers: { __typename?: 'OffersResponse', errorMessage?: string | null, errorType?: OffersErrorType | null, data?: { __typename?: 'OffersPaginatedResponse', totalNumberOfPages: number, totalNumberOfRecords: number, offers: Array<{ __typename?: 'Offer', id?: string | null, corporateId?: string | null, created?: string | null, offerState?: OfferState | null, availability?: OfferAvailability | null, brandId?: string | null, brandDba?: string | null, brandLogo?: string | null, brandLogoSm?: string | null, brandBanner?: string | null, brandParentCategory?: string | null, brandStubCopy?: string | null, brandWebsite?: string | null, description?: string | null, reach?: OfferReach | null, title?: string | null, qualifier?: string | null, tile?: string | null, startDate?: string | null, endDate?: string | null, currency?: CurrencyCodeType | null, extOfferId?: string | null, supplierOfferKey?: string | null, redemptionType?: RedemptionType | null, redemptionInstructionUrl?: string | null, redemptionTrigger?: RedemptionTrigger | null, budget?: number | null, daysAvailability?: Array<number | null> | null, stores?: Array<string | null> | null, totalRedeemLimit?: number | null, redeemLimitPerUser?: number | null, purchaseAmount?: number | null, purchaseFrequency?: number | null, storeDetails?: Array<{ __typename?: 'OfferStore', id?: string | null, name?: string | null, phone?: string | null, address1?: string | null, city?: string | null, state?: string | null, countryCode?: CountryCode | null, postCode?: string | null, isOnline?: boolean | null, distance?: number | null, geoLocation?: { __typename?: 'OfferStoreGeoLocation', latitude?: number | null, longitude?: number | null } | null } | null> | null, reward?: { __typename?: 'Reward', type?: RewardType | null, value?: number | null, maxValue?: number | null } | null } | null> } | null } };
+
+export type GetPremierOffersQueryVariables = Exact<{
+  getOffersInput: GetOffersInput;
+}>;
+
+
+export type GetPremierOffersQuery = { __typename?: 'Query', getPremierOffers: { __typename?: 'OffersResponse', errorMessage?: string | null, errorType?: OffersErrorType | null, data?: { __typename?: 'OffersPaginatedResponse', totalNumberOfPages: number, totalNumberOfRecords: number, offers: Array<{ __typename?: 'Offer', id?: string | null, corporateId?: string | null, created?: string | null, offerState?: OfferState | null, availability?: OfferAvailability | null, brandId?: string | null, brandDba?: string | null, brandLogo?: string | null, brandLogoSm?: string | null, brandBanner?: string | null, brandParentCategory?: string | null, brandStubCopy?: string | null, brandWebsite?: string | null, description?: string | null, reach?: OfferReach | null, title?: string | null, qualifier?: string | null, tile?: string | null, startDate?: string | null, endDate?: string | null, currency?: CurrencyCodeType | null, extOfferId?: string | null, supplierOfferKey?: string | null, redemptionType?: RedemptionType | null, redemptionInstructionUrl?: string | null, redemptionTrigger?: RedemptionTrigger | null, budget?: number | null, daysAvailability?: Array<number | null> | null, stores?: Array<string | null> | null, totalRedeemLimit?: number | null, redeemLimitPerUser?: number | null, purchaseAmount?: number | null, purchaseFrequency?: number | null, storeDetails?: Array<{ __typename?: 'OfferStore', id?: string | null, name?: string | null, phone?: string | null, address1?: string | null, city?: string | null, state?: string | null, countryCode?: CountryCode | null, postCode?: string | null, isOnline?: boolean | null, distance?: number | null, geoLocation?: { __typename?: 'OfferStoreGeoLocation', latitude?: number | null, longitude?: number | null } | null } | null> | null, reward?: { __typename?: 'Reward', type?: RewardType | null, value?: number | null, maxValue?: number | null } | null } | null> } | null } };
 
 export type GetDevicesForUserQueryVariables = Exact<{
   getDevicesForUserInput: GetDevicesForUserInput;

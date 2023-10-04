@@ -1,10 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import {createDrawerNavigator} from "@react-navigation/drawer";
-import {NavigationContainer} from "@react-navigation/native";
 import {AppDrawerProps} from "../../../models/props/AuthenticationProps";
 import {AppDrawerStackParamList} from "../../../models/props/AppDrawerProps";
 import {CustomDrawer} from "../../common/CustomDrawer";
-import {Animated, Platform, Text} from "react-native";
+import {Animated, Platform, Text, View} from "react-native";
 import {useRecoilState} from "recoil";
 import {
     appDrawerHeaderShownState,
@@ -27,16 +26,11 @@ import {
     MilitaryVerificationErrorType,
     MilitaryVerificationStatusType,
     MoonbeamTransaction,
-    updatedMilitaryVerificationStatus
+    updatedMilitaryVerificationStatus,
 } from "@moonbeam/moonbeam-models";
 import {API, Auth, graphqlOperation} from "aws-amplify";
 import {Observable} from "zen-observable-ts";
-import {
-    currentUserInformation,
-    expoPushTokenState,
-    globalAmplifyCacheState,
-    marketplaceAmplifyCacheState
-} from "../../../recoil/AuthAtom";
+import {currentUserInformation, expoPushTokenState, globalAmplifyCacheState} from "../../../recoil/AuthAtom";
 import {Spinner} from "../../common/Spinner";
 import {Dialog, IconButton, Portal} from "react-native-paper";
 import {commonStyles} from "../../../styles/common.module";
@@ -57,19 +51,8 @@ import {fetchFile} from "../../../utils/File";
 import {Documents} from './documents/Documents';
 import {DocumentsViewer} from "../../common/DocumentsViewer";
 import {Support} from "./support/Support";
-import {
-    createPhysicalDevice,
-    proceedWithDeviceCreation,
-    retrieveOffersNearby,
-    retrieveOnlineOffersList
-} from "../../../utils/AppSync";
+import {createPhysicalDevice, proceedWithDeviceCreation} from "../../../utils/AppSync";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
-import {
-    nearbyOffersListState,
-    nearbyOffersPageNumberState, noNearbyOffersToLoadState, noOnlineOffersToLoadState, offersNearUserLocationFlagState,
-    onlineOffersListState,
-    onlineOffersPageNumberState
-} from "../../../recoil/StoreOfferAtom";
 import Image = Animated.Image;
 
 /**
@@ -79,8 +62,6 @@ import Image = Animated.Image;
  */
 export const AppDrawer = ({}: AppDrawerProps) => {
         // constants used to keep track of local component state
-        const [loadingOnlineInProgress, setIsLoadingOnlineInProgress] = useState<boolean>(false);
-        const [loadingNearbyOffersInProgress, setIsLoadingNearbyOffersInProgress] = useState<boolean>(false);
         const [isReady, setIsReady] = useState<boolean>(true);
         const [modalVisible, setModalVisible] = useState<boolean>(false);
         const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
@@ -96,9 +77,6 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         const [isLoaded, setIsLoaded] = useState<boolean>(false);
         const [updatedMilitaryStatus, setUpdatedMilitaryStatus] = useState<MilitaryVerificationStatusType | null>(null);
         // constants used to keep track of shared states
-        const [marketplaceCache,] = useRecoilState(marketplaceAmplifyCacheState);
-        const [nearbyOfferList, setNearbyOfferList] = useRecoilState(nearbyOffersListState);
-        const [onlineOfferList, setOnlineOfferList] = useRecoilState(onlineOffersListState);
         const [expoPushToken,] = useRecoilState(expoPushTokenState);
         const [globalCache,] = useRecoilState(globalAmplifyCacheState);
         const [transactionData, setTransactionData] = useRecoilState(transactionDataState);
@@ -113,11 +91,6 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         const [drawerInDashboard,] = useRecoilState(drawerDashboardState);
         const [, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
         const [, setShowWalletBottomSheet] = useRecoilState(showWalletBottomSheetState);
-        const [nearbyOffersPageNumber, setNearbyOffersPageNumber] = useRecoilState(nearbyOffersPageNumberState);
-        const [onlineOffersPageNumber, setOnlineOffersPageNumber] = useRecoilState(onlineOffersPageNumberState);
-        const [noOnlineOffersToLoad,] = useRecoilState(noOnlineOffersToLoadState);
-        const [noNearbyOffersToLoad,] = useRecoilState(noNearbyOffersToLoadState);
-        const [, setOffersNearUserLocationFlag] = useRecoilState(offersNearUserLocationFlagState);
 
         /**
          * create a drawer navigator, to be used for our sidebar navigation, which is the main driving
@@ -191,7 +164,8 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     // set the user information, transactional data and profile picture URI accordingly, from what we have loaded
                     setUserInformation(updatedUserInformation);
                     setTransactionData(updatedTransactionalData);
-                    loadProfilePicture().then(_ => {});
+                    loadProfilePicture().then(_ => {
+                    });
                 });
 
                 // incoming military status updates
@@ -226,7 +200,8 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                         }
                     });
                     setTransactionData(updatedTransactionalData);
-                    loadProfilePicture().then(_ => {});
+                    loadProfilePicture().then(_ => {
+                    });
                 });
 
                 // post app load
@@ -275,67 +250,13 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                 Device.getDeviceTypeAsync().then(deviceType => {
                     setDeviceType(deviceType);
                 });
-
-                // load the online data
-                const loadOnlineData = async (): Promise<void> => {
-                    setIsLoadingOnlineInProgress(true);
-
-                    // check to see if we have cached  Online Offers. If we do, we don't need to retrieve them again for a week.
-                    const onlineOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`);
-                    if (marketplaceCache && onlineOffersCached !== null) {
-                        console.log('pre-emptively loading - online offers are cached');
-                        setOnlineOfferList(await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`));
-
-                        // we want to increase the page number of online offers, since we already have the first page obtained from cache
-                        setOnlineOffersPageNumber(onlineOffersPageNumber + 1);
-                        setIsLoadingOnlineInProgress(false);
-                    } else {
-                        console.log('pre-emptively loading - online offers are not cached');
-                        setOnlineOfferList(onlineOfferList.concat(await retrieveOnlineOffersList(onlineOffersPageNumber, setOnlineOffersPageNumber)));
-                        setIsLoadingOnlineInProgress(false);
-                    }
-                }
-                /**
-                 * pre-emptively load online offers until we reach 100 online offers,
-                 * or until we run out of offers to load.
-                 */
-                !loadingOnlineInProgress && !noOnlineOffersToLoad && onlineOfferList.length < 100 && loadOnlineData();
-                /**
-                 * do not cache online offers until we reach at least 100 offers,
-                 * or until we run out of offers to load.
-                 */
-                if ((marketplaceCache && onlineOfferList.length >= 100) || (marketplaceCache && noOnlineOffersToLoad)) {
-                    marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`).then(onlineOffersCached => {
-                        // check if there's really a need for caching
-                        if ((onlineOffersCached !== null && onlineOffersCached.length < onlineOfferList.length) || onlineOffersCached === null) {
-                            console.log('Caching online offers (additional/initial)');
-                            marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, onlineOfferList);
-                        }
-                    });
-                }
-
-                // load the nearby offer data
-                const loadNearbyData = async (): Promise<void> => {
-                    console.log('retrieving offers nearby');
-                    setIsLoadingNearbyOffersInProgress(true);
-
-                    setNearbyOfferList(nearbyOfferList.concat(await
-                        retrieveOffersNearby(nearbyOffersPageNumber, setNearbyOffersPageNumber, userInformation, setOffersNearUserLocationFlag, marketplaceCache)
-                    ));
-                    setIsLoadingNearbyOffersInProgress(false);
-                }
-                /**
-                 * pre-emptively load nearby offers until we reach 100 nearby offers,
-                 * or until we run out of offers to load.
-                 */
-                !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && nearbyOfferList.length < 100 && loadNearbyData();
             }
-        }, [loadingNearbyOffersInProgress, noNearbyOffersToLoad, nearbyOfferList,
-            onlineOfferList, marketplaceCache, loadingOnlineInProgress, noOnlineOffersToLoad,
+        }, [
             deviceType, userInformation["custom:userId"], isLoaded,
             militaryStatusRetrieved, cardLinkRetrieved, profilePictureRetrieved,
             transactionsRetrieved, updatedMilitaryStatus
         ]);
+
 
         /**
          * Function used to load the initial application data, given a user's details.
@@ -818,12 +739,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                     </Dialog.Content>
                                 </Dialog>
                             </Portal>
-                            {/*@ts-ignore*/}
-                            <NavigationContainer independent={true}
-                                                 fallback={
-                                                     <Spinner loadingSpinnerShown={loadingSpinnerShown}
-                                                              setLoadingSpinnerShown={setLoadingSpinnerShown}/>
-                                                 }>
+                            <View style={{flex: 1, backgroundColor: '#313030'}}>
                                 <ApplicationDrawer.Navigator
                                     drawerContent={(props) => {
                                         return (<CustomDrawer {...props} />);
@@ -995,7 +911,8 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                         />
                                     }
                                 </ApplicationDrawer.Navigator>
-                            </NavigationContainer>
+                            </View>
+                            {/*@ts-ignore*/}
                         </>
                 }
             </>

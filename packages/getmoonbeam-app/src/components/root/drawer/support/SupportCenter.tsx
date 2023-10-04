@@ -117,8 +117,8 @@ export const SupportCenter = ({navigation}: SupportCenterProps) => {
 
             setPermissionsModalCustomMessage(errorMessage);
             setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
-                ? "In order to easily contact our team and store our customer service number in your Contacts, go to Settings -> Moonbeam Finance, and allow Contacts access by tapping on the \'Contacts\' option."
-                : "In order to easily contact our team and store our customer service number in your Contacts, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Contacts access by tapping on the \"Contacts\" option.");
+                ? "In order to easily contact our team and store our customer service number in your Contacts, go to Settings -> Moonbeam, and allow Contacts access by tapping on the \'Contacts\' option."
+                : "In order to easily contact our team and store our customer service number in your Contacts, go to Settings -> Apps -> Moonbeam -> Permissions, and allow Contacts access by tapping on the \"Contacts\" option.");
             setPermissionsModalVisible(true);
             return false;
         }

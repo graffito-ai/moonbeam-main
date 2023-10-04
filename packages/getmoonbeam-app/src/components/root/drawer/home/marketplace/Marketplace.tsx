@@ -3,10 +3,10 @@ import {MarketplaceProps} from "../../../../../models/props/HomeProps";
 import {useRecoilState} from "recoil";
 import {appDrawerHeaderShownState, customBannerShown, drawerSwipeState} from "../../../../../recoil/AppDrawerAtom";
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {NavigationContainer} from '@react-navigation/native';
 import {MarketplaceStackParamList} from "../../../../../models/props/MarketplaceProps";
-import { Store } from './Store';
-import { StoreOffer } from './storeOffer/StoreOffer';
+import {Store} from './Store';
+import {StoreOffer} from './storeOffer/StoreOffer';
+import {View} from "react-native";
 
 /**
  * Marketplace component.
@@ -41,7 +41,7 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
 
     // return the component for the Marketplace page
     return (
-        <NavigationContainer independent={true}>
+        <View style={{flex: 1, backgroundColor: '#313030'}}>
             <Stack.Navigator
                 initialRouteName={"Store"}
                 screenOptions={{
@@ -60,6 +60,6 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
                     initialParams={{}}
                 />
             </Stack.Navigator>
-        </NavigationContainer>
+        </View>
     );
 };

@@ -17,10 +17,13 @@ import {Spinner} from "./src/components/common/Spinner";
 import * as Notifications from 'expo-notifications';
 import {AndroidNotificationPriority, ExpoPushToken} from 'expo-notifications';
 import Constants from "expo-constants";
-import {Platform, Text, TextInput} from "react-native";
+import {Platform, Text, TextInput, View} from "react-native";
 import * as Device from 'expo-device';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from 'expo-location';
+import {Image} from 'expo-image';
+import * as envInfo from "./local-env-info.json";
+import {Stages} from "@moonbeam/moonbeam-models";
 
 // this handler determines how your app handles notifications that come in while the app is foregrounded.
 Notifications.setNotificationHandler({
@@ -87,8 +90,10 @@ SplashScreen.preventAutoHideAsync().then(() => {
 // initialize the application according to the current Amplify environment
 initialize();
 
-// enable CLI logging with Expo
-Logs.enableExpoCliLogging();
+// enable CLI logging with Expo - for DEV only
+if (envInfo.envName === Stages.DEV) {
+    Logs.enableExpoCliLogging();
+}
 
 /**
  * App component, representing the main application entrypoint.
@@ -167,7 +172,7 @@ export default function App() {
                 });
 
                 // prepare the application for notifications
-                setExpoPushToken(await registerForPushNotificationsAsync());
+                envInfo.envName !== Stages.DEV && setExpoPushToken(await registerForPushNotificationsAsync());
 
                 // This listener is fired whenever a notification is received while the app is foregrounded.
                 notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
@@ -182,6 +187,7 @@ export default function App() {
                 });
 
                 // configure the Global Cache - @link https://docs.amplify.aws/lib/utilities/cache/q/platform/js/#api-reference
+                // @ts-ignore
                 setCache(Cache.createInstance({
                     keyPrefix: 'global-amplify-cache',
                     capacityInBytes: 5000000, // 5 MB max cache size
@@ -192,6 +198,7 @@ export default function App() {
                 }));
 
                 // configure the Marketplace specific Cache - @link https://docs.amplify.aws/lib/utilities/cache/q/platform/js/#api-reference
+                // @ts-ignore
                 setMarketplaceCache(Cache.createInstance({
                     keyPrefix: 'marketplace-amplify-cache',
                     capacityInBytes: 5000000, // 5 MB max cache size
@@ -218,6 +225,10 @@ export default function App() {
 
                 // tell the application to render
                 setAppIsReady(true);
+
+                // clear previous disk and memory images cache
+                await Image.clearDiskCache();
+                await Image.clearMemoryCache();
 
                 return () => {
                     notificationListener.current && Notifications.removeNotificationSubscription(notificationListener.current!);
@@ -251,40 +262,42 @@ export default function App() {
             <RecoilRoot>
                 <PaperProvider theme={theme}>
                     <StatusBar style="light" animated={true}/>
-                    <NavigationContainer
-                        fallback={
-                            <Spinner loadingSpinnerShown={loadingSpinnerShown}
-                                     setLoadingSpinnerShown={setLoadingSpinnerShown}/>
-                        }>
-                        <RootStack.Navigator
-                            initialRouteName={"AppOverview"}
-                            screenOptions={{
-                                headerShown: false,
-                                gestureEnabled: false
-                            }}
-                        >
-                            <RootStack.Screen
-                                name="AppOverview"
-                                component={AppOverviewComponent}
-                                initialParams={{
-                                    marketplaceCache: marketplaceCache!,
-                                    cache: cache!,
-                                    expoPushToken: expoPushToken,
-                                    onLayoutRootView: onLayoutRootView
+                    <View style={{ flex: 1, backgroundColor: '#313030' }}>
+                        <NavigationContainer
+                            fallback={
+                                <Spinner loadingSpinnerShown={loadingSpinnerShown}
+                                         setLoadingSpinnerShown={setLoadingSpinnerShown}/>
+                            } independent={true}>
+                            <RootStack.Navigator
+                                initialRouteName={"AppOverview"}
+                                screenOptions={{
+                                    headerShown: false,
+                                    gestureEnabled: false
                                 }}
-                            />
-                            <RootStack.Screen
-                                name="Authentication"
-                                component={AuthenticationComponent}
-                                initialParams={{
-                                    marketplaceCache: marketplaceCache!,
-                                    cache: cache!,
-                                    expoPushToken: expoPushToken,
-                                    onLayoutRootView: onLayoutRootView
-                                }}
-                            />
-                        </RootStack.Navigator>
-                    </NavigationContainer>
+                            >
+                                <RootStack.Screen
+                                    name="AppOverview"
+                                    component={AppOverviewComponent}
+                                    initialParams={{
+                                        marketplaceCache: marketplaceCache!,
+                                        cache: cache!,
+                                        expoPushToken: expoPushToken,
+                                        onLayoutRootView: onLayoutRootView
+                                    }}
+                                />
+                                <RootStack.Screen
+                                    name="Authentication"
+                                    component={AuthenticationComponent}
+                                    initialParams={{
+                                        marketplaceCache: marketplaceCache!,
+                                        cache: cache!,
+                                        expoPushToken: expoPushToken,
+                                        onLayoutRootView: onLayoutRootView
+                                    }}
+                                />
+                            </RootStack.Navigator>
+                        </NavigationContainer>
+                    </View>
                 </PaperProvider>
             </RecoilRoot>
         );

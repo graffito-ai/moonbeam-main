@@ -3,6 +3,7 @@
 type Query {
     getFAQs: FAQResponse! @aws_cognito_user_pools
     getOffers(getOffersInput: GetOffersInput!): OffersResponse! @aws_cognito_user_pools
+    getPremierOffers(getOffersInput: GetOffersInput!): OffersResponse! @aws_cognito_user_pools
     getFidelisPartners: FidelisPartnerResponse! @aws_cognito_user_pools
     getDevicesForUser(getDevicesForUserInput: GetDevicesForUserInput!): UserDevicesResponse! @aws_cognito_user_pools @aws_api_key
     getDevice(getDeviceInput: GetDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
@@ -927,6 +928,8 @@ enum OfferFilter {
     FIDELIS
     ONLINE
     NEARBY
+    PREMIER_NEARBY
+    PREMIER_ONLINE
 }
 
 # this is an Olive-based object, and therefore since their documentation lacks clarity on which fields are
@@ -1012,6 +1015,7 @@ type OffersPaginatedResponse @aws_cognito_user_pools {
 
 type FidelisPartner @aws_cognito_user_pools {
     brandName: String!
+    veteranOwned: Boolean!
     numberOfOffers: Int!
     offers: [Offer]!
 }
@@ -1037,10 +1041,10 @@ input GetOffersInput {
     pageSize: Int!
     pageNumber: Int!
     brandName: String
-    radiusLatitude: Float # required only when the offer filter is NEARBY
-    radiusLongitude: Float # required only when the offer filter is NEARBY
-    radius: Int # required only when the offer filter is NEARBY
-    radiusIncludeOnlineStores: Boolean # required only when the offer filter is NEARBY
+    radiusLatitude: Float # required only when the offer filter is NEARBY or PREMIER_NEARBY
+    radiusLongitude: Float # required only when the offer filter is NEARBY or PREMIER_NEARBY
+    radius: Int # required only when the offer filter is NEARBY or PREMIER_NEARBY
+    radiusIncludeOnlineStores: Boolean # required only when the offer filter is NEARBY or PREMIER_NEARBY
 }
 
 # graphql/FAQSchema.graphql

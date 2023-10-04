@@ -635,8 +635,8 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
 
             setPermissionsModalCustomMessage(errorMessage);
             setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
-                ? "In order to easily contact our team and store our customer service number in your Contacts, go to Settings -> Moonbeam Finance, and allow Contacts access by tapping on the \'Contacts\' option."
-                : "In order to easily contact our team and store our customer service number in your Contacts, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Contacts access by tapping on the \"Contacts\" option.");
+                ? "In order to easily contact our team and store our customer service number in your Contacts, go to Settings -> Moonbeam, and allow Contacts access by tapping on the \'Contacts\' option."
+                : "In order to easily contact our team and store our customer service number in your Contacts, go to Settings -> Apps -> Moonbeam -> Permissions, and allow Contacts access by tapping on the \"Contacts\" option.");
             setPermissionsModalVisible(true);
         }
     }
@@ -653,8 +653,8 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
 
             setPermissionsModalCustomMessage(errorMessage);
             setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
-                ? "In order to stay up to date with your latest cashback earned, go to Settings -> Moonbeam Finance, and allow Notifications by tapping on the \'Notifications\' option."
-                : "In order to stay up to date with your latest cashback earned, go to Settings -> Apps -> Moonbeam Finance -> Permissions/Notifications, and allow Notifications by tapping on the \'Notifications\' option.");
+                ? "In order to stay up to date with your latest cashback earned, go to Settings -> Moonbeam, and allow Notifications by tapping on the \'Notifications\' option."
+                : "In order to stay up to date with your latest cashback earned, go to Settings -> Apps -> Moonbeam -> Permissions/Notifications, and allow Notifications by tapping on the \'Notifications\' option.");
             setPermissionsModalVisible(true);
         }
     }

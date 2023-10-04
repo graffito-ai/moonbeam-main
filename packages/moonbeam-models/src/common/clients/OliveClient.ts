@@ -1306,7 +1306,8 @@ export class OliveClient extends BaseAPIClient {
         try {
             // retrieve the API Key and Base URL, needed in order to make the GET offers call through the client
             const [oliveBaseURL, olivePublicKey, olivePrivateKey,
-                moonbeamDefaultLoyalty, moonbeamFidelisDefaultLoyalty, moonbeamOnlineLoyalty] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.OLIVE_SECRET_NAME, undefined,
+                moonbeamDefaultLoyalty, moonbeamFidelisDefaultLoyalty, moonbeamOnlineLoyalty,
+                moonbeamPremierOnlineLoyalty, moonbeamPremierNearbyLoyalty] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.OLIVE_SECRET_NAME, undefined,
                 undefined, true);
 
             // check to see if we obtained any invalid secret values from the call above
@@ -1334,18 +1335,34 @@ export class OliveClient extends BaseAPIClient {
              * error for a better customer experience.
              */
             let requestURL = `${oliveBaseURL}/offers`;
-            requestURL += getOffersInput.filterType === OfferFilter.Fidelis
-                ? `?loyaltyProgramId=${moonbeamFidelisDefaultLoyalty}`
-                : (
-                    getOffersInput.filterType === OfferFilter.Nearby
-                        ? `?loyaltyProgramId=${moonbeamDefaultLoyalty}`
-                        : `?loyaltyProgramId=${moonbeamOnlineLoyalty}`
-                );
+            // switch the loyalty program id according to the filter passed in
+            let loyaltyProgramId: string | null | undefined = 'NA';
+            switch (getOffersInput.filterType) {
+                case OfferFilter.Fidelis:
+                    loyaltyProgramId = moonbeamFidelisDefaultLoyalty;
+                    break;
+                case OfferFilter.Nearby:
+                    loyaltyProgramId = moonbeamDefaultLoyalty;
+                    break;
+                case OfferFilter.Online:
+                    loyaltyProgramId = moonbeamOnlineLoyalty;
+                    break;
+                case OfferFilter.PremierOnline:
+                    loyaltyProgramId = moonbeamPremierOnlineLoyalty;
+                    break;
+                case OfferFilter.PremierNearby:
+                    loyaltyProgramId = moonbeamPremierNearbyLoyalty;
+                    break;
+                default:
+                    console.log(`Unknown offer filter passed in ${getOffersInput.filterType} resulting in invalid loyalty program id!`);
+                    break;
+            }
+            requestURL += `?loyaltyProgramId=${loyaltyProgramId}`;
             requestURL += `&availability=${getOffersInput.availability}&countryCode=${getOffersInput.countryCode}&redemptionType=${getOffersInput.redemptionType}&pageSize=${getOffersInput.pageSize}&pageNumber=${getOffersInput.pageNumber}`;
             getOffersInput.offerStates.forEach(state => {
                 requestURL += `&offerStates=${state}`;
             })
-            requestURL += getOffersInput.filterType === OfferFilter.Nearby
+            requestURL += (getOffersInput.filterType === OfferFilter.Nearby || getOffersInput.filterType === OfferFilter.PremierNearby)
                 ? `&radiusLatitude=${getOffersInput.radiusLatitude!}&radiusLongitude=${getOffersInput.radiusLongitude!}&radius=${getOffersInput.radius!}&radiusIncludeOnlineStores=${getOffersInput.radiusIncludeOnlineStores!}`
                 : ``;
             requestURL += getOffersInput.brandName

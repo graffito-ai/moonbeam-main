@@ -269,6 +269,7 @@ export interface OffersConfiguration {
     readonly offersFunctionName: string;
     readonly getOffersResolverName: string;
     readonly getFidelisPartnersResolverName: string;
+    readonly getPremierOffersResolverName: string;
 }
 
 /**

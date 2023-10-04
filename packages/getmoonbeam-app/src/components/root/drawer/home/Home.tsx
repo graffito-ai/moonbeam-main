@@ -1,5 +1,4 @@
-import React, {useEffect, useState} from 'react';
-import {NavigationContainer} from "@react-navigation/native";
+import React, {useEffect} from 'react';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import {HomeProps} from "../../../../models/props/AppDrawerProps";
 import {createMaterialBottomTabNavigator} from "@react-navigation/material-bottom-tabs";
@@ -12,8 +11,9 @@ import {Wallet} from "./cards/Wallet";
 import {DashboardController} from "./dashboard/DashboardController";
 import {Marketplace} from "./marketplace/Marketplace";
 import {drawerDashboardState} from "../../../../recoil/AppDrawerAtom";
-import {Spinner} from "../../../common/Spinner";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {View} from "react-native";
+import {searchQueryState, toggleViewPressedState, verticalSectionActiveState} from "../../../../recoil/StoreOfferAtom";
 
 /**
  * Home component. This is where the bottom bar components will reside, as well
@@ -23,9 +23,10 @@ import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
  * @constructor constructor for the component.
  */
 export const Home = ({navigation}: HomeProps) => {
-    // constants used to keep track of local component state
-    const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
+    const [, setToggleViewPressed] = useRecoilState(toggleViewPressedState);
+    const [, setSearchQuery] = useRecoilState(searchQueryState);
+    const [, setWhichVerticalSectionActive] = useRecoilState(verticalSectionActiveState);
     const [, setDrawerNavigation] = useRecoilState(drawerNavigationState);
     const [bottomTabShown,] = useRecoilState(bottomTabShownState);
     const [userInformation,] = useRecoilState(currentUserInformation);
@@ -47,9 +48,15 @@ export const Home = ({navigation}: HomeProps) => {
         // set the custom drawer header style accordingly
         if (navigation.getState().index === 0) {
             setIsDrawerInDashboard(true);
+
+            // reset any store/marketplace related items
+            setToggleViewPressed('horizontal');
+            setSearchQuery('');
+            setWhichVerticalSectionActive(null);
         }
         // show the application wall accordingly
         if (userInformation["militaryStatus"] !== MilitaryVerificationStatusType.Verified) {
+            // @ts-ignore
             navigation.navigate('AppWall', {});
         }
     }, [userInformation["militaryStatus"], navigation.getState()]);
@@ -57,11 +64,7 @@ export const Home = ({navigation}: HomeProps) => {
     // return the component for the Home page
     return (
         <>
-            <NavigationContainer independent={true}
-                                 fallback={
-                                     <Spinner loadingSpinnerShown={loadingSpinnerShown}
-                                              setLoadingSpinnerShown={setLoadingSpinnerShown}/>
-                                 }>
+            <View style={{flex: 1, backgroundColor: '#313030'}}>
                 <HomeTabStack.Navigator
                     initialRouteName={"DashboardController"}
                     shifting={true}
@@ -114,7 +117,7 @@ export const Home = ({navigation}: HomeProps) => {
                                          initialParams={{}}
                     />
                 </HomeTabStack.Navigator>
-            </NavigationContainer>
+            </View>
         </>
     );
 };

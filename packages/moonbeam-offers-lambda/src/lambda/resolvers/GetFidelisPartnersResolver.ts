@@ -7,7 +7,8 @@ import {
     OffersResponse,
     OliveClient,
     RedemptionType,
-    CountryCode, OfferAvailability, OfferFilter, OfferState
+    CountryCode, OfferAvailability, OfferFilter, OfferState, FidelisPartnerOrder,
+    FidelisVeteranOwnedPartners
 } from "@moonbeam/moonbeam-models";
 
 /**
@@ -109,9 +110,18 @@ export const getFidelisPartners = async (fieldName: string): Promise<FidelisPart
                 });
 
                 // build the list of partners to return
+                let fidelisPartnersSortedMap: Map<number,[string, Offer[]]> = new Map<number, [string, Offer[]]>();
                 fidelisPartnersMap.forEach((fidelisOffers, brandName) => {
+                    // give a weight to the brand name depending on how we want them to show up
+                    FidelisPartnerOrder.includes(brandName) &&
+                    fidelisPartnersSortedMap.set(FidelisPartnerOrder.indexOf(brandName.trimStart().trimEnd()), [brandName, fidelisOffers]);
+                });
+                fidelisPartnersSortedMap = new Map([...fidelisPartnersSortedMap].sort((a, b) => a[0] - b[0]));
+
+                fidelisPartnersSortedMap.forEach(([brandName, fidelisOffers]) => {
                     fidelisPartners.push({
                         brandName: brandName,
+                        veteranOwned: FidelisVeteranOwnedPartners.includes(brandName),
                         numberOfOffers: fidelisOffers.length,
                         offers: fidelisOffers
                     });
