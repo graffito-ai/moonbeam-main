@@ -1,5 +1,6 @@
 import {atom} from "recoil";
 import {DeviceType} from "expo-device";
+import {LocationObject} from "expo-location";
 
 /**
  * Atom used to keep track of the type of device running the app.
@@ -37,9 +38,17 @@ const moonbeamUserIdPassState = atom<string>({
 });
 
 /**
+ * Atom used to keep track of the current user's position to be used throughout the app.
+ */
+const currentUserLocationState = atom<LocationObject | null>({
+    key: "currentUserLocationState",
+    default: null
+});
+/**
  * Export all atoms and/or selectors
  */
 export {
+    currentUserLocationState,
     deviceTypeState,
     firstTimeLoggedInState,
     moonbeamUserIdState,

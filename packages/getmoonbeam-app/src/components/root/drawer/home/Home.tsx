@@ -13,7 +13,12 @@ import {Marketplace} from "./marketplace/Marketplace";
 import {drawerDashboardState} from "../../../../recoil/AppDrawerAtom";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {View} from "react-native";
-import {searchQueryState, toggleViewPressedState, verticalSectionActiveState} from "../../../../recoil/StoreOfferAtom";
+import {
+    filteredByDiscountPressedState,
+    filtersActiveState,
+    resetSearchState,
+    searchQueryState
+} from "../../../../recoil/StoreOfferAtom";
 
 /**
  * Home component. This is where the bottom bar components will reside, as well
@@ -24,9 +29,10 @@ import {searchQueryState, toggleViewPressedState, verticalSectionActiveState} fr
  */
 export const Home = ({navigation}: HomeProps) => {
     // constants used to keep track of shared states
-    const [, setToggleViewPressed] = useRecoilState(toggleViewPressedState);
+    const [, setFilteredByDiscountPressed] = useRecoilState(filteredByDiscountPressedState);
+    const [, setAreFiltersActive] = useRecoilState(filtersActiveState);
+    const [, setResetSearch] = useRecoilState(resetSearchState);
     const [, setSearchQuery] = useRecoilState(searchQueryState);
-    const [, setWhichVerticalSectionActive] = useRecoilState(verticalSectionActiveState);
     const [, setDrawerNavigation] = useRecoilState(drawerNavigationState);
     const [bottomTabShown,] = useRecoilState(bottomTabShownState);
     const [userInformation,] = useRecoilState(currentUserInformation);
@@ -50,9 +56,10 @@ export const Home = ({navigation}: HomeProps) => {
             setIsDrawerInDashboard(true);
 
             // reset any store/marketplace related items
-            setToggleViewPressed('horizontal');
             setSearchQuery('');
-            setWhichVerticalSectionActive(null);
+            setResetSearch(true);
+            setFilteredByDiscountPressed(false);
+            setAreFiltersActive(false);
         }
         // show the application wall accordingly
         if (userInformation["militaryStatus"] !== MilitaryVerificationStatusType.Verified) {

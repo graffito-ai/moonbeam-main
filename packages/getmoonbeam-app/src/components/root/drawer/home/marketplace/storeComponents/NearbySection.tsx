@@ -270,8 +270,8 @@ export const NearbySection = (props: {
 
                                                                 props.setPermissionsModalCustomMessage(errorMessage);
                                                                 props.setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
-                                                                    ? "In order to display the closest offers near your location, go to Settings -> Moonbeam, and allow Location Services access by tapping on the \'Location\' option."
-                                                                    : "In order to display the closest offers near your location, go to Settings -> Apps -> Moonbeam -> Permissions, and allow Location Services access by tapping on the \"Location\" option.");
+                                                                    ? "In order to display the closest offers near your location, go to Settings -> Moonbeam Finance, and allow Location Services access by tapping on the \'Location\' option."
+                                                                    : "In order to display the closest offers near your location, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Location Services access by tapping on the \"Location\" option.");
                                                                 props.setPermissionsModalVisible(true);
                                                             }
                                                         }
@@ -295,7 +295,7 @@ export const NearbySection = (props: {
                             </ScrollView>
                         </View>
                     </> :
-                    ((!props.areNearbyOffersReady && nearbyOfferList.length === 0) || nearbyOfferList.length < 5) &&
+                    (nearbyOfferList.length < 6) &&
                     <>
                         <View
                             style={styles.nearbyOffersView}>
@@ -349,7 +349,7 @@ export const NearbySection = (props: {
                     </>
             }
             {
-                nearbyOfferList.length >= 7 &&
+                nearbyOfferList.length >= 6 &&
                 <View style={styles.nearbyOffersView}>
                     <View style={styles.nearbyOffersTitleView}>
                         <View style={styles.nearbyOffersLeftTitleView}>
@@ -380,80 +380,82 @@ export const NearbySection = (props: {
                     </View>
                     <Portal.Host>
                         <View style={{flexDirection: 'row', height: hp(30), width: wp(100)}}>
-                            <RecyclerListView
-                                // @ts-ignore
-                                ref={nearbyListView}
-                                style={styles.nearbyOffersScrollView}
-                                layoutProvider={layoutProvider!}
-                                dataProvider={dataProvider!}
-                                rowRenderer={renderRowData}
-                                isHorizontal={true}
-                                forceNonDeterministicRendering={true}
-                                renderFooter={() => {
-                                    return (
-                                        horizontalListLoading || nearbyOffersSpinnerShown ?
-                                            <>
-                                                <View
-                                                    style={{width: wp(30)}}/>
-                                                <Card
-                                                    style={styles.loadCard}>
-                                                    <Card.Content>
-                                                        <View style={{flexDirection: 'column'}}>
-                                                            <View style={{
-                                                                flexDirection: 'row'
-                                                            }}>
-                                                                <View style={{top: hp(5)}}>
-                                                                    <ActivityIndicator
-                                                                        style={{
-                                                                            top: hp(2),
-                                                                            left: wp(10)
-                                                                        }}
-                                                                        animating={true}
-                                                                        color={'#F2FF5D'}
-                                                                        size={hp(5)}
-                                                                    />
+                            {
+                                dataProvider !== null && layoutProvider !== null &&
+                                <RecyclerListView
+                                    // @ts-ignore
+                                    ref={nearbyListView}
+                                    style={styles.nearbyOffersScrollView}
+                                    layoutProvider={layoutProvider!}
+                                    dataProvider={dataProvider!}
+                                    rowRenderer={renderRowData}
+                                    isHorizontal={true}
+                                    forceNonDeterministicRendering={true}
+                                    renderFooter={() => {
+                                        return (
+                                            horizontalListLoading || nearbyOffersSpinnerShown ?
+                                                <>
+                                                    <View
+                                                        style={{width: wp(20)}}/>
+                                                    <Card
+                                                        style={[styles.loadCard, {marginTop: hp(4)}]}>
+                                                        <Card.Content>
+                                                            <View style={{flexDirection: 'column'}}>
+                                                                <View style={{
+                                                                    flexDirection: 'row'
+                                                                }}>
+                                                                    <View style={{top: hp(3)}}>
+                                                                        <ActivityIndicator
+                                                                            style={{
+                                                                                right: wp(15)
+                                                                            }}
+                                                                            animating={true}
+                                                                            color={'#F2FF5D'}
+                                                                            size={hp(5)}
+                                                                        />
 
+                                                                    </View>
                                                                 </View>
                                                             </View>
-                                                        </View>
-                                                    </Card.Content>
-                                                </Card>
-                                            </> : <></>
-                                    )
-                                }}
-                                {
-                                    ...(Platform.OS === 'ios') ?
-                                        {onEndReachedThreshold: 0} :
-                                        {onEndReachedThreshold: 1}
-                                }
-                                onEndReached={async () => {
-                                    console.log(`End of list reached. Trying to refresh more items.`);
-
-                                    // if there are items to load
-                                    if (!noNearbyOffersToLoad) {
-                                        // set the loader
-                                        setNearbyOffersSpinnerShown(true);
-                                        // retrieving more offers (nearby or near user's location)
-                                        !props.offersNearUserLocationFlag
-                                            ? await props.retrieveNearbyOffersList()
-                                            : await props.retrieveOffersNearLocation(userInformation["address"]["formatted"]);
-                                        setHorizontalListLoading(true);
-                                        // this makes the scrolling seem infinite - we artificially scroll up a little, so we have enough time to load
-                                        // @ts-ignore
-                                        nearbyListView.current?.scrollToIndex(deDuplicatedNearbyOfferList.length - 5);
-                                    } else {
-                                        console.log(`Maximum number of nearby offers reached ${deDuplicatedNearbyOfferList.length}`);
+                                                        </Card.Content>
+                                                    </Card>
+                                                </> : <></>
+                                        )
+                                    }}
+                                    {
+                                        ...(Platform.OS === 'ios') ?
+                                            {onEndReachedThreshold: 0} :
+                                            {onEndReachedThreshold: 1}
                                     }
-                                }}
-                                scrollViewProps={{
-                                    pagingEnabled: "true",
-                                    decelerationRate: "fast",
-                                    snapToInterval: wp(70) + wp(20),
-                                    snapToAlignment: "center",
-                                    persistentScrollbar: false,
-                                    showsHorizontalScrollIndicator: false
-                                }}
-                            />
+                                    onEndReached={async () => {
+                                        console.log(`End of list reached. Trying to refresh more items.`);
+
+                                        // if there are items to load
+                                        if (!noNearbyOffersToLoad) {
+                                            // set the loader
+                                            setNearbyOffersSpinnerShown(true);
+                                            // retrieving more offers (nearby or near user's location)
+                                            !props.offersNearUserLocationFlag
+                                                ? await props.retrieveNearbyOffersList()
+                                                : await props.retrieveOffersNearLocation(userInformation["address"]["formatted"]);
+                                            setHorizontalListLoading(true);
+                                            // this makes the scrolling seem infinite - we artificially scroll up a little, so we have enough time to load
+                                            // @ts-ignore
+                                            nearbyListView.current?.scrollToIndex(deDuplicatedNearbyOfferList.length - 2);
+                                        } else {
+                                            console.log(`Maximum number of nearby offers reached ${deDuplicatedNearbyOfferList.length}`);
+                                        }
+                                    }}
+                                    scrollViewProps={{
+                                        pagingEnabled: "true",
+                                        decelerationRate: "fast",
+                                        snapToInterval: wp(70) + wp(20),
+                                        snapToAlignment: "center",
+                                        persistentScrollbar: false,
+                                        showsHorizontalScrollIndicator: false
+                                    }}
+                                />
+                            }
                         </View>
                     </Portal.Host>
                 </View>

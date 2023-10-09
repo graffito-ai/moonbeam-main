@@ -215,8 +215,8 @@ export const TransactionsBottomSheet = (props: {
 
                                             setPermissionsModalCustomMessage(errorMessage);
                                             setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
-                                                ? "In order to display the exact locations of your in-person transactions, go to Settings -> Moonbeam, and allow Location Services access by tapping on the \'Location\' option."
-                                                : "In order to display the exact locations of your in-person transactions, go to Settings -> Apps -> Moonbeam -> Permissions, and allow Location Services access by tapping on the \"Location\" option.");
+                                                ? "In order to display the exact locations of your in-person transactions, go to Settings -> Moonbeam Finance, and allow Location Services access by tapping on the \'Location\' option."
+                                                : "In order to display the exact locations of your in-person transactions, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Location Services access by tapping on the \"Location\" option.");
                                             setPermissionsModalVisible(true);
                                         }
                                     }

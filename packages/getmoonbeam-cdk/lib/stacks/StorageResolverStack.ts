@@ -19,6 +19,7 @@ import {
 import {S3Origin} from "aws-cdk-lib/aws-cloudfront-origins";
 import {Constants, Stages} from "@moonbeam/moonbeam-models";
 import {Effect, PolicyStatement, Role} from "aws-cdk-lib/aws-iam";
+import { Alias } from "aws-cdk-lib/aws-lambda";
 
 /**
  * File used to define the AppSync/Lambda storage resolver stack, used by Amplify.
@@ -159,7 +160,13 @@ export class StorageResolverStack extends Stack {
                 sourceMapMode: aws_lambda_nodejs.SourceMapMode.BOTH, // defaults to SourceMapMode.DEFAULT
                 sourcesContent: false, // do not include original source into source map, defaults to true
                 target: 'esnext', // target environment for the generated JavaScript code
-            }
+            },
+            reservedConcurrentExecutions: 145
+        });
+        new Alias(this, `${props.storageConfig.storageFunctionName}-current-version-alias`, {
+            aliasName: `${props.storageConfig.storageFunctionName}-current-version-alias`,
+            version: storageLambda.currentVersion,
+            provisionedConcurrentExecutions: 2
         });
 
         /**

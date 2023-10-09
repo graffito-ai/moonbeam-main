@@ -199,7 +199,7 @@ export const SecurityStep = () => {
                                       }
                                   });
                               }}> Terms & Conditions.</Text>
-                        {'\nMoving forward with the account registration, represents your consent to Moonbeam storing any personal data that is and/or will be collected during this process.'}
+                        {'\nMoving forward with the account registration, represents your consent to Moonbeam Finance storing any personal data that is and/or will be collected during this process.'}
                     </Text>
                 </View>
             </View>

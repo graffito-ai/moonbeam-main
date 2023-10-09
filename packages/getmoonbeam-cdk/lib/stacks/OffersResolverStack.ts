@@ -4,6 +4,7 @@ import {Construct} from "constructs";
 import path from "path";
 import {Constants, Stages} from "@moonbeam/moonbeam-models";
 import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
+import { Alias } from "aws-cdk-lib/aws-lambda";
 
 /**
  * File used to define the Offers resolver stack, used by Amplify, as well
@@ -36,7 +37,13 @@ export class OffersResolverStack extends Stack {
                 sourceMapMode: aws_lambda_nodejs.SourceMapMode.BOTH, // defaults to SourceMapMode.DEFAULT
                 sourcesContent: false, // do not include original source into source map, defaults to true
                 target: 'esnext', // target environment for the generated JavaScript code
-            }
+            },
+            reservedConcurrentExecutions: 295
+        });
+        new Alias(this, `${props.offersConfig.offersFunctionName}-current-version-alias`, {
+            aliasName: `${props.offersConfig.offersFunctionName}-current-version-alias`,
+            version: offersLambda.currentVersion,
+            provisionedConcurrentExecutions: 5
         });
 
         // retrieve the GraphQL API created by the other stack

@@ -54,6 +54,8 @@ export namespace Constants {
     // Moonbeam specific constants used in mapping various resources
     export namespace MoonbeamConstants {
         // Infrastructure related
+        export const AWS_LAMBDA_INITIALIZATION_TYPE = 'AWS_LAMBDA_INITIALIZATION_TYPE';
+        export const AWS_LAMBDA_PROVISIONED_CONCURRENCY = 'provisioned-concurrency';
         export const USER_AUTH_SESSION_TABLE = 'USER_AUTH_SESSION_TABLE';
         export const FAQ_TABLE: string = 'FAQ_TABLE';
         export const MILITARY_VERIFICATION_TABLE: string = 'MILITARY_VERIFICATION_TABLE';

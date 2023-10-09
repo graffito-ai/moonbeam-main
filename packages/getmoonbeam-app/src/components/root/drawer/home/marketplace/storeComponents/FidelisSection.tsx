@@ -175,21 +175,24 @@ export const FidelisSection = (props: {
                         Fidelis Partner Offers
                     </Text>{`   🎖`}️
                 </Text>
-                <RecyclerListView
-                    style={styles.featuredPartnersScrollView}
-                    layoutProvider={layoutProvider!}
-                    dataProvider={dataProvider!}
-                    rowRenderer={renderRowData}
-                    isHorizontal={true}
-                    forceNonDeterministicRendering={true}
-                    scrollViewProps={{
-                        decelerationRate: "fast",
-                        snapToInterval: wp(70) + wp(20),
-                        snapToAlignment: "center",
-                        persistentScrollbar: false,
-                        showsHorizontalScrollIndicator: false
-                    }}
-                />
+                {
+                    dataProvider !== null && layoutProvider !== null &&
+                    <RecyclerListView
+                        style={styles.featuredPartnersScrollView}
+                        layoutProvider={layoutProvider!}
+                        dataProvider={dataProvider!}
+                        rowRenderer={renderRowData}
+                        isHorizontal={true}
+                        forceNonDeterministicRendering={true}
+                        scrollViewProps={{
+                            decelerationRate: "fast",
+                            snapToInterval: wp(70) + wp(20),
+                            snapToAlignment: "center",
+                            persistentScrollbar: false,
+                            showsHorizontalScrollIndicator: false
+                        }}
+                    />
+                }
             </View>
         </>
     );

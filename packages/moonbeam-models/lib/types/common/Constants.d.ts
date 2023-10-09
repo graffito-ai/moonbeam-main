@@ -44,6 +44,8 @@ export declare namespace Constants {
         const APPSYNC_AUTH_TYPE: string;
     }
     namespace MoonbeamConstants {
+        const AWS_LAMBDA_INITIALIZATION_TYPE = "AWS_LAMBDA_INITIALIZATION_TYPE";
+        const AWS_LAMBDA_PROVISIONED_CONCURRENCY = "provisioned-concurrency";
         const USER_AUTH_SESSION_TABLE = "USER_AUTH_SESSION_TABLE";
         const FAQ_TABLE: string;
         const MILITARY_VERIFICATION_TABLE: string;

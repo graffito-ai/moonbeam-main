@@ -243,7 +243,7 @@ export const styles = StyleSheet.create({
     },
     loadCard: {
         left: wp(1),
-        width: wp(85),
+        width: wp(20),
         height: hp(30),
         backgroundColor: 'transparent',
         shadowColor: 'transparent',

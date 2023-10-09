@@ -50,6 +50,7 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
                 navigation.navigate("Authentication", {
                     marketplaceCache: route.params.marketplaceCache,
                     cache: route.params.cache,
+                    currentUserLocation: route.params.currentUserLocation,
                     expoPushToken: route.params.expoPushToken,
                     onLayoutRootView: route.params.onLayoutRootView
                 });
@@ -64,6 +65,7 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
             navigation.navigate("Authentication", {
                 marketplaceCache: route.params.marketplaceCache,
                 cache: route.params.cache,
+                currentUserLocation: route.params.currentUserLocation,
                 expoPushToken: route.params.expoPushToken,
                 onLayoutRootView: route.params.onLayoutRootView
             });
@@ -129,6 +131,7 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
                                     navigation.navigate("Authentication", {
                                         marketplaceCache: route.params.marketplaceCache,
                                         cache: route.params.cache,
+                                        currentUserLocation: route.params.currentUserLocation,
                                         expoPushToken: route.params.expoPushToken,
                                         onLayoutRootView: route.params.onLayoutRootView
                                     });
@@ -149,6 +152,7 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
                                     navigation.navigate("Authentication", {
                                         marketplaceCache: route.params.marketplaceCache,
                                         cache: route.params.cache,
+                                        currentUserLocation: route.params.currentUserLocation,
                                         expoPushToken: route.params.expoPushToken,
                                         onLayoutRootView: route.params.onLayoutRootView
                                     });

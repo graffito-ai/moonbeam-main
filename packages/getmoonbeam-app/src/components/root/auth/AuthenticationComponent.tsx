@@ -45,26 +45,19 @@ import {styles} from "../../../styles/registration.module";
 import {
     retrieveFidelisPartnerList,
     retrieveOffersNearby,
-    retrieveOffersNearLocation,
     retrieveOnlineOffersList,
     retrievePremierOffersNearby,
     retrievePremierOnlineOffersList,
     updateUserAuthStat
 } from "../../../utils/AppSync";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
-import {
-    PremierOnlineDevOfferIds,
-    PremierOnlineProdOfferIds,
-    Stages,
-    UserAuthSessionResponse
-} from "@moonbeam/moonbeam-models";
-import {firstTimeLoggedInState} from "../../../recoil/RootAtom";
+import {PremierOnlineProdOfferIds, Stages, UserAuthSessionResponse} from "@moonbeam/moonbeam-models";
+import {currentUserLocationState, firstTimeLoggedInState} from "../../../recoil/RootAtom";
 import * as envInfo from "../../../../local-env-info.json";
 import {
     locationServicesButtonState,
     nearbyOffersListState,
     nearbyOffersPageNumberState,
-    nearbyOffersSpinnerShownState,
     noNearbyOffersToLoadState,
     noOnlineOffersToLoadState,
     offersNearUserLocationFlagState,
@@ -75,6 +68,8 @@ import {
     reloadNearbyDueToPermissionsChangeState,
 } from "../../../recoil/StoreOfferAtom";
 import {registerListener, removeListener} from "../../../utils/AmplifyHub";
+import * as Location from "expo-location";
+import {LocationObject} from "expo-location";
 
 /**
  * Authentication component.
@@ -83,11 +78,13 @@ import {registerListener, removeListener} from "../../../utils/AmplifyHub";
  */
 export const AuthenticationComponent = ({route, navigation}: AuthenticationProps) => {
         // constants used to keep track of local component state
+        const [checkedOnlineCache, setCheckOnlineCache] = useState<boolean>(false);
         const [userIsAuthenticated, setIsUserAuthenticated] = useState<boolean>(false);
-        const [premierNearbyOffersLoadingStopped, setPremierNearbyOffersLoadingStopped] = useState<boolean>(false);
+        const [loadingNearbyOffersInProgress, setIsLoadingNearbyOffersInProgress] = useState<boolean>(false);
         const [loadingOnlineInProgress, setIsLoadingOnlineInProgress] = useState<boolean>(false);
         const [noPremierOnlineOffersToLoad, setNoPremierOnlineOffersToLoad] = useState<boolean>(false);
         // constants used to keep track of shared states
+        const [currentUserLocation, setCurrentUserLocation] = useRecoilState(currentUserLocationState);
         const [nearbyOffersPageNumber, setNearbyOffersPageNumber] = useRecoilState(nearbyOffersPageNumberState);
         const [premierNearbyOffersPageNumber, setPremierNearbyOffersPageNumber] = useRecoilState(premierNearbyOffersPageNumberState);
         const [onlineOffersPageNumber, setOnlineOffersPageNumber] = useRecoilState(onlineOffersPageNumberState);
@@ -96,7 +93,6 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [noNearbyOffersToLoad, setNoNearbyOffersToLoad] = useRecoilState(noNearbyOffersToLoadState);
         const [, setOffersNearUserLocationFlag] = useRecoilState(offersNearUserLocationFlagState);
         const [reloadNearbyDueToPermissionsChange, setReloadNearbyDueToPermissionsChange] = useRecoilState(reloadNearbyDueToPermissionsChangeState);
-        const [, setNearbyOffersSpinnerShown] = useRecoilState(nearbyOffersSpinnerShownState);
         const [, setLocationServicesButtonState] = useRecoilState(locationServicesButtonState);
         const [nearbyOfferList, setNearbyOfferList] = useRecoilState(nearbyOffersListState);
         const [onlineOfferList, setOnlineOfferList] = useRecoilState(onlineOffersListState);
@@ -149,6 +145,8 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             setGlobalCache(route.params.cache);
             // set the Marketplace Cache to the marketplace cache passed in from the App root component
             setMarketplaceCache(route.params.marketplaceCache);
+            // set the current user's location passed in from the App root component
+            setCurrentUserLocation(route.params.currentUserLocation);
 
             // set the expo push token accordingly, to be used in later stages, as part of the current user information object
             setExpoPushToken(route.params.expoPushToken);
@@ -199,8 +197,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                         break;
                 }
             });
-        }, [userIsAuthenticated, premierNearbyOffersLoadingStopped,
-            reloadNearbyDueToPermissionsChange, noNearbyOffersToLoad, nearbyOfferList,
+        }, [userIsAuthenticated, reloadNearbyDueToPermissionsChange, noNearbyOffersToLoad, nearbyOfferList,
             onlineOfferList, marketplaceCache, loadingOnlineInProgress, noOnlineOffersToLoad]);
 
         /**
@@ -209,98 +206,79 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
          * @return a tuple of {@link Promise} of {@link void}
          */
         const loadStoreData = async (): Promise<void> => {
+            // set the current user's position accordingly, if not already set
+            if (currentUserLocation === null) {
+                const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
+                if (foregroundPermissionStatus.status !== 'granted') {
+                    const errorMessage = `Permission to access location was not granted!`;
+                    console.log(errorMessage);
+
+                    setCurrentUserLocation(null);
+                } else {
+                    const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
+                    setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getLastKnownPositionAsync());
+                }
+            }
+
+            // check to see if we have cached Online Offers. If we do, set them appropriately
+            const onlineOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`);
+            if (marketplaceCache !== null && onlineOffersCached !== null && onlineOffersCached.length !== 0 && !checkedOnlineCache) {
+                console.log('pre-emptively loading - online offers are cached');
+                setCheckOnlineCache(true);
+                const cachedOnlineOffers = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`);
+                setOnlineOfferList(cachedOnlineOffers);
+
+                setIsLoadingOnlineInProgress(false);
+                (cachedOnlineOffers === null || cachedOnlineOffers.length < 20) && await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, null);
+            }
+
             // load the online data
             const loadOnlineData = async (): Promise<void> => {
                 setIsLoadingOnlineInProgress(true);
 
-                // check to see if we have cached  Online Offers. If we do, we don't need to retrieve them again for a week.
-                const onlineOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`);
-                if (marketplaceCache && onlineOffersCached !== null) {
-                    console.log('pre-emptively loading - online offers are cached');
-                    const cachedOnlineOffers = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`);
-                    setOnlineOfferList(cachedOnlineOffers);
-                    // increase the page number to the next page
-                    setOnlineOffersPageNumber(onlineOffersPageNumber + 1);
-
-                    setIsLoadingOnlineInProgress(false);
-                    (cachedOnlineOffers === null || cachedOnlineOffers.length === 0) && setNoOnlineOffersToLoad(true);
-                    (cachedOnlineOffers === null || cachedOnlineOffers.length < 100) && await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, null);
-                } else {
-                    console.log('pre-emptively loading - online offers are not cached');
-                    const additionalOnlineOffers = await retrieveOnlineOffersList(onlineOffersPageNumber, setOnlineOffersPageNumber);
+                const additionalOnlineOffers = await retrieveOnlineOffersList(onlineOffersPageNumber, setOnlineOffersPageNumber);
+                if (additionalOnlineOffers.length === 0) {
+                    setNoOnlineOffersToLoad(true);
                     setOnlineOfferList(oldOnlineOfferList => {
                         return [...oldOnlineOfferList, ...additionalOnlineOffers]
                     });
-                    setIsLoadingOnlineInProgress(false);
+                } else {
+                    setNoOnlineOffersToLoad(false);
+                    setOnlineOfferList(oldOnlineOfferList => {
+                        return [...oldOnlineOfferList, ...additionalOnlineOffers]
+                    });
                 }
+
+                setIsLoadingOnlineInProgress(false);
             }
             // load the premier online data
             const loadPremierOnlineData = async (): Promise<void> => {
                 setIsLoadingOnlineInProgress(true);
 
-                // check to see if we have cached  Online Offers. If we do, we don't need to retrieve them again for a week.
-                const onlineOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`);
-                if (marketplaceCache && onlineOffersCached !== null) {
-                    console.log('pre-emptively loading - online offers are cached');
-                    const cachedOnlineOffers = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`);
-                    setOnlineOfferList(cachedOnlineOffers);
-                    // increase the page number to the next page
-                    setOnlineOffersPageNumber(onlineOffersPageNumber + 1);
+                const premierOnlineOffers = await retrievePremierOnlineOffersList(premierOnlineOffersPageNumber, setPremierOnlineOffersPageNumber);
 
-                    setIsLoadingOnlineInProgress(false);
-                    (cachedOnlineOffers === null || cachedOnlineOffers.length === 0) && setNoPremierOnlineOffersToLoad(true);
-                    (cachedOnlineOffers === null || cachedOnlineOffers.length < PremierOnlineDevOfferIds.length) && await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, null);
+                if (premierOnlineOffers.length !== 0) {
+                    setNoPremierOnlineOffersToLoad(false);
+                    setOnlineOfferList(oldOnlineOfferList => {
+                        return [...premierOnlineOffers, ...oldOnlineOfferList]
+                    });
                 } else {
-                    console.log('pre-emptively loading - online offers are not cached');
-                    const premierOnlineOffers = await retrievePremierOnlineOffersList(premierOnlineOffersPageNumber, setPremierOnlineOffersPageNumber);
-
-                    if (premierOnlineOffers.length !== 0) {
-                        setOnlineOfferList(oldOnlineOfferList => {
-                            return [...oldOnlineOfferList, ...premierOnlineOffers]
-                        });
-                    } else {
-                        setNoPremierOnlineOffersToLoad(true);
-                        setOnlineOfferList(oldOnlineOfferList => {
-                            return [...oldOnlineOfferList, ...premierOnlineOffers]
-                        });
-                    }
-                    setIsLoadingOnlineInProgress(false);
+                    setNoPremierOnlineOffersToLoad(true);
+                    setOnlineOfferList(oldOnlineOfferList => {
+                        return [...premierOnlineOffers, ...oldOnlineOfferList]
+                    });
                 }
-            }
-            if (envInfo.envName === Stages.DEV) {
-                /**
-                 * pre-emptively load the premier online offers until we reach the expected premier
-                 * online offers number.
-                 */
-                !loadingOnlineInProgress && !noPremierOnlineOffersToLoad && onlineOfferList.length < PremierOnlineDevOfferIds.length && await loadPremierOnlineData();
-                /**
-                 * pre-emptively load online offers until we reach 100 online offers,
-                 * or until we run out of offers to load.
-                 */
-                !loadingOnlineInProgress && !noOnlineOffersToLoad &&
-                PremierOnlineDevOfferIds.length <= onlineOfferList.length && onlineOfferList.length < 100 && await loadOnlineData();
-            }
-            if (envInfo.envName === Stages.PROD) {
-                /**
-                 * pre-emptively load the premier online offers until we reach the expected premier
-                 * online offers number.
-                 */
-                !loadingOnlineInProgress && !noPremierOnlineOffersToLoad && onlineOfferList.length < PremierOnlineProdOfferIds.length && await loadPremierOnlineData();
-                /**
-                 * pre-emptively load online offers until we reach 100 online offers,
-                 * or until we run out of offers to load.
-                 */
-                !loadingOnlineInProgress && !noOnlineOffersToLoad &&
-                PremierOnlineProdOfferIds.length <= onlineOfferList.length && onlineOfferList.length < 100 && await loadOnlineData();
+                setIsLoadingOnlineInProgress(false);
+
             }
             /**
-             * do not cache online offers until we reach at least 100 offers,
+             * stop caching online offers until we reach at most 100 offers,
              * or until we run out of offers to load.
              */
-            if ((marketplaceCache && onlineOfferList.length >= 100) || (marketplaceCache && noOnlineOffersToLoad)) {
+            if ((marketplaceCache && onlineOfferList.length >= 20 && onlineOfferList.length < 100) || (marketplaceCache && noOnlineOffersToLoad)) {
                 marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`).then(onlineOffersCached => {
                     // check if there's really a need for caching
-                    if ((onlineOffersCached !== null && onlineOffersCached.length < onlineOfferList.length) || onlineOffersCached === null) {
+                    if (((onlineOffersCached !== null && onlineOffersCached.length < onlineOfferList.length) || onlineOffersCached === null)) {
                         console.log('Caching additional online offers');
                         marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, onlineOfferList);
                     }
@@ -309,15 +287,21 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
 
             // load the nearby offer data
             const loadNearbyData = async (): Promise<void> => {
+                setIsLoadingNearbyOffersInProgress(true);
                 const offersNearby = await
-                    retrieveOffersNearby(nearbyOffersPageNumber, setNearbyOffersPageNumber, userInformation, setOffersNearUserLocationFlag, marketplaceCache);
+                    retrieveOffersNearby(nearbyOffersPageNumber, setNearbyOffersPageNumber,
+                        premierNearbyOffersPageNumber, setPremierNearbyOffersPageNumber,
+                        userInformation, setOffersNearUserLocationFlag, marketplaceCache, currentUserLocation, setCurrentUserLocation);
                 if (offersNearby === null) {
+                    setIsLoadingNearbyOffersInProgress(false);
                     setNoNearbyOffersToLoad(true);
                     setLocationServicesButtonState(true);
                 } else if (offersNearby.length === 0) {
+                    setIsLoadingNearbyOffersInProgress(false);
                     setNoNearbyOffersToLoad(true);
                 } else {
-                    setNearbyOffersSpinnerShown(false);
+                    setNoNearbyOffersToLoad(false);
+                    setIsLoadingNearbyOffersInProgress(false);
                     setNearbyOfferList(oldNearbyOfferList => {
                         return [...oldNearbyOfferList, ...offersNearby]
                     });
@@ -325,60 +309,52 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             }
             // load the premier nearby offer data
             const loadPremierNearbyData = async (): Promise<void> => {
-                // setIsLoadingNearbyOffersInProgress(true);
-
+                setIsLoadingNearbyOffersInProgress(true);
                 const premierOffersNearby = await
-                    retrievePremierOffersNearby(premierNearbyOffersPageNumber, setPremierNearbyOffersPageNumber);
+                    retrievePremierOffersNearby(premierNearbyOffersPageNumber, setPremierNearbyOffersPageNumber, currentUserLocation, setCurrentUserLocation);
                 if (premierOffersNearby === null) {
-                    setPremierNearbyOffersLoadingStopped(true);
+                    setIsLoadingNearbyOffersInProgress(false);
                 } else if (premierOffersNearby.length === 0 || nearbyOfferList.length >= 1) {
-                    // only go up to one premier brand to show
-                    setPremierNearbyOffersLoadingStopped(true);
+                    setIsLoadingNearbyOffersInProgress(false);
                 } else {
+                    setNoNearbyOffersToLoad(false);
+                    setIsLoadingNearbyOffersInProgress(false);
                     setNearbyOfferList(oldNearbyOfferList => {
-                        return [...oldNearbyOfferList, ...premierOffersNearby]
+                        return [...premierOffersNearby, ...oldNearbyOfferList]
                     });
                 }
             }
             if (envInfo.envName === Stages.DEV) {
                 if (reloadNearbyDueToPermissionsChange) {
                     setNoNearbyOffersToLoad(false);
-                    setPremierNearbyOffersLoadingStopped(false);
                     setReloadNearbyDueToPermissionsChange(false);
                 }
 
                 /**
-                 * pre-emptively load the premier nearby offers until we reach the expected premier
-                 * nearby offers number or there's no premier nearby offers to load (due to location issues).
+                 * pre-emptively load nearby premier, nearby regular, online premier and online regular offers in parallel.
                  */
-                !noNearbyOffersToLoad && !premierNearbyOffersLoadingStopped && await loadPremierNearbyData();
-
-                /**
-                 * pre-emptively load nearby offers until we reach 100 nearby offers,
-                 * or until we run out of offers to load.
-                 */
-                !noNearbyOffersToLoad && premierNearbyOffersLoadingStopped &&
-                nearbyOfferList.length < 100 && await loadNearbyData();
+                await Promise.all([
+                    !loadingOnlineInProgress && !noPremierOnlineOffersToLoad && onlineOfferList.length < PremierOnlineProdOfferIds.length && loadPremierOnlineData(),
+                    !loadingOnlineInProgress && !noOnlineOffersToLoad && PremierOnlineProdOfferIds.length <= onlineOfferList.length && onlineOfferList.length < 100 && loadOnlineData(),
+                    !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && loadPremierNearbyData(),
+                    !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && nearbyOfferList.length < 100 && loadNearbyData()
+                ]);
             }
             if (envInfo.envName === Stages.PROD) {
                 if (reloadNearbyDueToPermissionsChange) {
                     setNoNearbyOffersToLoad(false);
-                    setPremierNearbyOffersLoadingStopped(false);
                     setReloadNearbyDueToPermissionsChange(false);
                 }
 
                 /**
-                 * pre-emptively load the premier nearby offers until we reach the expected premier
-                 * nearby offers number or there's no premier nearby offers to load (due to location issues).
+                 * pre-emptively load nearby premier, nearby regular, online premier and online regular offers in parallel.
                  */
-                !noNearbyOffersToLoad && !premierNearbyOffersLoadingStopped && await loadPremierNearbyData();
-
-                /**
-                 * pre-emptively load nearby offers until we reach 100 nearby offers,
-                 * or until we run out of offers to load.
-                 */
-                !noNearbyOffersToLoad && premierNearbyOffersLoadingStopped &&
-                nearbyOfferList.length < 100 && await loadNearbyData();
+                await Promise.all([
+                    !loadingOnlineInProgress && !noPremierOnlineOffersToLoad && loadPremierOnlineData(),
+                    !loadingOnlineInProgress && !noOnlineOffersToLoad && PremierOnlineProdOfferIds.length <= onlineOfferList.length && onlineOfferList.length < 100 && loadOnlineData(),
+                    !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && nearbyOfferList.length < 16 && loadPremierNearbyData(),
+                    !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && nearbyOfferList.length < 100 && loadNearbyData()
+                ]);
             }
             // /**
             //  * do not cache nearby offers until we reach at least 100 offers,
@@ -596,16 +572,6 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                                             } else {
                                                                 console.log('online offers are not cached');
                                                                 marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, await retrieveOnlineOffersList());
-                                                            }
-                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-offerNearUserHome`) !== null) {
-                                                                console.log('offers near user home are cached, needs cleaning up');
-                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-offerNearUserHome`);
-                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-offerNearUserHome`,
-                                                                    await retrieveOffersNearLocation(userInformation["address"]["formatted"]));
-                                                            } else {
-                                                                console.log('offers near user home are not cached');
-                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-offerNearUserHome`,
-                                                                    await retrieveOffersNearLocation(userInformation["address"]["formatted"]));
                                                             }
                                                             if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
                                                                 console.log('old profile picture is cached, needs cleaning up');

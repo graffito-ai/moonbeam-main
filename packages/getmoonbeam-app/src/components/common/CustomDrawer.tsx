@@ -115,6 +115,7 @@ import {
 } from "../../recoil/DashboardAtom";
 import {faqListState} from "../../recoil/FaqAtom";
 import {
+    currentUserLocationState,
     deviceTypeState,
     firstTimeLoggedInState,
     moonbeamUserIdPassState,
@@ -292,6 +293,8 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const searchQueryStateReset = useResetRecoilState(searchQueryState);
     const filteredByDiscountPressedStateReset = useResetRecoilState(filteredByDiscountPressedState);
     const filtersActiveStateReset = useResetRecoilState(filtersActiveState);
+    const currentUserLocationStateReset = useResetRecoilState(currentUserLocationState);
+
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
      * auth-related functionality for example), as well as any afferent API calls.
@@ -561,6 +564,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                         searchQueryStateReset();
                                         filteredByDiscountPressedStateReset();
                                         filtersActiveStateReset();
+                                        currentUserLocationStateReset();
 
                                         /**
                                          * ensure that the current user's biometric session is interrupted, and that the already signed in flag is reset

@@ -4,6 +4,7 @@ import {Construct} from "constructs";
 import path from "path";
 import {Constants} from "@moonbeam/moonbeam-models";
 import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
+import {Alias} from "aws-cdk-lib/aws-lambda";
 
 /**
  * File used to define the Transactions resolver stack, used by Amplify, as well
@@ -36,7 +37,13 @@ export class TransactionsResolverStack extends Stack {
                 sourceMapMode: aws_lambda_nodejs.SourceMapMode.BOTH, // defaults to SourceMapMode.DEFAULT
                 sourcesContent: false, // do not include original source into source map, defaults to true
                 target: 'esnext', // target environment for the generated JavaScript code
-            }
+            },
+            reservedConcurrentExecutions: 145
+        });
+        new Alias(this, `${props.transactionsConfig.transactionsFunctionName}-current-version-alias`, {
+            aliasName: `${props.transactionsConfig.transactionsFunctionName}-current-version-alias`,
+            version: transactionsLambda.currentVersion,
+            provisionedConcurrentExecutions: 3
         });
 
         // retrieve the GraphQL API created by the other stack

@@ -185,7 +185,7 @@ const resetSearchState = atom<boolean>({
  */
 const toggleViewPressedState = atom<'horizontal' | 'vertical' | null>({
     key: "toggleViewPressedState",
-    default: null
+    default: 'horizontal'
 });
 
 /**
@@ -193,7 +193,7 @@ const toggleViewPressedState = atom<'horizontal' | 'vertical' | null>({
  */
 const verticalSectionActiveState = atom<'fidelis' | 'online' | 'nearby' | null>({
     key: "verticalSectionActiveState",
-    default: null
+    default: 'online'
 });
 
 /**

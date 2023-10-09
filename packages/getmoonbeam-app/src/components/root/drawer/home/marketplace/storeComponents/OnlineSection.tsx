@@ -158,78 +158,80 @@ export const OnlineSection = (props: {
                 </View>
                 <Portal.Host>
                     <View style={{flexDirection: 'row', height: hp(30), width: wp(100)}}>
-                        <RecyclerListView
-                            // @ts-ignore
-                            ref={onlineListView}
-                            style={styles.onlineOffersScrollView}
-                            layoutProvider={layoutProvider!}
-                            dataProvider={dataProvider!}
-                            rowRenderer={renderRowData}
-                            isHorizontal={true}
-                            forceNonDeterministicRendering={true}
-                            renderFooter={() => {
-                                return (
-                                    horizontalListLoading || onlineOffersSpinnerShown ?
-                                        <>
-                                            <View
-                                                style={{width: wp(30)}}/>
-                                            <Card
-                                                style={styles.loadCard}>
-                                                <Card.Content>
-                                                    <View style={{flexDirection: 'column'}}>
-                                                        <View style={{
-                                                            flexDirection: 'row'
-                                                        }}>
-                                                            <View style={{top: hp(5)}}>
-                                                                <ActivityIndicator
-                                                                    style={{
-                                                                        top: hp(2),
-                                                                        left: wp(10)
-                                                                    }}
-                                                                    animating={true}
-                                                                    color={'#F2FF5D'}
-                                                                    size={hp(5)}
-                                                                />
+                        {
+                            dataProvider !== null && layoutProvider !== null &&
+                            <RecyclerListView
+                                // @ts-ignore
+                                ref={onlineListView}
+                                style={styles.onlineOffersScrollView}
+                                layoutProvider={layoutProvider!}
+                                dataProvider={dataProvider!}
+                                rowRenderer={renderRowData}
+                                isHorizontal={true}
+                                forceNonDeterministicRendering={true}
+                                renderFooter={() => {
+                                    return (
+                                        horizontalListLoading || onlineOffersSpinnerShown ?
+                                            <>
+                                                <View
+                                                    style={{width: wp(20)}}/>
+                                                <Card
+                                                    style={styles.loadCard}>
+                                                    <Card.Content>
+                                                        <View style={{flexDirection: 'column'}}>
+                                                            <View style={{
+                                                                flexDirection: 'row'
+                                                            }}>
+                                                                <View style={{top: hp(3)}}>
+                                                                    <ActivityIndicator
+                                                                        style={{
+                                                                            right: wp(15)
+                                                                        }}
+                                                                        animating={true}
+                                                                        color={'#F2FF5D'}
+                                                                        size={hp(5)}
+                                                                    />
 
+                                                                </View>
                                                             </View>
                                                         </View>
-                                                    </View>
-                                                </Card.Content>
-                                            </Card>
-                                        </> : <></>
-                                )
-                            }}
-                            {
-                                ...(Platform.OS === 'ios') ?
-                                    {onEndReachedThreshold: 0} :
-                                    {onEndReachedThreshold: 1}
-                            }
-                            onEndReached={async () => {
-                                console.log(`End of list reached. Trying to refresh more items.`);
-
-                                // if there are items to load
-                                if (!noOnlineOffersToLoad) {
-                                    // set the loader
-                                    setOnlineOffersSpinnerShown(true);
-                                    // retrieving more online offers
-                                    await props.retrieveOnlineOffersList();
-                                    setHorizontalListLoading(true);
-                                    // this makes the scrolling seem infinite - we artificially scroll up a little, so we have enough time to load
-                                    // @ts-ignore
-                                    onlineListView.current?.scrollToIndex(deDuplicatedOnlineOfferList.length - 5);
-                                } else {
-                                    console.log(`Maximum number of online offers reached ${deDuplicatedOnlineOfferList.length}`);
+                                                    </Card.Content>
+                                                </Card>
+                                            </> : <></>
+                                    )
+                                }}
+                                {
+                                    ...(Platform.OS === 'ios') ?
+                                        {onEndReachedThreshold: 0} :
+                                        {onEndReachedThreshold: 1}
                                 }
-                            }}
-                            scrollViewProps={{
-                                pagingEnabled: "true",
-                                decelerationRate: "fast",
-                                snapToInterval: wp(33) * 3,
-                                snapToAlignment: "center",
-                                persistentScrollbar: false,
-                                showsHorizontalScrollIndicator: false
-                            }}
-                        />
+                                onEndReached={async () => {
+                                    console.log(`End of list reached. Trying to refresh more items.`);
+
+                                    // if there are items to load
+                                    if (!noOnlineOffersToLoad) {
+                                        // set the loader
+                                        setOnlineOffersSpinnerShown(true);
+                                        // retrieving more online offers
+                                        await props.retrieveOnlineOffersList();
+                                        setHorizontalListLoading(true);
+                                        // this makes the scrolling seem infinite - we artificially scroll up a little, so we have enough time to load
+                                        // @ts-ignore
+                                        onlineListView.current?.scrollToIndex(deDuplicatedOnlineOfferList.length - 2);
+                                    } else {
+                                        console.log(`Maximum number of online offers reached ${deDuplicatedOnlineOfferList.length}`);
+                                    }
+                                }}
+                                scrollViewProps={{
+                                    pagingEnabled: "true",
+                                    decelerationRate: "fast",
+                                    snapToInterval: wp(33) * 3,
+                                    snapToAlignment: "center",
+                                    persistentScrollbar: false,
+                                    showsHorizontalScrollIndicator: false
+                                }}
+                            />
+                        }
                     </View>
                 </Portal.Host>
             </View>

@@ -8,7 +8,6 @@ import {Button, Dialog, Portal, Text} from 'react-native-paper';
 import {styles} from '../../../../../styles/store.module';
 import {Button as ModalButton} from '@rneui/base';
 import * as Location from "expo-location";
-import {LocationObject} from "expo-location";
 import {
     CountryCode,
     FidelisPartner,
@@ -50,6 +49,8 @@ import {
     reloadNearbyDueToPermissionsChangeState,
     toggleViewPressedState
 } from "../../../../../recoil/StoreOfferAtom";
+import {currentUserLocationState} from "../../../../../recoil/RootAtom";
+import {LocationObject} from "expo-location";
 
 /**
  * Store component.
@@ -71,6 +72,7 @@ export const Store = ({navigation}: StoreProps) => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [shouldCacheImages, setShouldCacheImages] = useState<boolean>(true);
     // constants used to keep track of shared states
+    const [currentUserLocation, setCurrentUserLocation] = useRecoilState(currentUserLocationState);
     const [toggleViewPressed,] = useRecoilState(toggleViewPressedState);
     const [, setNearbyOffersSpinnerShown] = useRecoilState(nearbyOffersSpinnerShownState);
     const [, setReloadNearbyDueToPermissionsChange] = useRecoilState(reloadNearbyDueToPermissionsChangeState);
@@ -247,7 +249,7 @@ export const Store = ({navigation}: StoreProps) => {
                             filterType: OfferFilter.Nearby,
                             offerStates: [OfferState.Active, OfferState.Scheduled],
                             pageNumber: nearbyOffersPageNumber,
-                            pageSize: 15, // load 15 offers
+                            pageSize: 15, // load 5 offers
                             radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
                             radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
                             radiusLatitude: geoLocation.latitude,
@@ -335,9 +337,13 @@ export const Store = ({navigation}: StoreProps) => {
                 console.log(errorMessage);
                 setLocationServicesButton(true);
             } else {
+                if (currentUserLocation === null) {
+                    const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
+                    setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getLastKnownPositionAsync());
+                }
+
                 // first retrieve the latitude and longitude of the current user
-                const currentUserLocation: LocationObject = await Location.getCurrentPositionAsync();
-                if (currentUserLocation && currentUserLocation.coords && currentUserLocation.coords.latitude && currentUserLocation.coords.longitude) {
+                if (currentUserLocation !== null && currentUserLocation.coords && currentUserLocation.coords.latitude && currentUserLocation.coords.longitude) {
                     // call the getOffers API
                     const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
                         getOffersInput: {
@@ -346,7 +352,7 @@ export const Store = ({navigation}: StoreProps) => {
                             filterType: OfferFilter.Nearby,
                             offerStates: [OfferState.Active, OfferState.Scheduled],
                             pageNumber: nearbyOffersPageNumber,
-                            pageSize: 15, // load 15 offers
+                            pageSize: 15, // load 5 offers
                             radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
                             radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
                             radiusLatitude: currentUserLocation.coords.latitude,
@@ -441,7 +447,7 @@ export const Store = ({navigation}: StoreProps) => {
         });
 
         // make sure to stop loading the store when we have a list of Fidelis partners and at least 7 online offers
-        if (fidelisPartnerList.length !== 0) {
+        if (fidelisPartnerList.length !== 0 && onlineOfferList.length !== 0) {
             // release the loader on button press
             !isReady && setIsReady(true);
         }

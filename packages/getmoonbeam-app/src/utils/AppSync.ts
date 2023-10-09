@@ -454,11 +454,14 @@ export const retrieveFidelisPartnerList = async (): Promise<FidelisPartner[]> =>
  * @param pageNumber parameter specifying a page number that we will get the nearby locations
  * from
  * @param setPageNumber setter or updater used to update the page number.
+ * @param currentUserLocation the current location object of the user
+ * @param setCurrentUserLocation setter or updates used to update the current user location if needed
  *
  * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function
  * will be used to get the list of offers nearby.
  */
-export const retrievePremierOffersNearby = async (pageNumber: number, setPageNumber: SetterOrUpdater<number>): Promise<Offer[] | null> => {
+export const retrievePremierOffersNearby = async (pageNumber: number, setPageNumber: SetterOrUpdater<number>, currentUserLocation: LocationObject | null,
+                                                  setCurrentUserLocation: SetterOrUpdater<LocationObject | null>): Promise<Offer[] | null> => {
     // result to return
     let nearbyOffers: Offer[] = [];
 
@@ -471,9 +474,13 @@ export const retrievePremierOffersNearby = async (pageNumber: number, setPageNum
 
             return null;
         } else {
+            if (currentUserLocation === null) {
+                const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
+                setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getLastKnownPositionAsync());
+            }
+
             // first retrieve the latitude and longitude of the current user
-            const currentUserLocation: LocationObject = await Location.getCurrentPositionAsync();
-            if (currentUserLocation && currentUserLocation.coords && currentUserLocation.coords.latitude && currentUserLocation.coords.longitude) {
+            if (currentUserLocation !== null && currentUserLocation.coords && currentUserLocation.coords.latitude && currentUserLocation.coords.longitude) {
                 // call the getOffers API
                 const premierNearbyOffersResult = await API.graphql(graphqlOperation(getPremierOffers, {
                     getOffersInput: {
@@ -502,9 +509,7 @@ export const retrievePremierOffersNearby = async (pageNumber: number, setPageNum
 
                     // ensure that there is at least one nearby offer in the list
                     if (nearbyOffers.length > 0) {
-                        // increase the page number
                         setPageNumber(pageNumber + 1);
-
                         // retrieve the array of nearby offers from the API call
                         return nearbyOffers;
                     } else {
@@ -533,19 +538,26 @@ export const retrievePremierOffersNearby = async (pageNumber: number, setPageNum
  * @param pageNumber parameter specifying a page number that we will get the nearby locations
  * from
  * @param setPageNumber setter or updater used to update the page number.
+ * @param premierPageNumber parameter specifying a page number that we will get the premier nearby locations
+ * from
+ * @param setPremierPageNumber setter or updater used to update the premier page number.
  * @param userInformation user information to be passed in, in case we need to fall back the
  * offers near a user's home location.
  * @param setOffersNearUserLocationFlag setter or updated used to update the flag indicating whether
  * the nearby offers are based on a user's geolocation or their home address.
  * @param marketplaceCache the marketplace cache to be passed in
- * @param userInformation relevant user information
+ * @param currentUserLocation the current location object of the user
+ * @param setCurrentUserLocation setter or updates used to update the current user location if needed
  *
  * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function
  * will be used to get the list of offers nearby.
  */
 export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: SetterOrUpdater<number>,
+                                           premierPageNumber: number, setPremierPageNumber: SetterOrUpdater<number>,
                                            userInformation: any, setOffersNearUserLocationFlag: SetterOrUpdater<boolean>,
-                                           marketplaceCache: typeof Cache | null): Promise<Offer[] | null> => {
+                                           marketplaceCache: typeof Cache | null,
+                                           currentUserLocation: LocationObject | null,
+                                           setCurrentUserLocation: SetterOrUpdater<LocationObject | null>): Promise<Offer[] | null> => {
     // result to return
     let nearbyOffers: Offer[] = [];
 
@@ -558,9 +570,13 @@ export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: Se
 
             return null;
         } else {
+            if (currentUserLocation === null) {
+                const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
+                setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getLastKnownPositionAsync());
+            }
+
             // first retrieve the latitude and longitude of the current user
-            const currentUserLocation: LocationObject = await Location.getCurrentPositionAsync();
-            if (currentUserLocation && currentUserLocation.coords && currentUserLocation.coords.latitude && currentUserLocation.coords.longitude) {
+            if (currentUserLocation !== null && currentUserLocation.coords && currentUserLocation.coords.latitude && currentUserLocation.coords.longitude) {
                 // call the getOffers API
                 const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
                     getOffersInput: {
@@ -569,7 +585,7 @@ export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: Se
                         filterType: OfferFilter.Nearby,
                         offerStates: [OfferState.Active, OfferState.Scheduled],
                         pageNumber: pageNumber,
-                        pageSize: 15, // load 15 offers
+                        pageSize: premierPageNumber === 1 ? 5 : 15, // for the first time load 5 and then load 15 at a time
                         radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
                         radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
                         radiusLatitude: currentUserLocation.coords.latitude,
@@ -589,9 +605,10 @@ export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: Se
 
                     // ensure that there is at least one nearby offer in the list
                     if (nearbyOffers.length > 0) {
-                        // increase the page number
-                        setPageNumber(pageNumber + 1);
-
+                        // increase the page number according to whether it's the first time loading these offers or not
+                        premierPageNumber === 1
+                            ? setPremierPageNumber(premierPageNumber + 1)
+                            : setPageNumber(pageNumber + 1);
                         // retrieve the array of nearby offers from the API call
                         return nearbyOffers;
                     } else {
@@ -599,7 +616,7 @@ export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: Se
                         // fall back to offers near their home address
                         return userInformation["address"] && userInformation["address"]["formatted"]
                             ? await retrieveOffersNearLocation(userInformation["address"]["formatted"], pageNumber,
-                                setPageNumber, setOffersNearUserLocationFlag, marketplaceCache, userInformation)
+                                setPageNumber, premierPageNumber, setPremierPageNumber, setOffersNearUserLocationFlag, marketplaceCache, userInformation)
                             : nearbyOffers;
                     }
                 } else {
@@ -621,7 +638,7 @@ export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: Se
             // fall back to offers near their home address
             return userInformation["address"] && userInformation["address"]["formatted"]
                 ? await retrieveOffersNearLocation(userInformation["address"]["formatted"], pageNumber,
-                    setPageNumber, setOffersNearUserLocationFlag, marketplaceCache, userInformation)
+                    setPageNumber, premierPageNumber, setPremierPageNumber, setOffersNearUserLocationFlag, marketplaceCache, userInformation)
                 : nearbyOffers;
         }
     }
@@ -635,6 +652,9 @@ export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: Se
  * @param pageNumber optional parameter specifying a page number that we will get the locations
  * near offers from, in case we are not using this for caching purposes
  * @param setPageNumber setter or updater used to update the page number, if passed in.
+ * @param premierPageNumber parameter specifying a page number that we will get the premier nearby locations
+ * from
+ * @param setPremierPageNumber setter or updater used to update the premier page number.
  * @param setOffersNearUserLocationFlag optional setter or updated used to update the flag indicating whether
  * the nearby offers are based on a user's geolocation or their home address.
  * @param marketplaceCache optional marketplace cache to be passed in
@@ -643,9 +663,10 @@ export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: Se
  * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function will
  * be used to get the list of offers near the user's home location.
  */
-export const retrieveOffersNearLocation = async (address: string, pageNumber?: number, setPageNumber?: SetterOrUpdater<number>,
-                                                 setOffersNearUserLocationFlag?: SetterOrUpdater<boolean>,
-                                                 marketplaceCache?: typeof Cache | null, userInformation?: any): Promise<Offer[]> => {
+const retrieveOffersNearLocation = async (address: string, pageNumber: number, setPageNumber: SetterOrUpdater<number>,
+                                                 premierPageNumber: number, setPremierPageNumber: SetterOrUpdater<number>,
+                                                 setOffersNearUserLocationFlag: SetterOrUpdater<boolean>,
+                                                 marketplaceCache: typeof Cache | null, userInformation: any): Promise<Offer[]> => {
     // result to return
     let nearbyOffers: Offer[] = [];
 
@@ -655,11 +676,10 @@ export const retrieveOffersNearLocation = async (address: string, pageNumber?: n
             console.log('offers near user home are cached');
 
             // increase the page number, if needed
-            pageNumber !== null && pageNumber !== undefined &&
-            setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
+            setPageNumber(pageNumber + 1);
 
             // set the nearby user location flag
-            setOffersNearUserLocationFlag !== null && setOffersNearUserLocationFlag !== undefined && setOffersNearUserLocationFlag(true);
+            setOffersNearUserLocationFlag(true);
 
             return await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-offerNearUserHome`);
         } else {
@@ -682,7 +702,7 @@ export const retrieveOffersNearLocation = async (address: string, pageNumber?: n
                         filterType: OfferFilter.Nearby,
                         offerStates: [OfferState.Active, OfferState.Scheduled],
                         pageNumber: pageNumber !== undefined ? pageNumber : 1, // cache the first page only, otherwise retrieve the appropriate page number
-                        pageSize: 15, // load 15 offers
+                        pageSize: premierPageNumber === 1 ? 5 : 15, // for the first time load 5 and then load 15 at a time
                         radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
                         radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
                         radiusLatitude: geoLocation.latitude,
@@ -705,12 +725,13 @@ export const retrieveOffersNearLocation = async (address: string, pageNumber?: n
                         // if the page number is 1, then cache the first page of offers near user home
                         pageNumber === 1 && marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-offerNearUserHome`, nearbyOffers);
 
-                        // increase the page number, if needed
-                        pageNumber !== null && pageNumber !== undefined &&
-                        setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
+                        // increase the page number according to whether it's the first time loading these offers or not
+                        premierPageNumber === 1
+                            ? setPremierPageNumber(premierPageNumber + 1)
+                            : setPageNumber(pageNumber + 1);
 
                         // set the nearby user location flag
-                        setOffersNearUserLocationFlag !== null && setOffersNearUserLocationFlag !== undefined && setOffersNearUserLocationFlag(true);
+                        setOffersNearUserLocationFlag(true);
 
                         return nearbyOffers;
                     } else {

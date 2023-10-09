@@ -56,7 +56,7 @@ export const VerticalOffers = (props: {
     // constants used to keep track of shared states
     const [filteredByDiscountPressed, setFilteredByDiscountPressed] = useRecoilState(filteredByDiscountPressedState);
     const [filtersActive, setAreFiltersActive] = useRecoilState(filtersActiveState);
-    const [toggleViewPressed,] = useRecoilState(toggleViewPressedState);
+    const [toggleViewPressed, ] = useRecoilState(toggleViewPressedState);
     const [searchQuery, setSearchQuery] = useRecoilState(searchQueryState);
     const [whichVerticalSectionActive, setWhichVerticalSectionActive] = useRecoilState(verticalSectionActiveState);
     const [resetSearch, setResetSearch] = useRecoilState(resetSearchState);
@@ -658,7 +658,7 @@ export const VerticalOffers = (props: {
             setVerticalListLoading(true);
             // this makes the scrolling seem infinite - we artificially scroll up a little, so we have enough time to load
             // @ts-ignore
-            onlineListView.current?.scrollToIndex(deDuplicatedOnlineOfferList.length - 5);
+            onlineListView.current?.scrollToIndex(deDuplicatedOnlineOfferList.length - 2);
         } else {
             console.log(`Maximum number of online offers reached ${deDuplicatedOnlineOfferList.length}`);
         }
@@ -678,7 +678,7 @@ export const VerticalOffers = (props: {
             setVerticalListLoading(true);
             // this makes the scrolling seem infinite - we artificially scroll up a little, so we have enough time to load
             // @ts-ignore
-            nearbyListView.current?.scrollToIndex(deDuplicatedNearbyOfferList.length - 5);
+            nearbyListView.current?.scrollToIndex(deDuplicatedNearbyOfferList.length - 2);
         } else {
             console.log(`Maximum number of nearby offers reached ${deDuplicatedNearbyOfferList.length}`);
         }
@@ -811,6 +811,7 @@ export const VerticalOffers = (props: {
                                         <>
                                             {
                                                 deDuplicatedOnlineOfferList.length !== 0 && whichVerticalSectionActive === 'online' &&
+                                                onlineDataProvider !== null && onlineLayoutProvider !== null &&
                                                 <>
                                                     <RecyclerListView
                                                         // @ts-ignore
@@ -893,6 +894,7 @@ export const VerticalOffers = (props: {
                                             }
                                             {
                                                 deDuplicatedNearbyOfferList.length !== 0 && whichVerticalSectionActive === 'nearby' &&
+                                                nearbyDataProvider !== null && nearbyLayoutProvider !== null &&
                                                 <RecyclerListView
                                                     // @ts-ignore
                                                     ref={nearbyListView}
@@ -973,6 +975,7 @@ export const VerticalOffers = (props: {
                                             }
                                             {
                                                 props.fidelisPartnerList.length !== 0 && whichVerticalSectionActive === 'fidelis' &&
+                                                fidelisDataProvider !== null && fidelisLayoutProvider !== null &&
                                                 <RecyclerListView
                                                     style={{flex: 1, height: hp(50), width: wp(100)}}
                                                     layoutProvider={fidelisLayoutProvider!}

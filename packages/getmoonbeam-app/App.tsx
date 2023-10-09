@@ -21,6 +21,7 @@ import {Platform, Text, TextInput, View} from "react-native";
 import * as Device from 'expo-device';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from 'expo-location';
+import {LocationObject} from 'expo-location';
 import {Image} from 'expo-image';
 import * as envInfo from "./local-env-info.json";
 import {Stages} from "@moonbeam/moonbeam-models";
@@ -107,6 +108,7 @@ export default function App() {
     theme.colors.onSurfaceVariant = '#FFFFFF';
 
     // constants used to keep track of local component state
+    const [currentUserLocation, setCurrentUserLocation] = useState<LocationObject | null>(null);
     const [marketplaceCache, setMarketplaceCache] = useState<typeof Cache | null>(null);
     const [cache, setCache] = useState<typeof Cache | null>(null);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
@@ -223,12 +225,26 @@ export default function App() {
                 // @ts-ignore
                 TextInput.defaultProps.allowFontScaling = false;
 
-                // tell the application to render
-                setAppIsReady(true);
-
                 // clear previous disk and memory images cache
                 await Image.clearDiskCache();
                 await Image.clearMemoryCache();
+
+                // set the current user's position accordingly
+                if (currentUserLocation === null) {
+                    const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
+                    if (foregroundPermissionStatus.status !== 'granted') {
+                        const errorMessage = `Permission to access location was not granted!`;
+                        console.log(errorMessage);
+
+                        setCurrentUserLocation(null);
+                    } else {
+                        const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
+                        setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getLastKnownPositionAsync());
+                    }
+                }
+
+                // tell the application to render
+                setAppIsReady(true);
 
                 return () => {
                     notificationListener.current && Notifications.removeNotificationSubscription(notificationListener.current!);
@@ -237,8 +253,9 @@ export default function App() {
             }
         }
         // prepare the app
-        prepare().then(() => {});
-    }, [lastNotificationResponse]);
+        prepare().then(() => {
+        });
+    }, [lastNotificationResponse, currentUserLocation]);
 
     /**
      * Invoked when the application is mounted and the layout changes
@@ -262,7 +279,7 @@ export default function App() {
             <RecoilRoot>
                 <PaperProvider theme={theme}>
                     <StatusBar style="light" animated={true}/>
-                    <View style={{ flex: 1, backgroundColor: '#313030' }}>
+                    <View style={{flex: 1, backgroundColor: '#313030'}}>
                         <NavigationContainer
                             fallback={
                                 <Spinner loadingSpinnerShown={loadingSpinnerShown}
@@ -281,6 +298,7 @@ export default function App() {
                                     initialParams={{
                                         marketplaceCache: marketplaceCache!,
                                         cache: cache!,
+                                        currentUserLocation: currentUserLocation,
                                         expoPushToken: expoPushToken,
                                         onLayoutRootView: onLayoutRootView
                                     }}
@@ -291,6 +309,7 @@ export default function App() {
                                     initialParams={{
                                         marketplaceCache: marketplaceCache!,
                                         cache: cache!,
+                                        currentUserLocation: currentUserLocation,
                                         expoPushToken: expoPushToken,
                                         onLayoutRootView: onLayoutRootView
                                     }}
