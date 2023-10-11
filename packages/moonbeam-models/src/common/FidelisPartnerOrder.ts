@@ -4,9 +4,11 @@
  * (this list needs to always be updated accordingly)
  */
 export const FidelisPartnerOrder: string[] = [
+    'Freedom Fatigues',
     'Crossed Sabers Coffee',
     'Patriot Shave',
     'Woobie Gear',
+    'Olde Man Granola',
     'Undaunted Arms',
     'BnB Knives',
     'Hemel Watches',
