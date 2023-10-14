@@ -4,13 +4,14 @@ import {
     CardLinkResponse, CardResponse,
     CreateCardLinkInput,
     DeleteCardInput, EligibleLinkedUsersResponse,
-    GetCardLinkInput
+    GetCardLinkInput, IneligibleLinkedUsersResponse
 } from "@moonbeam/moonbeam-models";
 import {createCardLink} from "./resolvers/CreateCardLinkResolver";
 import { deleteCard } from "./resolvers/DeleteCardResolver";
 import { getCardLink } from "./resolvers/GetCardLinkResolver";
 import {addCard} from "./resolvers/AddCardResolver";
 import { getEligibleLinkedUsers } from "./resolvers/GetEligibleLinkedUsersResolver";
+import {getUsersWithNoCards} from "./resolvers/GetUsersWithNoCardsResolver";
 
 /**
  * Mapping out the App Sync event type, so we can use it as a type in the Lambda Handler
@@ -36,9 +37,10 @@ type AppSyncEvent = {
  * depending on the AppSync field name.
  *
  * @param event AppSync event to be passed in the handler
- * @returns a {@link Promise} containing a {@link CardLinkResponse} or {@link CardResponse}
+ * @returns a {@link Promise} containing a {@link CardLinkResponse}, {@link CardResponse},
+ *          @link EligibleLinkedUsersResponse} or {@link IneligibleLinkedUsersResponse}.
  */
-exports.handler = async (event: AppSyncEvent): Promise<CardLinkResponse | CardResponse | EligibleLinkedUsersResponse> => {
+exports.handler = async (event: AppSyncEvent): Promise<CardLinkResponse | CardResponse | EligibleLinkedUsersResponse | IneligibleLinkedUsersResponse> => {
     console.log(`Received new storage event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
         case "addCard":
@@ -47,6 +49,8 @@ exports.handler = async (event: AppSyncEvent): Promise<CardLinkResponse | CardRe
             return await getCardLink(event.info.fieldName, event.arguments.getCardLinkInput);
         case "getEligibleLinkedUsers":
             return await getEligibleLinkedUsers(event.info.fieldName);
+        case 'getUsersWithNoCards':
+            return await getUsersWithNoCards(event.info.fieldName);
         case "createCardLink":
             return await createCardLink(event.info.fieldName, event.arguments.createCardLinkInput);
         case "deleteCard":

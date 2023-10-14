@@ -12,6 +12,23 @@ query GetUserAuthSession($getUserAuthSessionInput: GetUserAuthSessionInput!) {
         }
     }
 }
+query GetNotificationReminders {
+    getNotificationReminders {
+        errorMessage
+        errorType
+        data {
+            id
+            notificationReminderType
+            notificationReminderStatus
+            notificationReminderCadence
+            createdAt
+            updatedAt
+            nextTriggerAt
+            notificationChannelType
+            notificationReminderCount
+        }
+    }
+}
 query GetFAQs {
     getFAQs {
         errorMessage
@@ -295,34 +312,6 @@ query GetTransaction($getTransactionInput: GetTransactionInput!) {
         }
     }
 }
-query GetReimbursementByStatus($getReimbursementByStatusInput: GetReimbursementByStatusInput!) {
-    getReimbursementByStatus(getReimbursementByStatusInput: $getReimbursementByStatusInput) {
-        errorMessage
-        errorType
-        data {
-            id
-            timestamp
-            reimbursementId
-            clientId
-            paymentGatewayId
-            succeeded
-            processingMessage
-            cardId
-            reimbursementStatus
-            pendingCashbackAmount
-            creditedCashbackAmount
-            currencyCode
-            transactions {
-                id
-                timestamp
-                transactionId
-                transactionStatus
-            }
-            createdAt
-            updatedAt
-        }
-    }
-}
 query GetTransactionByStatus($getTransactionByStatusInput: GetTransactionByStatusInput!) {
     getTransactionByStatus(getTransactionByStatusInput: $getTransactionByStatusInput) {
         errorMessage
@@ -358,6 +347,16 @@ query GetCardLink($getCardLinkInput: GetCardLinkInput!) {
             createdAt
             updatedAt
             status
+        }
+    }
+}
+query GetUsersWithNoCards {
+    getUsersWithNoCards {
+        errorMessage
+        errorType
+        data {
+            id
+            email
         }
     }
 }

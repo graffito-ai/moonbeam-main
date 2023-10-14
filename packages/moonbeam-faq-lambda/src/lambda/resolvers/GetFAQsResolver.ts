@@ -28,8 +28,7 @@ export const getFAQs = async (fieldName: string): Promise<FaqResponse> => {
              * retrieve all the FAQs
              *
              * Limit of 1 MB per paginated response data, but we won't have that many FAQs anyway for now, which means that we won't
-             * need to do pagination here, since we actually retrieve all users in a looped format, and we account for
-             * paginated responses.
+             * need to do pagination here.
              *
              * @link {https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.Pagination.html}
              * @link {https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.html}
@@ -46,7 +45,7 @@ export const getFAQs = async (fieldName: string): Promise<FaqResponse> => {
 
         // if there are eligible users retrieved, then return them accordingly
         if (result && result.length !== 0) {
-            // convert the Dynamo DB data from Dynamo DB JSON format to an FAQ data format
+            // convert the Dynamo DB data from Dynamo DB JSON format to a FAQ data format
             const faqsData: Faq[] = [];
             result.forEach(faqResult => {
                 const facts: Fact[] = [];
@@ -77,7 +76,7 @@ export const getFAQs = async (fieldName: string): Promise<FaqResponse> => {
                 data: faqsData
             }
         } else {
-            const errorMessage = `No FAQs not found!`;
+            const errorMessage = `No FAQs found!`;
             console.log(errorMessage);
 
             return {

@@ -8,6 +8,7 @@ enum NotificationsErrorType {
 }
 
 enum NotificationType {
+    CARD_LINKING_REMINDER
     NEW_USER_SIGNUP
     QUALIFYING_OFFER
     MILITARY_STATUS_CHANGED_PENDING_TO_VERIFIED

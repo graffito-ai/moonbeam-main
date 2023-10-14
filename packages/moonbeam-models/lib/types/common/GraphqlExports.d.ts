@@ -156,35 +156,23 @@ export type CreateNotificationInput = {
     updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
     userFullName?: InputMaybe<Scalars['String']>;
 };
+export type CreateNotificationReminderInput = {
+    createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+    id?: InputMaybe<Scalars['ID']>;
+    nextTriggerAt?: InputMaybe<Scalars['AWSDateTime']>;
+    notificationChannelType: Array<InputMaybe<NotificationChannelType>>;
+    notificationReminderCadence: NotificationReminderCadence;
+    notificationReminderCount?: InputMaybe<Scalars['Int']>;
+    notificationReminderStatus: NotificationReminderStatus;
+    notificationReminderType: NotificationReminderType;
+    updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
 export type CreateNotificationResponse = {
     __typename?: 'CreateNotificationResponse';
     data?: Maybe<Notification>;
     errorMessage?: Maybe<Scalars['String']>;
     errorType?: Maybe<NotificationsErrorType>;
     id?: Maybe<Scalars['ID']>;
-};
-export type CreateReimbursementEligibilityInput = {
-    createdAt?: InputMaybe<Scalars['AWSDateTime']>;
-    eligibilityStatus: ReimbursementEligibilityStatus;
-    id: Scalars['ID'];
-    updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
-};
-export type CreateReimbursementInput = {
-    cardId: Scalars['ID'];
-    clientId?: InputMaybe<Scalars['ID']>;
-    createdAt?: InputMaybe<Scalars['AWSDateTime']>;
-    creditedCashbackAmount: Scalars['Float'];
-    currencyCode: CurrencyCodeType;
-    id: Scalars['ID'];
-    paymentGatewayId?: InputMaybe<Scalars['ID']>;
-    pendingCashbackAmount: Scalars['Float'];
-    processingMessage?: InputMaybe<Scalars['String']>;
-    reimbursementId: Scalars['ID'];
-    reimbursementStatus: ReimbursementStatus;
-    succeeded?: InputMaybe<Scalars['Boolean']>;
-    timestamp?: InputMaybe<Scalars['AWSTimestamp']>;
-    transactions: Array<InputMaybe<ReimbursementTransactionInput>>;
-    updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 export type CreateTransactionInput = {
     brandId: Scalars['ID'];
@@ -340,10 +328,6 @@ export type GetOffersInput = {
     radiusLongitude?: InputMaybe<Scalars['Float']>;
     redemptionType: RedemptionType;
 };
-export type GetReimbursementByStatusInput = {
-    id: Scalars['ID'];
-    reimbursementStatus: ReimbursementStatus;
-};
 export type GetStorageInput = {
     expires?: InputMaybe<Scalars['Boolean']>;
     id?: InputMaybe<Scalars['String']>;
@@ -362,6 +346,12 @@ export type GetTransactionInput = {
 };
 export type GetUserAuthSessionInput = {
     id: Scalars['ID'];
+};
+export type IneligibleLinkedUsersResponse = {
+    __typename?: 'IneligibleLinkedUsersResponse';
+    data?: Maybe<Array<Maybe<UserDetailsForNotificationReminder>>>;
+    errorMessage?: Maybe<Scalars['String']>;
+    errorType?: Maybe<CardLinkErrorType>;
 };
 export type Member = {
     __typename?: 'Member';
@@ -528,15 +518,12 @@ export type Mutation = {
     createFAQ: FaqResponse;
     createMilitaryVerification: CreateMilitaryVerificationResponse;
     createNotification: CreateNotificationResponse;
-    createReimbursement: ReimbursementResponse;
-    createReimbursementEligibility: ReimbursementEligibilityResponse;
+    createNotificationReminder: NotificationReminderResponse;
     createTransaction: MoonbeamTransactionResponse;
     createUserAuthSession: UserAuthSessionResponse;
     deleteCard: CardResponse;
     updateDevice: UserDeviceResponse;
     updateMilitaryVerificationStatus: UpdateMilitaryVerificationResponse;
-    updateReimbursement: ReimbursementResponse;
-    updateReimbursementEligibility: ReimbursementEligibilityResponse;
     updateTransaction: MoonbeamUpdatedTransactionResponse;
     updateUserAuthSession: UserAuthSessionResponse;
 };
@@ -558,11 +545,8 @@ export type MutationCreateMilitaryVerificationArgs = {
 export type MutationCreateNotificationArgs = {
     createNotificationInput: CreateNotificationInput;
 };
-export type MutationCreateReimbursementArgs = {
-    createReimbursementInput: CreateReimbursementInput;
-};
-export type MutationCreateReimbursementEligibilityArgs = {
-    createReimbursementEligibilityInput: CreateReimbursementEligibilityInput;
+export type MutationCreateNotificationReminderArgs = {
+    createNotificationReminderInput: CreateNotificationReminderInput;
 };
 export type MutationCreateTransactionArgs = {
     createTransactionInput: CreateTransactionInput;
@@ -578,12 +562,6 @@ export type MutationUpdateDeviceArgs = {
 };
 export type MutationUpdateMilitaryVerificationStatusArgs = {
     updateMilitaryVerificationInput: UpdateMilitaryVerificationInput;
-};
-export type MutationUpdateReimbursementArgs = {
-    updateReimbursementInput: UpdateReimbursementInput;
-};
-export type MutationUpdateReimbursementEligibilityArgs = {
-    updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput;
 };
 export type MutationUpdateTransactionArgs = {
     updateTransactionInput: UpdateTransactionInput;
@@ -613,6 +591,44 @@ export declare enum NotificationChannelType {
     Push = "PUSH",
     Sms = "SMS"
 }
+export type NotificationReminder = {
+    __typename?: 'NotificationReminder';
+    createdAt: Scalars['AWSDateTime'];
+    id: Scalars['ID'];
+    nextTriggerAt: Scalars['AWSDateTime'];
+    notificationChannelType: Array<Maybe<NotificationChannelType>>;
+    notificationReminderCadence: NotificationReminderCadence;
+    notificationReminderCount: Scalars['Int'];
+    notificationReminderStatus: NotificationReminderStatus;
+    notificationReminderType: NotificationReminderType;
+    updatedAt: Scalars['AWSDateTime'];
+};
+export declare enum NotificationReminderCadence {
+    BiWeekly = "BI_WEEKLY",
+    Daily = "DAILY",
+    Monthly = "MONTHLY",
+    OneTime = "ONE_TIME",
+    Weekly = "WEEKLY"
+}
+export declare enum NotificationReminderErrorType {
+    DuplicateObjectFound = "DUPLICATE_OBJECT_FOUND",
+    NoneOrAbsent = "NONE_OR_ABSENT",
+    UnexpectedError = "UNEXPECTED_ERROR",
+    ValidationError = "VALIDATION_ERROR"
+}
+export type NotificationReminderResponse = {
+    __typename?: 'NotificationReminderResponse';
+    data?: Maybe<Array<Maybe<NotificationReminder>>>;
+    errorMessage?: Maybe<Scalars['String']>;
+    errorType?: Maybe<NotificationReminderErrorType>;
+};
+export declare enum NotificationReminderStatus {
+    Active = "ACTIVE",
+    Inactive = "INACTIVE"
+}
+export declare enum NotificationReminderType {
+    CardLinkingReminder = "CARD_LINKING_REMINDER"
+}
 export type NotificationResponse = {
     __typename?: 'NotificationResponse';
     errorMessage?: Maybe<Scalars['String']>;
@@ -624,6 +640,7 @@ export declare enum NotificationStatus {
     Sent = "SENT"
 }
 export declare enum NotificationType {
+    CardLinkingReminder = "CARD_LINKING_REMINDER",
     EligibleForReimbursement = "ELIGIBLE_FOR_REIMBURSEMENT",
     ExpirationLinkedCardNotice = "EXPIRATION_LINKED_CARD_NOTICE",
     ExpiredLinkedCard = "EXPIRED_LINKED_CARD",
@@ -755,13 +772,14 @@ export type Query = {
     getFAQs: FaqResponse;
     getFidelisPartners: FidelisPartnerResponse;
     getMilitaryVerificationStatus: GetMilitaryVerificationResponse;
+    getNotificationReminders: NotificationReminderResponse;
     getOffers: OffersResponse;
     getPremierOffers: OffersResponse;
-    getReimbursementByStatus: ReimbursementByStatusResponse;
     getStorage: StorageResponse;
     getTransaction: MoonbeamTransactionsResponse;
     getTransactionByStatus: MoonbeamTransactionsByStatusResponse;
     getUserAuthSession: UserAuthSessionResponse;
+    getUsersWithNoCards: IneligibleLinkedUsersResponse;
 };
 export type QueryGetCardLinkArgs = {
     getCardLinkInput: GetCardLinkInput;
@@ -784,9 +802,6 @@ export type QueryGetOffersArgs = {
 export type QueryGetPremierOffersArgs = {
     getOffersInput: GetOffersInput;
 };
-export type QueryGetReimbursementByStatusArgs = {
-    getReimbursementByStatusInput: GetReimbursementByStatusInput;
-};
 export type QueryGetStorageArgs = {
     getStorageInput: GetStorageInput;
 };
@@ -808,80 +823,6 @@ export declare enum RedemptionType {
     Cardlinked = "cardlinked",
     Click = "click",
     Mobile = "mobile"
-}
-export type Reimbursement = {
-    __typename?: 'Reimbursement';
-    cardId: Scalars['ID'];
-    clientId?: Maybe<Scalars['ID']>;
-    createdAt: Scalars['AWSDateTime'];
-    creditedCashbackAmount: Scalars['Float'];
-    currencyCode: CurrencyCodeType;
-    id: Scalars['ID'];
-    paymentGatewayId?: Maybe<Scalars['ID']>;
-    pendingCashbackAmount: Scalars['Float'];
-    processingMessage?: Maybe<Scalars['String']>;
-    reimbursementId: Scalars['ID'];
-    reimbursementStatus: ReimbursementStatus;
-    succeeded?: Maybe<Scalars['Boolean']>;
-    timestamp: Scalars['AWSTimestamp'];
-    transactions: Array<Maybe<ReimbursementTransaction>>;
-    updatedAt: Scalars['AWSDateTime'];
-};
-export type ReimbursementByStatusResponse = {
-    __typename?: 'ReimbursementByStatusResponse';
-    data?: Maybe<Array<Maybe<Reimbursement>>>;
-    errorMessage?: Maybe<Scalars['String']>;
-    errorType?: Maybe<ReimbursementsErrorType>;
-};
-export type ReimbursementEligibility = {
-    __typename?: 'ReimbursementEligibility';
-    createdAt?: Maybe<Scalars['AWSDateTime']>;
-    eligibilityStatus: ReimbursementEligibilityStatus;
-    id: Scalars['ID'];
-    updatedAt: Scalars['AWSDateTime'];
-};
-export type ReimbursementEligibilityResponse = {
-    __typename?: 'ReimbursementEligibilityResponse';
-    data?: Maybe<ReimbursementEligibility>;
-    errorMessage?: Maybe<Scalars['String']>;
-    errorType?: Maybe<ReimbursementsErrorType>;
-    id?: Maybe<Scalars['ID']>;
-};
-export declare enum ReimbursementEligibilityStatus {
-    Eligible = "ELIGIBLE",
-    Ineligible = "INELIGIBLE"
-}
-export type ReimbursementResponse = {
-    __typename?: 'ReimbursementResponse';
-    data?: Maybe<Reimbursement>;
-    errorMessage?: Maybe<Scalars['String']>;
-    errorType?: Maybe<ReimbursementsErrorType>;
-    id?: Maybe<Scalars['ID']>;
-};
-export declare enum ReimbursementStatus {
-    Failed = "FAILED",
-    Pending = "PENDING",
-    Processed = "PROCESSED"
-}
-export type ReimbursementTransaction = {
-    __typename?: 'ReimbursementTransaction';
-    id: Scalars['ID'];
-    timestamp: Scalars['AWSTimestamp'];
-    transactionId: Scalars['ID'];
-    transactionStatus: TransactionsStatus;
-};
-export type ReimbursementTransactionInput = {
-    id: Scalars['ID'];
-    timestamp: Scalars['AWSTimestamp'];
-    transactionId: Scalars['ID'];
-    transactionStatus: TransactionsStatus;
-};
-export declare enum ReimbursementsErrorType {
-    DuplicateObjectFound = "DUPLICATE_OBJECT_FOUND",
-    NoneOrAbsent = "NONE_OR_ABSENT",
-    UnexpectedError = "UNEXPECTED_ERROR",
-    Unprocessable = "UNPROCESSABLE",
-    ValidationError = "VALIDATION_ERROR"
 }
 export type RemoveCardResponse = {
     __typename?: 'RemoveCardResponse';
@@ -1013,24 +954,6 @@ export type UpdateMilitaryVerificationResponse = {
     id?: Maybe<Scalars['ID']>;
     militaryVerificationStatus?: Maybe<MilitaryVerificationStatusType>;
 };
-export type UpdateReimbursementEligibilityInput = {
-    eligibilityStatus: ReimbursementEligibilityStatus;
-    id: Scalars['ID'];
-    updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
-};
-export type UpdateReimbursementInput = {
-    clientId?: InputMaybe<Scalars['ID']>;
-    creditedCashbackAmount?: InputMaybe<Scalars['Float']>;
-    id: Scalars['ID'];
-    paymentGatewayId?: InputMaybe<Scalars['ID']>;
-    pendingCashbackAmount?: InputMaybe<Scalars['Float']>;
-    processingMessage?: InputMaybe<Scalars['String']>;
-    reimbursementStatus?: InputMaybe<ReimbursementStatus>;
-    succeeded?: InputMaybe<Scalars['Boolean']>;
-    timestamp: Scalars['AWSTimestamp'];
-    transactions?: InputMaybe<Array<InputMaybe<ReimbursementTransactionInput>>>;
-    updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
-};
 export type UpdateTransactionEventTransactionData = {
     __typename?: 'UpdateTransactionEventTransactionData';
     amount?: Maybe<Scalars['Float']>;
@@ -1101,6 +1024,11 @@ export type UserAuthSessionResponse = {
     errorMessage?: Maybe<Scalars['String']>;
     errorType?: Maybe<UserAuthSessionErrorType>;
 };
+export type UserDetailsForNotificationReminder = {
+    __typename?: 'UserDetailsForNotificationReminder';
+    email: Scalars['String'];
+    id: Scalars['ID'];
+};
 export declare enum UserDeviceErrorType {
     DuplicateObjectFound = "DUPLICATE_OBJECT_FOUND",
     NoneOrAbsent = "NONE_OR_ABSENT",
@@ -1122,6 +1050,35 @@ export type UserDevicesResponse = {
     data?: Maybe<Array<Maybe<PushDevice>>>;
     errorMessage?: Maybe<Scalars['String']>;
     errorType?: Maybe<UserDeviceErrorType>;
+};
+export type UserForNotificationReminderResponse = {
+    __typename?: 'UserForNotificationReminderResponse';
+    data?: Maybe<Array<Maybe<UserDetailsForNotificationReminder>>>;
+    errorMessage?: Maybe<Scalars['String']>;
+    errorType?: Maybe<NotificationReminderErrorType>;
+};
+export type CreateNotificationReminderMutationVariables = Exact<{
+    createNotificationReminderInput: CreateNotificationReminderInput;
+}>;
+export type CreateNotificationReminderMutation = {
+    __typename?: 'Mutation';
+    createNotificationReminder: {
+        __typename?: 'NotificationReminderResponse';
+        errorMessage?: string | null;
+        errorType?: NotificationReminderErrorType | null;
+        data?: Array<{
+            __typename?: 'NotificationReminder';
+            id: string;
+            notificationReminderType: NotificationReminderType;
+            notificationReminderStatus: NotificationReminderStatus;
+            notificationReminderCadence: NotificationReminderCadence;
+            createdAt: string;
+            updatedAt: string;
+            nextTriggerAt: string;
+            notificationChannelType: Array<NotificationChannelType | null>;
+            notificationReminderCount: number;
+        } | null> | null;
+    };
 };
 export type CreateUserAuthSessionMutationVariables = Exact<{
     createUserAuthSessionInput: CreateUserAuthSessionInput;
@@ -1246,115 +1203,6 @@ export type CreateNotificationMutation = {
             actionUrl?: string | null;
             createdAt: string;
             updatedAt: string;
-        } | null;
-    };
-};
-export type CreateReimbursementEligibilityMutationVariables = Exact<{
-    createReimbursementEligibilityInput: CreateReimbursementEligibilityInput;
-}>;
-export type CreateReimbursementEligibilityMutation = {
-    __typename?: 'Mutation';
-    createReimbursementEligibility: {
-        __typename?: 'ReimbursementEligibilityResponse';
-        errorType?: ReimbursementsErrorType | null;
-        errorMessage?: string | null;
-        id?: string | null;
-        data?: {
-            __typename?: 'ReimbursementEligibility';
-            id: string;
-            eligibilityStatus: ReimbursementEligibilityStatus;
-            createdAt?: string | null;
-            updatedAt: string;
-        } | null;
-    };
-};
-export type UpdateReimbursementEligibilityMutationVariables = Exact<{
-    updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput;
-}>;
-export type UpdateReimbursementEligibilityMutation = {
-    __typename?: 'Mutation';
-    updateReimbursementEligibility: {
-        __typename?: 'ReimbursementEligibilityResponse';
-        errorType?: ReimbursementsErrorType | null;
-        errorMessage?: string | null;
-        id?: string | null;
-        data?: {
-            __typename?: 'ReimbursementEligibility';
-            id: string;
-            eligibilityStatus: ReimbursementEligibilityStatus;
-            updatedAt: string;
-        } | null;
-    };
-};
-export type CreateReimbursementMutationVariables = Exact<{
-    createReimbursementInput: CreateReimbursementInput;
-}>;
-export type CreateReimbursementMutation = {
-    __typename?: 'Mutation';
-    createReimbursement: {
-        __typename?: 'ReimbursementResponse';
-        errorType?: ReimbursementsErrorType | null;
-        errorMessage?: string | null;
-        id?: string | null;
-        data?: {
-            __typename?: 'Reimbursement';
-            id: string;
-            timestamp: number;
-            reimbursementId: string;
-            clientId?: string | null;
-            paymentGatewayId?: string | null;
-            succeeded?: boolean | null;
-            processingMessage?: string | null;
-            cardId: string;
-            reimbursementStatus: ReimbursementStatus;
-            pendingCashbackAmount: number;
-            creditedCashbackAmount: number;
-            currencyCode: CurrencyCodeType;
-            createdAt: string;
-            updatedAt: string;
-            transactions: Array<{
-                __typename?: 'ReimbursementTransaction';
-                id: string;
-                timestamp: number;
-                transactionId: string;
-                transactionStatus: TransactionsStatus;
-            } | null>;
-        } | null;
-    };
-};
-export type UpdateReimbursementMutationVariables = Exact<{
-    updateReimbursementInput: UpdateReimbursementInput;
-}>;
-export type UpdateReimbursementMutation = {
-    __typename?: 'Mutation';
-    updateReimbursement: {
-        __typename?: 'ReimbursementResponse';
-        errorType?: ReimbursementsErrorType | null;
-        errorMessage?: string | null;
-        id?: string | null;
-        data?: {
-            __typename?: 'Reimbursement';
-            id: string;
-            timestamp: number;
-            reimbursementId: string;
-            clientId?: string | null;
-            paymentGatewayId?: string | null;
-            succeeded?: boolean | null;
-            processingMessage?: string | null;
-            cardId: string;
-            reimbursementStatus: ReimbursementStatus;
-            pendingCashbackAmount: number;
-            creditedCashbackAmount: number;
-            currencyCode: CurrencyCodeType;
-            createdAt: string;
-            updatedAt: string;
-            transactions: Array<{
-                __typename?: 'ReimbursementTransaction';
-                id: string;
-                timestamp: number;
-                transactionId: string;
-                transactionStatus: TransactionsStatus;
-            } | null>;
         } | null;
     };
 };
@@ -1548,6 +1396,29 @@ export type GetUserAuthSessionQuery = {
             updatedAt: string;
             numberOfSessions: number;
         } | null;
+    };
+};
+export type GetNotificationRemindersQueryVariables = Exact<{
+    [key: string]: never;
+}>;
+export type GetNotificationRemindersQuery = {
+    __typename?: 'Query';
+    getNotificationReminders: {
+        __typename?: 'NotificationReminderResponse';
+        errorMessage?: string | null;
+        errorType?: NotificationReminderErrorType | null;
+        data?: Array<{
+            __typename?: 'NotificationReminder';
+            id: string;
+            notificationReminderType: NotificationReminderType;
+            notificationReminderStatus: NotificationReminderStatus;
+            notificationReminderCadence: NotificationReminderCadence;
+            createdAt: string;
+            updatedAt: string;
+            nextTriggerAt: string;
+            notificationChannelType: Array<NotificationChannelType | null>;
+            notificationReminderCount: number;
+        } | null> | null;
     };
 };
 export type GetFaQsQueryVariables = Exact<{
@@ -1894,41 +1765,6 @@ export type GetTransactionQuery = {
         } | null> | null;
     };
 };
-export type GetReimbursementByStatusQueryVariables = Exact<{
-    getReimbursementByStatusInput: GetReimbursementByStatusInput;
-}>;
-export type GetReimbursementByStatusQuery = {
-    __typename?: 'Query';
-    getReimbursementByStatus: {
-        __typename?: 'ReimbursementByStatusResponse';
-        errorMessage?: string | null;
-        errorType?: ReimbursementsErrorType | null;
-        data?: Array<{
-            __typename?: 'Reimbursement';
-            id: string;
-            timestamp: number;
-            reimbursementId: string;
-            clientId?: string | null;
-            paymentGatewayId?: string | null;
-            succeeded?: boolean | null;
-            processingMessage?: string | null;
-            cardId: string;
-            reimbursementStatus: ReimbursementStatus;
-            pendingCashbackAmount: number;
-            creditedCashbackAmount: number;
-            currencyCode: CurrencyCodeType;
-            createdAt: string;
-            updatedAt: string;
-            transactions: Array<{
-                __typename?: 'ReimbursementTransaction';
-                id: string;
-                timestamp: number;
-                transactionId: string;
-                transactionStatus: TransactionsStatus;
-            } | null>;
-        } | null> | null;
-    };
-};
 export type GetTransactionByStatusQueryVariables = Exact<{
     getTransactionByStatusInput: GetTransactionByStatusInput;
 }>;
@@ -1978,6 +1814,22 @@ export type GetCardLinkQuery = {
                 additionalProgramID?: string | null;
             } | null>;
         } | null;
+    };
+};
+export type GetUsersWithNoCardsQueryVariables = Exact<{
+    [key: string]: never;
+}>;
+export type GetUsersWithNoCardsQuery = {
+    __typename?: 'Query';
+    getUsersWithNoCards: {
+        __typename?: 'IneligibleLinkedUsersResponse';
+        errorMessage?: string | null;
+        errorType?: CardLinkErrorType | null;
+        data?: Array<{
+            __typename?: 'UserDetailsForNotificationReminder';
+            id: string;
+            email: string;
+        } | null> | null;
     };
 };
 export type GetEligibleLinkedUsersQueryVariables = Exact<{

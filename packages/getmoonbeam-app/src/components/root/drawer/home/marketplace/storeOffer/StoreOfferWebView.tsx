@@ -42,7 +42,7 @@ export const StoreOfferWebView = ({navigation}: StoreOfferWebViewProps) => {
             ? (storeOfferClicked!.brandWebsite ? setInitialOfferWebsite(`${storeOfferClicked!.brandWebsite!}`) : setInitialOfferWebsite(`https://www.google.com/search?q=${storeOfferClicked!.brandDba!}`))
             // @ts-ignore
             : (storeOfferClicked!.offers![0].brandWebsite ? setInitialOfferWebsite(`${storeOfferClicked!.offers![0].brandWebsite!}`) : setInitialOfferWebsite(`https://www.google.com/search?q=${storeOfferClicked!.offers![0].brandDba!}`))
-    }, []);
+    }, [storeOfferClicked]);
 
     // return the component for the StoreOfferWebView page
     return (

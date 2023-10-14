@@ -34,7 +34,6 @@ export class APIGatewayServiceStack extends Stack {
         & {
         transactionsProducerLambda: aws_lambda_nodejs.NodejsFunction,
         updatedTransactionsProducerLambda: aws_lambda_nodejs.NodejsFunction,
-        reimbursementsProducerLambda: aws_lambda_nodejs.NodejsFunction,
         militaryVerificationNotificationProducerLambda: aws_lambda_nodejs.NodejsFunction
     }) {
         super(scope, id, props);
@@ -112,25 +111,6 @@ export class APIGatewayServiceStack extends Stack {
             }
         });
 
-        // create a new API Integration for reimbursements
-        const postReimbursementsIntegration = new aws_apigateway.LambdaIntegration(props.reimbursementsProducerLambda, {
-            allowTestInvoke: true,
-            timeout: Duration.seconds(29)
-        });
-        /**
-         * create a new POST method for the API/Lambda integration, used for posting reimbursements.
-         * This method will be secured via an API key
-         */
-        const reimbursementsAcknowledgmentMethod = new Method(this, `${props.apiGatewayServiceConfig.reimbursementsAcknowledgmentMethodName}-${props.stage}-${props.env!.region}`, {
-            httpMethod: "POST",
-            resource: cardLinkingServiceAPI.root.addResource(`${props.apiGatewayServiceConfig.reimbursementsAcknowledgmentMethodName}`),
-            integration: postReimbursementsIntegration,
-            options: {
-                apiKeyRequired: true,
-                operationName: props.apiGatewayServiceConfig.reimbursementsAcknowledgmentMethodName
-            }
-        });
-
         // create a new API Integration for military verification updates/notifications
         const postMilitaryVerificationUpdatesIntegration = new aws_apigateway.LambdaIntegration(props.militaryVerificationNotificationProducerLambda, {
             allowTestInvoke: true,
@@ -191,13 +171,6 @@ export class APIGatewayServiceStack extends Stack {
                          * ToDo: in the future if we create new methods we will need to configure them here
                          *       individually.
                          */
-                        {
-                            method: reimbursementsAcknowledgmentMethod,
-                            throttle: {
-                                burstLimit: 0,
-                                rateLimit: 0
-                            }
-                        },
                         {
                             method: transactionAcknowledgmentMethod,
                             throttle: {

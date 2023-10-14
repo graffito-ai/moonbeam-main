@@ -1,7 +1,4 @@
 {
-  "moonbeam-reimbursements-producer-consumer-dev-us-west-2": {
-    "ExportsOutputFnGetAttreimbursementsProducerLambdaFunctiondevuswest2DB7F1EB3Arn62C47033": "arn:aws:lambda:us-west-2:963863720257:function:reimbursementsProducerLambdaFunction-dev-us-west-2"
-  },
   "moonbeam-amplify-dev-us-west-2": {
     "awsuserpoolsid": "us-west-2_BqfrkmwCl",
     "amplifyappid": "d2stwa4uvnrd85",

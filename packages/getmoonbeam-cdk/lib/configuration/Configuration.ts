@@ -50,7 +50,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 createCardLinkResolverName: 'createCardLink',
                 deleteCardResolverName: 'deleteCard',
                 addCardResolverName: 'addCard',
-                getEligibleLinkedUsersResolverName: 'getEligibleLinkedUsers'
+                getEligibleLinkedUsersResolverName: 'getEligibleLinkedUsers',
+                getUsersWithNoCardsResolverName: 'getUsersWithNoCards'
             },
             apiGatewayServiceConfig: {
                 cardLinkingServiceAPIName: 'cardLinkingServiceAPI',
@@ -63,34 +64,6 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 updatedTransactionsAcknowledgmentMethodName: `updatedTransactionsAcknowledgment`,
                 reimbursementsAcknowledgmentMethodName: `reimbursementsAcknowledgment`,
                 militaryVerificationUpdatesAcknowledgmentMethodName: `militaryVerificationUpdatesAcknowledgment`
-            },
-            reimbursementsProducerConsumerConfig: {
-                reimbursementsProducerFunctionName: 'reimbursementsProducerLambdaFunction',
-                reimbursementsConsumerFunctionName: 'reimbursementsConsumerLambdaFunction',
-                reimbursementsCronRuleName: 'reimbursementsCronRule',
-                reimbursementsCronTriggerFunctionName: 'reimbursementsCronTriggerFunction',
-                reimbursementsFanOutConfig: {
-                    reimbursementsProcessingTopicName: 'reimbursementsProcessingTopic',
-                    reimbursementsProcessingQueueName: 'reimbursementsProcessingQueue',
-                    reimbursementsProcessingDLQName: 'reimbursementsProcessingDLQ',
-                    reimbursementsProcessingTopicDLQName: 'reimbursementsProcessingTopicDLQ',
-                    reimbursementsProcessingEventSourceMapping: 'reimbursementsProcessingEventSourceMapping'
-                }
-            },
-            reimbursementsConfig: {
-                reimbursementsFunctionName: 'reimbursementsLambdaFunction',
-                reimbursementsTableName: 'reimbursementsTable',
-                reimbursementsIdGlobalIndex: 'reimbursementsIdGlobalIndex',
-                reimbursementsStatusLocalIndex: 'reimbursementsStatusLocalIndex',
-                createReimbursementResolverName: 'createReimbursement',
-                updateReimbursementResolverName: 'updateReimbursement',
-                getReimbursementByStatusResolverName: 'getReimbursementByStatus'
-            },
-            reimbursementEligibilityConfig: {
-                reimbursementEligibilityFunctionName: 'reimbursementEligibilityLambdaFunction',
-                reimbursementEligibilityTableName: 'reimbursementEligibilityTable',
-                createReimbursementEligibilityResolverName: 'createReimbursementEligibility',
-                updateReimbursementEligibilityResolverName: 'updateReimbursementEligibility'
             },
             transactionsProducerConsumerConfig: {
                 transactionsProducerFunctionName: 'transactionsProducerLambdaFunction',
@@ -181,6 +154,12 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 updateUserAuthSessionResolverName: 'updateUserAuthSession',
                 getUserAuthSessionResolverName: 'getUserAuthSession'
             },
+            notificationReminderConfig: {
+                notificationReminderFunctionName: 'notificationReminderFunction',
+                notificationReminderTableName: 'notificationReminderTable',
+                createNotificationReminderResolverName: 'createNotificationReminder',
+                getNotificationRemindersResolverName: 'getNotificationReminders'
+            },
             environmentVariables: new Map<string, string>([])
         },
         [`${Stages.PROD}-${Regions.PDX}`]: {
@@ -227,7 +206,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 createCardLinkResolverName: 'createCardLink',
                 deleteCardResolverName: 'deleteCard',
                 addCardResolverName: 'addCard',
-                getEligibleLinkedUsersResolverName: 'getEligibleLinkedUsers'
+                getEligibleLinkedUsersResolverName: 'getEligibleLinkedUsers',
+                getUsersWithNoCardsResolverName: 'getUsersWithNoCards'
             },
             apiGatewayServiceConfig: {
                 cardLinkingServiceAPIName: 'cardLinkingServiceAPI',
@@ -240,34 +220,6 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 updatedTransactionsAcknowledgmentMethodName: `updatedTransactionsAcknowledgment`,
                 reimbursementsAcknowledgmentMethodName: `reimbursementsAcknowledgment`,
                 militaryVerificationUpdatesAcknowledgmentMethodName: `militaryVerificationUpdatesAcknowledgment`
-            },
-            reimbursementsProducerConsumerConfig: {
-                reimbursementsProducerFunctionName: 'reimbursementsProducerLambdaFunction',
-                reimbursementsConsumerFunctionName: 'reimbursementsConsumerLambdaFunction',
-                reimbursementsCronRuleName: 'reimbursementsCronRule',
-                reimbursementsCronTriggerFunctionName: 'reimbursementsCronTriggerFunction',
-                reimbursementsFanOutConfig: {
-                    reimbursementsProcessingTopicName: 'reimbursementsProcessingTopic',
-                    reimbursementsProcessingQueueName: 'reimbursementsProcessingQueue',
-                    reimbursementsProcessingDLQName: 'reimbursementsProcessingDLQ',
-                    reimbursementsProcessingTopicDLQName: 'reimbursementsProcessingTopicDLQ',
-                    reimbursementsProcessingEventSourceMapping: 'reimbursementsProcessingEventSourceMapping'
-                }
-            },
-            reimbursementsConfig: {
-                reimbursementsFunctionName: 'reimbursementsLambdaFunction',
-                reimbursementsTableName: 'reimbursementsTable',
-                reimbursementsIdGlobalIndex: 'reimbursementsIdGlobalIndex',
-                reimbursementsStatusLocalIndex: 'reimbursementsStatusLocalIndex',
-                createReimbursementResolverName: 'createReimbursement',
-                updateReimbursementResolverName: 'updateReimbursement',
-                getReimbursementByStatusResolverName: 'getReimbursementByStatus'
-            },
-            reimbursementEligibilityConfig: {
-                reimbursementEligibilityFunctionName: 'reimbursementEligibilityLambdaFunction',
-                reimbursementEligibilityTableName: 'reimbursementEligibilityTable',
-                createReimbursementEligibilityResolverName: 'createReimbursementEligibility',
-                updateReimbursementEligibilityResolverName: 'updateReimbursementEligibility'
             },
             transactionsProducerConsumerConfig: {
                 transactionsProducerFunctionName: 'transactionsProducerLambdaFunction',
@@ -357,6 +309,12 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 createUserAuthSessionResolverName: 'createUserAuthSession',
                 updateUserAuthSessionResolverName: 'updateUserAuthSession',
                 getUserAuthSessionResolverName: 'getUserAuthSession'
+            },
+            notificationReminderConfig: {
+                notificationReminderFunctionName: 'notificationReminderFunction',
+                notificationReminderTableName: 'notificationReminderTable',
+                createNotificationReminderResolverName: 'createNotificationReminder',
+                getNotificationRemindersResolverName: 'getNotificationReminders'
             },
             environmentVariables: new Map<string, string>([])
         },

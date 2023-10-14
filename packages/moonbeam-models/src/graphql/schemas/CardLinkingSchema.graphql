@@ -119,3 +119,9 @@ type EligibleLinkedUsersResponse @aws_cognito_user_pools @aws_api_key {
     errorType: CardLinkErrorType
     errorMessage: String
 }
+
+type IneligibleLinkedUsersResponse @aws_cognito_user_pools @aws_api_key {
+    data: [UserDetailsForNotificationReminder]
+    errorType: CardLinkErrorType
+    errorMessage: String
+}

@@ -47,7 +47,7 @@ export const createFAQ = async (fieldName: string, createFAQInput: CreateFaqInpu
 
         // if there is an item retrieved, then we return an error
         if (preExistingFAQ && preExistingFAQ.Item) {
-            // if there is an existent link object, then we cannot duplicate that, so we will return an error
+            // if there is an existent FAQ object, then we cannot duplicate that, so we will return an error
             const errorMessage = `Duplicate FAQ object found!`;
             console.log(errorMessage);
 

@@ -48,6 +48,7 @@ export declare namespace Constants {
         const AWS_LAMBDA_PROVISIONED_CONCURRENCY = "provisioned-concurrency";
         const USER_AUTH_SESSION_TABLE = "USER_AUTH_SESSION_TABLE";
         const FAQ_TABLE: string;
+        const NOTIFICATION_REMINDER_TABLE: string;
         const MILITARY_VERIFICATION_TABLE: string;
         const PARTNER_MERCHANT_TABLE: string;
         const CARD_LINKING_TABLE: string;
@@ -60,11 +61,6 @@ export declare namespace Constants {
         const NOTIFICATIONS_CHANNEL_TYPE_LOCAL_INDEX: string;
         const NOTIFICATIONS_TYPE_LOCAL_INDEX: string;
         const NOTIFICATIONS_STATUS_LOCAL_INDEX: string;
-        const REIMBURSEMENT_ELIGIBILITY_TABLE: string;
-        const REIMBURSEMENTS_TABLE: string;
-        const REIMBURSEMENTS_PROCESSING_TOPIC_ARN: string;
-        const REIMBURSEMENTS_ID_GLOBAL_INDEX: string;
-        const REIMBURSEMENTS_STATUS_LOCAL_INDEX: string;
         const UPDATED_TRANSACTIONS_PROCESSING_TOPIC_ARN: string;
         const TRANSACTIONS_PROCESSING_TOPIC_ARN: string;
         const MILITARY_VERIFICATION_NOTIFICATION_PROCESSING_TOPIC_ARN: string;

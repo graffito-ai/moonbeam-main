@@ -1,6 +1,6 @@
 import { SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import { Card, CardLinkResponse, CreateNotificationInput, CreateNotificationResponse, CreateReimbursementEligibilityInput, CreateReimbursementInput, EligibleLinkedUser, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetOffersInput, GetReimbursementByStatusInput, GetTransactionByStatusInput, GetTransactionInput, MemberDetailsResponse, MemberResponse, MilitaryVerificationNotificationUpdate, MilitaryVerificationStatusType, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationChannelType, NotificationResponse, NotificationType, OffersResponse, ReimbursementByStatusResponse, ReimbursementEligibilityResponse, ReimbursementResponse, RemoveCardResponse, SendEmailNotificationInput, SendMobilePushNotificationInput, Transaction, TransactionResponse, TransactionStatusDetailsResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse, UpdateReimbursementEligibilityInput, UpdateReimbursementInput, UpdateTransactionInput, UserDevicesResponse } from "../GraphqlExports";
+import { Card, CardLinkResponse, CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetOffersInput, GetTransactionByStatusInput, GetTransactionInput, MemberDetailsResponse, MemberResponse, MilitaryVerificationNotificationUpdate, MilitaryVerificationStatusType, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationChannelType, NotificationResponse, NotificationType, OffersResponse, RemoveCardResponse, SendEmailNotificationInput, SendMobilePushNotificationInput, Transaction, TransactionResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse } from "../GraphqlExports";
 /**
  * Class used as the base/generic client for all API clients that
  * we will be connecting to.
@@ -36,7 +36,16 @@ export declare abstract class BaseAPIClient {
      */
     protected retrieveServiceCredentials(verificationClientSecretsName: string, internalRestBased?: boolean, notificationType?: NotificationType, includeLoyaltyPrograms?: boolean, cognitoClientAccess?: boolean, channelType?: NotificationChannelType): Promise<[string | null, string | null, (string | null)?, (string | null)?, (string | null)?, (string | null)?, (string | null)?, (string | null)?]>;
     /**
-     * Function used to get all the offers, given certain filters to be passed in.
+     * Function used to get all users' emails and custom user IDs from Cognito.
+     *
+     * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
+     * user ID and email attributes.
+     *
+     * @protected
+     */
+    protected getAllUsersForNotificationReminders?(): Promise<UserForNotificationReminderResponse>;
+    /**
+     * Function used to get a user's email, given certain filters to be passed in.
      *
      * @param militaryVerificationNotificationUpdate the military verification notification update
      * objects, used to filter through the Cognito user pool, in order to obtain a user's email.
@@ -105,30 +114,6 @@ export declare abstract class BaseAPIClient {
      */
     protected createNotification?(createNotificationInput: CreateNotificationInput): Promise<CreateNotificationResponse>;
     /**
-     * Function used to create a reimbursement eligibility.
-     *
-     * @param createReimbursementEligibilityInput the reimbursement eligibility details to be passed in,
-     * in order to create a new reimbursement eligibility
-     *
-     * @returns a {@link ReimbursementEligibilityResponse} representing the newly created reimbursement eligibility
-     * data
-     *
-     * @protected
-     */
-    protected createReimbursementEligibility?(createReimbursementEligibilityInput: CreateReimbursementEligibilityInput): Promise<ReimbursementEligibilityResponse>;
-    /**
-     * Function used to update an existent reimbursement eligibility's details.
-     *
-     * @param updateReimbursementEligibilityInput the reimbursement eligibility details to be passed in,
-     * in order to update an existing reimbursement eligibility
-     *
-     * @returns a {@link ReimbursementEligibilityResponse} representing the updated reimbursement eligibility
-     * data
-     *
-     * @protected
-     */
-    protected updateReimbursementEligibility?(updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput): Promise<ReimbursementEligibilityResponse>;
-    /**
      * Function used to get all transactions, for a particular user.
      *
      * @param getTransactionInput the transaction input object to be passed in,
@@ -165,41 +150,6 @@ export declare abstract class BaseAPIClient {
      */
     protected updateTransaction?(updateTransactionInput: UpdateTransactionInput): Promise<MoonbeamUpdatedTransactionResponse>;
     /**
-     * Function used to get reimbursements for a particular user, filtered by their status.
-     *
-     * @param getReimbursementByStatusInput the reimbursement by status input, containing the filtering status
-     *
-     * @returns a {@link ReimbursementByStatusResponse} representing the matched reimbursement information, filtered by status
-     *
-     * @protected
-     */
-    protected getReimbursementByStatus?(getReimbursementByStatusInput: GetReimbursementByStatusInput): Promise<ReimbursementByStatusResponse>;
-    /**
-     * Function used to create a reimbursement internally, from an incoming trigger obtained from the
-     * reimbursements trigger Lambda.
-     *
-     * @param createReimbursementInput the reimbursement input passed in from the cron Lambda trigger
-     *
-     * @returns a {@link ReimbursementResponse} representing the reimbursement details that were stored
-     * in Dynamo DB
-     *
-     * @protected
-     */
-    protected createReimbursement?(createReimbursementInput: CreateReimbursementInput): Promise<ReimbursementResponse>;
-    /**
-     * Function used to update an existing reimbursement's details, from an incoming trigger obtained from the
-     * reimbursements trigger Lambda.
-     *
-     * @param updateReimbursementInput the reimbursement input passed in from the cron Lambda trigger, to be used
-     * while updating an existent reimbursement's details
-     *
-     * @returns a {@link ReimbursementResponse} representing the reimbursement details that were updated
-     * in Dynamo DB
-     *
-     * @protected
-     */
-    protected updateReimbursement?(updateReimbursementInput: UpdateReimbursementInput): Promise<ReimbursementResponse>;
-    /**
      * Function used to send a new military verification status acknowledgment, so we can kick-start the military verification
      * status update notification process through the producer.
      *
@@ -212,20 +162,6 @@ export declare abstract class BaseAPIClient {
      * @protected
      */
     protected militaryVerificationUpdatesAcknowledgment?(militaryVerificationNotificationUpdate: MilitaryVerificationNotificationUpdate): Promise<APIGatewayProxyResult>;
-    /**
-     * Function used to send a new reimbursement acknowledgment, for an eligible user with
-     * a linked card, so we can kick-start the reimbursement process through the reimbursement
-     * producer
-     *
-     * @param eligibleLinkedUser eligible linked user object to be passed in
-     *
-     * @return a {@link Promise} of {@link APIGatewayProxyResult} representing the API Gateway result
-     * sent by the reimbursement producer Lambda, to validate whether the reimbursement process was
-     * kick-started or not
-     *
-     * @protected
-     */
-    protected reimbursementsAcknowledgment?(eligibleLinkedUser: EligibleLinkedUser): Promise<APIGatewayProxyResult>;
     /**
      * Function used to send a new transaction acknowledgment, for an updated transaction, so we can kick-start the
      * transaction process through the transaction producer.
@@ -392,17 +328,4 @@ export declare abstract class BaseAPIClient {
      * @protected
      */
     protected getUpdatedTransactionDetails?(updatedTransactionEvent: UpdatedTransactionEvent): Promise<UpdatedTransactionEventResponse>;
-    /**
-     * Function used to retrieve the transaction status details, given a transaction ID
-     * (used for reimbursements purposes).
-     *
-     * @param transactionId the transaction id, to be passed in, in order to retrieve
-     * the status details necessary for reimbursement-related purposes.
-     *
-     * @return a {@link Promise} of {@link TransactionStatusDetailsResponse} representing the
-     * transaction status details object, populated with the transaction status details that we retrieved.
-     *
-     * @protected
-     */
-    protected getTransactionStatus?(transactionId: string): Promise<TransactionStatusDetailsResponse>;
 }

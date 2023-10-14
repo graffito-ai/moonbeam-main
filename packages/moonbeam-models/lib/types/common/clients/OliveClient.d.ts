@@ -1,4 +1,4 @@
-import { Card, CardLinkResponse, GetOffersInput, MemberDetailsResponse, MemberResponse, OffersResponse, RemoveCardResponse, Transaction, TransactionResponse, TransactionStatusDetailsResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse } from "../GraphqlExports";
+import { Card, CardLinkResponse, GetOffersInput, MemberDetailsResponse, MemberResponse, OffersResponse, RemoveCardResponse, Transaction, TransactionResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse } from "../GraphqlExports";
 import { BaseAPIClient } from "./BaseAPIClient";
 /**
  * Class used as the base/generic client for all Olive card linking related calls.
@@ -114,17 +114,6 @@ export declare class OliveClient extends BaseAPIClient {
      * we retrieved.
      */
     getTransactionDetails(transaction: Transaction): Promise<TransactionResponse>;
-    /**
-     * Function used to retrieve the transaction status details, given a transaction ID
-     * (used for reimbursements purposes).
-     *
-     * @param transactionId the transaction id, to be passed in, in order to retrieve
-     * the status details necessary for reimbursement-related purposes.
-     *
-     * @return a {@link Promise} of {@link TransactionStatusDetailsResponse} representing the
-     * transaction status details object, populated with the transaction status details that we retrieved.
-     */
-    getTransactionStatus(transactionId: string): Promise<TransactionStatusDetailsResponse>;
     /**
      * Function used to get all the offers, given certain filters to be passed in.
      *

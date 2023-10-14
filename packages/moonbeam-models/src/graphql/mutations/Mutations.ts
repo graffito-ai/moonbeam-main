@@ -1,5 +1,26 @@
 // This is a file used to define the all GraphQL query constants
 
+// Mutation used to create a new Notification Reminder.
+export const createNotificationReminder = /* GraphQL */ `
+    mutation CreateNotificationReminder($createNotificationReminderInput: CreateNotificationReminderInput!) {
+        createNotificationReminder(createNotificationReminderInput: $createNotificationReminderInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                notificationReminderType
+                notificationReminderStatus
+                notificationReminderCadence
+                createdAt
+                updatedAt
+                nextTriggerAt
+                notificationChannelType
+                notificationReminderCount
+            }
+        }
+    }
+`;
+
 // Mutation used to create a new User Auth Session.
 export const createUserAuthSession = /* GraphQL */ `
     mutation CreateUserAuthSession($createUserAuthSessionInput: CreateUserAuthSessionInput!) {
@@ -106,105 +127,6 @@ export const createNotification = /* GraphQL */ `
                 pendingCashback
                 merchantName
                 actionUrl
-                createdAt
-                updatedAt
-            }
-        }
-    }
-`;
-
-// Mutation used to create a new reimbursement eligibility.
-export const createReimbursementEligibility = /* GraphQL */ `
-    mutation CreateReimbursementEligibility($createReimbursementEligibilityInput: CreateReimbursementEligibilityInput!) {
-        createReimbursementEligibility(createReimbursementEligibilityInput: $createReimbursementEligibilityInput) {
-            errorType
-            errorMessage
-            id
-            data {
-                id
-                eligibilityStatus
-                createdAt
-                updatedAt
-            }
-        }
-    }
-`;
-
-// Mutation used to update a reimbursement eligibility's details.
-export const updateReimbursementEligibility = /* GraphQL */ `
-    mutation UpdateReimbursementEligibility($updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput!) {
-        updateReimbursementEligibility(updateReimbursementEligibilityInput: $updateReimbursementEligibilityInput) {
-            errorType
-            errorMessage
-            id
-            data {
-                id
-                eligibilityStatus
-                updatedAt
-            }
-        }
-    }
-`;
-
-// Mutation used to create a new reimbursement.
-export const createReimbursement = /* GraphQL */ `
-    mutation CreateReimbursement($createReimbursementInput: CreateReimbursementInput!) {
-        createReimbursement(createReimbursementInput: $createReimbursementInput) {
-            errorType
-            errorMessage
-            id
-            data {
-                id
-                timestamp
-                reimbursementId
-                clientId
-                paymentGatewayId
-                succeeded
-                processingMessage
-                cardId
-                reimbursementStatus
-                pendingCashbackAmount
-                creditedCashbackAmount
-                currencyCode
-                transactions {
-                    id
-                    timestamp
-                    transactionId
-                    transactionStatus
-                }
-                createdAt
-                updatedAt
-            }
-        }
-    }
-`;
-
-// Mutation used to update a reimbursement's details.
-export const updateReimbursement = /* GraphQL */ `
-    mutation UpdateReimbursement($updateReimbursementInput: UpdateReimbursementInput!) {
-        updateReimbursement(updateReimbursementInput: $updateReimbursementInput) {
-            errorType
-            errorMessage
-            id
-            data {
-                id
-                timestamp
-                reimbursementId
-                clientId
-                paymentGatewayId
-                succeeded
-                processingMessage
-                cardId
-                reimbursementStatus
-                pendingCashbackAmount
-                creditedCashbackAmount
-                currencyCode
-                transactions {
-                    id
-                    timestamp
-                    transactionId
-                    transactionStatus
-                }
                 createdAt
                 updatedAt
             }

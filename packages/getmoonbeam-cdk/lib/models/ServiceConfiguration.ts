@@ -77,6 +77,7 @@ export interface CardLinkingConfiguration {
     readonly deleteCardResolverName: string;
     readonly addCardResolverName: string;
     readonly getEligibleLinkedUsersResolverName: string;
+    readonly getUsersWithNoCardsResolverName: string;
 }
 
 /**
@@ -95,55 +96,6 @@ export interface APIGatewayServiceConfiguration {
     readonly updatedTransactionsAcknowledgmentMethodName: string;
     readonly reimbursementsAcknowledgmentMethodName: string;
     readonly militaryVerificationUpdatesAcknowledgmentMethodName: string;
-}
-
-/**
- * Interface used to define the configuration for the reimbursements-related fan-out pattern, composed
- * of an event-based process, driven by SNS and SQS.
- */
-export interface ReimbursementsFanOutConfiguration {
-    readonly reimbursementsProcessingTopicName: string;
-    readonly reimbursementsProcessingQueueName: string;
-    readonly reimbursementsProcessingDLQName: string;
-    readonly reimbursementsProcessingTopicDLQName: string;
-    readonly reimbursementsProcessingEventSourceMapping: string;
-}
-
-/**
- * Interface used to define all the resources for the producer and consumers, taking advantage
- * of the async reimbursements related data.
- */
-export interface ReimbursementsProducerConsumerConfiguration {
-    readonly reimbursementsCronTriggerFunctionName: string;
-    readonly reimbursementsProducerFunctionName: string;
-    readonly reimbursementsConsumerFunctionName: string;
-    readonly reimbursementsCronRuleName: string;
-    readonly reimbursementsFanOutConfig: ReimbursementsFanOutConfiguration;
-}
-
-/**
- * Interface used to define the configuration for the reimbursements service resolvers
- * (GraphQL based), and other afferent data stores.
- */
-export interface ReimbursementsConfiguration {
-    readonly reimbursementsFunctionName: string;
-    readonly createReimbursementResolverName: string;
-    readonly updateReimbursementResolverName: string;
-    readonly getReimbursementByStatusResolverName: string;
-    readonly reimbursementsTableName: string;
-    readonly reimbursementsIdGlobalIndex: string;
-    readonly reimbursementsStatusLocalIndex: string;
-}
-
-/**
- * Interface used to define the configuration for the reimbursement eligibility service resolvers
- * (GraphQL based), and other afferent data stores.
- */
-export interface ReimbursementEligibilityConfiguration {
-    readonly reimbursementEligibilityFunctionName: string;
-    readonly createReimbursementEligibilityResolverName: string;
-    readonly updateReimbursementEligibilityResolverName: string;
-    readonly reimbursementEligibilityTableName: string;
 }
 
 /**
@@ -295,3 +247,13 @@ export interface UserAuthSessionConfiguration {
     readonly getUserAuthSessionResolverName: string;
 }
 
+/**
+ * Interface used to define the configuration for the notification reminder service resolvers
+ * (GraphQL based), and other afferent data stores.
+ */
+export interface NotificationReminderConfiguration {
+    readonly notificationReminderFunctionName: string;
+    readonly notificationReminderTableName: string;
+    readonly createNotificationReminderResolverName: string;
+    readonly getNotificationRemindersResolverName: string;
+}

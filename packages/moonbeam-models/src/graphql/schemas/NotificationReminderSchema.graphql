@@ -1,0 +1,68 @@
+# graphql/NotificationReminderSchema.graphql
+# Notification Reminder Schema File
+enum NotificationReminderErrorType {
+    DUPLICATE_OBJECT_FOUND
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+    NONE_OR_ABSENT
+}
+
+enum NotificationReminderType {
+    CARD_LINKING_REMINDER
+}
+
+enum NotificationReminderStatus {
+    ACTIVE
+    INACTIVE
+}
+
+enum NotificationReminderCadence {
+    ONE_TIME
+    DAILY
+    WEEKLY
+    BI_WEEKLY
+    MONTHLY
+}
+
+type NotificationReminder @aws_cognito_user_pools {
+    id: ID!
+    notificationReminderType: NotificationReminderType!
+    notificationReminderStatus: NotificationReminderStatus!
+    notificationReminderCadence: NotificationReminderCadence!
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+    # this will automatically schedule the notification reminder to start the next business day, on the agreed cadence
+    nextTriggerAt: AWSDateTime!
+    notificationChannelType: [NotificationChannelType]!
+    # this represents the number of times that this notification reminder was triggered
+    notificationReminderCount: Int!
+}
+
+type UserDetailsForNotificationReminder @aws_cognito_user_pools {
+    id: ID!
+    email: String!
+}
+
+type NotificationReminderResponse @aws_cognito_user_pools {
+    data: [NotificationReminder]
+    errorType: NotificationReminderErrorType
+    errorMessage: String
+}
+
+type UserForNotificationReminderResponse @aws_cognito_user_pools {
+    data: [UserDetailsForNotificationReminder]
+    errorType: NotificationReminderErrorType
+    errorMessage: String
+}
+
+input CreateNotificationReminderInput {
+    id: ID
+    notificationReminderType: NotificationReminderType!
+    notificationReminderStatus: NotificationReminderStatus!
+    notificationReminderCadence: NotificationReminderCadence!
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+    nextTriggerAt: AWSDateTime
+    notificationChannelType: [NotificationChannelType]!
+    notificationReminderCount: Int
+}

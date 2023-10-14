@@ -1,5 +1,22 @@
 # graphql/Mutations.graphql
 # Mutations Schema File
+mutation CreateNotificationReminder($createNotificationReminderInput: CreateNotificationReminderInput!) {
+    createNotificationReminder(createNotificationReminderInput: $createNotificationReminderInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            notificationReminderType
+            notificationReminderStatus
+            notificationReminderCadence
+            createdAt
+            updatedAt
+            nextTriggerAt
+            notificationChannelType
+            notificationReminderCount
+        }
+    }
+}
 mutation CreateUserAuthSession($createUserAuthSessionInput: CreateUserAuthSessionInput!) {
     createUserAuthSession(createUserAuthSessionInput: $createUserAuthSessionInput) {
         errorMessage
@@ -84,89 +101,6 @@ mutation CreateNotification($createNotificationInput: CreateNotificationInput!) 
             pendingCashback
             merchantName
             actionUrl
-            createdAt
-            updatedAt
-        }
-    }
-}
-mutation CreateReimbursementEligibility($createReimbursementEligibilityInput: CreateReimbursementEligibilityInput!) {
-    createReimbursementEligibility(createReimbursementEligibilityInput: $createReimbursementEligibilityInput) {
-        errorType
-        errorMessage
-        id
-        data {
-            id
-            eligibilityStatus
-            createdAt
-            updatedAt
-        }
-    }
-}
-mutation UpdateReimbursementEligibility($updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput!) {
-    updateReimbursementEligibility(updateReimbursementEligibilityInput: $updateReimbursementEligibilityInput) {
-        errorType
-        errorMessage
-        id
-        data {
-            id
-            eligibilityStatus
-            updatedAt
-        }
-    }
-}
-mutation CreateReimbursement($createReimbursementInput: CreateReimbursementInput!) {
-    createReimbursement(createReimbursementInput: $createReimbursementInput) {
-        errorType
-        errorMessage
-        id
-        data {
-            id
-            timestamp
-            reimbursementId
-            clientId
-            paymentGatewayId
-            succeeded
-            processingMessage
-            cardId
-            reimbursementStatus
-            pendingCashbackAmount
-            creditedCashbackAmount
-            currencyCode
-            transactions {
-                id
-                timestamp
-                transactionId
-                transactionStatus
-            }
-            createdAt
-            updatedAt
-        }
-    }
-}
-mutation UpdateReimbursement($updateReimbursementInput: UpdateReimbursementInput!) {
-    updateReimbursement(updateReimbursementInput: $updateReimbursementInput) {
-        errorType
-        errorMessage
-        id
-        data {
-            id
-            timestamp
-            reimbursementId
-            clientId
-            paymentGatewayId
-            succeeded
-            processingMessage
-            cardId
-            reimbursementStatus
-            pendingCashbackAmount
-            creditedCashbackAmount
-            currencyCode
-            transactions {
-                id
-                timestamp
-                transactionId
-                transactionStatus
-            }
             createdAt
             updatedAt
         }

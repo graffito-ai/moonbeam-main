@@ -4,14 +4,11 @@ import {
     CardLinkErrorType,
     CreateNotificationInput,
     CreateNotificationResponse,
-    CreateReimbursementEligibilityInput,
-    CreateReimbursementInput,
     CreateTransactionInput,
     EligibleLinkedUser,
     EligibleLinkedUsersResponse,
     EmailFromCognitoResponse,
     GetDevicesForUserInput,
-    GetReimbursementByStatusInput,
     GetTransactionByStatusInput,
     GetTransactionInput,
     MilitaryVerificationErrorType,
@@ -24,35 +21,21 @@ import {
     MoonbeamUpdatedTransaction,
     MoonbeamUpdatedTransactionResponse,
     Notification,
+    NotificationReminderErrorType,
     NotificationsErrorType,
     PushDevice,
-    Reimbursement,
-    ReimbursementByStatusResponse,
-    ReimbursementEligibility,
-    ReimbursementEligibilityResponse,
-    ReimbursementResponse,
-    ReimbursementsErrorType,
     TransactionsErrorType,
     UpdatedTransactionEvent,
-    UpdateReimbursementEligibilityInput,
-    UpdateReimbursementInput,
-    UpdateTransactionInput,
+    UpdateTransactionInput, UserDetailsForNotificationReminder,
     UserDeviceErrorType,
-    UserDevicesResponse
+    UserDevicesResponse,
+    UserForNotificationReminderResponse
 } from "../GraphqlExports";
 import axios from "axios";
-import {
-    createNotification,
-    createReimbursement,
-    createTransaction,
-    updateReimbursement,
-    updateReimbursementEligibility,
-    updateTransaction
-} from "../../graphql/mutations/Mutations";
+import {createNotification, createTransaction, updateTransaction} from "../../graphql/mutations/Mutations";
 import {
     getDevicesForUser,
     getEligibleLinkedUsers,
-    getReimbursementByStatus,
     getTransaction,
     getTransactionByStatus
 } from "../../graphql/queries/Queries";
@@ -60,7 +43,9 @@ import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {
     CognitoIdentityProviderClient,
     ListUsersCommand,
-    ListUsersCommandOutput
+    ListUsersCommandInput,
+    ListUsersCommandOutput,
+    UserType
 } from "@aws-sdk/client-cognito-identity-provider";
 
 /**
@@ -80,7 +65,135 @@ export class MoonbeamClient extends BaseAPIClient {
     }
 
     /**
-     * Function used to get all the offers, given certain filters to be passed in.
+     * Function used to get all users' emails and custom user IDs from Cognito.
+     *
+     * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
+     * user ID and email attributes.
+     */
+    async getAllUsersForNotificationReminders(): Promise<UserForNotificationReminderResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = '/listUsers for getAllUsersForNotificationReminder Cognito SDK call';
+
+        try {
+            // retrieve the Cognito access key, secret key and user pool id, needed in order to retrieve all users through the Cognito Identity provider client
+            const [cognitoAccessKeyId, cognitoSecretKey, cognitoUserPoolId] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME,
+                undefined,
+                undefined,
+                undefined,
+                true);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (cognitoAccessKeyId === null || cognitoAccessKeyId.length === 0 ||
+                cognitoSecretKey === null || cognitoSecretKey.length === 0 ||
+                cognitoUserPoolId === null || (cognitoUserPoolId && cognitoUserPoolId.length === 0)) {
+                const errorMessage = "Invalid Secrets obtained for Cognito SDK call call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: NotificationReminderErrorType.UnexpectedError
+                };
+            }
+
+            // initialize the Cognito Identity Provider client using the credentials obtained above
+            const cognitoIdentityProviderClient = new CognitoIdentityProviderClient({
+                region: this.region,
+                credentials: {
+                    accessKeyId: cognitoAccessKeyId,
+                    secretAccessKey: cognitoSecretKey
+                }
+            });
+
+            /**
+             * execute thew List Users command, without any filters, in order to retrieve a user's email and their
+             * custom user ID, from their attributes.
+             *
+             * These results are going to be paginated, so we will limit the page size to 60 users (maximum allowed through this
+             * call), and keep track of the number of pages and lack thereof, through a flag.
+             */
+            const userResults: UserType[] = [];
+            let lastPaginationToken: string | undefined;
+            let input: ListUsersCommandInput = {
+                UserPoolId: cognitoUserPoolId,
+                AttributesToGet: ['email', 'custom:userId'],
+                Limit: 60,
+            };
+            // keep getting users and updating the results array for users retrieved, until we run out of users to retrieve
+            do {
+                // execute the List Users command, given the input provided above
+                const listUsersResponse: ListUsersCommandOutput = await cognitoIdentityProviderClient.send(
+                    new ListUsersCommand(input)
+                );
+
+                /**
+                 * check whether the List Users Command has a valid response/ valid list of users to be returned,
+                 * and if so add in the resulting list accordingly.
+                 */
+                listUsersResponse.$metadata !== null && listUsersResponse.$metadata.httpStatusCode !== null &&
+                listUsersResponse.$metadata.httpStatusCode !== undefined && listUsersResponse.$metadata.httpStatusCode === 200 &&
+                listUsersResponse.Users !== null && listUsersResponse.Users !== undefined && listUsersResponse.Users!.length !== 0 &&
+                userResults.push(...listUsersResponse.Users);
+
+                // get the last pagination token from the retrieved output, and set the next input command's pagination token according to that
+                lastPaginationToken = listUsersResponse.PaginationToken;
+                input.PaginationToken = lastPaginationToken;
+            } while (typeof lastPaginationToken !== undefined && typeof lastPaginationToken !== 'undefined' && lastPaginationToken !== undefined);
+
+            // check for a valid response list, obtained from the Cognito List Users Command call
+            if (userResults.length !== 0) {
+                // loop through the list of users obtained through command, and return their emails and custom user IDs
+                const userDetailsForNotificationReminder: UserDetailsForNotificationReminder[] = [];
+                userResults.forEach(cognitoUser => {
+                    if (cognitoUser.Attributes !== undefined && cognitoUser.Attributes!.length === 2 &&
+                        cognitoUser.Attributes![0] !== undefined && cognitoUser.Attributes![0].Value!.length !== 0 &&
+                        cognitoUser.Attributes![1] !== undefined && cognitoUser.Attributes![1].Value!.length !== 0) {
+                        // push the new user details in the user details array to be returned
+                        userDetailsForNotificationReminder.push({
+                            id: cognitoUser.Attributes![1].Value!,
+                            email: cognitoUser.Attributes![0].Value!
+                        });
+                    }
+                });
+                // ensure that the size of the list of user details to be returned, matches the number of users retrieved through the List Users Command
+                if (userDetailsForNotificationReminder.length === userResults.length) {
+                    // return the results appropriately
+                    return {
+                        data: userDetailsForNotificationReminder
+                    }
+                } else {
+                    const errorMessage = `User detail list length does not match the retrieved user list`;
+                    console.log(`${errorMessage}`);
+
+                    return {
+                        data: null,
+                        errorType: NotificationReminderErrorType.ValidationError,
+                        errorMessage: errorMessage
+                    };
+                }
+            } else {
+                const errorMessage = `Invalid/Empty user list array, obtained while calling the get List Users Cognito command`;
+                console.log(`${errorMessage}`);
+
+                return {
+                    data: null,
+                    errorType: NotificationReminderErrorType.ValidationError,
+                    errorMessage: errorMessage
+                };
+            }
+        } catch (err) {
+            const errorMessage = `Unexpected error while retrieving email and custom id for notification reminders for users, from Cognito through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                data: null,
+                errorType: NotificationReminderErrorType.UnexpectedError,
+                errorMessage: errorMessage
+            };
+        }
+    }
+
+    /**
+     * Function used to get a user's email, given certain filters to be passed in.
      *
      * @param militaryVerificationNotificationUpdate the military verification notification update
      * objects, used to filter through the Cognito user pool, in order to obtain a user's email.
@@ -90,7 +203,7 @@ export class MoonbeamClient extends BaseAPIClient {
      */
     async getEmailForUser(militaryVerificationNotificationUpdate: MilitaryVerificationNotificationUpdate): Promise<EmailFromCognitoResponse> {
         // easily identifiable API endpoint information
-        const endpointInfo = '/listUsers Cognito SDK call';
+        const endpointInfo = '/listUsers for getEmailForUser Cognito SDK call';
 
         try {
             // retrieve the Cognito access key, secret key and user pool id, needed in order to retrieve the user email through the Cognito Identity provider client
@@ -123,7 +236,7 @@ export class MoonbeamClient extends BaseAPIClient {
             });
 
             /**
-             * execute thew List Users command, using filters, in order to retrieve a user's email from their attributes.
+             * execute the List Users command, using filters, in order to retrieve a user's email from their attributes.
              *
              * Retrieve the user by their family_name. If there are is more than 1 match returned, then we will match
              * the user based on their unique id, from the custom:userId attribute
@@ -140,9 +253,9 @@ export class MoonbeamClient extends BaseAPIClient {
                 // If there are is more than 1 match returned, then we will match the user based on their unique id, from the custom:userId attribute
                 let invalidAttributesFlag = false;
                 listUsersResponse.Users.forEach(cognitoUser => {
-                   if (cognitoUser.Attributes === null || cognitoUser.Attributes === undefined || cognitoUser.Attributes.length !== 2) {
-                       invalidAttributesFlag = true;
-                   }
+                    if (cognitoUser.Attributes === null || cognitoUser.Attributes === undefined || cognitoUser.Attributes.length !== 2) {
+                        invalidAttributesFlag = true;
+                    }
                 });
                 // check for valid user attributes
                 if (!invalidAttributesFlag) {
@@ -229,7 +342,7 @@ export class MoonbeamClient extends BaseAPIClient {
                     statusCode: 500,
                     body: JSON.stringify({
                         data: null,
-                        errorType: ReimbursementsErrorType.UnexpectedError,
+                        errorType: MilitaryVerificationErrorType.UnexpectedError,
                         errorMessage: errorMessage
                     })
                 };
@@ -276,7 +389,7 @@ export class MoonbeamClient extends BaseAPIClient {
                             body: JSON.stringify({
                                 data: null,
                                 errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
-                                errorType: ReimbursementsErrorType.ValidationError
+                                errorType: MilitaryVerificationErrorType.ValidationError
                             })
                         }
                 }
@@ -373,7 +486,7 @@ export class MoonbeamClient extends BaseAPIClient {
                     statusCode: 500,
                     body: JSON.stringify({
                         data: null,
-                        errorType: ReimbursementsErrorType.UnexpectedError,
+                        errorType: TransactionsErrorType.UnexpectedError,
                         errorMessage: errorMessage
                     })
                 };
@@ -420,7 +533,7 @@ export class MoonbeamClient extends BaseAPIClient {
                             body: JSON.stringify({
                                 data: null,
                                 errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
-                                errorType: ReimbursementsErrorType.ValidationError
+                                errorType: TransactionsErrorType.ValidationError
                             })
                         }
                 }
@@ -455,7 +568,7 @@ export class MoonbeamClient extends BaseAPIClient {
                         statusCode: 500,
                         body: JSON.stringify({
                             data: null,
-                            errorType: ReimbursementsErrorType.UnexpectedError,
+                            errorType: TransactionsErrorType.UnexpectedError,
                             errorMessage: errorMessage
                         })
                     };
@@ -468,7 +581,7 @@ export class MoonbeamClient extends BaseAPIClient {
                         statusCode: 500,
                         body: JSON.stringify({
                             data: null,
-                            errorType: ReimbursementsErrorType.UnexpectedError,
+                            errorType: TransactionsErrorType.UnexpectedError,
                             errorMessage: errorMessage
                         })
                     };
@@ -482,152 +595,7 @@ export class MoonbeamClient extends BaseAPIClient {
                 statusCode: 500,
                 body: JSON.stringify({
                     data: null,
-                    errorType: ReimbursementsErrorType.UnexpectedError,
-                    errorMessage: errorMessage
-                })
-            };
-        }
-    }
-
-    /**
-     * Function used to send a new reimbursement acknowledgment, for an eligible user with
-     * a linked card, so we can kick-start the reimbursement process through the reimbursement
-     * producer
-     *
-     * @param eligibleLinkedUser eligible linked user object to be passed in
-     *
-     * @return a {@link Promise} of {@link APIGatewayProxyResult} representing the API Gateway result
-     * sent by the reimbursement producer Lambda, to validate whether the reimbursement process was
-     * kick-started or not
-     */
-    async reimbursementsAcknowledgment(eligibleLinkedUser: EligibleLinkedUser): Promise<APIGatewayProxyResult> {
-        // easily identifiable API endpoint information
-        const endpointInfo = 'POST /reimbursementsAcknowledgment Moonbeam REST API';
-
-        try {
-            // retrieve the API Key and Base URL, needed in order to make the reimbursement acknowledgment call through the client
-            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME, true);
-
-            // check to see if we obtained any invalid secret values from the call above
-            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
-                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
-                const errorMessage = "Invalid Secrets obtained for Moonbeam REST API call!";
-                console.log(errorMessage);
-
-                return {
-                    statusCode: 500,
-                    body: JSON.stringify({
-                        data: null,
-                        errorType: ReimbursementsErrorType.UnexpectedError,
-                        errorMessage: errorMessage
-                    })
-                };
-            }
-
-            /**
-             * POST /reimbursementsAcknowledgment
-             *
-             * build the internal Moonbeam API request body to be passed in, and perform a POST to it with the appropriate information
-             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
-             * error for a better customer experience.
-             */
-            console.log(`Moonbeam REST API request Object: ${JSON.stringify(eligibleLinkedUser)}`);
-            return axios.post(`${moonbeamBaseURL}/reimbursementsAcknowledgment`, JSON.stringify(eligibleLinkedUser), {
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-api-key": moonbeamPrivateKey
-                },
-                timeout: 15000, // in milliseconds here
-                timeoutErrorMessage: 'Moonbeam REST API timed out after 15000ms!'
-            }).then(reimbursementsAcknowledgmentResponse => {
-                console.log(`${endpointInfo} response ${JSON.stringify(reimbursementsAcknowledgmentResponse.data)}`);
-
-                // check if there are any errors in the returned response
-                if (reimbursementsAcknowledgmentResponse.data && reimbursementsAcknowledgmentResponse.data.data !== null
-                    && !reimbursementsAcknowledgmentResponse.data.errorMessage && !reimbursementsAcknowledgmentResponse.data.errorType
-                    && reimbursementsAcknowledgmentResponse.status === 202) {
-                    // returned the reimbursement acknowledgment response
-                    return {
-                        statusCode: reimbursementsAcknowledgmentResponse.status,
-                        body: reimbursementsAcknowledgmentResponse.data.data
-                    }
-                } else {
-                    return reimbursementsAcknowledgmentResponse.data && reimbursementsAcknowledgmentResponse.data.errorMessage !== undefined
-                    && reimbursementsAcknowledgmentResponse.data.errorMessage !== null ?
-                        // return the error message and type, from the original REST API call
-                        {
-                            statusCode: reimbursementsAcknowledgmentResponse.status,
-                            body: reimbursementsAcknowledgmentResponse.data.errorMessage
-                        } :
-                        // return the error response indicating an invalid structure returned
-                        {
-                            statusCode: 500,
-                            body: JSON.stringify({
-                                data: null,
-                                errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
-                                errorType: ReimbursementsErrorType.ValidationError
-                            })
-                        }
-                }
-            }).catch(error => {
-                if (error.response) {
-                    /**
-                     * The request was made and the server responded with a status code
-                     * that falls out of the range of 2xx.
-                     */
-                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam REST API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
-                    console.log(errorMessage);
-
-                    // any other specific errors to be filtered below
-                    return {
-                        statusCode: error.response.status,
-                        body: JSON.stringify({
-                            data: null,
-                            errorType: error.response.data.errorType,
-                            errorMessage: error.response.data.errorMessage
-                        })
-                    };
-                } else if (error.request) {
-                    /**
-                     * The request was made but no response was received
-                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                     *  http.ClientRequest in node.js.
-                     */
-                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
-                    console.log(errorMessage);
-
-                    return {
-                        statusCode: 500,
-                        body: JSON.stringify({
-                            data: null,
-                            errorType: ReimbursementsErrorType.UnexpectedError,
-                            errorMessage: errorMessage
-                        })
-                    };
-                } else {
-                    // Something happened in setting up the request that triggered an Error
-                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
-                    console.log(errorMessage);
-
-                    return {
-                        statusCode: 500,
-                        body: JSON.stringify({
-                            data: null,
-                            errorType: ReimbursementsErrorType.UnexpectedError,
-                            errorMessage: errorMessage
-                        })
-                    };
-                }
-            });
-        } catch (err) {
-            const errorMessage = `Unexpected error while posting the reimbursement acknowledgment object through ${endpointInfo}`;
-            console.log(`${errorMessage} ${err}`);
-
-            return {
-                statusCode: 500,
-                body: JSON.stringify({
-                    data: null,
-                    errorType: ReimbursementsErrorType.UnexpectedError,
+                    errorType: TransactionsErrorType.UnexpectedError,
                     errorMessage: errorMessage
                 })
             };
@@ -1248,629 +1216,6 @@ export class MoonbeamClient extends BaseAPIClient {
             return {
                 errorMessage: errorMessage,
                 errorType: TransactionsErrorType.UnexpectedError
-            };
-        }
-    }
-
-    /**
-     * Function used to create a reimbursement internally, from an incoming trigger obtained from the
-     * reimbursements trigger Lambda.
-     *
-     * @param createReimbursementInput the reimbursement input passed in from the cron Lambda trigger
-     *
-     * @returns a {@link ReimbursementResponse} representing the reimbursement details that were stored
-     * in Dynamo DB
-     */
-    async createReimbursement(createReimbursementInput: CreateReimbursementInput): Promise<ReimbursementResponse> {
-        // easily identifiable API endpoint information
-        const endpointInfo = 'createReimbursement Mutation Moonbeam GraphQL API';
-
-        try {
-            // retrieve the API Key and Base URL, needed in order to make a reimbursement creation call through the client
-            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
-
-            // check to see if we obtained any invalid secret values from the call above
-            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
-                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
-                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
-                console.log(errorMessage);
-
-                return {
-                    errorMessage: errorMessage,
-                    errorType: ReimbursementsErrorType.UnexpectedError
-                };
-            }
-
-            /**
-             * createReimbursement Query
-             *
-             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
-             * with the appropriate information.
-             *
-             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
-             * error for a better customer experience.
-             */
-            return axios.post(`${moonbeamBaseURL}`, {
-                query: createReimbursement,
-                variables: {
-                    createReimbursementInput: createReimbursementInput
-                }
-            }, {
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-api-key": moonbeamPrivateKey
-                },
-                timeout: 15000, // in milliseconds here
-                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
-            }).then(createReimbursementResponse => {
-                console.log(`${endpointInfo} response ${JSON.stringify(createReimbursementResponse.data)}`);
-
-                // retrieve the data block from the response
-                const responseData = (createReimbursementResponse && createReimbursementResponse.data) ? createReimbursementResponse.data.data : null;
-
-                // check if there are any errors in the returned response
-                if (responseData && responseData.createReimbursement.errorMessage === null) {
-                    // returned the successfully created reimbursement
-                    return {
-                        data: responseData.createReimbursement.data as Reimbursement,
-                        id: responseData.createReimbursement.id
-                    }
-                } else {
-                    return responseData ?
-                        // return the error message and type, from the original AppSync call
-                        {
-                            errorMessage: responseData.createReimbursement.errorMessage,
-                            errorType: responseData.createReimbursement.errorType
-                        } :
-                        // return the error response indicating an invalid structure returned
-                        {
-                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
-                            errorType: ReimbursementsErrorType.ValidationError
-                        }
-                }
-            }).catch(error => {
-                if (error.response) {
-                    /**
-                     * The request was made and the server responded with a status code
-                     * that falls out of the range of 2xx.
-                     */
-                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
-                    console.log(errorMessage);
-
-                    // any other specific errors to be filtered below
-                    return {
-                        errorMessage: errorMessage,
-                        errorType: ReimbursementsErrorType.UnexpectedError
-                    };
-                } else if (error.request) {
-                    /**
-                     * The request was made but no response was received
-                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                     *  http.ClientRequest in node.js.
-                     */
-                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
-                    console.log(errorMessage);
-
-                    return {
-                        errorMessage: errorMessage,
-                        errorType: ReimbursementsErrorType.UnexpectedError
-                    };
-                } else {
-                    // Something happened in setting up the request that triggered an Error
-                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
-                    console.log(errorMessage);
-
-                    return {
-                        errorMessage: errorMessage,
-                        errorType: ReimbursementsErrorType.UnexpectedError
-                    };
-                }
-            });
-        } catch (err) {
-            const errorMessage = `Unexpected error while creating a reimbursement, through ${endpointInfo}`;
-            console.log(`${errorMessage} ${err}`);
-
-            return {
-                errorMessage: errorMessage,
-                errorType: ReimbursementsErrorType.UnexpectedError
-            };
-        }
-    }
-
-    /**
-     * Function used to update an existing reimbursement's details, from an incoming trigger obtained from the
-     * reimbursements trigger Lambda.
-     *
-     * @param updateReimbursementInput the reimbursement input passed in from the cron Lambda trigger, to be used
-     * while updating an existent reimbursement's details
-     *
-     * @returns a {@link ReimbursementResponse} representing the reimbursement details that were updated
-     * in Dynamo DB
-     */
-    async updateReimbursement(updateReimbursementInput: UpdateReimbursementInput): Promise<ReimbursementResponse> {
-        // easily identifiable API endpoint information
-        const endpointInfo = 'updateReimbursement Mutation Moonbeam GraphQL API';
-
-        try {
-            // retrieve the API Key and Base URL, needed in order to make a reimbursement update call through the client
-            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
-
-            // check to see if we obtained any invalid secret values from the call above
-            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
-                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
-                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
-                console.log(errorMessage);
-
-                return {
-                    errorMessage: errorMessage,
-                    errorType: ReimbursementsErrorType.UnexpectedError
-                };
-            }
-
-            /**
-             * updateReimbursement Query
-             *
-             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
-             * with the appropriate information.
-             *
-             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
-             * error for a better customer experience.
-             */
-            return axios.post(`${moonbeamBaseURL}`, {
-                query: updateReimbursement,
-                variables: {
-                    updateReimbursementInput: updateReimbursementInput
-                }
-            }, {
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-api-key": moonbeamPrivateKey
-                },
-                timeout: 15000, // in milliseconds here
-                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
-            }).then(updateReimbursementResponse => {
-                console.log(`${endpointInfo} response ${JSON.stringify(updateReimbursementResponse.data)}`);
-
-                // retrieve the data block from the response
-                const responseData = (updateReimbursementResponse && updateReimbursementResponse.data) ? updateReimbursementResponse.data.data : null;
-
-                // check if there are any errors in the returned response
-                if (responseData && responseData.updateReimbursement.errorMessage === null) {
-                    // returned the successfully updated reimbursement
-                    return {
-                        data: responseData.updateReimbursement.data as Reimbursement,
-                        id: responseData.updateReimbursement.id
-                    }
-                } else {
-                    return responseData ?
-                        // return the error message and type, from the original AppSync call
-                        {
-                            errorMessage: responseData.updateReimbursement.errorMessage,
-                            errorType: responseData.updateReimbursement.errorType
-                        } :
-                        // return the error response indicating an invalid structure returned
-                        {
-                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
-                            errorType: ReimbursementsErrorType.ValidationError
-                        }
-                }
-            }).catch(error => {
-                if (error.response) {
-                    /**
-                     * The request was made and the server responded with a status code
-                     * that falls out of the range of 2xx.
-                     */
-                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
-                    console.log(errorMessage);
-
-                    // any other specific errors to be filtered below
-                    return {
-                        errorMessage: errorMessage,
-                        errorType: ReimbursementsErrorType.UnexpectedError
-                    };
-                } else if (error.request) {
-                    /**
-                     * The request was made but no response was received
-                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                     *  http.ClientRequest in node.js.
-                     */
-                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
-                    console.log(errorMessage);
-
-                    return {
-                        errorMessage: errorMessage,
-                        errorType: ReimbursementsErrorType.UnexpectedError
-                    };
-                } else {
-                    // Something happened in setting up the request that triggered an Error
-                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
-                    console.log(errorMessage);
-
-                    return {
-                        errorMessage: errorMessage,
-                        errorType: ReimbursementsErrorType.UnexpectedError
-                    };
-                }
-            });
-        } catch (err) {
-            const errorMessage = `Unexpected error while updating a reimbursement, through ${endpointInfo}`;
-            console.log(`${errorMessage} ${err}`);
-
-            return {
-                errorMessage: errorMessage,
-                errorType: ReimbursementsErrorType.UnexpectedError
-            };
-        }
-    }
-
-    /**
-     * Function used to create a reimbursement eligibility.
-     *
-     * @param createReimbursementEligibilityInput the reimbursement eligibility details to be passed in,
-     * in order to create a new reimbursement eligibility
-     *
-     * @returns a {@link ReimbursementEligibilityResponse} representing the newly created reimbursement eligibility
-     * data
-     */
-    async createReimbursementEligibility(createReimbursementEligibilityInput: CreateReimbursementEligibilityInput): Promise<ReimbursementEligibilityResponse> {
-        // easily identifiable API endpoint information
-        const endpointInfo = 'createReimbursementEligibility Mutation Moonbeam GraphQL API';
-
-        try {
-            // retrieve the API Key and Base URL, needed in order to make a reimbursement eligibility creation call through the client
-            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
-
-            // check to see if we obtained any invalid secret values from the call above
-            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
-                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
-                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
-                console.log(errorMessage);
-
-                return {
-                    errorMessage: errorMessage,
-                    errorType: ReimbursementsErrorType.UnexpectedError
-                };
-            }
-
-            /**
-             * createReimbursementEligibility Query
-             *
-             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
-             * with the appropriate information.
-             *
-             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
-             * error for a better customer experience.
-             */
-            return axios.post(`${moonbeamBaseURL}`, {
-                query: updateReimbursementEligibility,
-                variables: {
-                    createReimbursementEligibilityInput: createReimbursementEligibilityInput
-                }
-            }, {
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-api-key": moonbeamPrivateKey
-                },
-                timeout: 15000, // in milliseconds here
-                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
-            }).then(createReimbursementEligibilityResponse => {
-                console.log(`${endpointInfo} response ${JSON.stringify(createReimbursementEligibilityResponse.data)}`);
-
-                // retrieve the data block from the response
-                const responseData = (createReimbursementEligibilityResponse && createReimbursementEligibilityResponse.data) ? createReimbursementEligibilityResponse.data.data : null;
-
-                // check if there are any errors in the returned response
-                if (responseData && responseData.createReimbursementEligibility.errorMessage === null) {
-                    // returned the successfully created reimbursement eligibility
-                    return {
-                        id: responseData.createReimbursement.id,
-                        data: responseData.createReimbursementEligibility.data as ReimbursementEligibility
-                    }
-                } else {
-                    return responseData ?
-                        // return the error message and type, from the original AppSync call
-                        {
-                            errorMessage: responseData.createReimbursementEligibility.errorMessage,
-                            errorType: responseData.createReimbursementEligibility.errorType
-                        } :
-                        // return the error response indicating an invalid structure returned
-                        {
-                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
-                            errorType: ReimbursementsErrorType.ValidationError
-                        }
-                }
-            }).catch(error => {
-                if (error.response) {
-                    /**
-                     * The request was made and the server responded with a status code
-                     * that falls out of the range of 2xx.
-                     */
-                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
-                    console.log(errorMessage);
-
-                    // any other specific errors to be filtered below
-                    return {
-                        errorMessage: errorMessage,
-                        errorType: ReimbursementsErrorType.UnexpectedError
-                    };
-                } else if (error.request) {
-                    /**
-                     * The request was made but no response was received
-                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                     *  http.ClientRequest in node.js.
-                     */
-                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
-                    console.log(errorMessage);
-
-                    return {
-                        errorMessage: errorMessage,
-                        errorType: ReimbursementsErrorType.UnexpectedError
-                    };
-                } else {
-                    // Something happened in setting up the request that triggered an Error
-                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
-                    console.log(errorMessage);
-
-                    return {
-                        errorMessage: errorMessage,
-                        errorType: ReimbursementsErrorType.UnexpectedError
-                    };
-                }
-            });
-        } catch (err) {
-            const errorMessage = `Unexpected error while creating a reimbursement eligibility, through ${endpointInfo}`;
-            console.log(`${errorMessage} ${err}`);
-
-            return {
-                errorMessage: errorMessage,
-                errorType: ReimbursementsErrorType.UnexpectedError
-            };
-        }
-    }
-
-    /**
-     * Function used to update an existent reimbursement eligibility's details.
-     *
-     * @param updateReimbursementEligibilityInput the reimbursement eligibility details to be passed in,
-     * in order to update an existing reimbursement eligibility
-     *
-     * @returns a {@link ReimbursementEligibilityResponse} representing the updated reimbursement eligibility
-     * data
-     */
-    async updateReimbursementEligibility(updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput): Promise<ReimbursementEligibilityResponse> {
-        // easily identifiable API endpoint information
-        const endpointInfo = 'updateReimbursementEligibility Mutation Moonbeam GraphQL API';
-
-        try {
-            // retrieve the API Key and Base URL, needed in order to make a reimbursement eligibility update call through the client
-            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
-
-            // check to see if we obtained any invalid secret values from the call above
-            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
-                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
-                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
-                console.log(errorMessage);
-
-                return {
-                    errorMessage: errorMessage,
-                    errorType: ReimbursementsErrorType.UnexpectedError
-                };
-            }
-
-            /**
-             * updateReimbursementEligibility Query
-             *
-             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
-             * with the appropriate information.
-             *
-             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
-             * error for a better customer experience.
-             */
-            return axios.post(`${moonbeamBaseURL}`, {
-                query: updateReimbursementEligibility,
-                variables: {
-                    updateReimbursementEligibilityInput: updateReimbursementEligibilityInput
-                }
-            }, {
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-api-key": moonbeamPrivateKey
-                },
-                timeout: 15000, // in milliseconds here
-                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
-            }).then(updateReimbursementEligibilityResponse => {
-                console.log(`${endpointInfo} response ${JSON.stringify(updateReimbursementEligibilityResponse.data)}`);
-
-                // retrieve the data block from the response
-                const responseData = (updateReimbursementEligibilityResponse && updateReimbursementEligibilityResponse.data) ? updateReimbursementEligibilityResponse.data.data : null;
-
-                // check if there are any errors in the returned response
-                if (responseData && responseData.updateReimbursementEligibility.errorMessage === null) {
-                    // returned the successfully updated reimbursement eligibility
-                    return {
-                        id: responseData.updateReimbursementEligibility.id,
-                        data: responseData.updateReimbursementEligibility.data as ReimbursementEligibility
-                    }
-                } else {
-                    return responseData ?
-                        // return the error message and type, from the original AppSync call
-                        {
-                            errorMessage: responseData.updateReimbursementEligibility.errorMessage,
-                            errorType: responseData.updateReimbursementEligibility.errorType
-                        } :
-                        // return the error response indicating an invalid structure returned
-                        {
-                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
-                            errorType: ReimbursementsErrorType.ValidationError
-                        }
-                }
-            }).catch(error => {
-                if (error.response) {
-                    /**
-                     * The request was made and the server responded with a status code
-                     * that falls out of the range of 2xx.
-                     */
-                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
-                    console.log(errorMessage);
-
-                    // any other specific errors to be filtered below
-                    return {
-                        errorMessage: errorMessage,
-                        errorType: ReimbursementsErrorType.UnexpectedError
-                    };
-                } else if (error.request) {
-                    /**
-                     * The request was made but no response was received
-                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                     *  http.ClientRequest in node.js.
-                     */
-                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
-                    console.log(errorMessage);
-
-                    return {
-                        errorMessage: errorMessage,
-                        errorType: ReimbursementsErrorType.UnexpectedError
-                    };
-                } else {
-                    // Something happened in setting up the request that triggered an Error
-                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
-                    console.log(errorMessage);
-
-                    return {
-                        errorMessage: errorMessage,
-                        errorType: ReimbursementsErrorType.UnexpectedError
-                    };
-                }
-            });
-        } catch (err) {
-            const errorMessage = `Unexpected error while updating a reimbursement eligibility, through ${endpointInfo}`;
-            console.log(`${errorMessage} ${err}`);
-
-            return {
-                errorMessage: errorMessage,
-                errorType: ReimbursementsErrorType.UnexpectedError
-            };
-        }
-    }
-
-    /**
-     * Function used to get reimbursements for a particular user, filtered by their status.
-     *
-     * @param getReimbursementByStatusInput the reimbursement by status input, containing the filtering status
-     *
-     * @returns a {@link ReimbursementByStatusResponse} representing the matched reimbursement information, filtered by status
-     */
-    async getReimbursementByStatus(getReimbursementByStatusInput: GetReimbursementByStatusInput): Promise<ReimbursementByStatusResponse> {
-        // easily identifiable API endpoint information
-        const endpointInfo = 'getReimbursementByStatus Query Moonbeam GraphQL API';
-
-        try {
-            // retrieve the API Key and Base URL, needed in order to make the reimbursement by status retrieval call through the client
-            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
-
-            // check to see if we obtained any invalid secret values from the call above
-            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
-                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
-                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
-                console.log(errorMessage);
-
-                return {
-                    errorMessage: errorMessage,
-                    errorType: ReimbursementsErrorType.UnexpectedError
-                };
-            }
-
-            /**
-             * getReimbursementByStatus Query
-             *
-             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
-             * with the appropriate information.
-             *
-             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
-             * error for a better customer experience.
-             */
-            return axios.post(`${moonbeamBaseURL}`, {
-                query: getReimbursementByStatus,
-                variables: {
-                    getReimbursementByStatusInput: getReimbursementByStatusInput
-                }
-            }, {
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-api-key": moonbeamPrivateKey
-                },
-                timeout: 15000, // in milliseconds here
-                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
-            }).then(getReimbursementByStatusResponse => {
-                console.log(`${endpointInfo} response ${JSON.stringify(getReimbursementByStatusResponse.data)}`);
-
-                // retrieve the data block from the response
-                const responseData = (getReimbursementByStatusResponse && getReimbursementByStatusResponse.data) ? getReimbursementByStatusResponse.data.data : null;
-
-                // check if there are any errors in the returned response
-                if (responseData && responseData.getReimbursementByStatus.errorMessage === null) {
-                    // returned the successfully retrieved reimbursements for a given user, filtered by their status
-                    return {
-                        data: responseData.getReimbursementByStatus.data as Reimbursement[]
-                    }
-                } else {
-                    return responseData ?
-                        // return the error message and type, from the original AppSync call
-                        {
-                            errorMessage: responseData.getReimbursementByStatus.errorMessage,
-                            errorType: responseData.getReimbursementByStatus.errorType
-                        } :
-                        // return the error response indicating an invalid structure returned
-                        {
-                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
-                            errorType: ReimbursementsErrorType.ValidationError
-                        }
-                }
-            }).catch(error => {
-                if (error.response) {
-                    /**
-                     * The request was made and the server responded with a status code
-                     * that falls out of the range of 2xx.
-                     */
-                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
-                    console.log(errorMessage);
-
-                    // any other specific errors to be filtered below
-                    return {
-                        errorMessage: errorMessage,
-                        errorType: ReimbursementsErrorType.UnexpectedError
-                    };
-                } else if (error.request) {
-                    /**
-                     * The request was made but no response was received
-                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-                     *  http.ClientRequest in node.js.
-                     */
-                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
-                    console.log(errorMessage);
-
-                    return {
-                        errorMessage: errorMessage,
-                        errorType: ReimbursementsErrorType.UnexpectedError
-                    };
-                } else {
-                    // Something happened in setting up the request that triggered an Error
-                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
-                    console.log(errorMessage);
-
-                    return {
-                        errorMessage: errorMessage,
-                        errorType: ReimbursementsErrorType.UnexpectedError
-                    };
-                }
-            });
-        } catch (err) {
-            const errorMessage = `Unexpected error while retrieving reimbursements for a particular user, filtered by their status through ${endpointInfo}`;
-            console.log(`${errorMessage} ${err}`);
-
-            return {
-                errorMessage: errorMessage,
-                errorType: ReimbursementsErrorType.UnexpectedError
             };
         }
     }

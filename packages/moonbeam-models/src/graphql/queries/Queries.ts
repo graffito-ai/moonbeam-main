@@ -16,6 +16,27 @@ export const getUserAuthSession = /* GraphQL */ `
     }
 `;
 
+// Query used to retrieve all Notification Reminders
+export const getNotificationReminders = /* GraphQL */ `
+    query GetNotificationReminders {
+        getNotificationReminders {
+            errorMessage
+            errorType
+            data {
+                id
+                notificationReminderType
+                notificationReminderStatus
+                notificationReminderCadence
+                createdAt
+                updatedAt
+                nextTriggerAt
+                notificationChannelType
+                notificationReminderCount
+            }
+        }
+    }
+`;
+
 // Query used to retrieve all the FAQs
 export const getFAQs = /* GraphQL */ `
     query GetFAQs {
@@ -331,38 +352,6 @@ export const getTransaction = /* GraphQL */ `
     }
 `;
 
-// Query used to retrieve reimbursements for a particular user, in a particular status
-export const getReimbursementByStatus = /* GraphQL */ `
-    query GetReimbursementByStatus($getReimbursementByStatusInput: GetReimbursementByStatusInput!) {
-        getReimbursementByStatus(getReimbursementByStatusInput: $getReimbursementByStatusInput) {
-            errorMessage
-            errorType
-            data {
-                id
-                timestamp
-                reimbursementId
-                clientId
-                paymentGatewayId
-                succeeded
-                processingMessage
-                cardId
-                reimbursementStatus
-                pendingCashbackAmount
-                creditedCashbackAmount
-                currencyCode
-                transactions {
-                    id
-                    timestamp
-                    transactionId
-                    transactionStatus
-                }
-                createdAt
-                updatedAt
-            }
-        }
-    }
-`;
-
 // Query used to retrieve transactions for a particular user, in a particular status
 export const getTransactionByStatus = /* GraphQL */ `
     query GetTransactionByStatus($getTransactionByStatusInput: GetTransactionByStatusInput!) {
@@ -404,6 +393,20 @@ export const getCardLink = /* GraphQL */ `
                 createdAt
                 updatedAt
                 status
+            }
+        }
+    }
+`;
+
+// Query used to retrieve all users with no linked cards
+export const getUsersWithNoCards = /* GraphQL */ `
+    query GetUsersWithNoCards {
+        getUsersWithNoCards {
+            errorMessage
+            errorType
+            data {
+                id
+                email
             }
         }
     }

@@ -9,12 +9,13 @@ type Query {
     getDevice(getDeviceInput: GetDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     getDeviceByToken(getDeviceByTokenInput: GetDeviceByTokenInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     getTransaction(getTransactionInput: GetTransactionInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools @aws_api_key
-    getReimbursementByStatus(getReimbursementByStatusInput: GetReimbursementByStatusInput!): ReimbursementByStatusResponse! @aws_cognito_user_pools @aws_api_key
     getTransactionByStatus(getTransactionByStatusInput: GetTransactionByStatusInput!): MoonbeamTransactionsByStatusResponse! @aws_cognito_user_pools @aws_api_key
     getCardLink(getCardLinkInput: GetCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
     getStorage(getStorageInput: GetStorageInput!): StorageResponse! @aws_cognito_user_pools
     getMilitaryVerificationStatus(getMilitaryVerificationInput: GetMilitaryVerificationInput!): GetMilitaryVerificationResponse! @aws_cognito_user_pools
     getEligibleLinkedUsers: EligibleLinkedUsersResponse! @aws_cognito_user_pools @aws_api_key
+    getUsersWithNoCards: IneligibleLinkedUsersResponse! @aws_cognito_user_pools @aws_api_key
+    getNotificationReminders: NotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
     getUserAuthSession(getUserAuthSessionInput: GetUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
 }
 
@@ -24,10 +25,6 @@ type Mutation {
     createDevice(createDeviceInput: CreateDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     updateDevice(updateDeviceInput: UpdateDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     createNotification(createNotificationInput: CreateNotificationInput!): CreateNotificationResponse! @aws_cognito_user_pools @aws_api_key
-    createReimbursementEligibility(createReimbursementEligibilityInput: CreateReimbursementEligibilityInput!): ReimbursementEligibilityResponse! @aws_cognito_user_pools @aws_api_key
-    updateReimbursementEligibility(updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput!): ReimbursementEligibilityResponse! @aws_cognito_user_pools @aws_api_key
-    createReimbursement(createReimbursementInput: CreateReimbursementInput!): ReimbursementResponse! @aws_cognito_user_pools @aws_api_key
-    updateReimbursement(updateReimbursementInput: UpdateReimbursementInput!): ReimbursementResponse! @aws_cognito_user_pools @aws_api_key
     createTransaction(createTransactionInput: CreateTransactionInput!): MoonbeamTransactionResponse! @aws_cognito_user_pools @aws_api_key
     updateTransaction(updateTransactionInput: UpdateTransactionInput!): MoonbeamUpdatedTransactionResponse! @aws_cognito_user_pools @aws_api_key
     createCardLink(createCardLinkInput: CreateCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
@@ -36,6 +33,7 @@ type Mutation {
     createMilitaryVerification(createMilitaryVerificationInput: CreateMilitaryVerificationInput!): CreateMilitaryVerificationResponse! @aws_cognito_user_pools
     createUserAuthSession(createUserAuthSessionInput: CreateUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
     updateUserAuthSession(updateUserAuthSessionInput: UpdateUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
+    createNotificationReminder(createNotificationReminderInput: CreateNotificationReminderInput!): NotificationReminderResponse! @aws_cognito_user_pools
 }
 
 type Subscription {

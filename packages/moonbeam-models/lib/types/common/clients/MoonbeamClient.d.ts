@@ -1,5 +1,5 @@
 import { BaseAPIClient } from "./BaseAPIClient";
-import { CreateNotificationInput, CreateNotificationResponse, CreateReimbursementEligibilityInput, CreateReimbursementInput, EligibleLinkedUser, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetReimbursementByStatusInput, GetTransactionByStatusInput, GetTransactionInput, MilitaryVerificationNotificationUpdate, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, ReimbursementByStatusResponse, ReimbursementEligibilityResponse, ReimbursementResponse, UpdatedTransactionEvent, UpdateReimbursementEligibilityInput, UpdateReimbursementInput, UpdateTransactionInput, UserDevicesResponse } from "../GraphqlExports";
+import { CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetTransactionByStatusInput, GetTransactionInput, MilitaryVerificationNotificationUpdate, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, UpdatedTransactionEvent, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse } from "../GraphqlExports";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 /**
  * Class used as the base/generic client for all Moonbeam internal AppSync
@@ -14,7 +14,14 @@ export declare class MoonbeamClient extends BaseAPIClient {
      */
     constructor(environment: string, region: string);
     /**
-     * Function used to get all the offers, given certain filters to be passed in.
+     * Function used to get all users' emails and custom user IDs from Cognito.
+     *
+     * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
+     * user ID and email attributes.
+     */
+    getAllUsersForNotificationReminders(): Promise<UserForNotificationReminderResponse>;
+    /**
+     * Function used to get a user's email, given certain filters to be passed in.
      *
      * @param militaryVerificationNotificationUpdate the military verification notification update
      * objects, used to filter through the Cognito user pool, in order to obtain a user's email.
@@ -45,18 +52,6 @@ export declare class MoonbeamClient extends BaseAPIClient {
      * kick-started or not.
      */
     transactionsAcknowledgment(updatedTransactionEvent: UpdatedTransactionEvent): Promise<APIGatewayProxyResult>;
-    /**
-     * Function used to send a new reimbursement acknowledgment, for an eligible user with
-     * a linked card, so we can kick-start the reimbursement process through the reimbursement
-     * producer
-     *
-     * @param eligibleLinkedUser eligible linked user object to be passed in
-     *
-     * @return a {@link Promise} of {@link APIGatewayProxyResult} representing the API Gateway result
-     * sent by the reimbursement producer Lambda, to validate whether the reimbursement process was
-     * kick-started or not
-     */
-    reimbursementsAcknowledgment(eligibleLinkedUser: EligibleLinkedUser): Promise<APIGatewayProxyResult>;
     /**
      * Function used to retrieve the list of eligible linked users, to be user during the reimbursements
      * process.
@@ -105,55 +100,6 @@ export declare class MoonbeamClient extends BaseAPIClient {
      * data
      */
     updateTransaction(updateTransactionInput: UpdateTransactionInput): Promise<MoonbeamUpdatedTransactionResponse>;
-    /**
-     * Function used to create a reimbursement internally, from an incoming trigger obtained from the
-     * reimbursements trigger Lambda.
-     *
-     * @param createReimbursementInput the reimbursement input passed in from the cron Lambda trigger
-     *
-     * @returns a {@link ReimbursementResponse} representing the reimbursement details that were stored
-     * in Dynamo DB
-     */
-    createReimbursement(createReimbursementInput: CreateReimbursementInput): Promise<ReimbursementResponse>;
-    /**
-     * Function used to update an existing reimbursement's details, from an incoming trigger obtained from the
-     * reimbursements trigger Lambda.
-     *
-     * @param updateReimbursementInput the reimbursement input passed in from the cron Lambda trigger, to be used
-     * while updating an existent reimbursement's details
-     *
-     * @returns a {@link ReimbursementResponse} representing the reimbursement details that were updated
-     * in Dynamo DB
-     */
-    updateReimbursement(updateReimbursementInput: UpdateReimbursementInput): Promise<ReimbursementResponse>;
-    /**
-     * Function used to create a reimbursement eligibility.
-     *
-     * @param createReimbursementEligibilityInput the reimbursement eligibility details to be passed in,
-     * in order to create a new reimbursement eligibility
-     *
-     * @returns a {@link ReimbursementEligibilityResponse} representing the newly created reimbursement eligibility
-     * data
-     */
-    createReimbursementEligibility(createReimbursementEligibilityInput: CreateReimbursementEligibilityInput): Promise<ReimbursementEligibilityResponse>;
-    /**
-     * Function used to update an existent reimbursement eligibility's details.
-     *
-     * @param updateReimbursementEligibilityInput the reimbursement eligibility details to be passed in,
-     * in order to update an existing reimbursement eligibility
-     *
-     * @returns a {@link ReimbursementEligibilityResponse} representing the updated reimbursement eligibility
-     * data
-     */
-    updateReimbursementEligibility(updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput): Promise<ReimbursementEligibilityResponse>;
-    /**
-     * Function used to get reimbursements for a particular user, filtered by their status.
-     *
-     * @param getReimbursementByStatusInput the reimbursement by status input, containing the filtering status
-     *
-     * @returns a {@link ReimbursementByStatusResponse} representing the matched reimbursement information, filtered by status
-     */
-    getReimbursementByStatus(getReimbursementByStatusInput: GetReimbursementByStatusInput): Promise<ReimbursementByStatusResponse>;
     /**
      * Function used to create a notification.
      *

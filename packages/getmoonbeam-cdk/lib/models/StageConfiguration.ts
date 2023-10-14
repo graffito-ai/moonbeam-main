@@ -6,13 +6,10 @@ import {
     CardLinkingConfiguration,
     FAQConfiguration,
     MilitaryVerificationConfiguration,
-    MilitaryVerificationProducerConsumerConfiguration,
+    MilitaryVerificationProducerConsumerConfiguration, NotificationReminderConfiguration,
     NotificationsConfiguration,
     OffersConfiguration,
     PhysicalDevicesConfiguration,
-    ReimbursementEligibilityConfiguration,
-    ReimbursementsConfiguration,
-    ReimbursementsProducerConsumerConfiguration,
     SESConfiguration,
     StorageConfiguration,
     TransactionsConfiguration,
@@ -34,9 +31,6 @@ export interface StageConfiguration {
     readonly militaryVerificationConfig: MilitaryVerificationConfiguration;
     readonly cardLinkingConfig: CardLinkingConfiguration;
     readonly apiGatewayServiceConfig: APIGatewayServiceConfiguration;
-    readonly reimbursementsProducerConsumerConfig: ReimbursementsProducerConsumerConfiguration;
-    readonly reimbursementsConfig: ReimbursementsConfiguration;
-    readonly reimbursementEligibilityConfig: ReimbursementEligibilityConfiguration;
     readonly transactionsProducerConsumerConfig: TransactionsProducerConsumerConfiguration;
     readonly militaryVerificationProducerConsumerConfig: MilitaryVerificationProducerConsumerConfiguration;
     readonly updatedTransactionsProducerConsumerConfig: UpdatedTransactionsProducerConsumerConfiguration;
@@ -46,5 +40,6 @@ export interface StageConfiguration {
     readonly userAuthSessionConfig: UserAuthSessionConfiguration;
     readonly notificationsConfig: NotificationsConfiguration;
     readonly physicalDevicesConfig: PhysicalDevicesConfiguration;
+    readonly notificationReminderConfig: NotificationReminderConfiguration;
     readonly environmentVariables: Map<string, string>;
 }

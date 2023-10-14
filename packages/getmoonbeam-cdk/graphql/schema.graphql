@@ -9,12 +9,13 @@ type Query {
     getDevice(getDeviceInput: GetDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     getDeviceByToken(getDeviceByTokenInput: GetDeviceByTokenInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     getTransaction(getTransactionInput: GetTransactionInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools @aws_api_key
-    getReimbursementByStatus(getReimbursementByStatusInput: GetReimbursementByStatusInput!): ReimbursementByStatusResponse! @aws_cognito_user_pools @aws_api_key
     getTransactionByStatus(getTransactionByStatusInput: GetTransactionByStatusInput!): MoonbeamTransactionsByStatusResponse! @aws_cognito_user_pools @aws_api_key
     getCardLink(getCardLinkInput: GetCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
     getStorage(getStorageInput: GetStorageInput!): StorageResponse! @aws_cognito_user_pools
     getMilitaryVerificationStatus(getMilitaryVerificationInput: GetMilitaryVerificationInput!): GetMilitaryVerificationResponse! @aws_cognito_user_pools
     getEligibleLinkedUsers: EligibleLinkedUsersResponse! @aws_cognito_user_pools @aws_api_key
+    getUsersWithNoCards: IneligibleLinkedUsersResponse! @aws_cognito_user_pools @aws_api_key
+    getNotificationReminders: NotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
     getUserAuthSession(getUserAuthSessionInput: GetUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
 }
 
@@ -24,10 +25,6 @@ type Mutation {
     createDevice(createDeviceInput: CreateDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     updateDevice(updateDeviceInput: UpdateDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     createNotification(createNotificationInput: CreateNotificationInput!): CreateNotificationResponse! @aws_cognito_user_pools @aws_api_key
-    createReimbursementEligibility(createReimbursementEligibilityInput: CreateReimbursementEligibilityInput!): ReimbursementEligibilityResponse! @aws_cognito_user_pools @aws_api_key
-    updateReimbursementEligibility(updateReimbursementEligibilityInput: UpdateReimbursementEligibilityInput!): ReimbursementEligibilityResponse! @aws_cognito_user_pools @aws_api_key
-    createReimbursement(createReimbursementInput: CreateReimbursementInput!): ReimbursementResponse! @aws_cognito_user_pools @aws_api_key
-    updateReimbursement(updateReimbursementInput: UpdateReimbursementInput!): ReimbursementResponse! @aws_cognito_user_pools @aws_api_key
     createTransaction(createTransactionInput: CreateTransactionInput!): MoonbeamTransactionResponse! @aws_cognito_user_pools @aws_api_key
     updateTransaction(updateTransactionInput: UpdateTransactionInput!): MoonbeamUpdatedTransactionResponse! @aws_cognito_user_pools @aws_api_key
     createCardLink(createCardLinkInput: CreateCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
@@ -36,6 +33,7 @@ type Mutation {
     createMilitaryVerification(createMilitaryVerificationInput: CreateMilitaryVerificationInput!): CreateMilitaryVerificationResponse! @aws_cognito_user_pools
     createUserAuthSession(createUserAuthSessionInput: CreateUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
     updateUserAuthSession(updateUserAuthSessionInput: UpdateUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
+    createNotificationReminder(createNotificationReminderInput: CreateNotificationReminderInput!): NotificationReminderResponse! @aws_cognito_user_pools
 }
 
 type Subscription {
@@ -331,6 +329,12 @@ type EligibleLinkedUsersResponse @aws_cognito_user_pools @aws_api_key {
     errorType: CardLinkErrorType
     errorMessage: String
 }
+
+type IneligibleLinkedUsersResponse @aws_cognito_user_pools @aws_api_key {
+    data: [UserDetailsForNotificationReminder]
+    errorType: CardLinkErrorType
+    errorMessage: String
+}
 ## graphql/TransactionsSchema.graphql
 ## Transactions Schema File
 enum TransactionsErrorType {
@@ -581,140 +585,6 @@ input CreateTransactionInput {
     transactionBrandURLAddress: String!,
     transactionIsOnline: Boolean!
 }
-# graphql/ReimbursementsSchema.graphql
-# Reimbursements Schema File
-enum ReimbursementsErrorType {
-    DUPLICATE_OBJECT_FOUND
-    NONE_OR_ABSENT
-    VALIDATION_ERROR
-    UNEXPECTED_ERROR
-    UNPROCESSABLE
-}
-
-# Defines the types of the statuses for a reimbursement, during its lifecycle. Although these
-# statuses might not match Olive's statuses 1:1, they represent what our customers see in their
-# dashboard, and how we translate incoming Olive information, and communicate it to our end
-# users.
-enum ReimbursementStatus {
-    PENDING
-    PROCESSED
-    FAILED
-}
-
-# Defines the status for a user's reimbursement eligibility.
-enum ReimbursementEligibilityStatus {
-    ELIGIBLE
-    INELIGIBLE
-}
-
-type ReimbursementTransaction @aws_cognito_user_pools @aws_api_key {
-    id: ID! # this represents the userID which the transaction belongs to/was made by
-    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
-    transactionId: ID!
-    transactionStatus: TransactionsStatus!
-}
-
-type ReimbursementEligibility @aws_cognito_user_pools @aws_api_key {
-    id: ID! # this represents the userID which the transaction belongs to/was made by
-    eligibilityStatus: ReimbursementEligibilityStatus!
-    createdAt: AWSDateTime
-    updatedAt: AWSDateTime!
-}
-
-type Reimbursement @aws_cognito_user_pools @aws_api_key {
-    id: ID! # this represents the userID which the transaction belongs to/was made by
-    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
-    reimbursementId: ID!, # Olive specific
-    clientId: ID, # Olive specific
-    paymentGatewayId: ID, # Olive specific
-    succeeded: Boolean, # this will only be applicable is the status is PROCESSED or FAILED
-    processingMessage: String # this will only be applicable is the status is PROCESSED or FAILED so we know why something failed or succeeded
-    cardId: ID!,
-    reimbursementStatus: ReimbursementStatus!
-    pendingCashbackAmount: Float! # this amount should be the total reward amount that's pending reimbursement to the customer
-    creditedCashbackAmount: Float! # this amount should be the total reward amount that's reimbursed/credited to the customer
-    currencyCode: CurrencyCodeType!,
-    transactions:  [ReimbursementTransaction]! # this array associates particular transactions to a reimbursement object, so we know what was reimbursed to customers
-    createdAt: AWSDateTime! # this will be the same as the "timestamp" value above, only represented in a date time format
-    updatedAt: AWSDateTime!
-}
-
-type ReimbursementByStatusResponse @aws_cognito_user_pools @aws_api_key {
-    data: [Reimbursement]
-    errorType: ReimbursementsErrorType
-    errorMessage: String
-}
-
-type ReimbursementResponse @aws_cognito_user_pools @aws_api_key {
-    id: ID # this represents the userID of the reimbursement, and the reason we repeat it in the parent response is for the subscription filtering to work properly
-    data: Reimbursement
-    errorType: ReimbursementsErrorType
-    errorMessage: String
-}
-
-type ReimbursementEligibilityResponse @aws_cognito_user_pools @aws_api_key {
-    id: ID # this represents the userID of the reimbursement eligibility, and the reason we repeat it in the parent response is for the subscription filtering to work properly
-    data: ReimbursementEligibility
-    errorType: ReimbursementsErrorType
-    errorMessage: String
-}
-
-input ReimbursementTransactionInput {
-    id: ID! # this represents the userID which the transaction belongs to/was made by
-    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
-    transactionId: ID!
-    transactionStatus: TransactionsStatus!
-}
-
-input CreateReimbursementEligibilityInput {
-    id: ID! # this represents the userID which the transaction belongs to/was made by
-    eligibilityStatus: ReimbursementEligibilityStatus!
-    createdAt: AWSDateTime
-    updatedAt: AWSDateTime
-}
-
-input UpdateReimbursementEligibilityInput {
-    id: ID! # this represents the userID which the transaction belongs to/was made by
-    eligibilityStatus: ReimbursementEligibilityStatus!
-    updatedAt: AWSDateTime
-}
-
-input GetReimbursementByStatusInput {
-    id: ID! # this represents the userID which the transaction belongs to/was made by
-    reimbursementStatus: ReimbursementStatus!
-}
-
-input CreateReimbursementInput {
-    id: ID! # this represents the userID which the transaction belongs to/was made by
-    timestamp: AWSTimestamp # this represents the timestamp, in a Number epoch based format (for sorting purposes)
-    reimbursementId: ID!, # Olive specific
-    clientId: ID, # Olive specific
-    paymentGatewayId: ID, # Olive specific
-    succeeded: Boolean, # this will only be applicable is the status is PROCESSED or FAILED
-    processingMessage: String # this will only be applicable is the status is PROCESSED or FAILED so we know why something failed or succeeded
-    cardId: ID!,
-    reimbursementStatus: ReimbursementStatus!
-    pendingCashbackAmount: Float! # this amount should be the total reward amount that's pending reimbursement to the customer
-    creditedCashbackAmount: Float! # this amount should be the total reward amount that's reimbursed/credited to the customer
-    currencyCode: CurrencyCodeType!,
-    transactions:  [ReimbursementTransactionInput]! # this array associates particular transactions to a reimbursement object, so we know what was reimbursed to customers
-    createdAt: AWSDateTime # this will be the same as the "timestamp" value above, only represented in a date time format
-    updatedAt: AWSDateTime
-}
-
-input UpdateReimbursementInput {
-    id: ID! # this represents the userID which the transaction belongs to/was made by
-    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
-    clientId: ID, # Olive specific
-    paymentGatewayId: ID, # Olive specific
-    succeeded: Boolean, # this will only be applicable is the status is PROCESSED or FAILED
-    processingMessage: String # this will only be applicable is the status is PROCESSED or FAILED so we know why something failed or succeeded
-    reimbursementStatus: ReimbursementStatus
-    pendingCashbackAmount: Float # this amount should be the total reward amount that's pending reimbursement to the customer
-    creditedCashbackAmount: Float # this amount should be the total reward amount that's reimbursed/credited to the customer
-    transactions: [ReimbursementTransactionInput] # this array associates particular transactions to a reimbursement object, so we know what was reimbursed to customers
-    updatedAt: AWSDateTime
-}
 # graphql/NotificationsSchema.graphql
 # Notifications Schema File
 enum NotificationsErrorType {
@@ -725,6 +595,7 @@ enum NotificationsErrorType {
 }
 
 enum NotificationType {
+    CARD_LINKING_REMINDER
     NEW_USER_SIGNUP
     QUALIFYING_OFFER
     MILITARY_STATUS_CHANGED_PENDING_TO_VERIFIED
@@ -1131,4 +1002,72 @@ type UserAuthSessionResponse @aws_cognito_user_pools {
     data: UserAuthSession
     errorType: UserAuthSessionErrorType
     errorMessage: String
+}
+# graphql/NotificationReminderSchema.graphql
+# Notification Reminder Schema File
+enum NotificationReminderErrorType {
+    DUPLICATE_OBJECT_FOUND
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+    NONE_OR_ABSENT
+}
+
+enum NotificationReminderType {
+    CARD_LINKING_REMINDER
+}
+
+enum NotificationReminderStatus {
+    ACTIVE
+    INACTIVE
+}
+
+enum NotificationReminderCadence {
+    ONE_TIME
+    DAILY
+    WEEKLY
+    BI_WEEKLY
+    MONTHLY
+}
+
+type NotificationReminder @aws_cognito_user_pools {
+    id: ID!
+    notificationReminderType: NotificationReminderType!
+    notificationReminderStatus: NotificationReminderStatus!
+    notificationReminderCadence: NotificationReminderCadence!
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+    # this will automatically schedule the notification reminder to start the next business day, on the agreed cadence
+    nextTriggerAt: AWSDateTime!
+    notificationChannelType: [NotificationChannelType]!
+    # this represents the number of times that this notification reminder was triggered
+    notificationReminderCount: Int!
+}
+
+type UserDetailsForNotificationReminder @aws_cognito_user_pools {
+    id: ID!
+    email: String!
+}
+
+type NotificationReminderResponse @aws_cognito_user_pools {
+    data: [NotificationReminder]
+    errorType: NotificationReminderErrorType
+    errorMessage: String
+}
+
+type UserForNotificationReminderResponse @aws_cognito_user_pools {
+    data: [UserDetailsForNotificationReminder]
+    errorType: NotificationReminderErrorType
+    errorMessage: String
+}
+
+input CreateNotificationReminderInput {
+    id: ID
+    notificationReminderType: NotificationReminderType!
+    notificationReminderStatus: NotificationReminderStatus!
+    notificationReminderCadence: NotificationReminderCadence!
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+    nextTriggerAt: AWSDateTime
+    notificationChannelType: [NotificationChannelType]!
+    notificationReminderCount: Int
 }
