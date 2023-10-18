@@ -56,6 +56,8 @@ export const getNotificationReminders = async (fieldName: string): Promise<Notif
             // convert the Dynamo DB data from Dynamo DB JSON format to a Notification Reminder data format
             const notificationReminderData: NotificationReminder[] = [];
             result.forEach(notificationReminderResult => {
+                console.log(JSON.stringify(notificationReminderResult));
+
                 const notificationChannelType: NotificationChannelType[] = [];
                 notificationReminderResult.notificationChannelType.L &&
                 notificationReminderResult.notificationChannelType.L!.forEach(notificationChannelTypeResult => {

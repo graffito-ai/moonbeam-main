@@ -21,6 +21,27 @@ export const createNotificationReminder = /* GraphQL */ `
     }
 `;
 
+// Mutation used to update a Notification Reminder's details.
+export const updateNotificationReminder = /* GraphQL */ `
+    mutation UpdateNotificationReminder($updateNotificationReminderInput: UpdateNotificationReminderInput!) {
+        updateNotificationReminder(updateNotificationReminderInput: $updateNotificationReminderInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                notificationReminderType
+                notificationReminderStatus
+                notificationReminderCadence
+                createdAt
+                updatedAt
+                nextTriggerAt
+                notificationChannelType
+                notificationReminderCount
+            }
+        }
+    }
+`;
+
 // Mutation used to create a new User Auth Session.
 export const createUserAuthSession = /* GraphQL */ `
     mutation CreateUserAuthSession($createUserAuthSessionInput: CreateUserAuthSessionInput!) {

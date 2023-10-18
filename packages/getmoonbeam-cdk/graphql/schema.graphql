@@ -34,6 +34,7 @@ type Mutation {
     createUserAuthSession(createUserAuthSessionInput: CreateUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
     updateUserAuthSession(updateUserAuthSessionInput: UpdateUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
     createNotificationReminder(createNotificationReminderInput: CreateNotificationReminderInput!): NotificationReminderResponse! @aws_cognito_user_pools
+    updateNotificationReminder(updateNotificationReminderInput: UpdateNotificationReminderInput!): NotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Subscription {
@@ -330,8 +331,15 @@ type EligibleLinkedUsersResponse @aws_cognito_user_pools @aws_api_key {
     errorMessage: String
 }
 
+type RetrieveUserDetailsForNotifications @aws_cognito_user_pools @aws_api_key {
+    id: ID!
+    email: String!
+    firstName: String!
+    lastName: String!
+}
+
 type IneligibleLinkedUsersResponse @aws_cognito_user_pools @aws_api_key {
-    data: [UserDetailsForNotificationReminder]
+    data: [RetrieveUserDetailsForNotifications]
     errorType: CardLinkErrorType
     errorMessage: String
 }
@@ -636,7 +644,7 @@ type Notification @aws_cognito_user_pools @aws_api_key {
 }
 
 input CreateNotificationInput {
-    id: ID! # this represents the userID which the transaction belongs to/was made by
+    id: ID! # this represents the userID which the notification belongs to/was sent to
     timestamp: AWSTimestamp # this represents the timestamp, in a Number epoch based format (for sorting purposes)
     notificationId: ID # representing Courier's request ID, so we can link between our internal system and Courier's (obtained from Courier call)
     emailDestination: String # mostly applicable to email based notifications
@@ -1029,7 +1037,7 @@ enum NotificationReminderCadence {
     MONTHLY
 }
 
-type NotificationReminder @aws_cognito_user_pools {
+type NotificationReminder @aws_cognito_user_pools @aws_api_key {
     id: ID!
     notificationReminderType: NotificationReminderType!
     notificationReminderStatus: NotificationReminderStatus!
@@ -1043,19 +1051,23 @@ type NotificationReminder @aws_cognito_user_pools {
     notificationReminderCount: Int!
 }
 
-type UserDetailsForNotificationReminder @aws_cognito_user_pools {
+type UserDetailsForNotifications @aws_cognito_user_pools @aws_api_key {
     id: ID!
     email: String!
+    firstName: String!
+    lastName: String!
+    notificationChannelType: [NotificationChannelType]!
+    notificationType: NotificationType!
 }
 
-type NotificationReminderResponse @aws_cognito_user_pools {
+type NotificationReminderResponse @aws_cognito_user_pools @aws_api_key {
     data: [NotificationReminder]
     errorType: NotificationReminderErrorType
     errorMessage: String
 }
 
-type UserForNotificationReminderResponse @aws_cognito_user_pools {
-    data: [UserDetailsForNotificationReminder]
+type UserForNotificationReminderResponse @aws_cognito_user_pools @aws_api_key {
+    data: [RetrieveUserDetailsForNotifications]
     errorType: NotificationReminderErrorType
     errorMessage: String
 }
@@ -1071,3 +1083,11 @@ input CreateNotificationReminderInput {
     notificationChannelType: [NotificationChannelType]!
     notificationReminderCount: Int
 }
+
+input UpdateNotificationReminderInput {
+    id: ID!
+    notificationReminderStatus: NotificationReminderStatus!
+    updatedAt: AWSDateTime
+}
+
+

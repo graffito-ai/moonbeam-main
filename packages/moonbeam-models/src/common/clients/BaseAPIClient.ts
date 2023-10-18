@@ -12,6 +12,7 @@ import {
     GetOffersInput,
     GetTransactionByStatusInput,
     GetTransactionInput,
+    IneligibleLinkedUsersResponse,
     MemberDetailsResponse,
     MemberResponse,
     MilitaryVerificationNotificationUpdate,
@@ -21,7 +22,7 @@ import {
     MoonbeamTransactionsByStatusResponse,
     MoonbeamTransactionsResponse,
     MoonbeamUpdatedTransactionResponse,
-    NotificationChannelType,
+    NotificationChannelType, NotificationReminderResponse,
     NotificationResponse,
     NotificationType,
     OffersResponse,
@@ -31,7 +32,7 @@ import {
     Transaction,
     TransactionResponse,
     UpdatedTransactionEvent,
-    UpdatedTransactionEventResponse,
+    UpdatedTransactionEventResponse, UpdateNotificationReminderInput,
     UpdateTransactionInput,
     UserDevicesResponse, UserForNotificationReminderResponse
 } from "../GraphqlExports";
@@ -149,6 +150,20 @@ export abstract class BaseAPIClient {
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_STATUS_CHANGED_PENDING_TO_VERIFIED_AUTH_TOKEN],
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_STATUS_CHANGED_PENDING_TO_VERIFIED_TEMPLATE_ID]];
                                     }
+                                case NotificationType.CardLinkingReminder:
+                                    if (channelType !== undefined) {
+                                        return channelType === NotificationChannelType.Email
+                                            ? [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_CARD_LINKING_REMINDER_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_CARD_LINKING_REMINDER_TEMPLATE_ID]]
+                                            : [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_CARD_LINKING_REMINDER_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_CARD_LINKING_REMINDER_TEMPLATE_ID]];
+                                    } else {
+                                        return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_CARD_LINKING_REMINDER_AUTH_TOKEN],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_CARD_LINKING_REMINDER_TEMPLATE_ID]];
+                                    }
                                 default:
                                     console.log(`Unknown notifications type to retrieve secrets in ${verificationClientSecretsName}`);
                                     return [null, null];
@@ -187,6 +202,38 @@ export abstract class BaseAPIClient {
             throw new Error(errorMessage);
         }
     }
+
+    /**
+     * Function used to get the users with no linked cards.
+     *
+     * @returns a {@link IneligibleLinkedUsersResponse}, representing the users
+     * which are not eligible for a reimbursement, since they have no linked cards.
+     *
+     * @protected
+     */
+    protected getUsersWithNoCards?(): Promise<IneligibleLinkedUsersResponse>;
+
+    /**
+     * Function used to get all ACTIVE notification reminders.
+     *
+     * @returns a {@link NotificationReminderResponse}, representing the ACTIVE notification
+     * reminders.
+     *
+     * @protected
+     */
+    protected getNotificationReminders?(): Promise<NotificationReminderResponse>;
+
+    /**
+     * Function used to update a specific notification reminder.
+     *
+     * @param updateNotificationReminderInput the notification reminder input, containing any information used to
+     * update an applicable notification reminder.
+     *
+     * @returns a {@link NotificationReminderResponse}, representing the update notification reminder.
+     *
+     * @protected
+     */
+    protected updateNotificationReminder?(updateNotificationReminderInput: UpdateNotificationReminderInput): Promise<NotificationReminderResponse>;
 
     /**
      * Function used to get all users' emails and custom user IDs from Cognito.

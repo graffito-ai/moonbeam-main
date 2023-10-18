@@ -1,6 +1,6 @@
 import { SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import { Card, CardLinkResponse, CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetOffersInput, GetTransactionByStatusInput, GetTransactionInput, MemberDetailsResponse, MemberResponse, MilitaryVerificationNotificationUpdate, MilitaryVerificationStatusType, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationChannelType, NotificationResponse, NotificationType, OffersResponse, RemoveCardResponse, SendEmailNotificationInput, SendMobilePushNotificationInput, Transaction, TransactionResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse } from "../GraphqlExports";
+import { Card, CardLinkResponse, CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetOffersInput, GetTransactionByStatusInput, GetTransactionInput, IneligibleLinkedUsersResponse, MemberDetailsResponse, MemberResponse, MilitaryVerificationNotificationUpdate, MilitaryVerificationStatusType, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationChannelType, NotificationReminderResponse, NotificationResponse, NotificationType, OffersResponse, RemoveCardResponse, SendEmailNotificationInput, SendMobilePushNotificationInput, Transaction, TransactionResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse, UpdateNotificationReminderInput, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse } from "../GraphqlExports";
 /**
  * Class used as the base/generic client for all API clients that
  * we will be connecting to.
@@ -35,6 +35,35 @@ export declare abstract class BaseAPIClient {
      * @return a {@link Promise} of a {@link string} pair, containing various secrets to be used
      */
     protected retrieveServiceCredentials(verificationClientSecretsName: string, internalRestBased?: boolean, notificationType?: NotificationType, includeLoyaltyPrograms?: boolean, cognitoClientAccess?: boolean, channelType?: NotificationChannelType): Promise<[string | null, string | null, (string | null)?, (string | null)?, (string | null)?, (string | null)?, (string | null)?, (string | null)?]>;
+    /**
+     * Function used to get the users with no linked cards.
+     *
+     * @returns a {@link IneligibleLinkedUsersResponse}, representing the users
+     * which are not eligible for a reimbursement, since they have no linked cards.
+     *
+     * @protected
+     */
+    protected getUsersWithNoCards?(): Promise<IneligibleLinkedUsersResponse>;
+    /**
+     * Function used to get all ACTIVE notification reminders.
+     *
+     * @returns a {@link NotificationReminderResponse}, representing the ACTIVE notification
+     * reminders.
+     *
+     * @protected
+     */
+    protected getNotificationReminders?(): Promise<NotificationReminderResponse>;
+    /**
+     * Function used to update a specific notification reminder.
+     *
+     * @param updateNotificationReminderInput the notification reminder input, containing any information used to
+     * update an applicable notification reminder.
+     *
+     * @returns a {@link NotificationReminderResponse}, representing the update notification reminder.
+     *
+     * @protected
+     */
+    protected updateNotificationReminder?(updateNotificationReminderInput: UpdateNotificationReminderInput): Promise<NotificationReminderResponse>;
     /**
      * Function used to get all users' emails and custom user IDs from Cognito.
      *

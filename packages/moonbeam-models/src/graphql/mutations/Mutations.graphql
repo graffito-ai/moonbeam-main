@@ -17,6 +17,23 @@ mutation CreateNotificationReminder($createNotificationReminderInput: CreateNoti
         }
     }
 }
+mutation UpdateNotificationReminder($updateNotificationReminderInput: UpdateNotificationReminderInput!) {
+    updateNotificationReminder(updateNotificationReminderInput: $updateNotificationReminderInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            notificationReminderType
+            notificationReminderStatus
+            notificationReminderCadence
+            createdAt
+            updatedAt
+            nextTriggerAt
+            notificationChannelType
+            notificationReminderCount
+        }
+    }
+}
 mutation CreateUserAuthSession($createUserAuthSessionInput: CreateUserAuthSessionInput!) {
     createUserAuthSession(createUserAuthSessionInput: $createUserAuthSessionInput) {
         errorMessage

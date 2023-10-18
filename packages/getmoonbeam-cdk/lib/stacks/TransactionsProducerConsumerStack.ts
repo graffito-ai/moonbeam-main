@@ -16,21 +16,23 @@ import {EventSourceMapping} from "aws-cdk-lib/aws-lambda";
 export class TransactionsProducerConsumerStack extends Stack {
 
     /**
-     * the webhook transactions Lambda Function, acting as the acknowledgment service/producer,
-     * to be used in configuring REST API Gateway endpoints in dependent stacks, as well as setting up
-     * the fan-out mechanism for transactions.
+     * the transaction offers producer Lambda Function, acting as the
+     * transaction offers producer, to be used in kick-starting the whole
+     * transaction offers process, by dropping messages in the appropriate topic and queue.
      */
     readonly transactionsProducerLambda: aws_lambda_nodejs.NodejsFunction;
 
     /**
-     * the consumer for transactional offers Lambda Function, to be used in setting up the fan-out
-     * mechanism for transactions eligible to be redeemed as offers.
+     * the transaction offers consumer Lambda Function, acting as the
+     * transaction offers consumer, to be used during the whole
+     * transaction offers process, by consuming dropped messages from the appropriate topic and queue.
      */
     readonly transactionalOffersConsumerLambda: aws_lambda_nodejs.NodejsFunction;
 
     /**
-     * the consumer for notifications used for transactional offers Lambda Function, to be used in setting up the fan-out
-     * mechanism for notifications for transactions eligible to be redeemed as offers.
+     * the transaction offers notifications consumer Lambda Function, acting as the
+     * transaction offers notifications consumer, to be used during the whole
+     * transaction offers notifications process, by consuming dropped messages from the appropriate topic and queue.
      */
     readonly notificationsTransactionalOffersConsumerLambda: aws_lambda_nodejs.NodejsFunction;
 

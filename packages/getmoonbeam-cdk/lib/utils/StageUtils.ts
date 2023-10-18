@@ -17,6 +17,7 @@ import {UpdateTransactionsProducerConsumerStack} from "../stacks/UpdateTransacti
 import {MilitaryVerificationProducerConsumerStack} from "../stacks/MilitaryVerificationProducerConsumerStack";
 import {UserAuthSessionResolverStack} from "../stacks/UserAuthSessionResolverStack";
 import {NotificationReminderResolverStack} from "../stacks/NotificationReminderResolverStack";
+import {NotificationReminderProducerConsumerStack} from "../stacks/NotificationReminderProducerConsumerStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -259,6 +260,17 @@ export class StageUtils {
                     environmentVariables: stageConfiguration.environmentVariables
                 });
                 militaryVerificationUpdatesProducerConsumerStack.addDependency(appSyncStack);
+
+                // create the Notification Reminder Producer Consumer stack && add it to the CDK app
+                const notificationReminderProducerConsumerStack = new NotificationReminderProducerConsumerStack(this.app, `moonbeam-notification-reminder-producer-consumer-${stageKey}`, {
+                    stackName: `moonbeam-notification-reminder-producer-consumer-${stageKey}`,
+                    description: 'This stack will contain all the resources needed for the notification reminder consumers, as well as producers',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    notificationReminderProducerConsumerConfig: stageConfiguration.notificationReminderProducerConsumerConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                notificationReminderProducerConsumerStack.addDependency(appSyncStack);
 
                 // create the Notification Reminder resolver stack && add it to the CDK app
                 const notificationReminderStack = new NotificationReminderResolverStack(this.app, `moonbeam-notification-reminder-resolver-${stageKey}`, {

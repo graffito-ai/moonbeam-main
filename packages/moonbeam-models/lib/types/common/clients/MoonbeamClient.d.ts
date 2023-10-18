@@ -1,5 +1,5 @@
 import { BaseAPIClient } from "./BaseAPIClient";
-import { CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetTransactionByStatusInput, GetTransactionInput, MilitaryVerificationNotificationUpdate, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, UpdatedTransactionEvent, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse } from "../GraphqlExports";
+import { CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetTransactionByStatusInput, GetTransactionInput, IneligibleLinkedUsersResponse, MilitaryVerificationNotificationUpdate, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationReminderResponse, UpdatedTransactionEvent, UpdateNotificationReminderInput, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse } from "../GraphqlExports";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 /**
  * Class used as the base/generic client for all Moonbeam internal AppSync
@@ -52,6 +52,31 @@ export declare class MoonbeamClient extends BaseAPIClient {
      * kick-started or not.
      */
     transactionsAcknowledgment(updatedTransactionEvent: UpdatedTransactionEvent): Promise<APIGatewayProxyResult>;
+    /**
+     * Function used to get all ACTIVE notification reminders.
+     *
+     * @returns a {@link NotificationReminderResponse}, representing the ACTIVE notification
+     * reminders.
+     */
+    getNotificationReminders(): Promise<NotificationReminderResponse>;
+    /**
+     * Function used to update a specific notification reminder.
+     *
+     * @param updateNotificationReminderInput the notification reminder input, containing any information used to
+     * update an applicable notification reminder.
+     *
+     * @returns a {@link NotificationReminderResponse}, representing the update notification reminder.
+     *
+     * @protected
+     */
+    updateNotificationReminder(updateNotificationReminderInput: UpdateNotificationReminderInput): Promise<NotificationReminderResponse>;
+    /**
+     * Function used to get the users with no linked cards.
+     *
+     * @returns a {@link IneligibleLinkedUsersResponse}, representing the users
+     * which are not eligible for a reimbursement, since they have no linked cards.
+     */
+    getUsersWithNoCards(): Promise<IneligibleLinkedUsersResponse>;
     /**
      * Function used to retrieve the list of eligible linked users, to be user during the reimbursements
      * process.

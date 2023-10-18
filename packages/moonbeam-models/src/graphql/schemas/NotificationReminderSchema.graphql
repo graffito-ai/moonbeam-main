@@ -24,7 +24,7 @@ enum NotificationReminderCadence {
     MONTHLY
 }
 
-type NotificationReminder @aws_cognito_user_pools {
+type NotificationReminder @aws_cognito_user_pools @aws_api_key {
     id: ID!
     notificationReminderType: NotificationReminderType!
     notificationReminderStatus: NotificationReminderStatus!
@@ -38,19 +38,23 @@ type NotificationReminder @aws_cognito_user_pools {
     notificationReminderCount: Int!
 }
 
-type UserDetailsForNotificationReminder @aws_cognito_user_pools {
+type UserDetailsForNotifications @aws_cognito_user_pools @aws_api_key {
     id: ID!
     email: String!
+    firstName: String!
+    lastName: String!
+    notificationChannelType: [NotificationChannelType]!
+    notificationType: NotificationType!
 }
 
-type NotificationReminderResponse @aws_cognito_user_pools {
+type NotificationReminderResponse @aws_cognito_user_pools @aws_api_key {
     data: [NotificationReminder]
     errorType: NotificationReminderErrorType
     errorMessage: String
 }
 
-type UserForNotificationReminderResponse @aws_cognito_user_pools {
-    data: [UserDetailsForNotificationReminder]
+type UserForNotificationReminderResponse @aws_cognito_user_pools @aws_api_key {
+    data: [RetrieveUserDetailsForNotifications]
     errorType: NotificationReminderErrorType
     errorMessage: String
 }
@@ -66,3 +70,11 @@ input CreateNotificationReminderInput {
     notificationChannelType: [NotificationChannelType]!
     notificationReminderCount: Int
 }
+
+input UpdateNotificationReminderInput {
+    id: ID!
+    notificationReminderStatus: NotificationReminderStatus!
+    updatedAt: AWSDateTime
+}
+
+

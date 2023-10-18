@@ -407,6 +407,8 @@ export const getUsersWithNoCards = /* GraphQL */ `
             data {
                 id
                 email
+                firstName
+                lastName
             }
         }
     }

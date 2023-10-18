@@ -62,7 +62,6 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 internalUsagePlan: `internalUsagePlan`,
                 transactionsAcknowledgmentMethodName: `transactionsAcknowledgment`,
                 updatedTransactionsAcknowledgmentMethodName: `updatedTransactionsAcknowledgment`,
-                reimbursementsAcknowledgmentMethodName: `reimbursementsAcknowledgment`,
                 militaryVerificationUpdatesAcknowledgmentMethodName: `militaryVerificationUpdatesAcknowledgment`
             },
             transactionsProducerConsumerConfig: {
@@ -79,6 +78,18 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     transactionsProcessingTopicDLQName: 'transactionsProcessingTopicDLQ',
                     transactionalOffersProcessingEventSourceMapping: 'transactionalOffersProcessingEventSourceMapping',
                     notificationsTransactionalOffersProcessingEventSourceMapping: 'notificationsTransactionalOffersProcessingEventSourceMapping'
+                }
+            },
+            notificationReminderProducerConsumerConfig: {
+                notificationReminderProducerFunctionName: 'notificationReminderProducerLambdaFunction',
+                notificationReminderConsumerFunctionName: 'notificationReminderConsumerLambdaFunction',
+                notificationReminderCronRuleName: 'notificationReminderCronRule',
+                notificationReminderFanOutConfig: {
+                    notificationReminderProcessingTopicName: 'notificationReminderProcessingTopic',
+                    notificationReminderProcessingQueueName: 'notificationReminderProcessingQueue',
+                    notificationReminderProcessingDLQName: 'notificationReminderProcessingDLQ',
+                    notificationReminderProcessingTopicDLQName: 'notificationReminderProcessingTopicDLQ',
+                    notificationReminderProcessingEventSourceMapping: 'notificationReminderProcessingEventSourceMapping'
                 }
             },
             updatedTransactionsProducerConsumerConfig: {
@@ -158,7 +169,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 notificationReminderFunctionName: 'notificationReminderFunction',
                 notificationReminderTableName: 'notificationReminderTable',
                 createNotificationReminderResolverName: 'createNotificationReminder',
-                getNotificationRemindersResolverName: 'getNotificationReminders'
+                getNotificationRemindersResolverName: 'getNotificationReminders',
+                updateNotificationReminderResolverName: 'updateNotificationReminder'
             },
             environmentVariables: new Map<string, string>([])
         },
@@ -218,7 +230,6 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 internalUsagePlan: `internalUsagePlan`,
                 transactionsAcknowledgmentMethodName: `transactionsAcknowledgment`,
                 updatedTransactionsAcknowledgmentMethodName: `updatedTransactionsAcknowledgment`,
-                reimbursementsAcknowledgmentMethodName: `reimbursementsAcknowledgment`,
                 militaryVerificationUpdatesAcknowledgmentMethodName: `militaryVerificationUpdatesAcknowledgment`
             },
             transactionsProducerConsumerConfig: {
@@ -246,6 +257,18 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     updatedTransactionalOffersProcessingQueueName: 'updatedTransactionalOffersProcessingQueue',
                     updatedTransactionalOffersProcessingDLQName: 'updateTransactionalOffersProcessingDLQ',
                     updatedTransactionalOffersProcessingEventSourceMapping: 'updateTransactionalOffersProcessingEventSourceMapping'
+                }
+            },
+            notificationReminderProducerConsumerConfig: {
+                notificationReminderProducerFunctionName: 'notificationReminderProducerLambdaFunction',
+                notificationReminderConsumerFunctionName: 'notificationReminderConsumerLambdaFunction',
+                notificationReminderCronRuleName: 'notificationReminderCronRule',
+                notificationReminderFanOutConfig: {
+                    notificationReminderProcessingTopicName: 'notificationReminderProcessingTopic',
+                    notificationReminderProcessingQueueName: 'notificationReminderProcessingQueue',
+                    notificationReminderProcessingDLQName: 'notificationReminderProcessingDLQ',
+                    notificationReminderProcessingTopicDLQName: 'notificationReminderProcessingTopicDLQ',
+                    notificationReminderProcessingEventSourceMapping: 'notificationReminderProcessingEventSourceMapping'
                 }
             },
             transactionsConfig: {
@@ -314,7 +337,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 notificationReminderFunctionName: 'notificationReminderFunction',
                 notificationReminderTableName: 'notificationReminderTable',
                 createNotificationReminderResolverName: 'createNotificationReminder',
-                getNotificationRemindersResolverName: 'getNotificationReminders'
+                getNotificationRemindersResolverName: 'getNotificationReminders',
+                updateNotificationReminderResolverName: 'updateNotificationReminder'
             },
             environmentVariables: new Map<string, string>([])
         },

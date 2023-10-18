@@ -94,8 +94,30 @@ export interface APIGatewayServiceConfiguration {
     readonly internalUsagePlan: string;
     readonly transactionsAcknowledgmentMethodName: string;
     readonly updatedTransactionsAcknowledgmentMethodName: string;
-    readonly reimbursementsAcknowledgmentMethodName: string;
     readonly militaryVerificationUpdatesAcknowledgmentMethodName: string;
+}
+
+/**
+ * Interface used to define the configuration for the notification reminder-related
+ * fan-out pattern, composed of an event-based process, driven by SNS and SQS.
+ */
+export interface NotificationReminderFanOutConfiguration {
+    readonly notificationReminderProcessingTopicName: string;
+    readonly notificationReminderProcessingQueueName: string;
+    readonly notificationReminderProcessingDLQName: string;
+    readonly notificationReminderProcessingTopicDLQName: string;
+    readonly notificationReminderProcessingEventSourceMapping: string;
+}
+
+/**
+ * Interface used to define all the resources for the producer and consumers, taking advantage
+ * of the async notification reminder data.
+ */
+export interface NotificationReminderProducerConsumerConfiguration {
+    readonly notificationReminderProducerFunctionName: string;
+    readonly notificationReminderConsumerFunctionName: string;
+    readonly notificationReminderCronRuleName: string;
+    readonly notificationReminderFanOutConfig: NotificationReminderFanOutConfiguration;
 }
 
 /**
@@ -256,4 +278,5 @@ export interface NotificationReminderConfiguration {
     readonly notificationReminderTableName: string;
     readonly createNotificationReminderResolverName: string;
     readonly getNotificationRemindersResolverName: string;
+    readonly updateNotificationReminderResolverName: string;
 }

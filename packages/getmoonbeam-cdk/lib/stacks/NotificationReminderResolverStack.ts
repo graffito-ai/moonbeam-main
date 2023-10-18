@@ -40,8 +40,8 @@ export class NotificationReminderResolverStack extends Stack {
             },
             reservedConcurrentExecutions: 145
         });
-        new Alias(this, `${props.notificationReminderConfig.notificationReminderFunctionName}-current-version-alias`, {
-            aliasName: `${props.notificationReminderConfig.notificationReminderFunctionName}-current-version-alias`,
+        new Alias(this, `${props.notificationReminderConfig.notificationReminderFunctionName}-alias`, {
+            aliasName: `${props.notificationReminderConfig.notificationReminderFunctionName}-alias`,
             version: notificationReminderLambda.currentVersion,
             provisionedConcurrentExecutions: 2
         });
@@ -62,6 +62,10 @@ export class NotificationReminderResolverStack extends Stack {
         notificationReminderLambdaSource.createResolver(`${props.notificationReminderConfig.createNotificationReminderResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Mutation",
             fieldName: `${props.notificationReminderConfig.createNotificationReminderResolverName}`
+        });
+        notificationReminderLambdaSource.createResolver(`${props.notificationReminderConfig.updateNotificationReminderResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Mutation",
+            fieldName: `${props.notificationReminderConfig.updateNotificationReminderResolverName}`
         });
 
         // create a new table to be used for Notification Reminder purposes

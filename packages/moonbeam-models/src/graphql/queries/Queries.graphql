@@ -357,6 +357,8 @@ query GetUsersWithNoCards {
         data {
             id
             email
+            firstName
+            lastName
         }
     }
 }

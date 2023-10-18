@@ -6,7 +6,9 @@ import {
     CardLinkingConfiguration,
     FAQConfiguration,
     MilitaryVerificationConfiguration,
-    MilitaryVerificationProducerConsumerConfiguration, NotificationReminderConfiguration,
+    MilitaryVerificationProducerConsumerConfiguration,
+    NotificationReminderConfiguration,
+    NotificationReminderProducerConsumerConfiguration,
     NotificationsConfiguration,
     OffersConfiguration,
     PhysicalDevicesConfiguration,
@@ -31,6 +33,7 @@ export interface StageConfiguration {
     readonly militaryVerificationConfig: MilitaryVerificationConfiguration;
     readonly cardLinkingConfig: CardLinkingConfiguration;
     readonly apiGatewayServiceConfig: APIGatewayServiceConfiguration;
+    readonly notificationReminderProducerConsumerConfig: NotificationReminderProducerConsumerConfiguration;
     readonly transactionsProducerConsumerConfig: TransactionsProducerConsumerConfiguration;
     readonly militaryVerificationProducerConsumerConfig: MilitaryVerificationProducerConsumerConfiguration;
     readonly updatedTransactionsProducerConsumerConfig: UpdatedTransactionsProducerConsumerConfiguration;

@@ -349,7 +349,7 @@ export type GetUserAuthSessionInput = {
 };
 export type IneligibleLinkedUsersResponse = {
     __typename?: 'IneligibleLinkedUsersResponse';
-    data?: Maybe<Array<Maybe<UserDetailsForNotificationReminder>>>;
+    data?: Maybe<Array<Maybe<RetrieveUserDetailsForNotifications>>>;
     errorMessage?: Maybe<Scalars['String']>;
     errorType?: Maybe<CardLinkErrorType>;
 };
@@ -524,6 +524,7 @@ export type Mutation = {
     deleteCard: CardResponse;
     updateDevice: UserDeviceResponse;
     updateMilitaryVerificationStatus: UpdateMilitaryVerificationResponse;
+    updateNotificationReminder: NotificationReminderResponse;
     updateTransaction: MoonbeamUpdatedTransactionResponse;
     updateUserAuthSession: UserAuthSessionResponse;
 };
@@ -562,6 +563,9 @@ export type MutationUpdateDeviceArgs = {
 };
 export type MutationUpdateMilitaryVerificationStatusArgs = {
     updateMilitaryVerificationInput: UpdateMilitaryVerificationInput;
+};
+export type MutationUpdateNotificationReminderArgs = {
+    updateNotificationReminderInput: UpdateNotificationReminderInput;
 };
 export type MutationUpdateTransactionArgs = {
     updateTransactionInput: UpdateTransactionInput;
@@ -830,6 +834,13 @@ export type RemoveCardResponse = {
     errorMessage?: Maybe<Scalars['String']>;
     errorType?: Maybe<CardLinkErrorType>;
 };
+export type RetrieveUserDetailsForNotifications = {
+    __typename?: 'RetrieveUserDetailsForNotifications';
+    email: Scalars['String'];
+    firstName: Scalars['String'];
+    id: Scalars['ID'];
+    lastName: Scalars['String'];
+};
 export type Reward = {
     __typename?: 'Reward';
     maxValue?: Maybe<Scalars['Float']>;
@@ -954,6 +965,11 @@ export type UpdateMilitaryVerificationResponse = {
     id?: Maybe<Scalars['ID']>;
     militaryVerificationStatus?: Maybe<MilitaryVerificationStatusType>;
 };
+export type UpdateNotificationReminderInput = {
+    id: Scalars['ID'];
+    notificationReminderStatus: NotificationReminderStatus;
+    updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
 export type UpdateTransactionEventTransactionData = {
     __typename?: 'UpdateTransactionEventTransactionData';
     amount?: Maybe<Scalars['Float']>;
@@ -1024,10 +1040,14 @@ export type UserAuthSessionResponse = {
     errorMessage?: Maybe<Scalars['String']>;
     errorType?: Maybe<UserAuthSessionErrorType>;
 };
-export type UserDetailsForNotificationReminder = {
-    __typename?: 'UserDetailsForNotificationReminder';
+export type UserDetailsForNotifications = {
+    __typename?: 'UserDetailsForNotifications';
     email: Scalars['String'];
+    firstName: Scalars['String'];
     id: Scalars['ID'];
+    lastName: Scalars['String'];
+    notificationChannelType: Array<Maybe<NotificationChannelType>>;
+    notificationType: NotificationType;
 };
 export declare enum UserDeviceErrorType {
     DuplicateObjectFound = "DUPLICATE_OBJECT_FOUND",
@@ -1053,7 +1073,7 @@ export type UserDevicesResponse = {
 };
 export type UserForNotificationReminderResponse = {
     __typename?: 'UserForNotificationReminderResponse';
-    data?: Maybe<Array<Maybe<UserDetailsForNotificationReminder>>>;
+    data?: Maybe<Array<Maybe<RetrieveUserDetailsForNotifications>>>;
     errorMessage?: Maybe<Scalars['String']>;
     errorType?: Maybe<NotificationReminderErrorType>;
 };
@@ -1063,6 +1083,29 @@ export type CreateNotificationReminderMutationVariables = Exact<{
 export type CreateNotificationReminderMutation = {
     __typename?: 'Mutation';
     createNotificationReminder: {
+        __typename?: 'NotificationReminderResponse';
+        errorMessage?: string | null;
+        errorType?: NotificationReminderErrorType | null;
+        data?: Array<{
+            __typename?: 'NotificationReminder';
+            id: string;
+            notificationReminderType: NotificationReminderType;
+            notificationReminderStatus: NotificationReminderStatus;
+            notificationReminderCadence: NotificationReminderCadence;
+            createdAt: string;
+            updatedAt: string;
+            nextTriggerAt: string;
+            notificationChannelType: Array<NotificationChannelType | null>;
+            notificationReminderCount: number;
+        } | null> | null;
+    };
+};
+export type UpdateNotificationReminderMutationVariables = Exact<{
+    updateNotificationReminderInput: UpdateNotificationReminderInput;
+}>;
+export type UpdateNotificationReminderMutation = {
+    __typename?: 'Mutation';
+    updateNotificationReminder: {
         __typename?: 'NotificationReminderResponse';
         errorMessage?: string | null;
         errorType?: NotificationReminderErrorType | null;
@@ -1826,9 +1869,11 @@ export type GetUsersWithNoCardsQuery = {
         errorMessage?: string | null;
         errorType?: CardLinkErrorType | null;
         data?: Array<{
-            __typename?: 'UserDetailsForNotificationReminder';
+            __typename?: 'RetrieveUserDetailsForNotifications';
             id: string;
             email: string;
+            firstName: string;
+            lastName: string;
         } | null> | null;
     };
 };

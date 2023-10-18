@@ -16,15 +16,16 @@ import {EventSourceMapping} from "aws-cdk-lib/aws-lambda";
 export class MilitaryVerificationProducerConsumerStack extends Stack {
 
     /**
-     * the webhook military verification updates Lambda Function, acting as the acknowledgment service/producer,
-     * to be used in configuring REST API Gateway endpoints in dependent stacks, as well as setting up
-     * the fan-out mechanism for military verification notifications.
+     * the military verification notification producer Lambda Function, acting as the military
+     * verification notification producer, to be used in kick-starting the whole military
+     * notification verification process, by dropping messages in the appropriate topic and queue.
      */
     readonly militaryVerificationNotificationProducerLambda: aws_lambda_nodejs.NodejsFunction;
 
     /**
-     * the consumer for notifications used for military verifications Lambda Function, to be used in setting up
-     * the fan-out mechanism for notifications for military verifications.
+     * the military verification notification consumer Lambda Function, acting as the military
+     * verification notification consumer, to be used during the whole military notification
+     * verification process, by consuming dropped messages from the appropriate topic and queue.
      */
     readonly militaryVerificationNotificationConsumerLambda: aws_lambda_nodejs.NodejsFunction;
 

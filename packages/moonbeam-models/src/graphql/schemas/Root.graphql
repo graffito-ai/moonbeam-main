@@ -34,6 +34,7 @@ type Mutation {
     createUserAuthSession(createUserAuthSessionInput: CreateUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
     updateUserAuthSession(updateUserAuthSessionInput: UpdateUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
     createNotificationReminder(createNotificationReminderInput: CreateNotificationReminderInput!): NotificationReminderResponse! @aws_cognito_user_pools
+    updateNotificationReminder(updateNotificationReminderInput: UpdateNotificationReminderInput!): NotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Subscription {

@@ -1,10 +1,11 @@
 import {
     CreateNotificationReminderInput,
     NotificationReminderErrorType,
-    NotificationReminderResponse
+    NotificationReminderResponse, UpdateNotificationReminderInput
 } from "@moonbeam/moonbeam-models";
 import {createNotificationReminder} from "./resolvers/CreateNotificationReminderResolver";
-import {getNotificationReminders} from "./resolvers/GetNotificationRemindersResolver";
+import {getNotificationReminders} from "./resolvers/GetNotificationReminderResolver";
+import { updateNotificationReminder } from "./resolvers/UpdateNotificationReminderResolver";
 
 /**
  * Mapping out the App Sync event type, so we can use it as a type in the Lambda Handler
@@ -15,6 +16,7 @@ type AppSyncEvent = {
     },
     arguments: {
         createNotificationReminderInput: CreateNotificationReminderInput
+        updateNotificationReminderInput: UpdateNotificationReminderInput
     },
     identity: {
         sub: string;
@@ -36,6 +38,8 @@ exports.handler = async (event: AppSyncEvent): Promise<NotificationReminderRespo
             return await getNotificationReminders(event.info.fieldName);
         case "createNotificationReminder":
             return await createNotificationReminder(event.info.fieldName, event.arguments.createNotificationReminderInput);
+        case "updateNotificationReminder":
+            return await updateNotificationReminder(event.info.fieldName, event.arguments.updateNotificationReminderInput);
         default:
             const errorMessage = `Unexpected field name: ${event.info.fieldName}`;
             console.log(errorMessage);
