@@ -183,7 +183,7 @@ const resetSearchState = atom<boolean>({
 /**
  * Atom used to keep track of the top toggle in the store
  */
-const toggleViewPressedState = atom<'horizontal' | 'vertical' | null>({
+const toggleViewPressedState = atom<'horizontal' | 'vertical' | 'map' | null>({
     key: "toggleViewPressedState",
     default: 'horizontal'
 });

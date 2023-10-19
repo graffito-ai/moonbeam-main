@@ -77,19 +77,44 @@ export const styles = StyleSheet.create({
         flex: 1,
         flexGrow: 1
     },
+    kitsScrollView: {
+        bottom: hp(2),
+        height: hp(35),
+        width: wp(100)
+    },
+    kitsView: {
+        height: hp(30),
+        width: wp(100),
+        marginBottom: -hp(4)
+    },
+    kitsTitleMain: {
+        fontSize: hp(2.3),
+        fontFamily: 'Changa-Medium',
+        left: wp(6),
+        alignSelf: 'flex-start',
+        color: '#FFFFFF'
+    },
+    kitsTitle: {
+        fontSize: hp(2.3),
+        fontFamily: 'Changa-Medium',
+        textDecorationLine: 'underline',
+        left: wp(6),
+        alignSelf: 'flex-start',
+        color: '#FFFFFF'
+    },
     featuredPartnersView: {
         height: hp(40),
         width: wp(100)
     },
     featuredPartnersTitleMain: {
-        fontSize: hp(3),
+        fontSize: hp(2.3),
         fontFamily: 'Changa-Medium',
         left: wp(6),
         alignSelf: 'flex-start',
         color: '#FFFFFF'
     },
     featuredPartnersTitle: {
-        fontSize: hp(2.5),
+        fontSize: hp(2.3),
         fontFamily: 'Changa-Medium',
         textDecorationLine: 'underline',
         left: wp(6),
@@ -113,14 +138,14 @@ export const styles = StyleSheet.create({
         flexDirection: 'column'
     },
     onlineOffersTitleMain: {
-        fontSize: hp(3),
+        fontSize: hp(2.3),
         fontFamily: 'Changa-Medium',
         left: wp(6),
         alignSelf: 'flex-start',
         color: '#FFFFFF'
     },
     onlineOffersTitle: {
-        fontSize: hp(2.5),
+        fontSize: hp(2.3),
         fontFamily: 'Changa-Medium',
         textDecorationLine: 'underline',
         left: wp(4),
@@ -129,12 +154,12 @@ export const styles = StyleSheet.create({
     },
     onlineOffersTitleButton: {
         right: wp(5),
-        fontSize: hp(2),
+        fontSize: hp(1.8),
         fontFamily: 'Raleway-Bold',
         color: '#F2FF5D',
         textDecorationLine: 'underline',
         alignSelf: 'flex-end',
-        top: hp(1.5)
+        top: hp(1)
     },
     onlineOffersScrollView: {
         left: wp(3),
@@ -188,28 +213,28 @@ export const styles = StyleSheet.create({
         flexDirection: 'column'
     },
     nearbyOffersTitleMain: {
-        fontSize: hp(3),
+        fontSize: hp(2.3),
         fontFamily: 'Changa-Medium',
         left: wp(6),
         alignSelf: 'flex-start',
         color: '#FFFFFF'
     },
     nearbyLoadingOffersTitleMain: {
-        fontSize: hp(3),
+        fontSize: hp(2.3),
         fontFamily: 'Changa-Medium',
         left: wp(6),
         alignSelf: 'flex-start',
         color: '#FFFFFF'
     },
     nearbyLoadingOffersTitle: {
-        fontSize: hp(2.5),
+        fontSize: hp(2.3),
         fontFamily: 'Changa-Medium',
         textDecorationLine: 'underline',
         left: wp(6),
         color: '#F2FF5D'
     },
     nearbyOffersTitle: {
-        fontSize: hp(2.5),
+        fontSize: hp(2.3),
         fontFamily: 'Changa-Medium',
         textDecorationLine: 'underline',
         left: wp(6),
@@ -217,7 +242,7 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF'
     },
     nearbyOffersTitleSub: {
-        fontSize: hp(1.5),
+        fontSize: hp(1.3),
         fontFamily: 'Changa-Medium',
         textDecorationLine: 'none',
         color: '#F2FF5D',
@@ -227,12 +252,12 @@ export const styles = StyleSheet.create({
     },
     nearbyOffersTitleButton: {
         right: wp(5),
-        fontSize: hp(2),
+        fontSize: hp(1.8),
         fontFamily: 'Raleway-Bold',
         color: '#F2FF5D',
         textDecorationLine: 'underline',
         alignSelf: 'flex-end',
-        top: hp(1.5)
+        top: hp(1)
     },
     nearbyOffersScrollView: {
         top: hp(1),
@@ -251,6 +276,42 @@ export const styles = StyleSheet.create({
         shadowOpacity: 0.6,
         shadowRadius: 2,
         elevation: 15
+    },
+    kitsCard: {
+        top: hp(2.5),
+        marginLeft: wp(5),
+        backgroundColor: 'transparent',
+        width: wp(70),
+        height: hp(15),
+        shadowColor: 'transparent',
+        shadowOffset: {width: -2, height: 1},
+        shadowOpacity: 0.6,
+        shadowRadius: 2,
+        elevation: 15
+    },
+    kitsCardTitle: {
+        fontSize: hp(3.3),
+        fontFamily: 'Saira-Bold',
+        textAlign: 'center',
+        top: hp(3),
+        lineHeight: hp(4),
+        width: wp(60),
+        color: '#F2FF5D',
+    },
+    kitsCardTitleButton: {
+        fontSize: hp(2),
+        fontFamily: 'Saira-Bold',
+        textAlign: 'center',
+        textDecorationLine: 'underline',
+        top: hp(3),
+        lineHeight: hp(3),
+        width: wp(60),
+        color: '#FFFFFF',
+    },
+    kitsPicture: {
+        height: hp(30),
+        width: wp(70),
+        bottom: hp(6)
     },
     featuredPartnerCard: {
         top: hp(2.5),
@@ -403,7 +464,6 @@ export const styles = StyleSheet.create({
     nearbyLoadingOfferCardCover: {
         alignSelf: 'center',
         bottom: hp(15),
-        left: wp(5),
         width: wp(60),
         height: hp(45),
     },

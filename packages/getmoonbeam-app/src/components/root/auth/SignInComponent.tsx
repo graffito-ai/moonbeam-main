@@ -174,6 +174,7 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                             });
 
                             // navigate to the App Drawer
+                            // @ts-ignore
                             navigation.navigate("AppDrawer", {});
 
                             return true;
@@ -427,6 +428,7 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                                                   setEmailErrors([]);
                                                   setPasswordErrors([]);
                                                   setLoginMainError(false);
+                                                  // @ts-ignore
                                                   navigation.navigate('AccountRecovery', {})
                                               }}>Forgot Password ?
                                         </Text>
@@ -449,6 +451,7 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                                                     setLoginMainError(false);
 
                                                     // navigate to the App Drawer
+                                                    // @ts-ignore
                                                     navigation.navigate("AppDrawer", {});
                                                 }
                                             }
@@ -467,6 +470,7 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                                                       // clear the username and password
                                                       setPassword("");
                                                       setEmail("");
+                                                      // @ts-ignore
                                                       navigation.navigate('Registration', {});
                                                   }}>{"  "}Sign up</Text>
                                         </Text>

@@ -327,7 +327,7 @@ export const NearbySection = (props: {
                                                 <View
                                                     style={{flexDirection: 'column'}}>
                                                     <ActivityIndicator
-                                                        style={{top: hp(10)}}
+                                                        style={{top: hp(10), right: wp(7)}}
                                                         animating={true}
                                                         color={'#F2FF5D'}
                                                         size={hp(6)}

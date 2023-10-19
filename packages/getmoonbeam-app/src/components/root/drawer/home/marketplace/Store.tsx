@@ -51,6 +51,7 @@ import {
 } from "../../../../../recoil/StoreOfferAtom";
 import {currentUserLocationState} from "../../../../../recoil/RootAtom";
 import {LocationObject} from "expo-location";
+import {KitsSection} from "./storeComponents/KitsSection";
 
 /**
  * Store component.
@@ -565,6 +566,7 @@ export const Store = ({navigation}: StoreProps) => {
                                             >
                                                 <>
                                                     <View style={styles.horizontalScrollView}>
+                                                        <KitsSection/>
                                                         <FidelisSection
                                                             fidelisPartnerList={fidelisPartnerList}
                                                             navigation={navigation}

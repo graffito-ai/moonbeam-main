@@ -20,7 +20,7 @@ export const styles = StyleSheet.create({
         fontSize: hp(1.8)
     },
     bannerImage: {
-        width: wp(18),
+        width: wp(25),
         height: hp(10),
         left: wp(0.5)
     },

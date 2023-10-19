@@ -8,6 +8,7 @@ import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
+    nearbyOffersListState,
     noOnlineOffersToLoadState,
     onlineOffersListState,
     storeOfferState, toggleViewPressedState, uniqueOnlineOffersListState, verticalSectionActiveState
@@ -36,6 +37,7 @@ export const OnlineSection = (props: {
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
     const [onlineOffersSpinnerShown, setOnlineOffersSpinnerShown] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [nearbyOfferList,] = useRecoilState(nearbyOffersListState);
     const [, setToggleViewPressed] = useRecoilState(toggleViewPressedState);
     const [, setWhichVerticalSectionActive] = useRecoilState(verticalSectionActiveState);
     const deDuplicatedOnlineOfferList = useRecoilValue(uniqueOnlineOffersListState);
@@ -137,7 +139,7 @@ export const OnlineSection = (props: {
     return (
         <>
             <View
-                style={styles.onlineOffersView}>
+                style={[styles.onlineOffersView,  (nearbyOfferList.length < 6) && {bottom: hp(10), height: hp(20)}]}>
                 <View style={styles.onlineOffersTitleView}>
                     <View style={styles.onlineOffersLeftTitleView}>
                         <Text style={styles.onlineOffersTitleMain}>

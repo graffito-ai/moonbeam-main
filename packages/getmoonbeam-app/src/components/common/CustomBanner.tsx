@@ -1,5 +1,6 @@
 import React, {useEffect} from 'react';
-import {Image, ImageSourcePropType} from "react-native";
+import {ImageSourcePropType} from "react-native";
+import {Image} from 'expo-image';
 import {Banner, Text} from 'react-native-paper';
 import {RecoilState, useRecoilState} from "recoil";
 import {styles} from '../../styles/customBanner.module';
@@ -63,8 +64,11 @@ export const CustomBanner = (props: {
             ]}
             icon={({}) => (
                 <Image
-                    source={props.bannerArtSource}
                     style={styles.bannerImage}
+                    source={props.bannerArtSource}
+                    placeholderContentFit={'contain'}
+                    contentFit={'contain'}
+                    cachePolicy={'memory-disk'}
                 />
             )}>
             <Text style={styles.bannerDescription}>
