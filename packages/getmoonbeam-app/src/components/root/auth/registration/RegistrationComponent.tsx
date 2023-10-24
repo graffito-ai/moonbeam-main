@@ -21,11 +21,13 @@ import {
     addressZipErrorsState,
     addressZipState,
     amplifySignUpProcessErrorsState,
-    authRegistrationNavigation, automaticallyVerifyRegistrationCodeState,
+    authRegistrationNavigation,
+    automaticallyVerifyRegistrationCodeState,
     birthdayErrorState,
     birthdayState,
     cardLinkingRegistrationStatusState,
-    currentUserInformation, deferToLoginState,
+    currentUserInformation,
+    deferToLoginState,
     documentsReCapturePhotoState,
     documentsRePickPhotoState,
     dutyStatusErrorsState,
@@ -40,7 +42,8 @@ import {
     globalAmplifyCacheState,
     isReadyRegistrationState,
     lastNameErrorsState,
-    lastNameState, mainRootNavigationState,
+    lastNameState,
+    mainRootNavigationState,
     marketplaceAmplifyCacheState,
     militaryBranchErrorsState,
     militaryBranchValueState,
@@ -113,6 +116,7 @@ import MoonbeamPreferencesAndroid from "../../../../../assets/art/moonbeam-prefe
 import {Button} from "@rneui/base";
 import * as Notifications from "expo-notifications";
 import * as ImagePicker from 'expo-image-picker';
+import {numberOfOnlineOffersState} from "../../../../recoil/StoreOfferAtom";
 
 /**
  * RegistrationComponent component.
@@ -126,6 +130,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     const [existentAccountVisible, setExistentAccountVisible] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [numberOfOnlineOffers, setNumberOfOnlineOffers] = useRecoilState(numberOfOnlineOffersState);
     const [mainRootNavigation,] = useRecoilState(mainRootNavigationState);
     const [, setDeferToLogin] = useRecoilState(deferToLoginState);
     const [automaticallyVerifyRegistrationCode, setAutomaticallyVerifyRegistrationCode] = useRecoilState(automaticallyVerifyRegistrationCodeState);
@@ -667,7 +672,8 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                     :
                     <>
                         <Portal>
-                            <Dialog style={[commonStyles.dialogStyle, {height: hp(60)}]} visible={existentAccountVisible}
+                            <Dialog style={[commonStyles.dialogStyle, {height: hp(60)}]}
+                                    visible={existentAccountVisible}
                                     onDismiss={() => setExistentAccountVisible(false)}>
                                 <Dialog.Title
                                     style={commonStyles.dialogTitle}>{'Duplicate email!'}</Dialog.Title>
@@ -1164,10 +1170,12 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                             if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`) !== null) {
                                                                 console.log('online offers are cached, needs cleaning up');
                                                                 await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineOffers`);
-                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, await retrieveOnlineOffersList());
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
+                                                                    await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers));
                                                             } else {
                                                                 console.log('online offers are not cached');
-                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, await retrieveOnlineOffersList());
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
+                                                                    await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers));
                                                             }
                                                             if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
                                                                 console.log('old profile picture is cached, needs cleaning up');

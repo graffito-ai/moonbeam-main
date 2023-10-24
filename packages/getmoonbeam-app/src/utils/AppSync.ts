@@ -354,11 +354,15 @@ export const retrievePremierOnlineOffersList = async (pageNumber?: number, setPa
  * @param pageNumber optional parameter specifying a page number that we will get the locations
  * near offers from, in case we are not using this for caching purposes
  * @param setPageNumber setter or updater used to update the page number, if passed in.
+ * @param totalNumberOfOffersAvailable parameter specifying the total number of online offers available.
+ * @param setTotalNumberOfOffersAvailable setter or updates used to update the total number of online
+ * offers available.
  *
  * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function will
  * be used to cache the list of online offers.
  */
-export const retrieveOnlineOffersList = async (pageNumber?: number, setPageNumber?: SetterOrUpdater<number>): Promise<Offer[]> => {
+export const retrieveOnlineOffersList = async (totalNumberOfOffersAvailable: number, setTotalNumberOfOffersAvailable: SetterOrUpdater<number>,
+                                               pageNumber?: number, setPageNumber?: SetterOrUpdater<number>): Promise<Offer[]> => {
     // result to return
     let onlineOffers: Offer[] = [];
 
@@ -370,7 +374,7 @@ export const retrieveOnlineOffersList = async (pageNumber?: number, setPageNumbe
                 countryCode: CountryCode.Us,
                 filterType: OfferFilter.Online,
                 offerStates: [OfferState.Active, OfferState.Scheduled],
-                pageNumber: pageNumber !== undefined ? pageNumber : 1, // cache the first page only, otherwise retrieve the appropriate page number
+                pageNumber: pageNumber !== undefined ? pageNumber : 1, // if no page number is passed in, revert to the first page number
                 pageSize: 15, // load 15 offers
                 redemptionType: RedemptionType.Cardlinked
             }
@@ -390,6 +394,10 @@ export const retrieveOnlineOffersList = async (pageNumber?: number, setPageNumbe
                 // increase the page number, if needed
                 pageNumber !== null && pageNumber !== undefined &&
                 setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
+
+                // set the total number of online offers available, if not previously set
+                totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
+                setTotalNumberOfOffersAvailable !== undefined && setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
 
                 return onlineOffers;
             } else {
@@ -476,7 +484,7 @@ export const retrievePremierOffersNearby = async (pageNumber: number, setPageNum
         } else {
             if (currentUserLocation === null) {
                 const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
-                setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getLastKnownPositionAsync());
+                setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getCurrentPositionAsync());
             }
 
             // first retrieve the latitude and longitude of the current user
@@ -533,6 +541,197 @@ export const retrievePremierOffersNearby = async (pageNumber: number, setPageNum
 
 /**
  * Function used to retrieve the list of offers nearby, that we will use
+ * for background loading purposes to be displayed in the offers nearby
+ * main horizontal or full screen maps.
+ *
+ * @param userInformation user information to be passed in, in case we need to fall back the
+ * offers near a user's home location.
+ * @param currentUserLocation the current location object of the user
+ * @param setCurrentUserLocation setter or updates used to update the current user location if needed
+ * @param totalNumberOfOffersAvailable optional parameter specifying the total number of offers available within 5-7 miles
+ * of the user.
+ * @param setTotalNumberOfOffersAvailable optional setter or updates used to update the total number of offers available
+ * within 5-7 miles of the user.
+ * @param fullScreenMap optional param representing whether this call is used for the full screen map or not
+ * @param fullScreenLatitude optional param representing the full screen map's latitude, adjusted by the user
+ * @param fullScreenLongitude optional param representing the full screen map's longitude, adjusted by the user
+ *
+ * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function
+ * will be used to get the list of offers nearby use for the main horizontal or full screen maps.
+ */
+export const retrieveOffersNearbyForMap = async (userInformation: any, currentUserLocation: LocationObject | null,
+                                                 setCurrentUserLocation: SetterOrUpdater<LocationObject | null>, totalNumberOfOffersAvailable?: number,
+                                                 setTotalNumberOfOffersAvailable?: SetterOrUpdater<number>, fullScreenMap?: boolean,
+                                                 fullScreenLatitude?: number, fullScreenLongitude?: number): Promise<Offer[] | null> => {
+    // result to return
+    let nearbyOffers: Offer[] = [];
+
+    try {
+        // first retrieve the necessary permissions for location purposes
+        const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
+        if (foregroundPermissionStatus.status !== 'granted') {
+            const errorMessage = `Permission to access location was not granted!`;
+            console.log(errorMessage);
+
+            return null;
+        } else {
+            if (currentUserLocation === null) {
+                const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
+                setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getCurrentPositionAsync());
+            }
+
+            // first retrieve the latitude and longitude of the current user
+            if (currentUserLocation !== null && currentUserLocation.coords && currentUserLocation.coords.latitude && currentUserLocation.coords.longitude) {
+                // call the getOffers API
+                const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
+                    getOffersInput: {
+                        availability: OfferAvailability.Global,
+                        countryCode: CountryCode.Us,
+                        filterType: OfferFilter.Nearby,
+                        offerStates: [OfferState.Active, OfferState.Scheduled],
+                        pageNumber: 1, // only look at the first page number (since we are loading a lot of offers for what we can display on the map)
+                        pageSize: fullScreenMap === undefined || !fullScreenMap ? 10 : 1000, // only load 10 nearby offers for the main horizontal map and 1000 for full screen map
+                        radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
+                        radius: fullScreenMap === undefined || !fullScreenMap ? 10000 : 20000, // radius of 10 km for horizontal map and 20 km for full screen map
+                        radiusLatitude: fullScreenLatitude !== undefined ? fullScreenLatitude : currentUserLocation.coords.latitude,
+                        radiusLongitude: fullScreenLongitude !== undefined ? fullScreenLongitude : currentUserLocation.coords.longitude,
+                        redemptionType: RedemptionType.Cardlinked
+                    }
+                }));
+
+                // retrieve the data block from the response
+                // @ts-ignore
+                const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.getOffers.errorMessage === null) {
+                    // retrieve the array of nearby offers from the API call
+                    nearbyOffers = responseData.getOffers.data.offers;
+
+                    // ensure that there is at least one nearby offer in the list
+                    if (nearbyOffers.length > 0) {
+                        // set the total number of offers available nearby, if not previously set
+                        fullScreenMap === undefined && totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
+                        setTotalNumberOfOffersAvailable !== undefined && setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
+                        // retrieve the array of nearby offers from the API call
+                        return nearbyOffers;
+                    } else {
+                        console.log(`No nearby offers to display for main horizontal map ${JSON.stringify(nearbyOffersResult)}`);
+                        // fall back to offers near their home address
+                        return userInformation["address"] && userInformation["address"]["formatted"]
+                            ? await retrieveOffersNearLocationForMap(userInformation["address"]["formatted"],
+                                totalNumberOfOffersAvailable, setTotalNumberOfOffersAvailable, fullScreenMap, fullScreenLatitude, fullScreenLongitude)
+                            : nearbyOffers;
+                    }
+                } else {
+                    console.log(`Unexpected error while retrieving nearby offers for main horizontal map ${JSON.stringify(nearbyOffersResult)}`);
+                    return nearbyOffers;
+                }
+            } else {
+                console.log(`Unable to retrieve the current user's location coordinates!`);
+                return nearbyOffers;
+            }
+        }
+    } catch (error) {
+        console.log(`Unexpected error while attempting to retrieve nearby offers for main horizontal map ${JSON.stringify(error)} ${error}`);
+
+        // @ts-ignore
+        if (!error.code && (error.code !== 'ERR_LOCATION_INFO_PLIST' || error.code !== 'E_LOCATION_UNAVAILABLE')) {
+            return nearbyOffers;
+        } else {
+            // fall back to offers near their home address
+            return userInformation["address"] && userInformation["address"]["formatted"]
+                ? await retrieveOffersNearLocationForMap(userInformation["address"]["formatted"],
+                    totalNumberOfOffersAvailable, setTotalNumberOfOffersAvailable, fullScreenMap, fullScreenLatitude, fullScreenLongitude)
+                : nearbyOffers;
+        }
+    }
+}
+
+/**
+ * Function used to retrieve the list of offers near the user's home location,
+ * that we will use either for caching and/or for background loading purposes
+ * to be displayed in the offers nearby main horizontal or full screen maps.
+ *
+ * @param address user's home location that we wil use to retrieve offers near location
+ * @param totalNumberOfOffersAvailable optional parameter specifying the total number of offers available within 5-7 miles
+ * of the user.
+ * @param setTotalNumberOfOffersAvailable optional setter or updates used to update the total number of offers available
+ * within 5-7 miles of the user.
+ * @param fullScreenMap optional param representing whether this call is used for the full screen map or not
+ * @param fullScreenLatitude optional param representing the full screen map's latitude, adjusted by the user
+ * @param fullScreenLongitude optional param representing the full screen map's longitude, adjusted by the user
+ *
+ * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function will
+ * be used to get the list of offers near the user's home location for the main horizontal or full screen maps.
+ */
+const retrieveOffersNearLocationForMap = async (address: string, totalNumberOfOffersAvailable?: number,
+                                                setTotalNumberOfOffersAvailable?: SetterOrUpdater<number>, fullScreenMap?: boolean,
+                                                fullScreenLatitude?: number, fullScreenLongitude?: number): Promise<Offer[]> => {
+    // result to return
+    let nearbyOffers: Offer[] = [];
+
+    try {
+        // first retrieve the necessary geolocation information based on the user's home address
+        const geoLocationArray = await Location.geocodeAsync(address);
+        /**
+         * get the first location point in the array of geolocation returned
+         */
+        const geoLocation = geoLocationArray && geoLocationArray.length !== 0 ? geoLocationArray[0] : null;
+        if (!geoLocation) {
+            console.log(`Unable to retrieve user's home location's geolocation ${address}`);
+            return nearbyOffers;
+        } else {
+            // call the getOffers API
+            const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
+                getOffersInput: {
+                    availability: OfferAvailability.Global,
+                    countryCode: CountryCode.Us,
+                    filterType: OfferFilter.Nearby,
+                    offerStates: [OfferState.Active, OfferState.Scheduled],
+                    pageNumber: 1, // only look at the first page number (since we are loading a lot of offers for what we can display on the map)
+                    pageSize: fullScreenMap === undefined || !fullScreenMap ? 10 : 1000, // only load 10 nearby offers for the main horizontal map and 1000 for full screen map
+                    radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
+                    radius: fullScreenMap === undefined || !fullScreenMap ? 10000 : 20000, // radius of 10 km for horizontal map and 20 km for full screen map
+                    radiusLatitude: fullScreenLatitude !== undefined ? fullScreenLatitude : geoLocation.latitude,
+                    radiusLongitude: fullScreenLongitude !== undefined ? fullScreenLongitude : geoLocation.longitude,
+                    redemptionType: RedemptionType.Cardlinked
+                }
+            }));
+
+            // retrieve the data block from the response
+            // @ts-ignore
+            const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
+
+            // check if there are any errors in the returned response
+            if (responseData && responseData.getOffers.errorMessage === null) {
+                // retrieve the array of nearby offers from the API call
+                nearbyOffers = responseData.getOffers.data.offers;
+
+                // ensure that there is at least one nearby offer in the list
+                if (nearbyOffers.length > 0) {
+                    // set the total number of offers available nearby, if not previously set
+                    fullScreenMap === undefined && totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
+                    setTotalNumberOfOffersAvailable !== undefined && setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
+
+                    return nearbyOffers;
+                } else {
+                    console.log(`No offers near user's home location to display for main horizontal map ${JSON.stringify(nearbyOffersResult)}`);
+                    return nearbyOffers;
+                }
+            } else {
+                console.log(`Unexpected error while retrieving offers near user's home location for main horizontal map ${JSON.stringify(nearbyOffersResult)}`);
+                return nearbyOffers;
+            }
+        }
+    } catch (error) {
+        console.log(`Unexpected error while attempting to retrieve offers near user's home location for main horizontal map ${JSON.stringify(error)} ${error}`);
+        return nearbyOffers;
+    }
+}
+
+/**
+ * Function used to retrieve the list of offers nearby, that we will use
  * for background loading purposes.
  *
  * @param pageNumber parameter specifying a page number that we will get the nearby locations
@@ -548,6 +747,10 @@ export const retrievePremierOffersNearby = async (pageNumber: number, setPageNum
  * @param marketplaceCache the marketplace cache to be passed in
  * @param currentUserLocation the current location object of the user
  * @param setCurrentUserLocation setter or updates used to update the current user location if needed
+ * @param totalNumberOfOffersAvailable parameter specifying the total number of offers available within 25 miles
+ * of the user.
+ * @param setTotalNumberOfOffersAvailable setter or updates used to update the total number of offers available
+ * within 25 miles of the user.
  *
  * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function
  * will be used to get the list of offers nearby.
@@ -557,7 +760,8 @@ export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: Se
                                            userInformation: any, setOffersNearUserLocationFlag: SetterOrUpdater<boolean>,
                                            marketplaceCache: typeof Cache | null,
                                            currentUserLocation: LocationObject | null,
-                                           setCurrentUserLocation: SetterOrUpdater<LocationObject | null>): Promise<Offer[] | null> => {
+                                           setCurrentUserLocation: SetterOrUpdater<LocationObject | null>,
+                                           totalNumberOfOffersAvailable: number, setTotalNumberOfOffersAvailable: SetterOrUpdater<number>): Promise<Offer[] | null> => {
     // result to return
     let nearbyOffers: Offer[] = [];
 
@@ -572,7 +776,7 @@ export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: Se
         } else {
             if (currentUserLocation === null) {
                 const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
-                setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getLastKnownPositionAsync());
+                setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getCurrentPositionAsync());
             }
 
             // first retrieve the latitude and longitude of the current user
@@ -609,6 +813,9 @@ export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: Se
                         premierPageNumber === 1
                             ? setPremierPageNumber(premierPageNumber + 1)
                             : setPageNumber(pageNumber + 1);
+                        // set the total number of offers available within 25 miles of the user, if not previously set
+                        totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
+                        setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
                         // retrieve the array of nearby offers from the API call
                         return nearbyOffers;
                     } else {
@@ -616,7 +823,8 @@ export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: Se
                         // fall back to offers near their home address
                         return userInformation["address"] && userInformation["address"]["formatted"]
                             ? await retrieveOffersNearLocation(userInformation["address"]["formatted"], pageNumber,
-                                setPageNumber, premierPageNumber, setPremierPageNumber, setOffersNearUserLocationFlag, marketplaceCache, userInformation)
+                                setPageNumber, premierPageNumber, setPremierPageNumber, setOffersNearUserLocationFlag, marketplaceCache, userInformation,
+                                totalNumberOfOffersAvailable, setTotalNumberOfOffersAvailable)
                             : nearbyOffers;
                     }
                 } else {
@@ -638,7 +846,8 @@ export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: Se
             // fall back to offers near their home address
             return userInformation["address"] && userInformation["address"]["formatted"]
                 ? await retrieveOffersNearLocation(userInformation["address"]["formatted"], pageNumber,
-                    setPageNumber, premierPageNumber, setPremierPageNumber, setOffersNearUserLocationFlag, marketplaceCache, userInformation)
+                    setPageNumber, premierPageNumber, setPremierPageNumber, setOffersNearUserLocationFlag, marketplaceCache, userInformation,
+                    totalNumberOfOffersAvailable, setTotalNumberOfOffersAvailable)
                 : nearbyOffers;
         }
     }
@@ -659,14 +868,19 @@ export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: Se
  * the nearby offers are based on a user's geolocation or their home address.
  * @param marketplaceCache optional marketplace cache to be passed in
  * @param userInformation relevant user information
+ * @param totalNumberOfOffersAvailable parameter specifying the total number of offers available within 25 miles
+ * of the user.
+ * @param setTotalNumberOfOffersAvailable setter or updates used to update the total number of offers available
+ * within 25 miles of the user.
  *
  * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function will
  * be used to get the list of offers near the user's home location.
  */
 const retrieveOffersNearLocation = async (address: string, pageNumber: number, setPageNumber: SetterOrUpdater<number>,
-                                                 premierPageNumber: number, setPremierPageNumber: SetterOrUpdater<number>,
-                                                 setOffersNearUserLocationFlag: SetterOrUpdater<boolean>,
-                                                 marketplaceCache: typeof Cache | null, userInformation: any): Promise<Offer[]> => {
+                                          premierPageNumber: number, setPremierPageNumber: SetterOrUpdater<number>,
+                                          setOffersNearUserLocationFlag: SetterOrUpdater<boolean>,
+                                          marketplaceCache: typeof Cache | null, userInformation: any,
+                                          totalNumberOfOffersAvailable: number, setTotalNumberOfOffersAvailable: SetterOrUpdater<number>): Promise<Offer[]> => {
     // result to return
     let nearbyOffers: Offer[] = [];
 
@@ -732,6 +946,10 @@ const retrieveOffersNearLocation = async (address: string, pageNumber: number, s
 
                         // set the nearby user location flag
                         setOffersNearUserLocationFlag(true);
+
+                        // set the total number of offers available within 25 miles of the user, if not previously set
+                        totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
+                        setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
 
                         return nearbyOffers;
                     } else {

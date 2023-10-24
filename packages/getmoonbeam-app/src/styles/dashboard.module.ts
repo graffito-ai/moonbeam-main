@@ -248,7 +248,7 @@ export const styles = StyleSheet.create({
         height: hp(30),
         width: wp(95),
         top: hp(5),
-        backgroundColor: '#2c2c2c',
+        backgroundColor: '#262626',
         flexDirection: 'column',
         alignItems: 'center',
         alignContent: 'center'
@@ -286,69 +286,28 @@ export const styles = StyleSheet.create({
         width: wp(95),
         top: hp(5)
     },
-    mapTooltip: {
-        zIndex: 500,
-        backgroundColor: "transparent",
-    },
-    mapTooltipSquare: {
-        zIndex: 600,
-        height: hp(4.3),
-        width: wp(28),
-        backgroundColor: "#313030",
-        borderRadius: 10,
-        borderColor: '#F2FF5D',
-        borderWidth: 4
-    },
-    mapTooltipArrow: {
-        zIndex: 700,
-        position: "absolute",
-        top: -hp(1.1),
-        right: wp(8.1),
-        width: 0,
-        height: 0,
-        borderStyle: "solid",
-        borderLeftWidth: hp(2),
-        borderRightWidth: hp(2),
-        borderBottomWidth: hp(3.5),
-        borderLeftColor: "transparent",
-        borderRightColor: "transparent",
-        borderBottomColor: "#313030"
-    },
-    mapTooltipArrowOverlay: {
-        position: "absolute",
-        top: -hp(1.7),
-        right: wp(8.1),
-        width: 0,
-        height: 0,
-        borderStyle: "solid",
-        borderLeftWidth: hp(2),
-        borderRightWidth: hp(2),
-        borderBottomWidth: hp(3),
-        borderLeftColor: "transparent",
-        borderRightColor: "transparent",
-        borderBottomColor: "#F2FF5D"
-    },
-    toolTipDetailsView: {
-        backgroundColor: "transparent",
+    toolTipMain: {
+        height: hp(9.5),
+        width: wp(25),
         flexDirection: 'row',
-        alignSelf: 'center',
-        alignItems: 'center',
         alignContent: 'center',
-        justifyContent: 'center',
-        bottom: hp(3.3),
-        zIndex: 1000
+        alignItems: 'center',
+        alignSelf: 'center'
     },
     toolTipImageDetail: {
         alignSelf: 'center',
-        right: wp(2)
+        height: hp(2.5),
+        bottom: hp(0.7),
+        left: wp(1),
+        width: wp(10)
     },
     toolTipImagePrice: {
-        left: wp(2),
         alignSelf: 'center',
         fontFamily: 'Raleway-ExtraBold',
-        fontSize: hp(1.8),
+        fontSize: hp(1.7),
+        bottom: hp(0.7),
         textAlign: 'center',
-        color: '#F2FF5D'
+        color: '#313030'
     },
     transactionBrandDetailsView: {
         flexDirection: 'column',
@@ -374,7 +333,9 @@ export const styles = StyleSheet.create({
     },
     transactionBrandImage: {
         alignSelf: 'flex-start',
-        borderRadius: 10
+        borderRadius: 10,
+        height: hp(10),
+        width: wp(15)
     },
     transactionAmountsView: {
         flexDirection: 'column',

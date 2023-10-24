@@ -14,9 +14,9 @@ export const styles = StyleSheet.create({
     },
     brandView: {
         backgroundColor: '#F2FF5D',
-        paddingTop: hp(8),
+        paddingTop: hp(5),
         width: wp(100),
-        height: hp(35),
+        height: hp(50),
         flexDirection: 'column'
     },
     brandLogo: {
@@ -25,21 +25,20 @@ export const styles = StyleSheet.create({
         width: hp(16)
     },
     brandTitle: {
-        top: hp(2),
         alignSelf: 'center',
         fontFamily: 'Saira-SemiBold',
         fontSize: hp(2.5),
         lineHeight: hp(3),
-        width: wp(90),
+        width: wp(95),
         textAlign: 'center',
         color: '#FFFFFF'
     },
     brandTitleAddress: {
-        top: hp(2),
+        bottom: hp(2.5),
         alignSelf: 'center',
         fontFamily: 'Saira-Regular',
         fontSize: hp(2),
-        width: wp(90),
+        width: wp(95),
         lineHeight: hp(3),
         textAlign: 'center',
         color: '#F2FF5D'
@@ -151,4 +150,21 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         alignSelf: 'center'
     },
+    directionsButtonContentStyle: {
+        color: '#F2FF5D',
+        fontFamily: 'Saira-Medium',
+        fontSize: hp(2.3),
+        marginTop: hp(0.5),
+        alignItems: 'center',
+        alignSelf: 'center'
+    },
+    directionsButton: {
+        position: 'absolute',
+        bottom: hp(1),
+        alignSelf: 'center',
+        backgroundColor: '#313030',
+        width: wp(60),
+        height: hp(5),
+        borderRadius: 0
+    }
 });

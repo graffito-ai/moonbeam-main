@@ -124,12 +124,14 @@ import {
 import {splashStatusState} from "../../recoil/SplashAtom";
 import {
     filteredByDiscountPressedState, filtersActiveState,
-    locationServicesButtonState,
+    locationServicesButtonState, nearbyOffersListForFullScreenMapState, nearbyOffersListForMainHorizontalMapState,
     nearbyOffersListState,
     nearbyOffersPageNumberState,
     nearbyOffersSpinnerShownState,
     noNearbyOffersToLoadState,
     noOnlineOffersToLoadState,
+    numberOfOffersWithin25MilesState,
+    numberOfOffersWithin5MilesState, numberOfOnlineOffersState,
     offersNearUserLocationFlagState,
     onlineOffersListState,
     onlineOffersPageNumberState,
@@ -294,6 +296,11 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const filteredByDiscountPressedStateReset = useResetRecoilState(filteredByDiscountPressedState);
     const filtersActiveStateReset = useResetRecoilState(filtersActiveState);
     const currentUserLocationStateReset = useResetRecoilState(currentUserLocationState);
+    const numberOfOffersWithin25MilesReset = useResetRecoilState(numberOfOffersWithin5MilesState);
+    const numberOfOffersWithin5MilesReset = useResetRecoilState(numberOfOffersWithin25MilesState);
+    const nearbyOffersListForMainHorizontalMapReset = useResetRecoilState(nearbyOffersListForMainHorizontalMapState);
+    const nearbyOffersListForFullScreenMapReset = useResetRecoilState(nearbyOffersListForFullScreenMapState);
+    const numberOfOnlineOffersReset = useResetRecoilState(numberOfOnlineOffersState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -565,6 +572,11 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                         filteredByDiscountPressedStateReset();
                                         filtersActiveStateReset();
                                         currentUserLocationStateReset();
+                                        numberOfOffersWithin5MilesReset();
+                                        numberOfOffersWithin25MilesReset();
+                                        nearbyOffersListForMainHorizontalMapReset();
+                                        nearbyOffersListForFullScreenMapReset();
+                                        numberOfOnlineOffersReset();
 
                                         /**
                                          * ensure that the current user's biometric session is interrupted, and that the already signed in flag is reset

@@ -1253,8 +1253,8 @@ export class OliveClient extends BaseAPIClient {
                     "Content-Type": "application/json",
                     "Olive-Key": olivePrivateKey
                 },
-                timeout: 15000, // in milliseconds here
-                timeoutErrorMessage: 'Olive API timed out after 15000ms!'
+                timeout: 25000, // in milliseconds here
+                timeoutErrorMessage: 'Olive API timed out after 25000ms!'
             }).then(getOffersResponse => {
                 // we don't want to log this in case of success responses, because the offer responses are very long (frugality)
                 // console.log(`${endpointInfo} response ${JSON.stringify(getOffersResponse.data)}`);

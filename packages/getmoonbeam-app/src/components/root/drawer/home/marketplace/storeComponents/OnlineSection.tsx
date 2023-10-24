@@ -8,8 +8,9 @@ import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
+    locationServicesButtonState,
     nearbyOffersListState,
-    noOnlineOffersToLoadState,
+    noOnlineOffersToLoadState, numberOfOnlineOffersState,
     onlineOffersListState,
     storeOfferState, toggleViewPressedState, uniqueOnlineOffersListState, verticalSectionActiveState
 } from "../../../../../../recoil/StoreOfferAtom";
@@ -37,6 +38,8 @@ export const OnlineSection = (props: {
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
     const [onlineOffersSpinnerShown, setOnlineOffersSpinnerShown] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [numberOfOnlineOffers, ] = useRecoilState(numberOfOnlineOffersState);
+    const [locationServicesButton,] = useRecoilState(locationServicesButtonState);
     const [nearbyOfferList,] = useRecoilState(nearbyOffersListState);
     const [, setToggleViewPressed] = useRecoilState(toggleViewPressedState);
     const [, setWhichVerticalSectionActive] = useRecoilState(verticalSectionActiveState);
@@ -139,7 +142,17 @@ export const OnlineSection = (props: {
     return (
         <>
             <View
-                style={[styles.onlineOffersView,  (nearbyOfferList.length < 6) && {bottom: hp(10), height: hp(20)}]}>
+                style={[styles.onlineOffersView,  (nearbyOfferList.length < 6) &&
+                    {
+                        height: hp(15),
+                        top: -hp(15),
+                    },
+                    locationServicesButton &&
+                    {
+                        height: hp(30),
+                        top: -hp(1),
+                    }
+                ]}>
                 <View style={styles.onlineOffersTitleView}>
                     <View style={styles.onlineOffersLeftTitleView}>
                         <Text style={styles.onlineOffersTitleMain}>
@@ -148,15 +161,21 @@ export const OnlineSection = (props: {
                             </Text>{`   🛍️`}
                         </Text>
                     </View>
-                    <TouchableOpacity onPress={() => {
-                        setToggleViewPressed('vertical');
-                        // set the active vertical section manually
-                        setWhichVerticalSectionActive('online');
-                    }}>
-                        <Text style={styles.onlineOffersTitleButton}>
-                            See All
+                    <View style={{flexDirection: 'column'}}>
+                        <Text
+                            style={[styles.onlineOffersTitleSub, {left: wp(6)}]}>
+                            {`${numberOfOnlineOffers} online offers available`}
                         </Text>
-                    </TouchableOpacity>
+                        <TouchableOpacity onPress={() => {
+                            setToggleViewPressed('vertical');
+                            // set the active vertical section manually
+                            setWhichVerticalSectionActive('online');
+                        }}>
+                            <Text style={styles.onlineOffersTitleButton}>
+                                See All
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
                 <Portal.Host>
                     <View style={{flexDirection: 'row', height: hp(30), width: wp(100)}}>

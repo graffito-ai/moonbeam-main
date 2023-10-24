@@ -12,7 +12,8 @@ import {
     locationServicesButtonState,
     nearbyOffersListState,
     nearbyOffersSpinnerShownState,
-    noNearbyOffersToLoadState,
+    noNearbyOffersToLoadState, numberOfOffersWithin25MilesState,
+    numberOfOffersWithin5MilesState,
     storeOfferPhysicalLocationState,
     storeOfferState,
     toggleViewPressedState,
@@ -28,6 +29,9 @@ import MoonbeamOffersLoading from "../../../../../../../assets/art/moonbeam-offe
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
+import {MapHorizontalSection} from "./MapHorizontalSection";
+import {getDistance} from "geolib";
+import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
 
 /**
  * NearbySection component.
@@ -51,6 +55,9 @@ export const NearbySection = (props: {
     const [dataProvider, setDataProvider] = useState<DataProvider | null>(null);
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
     // constants used to keep track of shared states
+    const [numberOfOffersWithin5Miles,] = useRecoilState(numberOfOffersWithin5MilesState);
+    const [numberOfOffersWithin25Miles,] = useRecoilState(numberOfOffersWithin25MilesState);
+    const [currentUserLocation,] = useRecoilState(currentUserLocationState);
     const [, setToggleViewPressed] = useRecoilState(toggleViewPressedState);
     const [, setWhichVerticalSectionActive] = useRecoilState(verticalSectionActiveState);
     const deDuplicatedNearbyOfferList = useRecoilValue(uniqueNearbyOffersListState);
@@ -74,8 +81,10 @@ export const NearbySection = (props: {
      */
     const renderRowData = useMemo(() => (_type: string | number, data: Offer, index: number): JSX.Element | JSX.Element[] => {
         if (nearbyOfferList.length !== 0) {
-            // get the physical location of this offer
+            // get the physical location of this offer alongside its coordinates
             let physicalLocation: string = '';
+            let storeLatitude: number = 0;
+            let storeLongitude: number = 0;
             data && data.storeDetails !== undefined && data.storeDetails !== null && data.storeDetails!.forEach(store => {
                 /**
                  * there are many possible stores with physical locations.
@@ -85,6 +94,14 @@ export const NearbySection = (props: {
                 if (physicalLocation === '' && store !== null &&
                     store!.isOnline === false && store!.distance !== null && store!.distance !== undefined
                     && store!.distance! <= 50000) {
+                    // set the store's coordinates accordingly
+                    storeLatitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
+                    store!.geoLocation!.latitude !== null && store!.geoLocation!.latitude !== undefined
+                        ? store!.geoLocation!.latitude! : 0;
+                    storeLongitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
+                    store!.geoLocation!.longitude !== null && store!.geoLocation!.longitude !== undefined
+                        ? store!.geoLocation!.longitude! : 0;
+
                     // Olive needs to get better at displaying the address. For now, we will do this input sanitization
                     if (store!.address1 !== undefined && store!.address1 !== null && store!.address1!.length !== 0 &&
                         store!.city !== undefined && store!.city !== null && store!.city!.length !== 0 &&
@@ -101,6 +118,17 @@ export const NearbySection = (props: {
                     }
                 }
             });
+
+            // calculate the distance between the location of the store displayed and the user's current location (in miles)
+            let calculatedDistance = currentUserLocation !== null && storeLatitude !== 0 && storeLongitude !== 0 ? getDistance({
+                latitude: storeLatitude,
+                longitude: storeLongitude
+            }, {
+                latitude: currentUserLocation.coords.latitude,
+                longitude: currentUserLocation.coords.longitude
+            }, 1) : 0;
+            // the accuracy above is in meters, so we are calculating it up to miles where 1 mile = 1609.34 meters
+            calculatedDistance = Math.round((calculatedDistance / 1609.34) * 100) / 100
 
             // only get the true nearby offers (since this is an Olive bug
             return physicalLocation !== '' ? (
@@ -134,12 +162,22 @@ export const NearbySection = (props: {
                                                         </Text>
                                                     }
                                                     titleStyle={styles.nearbyOfferCardTitleMain}
-                                                    titleNumberOfLines={3}/>
+                                                    titleNumberOfLines={2}/>
                                                 <Paragraph
+                                                    numberOfLines={3}
                                                     style={styles.nearbyOfferCardParagraph}
                                                 >
-                                                    {`📌 Address:\n${physicalLocation}`}
+                                                    {`📌 ${physicalLocation}`}
                                                 </Paragraph>
+                                                {
+                                                    calculatedDistance !== 0 &&
+                                                    <Paragraph
+                                                        numberOfLines={1}
+                                                        style={styles.nearbyOfferCardDistanceParagraph}
+                                                    >
+                                                        {`${calculatedDistance} miles away`}
+                                                    </Paragraph>
+                                                }
                                             </View>
                                             <View style={{
                                                 flexDirection: 'column',
@@ -162,9 +200,14 @@ export const NearbySection = (props: {
                                                     onPress={() => {
                                                         // set the clicked offer/partner accordingly
                                                         setStoreOfferClicked(data);
-
                                                         // set the clicked offer physical location
-                                                        setStoreOfferPhysicalLocation(physicalLocation);
+                                                        setStoreOfferPhysicalLocation({
+                                                            latitude: storeLatitude,
+                                                            longitude: storeLongitude,
+                                                            latitudeDelta: 0,
+                                                            longitudeDelta: 0,
+                                                            addressAsString: physicalLocation
+                                                        });
                                                         // @ts-ignore
                                                         props.navigation.navigate('StoreOffer', {});
                                                     }}
@@ -270,8 +313,8 @@ export const NearbySection = (props: {
 
                                                                 props.setPermissionsModalCustomMessage(errorMessage);
                                                                 props.setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
-                                                                    ? "In order to display the closest offers near your location, go to Settings -> Moonbeam Finance, and allow Location Services access by tapping on the \'Location\' option."
-                                                                    : "In order to display the closest offers near your location, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Location Services access by tapping on the \"Location\" option.");
+                                                                    ? "In order to display the offers near your location, go to Settings -> Moonbeam Finance, and allow Location Services access by tapping on the \'Location\' option."
+                                                                    : "In order to display the offers near your location, go to Settings -> Apps -> Moonbeam Finance -> Permissions, and allow Location Services access by tapping on the \"Location\" option.");
                                                                 props.setPermissionsModalVisible(true);
                                                             }
                                                         }
@@ -281,11 +324,7 @@ export const NearbySection = (props: {
                                                     </TouchableOpacity>
                                                     <Text
                                                         style={styles.locationServicesEnableWarningMessage}>
-                                                        Display transaction
-                                                        location, by
-                                                        enabling Location
-                                                        Services
-                                                        permissions!
+                                                        Display offers nearby, by enabling Location Service permissions!
                                                     </Text>
                                                 </View>
                                             </Card.Content>
@@ -350,115 +389,135 @@ export const NearbySection = (props: {
             }
             {
                 nearbyOfferList.length >= 6 &&
-                <View style={styles.nearbyOffersView}>
-                    <View style={styles.nearbyOffersTitleView}>
-                        <View style={styles.nearbyOffersLeftTitleView}>
-                            <Text
-                                style={[styles.nearbyOffersTitleMain, props.offersNearUserLocationFlag && {left: wp(6)}]}>
+                <>
+                    <View style={styles.nearbyOffersView}>
+                        <View style={styles.nearbyOffersTitleView}>
+                            <View style={styles.nearbyOffersLeftTitleView}>
                                 <Text
-                                    style={styles.nearbyOffersTitle}>
-                                    {!props.offersNearUserLocationFlag
-                                        ? 'Offers near you'
-                                        : `Offers in ${userInformation["address"]["formatted"].split(',')[1].trimStart().trimEnd()}`}
-                                </Text>{`   🌎️`}
-                            </Text>
-                            <Text
-                                style={[styles.nearbyOffersTitleSub, props.offersNearUserLocationFlag && {left: wp(6)}]}>
-                                (within 25 miles)
-                            </Text>
+                                    style={[styles.nearbyOffersTitleMain, props.offersNearUserLocationFlag && {left: wp(6)}]}>
+                                    <Text
+                                        style={styles.nearbyOffersTitle}>
+                                        {!props.offersNearUserLocationFlag
+                                            ? 'Offers near you'
+                                            : `Offers in ${userInformation["address"]["formatted"].split(',')[1].trimStart().trimEnd()}`}
+                                    </Text>{`   🌎️`}
+                                </Text>
+                                <Text
+                                    style={[styles.nearbyOffersTitleSub, props.offersNearUserLocationFlag && {left: wp(6)}]}>
+                                    {`${numberOfOffersWithin5Miles} offers within 5 miles`}
+                                </Text>
+                            </View>
+                            <TouchableOpacity onPress={() => {
+                                setToggleViewPressed('map');
+                            }}>
+                                <Text
+                                    style={styles.mapHorizontalViewTitleButton}
+                                    onPress={() => {
+                                        setToggleViewPressed('map');
+                                    }}>
+                                    View Map
+                                </Text>
+                            </TouchableOpacity>
                         </View>
-                        <TouchableOpacity onPress={() => {
-                            setToggleViewPressed('vertical');
-                            // set the active vertical section manually
-                            setWhichVerticalSectionActive('nearby');
-                        }}>
-                            <Text
-                                style={styles.nearbyOffersTitleButton}>
-                                See All
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                    <Portal.Host>
-                        <View style={{flexDirection: 'row', height: hp(30), width: wp(100)}}>
-                            {
-                                dataProvider !== null && layoutProvider !== null &&
-                                <RecyclerListView
-                                    // @ts-ignore
-                                    ref={nearbyListView}
-                                    style={styles.nearbyOffersScrollView}
-                                    layoutProvider={layoutProvider!}
-                                    dataProvider={dataProvider!}
-                                    rowRenderer={renderRowData}
-                                    isHorizontal={true}
-                                    forceNonDeterministicRendering={true}
-                                    renderFooter={() => {
-                                        return (
-                                            horizontalListLoading || nearbyOffersSpinnerShown ?
-                                                <>
-                                                    <View
-                                                        style={{width: wp(20)}}/>
-                                                    <Card
-                                                        style={[styles.loadCard, {marginTop: hp(4)}]}>
-                                                        <Card.Content>
-                                                            <View style={{flexDirection: 'column'}}>
-                                                                <View style={{
-                                                                    flexDirection: 'row'
-                                                                }}>
-                                                                    <View style={{top: hp(3)}}>
-                                                                        <ActivityIndicator
-                                                                            style={{
-                                                                                right: wp(15)
-                                                                            }}
-                                                                            animating={true}
-                                                                            color={'#F2FF5D'}
-                                                                            size={hp(5)}
-                                                                        />
+                        <Portal.Host>
+                            <MapHorizontalSection/>
+                            <View style={{bottom: hp(2)}}>
+                                <Text
+                                    style={[styles.nearbyOffersForMapTitleSub, props.offersNearUserLocationFlag && {left: wp(6)}]}>
+                                    {`${numberOfOffersWithin25Miles} offers within 25 miles`}
+                                </Text>
+                                <TouchableOpacity onPress={() => {
+                                    setToggleViewPressed('vertical');
+                                    // set the active vertical section manually
+                                    setWhichVerticalSectionActive('nearby');
+                                }}>
+                                    <Text
+                                        style={styles.nearbyOffersTitleButton}>
+                                        See All
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={{flexDirection: 'row', bottom: hp(2), height: hp(30), width: wp(100)}}>
+                                {
+                                    dataProvider !== null && layoutProvider !== null &&
+                                    <RecyclerListView
+                                        // @ts-ignore
+                                        ref={nearbyListView}
+                                        style={styles.nearbyOffersScrollView}
+                                        layoutProvider={layoutProvider!}
+                                        dataProvider={dataProvider!}
+                                        rowRenderer={renderRowData}
+                                        isHorizontal={true}
+                                        forceNonDeterministicRendering={true}
+                                        renderFooter={() => {
+                                            return (
+                                                horizontalListLoading || nearbyOffersSpinnerShown ?
+                                                    <>
+                                                        <View
+                                                            style={{width: wp(20)}}/>
+                                                        <Card
+                                                            style={[styles.loadCard, {marginTop: hp(4)}]}>
+                                                            <Card.Content>
+                                                                <View style={{flexDirection: 'column'}}>
+                                                                    <View style={{
+                                                                        flexDirection: 'row'
+                                                                    }}>
+                                                                        <View style={{top: hp(3)}}>
+                                                                            <ActivityIndicator
+                                                                                style={{
+                                                                                    right: wp(15)
+                                                                                }}
+                                                                                animating={true}
+                                                                                color={'#F2FF5D'}
+                                                                                size={hp(5)}
+                                                                            />
 
+                                                                        </View>
                                                                     </View>
                                                                 </View>
-                                                            </View>
-                                                        </Card.Content>
-                                                    </Card>
-                                                </> : <></>
-                                        )
-                                    }}
-                                    {
-                                        ...(Platform.OS === 'ios') ?
-                                            {onEndReachedThreshold: 0} :
-                                            {onEndReachedThreshold: 1}
-                                    }
-                                    onEndReached={async () => {
-                                        console.log(`End of list reached. Trying to refresh more items.`);
-
-                                        // if there are items to load
-                                        if (!noNearbyOffersToLoad) {
-                                            // set the loader
-                                            setNearbyOffersSpinnerShown(true);
-                                            // retrieving more offers (nearby or near user's location)
-                                            !props.offersNearUserLocationFlag
-                                                ? await props.retrieveNearbyOffersList()
-                                                : await props.retrieveOffersNearLocation(userInformation["address"]["formatted"]);
-                                            setHorizontalListLoading(true);
-                                            // this makes the scrolling seem infinite - we artificially scroll up a little, so we have enough time to load
-                                            // @ts-ignore
-                                            nearbyListView.current?.scrollToIndex(deDuplicatedNearbyOfferList.length - 2);
-                                        } else {
-                                            console.log(`Maximum number of nearby offers reached ${deDuplicatedNearbyOfferList.length}`);
+                                                            </Card.Content>
+                                                        </Card>
+                                                    </> : <></>
+                                            )
+                                        }}
+                                        {
+                                            ...(Platform.OS === 'ios') ?
+                                                {onEndReachedThreshold: 0} :
+                                                {onEndReachedThreshold: 1}
                                         }
-                                    }}
-                                    scrollViewProps={{
-                                        pagingEnabled: "true",
-                                        decelerationRate: "fast",
-                                        snapToInterval: wp(70) + wp(20),
-                                        snapToAlignment: "center",
-                                        persistentScrollbar: false,
-                                        showsHorizontalScrollIndicator: false
-                                    }}
-                                />
-                            }
-                        </View>
-                    </Portal.Host>
-                </View>
+                                        onEndReached={async () => {
+                                            console.log(`End of list reached. Trying to refresh more items.`);
+
+                                            // if there are items to load
+                                            if (!noNearbyOffersToLoad) {
+                                                // set the loader
+                                                setNearbyOffersSpinnerShown(true);
+                                                // retrieving more offers (nearby or near user's location)
+                                                !props.offersNearUserLocationFlag
+                                                    ? await props.retrieveNearbyOffersList()
+                                                    : await props.retrieveOffersNearLocation(userInformation["address"]["formatted"]);
+                                                setHorizontalListLoading(true);
+                                                // this makes the scrolling seem infinite - we artificially scroll up a little, so we have enough time to load
+                                                // @ts-ignore
+                                                nearbyListView.current?.scrollToIndex(deDuplicatedNearbyOfferList.length - 2);
+                                            } else {
+                                                console.log(`Maximum number of nearby offers reached ${deDuplicatedNearbyOfferList.length}`);
+                                            }
+                                        }}
+                                        scrollViewProps={{
+                                            pagingEnabled: "true",
+                                            decelerationRate: "fast",
+                                            snapToInterval: wp(70) + wp(20),
+                                            snapToAlignment: "center",
+                                            persistentScrollbar: false,
+                                            showsHorizontalScrollIndicator: false
+                                        }}
+                                    />
+                                }
+                            </View>
+                        </Portal.Host>
+                    </View>
+                </>
             }
         </>
     );

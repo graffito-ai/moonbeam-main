@@ -8,6 +8,7 @@ import {Button, Dialog, Portal, Text} from 'react-native-paper';
 import {styles} from '../../../../../styles/store.module';
 import {Button as ModalButton} from '@rneui/base';
 import * as Location from "expo-location";
+import {LocationObject} from "expo-location";
 import {
     CountryCode,
     FidelisPartner,
@@ -50,8 +51,8 @@ import {
     toggleViewPressedState
 } from "../../../../../recoil/StoreOfferAtom";
 import {currentUserLocationState} from "../../../../../recoil/RootAtom";
-import {LocationObject} from "expo-location";
 import {KitsSection} from "./storeComponents/KitsSection";
+import {FullScreenMap} from "./storeComponents/FullScreenMap";
 
 /**
  * Store component.
@@ -340,7 +341,7 @@ export const Store = ({navigation}: StoreProps) => {
             } else {
                 if (currentUserLocation === null) {
                     const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
-                    setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getLastKnownPositionAsync());
+                    setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getCurrentPositionAsync());
                 }
 
                 // first retrieve the latitude and longitude of the current user
@@ -591,22 +592,29 @@ export const Store = ({navigation}: StoreProps) => {
                                                     </View>
                                                 </>
                                             </ScrollView> :
-                                            <Portal.Host>
-                                                <VerticalOffers
-                                                    navigation={navigation}
-                                                    noFilteredOffersAvailable={noFilteredOffersAvailable}
-                                                    shouldCacheImages={shouldCacheImages}
-                                                    fidelisPartnerList={fidelisPartnerList}
-                                                    filteredOffersSpinnerShown={filteredOffersSpinnerShown}
-                                                    setFilteredOffersSpinnerShown={setFilteredOffersSpinnerShown}
-                                                    retrieveOnlineOffersList={retrieveOnlineOffersList}
-                                                    offersNearUserLocationFlag={offersNearUserLocationFlag}
-                                                    retrieveNearbyOffersList={retrieveNearbyOffersList}
-                                                    retrieveOffersNearLocation={retrieveOffersNearLocation}
-                                                    setNoFilteredOffersAvailable={setNoFilteredOffersAvailable}
-                                                />
-                                            </Portal.Host>
-
+                                            toggleViewPressed === 'vertical'
+                                                ?
+                                                <Portal.Host>
+                                                    <VerticalOffers
+                                                        navigation={navigation}
+                                                        noFilteredOffersAvailable={noFilteredOffersAvailable}
+                                                        shouldCacheImages={shouldCacheImages}
+                                                        fidelisPartnerList={fidelisPartnerList}
+                                                        filteredOffersSpinnerShown={filteredOffersSpinnerShown}
+                                                        setFilteredOffersSpinnerShown={setFilteredOffersSpinnerShown}
+                                                        retrieveOnlineOffersList={retrieveOnlineOffersList}
+                                                        offersNearUserLocationFlag={offersNearUserLocationFlag}
+                                                        retrieveNearbyOffersList={retrieveNearbyOffersList}
+                                                        retrieveOffersNearLocation={retrieveOffersNearLocation}
+                                                        setNoFilteredOffersAvailable={setNoFilteredOffersAvailable}
+                                                    />
+                                                </Portal.Host>
+                                                :
+                                                <Portal.Host>
+                                                    <FullScreenMap
+                                                        navigation={navigation}
+                                                    />
+                                                </Portal.Host>
                                     }
                                 </View>
                             </View>

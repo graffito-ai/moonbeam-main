@@ -4,12 +4,17 @@
  * (this list needs to always be updated accordingly)
  */
 export const FidelisPartnerOrder: string[] = [
-    'Provengo',
+    'Provengo + Under Armour',
     'Freedom Fatigues',
+    'Provengo + Oakley',
     'Crossed Sabers Coffee',
+    'Provengo +Yeti',
     'Patriot Shave',
+    'Provengo + 5.11 Tactical',
     'Woobie Gear',
+    'Provengo + Grunt Style',
     'Olde Man Granola',
+    'Provengo',
     'Undaunted Arms',
     'BnB Knives',
     'Hemel Watches',

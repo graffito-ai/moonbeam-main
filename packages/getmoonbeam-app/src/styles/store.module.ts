@@ -34,7 +34,7 @@ export const styles = StyleSheet.create({
         height: hp(5)
     },
     searchBar: {
-        marginTop: hp(2),
+        marginTop: hp(0.5),
         width: wp(94),
         height: hp(5),
         alignSelf: 'flex-start',
@@ -49,17 +49,17 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF'
     },
     verticalSectionActiveChip: {
-        marginRight: wp(6),
+        marginRight: wp(9.80),
         borderColor: 'transparent'
     },
     verticalSectionActiveChipText: {
         alignSelf: 'center',
         fontFamily: 'Raleway-Medium',
-        fontSize: hp(1.4),
+        fontSize: hp(1.5),
         color: '#F2FF5D'
     },
     filterChipView: {
-        left: wp(4),
+        left: wp(6),
         alignSelf: 'flex-start',
         marginTop: hp(1.5),
         flexDirection: 'row',
@@ -77,6 +77,49 @@ export const styles = StyleSheet.create({
         flex: 1,
         flexGrow: 1
     },
+    mapHorizontalView: {
+        height: hp(20),
+        width: wp(100),
+        top: hp(1.5)
+    },
+    mapHorizontalViewTitleButton: {
+        top: hp(3.8),
+        fontSize: hp(1.5),
+        fontFamily: 'Raleway-Bold',
+        color: '#F2FF5D',
+        textDecorationLine: 'underline',
+        alignSelf: 'flex-end',
+        right: wp(3)
+    },
+    mapHorizontalMapView: {
+        top: hp(2),
+        height: hp(15),
+        width: wp(92),
+        left: wp(5)
+    },
+    toolTipMain: {
+        height: hp(9.5),
+        width: wp(25),
+        flexDirection: 'row',
+        alignContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center'
+    },
+    toolTipImageDetail: {
+        alignSelf: 'center',
+        height: hp(2.5),
+        bottom: hp(0.7),
+        left: wp(1),
+        width: wp(10)
+    },
+    toolTipImagePrice: {
+        alignSelf: 'center',
+        fontFamily: 'Raleway-ExtraBold',
+        fontSize: hp(1.7),
+        bottom: hp(0.7),
+        textAlign: 'center',
+        color: '#313030'
+    },
     kitsScrollView: {
         bottom: hp(2),
         height: hp(35),
@@ -85,7 +128,7 @@ export const styles = StyleSheet.create({
     kitsView: {
         height: hp(30),
         width: wp(100),
-        marginBottom: -hp(4)
+        bottom: hp(4)
     },
     kitsTitleMain: {
         fontSize: hp(2.3),
@@ -104,13 +147,15 @@ export const styles = StyleSheet.create({
     },
     featuredPartnersView: {
         height: hp(40),
-        width: wp(100)
+        width: wp(100),
+        bottom: hp(7)
     },
     featuredPartnersTitleMain: {
         fontSize: hp(2.3),
         fontFamily: 'Changa-Medium',
         left: wp(6),
         alignSelf: 'flex-start',
+        flexDirection: 'column',
         color: '#FFFFFF'
     },
     featuredPartnersTitle: {
@@ -127,15 +172,25 @@ export const styles = StyleSheet.create({
         width: wp(100)
     },
     onlineOffersView: {
-        height: hp(30)
+        height: hp(45),
+        top: hp(15)
     },
     onlineOffersTitleView: {
         justifyContent: 'space-between',
-        flexDirection: 'row',
+        flexDirection: 'column',
         top: hp(1)
     },
     onlineOffersLeftTitleView: {
         flexDirection: 'column'
+    },
+    onlineOffersTitleSub: {
+        fontSize: hp(1.3),
+        fontFamily: 'Changa-Medium',
+        textDecorationLine: 'none',
+        color: '#F2FF5D',
+        left: wp(6),
+        bottom: hp(0.5),
+        alignSelf: 'flex-start'
     },
     onlineOffersTitleMain: {
         fontSize: hp(2.3),
@@ -153,18 +208,19 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF'
     },
     onlineOffersTitleButton: {
-        right: wp(5),
-        fontSize: hp(1.8),
+        right: wp(3),
+        fontSize: hp(1.5),
         fontFamily: 'Raleway-Bold',
         color: '#F2FF5D',
         textDecorationLine: 'underline',
         alignSelf: 'flex-end',
-        top: hp(1)
+        bottom: hp(2.7)
     },
     onlineOffersScrollView: {
         left: wp(3),
         width: wp(100),
         height: hp(25),
+        bottom: hp(2)
     },
     onlineOfferCard: {
         right: wp(2),
@@ -203,14 +259,17 @@ export const styles = StyleSheet.create({
     nearbyOffersView: {
         height: hp(40),
         width: wp(100),
+        bottom: hp(8)
     },
     nearbyOffersTitleView: {
         justifyContent: 'space-between',
         flexDirection: 'row',
-        top: hp(0.5),
+        top: hp(3),
+        width: wp(100)
     },
     nearbyOffersLeftTitleView: {
-        flexDirection: 'column'
+        flexDirection: 'column',
+        alignSelf: 'flex-start'
     },
     nearbyOffersTitleMain: {
         fontSize: hp(2.3),
@@ -241,6 +300,15 @@ export const styles = StyleSheet.create({
         alignSelf: 'flex-start',
         color: '#FFFFFF'
     },
+    nearbyOffersForMapTitleSub: {
+        fontSize: hp(1.3),
+        fontFamily: 'Changa-Medium',
+        textDecorationLine: 'none',
+        color: '#F2FF5D',
+        left: wp(6),
+        top: hp(3),
+        alignSelf: 'flex-start'
+    },
     nearbyOffersTitleSub: {
         fontSize: hp(1.3),
         fontFamily: 'Changa-Medium',
@@ -251,17 +319,18 @@ export const styles = StyleSheet.create({
         alignSelf: 'flex-start'
     },
     nearbyOffersTitleButton: {
-        right: wp(5),
-        fontSize: hp(1.8),
+        right: wp(3),
+        fontSize: hp(1.5),
         fontFamily: 'Raleway-Bold',
         color: '#F2FF5D',
         textDecorationLine: 'underline',
         alignSelf: 'flex-end',
-        top: hp(1)
+        top: hp(1),
+        marginBottom: hp(1)
     },
     nearbyOffersScrollView: {
         top: hp(1),
-        left: wp(0.5),
+        left: wp(0.01),
         right: wp(2),
         height: hp(50),
         width: wp(100)
@@ -290,22 +359,24 @@ export const styles = StyleSheet.create({
         elevation: 15
     },
     kitsCardTitle: {
-        fontSize: hp(3.3),
+        fontSize: hp(2.7),
         fontFamily: 'Saira-Bold',
         textAlign: 'center',
+        alignSelf: 'center',
         top: hp(3),
         lineHeight: hp(4),
-        width: wp(60),
+        width: wp(65),
         color: '#F2FF5D',
     },
     kitsCardTitleButton: {
         fontSize: hp(2),
         fontFamily: 'Saira-Bold',
         textAlign: 'center',
+        alignSelf: 'center',
         textDecorationLine: 'underline',
         top: hp(3),
         lineHeight: hp(3),
-        width: wp(60),
+        width: wp(65),
         color: '#FFFFFF',
     },
     kitsPicture: {
@@ -349,6 +420,15 @@ export const styles = StyleSheet.create({
         lineHeight: hp(2.4),
         alignSelf: 'flex-start',
         color: '#FFFFFF'
+    },
+    featuredPartnersTitleSub: {
+        fontSize: hp(1.6),
+        fontFamily: 'Changa-Medium',
+        textDecorationLine: 'none',
+        color: '#F2FF5D',
+        left: wp(6),
+        bottom: hp(0.5),
+        alignSelf: 'flex-start'
     },
     featuredPartnerCardSubtitle: {
         top: hp(0.5),
@@ -398,11 +478,21 @@ export const styles = StyleSheet.create({
         width: wp(40),
         fontSize: hp(1.5),
         lineHeight: hp(2),
-        color: '#FFFFFF'
+        color: '#FFFFFF',
+        top: hp(3)
+    },
+    nearbyOfferCardDistanceParagraph: {
+        left: wp(1),
+        fontFamily: 'Raleway-ExtraBold',
+        width: wp(40),
+        fontSize: hp(1.3),
+        lineHeight: hp(2),
+        color: '#F2FF5D',
+        top: hp(5)
     },
     nearbyLoadingOfferCard: {
         left: wp(4),
-        bottom: hp(4),
+        bottom: hp(1),
         backgroundColor: 'transparent',
         width: wp(85),
         height: hp(30),
@@ -427,7 +517,7 @@ export const styles = StyleSheet.create({
         top: hp(2),
         right: wp(4),
         height: hp(33),
-        backgroundColor: '#2c2c2c',
+        backgroundColor: '#262626',
         flexDirection: 'column',
         alignItems: 'center',
         alignContent: 'center',
@@ -474,7 +564,7 @@ export const styles = StyleSheet.create({
     },
     nearbyOfferCardTitleMain: {
         marginTop: hp(1),
-        width: wp(40)
+        width: wp(50)
     },
     nearbyOfferCardTitle: {
         right: wp(1),
@@ -510,7 +600,7 @@ export const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     verticalOffersBannerCard: {
-        backgroundColor: '#2c2c2c',
+        backgroundColor: '#262626',
         borderRadius: 0,
         width: wp(100),
         height: hp(10),
@@ -575,5 +665,82 @@ export const styles = StyleSheet.create({
         marginRight: wp(4),
         height: hp(7),
         width: hp(7)
+    },
+    fullScreenMapLoadingCard: {
+        backgroundColor: 'transparent',
+        width: wp(100),
+        height: hp(85),
+        shadowColor: 'transparent',
+        shadowOffset: {width: -2, height: 1},
+        shadowOpacity: 0.6,
+        shadowRadius: 2,
+        elevation: 15,
+        bottom: hp(2)
+    },
+    fullScreenMapServicesEnableView: {
+        right: wp(4),
+        width: wp(100),
+        height: hp(85),
+        backgroundColor: '#262626',
+        borderRadius: 30,
+        flexDirection: 'column',
+        alignItems: 'center',
+        alignContent: 'center',
+        alignSelf: 'flex-start'
+    },
+    fullScreenMapServicesEnableWarningMessage: {
+        top: hp(18),
+        width: wp(85),
+        fontSize: hp(2),
+        fontFamily: 'Saira-Medium',
+        textAlign: 'center',
+        color: '#FFFFFF'
+    },
+    fullScreenMapServicesButton: {
+        backgroundColor: '#F2FF5D',
+        width: wp(50),
+        height: hp(5),
+        top: hp(15),
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    fullScreenMapServicesImage: {
+        top: hp(15),
+        width: wp(45),
+        height: hp(25),
+    },
+    fullScreenMapServicesButtonText: {
+        color: '#313030',
+        fontFamily: 'Saira-Medium',
+        fontSize: hp(2.3),
+        marginTop: hp(1)
+    },
+    fullMapView: {
+        height: hp(85),
+        width: wp(100)
+    },
+    fullMapInnerView: {
+        height: hp(85),
+        width: wp(100),
+        alignSelf: 'center'
+    },
+    searchButtonContentStyle: {
+        color: '#F2FF5D',
+        fontFamily: 'Saira-Medium',
+        fontSize: hp(2.3),
+        marginTop: hp(1),
+        alignItems: 'center',
+        alignSelf: 'center'
+    },
+    searchButton: {
+        position: 'absolute',
+        bottom: hp(5),
+        alignSelf: 'center',
+        backgroundColor: '#313030',
+        width: wp(90),
+        height: hp(5.5),
+        borderRadius: 0
     }
 });

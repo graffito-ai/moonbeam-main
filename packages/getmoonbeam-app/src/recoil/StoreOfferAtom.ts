@@ -14,9 +14,21 @@ const storeOfferState = atom<Offer | FidelisPartner | null>({
  * Atom used to keep track of the store offer/partner physical location (if any), to be used for displaying
  * an offer/partner detailed screen.
  */
-const storeOfferPhysicalLocationState = atom<string>({
+const storeOfferPhysicalLocationState = atom<{
+    latitude: number,
+    longitude: number,
+    latitudeDelta: number,
+    longitudeDelta: number,
+    addressAsString: string
+}>({
     key: "storeOfferPhysicalLocationState",
-    default: ''
+    default: {
+        latitude: 0,
+        longitude: 0,
+        latitudeDelta: 0,
+        longitudeDelta: 0,
+        addressAsString: ''
+    }
 });
 
 /**
@@ -86,6 +98,60 @@ const uniqueOnlineOffersListState = selector<Offer[]>({
 const nearbyOffersListState = atom<Offer[]>({
     key: "nearbyOffersListState",
     default: []
+});
+
+/**
+ * Atom used to keep track of the list of nearby offers used for the horizontal
+ * main map.
+ */
+const nearbyOffersListForMainHorizontalMapState = atom<Offer[]>({
+    key: "nearbyOffersListForMainHorizontalMapState",
+    default: []
+});
+
+/**
+ * Atom used to keep track of the list of nearby offers used for the full screen
+ * main map.
+ */
+const nearbyOffersListForFullScreenMapState = atom<Offer[]>({
+    key: "nearbyOffersListForFullScreenMapState",
+    default: []
+});
+
+/**
+ * A selector used to make sure that there are no duplicate nearby offers returned
+ * for the full screen main map.
+ */
+const uniqueNearbyOffersListForFullScreenMapState = selector<Offer[]>({
+    key: 'uniqueNearbyOffersListForFullScreenMapState',
+    get: ({get}) => {
+        const nearbyOfferList = get(nearbyOffersListForFullScreenMapState);
+        if (nearbyOfferList === null) {
+            return [];
+        } else {
+            // make sure that all transactions are unique based on their id
+            return [...new Map(nearbyOfferList.map(offer =>
+                [offer.id, offer])).values()];
+        }
+    }
+});
+
+/**
+ * A selector used to make sure that there are no duplicate nearby offers returned
+ * for the horizontal main map.
+ */
+const uniqueNearbyOffersListForMainHorizontalMapState = selector<Offer[]>({
+    key: 'uniqueNearbyOffersListForMainHorizontalMapState',
+    get: ({get}) => {
+        const nearbyOfferList = get(nearbyOffersListForMainHorizontalMapState);
+        if (nearbyOfferList === null) {
+            return [];
+        } else {
+            // make sure that all transactions are unique based on their id
+            return [...new Map(nearbyOfferList.map(offer =>
+                [offer.id, offer])).values()];
+        }
+    }
 });
 
 /**
@@ -205,9 +271,43 @@ const searchQueryState = atom<string>({
 });
 
 /**
+ * Atom used to keep track of the number of offers that are within
+ * 25 miles from the user.
+ */
+
+const numberOfOffersWithin25MilesState = atom<number>({
+    key: "numberOfOffersWithin25MilesState",
+    default: 0
+});
+
+/**
+ * Atom used to keep track of the number of offers that are within
+ * 5 miles from the user.
+ */
+const numberOfOffersWithin5MilesState = atom<number>({
+    key: "numberOfOffersWithin5MilesState",
+    default: 0
+});
+
+/**
+ * Atom used to keep track of the number of online offers.
+ */
+const numberOfOnlineOffersState = atom<number>({
+    key: "numberOfOnlineOffersState",
+    default: 0
+});
+
+/**
  * Export all atoms and/or selectors
  */
 export {
+    numberOfOnlineOffersState,
+    nearbyOffersListForFullScreenMapState,
+    uniqueNearbyOffersListForFullScreenMapState,
+    uniqueNearbyOffersListForMainHorizontalMapState,
+    nearbyOffersListForMainHorizontalMapState,
+    numberOfOffersWithin5MilesState,
+    numberOfOffersWithin25MilesState,
     filteredByDiscountPressedState,
     filtersActiveState,
     toggleViewPressedState,

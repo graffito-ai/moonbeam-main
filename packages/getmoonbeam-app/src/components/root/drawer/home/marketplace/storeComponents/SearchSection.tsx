@@ -44,7 +44,10 @@ export const SearchSection = (props: {
      * included in here.
      */
     useEffect(() => {
-    }, []);
+        if (toggleViewPressed === 'horizontal') {
+            setWhichVerticalSectionActive(null);
+        }
+    }, [toggleViewPressed]);
 
     // return the component for the SearchSection page
     return (
@@ -52,10 +55,18 @@ export const SearchSection = (props: {
             <View style={styles.titleView}>
                 <View style={{alignSelf: 'flex-start'}}>
                     <Text style={styles.mainTitle}>
-                        Shop
+                        {
+                            toggleViewPressed === 'map'
+                                ? 'Find'
+                                : 'Shop'
+                        }
                     </Text>
                     <Text style={styles.mainSubtitle}>
-                        at select merchant partners.
+                        {
+                            toggleViewPressed === 'map'
+                                ? 'your favorite brands.'
+                                : 'at select merchant partners.'
+                        }
                     </Text>
                 </View>
                 <View style={{
@@ -113,7 +124,7 @@ export const SearchSection = (props: {
                         <ToggleButton
                             style={styles.toggleViewButton}
                             size={toggleViewPressed === 'map' ? hp(4) : hp(4)}
-                            icon="google-maps"
+                            icon="map-legend"
                             value="map"
                             iconColor={toggleViewPressed === 'map' ? '#F2FF5D' : '#5B5A5A'}
                         />
@@ -230,35 +241,38 @@ export const SearchSection = (props: {
                                   }
                               }}>Online</Chip>
                         {deDupedNearbyOfferList.length !== 0 &&
-                            <Chip mode={'outlined'}
-                                  style={[styles.verticalSectionActiveChip, whichVerticalSectionActive === 'nearby' ? {backgroundColor: '#F2FF5D'} : {backgroundColor: '#5B5A5A'}]}
-                                  icon={() => (
-                                      <Icon name="map-marker"
-                                            type={'material-community'}
-                                            size={hp(2.5)}
-                                            color={whichVerticalSectionActive === 'nearby' ? '#5B5A5A' : '#F2FF5D'}/>
-                                  )}
-                                  textStyle={[styles.verticalSectionActiveChipText, whichVerticalSectionActive === 'nearby' ? {color: '#5B5A5A'} : {color: '#F2FF5D'}]}
-                                  onPress={() => {
-                                      // reset the search state
-                                      setResetSearch(true);
+                            <>
+                                <Chip mode={'outlined'}
+                                      style={[styles.verticalSectionActiveChip, whichVerticalSectionActive === 'nearby' ? {backgroundColor: '#F2FF5D'} : {backgroundColor: '#5B5A5A'}]}
+                                      icon={() => (
+                                          <Icon name="map-marker"
+                                                type={'material-community'}
+                                                size={hp(2.5)}
+                                                color={whichVerticalSectionActive === 'nearby' ? '#5B5A5A' : '#F2FF5D'}/>
+                                      )}
+                                      textStyle={[styles.verticalSectionActiveChipText, whichVerticalSectionActive === 'nearby' ? {color: '#5B5A5A'} : {color: '#F2FF5D'}]}
+                                      onPress={() => {
+                                          // reset the search state
+                                          setResetSearch(true);
 
-                                      // reset the filters
-                                      setFilteredByDiscountPressed(false);
-                                      setAreFiltersActive(false);
+                                          // reset the filters
+                                          setFilteredByDiscountPressed(false);
+                                          setAreFiltersActive(false);
 
-                                      if (whichVerticalSectionActive === 'nearby') {
-                                          // set the no filtered offers available flag accordingly
-                                          props.setNoFilteredOffersAvailable(false);
+                                          if (whichVerticalSectionActive === 'nearby') {
+                                              // set the no filtered offers available flag accordingly
+                                              props.setNoFilteredOffersAvailable(false);
 
-                                          setSearchQuery('');
-                                          setWhichVerticalSectionActive(null);
-                                          setToggleViewPressed('horizontal');
-                                      } else {
-                                          setWhichVerticalSectionActive('nearby');
-                                          setToggleViewPressed('vertical');
-                                      }
-                                  }}>Nearby</Chip>
+                                              setSearchQuery('');
+                                              setWhichVerticalSectionActive(null);
+                                              setToggleViewPressed('horizontal');
+                                          } else {
+                                              setWhichVerticalSectionActive('nearby');
+                                              setToggleViewPressed('vertical');
+                                          }
+                                      }}>Nearby
+                                </Chip>
+                            </>
                         }
                     </View>
                 </>

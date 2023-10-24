@@ -487,8 +487,10 @@ export const VerticalOffers = (props: {
         // flag to determine whether there are any offers shown at all - so we can display the empty message otherwise
         let offersShown = false;
 
-        // get the physical location of this offer
+        // get the physical location of this offer alongside its coordinates
         let physicalLocation: string = '';
+        let storeLatitude: number = 0;
+        let storeLongitude: number = 0;
         data && data.storeDetails !== undefined && data.storeDetails !== null && data.storeDetails!.forEach(store => {
             /**
              * there are many possible stores with physical locations.
@@ -498,6 +500,14 @@ export const VerticalOffers = (props: {
             if (physicalLocation === '' && store !== null &&
                 store!.isOnline === false && store!.distance !== null && store!.distance !== undefined
                 && store!.distance! <= 50000) {
+                // set the store's coordinates accordingly
+                storeLatitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
+                store!.geoLocation!.latitude !== null && store!.geoLocation!.latitude !== undefined
+                    ? store!.geoLocation!.latitude! : 0;
+                storeLongitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
+                store!.geoLocation!.longitude !== null && store!.geoLocation!.longitude !== undefined
+                    ? store!.geoLocation!.longitude! : 0;
+
                 // Olive needs to get better at displaying the address. For now, we will do this input sanitization
                 if (store!.address1 !== undefined && store!.address1 !== null && store!.address1!.length !== 0 &&
                     store!.city !== undefined && store!.city !== null && store!.city!.length !== 0 &&
@@ -544,7 +554,13 @@ export const VerticalOffers = (props: {
                                               // set the clicked offer/partner accordingly
                                               setStoreOfferClicked(data);
                                               // set the clicked offer physical location
-                                              setStoreOfferPhysicalLocation(physicalLocation);
+                                              setStoreOfferPhysicalLocation({
+                                                  latitude: storeLatitude,
+                                                  longitude: storeLongitude,
+                                                  latitudeDelta: 0,
+                                                  longitudeDelta: 0,
+                                                  addressAsString: physicalLocation
+                                              });
                                               // @ts-ignore
                                               props.navigation.navigate('StoreOffer', {});
                                           }}>
@@ -591,7 +607,13 @@ export const VerticalOffers = (props: {
                                       // set the clicked offer/partner accordingly
                                       setStoreOfferClicked(data);
                                       // set the clicked offer physical location
-                                      setStoreOfferPhysicalLocation(physicalLocation);
+                                      setStoreOfferPhysicalLocation({
+                                          latitude: storeLatitude,
+                                          longitude: storeLongitude,
+                                          latitudeDelta: 0,
+                                          longitudeDelta: 0,
+                                          addressAsString: physicalLocation
+                                      });
                                       // @ts-ignore
                                       props.navigation.navigate('StoreOffer', {});
                                   }}>

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {StoreOfferDetailsProps} from "../../../../../../models/props/StoreOfferProps";
-import {ImageBackground, ScrollView, Text, TouchableOpacity, View} from "react-native";
+import {ImageBackground, Linking, Platform, ScrollView, Text, TouchableOpacity, View} from "react-native";
 import {styles} from '../../../../../../styles/storeOfferDetails.module';
 import {useRecoilState} from "recoil";
 import {storeOfferPhysicalLocationState, storeOfferState} from "../../../../../../recoil/StoreOfferAtom";
@@ -15,6 +15,8 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-nativ
 import {Image} from 'expo-image';
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
+// @ts-ignore
+import MoonbeamPinImage from "../../../../../../../assets/pin-shape.png";
 
 /**
  * StoreOfferDetails component.
@@ -26,7 +28,6 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
     // constants used to keep track of local component state
     const [offerIdExpanded, setOfferIdExpanded] = useState<string | null>(null);
     const [hasOnlineStore, setHasOnlineStore] = useState<boolean>(false);
-
     // constants used to keep track of shared states
     const [storeOfferClicked,] = useRecoilState(storeOfferState);
     const [storeOfferPhysicalLocation,] = useRecoilState(storeOfferPhysicalLocationState);
@@ -60,7 +61,7 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                 }
             });
         }
-    }, [hasOnlineStore]);
+    }, [hasOnlineStore, storeOfferPhysicalLocation]);
 
     /**
      * Function used to populate the online offers.
@@ -82,9 +83,11 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                 // check the type of Fidelis partner offer
                 const offerType = retrievedPartnerOffer!.title!.includes('Birthday')
                     ? 'Birthday'
-                    : (retrievedPartnerOffer!.title!.includes(`Veterans Day`)
+                    : (retrievedPartnerOffer!.title!.includes(`Veterans Day`))
                         ? `Veteran's Day`
-                        : `Everyday`)
+                        : (retrievedPartnerOffer!.title!.includes('First Purchase'))
+                            ? `First Purchase`
+                            : `Everyday`
 
                 // build the participating locations object
                 let participatingLocationsNumber = 0;
@@ -312,6 +315,23 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
         return results;
     }
 
+    /**
+     * Function used to  open the native map for directions purposes.
+     *
+     * @param offerLabel the label that the directions map will display, for
+     * the offer to navigate to.
+     */
+    const openDirectionalMap = async (offerLabel: string): Promise<void> => {
+        const scheme = Platform.select({ios: 'maps://0,0?q=', android: 'geo:0,0?q='});
+        const latLng = `${storeOfferPhysicalLocation.latitude},${storeOfferPhysicalLocation.longitude}`;
+        const url = Platform.select({
+            ios: `${scheme}${offerLabel}@${latLng}`,
+            android: `${scheme}${latLng}(${offerLabel})`
+        });
+        // @ts-ignore
+        await Linking.openURL(url);
+    }
+
     // return the component for the StoreOfferDetails page
     return (
         <View style={styles.mainView}>
@@ -319,7 +339,7 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                 start={{x: 5, y: 1}}
                 end={{x: 0, y: 1}}
                 colors={['transparent', '#313030']}
-                style={styles.brandView}>
+                style={[styles.brandView, !hasOnlineStore ? {height: hp(40)} : {height: hp(30)}]}>
                 {
                     // @ts-ignore
                     storeOfferClicked!.numberOfOffers !== undefined
@@ -338,14 +358,29 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                             {
                                 !hasOnlineStore
                                     ?
-                                    <Text style={styles.brandTitle}>{
-                                        // @ts-ignore
-                                        storeOfferClicked!.offers[0].brandDba!
-                                    }
-                                        <Text style={styles.brandTitleAddress}>
-                                            {`\n${storeOfferPhysicalLocation}`}
+                                    <>
+                                        <Text
+                                            numberOfLines={2}
+                                            style={styles.brandTitle}>{
+                                            // @ts-ignore
+                                            `${storeOfferClicked!.offers[0].brandDba!}`
+                                        }
                                         </Text>
-                                    </Text>
+                                        <TouchableOpacity
+                                            style={styles.directionsButton}
+                                            onPress={async () => {
+                                                // @ts-ignore
+                                                await openDirectionalMap(storeOfferClicked!.offers[0].brandDba!);
+                                            }}
+                                        >
+                                            <Text style={styles.directionsButtonContentStyle}>Get Directions</Text>
+                                        </TouchableOpacity>
+                                        <Text
+                                            numberOfLines={3}
+                                            style={styles.brandTitleAddress}>
+                                            {`\n${storeOfferPhysicalLocation.addressAsString}`}
+                                        </Text>
+                                    </>
                                     :
                                     <Text style={styles.brandTitle}>{
                                         // @ts-ignore
@@ -368,14 +403,29 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                             {
                                 !hasOnlineStore
                                     ?
-                                    <Text style={styles.brandTitle}>{
-                                        // @ts-ignore
-                                        storeOfferClicked!.brandDba!
-                                    }
-                                        <Text style={styles.brandTitleAddress}>
-                                            {`\n${storeOfferPhysicalLocation}`}
+                                    <>
+                                        <Text
+                                            numberOfLines={2}
+                                            style={styles.brandTitle}>{
+                                            // @ts-ignore
+                                            `${storeOfferClicked!.brandDba!}`
+                                        }
                                         </Text>
-                                    </Text>
+                                        <TouchableOpacity
+                                            style={styles.directionsButton}
+                                            onPress={async () => {
+                                                // @ts-ignore
+                                                await openDirectionalMap(storeOfferClicked!.brandDba!);
+                                            }}
+                                        >
+                                            <Text style={styles.directionsButtonContentStyle}>Get Directions</Text>
+                                        </TouchableOpacity>
+                                        <Text
+                                            numberOfLines={3}
+                                            style={styles.brandTitleAddress}>
+                                            {`\n${storeOfferPhysicalLocation.addressAsString}`}
+                                        </Text>
+                                    </>
                                     :
                                     <Text style={styles.brandTitle}>{
                                         // @ts-ignore

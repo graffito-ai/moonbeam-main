@@ -175,6 +175,10 @@ export const FidelisSection = (props: {
                         Fidelis Partner Offers
                     </Text>{`   🎖`}️
                 </Text>
+                <Text
+                    style={[styles.featuredPartnersTitleSub, {left: wp(6)}]}>
+                    {`Get better discounts with Moonbeam exclusive brands`}
+                </Text>
                 {
                     dataProvider !== null && layoutProvider !== null &&
                     <RecyclerListView

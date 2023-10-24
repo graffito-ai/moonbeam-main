@@ -1,9 +1,7 @@
 import React from 'react';
 import {SafeAreaView} from 'react-native';
-import {widthPercentageToDP as wp} from 'react-native-responsive-screen';
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {ActivityIndicator, Modal, Portal} from 'react-native-paper';
-// @ts-ignore
-import {useValidation} from 'react-native-form-validator';
 
 /**
  * Spinner component. This will be used as a loading component in parent components, in order to
@@ -12,7 +10,7 @@ import {useValidation} from 'react-native-form-validator';
  * @param props component properties to be passed in.
  * @constructor constructor for the component.
  */
-export const Spinner = (props: { loadingSpinnerShown: boolean, setLoadingSpinnerShown: React.Dispatch<React.SetStateAction<boolean>>, fullScreen?: boolean }) => {
+export const Spinner = (props: { loadingSpinnerShown: boolean, setLoadingSpinnerShown: React.Dispatch<React.SetStateAction<boolean>>, fullScreen?: boolean, paddingForSpinner?: true }) => {
     // return the component for the Spinner/loading view
     return (
         <>
@@ -31,8 +29,10 @@ export const Spinner = (props: { loadingSpinnerShown: boolean, setLoadingSpinner
                         <Portal>
                             <Modal dismissable={false} visible={props.loadingSpinnerShown}
                                    onDismiss={() => props.setLoadingSpinnerShown(false)}>
-                                <ActivityIndicator animating={true} color={'#F2FF5D'}
-                                                   size={wp(13)}/>
+                                <ActivityIndicator
+                                    style={props.paddingForSpinner !== undefined && props.paddingForSpinner && {bottom: hp(2)}}
+                                    animating={true} color={'#F2FF5D'}
+                                    size={wp(13)}/>
                             </Modal>
                         </Portal>
                     </SafeAreaView>

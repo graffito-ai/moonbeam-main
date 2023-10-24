@@ -53,49 +53,49 @@ const moonbeamKits: MoonbeamKit[] = [
     {
         type: MoonbeamKitType.FOOD,
         backgroundPictureSource: MoonbeamFoodKitPicture,
-        title: 'Food',
+        title: 'Food Kit',
         titleButton: 'View All'
     },
     {
         type: MoonbeamKitType.RETAIL,
         backgroundPictureSource: MoonbeamRetailKitPicture,
-        title: 'Retail',
+        title: 'Retail Kit',
         titleButton: 'View All'
     },
     {
         type: MoonbeamKitType.ENTERTAINMENT,
         backgroundPictureSource: MoonbeamEntertainmentKitPicture,
-        title: 'Entertainment',
+        title: 'Entertainment Kit',
         titleButton: 'View All'
     },
     {
         type: MoonbeamKitType.ELECTRONICS,
         backgroundPictureSource: MoonbeamElectronicsKitPicture,
-        title: 'Electronics',
+        title: 'Electronics Kit',
         titleButton: 'View All'
     },
     {
         type: MoonbeamKitType.HOME,
         backgroundPictureSource: MoonbeamHomeKitPicture,
-        title: 'Home',
+        title: 'Home Kit',
         titleButton: 'View All'
     },
     {
         type: MoonbeamKitType.HEALTH_AND_BEAUTY,
         backgroundPictureSource: MoonbeamHealthAndBeautyKitPicture,
-        title: 'Health & Beauty',
+        title: 'Health & Beauty Kit',
         titleButton: 'View All'
     },
     {
         type: MoonbeamKitType.OFFICE_AND_BUSINESS,
         backgroundPictureSource: MoonbeamOfficeAndBusinessKitPicture,
-        title: 'Office',
+        title: 'Office Kit',
         titleButton: 'View All'
     },
     {
         type: MoonbeamKitType.SERVICES_AND_SUBSCRIPTIONS,
         backgroundPictureSource: MoonbeamServicesAndSubscriptionsKitPicture,
-        title: 'Subscriptions',
+        title: 'Subscriptions Kit',
         titleButton: 'View All'
     }
 ]
@@ -183,7 +183,7 @@ export const KitsSection = () => {
             <View style={styles.kitsView}>
                 <Text style={styles.kitsTitleMain}>
                     <Text style={styles.kitsTitle}>
-                        Everyday Kits
+                        {""}
                     </Text>️
                 </Text>
                 {

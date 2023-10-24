@@ -239,7 +239,7 @@ export default function App() {
                         setCurrentUserLocation(null);
                     } else {
                         const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
-                        setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getLastKnownPositionAsync());
+                        setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getCurrentPositionAsync());
                     }
                 }
 

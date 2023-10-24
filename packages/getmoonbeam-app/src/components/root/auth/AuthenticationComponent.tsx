@@ -45,6 +45,7 @@ import {styles} from "../../../styles/registration.module";
 import {
     retrieveFidelisPartnerList,
     retrieveOffersNearby,
+    retrieveOffersNearbyForMap,
     retrieveOnlineOffersList,
     retrievePremierOffersNearby,
     retrievePremierOnlineOffersList,
@@ -55,11 +56,14 @@ import {PremierOnlineProdOfferIds, Stages, UserAuthSessionResponse} from "@moonb
 import {currentUserLocationState, firstTimeLoggedInState} from "../../../recoil/RootAtom";
 import * as envInfo from "../../../../local-env-info.json";
 import {
-    locationServicesButtonState,
+    locationServicesButtonState, nearbyOffersListForFullScreenMapState,
+    nearbyOffersListForMainHorizontalMapState,
     nearbyOffersListState,
     nearbyOffersPageNumberState,
     noNearbyOffersToLoadState,
     noOnlineOffersToLoadState,
+    numberOfOffersWithin25MilesState,
+    numberOfOffersWithin5MilesState, numberOfOnlineOffersState,
     offersNearUserLocationFlagState,
     onlineOffersListState,
     onlineOffersPageNumberState,
@@ -83,7 +87,14 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [loadingNearbyOffersInProgress, setIsLoadingNearbyOffersInProgress] = useState<boolean>(false);
         const [loadingOnlineInProgress, setIsLoadingOnlineInProgress] = useState<boolean>(false);
         const [noPremierOnlineOffersToLoad, setNoPremierOnlineOffersToLoad] = useState<boolean>(false);
+        const [loadingNearbyOffersForHorizontalMapInProgress, setIsLoadingNearbyOffersForHorizontalMapInProgress] = useState<boolean>(false);
+        const [areOffersForMainHorizontalMapLoaded, setAreOffersForMainHorizontalMapLoaded] = useState<boolean>(false);
+        const [loadingNearbyOffersForFullScreenMapInProgress, setIsLoadingNearbyOffersForFullScreenMapInProgress] = useState<boolean>(false);
+        const [areOffersForFullScreenMapLoaded, setAreOffersForFullScreenMapLoaded] = useState<boolean>(false);
         // constants used to keep track of shared states
+        const [numberOfOnlineOffers, setNumberOfOnlineOffers] = useRecoilState(numberOfOnlineOffersState);
+        const [numberOfOffersWithin5Miles, setNumberOfOffersWithin5Miles] = useRecoilState(numberOfOffersWithin5MilesState);
+        const [numberOfOffersWithin25Miles, setNumberOfOffersWithin25Miles] = useRecoilState(numberOfOffersWithin25MilesState);
         const [currentUserLocation, setCurrentUserLocation] = useRecoilState(currentUserLocationState);
         const [nearbyOffersPageNumber, setNearbyOffersPageNumber] = useRecoilState(nearbyOffersPageNumberState);
         const [premierNearbyOffersPageNumber, setPremierNearbyOffersPageNumber] = useRecoilState(premierNearbyOffersPageNumberState);
@@ -94,6 +105,8 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [, setOffersNearUserLocationFlag] = useRecoilState(offersNearUserLocationFlagState);
         const [reloadNearbyDueToPermissionsChange, setReloadNearbyDueToPermissionsChange] = useRecoilState(reloadNearbyDueToPermissionsChangeState);
         const [, setLocationServicesButtonState] = useRecoilState(locationServicesButtonState);
+        const [nearbyOffersListForMainHorizontalMap, setNearbyOffersListForMainHorizontalMap] = useRecoilState(nearbyOffersListForMainHorizontalMapState);
+        const [nearbyOffersListForFullScreenMap, setNearbyOffersListForFullScreenMap] = useRecoilState(nearbyOffersListForFullScreenMapState);
         const [nearbyOfferList, setNearbyOfferList] = useRecoilState(nearbyOffersListState);
         const [onlineOfferList, setOnlineOfferList] = useRecoilState(onlineOffersListState);
         const [mainRootNavigation, setMainRootNavigation] = useRecoilState(mainRootNavigationState);
@@ -201,6 +214,142 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             onlineOfferList, marketplaceCache, loadingOnlineInProgress, noOnlineOffersToLoad]);
 
         /**
+         * Function used to load the online data
+         */
+        const loadOnlineData = async (): Promise<void> => {
+            setIsLoadingOnlineInProgress(true);
+
+            const additionalOnlineOffers = await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers, onlineOffersPageNumber, setOnlineOffersPageNumber);
+            if (additionalOnlineOffers.length === 0) {
+                setNoOnlineOffersToLoad(true);
+                setOnlineOfferList(oldOnlineOfferList => {
+                    return [...oldOnlineOfferList, ...additionalOnlineOffers]
+                });
+            } else {
+                setNoOnlineOffersToLoad(false);
+                setOnlineOfferList(oldOnlineOfferList => {
+                    return [...oldOnlineOfferList, ...additionalOnlineOffers]
+                });
+            }
+
+            setIsLoadingOnlineInProgress(false);
+        }
+
+        /**
+         * Function used to load the premier online data
+         */
+        const loadPremierOnlineData = async (): Promise<void> => {
+            setIsLoadingOnlineInProgress(true);
+
+            const premierOnlineOffers = await retrievePremierOnlineOffersList(premierOnlineOffersPageNumber, setPremierOnlineOffersPageNumber);
+
+            if (premierOnlineOffers.length !== 0) {
+                setNoPremierOnlineOffersToLoad(false);
+                setOnlineOfferList(oldOnlineOfferList => {
+                    return [...premierOnlineOffers, ...oldOnlineOfferList]
+                });
+            } else {
+                setNoPremierOnlineOffersToLoad(true);
+                setOnlineOfferList(oldOnlineOfferList => {
+                    return [...premierOnlineOffers, ...oldOnlineOfferList]
+                });
+            }
+            setIsLoadingOnlineInProgress(false);
+        }
+
+        /**
+         * Function used to load the nearby offer data
+         */
+        const loadNearbyData = async (): Promise<void> => {
+            setIsLoadingNearbyOffersInProgress(true);
+            const offersNearby = await
+                retrieveOffersNearby(nearbyOffersPageNumber, setNearbyOffersPageNumber,
+                    premierNearbyOffersPageNumber, setPremierNearbyOffersPageNumber,
+                    userInformation, setOffersNearUserLocationFlag, marketplaceCache, currentUserLocation,
+                    setCurrentUserLocation, numberOfOffersWithin25Miles, setNumberOfOffersWithin25Miles);
+            if (offersNearby === null) {
+                setIsLoadingNearbyOffersInProgress(false);
+                setNoNearbyOffersToLoad(true);
+                setLocationServicesButtonState(true);
+            } else if (offersNearby.length === 0) {
+                setIsLoadingNearbyOffersInProgress(false);
+                setNoNearbyOffersToLoad(true);
+            } else {
+                setNoNearbyOffersToLoad(false);
+                setIsLoadingNearbyOffersInProgress(false);
+                setNearbyOfferList(oldNearbyOfferList => {
+                    return [...oldNearbyOfferList, ...offersNearby]
+                });
+            }
+        }
+
+        /**
+         * Function used to load the nearby offer data used for main horizontal map
+         */
+        const loadNearbyDataForMainHorizontalMap = async (): Promise<void> => {
+            setIsLoadingNearbyOffersForHorizontalMapInProgress(true);
+            const offersNearby = await
+                retrieveOffersNearbyForMap(userInformation, currentUserLocation, setCurrentUserLocation,
+                    numberOfOffersWithin5Miles, setNumberOfOffersWithin5Miles);
+            if (offersNearby === null) {
+                setIsLoadingNearbyOffersForHorizontalMapInProgress(false);
+                setAreOffersForMainHorizontalMapLoaded(true);
+            } else if (offersNearby.length === 0) {
+                setIsLoadingNearbyOffersForHorizontalMapInProgress(false);
+                setAreOffersForMainHorizontalMapLoaded(true);
+            } else {
+                setIsLoadingNearbyOffersForHorizontalMapInProgress(false);
+                setAreOffersForMainHorizontalMapLoaded(true);
+                setNearbyOffersListForMainHorizontalMap(oldNearbyOfferList => {
+                    return [...oldNearbyOfferList, ...offersNearby]
+                });
+            }
+        }
+
+        /**
+         * Function used to load the nearby offer data used for the full screen map
+         */
+        const loadNearbyDataForFullScreenMap = async (): Promise<void> => {
+            setIsLoadingNearbyOffersForFullScreenMapInProgress(true);
+            const offersNearby = await
+                retrieveOffersNearbyForMap(userInformation, currentUserLocation, setCurrentUserLocation,
+                    undefined, undefined, true);
+            if (offersNearby === null) {
+                setIsLoadingNearbyOffersForFullScreenMapInProgress(false);
+                setAreOffersForFullScreenMapLoaded(true);
+            } else if (offersNearby.length === 0) {
+                setIsLoadingNearbyOffersForFullScreenMapInProgress(false);
+                setAreOffersForFullScreenMapLoaded(true);
+            } else {
+                setIsLoadingNearbyOffersForFullScreenMapInProgress(false);
+                setAreOffersForFullScreenMapLoaded(true);
+                setNearbyOffersListForFullScreenMap(oldNearbyOfferList => {
+                    return [...oldNearbyOfferList, ...offersNearby]
+                });
+            }
+        }
+
+        /**
+         * Function used to load the premier nearby offer data
+         */
+        const loadPremierNearbyData = async (): Promise<void> => {
+            setIsLoadingNearbyOffersInProgress(true);
+            const premierOffersNearby = await
+                retrievePremierOffersNearby(premierNearbyOffersPageNumber, setPremierNearbyOffersPageNumber, currentUserLocation, setCurrentUserLocation);
+            if (premierOffersNearby === null) {
+                setIsLoadingNearbyOffersInProgress(false);
+            } else if (premierOffersNearby.length === 0 || nearbyOfferList.length >= 1) {
+                setIsLoadingNearbyOffersInProgress(false);
+            } else {
+                setNoNearbyOffersToLoad(false);
+                setIsLoadingNearbyOffersInProgress(false);
+                setNearbyOfferList(oldNearbyOfferList => {
+                    return [...premierOffersNearby, ...oldNearbyOfferList]
+                });
+            }
+        }
+
+        /**
          * Function used to load the marketplace/store data.
          *
          * @return a tuple of {@link Promise} of {@link void}
@@ -216,7 +365,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                     setCurrentUserLocation(null);
                 } else {
                     const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
-                    setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getLastKnownPositionAsync());
+                    setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getCurrentPositionAsync());
                 }
             }
 
@@ -232,45 +381,6 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                 (cachedOnlineOffers === null || cachedOnlineOffers.length < 20) && await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, null);
             }
 
-            // load the online data
-            const loadOnlineData = async (): Promise<void> => {
-                setIsLoadingOnlineInProgress(true);
-
-                const additionalOnlineOffers = await retrieveOnlineOffersList(onlineOffersPageNumber, setOnlineOffersPageNumber);
-                if (additionalOnlineOffers.length === 0) {
-                    setNoOnlineOffersToLoad(true);
-                    setOnlineOfferList(oldOnlineOfferList => {
-                        return [...oldOnlineOfferList, ...additionalOnlineOffers]
-                    });
-                } else {
-                    setNoOnlineOffersToLoad(false);
-                    setOnlineOfferList(oldOnlineOfferList => {
-                        return [...oldOnlineOfferList, ...additionalOnlineOffers]
-                    });
-                }
-
-                setIsLoadingOnlineInProgress(false);
-            }
-            // load the premier online data
-            const loadPremierOnlineData = async (): Promise<void> => {
-                setIsLoadingOnlineInProgress(true);
-
-                const premierOnlineOffers = await retrievePremierOnlineOffersList(premierOnlineOffersPageNumber, setPremierOnlineOffersPageNumber);
-
-                if (premierOnlineOffers.length !== 0) {
-                    setNoPremierOnlineOffersToLoad(false);
-                    setOnlineOfferList(oldOnlineOfferList => {
-                        return [...premierOnlineOffers, ...oldOnlineOfferList]
-                    });
-                } else {
-                    setNoPremierOnlineOffersToLoad(true);
-                    setOnlineOfferList(oldOnlineOfferList => {
-                        return [...premierOnlineOffers, ...oldOnlineOfferList]
-                    });
-                }
-                setIsLoadingOnlineInProgress(false);
-
-            }
             /**
              * stop caching online offers until we reach at most 100 offers,
              * or until we run out of offers to load.
@@ -285,63 +395,41 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                 });
             }
 
-            // load the nearby offer data
-            const loadNearbyData = async (): Promise<void> => {
-                setIsLoadingNearbyOffersInProgress(true);
-                const offersNearby = await
-                    retrieveOffersNearby(nearbyOffersPageNumber, setNearbyOffersPageNumber,
-                        premierNearbyOffersPageNumber, setPremierNearbyOffersPageNumber,
-                        userInformation, setOffersNearUserLocationFlag, marketplaceCache, currentUserLocation, setCurrentUserLocation);
-                if (offersNearby === null) {
-                    setIsLoadingNearbyOffersInProgress(false);
-                    setNoNearbyOffersToLoad(true);
-                    setLocationServicesButtonState(true);
-                } else if (offersNearby.length === 0) {
-                    setIsLoadingNearbyOffersInProgress(false);
-                    setNoNearbyOffersToLoad(true);
-                } else {
-                    setNoNearbyOffersToLoad(false);
-                    setIsLoadingNearbyOffersInProgress(false);
-                    setNearbyOfferList(oldNearbyOfferList => {
-                        return [...oldNearbyOfferList, ...offersNearby]
-                    });
-                }
-            }
-            // load the premier nearby offer data
-            const loadPremierNearbyData = async (): Promise<void> => {
-                setIsLoadingNearbyOffersInProgress(true);
-                const premierOffersNearby = await
-                    retrievePremierOffersNearby(premierNearbyOffersPageNumber, setPremierNearbyOffersPageNumber, currentUserLocation, setCurrentUserLocation);
-                if (premierOffersNearby === null) {
-                    setIsLoadingNearbyOffersInProgress(false);
-                } else if (premierOffersNearby.length === 0 || nearbyOfferList.length >= 1) {
-                    setIsLoadingNearbyOffersInProgress(false);
-                } else {
-                    setNoNearbyOffersToLoad(false);
-                    setIsLoadingNearbyOffersInProgress(false);
-                    setNearbyOfferList(oldNearbyOfferList => {
-                        return [...premierOffersNearby, ...oldNearbyOfferList]
-                    });
-                }
-            }
             if (envInfo.envName === Stages.DEV) {
                 if (reloadNearbyDueToPermissionsChange) {
+                    setIsLoadingNearbyOffersInProgress(false);
+                    setIsLoadingNearbyOffersForHorizontalMapInProgress(false)
+                    setAreOffersForMainHorizontalMapLoaded(false);
+                    setIsLoadingNearbyOffersForFullScreenMapInProgress(false);
+                    setAreOffersForFullScreenMapLoaded(false);
                     setNoNearbyOffersToLoad(false);
                     setReloadNearbyDueToPermissionsChange(false);
                 }
 
                 /**
-                 * pre-emptively load nearby premier, nearby regular, online premier and online regular offers in parallel.
+                 * pre-emptively load in parallel:
+                 * - nearby offers for main horizontal map
+                 * - nearby premier
+                 * - nearby regular
+                 * - online premier
+                 * - online regular offers
                  */
                 await Promise.all([
                     !loadingOnlineInProgress && !noPremierOnlineOffersToLoad && onlineOfferList.length < PremierOnlineProdOfferIds.length && loadPremierOnlineData(),
                     !loadingOnlineInProgress && !noOnlineOffersToLoad && PremierOnlineProdOfferIds.length <= onlineOfferList.length && onlineOfferList.length < 100 && loadOnlineData(),
+                    !loadingNearbyOffersForHorizontalMapInProgress && !areOffersForMainHorizontalMapLoaded && nearbyOffersListForMainHorizontalMap.length === 0 && loadNearbyDataForMainHorizontalMap(),
+                    !loadingNearbyOffersForFullScreenMapInProgress && !areOffersForFullScreenMapLoaded && nearbyOffersListForFullScreenMap.length === 0 && loadNearbyDataForFullScreenMap(),
                     !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && loadPremierNearbyData(),
                     !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && nearbyOfferList.length < 100 && loadNearbyData()
                 ]);
             }
             if (envInfo.envName === Stages.PROD) {
                 if (reloadNearbyDueToPermissionsChange) {
+                    setIsLoadingNearbyOffersInProgress(false);
+                    setIsLoadingNearbyOffersForHorizontalMapInProgress(false);
+                    setAreOffersForMainHorizontalMapLoaded(false);
+                    setIsLoadingNearbyOffersForFullScreenMapInProgress(false);
+                    setAreOffersForFullScreenMapLoaded(false);
                     setNoNearbyOffersToLoad(false);
                     setReloadNearbyDueToPermissionsChange(false);
                 }
@@ -352,6 +440,8 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                 await Promise.all([
                     !loadingOnlineInProgress && !noPremierOnlineOffersToLoad && loadPremierOnlineData(),
                     !loadingOnlineInProgress && !noOnlineOffersToLoad && PremierOnlineProdOfferIds.length <= onlineOfferList.length && onlineOfferList.length < 100 && loadOnlineData(),
+                    !loadingNearbyOffersForHorizontalMapInProgress && !areOffersForMainHorizontalMapLoaded && nearbyOffersListForMainHorizontalMap.length === 0 && loadNearbyDataForMainHorizontalMap(),
+                    !loadingNearbyOffersForFullScreenMapInProgress && !areOffersForFullScreenMapLoaded && nearbyOffersListForFullScreenMap.length === 0 && loadNearbyDataForFullScreenMap(),
                     !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && nearbyOfferList.length < 16 && loadPremierNearbyData(),
                     !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && nearbyOfferList.length < 100 && loadNearbyData()
                 ]);
@@ -568,10 +658,12 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                                             if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`) !== null) {
                                                                 console.log('online offers are cached, needs cleaning up');
                                                                 await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineOffers`);
-                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, await retrieveOnlineOffersList());
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
+                                                                    await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers));
                                                             } else {
                                                                 console.log('online offers are not cached');
-                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, await retrieveOnlineOffersList());
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
+                                                                    await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers));
                                                             }
                                                             if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
                                                                 console.log('old profile picture is cached, needs cleaning up');
