@@ -11,6 +11,7 @@ import {StoreOfferWebView} from "./StoreOfferWebView";
 import {appDrawerHeaderShownState, customBannerShown, drawerSwipeState} from "../../../../../../recoil/AppDrawerAtom";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {View} from "react-native";
+import {storeNavigationState} from "../../../../../../recoil/StoreOfferAtom";
 
 /**
  * StoreOffer component.
@@ -20,6 +21,7 @@ import {View} from "react-native";
  */
 export const StoreOffer = ({navigation}: StoreOfferProps) => {
     // constants used to keep track of shared states
+    const [, setStoreNavigationState] = useRecoilState(storeNavigationState);
     const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
     const [, setBannerShown] = useRecoilState(customBannerShown);
     const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
@@ -36,6 +38,7 @@ export const StoreOffer = ({navigation}: StoreOfferProps) => {
      * included in here.
      */
     useEffect(() => {
+        setStoreNavigationState(navigation);
         // set the app drawer status accordingly, custom banner visibility and drawer swipe actions accordingly
         setAppDrawerHeaderShown(false);
         setBannerShown(false);

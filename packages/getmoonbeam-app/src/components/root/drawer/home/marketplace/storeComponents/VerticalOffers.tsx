@@ -26,6 +26,8 @@ import {Image} from 'expo-image';
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
 import {Platform, View} from "react-native";
+import {getDistance} from "geolib";
+import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
 
 /**
  * VerticalOffers component.
@@ -54,9 +56,10 @@ export const VerticalOffers = (props: {
     const [nearbyLoadingOffers, setNearbyLoadingOffers] = useState<boolean>(false);
     const [verticalListLoading, setVerticalListLoading] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [currentUserLocation,] = useRecoilState(currentUserLocationState);
     const [filteredByDiscountPressed, setFilteredByDiscountPressed] = useRecoilState(filteredByDiscountPressedState);
     const [filtersActive, setAreFiltersActive] = useRecoilState(filtersActiveState);
-    const [toggleViewPressed, ] = useRecoilState(toggleViewPressedState);
+    const [toggleViewPressed,] = useRecoilState(toggleViewPressedState);
     const [searchQuery, setSearchQuery] = useRecoilState(searchQueryState);
     const [whichVerticalSectionActive, setWhichVerticalSectionActive] = useRecoilState(verticalSectionActiveState);
     const [resetSearch, setResetSearch] = useRecoilState(resetSearchState);
@@ -253,8 +256,8 @@ export const VerticalOffers = (props: {
                                                     cachePolicy={'none'}
                                                 />
                                                 <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                                    <Text style={styles.verticalOfferName}>{data.brandName}</Text>
-                                                    <Text style={styles.verticalOfferBenefits}>
+                                                    <Text numberOfLines={2} style={styles.verticalOfferName}>{data.brandName}</Text>
+                                                    <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
                                                         <Text style={styles.verticalOfferBenefit}>
                                                             {offer!.reward!.type! === RewardType.RewardPercent
                                                                 ? `${offer!.reward!.value}%`
@@ -298,8 +301,8 @@ export const VerticalOffers = (props: {
                                             cachePolicy={'none'}
                                         />
                                         <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                            <Text style={styles.verticalOfferName}>{data.brandName}</Text>
-                                            <Text style={styles.verticalOfferBenefits}>
+                                            <Text numberOfLines={2} style={styles.verticalOfferName}>{data.brandName}</Text>
+                                            <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
                                                 <Text style={styles.verticalOfferBenefit}>
                                                     {offer!.reward!.type! === RewardType.RewardPercent
                                                         ? `${offer!.reward!.value}%`
@@ -394,8 +397,8 @@ export const VerticalOffers = (props: {
                                                     cachePolicy={'none'}
                                                 />
                                                 <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                                    <Text style={styles.verticalOfferName}>{data.brandDba}</Text>
-                                                    <Text style={styles.verticalOfferBenefits}>
+                                                    <Text numberOfLines={2} style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                                    <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
                                                         <Text style={styles.verticalOfferBenefit}>
                                                             {data.reward!.type! === RewardType.RewardPercent
                                                                 ? `${data.reward!.value}%`
@@ -439,8 +442,8 @@ export const VerticalOffers = (props: {
                                             cachePolicy={'none'}
                                         />
                                         <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                            <Text style={styles.verticalOfferName}>{data.brandDba}</Text>
-                                            <Text style={styles.verticalOfferBenefits}>
+                                            <Text numberOfLines={2} style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                            <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
                                                 <Text style={styles.verticalOfferBenefit}>
                                                     {data.reward!.type! === RewardType.RewardPercent
                                                         ? `${data.reward!.value}%`
@@ -525,6 +528,17 @@ export const VerticalOffers = (props: {
             }
         });
 
+        // calculate the distance between the location of the store displayed and the user's current location (in miles)
+        let calculatedDistance = currentUserLocation !== null && storeLatitude !== 0 && storeLongitude !== 0 ? getDistance({
+            latitude: storeLatitude,
+            longitude: storeLongitude
+        }, {
+            latitude: currentUserLocation.coords.latitude,
+            longitude: currentUserLocation.coords.longitude
+        }, 1) : 0;
+        // the accuracy above is in meters, so we are calculating it up to miles where 1 mile = 1609.34 meters
+        calculatedDistance = Math.round((calculatedDistance / 1609.34) * 100) / 100
+
         // offer listing
         if (deDuplicatedNearbyOfferList.length !== 0 && !props.noFilteredOffersAvailable) {
             offersShown = true;
@@ -581,14 +595,17 @@ export const VerticalOffers = (props: {
                                                     cachePolicy={'none'}
                                                 />
                                                 <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                                    <Text style={styles.verticalOfferName}>{data.brandDba}</Text>
-                                                    <Text style={styles.verticalOfferBenefits}>
+                                                    <Text numberOfLines={1} style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                                    <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
                                                         <Text style={styles.verticalOfferBenefit}>
                                                             {data.reward!.type! === RewardType.RewardPercent
                                                                 ? `${data.reward!.value}%`
                                                                 : `$${data.reward!.value}`}
                                                         </Text>
                                                         {" Off "}
+                                                    </Text>
+                                                    <Text numberOfLines={1} style={styles.verticalOfferDistance}>
+                                                        {`${calculatedDistance} miles away`}
                                                     </Text>
                                                 </View>
                                             </View>
@@ -634,14 +651,17 @@ export const VerticalOffers = (props: {
                                             cachePolicy={'none'}
                                         />
                                         <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                            <Text style={styles.verticalOfferName}>{data.brandDba}</Text>
-                                            <Text style={styles.verticalOfferBenefits}>
+                                            <Text numberOfLines={1} style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                            <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
                                                 <Text style={styles.verticalOfferBenefit}>
                                                     {data.reward!.type! === RewardType.RewardPercent
                                                         ? `${data.reward!.value}%`
                                                         : `$${data.reward!.value}`}
                                                 </Text>
                                                 {" Off "}
+                                            </Text>
+                                            <Text numberOfLines={1} style={styles.verticalOfferDistance}>
+                                                {`${calculatedDistance} miles away`}
                                             </Text>
                                         </View>
                                     </View>

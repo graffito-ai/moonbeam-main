@@ -51,9 +51,27 @@ enum CountryCode {
 enum OfferFilter {
     FIDELIS
     ONLINE
+    CATEGORIZED_ONLINE
     NEARBY
+    CATEGORIZED_NEARBY
     PREMIER_NEARBY
     PREMIER_ONLINE
+}
+
+enum OfferCategory {
+    food
+    retail
+    entertainment
+    travel
+    automotive
+    children_and_family
+    electronics
+    financial_services
+    health_and_beauty
+    home
+    office_and_business
+    utilities_and_telecom
+    services_and_subscriptions
 }
 
 # this is an Olive-based object, and therefore since their documentation lacks clarity on which fields are
@@ -165,9 +183,10 @@ input GetOffersInput {
     pageSize: Int!
     pageNumber: Int!
     brandName: String
-    radiusLatitude: Float # required only when the offer filter is NEARBY or PREMIER_NEARBY
-    radiusLongitude: Float # required only when the offer filter is NEARBY or PREMIER_NEARBY
-    radius: Int # required only when the offer filter is NEARBY or PREMIER_NEARBY
-    radiusIncludeOnlineStores: Boolean # required only when the offer filter is NEARBY or PREMIER_NEARBY
+    offerCategory: OfferCategory
+    radiusLatitude: Float # required only when the offer filter is NEARBY, PREMIER_NEARBY or CATEGORIZED_NEARBY
+    radiusLongitude: Float # required only when the offer filter is NEARBY, PREMIER_NEARBY or CATEGORIZED_NEARBY
+    radius: Int # required only when the offer filter is NEARBY, PREMIER_NEARBY or CATEGORIZED_NEARBY
+    radiusIncludeOnlineStores: Boolean # required only when the offer filter is NEARBY, PREMIER_NEARBY or CATEGORIZED_NEARBY
 }
 

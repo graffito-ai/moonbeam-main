@@ -123,23 +123,82 @@ import {
 } from "../../recoil/RootAtom";
 import {splashStatusState} from "../../recoil/SplashAtom";
 import {
-    filteredByDiscountPressedState, filtersActiveState,
-    locationServicesButtonState, nearbyOffersListForFullScreenMapState, nearbyOffersListForMainHorizontalMapState,
+    currentActiveKitState,
+    filteredByDiscountPressedState,
+    filtersActiveState,
+    locationServicesButtonState, nearbyElectronicsCategorizedOffersListState,
+    nearbyElectronicsCategorizedOffersPageNumberState, nearbyEntertainmentCategorizedOffersListState,
+    nearbyEntertainmentCategorizedOffersPageNumberState, nearbyFoodCategorizedOffersListState,
+    nearbyFoodCategorizedOffersPageNumberState, nearbyHealthAndBeautyCategorizedOffersListState,
+    nearbyHealthAndBeautyCategorizedOffersPageNumberState, nearbyHomeCategorizedOffersListState,
+    nearbyHomeCategorizedOffersPageNumberState,
+    nearbyOffersListForFullScreenMapState,
+    nearbyOffersListForMainHorizontalMapState,
     nearbyOffersListState,
     nearbyOffersPageNumberState,
-    nearbyOffersSpinnerShownState,
-    noNearbyOffersToLoadState,
+    nearbyOffersSpinnerShownState, nearbyOfficeAndBusinessCategorizedOffersListState,
+    nearbyOfficeAndBusinessCategorizedOffersPageNumberState, nearbyRetailCategorizedOffersListState,
+    nearbyRetailCategorizedOffersPageNumberState, nearbyServicesAndSubscriptionsCategorizedOffersListState,
+    nearbyServicesAndSubscriptionsCategorizedOffersPageNumberState,
+    noNearbyElectronicsCategorizedOffersToLoadState,
+    noNearbyEntertainmentCategorizedOffersToLoadState,
+    noNearbyFoodCategorizedOffersToLoadState,
+    noNearbyHealthAndBeautyCategorizedOffersToLoadState,
+    noNearbyHomeCategorizedOffersToLoadState,
+    noNearbyOffersToLoadState, noNearbyOfficeAndBusinessCategorizedOffersToLoadState,
+    noNearbyRetailCategorizedOffersToLoadState, noNearbyServicesAndSubscriptionsCategorizedOffersToLoadState,
+    noOnlineElectronicsCategorizedOffersToLoadState,
+    noOnlineEntertainmentCategorizedOffersToLoadState,
+    noOnlineFoodCategorizedOffersToLoadState,
+    noOnlineHealthAndBeautyCategorizedOffersToLoadState,
+    noOnlineHomeCategorizedOffersToLoadState,
     noOnlineOffersToLoadState,
+    noOnlineOfficeAndBusinessCategorizedOffersToLoadState,
+    noOnlineRetailCategorizedOffersToLoadState,
+    noOnlineServicesAndSubscriptionsCategorizedOffersToLoadState,
+    numberOfElectronicsCategorizedOffersWithin25MilesState,
+    numberOfElectronicsCategorizedOnlineOffersState,
+    numberOfEntertainmentCategorizedOffersWithin25MilesState,
+    numberOfEntertainmentCategorizedOnlineOffersState,
+    numberOfFoodCategorizedOffersWithin25MilesState,
+    numberOfFoodCategorizedOnlineOffersState,
+    numberOfHealthAndBeautyCategorizedOffersWithin25MilesState,
+    numberOfHealthAndBeautyCategorizedOnlineOffersState,
+    numberOfHomeCategorizedOffersWithin25MilesState,
+    numberOfHomeCategorizedOnlineOffersState,
     numberOfOffersWithin25MilesState,
-    numberOfOffersWithin5MilesState, numberOfOnlineOffersState,
+    numberOfOffersWithin5MilesState,
+    numberOfOfficeAndBusinessCategorizedOffersWithin25MilesState,
+    numberOfOfficeAndBusinessCategorizedOnlineOffersState,
+    numberOfOnlineOffersState,
+    numberOfRetailCategorizedOffersWithin25MilesState,
+    numberOfRetailCategorizedOnlineOffersState,
+    numberOfServicesAndSubscriptionsCategorizedOffersWithin25MilesState,
+    numberOfServicesAndSubscriptionsCategorizedOnlineOffersState,
     offersNearUserLocationFlagState,
+    onlineElectronicsCategorizedOfferListState,
+    onlineElectronicsCategorizedOffersPageNumberState,
+    onlineEntertainmentCategorizedOfferListState,
+    onlineEntertainmentCategorizedOffersPageNumberState,
+    onlineFoodCategorizedOfferListState,
+    onlineFoodCategorizedOffersPageNumberState,
+    onlineHealthAndBeautyCategorizedOfferListState,
+    onlineHealthAndBeautyCategorizedOffersPageNumberState,
+    onlineHomeCategorizedOfferListState,
+    onlineHomeCategorizedOffersPageNumberState,
     onlineOffersListState,
     onlineOffersPageNumberState,
+    onlineOfficeAndBusinessCategorizedOfferListState,
+    onlineOfficeAndBusinessCategorizedOffersPageNumberState,
+    onlineRetailCategorizedOfferListState,
+    onlineRetailCategorizedOffersPageNumberState,
+    onlineServicesAndSubscriptionsCategorizedOfferListState,
+    onlineServicesAndSubscriptionsCategorizedOffersPageNumberState,
     premierNearbyOffersPageNumberState,
     premierOnlineOffersPageNumberState,
     reloadNearbyDueToPermissionsChangeState,
     resetSearchState,
-    searchQueryState,
+    searchQueryState, storeNavigationState,
     storeOfferPhysicalLocationState,
     storeOfferState,
     toggleViewPressedState,
@@ -301,6 +360,72 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const nearbyOffersListForMainHorizontalMapReset = useResetRecoilState(nearbyOffersListForMainHorizontalMapState);
     const nearbyOffersListForFullScreenMapReset = useResetRecoilState(nearbyOffersListForFullScreenMapState);
     const numberOfOnlineOffersReset = useResetRecoilState(numberOfOnlineOffersState);
+    const numberOfFoodCategorizedOnlineOffersReset = useResetRecoilState(numberOfFoodCategorizedOnlineOffersState);
+    const numberOfRetailCategorizedOnlineOffersReset = useResetRecoilState(numberOfRetailCategorizedOnlineOffersState);
+    const numberOfEntertainmentCategorizedOnlineOffersReset = useResetRecoilState(numberOfEntertainmentCategorizedOnlineOffersState);
+    const numberOfElectronicsCategorizedOnlineOffersReset = useResetRecoilState(numberOfElectronicsCategorizedOnlineOffersState);
+    const numberOfHomeCategorizedOnlineOffersReset = useResetRecoilState(numberOfHomeCategorizedOnlineOffersState);
+    const numberOfHealthAndBeautyCategorizedOnlineOffersReset = useResetRecoilState(numberOfHealthAndBeautyCategorizedOnlineOffersState);
+    const numberOfOfficeAndBusinessCategorizedOnlineOffersReset = useResetRecoilState(numberOfOfficeAndBusinessCategorizedOnlineOffersState);
+    const numberOfServicesAndSubscriptionsCategorizedOnlineOffersReset = useResetRecoilState(numberOfServicesAndSubscriptionsCategorizedOnlineOffersState);
+    const  onlineFoodCategorizedOffersPageNumberReset = useResetRecoilState(onlineFoodCategorizedOffersPageNumberState);
+    const  onlineRetailCategorizedOffersPageNumberReset = useResetRecoilState(onlineRetailCategorizedOffersPageNumberState);
+    const  onlineEntertainmentCategorizedOffersPageNumberReset = useResetRecoilState(onlineEntertainmentCategorizedOffersPageNumberState);
+    const  onlineElectronicsCategorizedOffersPageNumberReset = useResetRecoilState(onlineElectronicsCategorizedOffersPageNumberState);
+    const  onlineHomeCategorizedOffersPageNumberReset = useResetRecoilState(onlineHomeCategorizedOffersPageNumberState);
+    const  onlineHealthAndBeautyCategorizedOffersPageNumberReset = useResetRecoilState(onlineHealthAndBeautyCategorizedOffersPageNumberState);
+    const  onlineOfficeAndBusinessCategorizedOffersPageNumberReset = useResetRecoilState(onlineOfficeAndBusinessCategorizedOffersPageNumberState);
+    const  onlineServicesAndSubscriptionsCategorizedOffersPageNumberReset = useResetRecoilState(onlineServicesAndSubscriptionsCategorizedOffersPageNumberState);
+    const noOnlineFoodCategorizedOffersToLoadReset = useResetRecoilState(noOnlineFoodCategorizedOffersToLoadState);
+    const noOnlineRetailCategorizedOffersToLoadReset = useResetRecoilState(noOnlineRetailCategorizedOffersToLoadState);
+    const noOnlineEntertainmentCategorizedOffersToLoadReset = useResetRecoilState(noOnlineEntertainmentCategorizedOffersToLoadState);
+    const noOnlineElectronicsCategorizedOffersToLoadReset = useResetRecoilState(noOnlineElectronicsCategorizedOffersToLoadState);
+    const noOnlineHomeCategorizedOffersToLoadReset = useResetRecoilState(noOnlineHomeCategorizedOffersToLoadState);
+    const noOnlineHealthAndBeautyCategorizedOffersToLoadReset = useResetRecoilState(noOnlineHealthAndBeautyCategorizedOffersToLoadState);
+    const noOnlineOfficeAndBusinessCategorizedOffersToLoadReset = useResetRecoilState(noOnlineOfficeAndBusinessCategorizedOffersToLoadState);
+    const noOnlineServicesAndSubscriptionsCategorizedOffersToLoadReset = useResetRecoilState(noOnlineServicesAndSubscriptionsCategorizedOffersToLoadState);
+    const onlineFoodCategorizedOfferListReset = useResetRecoilState(onlineFoodCategorizedOfferListState);
+    const onlineRetailCategorizedOfferListReset = useResetRecoilState(onlineRetailCategorizedOfferListState);
+    const onlineEntertainmentCategorizedOfferListReset = useResetRecoilState(onlineEntertainmentCategorizedOfferListState);
+    const onlineElectronicsCategorizedOfferListReset = useResetRecoilState(onlineElectronicsCategorizedOfferListState);
+    const onlineHomeCategorizedOfferListReset = useResetRecoilState(onlineHomeCategorizedOfferListState);
+    const onlineHealthAndBeautyCategorizedOfferListReset = useResetRecoilState(onlineHealthAndBeautyCategorizedOfferListState);
+    const onlineOfficeAndBusinessCategorizedOfferListReset = useResetRecoilState(onlineOfficeAndBusinessCategorizedOfferListState);
+    const onlineServicesAndSubscriptionsCategorizedOfferListReset = useResetRecoilState(onlineServicesAndSubscriptionsCategorizedOfferListState);
+    const numberOfFoodCategorizedOffersWithin25MilesReset = useResetRecoilState(numberOfFoodCategorizedOffersWithin25MilesState);
+    const numberOfRetailCategorizedOffersWithin25MilesReset = useResetRecoilState(numberOfRetailCategorizedOffersWithin25MilesState);
+    const numberOfEntertainmentCategorizedOffersWithin25MilesReset = useResetRecoilState(numberOfEntertainmentCategorizedOffersWithin25MilesState);
+    const numberOfElectronicsCategorizedOffersWithin25MilesReset = useResetRecoilState(numberOfElectronicsCategorizedOffersWithin25MilesState);
+    const numberOfHomeCategorizedOffersWithin25MilesReset = useResetRecoilState(numberOfHomeCategorizedOffersWithin25MilesState);
+    const numberOfHealthAndBeautyCategorizedOffersWithin25MilesReset = useResetRecoilState(numberOfHealthAndBeautyCategorizedOffersWithin25MilesState);
+    const numberOfOfficeAndBusinessCategorizedOffersWithin25MilesReset = useResetRecoilState(numberOfOfficeAndBusinessCategorizedOffersWithin25MilesState);
+    const numberOfServicesAndSubscriptionsCategorizedOffersWithin25MilesReset = useResetRecoilState(numberOfServicesAndSubscriptionsCategorizedOffersWithin25MilesState);
+    const nearbyFoodCategorizedOffersPageNumberReset = useResetRecoilState(nearbyFoodCategorizedOffersPageNumberState);
+    const nearbyRetailCategorizedOffersPageNumberReset = useResetRecoilState(nearbyRetailCategorizedOffersPageNumberState);
+    const nearbyEntertainmentCategorizedOffersPageNumberReset = useResetRecoilState(nearbyEntertainmentCategorizedOffersPageNumberState);
+    const nearbyElectronicsCategorizedOffersPageNumberReset = useResetRecoilState(nearbyElectronicsCategorizedOffersPageNumberState);
+    const nearbyHomeCategorizedOffersPageNumberReset = useResetRecoilState(nearbyHomeCategorizedOffersPageNumberState);
+    const nearbyHealthAndBeautyCategorizedOffersPageNumberReset = useResetRecoilState(nearbyHealthAndBeautyCategorizedOffersPageNumberState);
+    const nearbyOfficeAndBusinessCategorizedOffersPageNumberReset = useResetRecoilState(nearbyOfficeAndBusinessCategorizedOffersPageNumberState);
+    const nearbyServicesAndSubscriptionsCategorizedOffersPageNumberReset = useResetRecoilState(nearbyServicesAndSubscriptionsCategorizedOffersPageNumberState);
+    const noNearbyFoodCategorizedOffersToLoadReset = useResetRecoilState(noNearbyFoodCategorizedOffersToLoadState);
+    const noNearbyRetailCategorizedOffersToLoadReset = useResetRecoilState(noNearbyRetailCategorizedOffersToLoadState);
+    const noNearbyEntertainmentCategorizedOffersToLoadReset = useResetRecoilState(noNearbyEntertainmentCategorizedOffersToLoadState);
+    const noNearbyElectronicsCategorizedOffersToLoadReset = useResetRecoilState(noNearbyElectronicsCategorizedOffersToLoadState);
+    const noNearbyHomeCategorizedOffersToLoadReset = useResetRecoilState(noNearbyHomeCategorizedOffersToLoadState);
+    const noNearbyHealthAndBeautyCategorizedOffersToLoadReset = useResetRecoilState(noNearbyHealthAndBeautyCategorizedOffersToLoadState);
+    const noNearbyOfficeAndBusinessCategorizedOffersToLoadReset = useResetRecoilState(noNearbyOfficeAndBusinessCategorizedOffersToLoadState);
+    const noNearbyServicesAndSubscriptionsCategorizedOffersToLoadReset = useResetRecoilState(noNearbyServicesAndSubscriptionsCategorizedOffersToLoadState);
+    const nearbyFoodCategorizedOffersListReset = useResetRecoilState(nearbyFoodCategorizedOffersListState);
+    const nearbyRetailCategorizedOffersListReset = useResetRecoilState(nearbyRetailCategorizedOffersListState);
+    const nearbyEntertainmentCategorizedOffersListReset = useResetRecoilState(nearbyEntertainmentCategorizedOffersListState);
+    const nearbyElectronicsCategorizedOffersListReset = useResetRecoilState(nearbyElectronicsCategorizedOffersListState);
+    const nearbyHomeCategorizedOffersListReset = useResetRecoilState(nearbyHomeCategorizedOffersListState);
+    const nearbyHealthAndBeautyCategorizedOffersListReset = useResetRecoilState(nearbyHealthAndBeautyCategorizedOffersListState);
+    const nearbyOfficeAndBusinessCategorizedOffersListReset = useResetRecoilState(nearbyOfficeAndBusinessCategorizedOffersListState);
+    const nearbyServicesAndSubscriptionsCategorizedOffersListReset = useResetRecoilState(nearbyServicesAndSubscriptionsCategorizedOffersListState);
+    const storeNavigationReset = useResetRecoilState(storeNavigationState);
+    const currentActiveKitReset = useResetRecoilState(currentActiveKitState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -577,6 +702,72 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                         nearbyOffersListForMainHorizontalMapReset();
                                         nearbyOffersListForFullScreenMapReset();
                                         numberOfOnlineOffersReset();
+                                        numberOfFoodCategorizedOnlineOffersReset();
+                                        numberOfRetailCategorizedOnlineOffersReset();
+                                        numberOfEntertainmentCategorizedOnlineOffersReset();
+                                        numberOfElectronicsCategorizedOnlineOffersReset();
+                                        numberOfHomeCategorizedOnlineOffersReset();
+                                        numberOfHealthAndBeautyCategorizedOnlineOffersReset();
+                                        numberOfOfficeAndBusinessCategorizedOnlineOffersReset();
+                                        numberOfServicesAndSubscriptionsCategorizedOnlineOffersReset();
+                                        onlineFoodCategorizedOffersPageNumberReset();
+                                        onlineRetailCategorizedOffersPageNumberReset();
+                                        onlineEntertainmentCategorizedOffersPageNumberReset();
+                                        onlineElectronicsCategorizedOffersPageNumberReset();
+                                        onlineHomeCategorizedOffersPageNumberReset();
+                                        onlineHealthAndBeautyCategorizedOffersPageNumberReset();
+                                        onlineOfficeAndBusinessCategorizedOffersPageNumberReset();
+                                        onlineServicesAndSubscriptionsCategorizedOffersPageNumberReset();
+                                        noOnlineFoodCategorizedOffersToLoadReset();
+                                        noOnlineRetailCategorizedOffersToLoadReset();
+                                        noOnlineEntertainmentCategorizedOffersToLoadReset();
+                                        noOnlineElectronicsCategorizedOffersToLoadReset();
+                                        noOnlineHomeCategorizedOffersToLoadReset();
+                                        noOnlineHealthAndBeautyCategorizedOffersToLoadReset();
+                                        noOnlineOfficeAndBusinessCategorizedOffersToLoadReset();
+                                        noOnlineServicesAndSubscriptionsCategorizedOffersToLoadReset();
+                                        onlineFoodCategorizedOfferListReset();
+                                        onlineRetailCategorizedOfferListReset();
+                                        onlineEntertainmentCategorizedOfferListReset();
+                                        onlineElectronicsCategorizedOfferListReset();
+                                        onlineHomeCategorizedOfferListReset();
+                                        onlineHealthAndBeautyCategorizedOfferListReset();
+                                        onlineOfficeAndBusinessCategorizedOfferListReset();
+                                        onlineServicesAndSubscriptionsCategorizedOfferListReset();
+                                        numberOfFoodCategorizedOffersWithin25MilesReset();
+                                        numberOfRetailCategorizedOffersWithin25MilesReset();
+                                        numberOfEntertainmentCategorizedOffersWithin25MilesReset();
+                                        numberOfElectronicsCategorizedOffersWithin25MilesReset();
+                                        numberOfHomeCategorizedOffersWithin25MilesReset();
+                                        numberOfHealthAndBeautyCategorizedOffersWithin25MilesReset();
+                                        numberOfOfficeAndBusinessCategorizedOffersWithin25MilesReset();
+                                        numberOfServicesAndSubscriptionsCategorizedOffersWithin25MilesReset();
+                                        nearbyFoodCategorizedOffersPageNumberReset();
+                                        nearbyRetailCategorizedOffersPageNumberReset();
+                                        nearbyEntertainmentCategorizedOffersPageNumberReset();
+                                        nearbyElectronicsCategorizedOffersPageNumberReset();
+                                        nearbyHomeCategorizedOffersPageNumberReset();
+                                        nearbyHealthAndBeautyCategorizedOffersPageNumberReset();
+                                        nearbyOfficeAndBusinessCategorizedOffersPageNumberReset();
+                                        nearbyServicesAndSubscriptionsCategorizedOffersPageNumberReset();
+                                        noNearbyFoodCategorizedOffersToLoadReset();
+                                        noNearbyRetailCategorizedOffersToLoadReset();
+                                        noNearbyEntertainmentCategorizedOffersToLoadReset();
+                                        noNearbyElectronicsCategorizedOffersToLoadReset();
+                                        noNearbyHomeCategorizedOffersToLoadReset();
+                                        noNearbyHealthAndBeautyCategorizedOffersToLoadReset();
+                                        noNearbyOfficeAndBusinessCategorizedOffersToLoadReset();
+                                        noNearbyServicesAndSubscriptionsCategorizedOffersToLoadReset();
+                                        nearbyFoodCategorizedOffersListReset();
+                                        nearbyRetailCategorizedOffersListReset();
+                                        nearbyEntertainmentCategorizedOffersListReset();
+                                        nearbyElectronicsCategorizedOffersListReset();
+                                        nearbyHomeCategorizedOffersListReset();
+                                        nearbyHealthAndBeautyCategorizedOffersListReset();
+                                        nearbyOfficeAndBusinessCategorizedOffersListReset();
+                                        nearbyServicesAndSubscriptionsCategorizedOffersListReset();
+                                        storeNavigationReset();
+                                        currentActiveKitReset();
 
                                         /**
                                          * ensure that the current user's biometric session is interrupted, and that the already signed in flag is reset

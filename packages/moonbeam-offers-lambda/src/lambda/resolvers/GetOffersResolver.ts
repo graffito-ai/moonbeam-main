@@ -5,8 +5,9 @@ import {
     OffersErrorType,
     OffersResponse,
     OliveClient,
-    Stages,
-    PremierOnlineDevOfferIds, PremierOnlineProdOfferIds
+    PremierOnlineDevOfferIds,
+    PremierOnlineProdOfferIds,
+    Stages
 } from "@moonbeam/moonbeam-models";
 
 /**
@@ -22,7 +23,8 @@ export const getOffers = async (fieldName: string, getOffersInput: GetOffersInpu
         const region = process.env.AWS_REGION!;
 
         // check if a valid filter is passed in
-        if (getOffersInput.filterType !== OfferFilter.Nearby && getOffersInput.filterType !== OfferFilter.Online) {
+        if (getOffersInput.filterType !== OfferFilter.Nearby && getOffersInput.filterType !== OfferFilter.Online &&
+            getOffersInput.filterType !== OfferFilter.CategorizedOnline && getOffersInput.filterType !== OfferFilter.CategorizedNearby) {
             const errorMessage = `Unsupported filter for offers query filter ${getOffersInput.filterType}. Use getFidelisPartners or getPremierOffers instead.`;
             console.log(errorMessage);
 
@@ -32,7 +34,7 @@ export const getOffers = async (fieldName: string, getOffersInput: GetOffersInpu
             }
         } else {
             // check if valid information is passed in
-            if (getOffersInput.filterType === OfferFilter.Nearby
+            if ((getOffersInput.filterType === OfferFilter.Nearby || getOffersInput.filterType === OfferFilter.CategorizedNearby)
                 && (!getOffersInput.radius || !getOffersInput.radiusLatitude || !getOffersInput.radiusLongitude || getOffersInput.radiusIncludeOnlineStores === undefined)) {
                 const errorMessage = `Invalid information passed in for offers query filter ${getOffersInput.filterType}.`;
                 console.log(errorMessage);
@@ -58,7 +60,8 @@ export const getOffers = async (fieldName: string, getOffersInput: GetOffersInpu
                      */
                     let allOffers: Offer[] = [];
 
-                    if (getOffersInput.filterType === OfferFilter.Nearby) {
+                    if (getOffersInput.filterType === OfferFilter.Nearby || getOffersInput.filterType === OfferFilter.CategorizedNearby ||
+                        getOffersInput.filterType === OfferFilter.CategorizedOnline) {
                         // returns the response data with the appropriate offers information
                         return {
                             data: offersResponse.data

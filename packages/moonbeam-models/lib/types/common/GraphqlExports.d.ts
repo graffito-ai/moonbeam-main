@@ -319,6 +319,7 @@ export type GetOffersInput = {
     brandName?: InputMaybe<Scalars['String']>;
     countryCode: CountryCode;
     filterType: OfferFilter;
+    offerCategory?: InputMaybe<OfferCategory>;
     offerStates: Array<InputMaybe<OfferState>>;
     pageNumber: Scalars['Int'];
     pageSize: Scalars['Int'];
@@ -703,7 +704,24 @@ export declare enum OfferAvailability {
     ClientOnly = "client_only",
     Global = "global"
 }
+export declare enum OfferCategory {
+    Automotive = "automotive",
+    ChildrenAndFamily = "children_and_family",
+    Electronics = "electronics",
+    Entertainment = "entertainment",
+    FinancialServices = "financial_services",
+    Food = "food",
+    HealthAndBeauty = "health_and_beauty",
+    Home = "home",
+    OfficeAndBusiness = "office_and_business",
+    Retail = "retail",
+    ServicesAndSubscriptions = "services_and_subscriptions",
+    Travel = "travel",
+    UtilitiesAndTelecom = "utilities_and_telecom"
+}
 export declare enum OfferFilter {
+    CategorizedNearby = "CATEGORIZED_NEARBY",
+    CategorizedOnline = "CATEGORIZED_ONLINE",
     Fidelis = "FIDELIS",
     Nearby = "NEARBY",
     Online = "ONLINE",

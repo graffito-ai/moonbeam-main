@@ -47,7 +47,7 @@ import {
     offersNearUserLocationFlagState,
     onlineOffersListState,
     onlineOffersPageNumberState,
-    reloadNearbyDueToPermissionsChangeState,
+    reloadNearbyDueToPermissionsChangeState, storeNavigationState,
     toggleViewPressedState
 } from "../../../../../recoil/StoreOfferAtom";
 import {currentUserLocationState} from "../../../../../recoil/RootAtom";
@@ -74,6 +74,7 @@ export const Store = ({navigation}: StoreProps) => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [shouldCacheImages, setShouldCacheImages] = useState<boolean>(true);
     // constants used to keep track of shared states
+    const [, setStoreNavigationState] = useRecoilState(storeNavigationState);
     const [currentUserLocation, setCurrentUserLocation] = useRecoilState(currentUserLocationState);
     const [toggleViewPressed,] = useRecoilState(toggleViewPressedState);
     const [, setNearbyOffersSpinnerShown] = useRecoilState(nearbyOffersSpinnerShownState);
@@ -432,6 +433,7 @@ export const Store = ({navigation}: StoreProps) => {
      * included in here.
      */
     useEffect(() => {
+        setStoreNavigationState(navigation);
         // load the Fidelis partners with their offers
         const loadFidelisData = async (): Promise<void> => {
             // check to see if we have cached Fidelis Partners. If we do, we don't need to retrieve them again for a week.
@@ -567,7 +569,9 @@ export const Store = ({navigation}: StoreProps) => {
                                             >
                                                 <>
                                                     <View style={styles.horizontalScrollView}>
-                                                        <KitsSection/>
+                                                        <KitsSection
+                                                            navigation={navigation}
+                                                        />
                                                         <FidelisSection
                                                             fidelisPartnerList={fidelisPartnerList}
                                                             navigation={navigation}

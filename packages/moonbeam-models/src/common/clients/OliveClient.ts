@@ -1219,9 +1219,11 @@ export class OliveClient extends BaseAPIClient {
                 case OfferFilter.Fidelis:
                     loyaltyProgramId = moonbeamFidelisDefaultLoyalty;
                     break;
+                case OfferFilter.CategorizedNearby:
                 case OfferFilter.Nearby:
                     loyaltyProgramId = moonbeamDefaultLoyalty;
                     break;
+                case OfferFilter.CategorizedOnline:
                 case OfferFilter.Online:
                     loyaltyProgramId = moonbeamOnlineLoyalty;
                     break;
@@ -1240,11 +1242,14 @@ export class OliveClient extends BaseAPIClient {
             getOffersInput.offerStates.forEach(state => {
                 requestURL += `&offerStates=${state}`;
             })
-            requestURL += (getOffersInput.filterType === OfferFilter.Nearby || getOffersInput.filterType === OfferFilter.PremierNearby)
+            requestURL += (getOffersInput.filterType === OfferFilter.Nearby || getOffersInput.filterType === OfferFilter.PremierNearby || getOffersInput.filterType === OfferFilter.CategorizedNearby)
                 ? `&radiusLatitude=${getOffersInput.radiusLatitude!}&radiusLongitude=${getOffersInput.radiusLongitude!}&radius=${getOffersInput.radius!}&radiusIncludeOnlineStores=${getOffersInput.radiusIncludeOnlineStores!}`
                 : ``;
             requestURL += getOffersInput.brandName
                 ? `&brandDba=${encodeURIComponent(getOffersInput.brandName)}`
+                : ``;
+            requestURL += getOffersInput.offerCategory
+                ? `&brandParentCategory=${getOffersInput.offerCategory}`
                 : ``;
             // log the request URL, since we are doing a lot of filtering, for sanity purposes
             console.log(`Request URL for Olive ${requestURL}`);

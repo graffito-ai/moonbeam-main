@@ -621,6 +621,12 @@ export const styles = StyleSheet.create({
         shadowRadius: 2,
         elevation: 15
     },
+    verticalOfferDistance: {
+        fontFamily: 'Saira-SemiBold',
+        color: '#F2FF5D',
+        fontSize: hp(1.3),
+        alignSelf: 'flex-start'
+    },
     verticalOfferBenefit: {
         fontFamily: 'Raleway-Bold',
         color: '#F2FF5D'

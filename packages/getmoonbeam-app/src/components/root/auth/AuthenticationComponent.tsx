@@ -43,6 +43,8 @@ import {DocumentsViewer} from "../../common/DocumentsViewer";
 import * as SMS from "expo-sms";
 import {styles} from "../../../styles/registration.module";
 import {
+    retrieveCategorizedOffersNearby,
+    retrieveCategorizedOnlineOffersList,
     retrieveFidelisPartnerList,
     retrieveOffersNearby,
     retrieveOffersNearbyForMap,
@@ -52,21 +54,77 @@ import {
     updateUserAuthStat
 } from "../../../utils/AppSync";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
-import {PremierOnlineProdOfferIds, Stages, UserAuthSessionResponse} from "@moonbeam/moonbeam-models";
+import {OfferCategory, PremierOnlineProdOfferIds, Stages, UserAuthSessionResponse} from "@moonbeam/moonbeam-models";
 import {currentUserLocationState, firstTimeLoggedInState} from "../../../recoil/RootAtom";
 import * as envInfo from "../../../../local-env-info.json";
 import {
-    locationServicesButtonState, nearbyOffersListForFullScreenMapState,
+    locationServicesButtonState, nearbyElectronicsCategorizedOffersListState,
+    nearbyElectronicsCategorizedOffersPageNumberState, nearbyEntertainmentCategorizedOffersListState,
+    nearbyEntertainmentCategorizedOffersPageNumberState, nearbyFoodCategorizedOffersListState,
+    nearbyFoodCategorizedOffersPageNumberState, nearbyHealthAndBeautyCategorizedOffersListState,
+    nearbyHealthAndBeautyCategorizedOffersPageNumberState, nearbyHomeCategorizedOffersListState,
+    nearbyHomeCategorizedOffersPageNumberState,
+    nearbyOffersListForFullScreenMapState,
     nearbyOffersListForMainHorizontalMapState,
     nearbyOffersListState,
-    nearbyOffersPageNumberState,
-    noNearbyOffersToLoadState,
+    nearbyOffersPageNumberState, nearbyOfficeAndBusinessCategorizedOffersListState,
+    nearbyOfficeAndBusinessCategorizedOffersPageNumberState, nearbyRetailCategorizedOffersListState,
+    nearbyRetailCategorizedOffersPageNumberState, nearbyServicesAndSubscriptionsCategorizedOffersListState,
+    nearbyServicesAndSubscriptionsCategorizedOffersPageNumberState,
+    noNearbyElectronicsCategorizedOffersToLoadState,
+    noNearbyEntertainmentCategorizedOffersToLoadState,
+    noNearbyFoodCategorizedOffersToLoadState,
+    noNearbyHealthAndBeautyCategorizedOffersToLoadState,
+    noNearbyHomeCategorizedOffersToLoadState,
+    noNearbyOffersToLoadState, noNearbyOfficeAndBusinessCategorizedOffersToLoadState,
+    noNearbyRetailCategorizedOffersToLoadState, noNearbyServicesAndSubscriptionsCategorizedOffersToLoadState,
+    noOnlineElectronicsCategorizedOffersToLoadState,
+    noOnlineEntertainmentCategorizedOffersToLoadState,
+    noOnlineFoodCategorizedOffersToLoadState,
+    noOnlineHealthAndBeautyCategorizedOffersToLoadState,
+    noOnlineHomeCategorizedOffersToLoadState,
     noOnlineOffersToLoadState,
+    noOnlineOfficeAndBusinessCategorizedOffersToLoadState,
+    noOnlineRetailCategorizedOffersToLoadState,
+    noOnlineServicesAndSubscriptionsCategorizedOffersToLoadState,
+    numberOfElectronicsCategorizedOffersWithin25MilesState,
+    numberOfElectronicsCategorizedOnlineOffersState,
+    numberOfEntertainmentCategorizedOffersWithin25MilesState,
+    numberOfEntertainmentCategorizedOnlineOffersState,
+    numberOfFoodCategorizedOffersWithin25MilesState,
+    numberOfFoodCategorizedOnlineOffersState,
+    numberOfHealthAndBeautyCategorizedOffersWithin25MilesState,
+    numberOfHealthAndBeautyCategorizedOnlineOffersState,
+    numberOfHomeCategorizedOffersWithin25MilesState,
+    numberOfHomeCategorizedOnlineOffersState,
     numberOfOffersWithin25MilesState,
-    numberOfOffersWithin5MilesState, numberOfOnlineOffersState,
+    numberOfOffersWithin5MilesState,
+    numberOfOfficeAndBusinessCategorizedOffersWithin25MilesState,
+    numberOfOfficeAndBusinessCategorizedOnlineOffersState,
+    numberOfOnlineOffersState,
+    numberOfRetailCategorizedOffersWithin25MilesState,
+    numberOfRetailCategorizedOnlineOffersState,
+    numberOfServicesAndSubscriptionsCategorizedOffersWithin25MilesState,
+    numberOfServicesAndSubscriptionsCategorizedOnlineOffersState,
     offersNearUserLocationFlagState,
+    onlineElectronicsCategorizedOfferListState,
+    onlineElectronicsCategorizedOffersPageNumberState,
+    onlineEntertainmentCategorizedOfferListState,
+    onlineEntertainmentCategorizedOffersPageNumberState,
+    onlineFoodCategorizedOfferListState,
+    onlineFoodCategorizedOffersPageNumberState,
+    onlineHealthAndBeautyCategorizedOfferListState,
+    onlineHealthAndBeautyCategorizedOffersPageNumberState,
+    onlineHomeCategorizedOfferListState,
+    onlineHomeCategorizedOffersPageNumberState,
     onlineOffersListState,
     onlineOffersPageNumberState,
+    onlineOfficeAndBusinessCategorizedOfferListState,
+    onlineOfficeAndBusinessCategorizedOffersPageNumberState,
+    onlineRetailCategorizedOfferListState,
+    onlineRetailCategorizedOffersPageNumberState,
+    onlineServicesAndSubscriptionsCategorizedOfferListState,
+    onlineServicesAndSubscriptionsCategorizedOffersPageNumberState,
     premierNearbyOffersPageNumberState,
     premierOnlineOffersPageNumberState,
     reloadNearbyDueToPermissionsChangeState,
@@ -83,9 +141,33 @@ import {LocationObject} from "expo-location";
 export const AuthenticationComponent = ({route, navigation}: AuthenticationProps) => {
         // constants used to keep track of local component state
         const [checkedOnlineCache, setCheckOnlineCache] = useState<boolean>(false);
+        const [checkedFoodOnlineCache, setCheckFoodOnlineCache] = useState<boolean>(false);
+        const [checkedRetailOnlineCache, setCheckRetailOnlineCache] = useState<boolean>(false);
+        const [checkedEntertainmentOnlineCache, setCheckEntertainmentOnlineCache] = useState<boolean>(false);
+        const [checkedElectronicsOnlineCache, setCheckElectronicsOnlineCache] = useState<boolean>(false);
+        const [checkedHomeOnlineCache, setCheckHomeOnlineCache] = useState<boolean>(false);
+        const [checkedHealthAndBeautyOnlineCache, setCheckHealthAndBeautyOnlineCache] = useState<boolean>(false);
+        const [checkedOfficeAndBusinessOnlineCache, setCheckOfficeAndBusinessOnlineCache] = useState<boolean>(false);
+        const [checkedServicesAndSubscriptionsOnlineCache, setCheckServicesAndSubscriptionsOnlineCache] = useState<boolean>(false);
         const [userIsAuthenticated, setIsUserAuthenticated] = useState<boolean>(false);
         const [loadingNearbyOffersInProgress, setIsLoadingNearbyOffersInProgress] = useState<boolean>(false);
+        const [loadingNearbyFoodCategorizedOffersInProgress, setIsLoadingNearbyFoodCategorizedOffersInProgress] = useState<boolean>(false);
+        const [loadingNearbyRetailCategorizedOffersInProgress, setIsLoadingNearbyRetailCategorizedOffersInProgress] = useState<boolean>(false);
+        const [loadingNearbyEntertainmentCategorizedOffersInProgress, setIsLoadingNearbyEntertainmentCategorizedOffersInProgress] = useState<boolean>(false);
+        const [loadingNearbyElectronicsCategorizedOffersInProgress, setIsLoadingNearbyElectronicsCategorizedOffersInProgress] = useState<boolean>(false);
+        const [loadingNearbyHomeCategorizedOffersInProgress, setIsLoadingNearbyHomeCategorizedOffersInProgress] = useState<boolean>(false);
+        const [loadingNearbyHealthAndBeautyCategorizedOffersInProgress, setIsLoadingNearbyHealthAndBeautyCategorizedOffersInProgress] = useState<boolean>(false);
+        const [loadingNearbyOfficeAndBusinessCategorizedOffersInProgress, setIsLoadingNearbyOfficeAndBusinessCategorizedOffersInProgress] = useState<boolean>(false);
+        const [loadingNearbyServicesAndSubscriptionsCategorizedOffersInProgress, setIsLoadingNearbyServicesAndSubscriptionsCategorizedOffersInProgress] = useState<boolean>(false);
         const [loadingOnlineInProgress, setIsLoadingOnlineInProgress] = useState<boolean>(false);
+        const [loadingOnlineFoodCategorizedInProgress, setIsLoadingOnlineFoodCategorizedInProgress] = useState<boolean>(false);
+        const [loadingOnlineRetailCategorizedInProgress, setIsLoadingOnlineRetailCategorizedInProgress] = useState<boolean>(false);
+        const [loadingOnlineEntertainmentCategorizedInProgress, setIsLoadingOnlineEntertainmentCategorizedInProgress] = useState<boolean>(false);
+        const [loadingOnlineElectronicsCategorizedInProgress, setIsLoadingOnlineElectronicsCategorizedInProgress] = useState<boolean>(false);
+        const [loadingOnlineHomeCategorizedInProgress, setIsLoadingOnlineHomeCategorizedInProgress] = useState<boolean>(false);
+        const [loadingOnlineHealthAndBeautyCategorizedInProgress, setIsLoadingOnlineHealthAndBeautyCategorizedInProgress] = useState<boolean>(false);
+        const [loadingOnlineOfficeAndBusinessCategorizedInProgress, setIsLoadingOnlineOfficeAndBusinessCategorizedInProgress] = useState<boolean>(false);
+        const [loadingOnlineServicesAndSubscriptionsCategorizedInProgress, setIsLoadingOnlineServicesAndSubscriptionsCategorizedInProgress] = useState<boolean>(false);
         const [noPremierOnlineOffersToLoad, setNoPremierOnlineOffersToLoad] = useState<boolean>(false);
         const [loadingNearbyOffersForHorizontalMapInProgress, setIsLoadingNearbyOffersForHorizontalMapInProgress] = useState<boolean>(false);
         const [areOffersForMainHorizontalMapLoaded, setAreOffersForMainHorizontalMapLoaded] = useState<boolean>(false);
@@ -93,22 +175,86 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [areOffersForFullScreenMapLoaded, setAreOffersForFullScreenMapLoaded] = useState<boolean>(false);
         // constants used to keep track of shared states
         const [numberOfOnlineOffers, setNumberOfOnlineOffers] = useRecoilState(numberOfOnlineOffersState);
+        const [numberOfFoodCategorizedOnlineOffers, setNumberOfFoodCategorizedOnlineOffers] = useRecoilState(numberOfFoodCategorizedOnlineOffersState);
+        const [numberOfRetailCategorizedOnlineOffers, setNumberOfRetailCategorizedOnlineOffers] = useRecoilState(numberOfRetailCategorizedOnlineOffersState);
+        const [numberOfEntertainmentCategorizedOnlineOffers, setNumberOfEntertainmentCategorizedOnlineOffers] = useRecoilState(numberOfEntertainmentCategorizedOnlineOffersState);
+        const [numberOfElectronicsCategorizedOnlineOffers, setNumberOfElectronicsCategorizedOnlineOffers] = useRecoilState(numberOfElectronicsCategorizedOnlineOffersState);
+        const [numberOfHomeCategorizedOnlineOffers, setNumberOfHomeCategorizedOnlineOffers] = useRecoilState(numberOfHomeCategorizedOnlineOffersState);
+        const [numberOfHealthAndBeautyCategorizedOnlineOffers, setNumberOfHealthAndBeautyCategorizedOnlineOffers] = useRecoilState(numberOfHealthAndBeautyCategorizedOnlineOffersState);
+        const [numberOfOfficeAndBusinessCategorizedOnlineOffers, setNumberOfOfficeAndBusinessCategorizedOnlineOffers] = useRecoilState(numberOfOfficeAndBusinessCategorizedOnlineOffersState);
+        const [numberOfServicesAndSubscriptionsCategorizedOnlineOffers, setNumberOfServicesAndSubscriptionsCategorizedOnlineOffers] = useRecoilState(numberOfServicesAndSubscriptionsCategorizedOnlineOffersState);
         const [numberOfOffersWithin5Miles, setNumberOfOffersWithin5Miles] = useRecoilState(numberOfOffersWithin5MilesState);
         const [numberOfOffersWithin25Miles, setNumberOfOffersWithin25Miles] = useRecoilState(numberOfOffersWithin25MilesState);
+        const [numberOfFoodCategorizedOffersWithin25Miles, setNumberOfFoodCategorizedOffersWithin25Miles] = useRecoilState(numberOfFoodCategorizedOffersWithin25MilesState);
+        const [numberOfRetailCategorizedOffersWithin25Miles, setNumberOfRetailCategorizedOffersWithin25Miles] = useRecoilState(numberOfRetailCategorizedOffersWithin25MilesState);
+        const [numberOfEntertainmentCategorizedOffersWithin25Miles, setNumberOfEntertainmentCategorizedOffersWithin25Miles] = useRecoilState(numberOfEntertainmentCategorizedOffersWithin25MilesState);
+        const [numberOfElectronicsCategorizedOffersWithin25Miles, setNumberOfElectronicsCategorizedOffersWithin25Miles] = useRecoilState(numberOfElectronicsCategorizedOffersWithin25MilesState);
+        const [numberOfHomeCategorizedOffersWithin25Miles, setNumberOfHomeCategorizedOffersWithin25Miles] = useRecoilState(numberOfHomeCategorizedOffersWithin25MilesState);
+        const [numberOfHealthAndBeautyCategorizedOffersWithin25Miles, setNumberOfHealthAndBeautyCategorizedOffersWithin25Miles] = useRecoilState(numberOfHealthAndBeautyCategorizedOffersWithin25MilesState);
+        const [numberOfOfficeAndBusinessCategorizedOffersWithin25Miles, setNumberOfOfficeAndBusinessCategorizedOffersWithin25Miles] = useRecoilState(numberOfOfficeAndBusinessCategorizedOffersWithin25MilesState);
+        const [numberOfServicesAndSubscriptionsCategorizedOffersWithin25Miles, setNumberOfServicesAndSubscriptionsCategorizedOffersWithin25Miles] = useRecoilState(numberOfServicesAndSubscriptionsCategorizedOffersWithin25MilesState);
         const [currentUserLocation, setCurrentUserLocation] = useRecoilState(currentUserLocationState);
         const [nearbyOffersPageNumber, setNearbyOffersPageNumber] = useRecoilState(nearbyOffersPageNumberState);
+        const [nearbyFoodCategorizedOffersPageNumber, setNearbyFoodCategorizedOffersPageNumber] = useRecoilState(nearbyFoodCategorizedOffersPageNumberState);
+        const [nearbyRetailCategorizedOffersPageNumber, setNearbyRetailCategorizedOffersPageNumber] = useRecoilState(nearbyRetailCategorizedOffersPageNumberState);
+        const [nearbyEntertainmentCategorizedOffersPageNumber, setNearbyEntertainmentCategorizedOffersPageNumber] = useRecoilState(nearbyEntertainmentCategorizedOffersPageNumberState);
+        const [nearbyElectronicsCategorizedOffersPageNumber, setNearbyElectronicsCategorizedOffersPageNumber] = useRecoilState(nearbyElectronicsCategorizedOffersPageNumberState);
+        const [nearbyHomeCategorizedOffersPageNumber, setNearbyHomeCategorizedOffersPageNumber] = useRecoilState(nearbyHomeCategorizedOffersPageNumberState);
+        const [nearbyHealthAndBeautyCategorizedOffersPageNumber, setNearbyHealthAndBeautyCategorizedOffersPageNumber] = useRecoilState(nearbyHealthAndBeautyCategorizedOffersPageNumberState);
+        const [nearbyOfficeAndBusinessCategorizedOffersPageNumber, setNearbyOfficeAndBusinessCategorizedOffersPageNumber] = useRecoilState(nearbyOfficeAndBusinessCategorizedOffersPageNumberState);
+        const [nearbyServicesAndSubscriptionsCategorizedOffersPageNumber, setNearbyServicesAndSubscriptionsCategorizedOffersPageNumber] = useRecoilState(nearbyServicesAndSubscriptionsCategorizedOffersPageNumberState);
         const [premierNearbyOffersPageNumber, setPremierNearbyOffersPageNumber] = useRecoilState(premierNearbyOffersPageNumberState);
         const [onlineOffersPageNumber, setOnlineOffersPageNumber] = useRecoilState(onlineOffersPageNumberState);
+        const [onlineFoodCategorizedOffersPageNumber, setOnlineFoodCategorizedOffersPageNumber] = useRecoilState(onlineFoodCategorizedOffersPageNumberState);
+        const [onlineRetailCategorizedOffersPageNumber, setOnlineRetailCategorizedOffersPageNumber] = useRecoilState(onlineRetailCategorizedOffersPageNumberState);
+        const [onlineEntertainmentCategorizedOffersPageNumber, setOnlineEntertainmentCategorizedOffersPageNumber] = useRecoilState(onlineEntertainmentCategorizedOffersPageNumberState);
+        const [onlineElectronicsCategorizedOffersPageNumber, setOnlineElectronicsCategorizedOffersPageNumber] = useRecoilState(onlineElectronicsCategorizedOffersPageNumberState);
+        const [onlineHomeCategorizedOffersPageNumber, setOnlineHomeCategorizedOffersPageNumber] = useRecoilState(onlineHomeCategorizedOffersPageNumberState);
+        const [onlineHealthAndBeautyCategorizedOffersPageNumber, setOnlineHealthAndBeautyCategorizedOffersPageNumber] = useRecoilState(onlineHealthAndBeautyCategorizedOffersPageNumberState);
+        const [onlineOfficeAndBusinessCategorizedOffersPageNumber, setOnlineOfficeAndBusinessCategorizedOffersPageNumber] = useRecoilState(onlineOfficeAndBusinessCategorizedOffersPageNumberState);
+        const [onlineServicesAndSubscriptionsCategorizedOffersPageNumber, setOnlineServicesAndSubscriptionsCategorizedOffersPageNumber] = useRecoilState(onlineServicesAndSubscriptionsCategorizedOffersPageNumberState);
         const [premierOnlineOffersPageNumber, setPremierOnlineOffersPageNumber] = useRecoilState(premierOnlineOffersPageNumberState);
         const [noOnlineOffersToLoad, setNoOnlineOffersToLoad] = useRecoilState(noOnlineOffersToLoadState);
+        const [noOnlineFoodCategorizedOffersToLoad, setNoOnlineFoodCategorizedOffersToLoad] = useRecoilState(noOnlineFoodCategorizedOffersToLoadState);
+        const [noOnlineRetailCategorizedOffersToLoad, setNoOnlineRetailCategorizedOffersToLoad] = useRecoilState(noOnlineRetailCategorizedOffersToLoadState);
+        const [noOnlineEntertainmentCategorizedOffersToLoad, setNoOnlineEntertainmentCategorizedOffersToLoad] = useRecoilState(noOnlineEntertainmentCategorizedOffersToLoadState);
+        const [noOnlineElectronicsCategorizedOffersToLoad, setNoOnlineElectronicsCategorizedOffersToLoad] = useRecoilState(noOnlineElectronicsCategorizedOffersToLoadState);
+        const [noOnlineHomeCategorizedOffersToLoad, setNoOnlineHomeCategorizedOffersToLoad] = useRecoilState(noOnlineHomeCategorizedOffersToLoadState);
+        const [noOnlineHealthAndBeautyCategorizedOffersToLoad, setNoOnlineHealthAndBeautyCategorizedOffersToLoad] = useRecoilState(noOnlineHealthAndBeautyCategorizedOffersToLoadState);
+        const [noOnlineOfficeAndBusinessCategorizedOffersToLoad, setNoOnlineOfficeAndBusinessCategorizedOffersToLoad] = useRecoilState(noOnlineOfficeAndBusinessCategorizedOffersToLoadState);
+        const [noOnlineServicesAndSubscriptionsCategorizedOffersToLoad, setNoOnlineServicesAndSubscriptionsCategorizedOffersToLoad] = useRecoilState(noOnlineServicesAndSubscriptionsCategorizedOffersToLoadState);
         const [noNearbyOffersToLoad, setNoNearbyOffersToLoad] = useRecoilState(noNearbyOffersToLoadState);
+        const [noNearbyFoodCategorizedOffersToLoad, setNoNearbyFoodCategorizedOffersToLoad] = useRecoilState(noNearbyFoodCategorizedOffersToLoadState);
+        const [noNearbyRetailCategorizedOffersToLoad, setNoNearbyRetailCategorizedOffersToLoad] = useRecoilState(noNearbyRetailCategorizedOffersToLoadState);
+        const [noNearbyEntertainmentCategorizedOffersToLoad, setNoNearbyEntertainmentCategorizedOffersToLoad] = useRecoilState(noNearbyEntertainmentCategorizedOffersToLoadState);
+        const [noNearbyElectronicsCategorizedOffersToLoad, setNoNearbyElectronicsCategorizedOffersToLoad] = useRecoilState(noNearbyElectronicsCategorizedOffersToLoadState);
+        const [noNearbyHomeCategorizedOffersToLoad, setNoNearbyHomeCategorizedOffersToLoad] = useRecoilState(noNearbyHomeCategorizedOffersToLoadState);
+        const [noNearbyHealthAndBeautyCategorizedOffersToLoad, setNoNearbyHealthAndBeautyCategorizedOffersToLoad] = useRecoilState(noNearbyHealthAndBeautyCategorizedOffersToLoadState);
+        const [noNearbyOfficeAndBusinessCategorizedOffersToLoad, setNoNearbyOfficeAndBusinessCategorizedOffersToLoad] = useRecoilState(noNearbyOfficeAndBusinessCategorizedOffersToLoadState);
+        const [noNearbyServicesAndSubscriptionsCategorizedOffersToLoad, setNoNearbyServicesAndSubscriptionsCategorizedOffersToLoad] = useRecoilState(noNearbyServicesAndSubscriptionsCategorizedOffersToLoadState);
         const [, setOffersNearUserLocationFlag] = useRecoilState(offersNearUserLocationFlagState);
         const [reloadNearbyDueToPermissionsChange, setReloadNearbyDueToPermissionsChange] = useRecoilState(reloadNearbyDueToPermissionsChangeState);
         const [, setLocationServicesButtonState] = useRecoilState(locationServicesButtonState);
         const [nearbyOffersListForMainHorizontalMap, setNearbyOffersListForMainHorizontalMap] = useRecoilState(nearbyOffersListForMainHorizontalMapState);
         const [nearbyOffersListForFullScreenMap, setNearbyOffersListForFullScreenMap] = useRecoilState(nearbyOffersListForFullScreenMapState);
         const [nearbyOfferList, setNearbyOfferList] = useRecoilState(nearbyOffersListState);
+        const [nearbyFoodCategorizedOfferList, setNearbyFoodCategorizedOfferList] = useRecoilState(nearbyFoodCategorizedOffersListState);
+        const [nearbyRetailCategorizedOfferList, setNearbyRetailCategorizedOfferList] = useRecoilState(nearbyRetailCategorizedOffersListState);
+        const [nearbyEntertainmentCategorizedOfferList, setNearbyEntertainmentCategorizedOfferList] = useRecoilState(nearbyEntertainmentCategorizedOffersListState);
+        const [nearbyElectronicsCategorizedOfferList, setNearbyElectronicsCategorizedOfferList] = useRecoilState(nearbyElectronicsCategorizedOffersListState);
+        const [nearbyHomeCategorizedOfferList, setNearbyHomeCategorizedOfferList] = useRecoilState(nearbyHomeCategorizedOffersListState);
+        const [nearbyHealthAndBeautyCategorizedOfferList, setNearbyHealthAndBeautyCategorizedOfferList] = useRecoilState(nearbyHealthAndBeautyCategorizedOffersListState);
+        const [nearbyOfficeAndBusinessCategorizedOfferList, setNearbyOfficeAndBusinessCategorizedOfferList] = useRecoilState(nearbyOfficeAndBusinessCategorizedOffersListState);
+        const [nearbyServicesAndSubscriptionsCategorizedOfferList, setNearbyServicesAndSubscriptionsCategorizedOfferList] = useRecoilState(nearbyServicesAndSubscriptionsCategorizedOffersListState);
         const [onlineOfferList, setOnlineOfferList] = useRecoilState(onlineOffersListState);
+        const [onlineFoodCategorizedOfferList, setOnlineFoodCategorizedOfferList] = useRecoilState(onlineFoodCategorizedOfferListState);
+        const [onlineRetailCategorizedOfferList, setOnlineRetailCategorizedOfferList] = useRecoilState(onlineRetailCategorizedOfferListState);
+        const [onlineEntertainmentCategorizedOfferList, setOnlineEntertainmentCategorizedOfferList] = useRecoilState(onlineEntertainmentCategorizedOfferListState);
+        const [onlineElectronicsCategorizedOfferList, setOnlineElectronicsCategorizedOfferList] = useRecoilState(onlineElectronicsCategorizedOfferListState);
+        const [onlineHomeCategorizedOfferList, setOnlineHomeCategorizedOfferList] = useRecoilState(onlineHomeCategorizedOfferListState);
+        const [onlineHealthAndBeautyCategorizedOfferList, setOnlineHealthAndBeautyCategorizedOfferList] = useRecoilState(onlineHealthAndBeautyCategorizedOfferListState);
+        const [onlineOfficeAndBusinessCategorizedOfferList, setOnlineOfficeAndBusinessCategorizedOfferList] = useRecoilState(onlineOfficeAndBusinessCategorizedOfferListState);
+        const [onlineServicesAndSubscriptionsCategorizedOfferList, setOnlineServicesAndSubscriptionsCategorizedOfferList] = useRecoilState(onlineServicesAndSubscriptionsCategorizedOfferListState);
         const [mainRootNavigation, setMainRootNavigation] = useRecoilState(mainRootNavigationState);
         const [isLoadingAppOverviewNeeded,] = useRecoilState(isLoadingAppOverviewNeededState);
         const [, setIsReady] = useRecoilState(isReadyRegistrationState);
@@ -214,6 +360,198 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             onlineOfferList, marketplaceCache, loadingOnlineInProgress, noOnlineOffersToLoad]);
 
         /**
+         * Function used to load the online FOOD categorized data
+         */
+        const loadOnlineFoodCategorizedData = async (): Promise<void> => {
+            setIsLoadingOnlineFoodCategorizedInProgress(true);
+
+            const additionalOnlineFoodCategoryOffers =
+                await retrieveCategorizedOnlineOffersList(numberOfFoodCategorizedOnlineOffers, setNumberOfFoodCategorizedOnlineOffers,
+                    OfferCategory.Food, onlineFoodCategorizedOffersPageNumber, setOnlineFoodCategorizedOffersPageNumber);
+            if (additionalOnlineFoodCategoryOffers.length === 0) {
+                setNoOnlineFoodCategorizedOffersToLoad(true);
+                setOnlineFoodCategorizedOfferList(oldOnlineFoodCategorizedOfferList => {
+                    return [...oldOnlineFoodCategorizedOfferList, ...additionalOnlineFoodCategoryOffers]
+                });
+            } else {
+                setNoOnlineFoodCategorizedOffersToLoad(false);
+                setOnlineFoodCategorizedOfferList(oldOnlineFoodCategorizedOfferList => {
+                    return [...oldOnlineFoodCategorizedOfferList, ...additionalOnlineFoodCategoryOffers]
+                });
+            }
+
+            setIsLoadingOnlineFoodCategorizedInProgress(false);
+        }
+
+        /**
+         * Function used to load the online RETAIL categorized data
+         */
+        const loadOnlineRetailCategorizedData = async (): Promise<void> => {
+            setIsLoadingOnlineRetailCategorizedInProgress(true);
+
+            const additionalOnlineRetailCategoryOffers =
+                await retrieveCategorizedOnlineOffersList(numberOfRetailCategorizedOnlineOffers, setNumberOfRetailCategorizedOnlineOffers,
+                    OfferCategory.Retail, onlineRetailCategorizedOffersPageNumber, setOnlineRetailCategorizedOffersPageNumber);
+            if (additionalOnlineRetailCategoryOffers.length === 0) {
+                setNoOnlineRetailCategorizedOffersToLoad(true);
+                setOnlineRetailCategorizedOfferList(oldOnlineRetailCategorizedOfferList => {
+                    return [...oldOnlineRetailCategorizedOfferList, ...additionalOnlineRetailCategoryOffers]
+                });
+            } else {
+                setNoOnlineRetailCategorizedOffersToLoad(false);
+                setOnlineRetailCategorizedOfferList(oldOnlineRetailCategorizedOfferList => {
+                    return [...oldOnlineRetailCategorizedOfferList, ...additionalOnlineRetailCategoryOffers]
+                });
+            }
+
+            setIsLoadingOnlineRetailCategorizedInProgress(false);
+        }
+
+        /**
+         * Function used to load the online ENTERTAINMENT categorized data
+         */
+        const loadOnlineEntertainmentCategorizedData = async (): Promise<void> => {
+            setIsLoadingOnlineEntertainmentCategorizedInProgress(true);
+
+            const additionalOnlineEntertainmentCategoryOffers =
+                await retrieveCategorizedOnlineOffersList(numberOfEntertainmentCategorizedOnlineOffers, setNumberOfEntertainmentCategorizedOnlineOffers,
+                    OfferCategory.Entertainment, onlineEntertainmentCategorizedOffersPageNumber, setOnlineEntertainmentCategorizedOffersPageNumber);
+            if (additionalOnlineEntertainmentCategoryOffers.length === 0) {
+                setNoOnlineEntertainmentCategorizedOffersToLoad(true);
+                setOnlineEntertainmentCategorizedOfferList(oldOnlineEntertainmentCategorizedOfferList => {
+                    return [...oldOnlineEntertainmentCategorizedOfferList, ...additionalOnlineEntertainmentCategoryOffers]
+                });
+            } else {
+                setNoOnlineEntertainmentCategorizedOffersToLoad(false);
+                setOnlineEntertainmentCategorizedOfferList(oldOnlineEntertainmentCategorizedOfferList => {
+                    return [...oldOnlineEntertainmentCategorizedOfferList, ...additionalOnlineEntertainmentCategoryOffers]
+                });
+            }
+
+            setIsLoadingOnlineEntertainmentCategorizedInProgress(false);
+        }
+
+        /**
+         * Function used to load the online ELECTRONICS categorized data
+         */
+        const loadOnlineElectronicsCategorizedData = async (): Promise<void> => {
+            setIsLoadingOnlineElectronicsCategorizedInProgress(true);
+
+            const additionalOnlineElectronicsCategoryOffers =
+                await retrieveCategorizedOnlineOffersList(numberOfElectronicsCategorizedOnlineOffers, setNumberOfElectronicsCategorizedOnlineOffers,
+                    OfferCategory.Electronics, onlineElectronicsCategorizedOffersPageNumber, setOnlineElectronicsCategorizedOffersPageNumber);
+            if (additionalOnlineElectronicsCategoryOffers.length === 0) {
+                setNoOnlineElectronicsCategorizedOffersToLoad(true);
+                setOnlineElectronicsCategorizedOfferList(oldOnlineElectronicsCategorizedOfferList => {
+                    return [...oldOnlineElectronicsCategorizedOfferList, ...additionalOnlineElectronicsCategoryOffers]
+                });
+            } else {
+                setNoOnlineElectronicsCategorizedOffersToLoad(false);
+                setOnlineElectronicsCategorizedOfferList(oldOnlineElectronicsCategorizedOfferList => {
+                    return [...oldOnlineElectronicsCategorizedOfferList, ...additionalOnlineElectronicsCategoryOffers]
+                });
+            }
+
+            setIsLoadingOnlineElectronicsCategorizedInProgress(false);
+        }
+
+        /**
+         * Function used to load the online HOME categorized data
+         */
+        const loadOnlineHomeCategorizedData = async (): Promise<void> => {
+            setIsLoadingOnlineHomeCategorizedInProgress(true);
+
+            const additionalOnlineHomeCategoryOffers =
+                await retrieveCategorizedOnlineOffersList(numberOfHomeCategorizedOnlineOffers, setNumberOfHomeCategorizedOnlineOffers,
+                    OfferCategory.Home, onlineHomeCategorizedOffersPageNumber, setOnlineHomeCategorizedOffersPageNumber);
+            if (additionalOnlineHomeCategoryOffers.length === 0) {
+                setNoOnlineHomeCategorizedOffersToLoad(true);
+                setOnlineHomeCategorizedOfferList(oldOnlineHomeCategorizedOfferList => {
+                    return [...oldOnlineHomeCategorizedOfferList, ...additionalOnlineHomeCategoryOffers]
+                });
+            } else {
+                setNoOnlineHomeCategorizedOffersToLoad(false);
+                setOnlineHomeCategorizedOfferList(oldOnlineHomeCategorizedOfferList => {
+                    return [...oldOnlineHomeCategorizedOfferList, ...additionalOnlineHomeCategoryOffers]
+                });
+            }
+
+            setIsLoadingOnlineHomeCategorizedInProgress(false);
+        }
+
+        /**
+         * Function used to load the online HEALTH AND BEAUTY categorized data
+         */
+        const loadOnlineHealthAndBeautyCategorizedData = async (): Promise<void> => {
+            setIsLoadingOnlineHealthAndBeautyCategorizedInProgress(true);
+
+            const additionalOnlineHealthAndBeautyCategoryOffers =
+                await retrieveCategorizedOnlineOffersList(numberOfHealthAndBeautyCategorizedOnlineOffers, setNumberOfHealthAndBeautyCategorizedOnlineOffers,
+                    OfferCategory.HealthAndBeauty, onlineHealthAndBeautyCategorizedOffersPageNumber, setOnlineHealthAndBeautyCategorizedOffersPageNumber);
+            if (additionalOnlineHealthAndBeautyCategoryOffers.length === 0) {
+                setNoOnlineHealthAndBeautyCategorizedOffersToLoad(true);
+                setOnlineHealthAndBeautyCategorizedOfferList(oldOnlineHealthAndBeautyCategorizedOfferList => {
+                    return [...oldOnlineHealthAndBeautyCategorizedOfferList, ...additionalOnlineHealthAndBeautyCategoryOffers]
+                });
+            } else {
+                setNoOnlineHealthAndBeautyCategorizedOffersToLoad(false);
+                setOnlineHealthAndBeautyCategorizedOfferList(oldOnlineHealthAndBeautyCategorizedOfferList => {
+                    return [...oldOnlineHealthAndBeautyCategorizedOfferList, ...additionalOnlineHealthAndBeautyCategoryOffers]
+                });
+            }
+
+            setIsLoadingOnlineHealthAndBeautyCategorizedInProgress(false);
+        }
+
+        /**
+         * Function used to load the online OFFICE AND BUSINESS categorized data
+         */
+        const loadOnlineOfficeAndBusinessCategorizedData = async (): Promise<void> => {
+            setIsLoadingOnlineOfficeAndBusinessCategorizedInProgress(true);
+
+            const additionalOnlineOfficeAndBusinessCategoryOffers =
+                await retrieveCategorizedOnlineOffersList(numberOfOfficeAndBusinessCategorizedOnlineOffers, setNumberOfOfficeAndBusinessCategorizedOnlineOffers,
+                    OfferCategory.OfficeAndBusiness, onlineOfficeAndBusinessCategorizedOffersPageNumber, setOnlineOfficeAndBusinessCategorizedOffersPageNumber);
+            if (additionalOnlineOfficeAndBusinessCategoryOffers.length === 0) {
+                setNoOnlineOfficeAndBusinessCategorizedOffersToLoad(true);
+                setOnlineOfficeAndBusinessCategorizedOfferList(oldOnlineOfficeAndBusinessCategorizedOfferList => {
+                    return [...oldOnlineOfficeAndBusinessCategorizedOfferList, ...additionalOnlineOfficeAndBusinessCategoryOffers]
+                });
+            } else {
+                setNoOnlineOfficeAndBusinessCategorizedOffersToLoad(false);
+                setOnlineOfficeAndBusinessCategorizedOfferList(oldOnlineOfficeAndBusinessCategorizedOfferList => {
+                    return [...oldOnlineOfficeAndBusinessCategorizedOfferList, ...additionalOnlineOfficeAndBusinessCategoryOffers]
+                });
+            }
+
+            setIsLoadingOnlineOfficeAndBusinessCategorizedInProgress(false);
+        }
+
+        /**
+         * Function used to load the online SERVICES AND SUBSCRIPTIONS categorized data
+         */
+        const loadOnlineServicesAndSubscriptionsCategorizedData = async (): Promise<void> => {
+            setIsLoadingOnlineServicesAndSubscriptionsCategorizedInProgress(true);
+
+            const additionalOnlineServicesAndSubscriptionsCategoryOffers =
+                await retrieveCategorizedOnlineOffersList(numberOfServicesAndSubscriptionsCategorizedOnlineOffers, setNumberOfServicesAndSubscriptionsCategorizedOnlineOffers,
+                    OfferCategory.ServicesAndSubscriptions, onlineServicesAndSubscriptionsCategorizedOffersPageNumber, setOnlineServicesAndSubscriptionsCategorizedOffersPageNumber);
+            if (additionalOnlineServicesAndSubscriptionsCategoryOffers.length === 0) {
+                setNoOnlineServicesAndSubscriptionsCategorizedOffersToLoad(true);
+                setOnlineServicesAndSubscriptionsCategorizedOfferList(oldOnlineServicesAndSubscriptionsCategorizedOfferList => {
+                    return [...oldOnlineServicesAndSubscriptionsCategorizedOfferList, ...additionalOnlineServicesAndSubscriptionsCategoryOffers]
+                });
+            } else {
+                setNoOnlineServicesAndSubscriptionsCategorizedOffersToLoad(false);
+                setOnlineServicesAndSubscriptionsCategorizedOfferList(oldOnlineServicesAndSubscriptionsCategorizedOfferList => {
+                    return [...oldOnlineServicesAndSubscriptionsCategorizedOfferList, ...additionalOnlineServicesAndSubscriptionsCategoryOffers]
+                });
+            }
+
+            setIsLoadingOnlineServicesAndSubscriptionsCategorizedInProgress(false);
+        }
+
+        /**
          * Function used to load the online data
          */
         const loadOnlineData = async (): Promise<void> => {
@@ -255,6 +593,214 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                 });
             }
             setIsLoadingOnlineInProgress(false);
+        }
+
+        /**
+         * Function used to load the nearby FOOD categorized offer data
+         */
+        const loadNearbyFoodCategorizedData = async (): Promise<void> => {
+            setIsLoadingNearbyFoodCategorizedOffersInProgress(true);
+
+            const offersFoodCategorizedNearby = await
+                retrieveCategorizedOffersNearby(nearbyFoodCategorizedOffersPageNumber, setNearbyFoodCategorizedOffersPageNumber,
+                    userInformation, setOffersNearUserLocationFlag, currentUserLocation, setCurrentUserLocation, numberOfFoodCategorizedOffersWithin25Miles,
+                    setNumberOfFoodCategorizedOffersWithin25Miles, OfferCategory.Food);
+            if (offersFoodCategorizedNearby === null) {
+                setIsLoadingNearbyFoodCategorizedOffersInProgress(false);
+                setNoNearbyFoodCategorizedOffersToLoad(true);
+                setLocationServicesButtonState(true);
+            } else if (offersFoodCategorizedNearby.length === 0) {
+                setIsLoadingNearbyFoodCategorizedOffersInProgress(false);
+                setNoNearbyFoodCategorizedOffersToLoad(true);
+            } else {
+                setNoNearbyFoodCategorizedOffersToLoad(false);
+                setIsLoadingNearbyFoodCategorizedOffersInProgress(false);
+                setNearbyFoodCategorizedOfferList(oldNearbyFoodCategorizedOfferList => {
+                    return [...oldNearbyFoodCategorizedOfferList, ...offersFoodCategorizedNearby]
+                });
+            }
+        }
+
+        /**
+         * Function used to load the nearby RETAIL categorized offer data
+         */
+        const loadNearbyRetailCategorizedData = async (): Promise<void> => {
+            setIsLoadingNearbyRetailCategorizedOffersInProgress(true);
+
+            const offersRetailCategorizedNearby = await
+                retrieveCategorizedOffersNearby(nearbyRetailCategorizedOffersPageNumber, setNearbyRetailCategorizedOffersPageNumber,
+                    userInformation, setOffersNearUserLocationFlag, currentUserLocation, setCurrentUserLocation, numberOfRetailCategorizedOffersWithin25Miles,
+                    setNumberOfRetailCategorizedOffersWithin25Miles, OfferCategory.Retail);
+            if (offersRetailCategorizedNearby === null) {
+                setIsLoadingNearbyRetailCategorizedOffersInProgress(false);
+                setNoNearbyRetailCategorizedOffersToLoad(true);
+                setLocationServicesButtonState(true);
+            } else if (offersRetailCategorizedNearby.length === 0) {
+                setIsLoadingNearbyRetailCategorizedOffersInProgress(false);
+                setNoNearbyRetailCategorizedOffersToLoad(true);
+            } else {
+                setNoNearbyRetailCategorizedOffersToLoad(false);
+                setIsLoadingNearbyRetailCategorizedOffersInProgress(false);
+                setNearbyRetailCategorizedOfferList(oldNearbyRetailCategorizedOfferList => {
+                    return [...oldNearbyRetailCategorizedOfferList, ...offersRetailCategorizedNearby]
+                });
+            }
+        }
+
+        /**
+         * Function used to load the nearby ENTERTAINMENT categorized offer data
+         */
+        const loadNearbyEntertainmentCategorizedData = async (): Promise<void> => {
+            setIsLoadingNearbyEntertainmentCategorizedOffersInProgress(true);
+
+            const offersEntertainmentCategorizedNearby = await
+                retrieveCategorizedOffersNearby(nearbyEntertainmentCategorizedOffersPageNumber, setNearbyEntertainmentCategorizedOffersPageNumber,
+                    userInformation, setOffersNearUserLocationFlag, currentUserLocation, setCurrentUserLocation, numberOfEntertainmentCategorizedOffersWithin25Miles,
+                    setNumberOfEntertainmentCategorizedOffersWithin25Miles, OfferCategory.Entertainment);
+            if (offersEntertainmentCategorizedNearby === null) {
+                setIsLoadingNearbyEntertainmentCategorizedOffersInProgress(false);
+                setNoNearbyEntertainmentCategorizedOffersToLoad(true);
+                setLocationServicesButtonState(true);
+            } else if (offersEntertainmentCategorizedNearby.length === 0) {
+                setIsLoadingNearbyEntertainmentCategorizedOffersInProgress(false);
+                setNoNearbyEntertainmentCategorizedOffersToLoad(true);
+            } else {
+                setNoNearbyEntertainmentCategorizedOffersToLoad(false);
+                setIsLoadingNearbyEntertainmentCategorizedOffersInProgress(false);
+                setNearbyEntertainmentCategorizedOfferList(oldNearbyEntertainmentCategorizedOfferList => {
+                    return [...oldNearbyEntertainmentCategorizedOfferList, ...offersEntertainmentCategorizedNearby]
+                });
+            }
+        }
+
+        /**
+         * Function used to load the nearby ELECTRONICS categorized offer data
+         */
+        const loadNearbyElectronicsCategorizedData = async (): Promise<void> => {
+            setIsLoadingNearbyElectronicsCategorizedOffersInProgress(true);
+
+            const offersElectronicsCategorizedNearby = await
+                retrieveCategorizedOffersNearby(nearbyElectronicsCategorizedOffersPageNumber, setNearbyElectronicsCategorizedOffersPageNumber,
+                    userInformation, setOffersNearUserLocationFlag, currentUserLocation, setCurrentUserLocation, numberOfElectronicsCategorizedOffersWithin25Miles,
+                    setNumberOfElectronicsCategorizedOffersWithin25Miles, OfferCategory.Electronics);
+            if (offersElectronicsCategorizedNearby === null) {
+                setIsLoadingNearbyElectronicsCategorizedOffersInProgress(false);
+                setNoNearbyElectronicsCategorizedOffersToLoad(true);
+                setLocationServicesButtonState(true);
+            } else if (offersElectronicsCategorizedNearby.length === 0) {
+                setIsLoadingNearbyElectronicsCategorizedOffersInProgress(false);
+                setNoNearbyElectronicsCategorizedOffersToLoad(true);
+            } else {
+                setNoNearbyElectronicsCategorizedOffersToLoad(false);
+                setIsLoadingNearbyElectronicsCategorizedOffersInProgress(false);
+                setNearbyElectronicsCategorizedOfferList(oldNearbyElectronicsCategorizedOfferList => {
+                    return [...oldNearbyElectronicsCategorizedOfferList, ...offersElectronicsCategorizedNearby]
+                });
+            }
+        }
+
+        /**
+         * Function used to load the nearby HOME categorized offer data
+         */
+        const loadNearbyHomeCategorizedData = async (): Promise<void> => {
+            setIsLoadingNearbyHomeCategorizedOffersInProgress(true);
+
+            const offersHomeCategorizedNearby = await
+                retrieveCategorizedOffersNearby(nearbyHomeCategorizedOffersPageNumber, setNearbyHomeCategorizedOffersPageNumber,
+                    userInformation, setOffersNearUserLocationFlag, currentUserLocation, setCurrentUserLocation, numberOfHomeCategorizedOffersWithin25Miles,
+                    setNumberOfHomeCategorizedOffersWithin25Miles, OfferCategory.Home);
+            if (offersHomeCategorizedNearby === null) {
+                setIsLoadingNearbyHomeCategorizedOffersInProgress(false);
+                setNoNearbyHomeCategorizedOffersToLoad(true);
+                setLocationServicesButtonState(true);
+            } else if (offersHomeCategorizedNearby.length === 0) {
+                setIsLoadingNearbyHomeCategorizedOffersInProgress(false);
+                setNoNearbyHomeCategorizedOffersToLoad(true);
+            } else {
+                setNoNearbyHomeCategorizedOffersToLoad(false);
+                setIsLoadingNearbyHomeCategorizedOffersInProgress(false);
+                setNearbyHomeCategorizedOfferList(oldNearbyHomeCategorizedOfferList => {
+                    return [...oldNearbyHomeCategorizedOfferList, ...offersHomeCategorizedNearby]
+                });
+            }
+        }
+
+        /**
+         * Function used to load the nearby HEALTH AND BEAUTY categorized offer data
+         */
+        const loadNearbyHealthAndBeautyCategorizedData = async (): Promise<void> => {
+            setIsLoadingNearbyHealthAndBeautyCategorizedOffersInProgress(true);
+
+            const offersHealthAndBeautyCategorizedNearby = await
+                retrieveCategorizedOffersNearby(nearbyHealthAndBeautyCategorizedOffersPageNumber, setNearbyHealthAndBeautyCategorizedOffersPageNumber,
+                    userInformation, setOffersNearUserLocationFlag, currentUserLocation, setCurrentUserLocation, numberOfHealthAndBeautyCategorizedOffersWithin25Miles,
+                    setNumberOfHealthAndBeautyCategorizedOffersWithin25Miles, OfferCategory.HealthAndBeauty);
+            if (offersHealthAndBeautyCategorizedNearby === null) {
+                setIsLoadingNearbyHealthAndBeautyCategorizedOffersInProgress(false);
+                setNoNearbyHealthAndBeautyCategorizedOffersToLoad(true);
+                setLocationServicesButtonState(true);
+            } else if (offersHealthAndBeautyCategorizedNearby.length === 0) {
+                setIsLoadingNearbyHealthAndBeautyCategorizedOffersInProgress(false);
+                setNoNearbyHealthAndBeautyCategorizedOffersToLoad(true);
+            } else {
+                setNoNearbyHealthAndBeautyCategorizedOffersToLoad(false);
+                setIsLoadingNearbyHealthAndBeautyCategorizedOffersInProgress(false);
+                setNearbyHealthAndBeautyCategorizedOfferList(oldNearbyHealthAndBeautyCategorizedOfferList => {
+                    return [...oldNearbyHealthAndBeautyCategorizedOfferList, ...offersHealthAndBeautyCategorizedNearby]
+                });
+            }
+        }
+
+        /**
+         * Function used to load the nearby OFFICE AND BUSINESS categorized offer data
+         */
+        const loadNearbyOfficeAndBusinessCategorizedData = async (): Promise<void> => {
+            setIsLoadingNearbyOfficeAndBusinessCategorizedOffersInProgress(true);
+
+            const offersOfficeAndBusinessCategorizedNearby = await
+                retrieveCategorizedOffersNearby(nearbyOfficeAndBusinessCategorizedOffersPageNumber, setNearbyOfficeAndBusinessCategorizedOffersPageNumber,
+                    userInformation, setOffersNearUserLocationFlag, currentUserLocation, setCurrentUserLocation, numberOfOfficeAndBusinessCategorizedOffersWithin25Miles,
+                    setNumberOfOfficeAndBusinessCategorizedOffersWithin25Miles, OfferCategory.OfficeAndBusiness);
+            if (offersOfficeAndBusinessCategorizedNearby === null) {
+                setIsLoadingNearbyOfficeAndBusinessCategorizedOffersInProgress(false);
+                setNoNearbyOfficeAndBusinessCategorizedOffersToLoad(true);
+                setLocationServicesButtonState(true);
+            } else if (offersOfficeAndBusinessCategorizedNearby.length === 0) {
+                setIsLoadingNearbyOfficeAndBusinessCategorizedOffersInProgress(false);
+                setNoNearbyOfficeAndBusinessCategorizedOffersToLoad(true);
+            } else {
+                setNoNearbyOfficeAndBusinessCategorizedOffersToLoad(false);
+                setIsLoadingNearbyOfficeAndBusinessCategorizedOffersInProgress(false);
+                setNearbyOfficeAndBusinessCategorizedOfferList(oldNearbyOfficeAndBusinessCategorizedOfferList => {
+                    return [...oldNearbyOfficeAndBusinessCategorizedOfferList, ...offersOfficeAndBusinessCategorizedNearby]
+                });
+            }
+        }
+
+        /**
+         * Function used to load the nearby SERVICES AND SUBSCRIPTIONS categorized offer data
+         */
+        const loadNearbyServicesAndSubscriptionsCategorizedData = async (): Promise<void> => {
+            setIsLoadingNearbyServicesAndSubscriptionsCategorizedOffersInProgress(true);
+
+            const offersServicesAndSubscriptionsCategorizedNearby = await
+                retrieveCategorizedOffersNearby(nearbyServicesAndSubscriptionsCategorizedOffersPageNumber, setNearbyServicesAndSubscriptionsCategorizedOffersPageNumber,
+                    userInformation, setOffersNearUserLocationFlag, currentUserLocation, setCurrentUserLocation, numberOfServicesAndSubscriptionsCategorizedOffersWithin25Miles,
+                    setNumberOfServicesAndSubscriptionsCategorizedOffersWithin25Miles, OfferCategory.Food);
+            if (offersServicesAndSubscriptionsCategorizedNearby === null) {
+                setIsLoadingNearbyServicesAndSubscriptionsCategorizedOffersInProgress(false);
+                setNoNearbyServicesAndSubscriptionsCategorizedOffersToLoad(true);
+                setLocationServicesButtonState(true);
+            } else if (offersServicesAndSubscriptionsCategorizedNearby.length === 0) {
+                setIsLoadingNearbyServicesAndSubscriptionsCategorizedOffersInProgress(false);
+                setNoNearbyServicesAndSubscriptionsCategorizedOffersToLoad(true);
+            } else {
+                setNoNearbyServicesAndSubscriptionsCategorizedOffersToLoad(false);
+                setIsLoadingNearbyServicesAndSubscriptionsCategorizedOffersInProgress(false);
+                setNearbyServicesAndSubscriptionsCategorizedOfferList(oldNearbyServicesAndSubscriptionsCategorizedOfferList => {
+                    return [...oldNearbyServicesAndSubscriptionsCategorizedOfferList, ...offersServicesAndSubscriptionsCategorizedNearby]
+                });
+            }
         }
 
         /**
@@ -380,11 +926,89 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                 setIsLoadingOnlineInProgress(false);
                 (cachedOnlineOffers === null || cachedOnlineOffers.length < 20) && await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, null);
             }
+            // check to see if we have cached categorized Online Offers. If we do, set them appropriately
+            const onlineFoodOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineFoodOffers`);
+            if (marketplaceCache !== null && onlineFoodOffersCached !== null && onlineFoodOffersCached.length !== 0 && !checkedFoodOnlineCache) {
+                console.log('pre-emptively loading - online food offers are cached');
+                setCheckFoodOnlineCache(true);
+                const cachedFoodOnlineOffers = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineFoodOffers`);
+                setOnlineFoodCategorizedOfferList(cachedFoodOnlineOffers);
 
-            /**
-             * stop caching online offers until we reach at most 100 offers,
-             * or until we run out of offers to load.
-             */
+                setIsLoadingOnlineFoodCategorizedInProgress(false);
+                (cachedFoodOnlineOffers === null || cachedFoodOnlineOffers.length < 20) && await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineFoodOffers`, null);
+            }
+            const onlineRetailOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineRetailOffers`);
+            if (marketplaceCache !== null && onlineRetailOffersCached !== null && onlineRetailOffersCached.length !== 0 && !checkedRetailOnlineCache) {
+                console.log('pre-emptively loading - online retail offers are cached');
+                setCheckRetailOnlineCache(true);
+                const cachedRetailOnlineOffers = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineRetailOffers`);
+                setOnlineRetailCategorizedOfferList(cachedRetailOnlineOffers);
+
+                setIsLoadingOnlineRetailCategorizedInProgress(false);
+                (cachedRetailOnlineOffers === null || cachedRetailOnlineOffers.length < 20) && await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineRetailOffers`, null);
+            }
+            const onlineEntertainmentOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineEntertainmentOffers`);
+            if (marketplaceCache !== null && onlineEntertainmentOffersCached !== null && onlineEntertainmentOffersCached.length !== 0 && !checkedEntertainmentOnlineCache) {
+                console.log('pre-emptively loading - online entertainment offers are cached');
+                setCheckEntertainmentOnlineCache(true);
+                const cachedEntertainmentOnlineOffers = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineEntertainmentOffers`);
+                setOnlineEntertainmentCategorizedOfferList(cachedEntertainmentOnlineOffers);
+
+                setIsLoadingOnlineEntertainmentCategorizedInProgress(false);
+                (cachedEntertainmentOnlineOffers === null || cachedEntertainmentOnlineOffers.length < 20) && await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineEntertainmentOffers`, null);
+            }
+            const onlineElectronicsOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineElectronicsOffers`);
+            if (marketplaceCache !== null && onlineElectronicsOffersCached !== null && onlineElectronicsOffersCached.length !== 0 && !checkedElectronicsOnlineCache) {
+                console.log('pre-emptively loading - online electronics offers are cached');
+                setCheckElectronicsOnlineCache(true);
+                const cachedElectronicsOnlineOffers = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineElectronicsOffers`);
+                setOnlineElectronicsCategorizedOfferList(cachedElectronicsOnlineOffers);
+
+                setIsLoadingOnlineElectronicsCategorizedInProgress(false);
+                (cachedElectronicsOnlineOffers === null || cachedElectronicsOnlineOffers.length < 20) && await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineElectronicsOffers`, null);
+            }
+            const onlineHomeOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineHomeOffers`);
+            if (marketplaceCache !== null && onlineHomeOffersCached !== null && onlineHomeOffersCached.length !== 0 && !checkedHomeOnlineCache) {
+                console.log('pre-emptively loading - online home offers are cached');
+                setCheckHomeOnlineCache(true);
+                const cachedHomeOnlineOffers = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineHomeOffers`);
+                setOnlineHomeCategorizedOfferList(cachedHomeOnlineOffers);
+
+                setIsLoadingOnlineHomeCategorizedInProgress(false);
+                (cachedHomeOnlineOffers === null || cachedHomeOnlineOffers.length < 20) && await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineHomeOffers`, null);
+            }
+            const onlineHealthAndBeautyOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineHealthAndBeautyOffers`);
+            if (marketplaceCache !== null && onlineHealthAndBeautyOffersCached !== null && onlineHealthAndBeautyOffersCached.length !== 0 && !checkedHealthAndBeautyOnlineCache) {
+                console.log('pre-emptively loading - online health and beauty offers are cached');
+                setCheckHealthAndBeautyOnlineCache(true);
+                const cachedHealthAndBeautyOnlineOffers = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineHealthAndBeautyOffers`);
+                setOnlineHealthAndBeautyCategorizedOfferList(cachedHealthAndBeautyOnlineOffers);
+
+                setIsLoadingOnlineHealthAndBeautyCategorizedInProgress(false);
+                (cachedHealthAndBeautyOnlineOffers === null || cachedHealthAndBeautyOnlineOffers.length < 20) && await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineHealthAndBeautyOffers`, null);
+            }
+            const onlineOfficeAndBusinessOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOfficeAndBusinessOffers`);
+            if (marketplaceCache !== null && onlineOfficeAndBusinessOffersCached !== null && onlineOfficeAndBusinessOffersCached.length !== 0 && !checkedOfficeAndBusinessOnlineCache) {
+                console.log('pre-emptively loading - online office and business offers are cached');
+                setCheckOfficeAndBusinessOnlineCache(true);
+                const cachedOfficeAndBusinessOnlineOffers = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOfficeAndBusinessOffers`);
+                setOnlineOfficeAndBusinessCategorizedOfferList(cachedOfficeAndBusinessOnlineOffers);
+
+                setIsLoadingOnlineOfficeAndBusinessCategorizedInProgress(false);
+                (cachedOfficeAndBusinessOnlineOffers === null || cachedOfficeAndBusinessOnlineOffers.length < 20) && await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOfficeAndBusinessOffers`, null);
+            }
+            const onlineServicesAndSubscriptionsOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineServicesAndSubscriptionsOffers`);
+            if (marketplaceCache !== null && onlineServicesAndSubscriptionsOffersCached !== null && onlineServicesAndSubscriptionsOffersCached.length !== 0 && !checkedServicesAndSubscriptionsOnlineCache) {
+                console.log('pre-emptively loading - online services and subscriptions offers are cached');
+                setCheckServicesAndSubscriptionsOnlineCache(true);
+                const cachedServicesAndSubscriptionsOnlineOffers = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineServicesAndSubscriptionsOffers`);
+                setOnlineServicesAndSubscriptionsCategorizedOfferList(cachedServicesAndSubscriptionsOnlineOffers);
+
+                setIsLoadingOnlineServicesAndSubscriptionsCategorizedInProgress(false);
+                (cachedServicesAndSubscriptionsOnlineOffers === null || cachedServicesAndSubscriptionsOnlineOffers.length < 20) && await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineServicesAndSubscriptionsOffers`, null);
+            }
+
+            // stop caching online offers until we have at least 20 and at most 100 offers loaded, or until we run out of offers to load.
             if ((marketplaceCache && onlineOfferList.length >= 20 && onlineOfferList.length < 100) || (marketplaceCache && noOnlineOffersToLoad)) {
                 marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`).then(onlineOffersCached => {
                     // check if there's really a need for caching
@@ -394,15 +1018,128 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                     }
                 });
             }
+            // stop caching online categorized offers until we have at least 5 and at most 20 offers loaded, or until we run out of offers to load.
+            if ((marketplaceCache && onlineFoodCategorizedOfferList.length >= 5 && onlineFoodCategorizedOfferList.length < 20) || (marketplaceCache && noOnlineFoodCategorizedOffersToLoad)) {
+                marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineFoodOffers`).then(onlineFoodOffersCached => {
+                    // check if there's really a need for caching
+                    if (((onlineFoodOffersCached !== null && onlineFoodOffersCached.length < onlineFoodCategorizedOfferList.length) || onlineFoodOffersCached === null)) {
+                        console.log('Caching additional online food offers');
+                        marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineFoodOffers`, onlineFoodCategorizedOfferList);
+                    }
+                });
+            }
+            if ((marketplaceCache && onlineRetailCategorizedOfferList.length >= 5 && onlineRetailCategorizedOfferList.length < 20) || (marketplaceCache && noOnlineRetailCategorizedOffersToLoad)) {
+                marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineRetailOffers`).then(onlineRetailOffersCached => {
+                    // check if there's really a need for caching
+                    if (((onlineRetailOffersCached !== null && onlineRetailOffersCached.length < onlineRetailCategorizedOfferList.length) || onlineRetailOffersCached === null)) {
+                        console.log('Caching additional online retail offers');
+                        marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineRetailOffers`, onlineRetailCategorizedOfferList);
+                    }
+                });
+            }
+            if ((marketplaceCache && onlineEntertainmentCategorizedOfferList.length >= 5 && onlineEntertainmentCategorizedOfferList.length < 20) || (marketplaceCache && noOnlineEntertainmentCategorizedOffersToLoad)) {
+                marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineEntertainmentOffers`).then(onlineEntertainmentOffersCached => {
+                    // check if there's really a need for caching
+                    if (((onlineEntertainmentOffersCached !== null && onlineEntertainmentOffersCached.length < onlineEntertainmentCategorizedOfferList.length) || onlineEntertainmentOffersCached === null)) {
+                        console.log('Caching additional online entertainment offers');
+                        marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineEntertainmentOffers`, onlineEntertainmentCategorizedOfferList);
+                    }
+                });
+            }
+            if ((marketplaceCache && onlineElectronicsCategorizedOfferList.length >= 5 && onlineElectronicsCategorizedOfferList.length < 20) || (marketplaceCache && noOnlineElectronicsCategorizedOffersToLoad)) {
+                marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineElectronicsOffers`).then(onlineElectronicsOffersCached => {
+                    // check if there's really a need for caching
+                    if (((onlineElectronicsOffersCached !== null && onlineElectronicsOffersCached.length < onlineElectronicsCategorizedOfferList.length) || onlineElectronicsOffersCached === null)) {
+                        console.log('Caching additional online electronics offers');
+                        marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineElectronicsOffers`, onlineElectronicsCategorizedOfferList);
+                    }
+                });
+            }
+            if ((marketplaceCache && onlineHomeCategorizedOfferList.length >= 5 && onlineHomeCategorizedOfferList.length < 20) || (marketplaceCache && noOnlineHomeCategorizedOffersToLoad)) {
+                marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineHomeOffers`).then(onlineHomeOffersCached => {
+                    // check if there's really a need for caching
+                    if (((onlineHomeOffersCached !== null && onlineHomeOffersCached.length < onlineHomeCategorizedOfferList.length) || onlineHomeOffersCached === null)) {
+                        console.log('Caching additional online home offers');
+                        marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineHomeOffers`, onlineHomeCategorizedOfferList);
+                    }
+                });
+            }
+            if ((marketplaceCache && onlineHealthAndBeautyCategorizedOfferList.length >= 5 && onlineHealthAndBeautyCategorizedOfferList.length < 20) || (marketplaceCache && noOnlineHealthAndBeautyCategorizedOffersToLoad)) {
+                marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineHealthAndBeautyOffers`).then(onlineHealthAndBeautyOffersCached => {
+                    // check if there's really a need for caching
+                    if (((onlineHealthAndBeautyOffersCached !== null && onlineHealthAndBeautyOffersCached.length < onlineHealthAndBeautyCategorizedOfferList.length) || onlineHealthAndBeautyOffersCached === null)) {
+                        console.log('Caching additional online health and beauty offers');
+                        marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineFoodOffers`, onlineHealthAndBeautyCategorizedOfferList);
+                    }
+                });
+            }
+            if ((marketplaceCache && onlineOfficeAndBusinessCategorizedOfferList.length >= 5 && onlineOfficeAndBusinessCategorizedOfferList.length < 20) || (marketplaceCache && noOnlineOfficeAndBusinessCategorizedOffersToLoad)) {
+                marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOfficeAndBusinessOffers`).then(onlineOfficeAndBusinessOffersCached => {
+                    // check if there's really a need for caching
+                    if (((onlineOfficeAndBusinessOffersCached !== null && onlineOfficeAndBusinessOffersCached.length < onlineOfficeAndBusinessCategorizedOfferList.length) || onlineOfficeAndBusinessOffersCached === null)) {
+                        console.log('Caching additional online office and business offers');
+                        marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOfficeAndBusinessOffers`, onlineOfficeAndBusinessCategorizedOfferList);
+                    }
+                });
+            }
+            if ((marketplaceCache && onlineServicesAndSubscriptionsCategorizedOfferList.length >= 5 && onlineServicesAndSubscriptionsCategorizedOfferList.length < 20) || (marketplaceCache && noOnlineServicesAndSubscriptionsCategorizedOffersToLoad)) {
+                marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineServicesAndSubscriptionsOffers`).then(onlineServicesAndSubscriptionsOffersCached => {
+                    // check if there's really a need for caching
+                    if (((onlineServicesAndSubscriptionsOffersCached !== null && onlineServicesAndSubscriptionsOffersCached.length < onlineServicesAndSubscriptionsCategorizedOfferList.length) || onlineServicesAndSubscriptionsOffersCached === null)) {
+                        console.log('Caching additional online services and subscriptions offers');
+                        marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineServicesAndSubscriptionsOffers`, onlineServicesAndSubscriptionsCategorizedOfferList);
+                    }
+                });
+            }
 
             if (envInfo.envName === Stages.DEV) {
                 if (reloadNearbyDueToPermissionsChange) {
+                    setIsLoadingOnlineInProgress(false);
+                    setIsLoadingOnlineFoodCategorizedInProgress(false);
+                    setIsLoadingOnlineRetailCategorizedInProgress(false);
+                    setIsLoadingOnlineEntertainmentCategorizedInProgress(false);
+                    setIsLoadingOnlineElectronicsCategorizedInProgress(false);
+                    setIsLoadingOnlineHomeCategorizedInProgress(false);
+                    setIsLoadingOnlineHealthAndBeautyCategorizedInProgress(false);
+                    setIsLoadingOnlineOfficeAndBusinessCategorizedInProgress(false);
+                    setIsLoadingOnlineServicesAndSubscriptionsCategorizedInProgress(false);
+
                     setIsLoadingNearbyOffersInProgress(false);
+                    setIsLoadingNearbyFoodCategorizedOffersInProgress(false);
+                    setIsLoadingNearbyRetailCategorizedOffersInProgress(false);
+                    setIsLoadingNearbyEntertainmentCategorizedOffersInProgress(false);
+                    setIsLoadingNearbyElectronicsCategorizedOffersInProgress(false);
+                    setIsLoadingNearbyHomeCategorizedOffersInProgress(false);
+                    setIsLoadingNearbyHealthAndBeautyCategorizedOffersInProgress(false);
+                    setIsLoadingNearbyOfficeAndBusinessCategorizedOffersInProgress(false);
+                    setIsLoadingNearbyServicesAndSubscriptionsCategorizedOffersInProgress(false);
+
                     setIsLoadingNearbyOffersForHorizontalMapInProgress(false)
+
                     setAreOffersForMainHorizontalMapLoaded(false);
                     setIsLoadingNearbyOffersForFullScreenMapInProgress(false);
                     setAreOffersForFullScreenMapLoaded(false);
+
                     setNoNearbyOffersToLoad(false);
+                    setNoNearbyFoodCategorizedOffersToLoad(false);
+                    setNoNearbyRetailCategorizedOffersToLoad(false);
+                    setNoNearbyEntertainmentCategorizedOffersToLoad(false);
+                    setNoNearbyElectronicsCategorizedOffersToLoad(false);
+                    setNoNearbyHomeCategorizedOffersToLoad(false);
+                    setNoNearbyHealthAndBeautyCategorizedOffersToLoad(false);
+                    setNoNearbyOfficeAndBusinessCategorizedOffersToLoad(false);
+                    setNoNearbyServicesAndSubscriptionsCategorizedOffersToLoad(false);
+
+                    setNoOnlineOffersToLoad(false);
+                    setNoOnlineFoodCategorizedOffersToLoad(false);
+                    setNoOnlineRetailCategorizedOffersToLoad(false);
+                    setNoOnlineEntertainmentCategorizedOffersToLoad(false);
+                    setNoOnlineElectronicsCategorizedOffersToLoad(false);
+                    setNoOnlineHomeCategorizedOffersToLoad(false);
+                    setNoOnlineHealthAndBeautyCategorizedOffersToLoad(false);
+                    setNoOnlineOfficeAndBusinessCategorizedOffersToLoad(false);
+                    setNoOnlineServicesAndSubscriptionsCategorizedOffersToLoad(false);
+
                     setReloadNearbyDueToPermissionsChange(false);
                 }
 
@@ -413,98 +1150,119 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                  * - nearby regular
                  * - online premier
                  * - online regular offers
+                 * - all categorized offers (online + nearby)
                  */
                 await Promise.all([
                     !loadingOnlineInProgress && !noPremierOnlineOffersToLoad && onlineOfferList.length < PremierOnlineProdOfferIds.length && loadPremierOnlineData(),
                     !loadingOnlineInProgress && !noOnlineOffersToLoad && PremierOnlineProdOfferIds.length <= onlineOfferList.length && onlineOfferList.length < 100 && loadOnlineData(),
+                    !loadingOnlineFoodCategorizedInProgress && !noOnlineFoodCategorizedOffersToLoad && onlineFoodCategorizedOfferList.length < 100 && loadOnlineFoodCategorizedData(),
+                    !loadingOnlineRetailCategorizedInProgress && !noOnlineRetailCategorizedOffersToLoad && onlineRetailCategorizedOfferList.length < 100 && loadOnlineRetailCategorizedData(),
+                    !loadingOnlineEntertainmentCategorizedInProgress && !noOnlineEntertainmentCategorizedOffersToLoad && onlineEntertainmentCategorizedOfferList.length < 100 && loadOnlineEntertainmentCategorizedData(),
+                    !loadingOnlineElectronicsCategorizedInProgress && !noOnlineElectronicsCategorizedOffersToLoad && onlineElectronicsCategorizedOfferList.length < 100 && loadOnlineElectronicsCategorizedData(),
+                    !loadingOnlineHomeCategorizedInProgress && !noOnlineHomeCategorizedOffersToLoad && onlineHomeCategorizedOfferList.length < 100 && loadOnlineHomeCategorizedData(),
+                    !loadingOnlineHealthAndBeautyCategorizedInProgress && !noOnlineHealthAndBeautyCategorizedOffersToLoad && onlineHealthAndBeautyCategorizedOfferList.length < 100 && loadOnlineHealthAndBeautyCategorizedData(),
+                    !loadingOnlineOfficeAndBusinessCategorizedInProgress && !noOnlineOfficeAndBusinessCategorizedOffersToLoad && onlineOfficeAndBusinessCategorizedOfferList.length < 100 && loadOnlineOfficeAndBusinessCategorizedData(),
+                    !loadingOnlineServicesAndSubscriptionsCategorizedInProgress && !noOnlineServicesAndSubscriptionsCategorizedOffersToLoad && onlineServicesAndSubscriptionsCategorizedOfferList.length < 100 && loadOnlineServicesAndSubscriptionsCategorizedData(),
                     !loadingNearbyOffersForHorizontalMapInProgress && !areOffersForMainHorizontalMapLoaded && nearbyOffersListForMainHorizontalMap.length === 0 && loadNearbyDataForMainHorizontalMap(),
                     !loadingNearbyOffersForFullScreenMapInProgress && !areOffersForFullScreenMapLoaded && nearbyOffersListForFullScreenMap.length === 0 && loadNearbyDataForFullScreenMap(),
                     !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && loadPremierNearbyData(),
-                    !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && nearbyOfferList.length < 100 && loadNearbyData()
+                    !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && nearbyOfferList.length < 100 && loadNearbyData(),
+                    !loadingNearbyFoodCategorizedOffersInProgress && !noNearbyFoodCategorizedOffersToLoad && nearbyFoodCategorizedOfferList.length < 100 && loadNearbyFoodCategorizedData(),
+                    !loadingNearbyRetailCategorizedOffersInProgress && !noNearbyRetailCategorizedOffersToLoad && nearbyRetailCategorizedOfferList.length < 100 && loadNearbyRetailCategorizedData(),
+                    !loadingNearbyEntertainmentCategorizedOffersInProgress && !noNearbyEntertainmentCategorizedOffersToLoad && nearbyEntertainmentCategorizedOfferList.length < 100 && loadNearbyEntertainmentCategorizedData(),
+                    !loadingNearbyElectronicsCategorizedOffersInProgress && !noNearbyElectronicsCategorizedOffersToLoad && nearbyElectronicsCategorizedOfferList.length < 100 && loadNearbyElectronicsCategorizedData(),
+                    !loadingNearbyHomeCategorizedOffersInProgress && !noNearbyHomeCategorizedOffersToLoad && nearbyHomeCategorizedOfferList.length < 100 && loadNearbyHomeCategorizedData(),
+                    !loadingNearbyHealthAndBeautyCategorizedOffersInProgress && !noNearbyHealthAndBeautyCategorizedOffersToLoad && nearbyHealthAndBeautyCategorizedOfferList.length < 100 && loadNearbyHealthAndBeautyCategorizedData(),
+                    !loadingNearbyOfficeAndBusinessCategorizedOffersInProgress && !noNearbyOfficeAndBusinessCategorizedOffersToLoad && nearbyOfficeAndBusinessCategorizedOfferList.length < 100 && loadNearbyOfficeAndBusinessCategorizedData(),
+                    !loadingNearbyServicesAndSubscriptionsCategorizedOffersInProgress && !noNearbyServicesAndSubscriptionsCategorizedOffersToLoad && nearbyServicesAndSubscriptionsCategorizedOfferList.length < 100 && loadNearbyServicesAndSubscriptionsCategorizedData()
                 ]);
             }
             if (envInfo.envName === Stages.PROD) {
                 if (reloadNearbyDueToPermissionsChange) {
+                    setIsLoadingOnlineInProgress(false);
+                    setIsLoadingOnlineFoodCategorizedInProgress(false);
+                    setIsLoadingOnlineRetailCategorizedInProgress(false);
+                    setIsLoadingOnlineEntertainmentCategorizedInProgress(false);
+                    setIsLoadingOnlineElectronicsCategorizedInProgress(false);
+                    setIsLoadingOnlineHomeCategorizedInProgress(false);
+                    setIsLoadingOnlineHealthAndBeautyCategorizedInProgress(false);
+                    setIsLoadingOnlineOfficeAndBusinessCategorizedInProgress(false);
+                    setIsLoadingOnlineServicesAndSubscriptionsCategorizedInProgress(false);
+
                     setIsLoadingNearbyOffersInProgress(false);
-                    setIsLoadingNearbyOffersForHorizontalMapInProgress(false);
+                    setIsLoadingNearbyFoodCategorizedOffersInProgress(false);
+                    setIsLoadingNearbyRetailCategorizedOffersInProgress(false);
+                    setIsLoadingNearbyEntertainmentCategorizedOffersInProgress(false);
+                    setIsLoadingNearbyElectronicsCategorizedOffersInProgress(false);
+                    setIsLoadingNearbyHomeCategorizedOffersInProgress(false);
+                    setIsLoadingNearbyHealthAndBeautyCategorizedOffersInProgress(false);
+                    setIsLoadingNearbyOfficeAndBusinessCategorizedOffersInProgress(false);
+                    setIsLoadingNearbyServicesAndSubscriptionsCategorizedOffersInProgress(false);
+
+                    setIsLoadingNearbyOffersForHorizontalMapInProgress(false)
+
                     setAreOffersForMainHorizontalMapLoaded(false);
                     setIsLoadingNearbyOffersForFullScreenMapInProgress(false);
                     setAreOffersForFullScreenMapLoaded(false);
+
                     setNoNearbyOffersToLoad(false);
+                    setNoNearbyFoodCategorizedOffersToLoad(false);
+                    setNoNearbyRetailCategorizedOffersToLoad(false);
+                    setNoNearbyEntertainmentCategorizedOffersToLoad(false);
+                    setNoNearbyElectronicsCategorizedOffersToLoad(false);
+                    setNoNearbyHomeCategorizedOffersToLoad(false);
+                    setNoNearbyHealthAndBeautyCategorizedOffersToLoad(false);
+                    setNoNearbyOfficeAndBusinessCategorizedOffersToLoad(false);
+                    setNoNearbyServicesAndSubscriptionsCategorizedOffersToLoad(false);
+
+                    setNoOnlineOffersToLoad(false);
+                    setNoOnlineFoodCategorizedOffersToLoad(false);
+                    setNoOnlineRetailCategorizedOffersToLoad(false);
+                    setNoOnlineEntertainmentCategorizedOffersToLoad(false);
+                    setNoOnlineElectronicsCategorizedOffersToLoad(false);
+                    setNoOnlineHomeCategorizedOffersToLoad(false);
+                    setNoOnlineHealthAndBeautyCategorizedOffersToLoad(false);
+                    setNoOnlineOfficeAndBusinessCategorizedOffersToLoad(false);
+                    setNoOnlineServicesAndSubscriptionsCategorizedOffersToLoad(false);
+
                     setReloadNearbyDueToPermissionsChange(false);
                 }
 
                 /**
-                 * pre-emptively load nearby premier, nearby regular, online premier and online regular offers in parallel.
+                 * pre-emptively load in parallel:
+                 * - nearby offers for main horizontal map
+                 * - nearby premier
+                 * - nearby regular
+                 * - online premier
+                 * - online regular offers
+                 * - all categorized offers (online + nearby)
                  */
                 await Promise.all([
                     !loadingOnlineInProgress && !noPremierOnlineOffersToLoad && loadPremierOnlineData(),
                     !loadingOnlineInProgress && !noOnlineOffersToLoad && PremierOnlineProdOfferIds.length <= onlineOfferList.length && onlineOfferList.length < 100 && loadOnlineData(),
+                    !loadingOnlineFoodCategorizedInProgress && !noOnlineFoodCategorizedOffersToLoad && onlineFoodCategorizedOfferList.length < 100 && loadOnlineFoodCategorizedData(),
+                    !loadingOnlineRetailCategorizedInProgress && !noOnlineRetailCategorizedOffersToLoad && onlineRetailCategorizedOfferList.length < 100 && loadOnlineRetailCategorizedData(),
+                    !loadingOnlineEntertainmentCategorizedInProgress && !noOnlineEntertainmentCategorizedOffersToLoad && onlineEntertainmentCategorizedOfferList.length < 100 && loadOnlineEntertainmentCategorizedData(),
+                    !loadingOnlineElectronicsCategorizedInProgress && !noOnlineElectronicsCategorizedOffersToLoad && onlineElectronicsCategorizedOfferList.length < 100 && loadOnlineElectronicsCategorizedData(),
+                    !loadingOnlineHomeCategorizedInProgress && !noOnlineHomeCategorizedOffersToLoad && onlineHomeCategorizedOfferList.length < 100 && loadOnlineHomeCategorizedData(),
+                    !loadingOnlineHealthAndBeautyCategorizedInProgress && !noOnlineHealthAndBeautyCategorizedOffersToLoad && onlineHealthAndBeautyCategorizedOfferList.length < 100 && loadOnlineHealthAndBeautyCategorizedData(),
+                    !loadingOnlineOfficeAndBusinessCategorizedInProgress && !noOnlineOfficeAndBusinessCategorizedOffersToLoad && onlineOfficeAndBusinessCategorizedOfferList.length < 100 && loadOnlineOfficeAndBusinessCategorizedData(),
+                    !loadingOnlineServicesAndSubscriptionsCategorizedInProgress && !noOnlineServicesAndSubscriptionsCategorizedOffersToLoad && onlineServicesAndSubscriptionsCategorizedOfferList.length < 100 && loadOnlineServicesAndSubscriptionsCategorizedData(),
                     !loadingNearbyOffersForHorizontalMapInProgress && !areOffersForMainHorizontalMapLoaded && nearbyOffersListForMainHorizontalMap.length === 0 && loadNearbyDataForMainHorizontalMap(),
                     !loadingNearbyOffersForFullScreenMapInProgress && !areOffersForFullScreenMapLoaded && nearbyOffersListForFullScreenMap.length === 0 && loadNearbyDataForFullScreenMap(),
                     !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && nearbyOfferList.length < 16 && loadPremierNearbyData(),
-                    !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && nearbyOfferList.length < 100 && loadNearbyData()
+                    !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && nearbyOfferList.length < 100 && loadNearbyData(),
+                    !loadingNearbyFoodCategorizedOffersInProgress && !noNearbyFoodCategorizedOffersToLoad && nearbyFoodCategorizedOfferList.length < 100 && loadNearbyFoodCategorizedData(),
+                    !loadingNearbyRetailCategorizedOffersInProgress && !noNearbyRetailCategorizedOffersToLoad && nearbyRetailCategorizedOfferList.length < 100 && loadNearbyRetailCategorizedData(),
+                    !loadingNearbyEntertainmentCategorizedOffersInProgress && !noNearbyEntertainmentCategorizedOffersToLoad && nearbyEntertainmentCategorizedOfferList.length < 100 && loadNearbyEntertainmentCategorizedData(),
+                    !loadingNearbyElectronicsCategorizedOffersInProgress && !noNearbyElectronicsCategorizedOffersToLoad && nearbyElectronicsCategorizedOfferList.length < 100 && loadNearbyElectronicsCategorizedData(),
+                    !loadingNearbyHomeCategorizedOffersInProgress && !noNearbyHomeCategorizedOffersToLoad && nearbyHomeCategorizedOfferList.length < 100 && loadNearbyHomeCategorizedData(),
+                    !loadingNearbyHealthAndBeautyCategorizedOffersInProgress && !noNearbyHealthAndBeautyCategorizedOffersToLoad && nearbyHealthAndBeautyCategorizedOfferList.length < 100 && loadNearbyHealthAndBeautyCategorizedData(),
+                    !loadingNearbyOfficeAndBusinessCategorizedOffersInProgress && !noNearbyOfficeAndBusinessCategorizedOffersToLoad && nearbyOfficeAndBusinessCategorizedOfferList.length < 100 && loadNearbyOfficeAndBusinessCategorizedData(),
+                    !loadingNearbyServicesAndSubscriptionsCategorizedOffersInProgress && !noNearbyServicesAndSubscriptionsCategorizedOffersToLoad && nearbyServicesAndSubscriptionsCategorizedOfferList.length < 100 && loadNearbyServicesAndSubscriptionsCategorizedData()
                 ]);
             }
-            // /**
-            //  * do not cache nearby offers until we reach at least 100 offers,
-            //  * or until we run out of offers to load.
-            //  */
-            // if ((marketplaceCache && nearbyOfferList.length >= 100) || (marketplaceCache && noNearbyOffersToLoad)) {
-            //     marketplaceCache!.getItem(`${userInformation["custom:userId"]}-nearbyOffers`).then(async nearbyOffersCached => {
-            //         // check if there's really a need for caching
-            //         if ((nearbyOffersCached !== null && nearbyOffersCached.length < nearbyOfferList.length) || nearbyOffersCached === null) {
-            //             console.log('Caching additional nearby offers');
-            //             marketplaceCache!.setItem(`${userInformation["custom:userId"]}-nearbyOffers`, nearbyOfferList);
-            //         }
-            //         // cache if the ip codes to not match
-            //         if (!worksWithNearbyCache) {
-            //             console.log('Caching additional nearby offers');
-            //             marketplaceCache!.setItem(`${userInformation["custom:userId"]}-nearbyOffers`, nearbyOfferList);
-            //         }
-            //     });
-            // }
         }
-
-        /**
-         * Function used to return whether we should work with nearby cache or not.
-         */
-        // const shouldWorkWithNearbyCache = async (): Promise<boolean> => {
-        //     // first determine whether we should retrieve from cache or not
-        //     const currentUserLocation: LocationObject = await Location.getCurrentPositionAsync();
-        //     if (currentUserLocation && currentUserLocation.coords && currentUserLocation.coords.latitude && currentUserLocation.coords.longitude) {
-        //         // check if we can cache the nearby offers based on the reversed geolocation of the user (zipcode mainly)
-        //         const retrievedLocation = await Location.reverseGeocodeAsync({
-        //             latitude: currentUserLocation.coords.latitude,
-        //             longitude: currentUserLocation.coords.longitude
-        //         }, {useGoogleMaps: true});
-        //         if (retrievedLocation.length !== 0) {
-        //             let postalCode = '';
-        //             // retrieve the postal code from the address (we only cache nearby offers in the same postal code)
-        //             retrievedLocation.forEach(geocodedAddress => {
-        //                 if (geocodedAddress.postalCode !== null && postalCode === '') {
-        //                     postalCode = geocodedAddress.postalCode;
-        //                 }
-        //             });
-        //
-        //             // check to see if the user has moved outside the last known, cached postal code location
-        //             const lastKnownPostalCodeCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-lastKnownPostalCode`);
-        //             if (lastKnownPostalCodeCached !== null && lastKnownPostalCodeCached === postalCode) {
-        //                 console.log('Nearby offers can be retrieved from cache - zip codes match!');
-        //                 return true;
-        //             } else {
-        //                 console.log('Nearby offers should not be retrieved from cache - zip codes do not match!');
-        //                 await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-lastKnownPostalCode`, postalCode);
-        //                 return false;
-        //             }
-        //         } else {
-        //             return false;
-        //         }
-        //     } else {
-        //         console.log(`Unable to retrieve the current user's location coordinates!`);
-        //         return false;
-        //     }
-        // }
 
         /**
          * Function used to contact support, via the native messaging application.
@@ -645,6 +1403,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                                              *      - Fidelis partners for initial load (for 1 week only)
                                                              *      - the list of online offers (first page only) for initial load (for 1 week only)
                                                              *      - the list of offers near user's home address (first page only) for initial load (for 1 week only)
+                                                             *       - the list of categorized online offers
                                                              * - we just cache an empty profile photo for the user for initial load
                                                              */
                                                             if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-fidelisPartners`) !== null) {
@@ -664,6 +1423,86 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                                                 console.log('online offers are not cached');
                                                                 marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
                                                                     await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers));
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineFoodOffers`) !== null) {
+                                                                console.log('online food offers are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineFoodOffers`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineFoodOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfFoodCategorizedOnlineOffers, setNumberOfFoodCategorizedOnlineOffers, OfferCategory.Food));
+                                                            } else {
+                                                                console.log('online food offers are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineFoodOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfFoodCategorizedOnlineOffers, setNumberOfFoodCategorizedOnlineOffers, OfferCategory.Food));
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineRetailOffers`) !== null) {
+                                                                console.log('online retail offers are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineRetailOffers`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineRetailOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfRetailCategorizedOnlineOffers, setNumberOfRetailCategorizedOnlineOffers, OfferCategory.Retail));
+                                                            } else {
+                                                                console.log('online retail offers are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineRetailOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfRetailCategorizedOnlineOffers, setNumberOfRetailCategorizedOnlineOffers, OfferCategory.Retail));
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineEntertainmentOffers`) !== null) {
+                                                                console.log('online entertainment offers are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineEntertainmentOffers`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineEntertainmentOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfEntertainmentCategorizedOnlineOffers, setNumberOfEntertainmentCategorizedOnlineOffers, OfferCategory.Entertainment));
+                                                            } else {
+                                                                console.log('online entertainment offers are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineEntertainmentOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfEntertainmentCategorizedOnlineOffers, setNumberOfEntertainmentCategorizedOnlineOffers, OfferCategory.Entertainment));
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineElectronicsOffers`) !== null) {
+                                                                console.log('online electronics offers are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineElectronicsOffers`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineElectronicsOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfElectronicsCategorizedOnlineOffers, setNumberOfElectronicsCategorizedOnlineOffers, OfferCategory.Electronics));
+                                                            } else {
+                                                                console.log('online electronics offers are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineElectronicsOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfElectronicsCategorizedOnlineOffers, setNumberOfElectronicsCategorizedOnlineOffers, OfferCategory.Electronics));
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineHomeOffers`) !== null) {
+                                                                console.log('online home offers are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineHomeOffers`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineHomeOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfHomeCategorizedOnlineOffers, setNumberOfHomeCategorizedOnlineOffers, OfferCategory.Home));
+                                                            } else {
+                                                                console.log('online home offers are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineHomeOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfHomeCategorizedOnlineOffers, setNumberOfHomeCategorizedOnlineOffers, OfferCategory.Home));
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineHealthAndBeautyOffers`) !== null) {
+                                                                console.log('online health and beauty offers are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineHealthAndBeautyOffers`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineHealthAndBeautyOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfHealthAndBeautyCategorizedOnlineOffers, setNumberOfHealthAndBeautyCategorizedOnlineOffers, OfferCategory.HealthAndBeauty));
+                                                            } else {
+                                                                console.log('online health and beauty offers are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineHealthAndBeautyOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfHealthAndBeautyCategorizedOnlineOffers, setNumberOfHealthAndBeautyCategorizedOnlineOffers, OfferCategory.HealthAndBeauty));
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOfficeAndBusinessOffers`) !== null) {
+                                                                console.log('online office and business offers are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineOfficeAndBusinessOffers`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOfficeAndBusinessOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfOfficeAndBusinessCategorizedOnlineOffers, setNumberOfOfficeAndBusinessCategorizedOnlineOffers, OfferCategory.OfficeAndBusiness));
+                                                            } else {
+                                                                console.log('online office and business offers are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOfficeAndBusinessOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfOfficeAndBusinessCategorizedOnlineOffers, setNumberOfOfficeAndBusinessCategorizedOnlineOffers, OfferCategory.OfficeAndBusiness));
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineServicesAndSubscriptionsOffers`) !== null) {
+                                                                console.log('online services and subscriptions offers are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineServicesAndSubscriptionsOffers`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineServicesAndSubscriptionsOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfServicesAndSubscriptionsCategorizedOnlineOffers, setNumberOfServicesAndSubscriptionsCategorizedOnlineOffers, OfferCategory.ServicesAndSubscriptions));
+                                                            } else {
+                                                                console.log('online services and subscriptions offers are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineServicesAndSubscriptionsOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfServicesAndSubscriptionsCategorizedOnlineOffers, setNumberOfServicesAndSubscriptionsCategorizedOnlineOffers, OfferCategory.ServicesAndSubscriptions));
                                                             }
                                                             if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
                                                                 console.log('old profile picture is cached, needs cleaning up');

@@ -83,7 +83,8 @@ import {
     MilitaryVerificationStatusType,
     NotificationChannelType,
     NotificationStatus,
-    NotificationType
+    NotificationType,
+    OfferCategory
 } from "@moonbeam/moonbeam-models";
 import {v4 as uuidv4} from 'uuid';
 import {MilitaryStatusSplashStep} from "./MilitaryStatusSplashStep";
@@ -103,6 +104,7 @@ import RegistrationBackgroundImage from '../../../../../assets/backgrounds/regis
 import {
     createPhysicalDevice,
     proceedWithDeviceCreation,
+    retrieveCategorizedOnlineOffersList,
     retrieveFidelisPartnerList,
     retrieveOnlineOffersList,
     sendNotification
@@ -116,7 +118,15 @@ import MoonbeamPreferencesAndroid from "../../../../../assets/art/moonbeam-prefe
 import {Button} from "@rneui/base";
 import * as Notifications from "expo-notifications";
 import * as ImagePicker from 'expo-image-picker';
-import {numberOfOnlineOffersState} from "../../../../recoil/StoreOfferAtom";
+import {
+    numberOfElectronicsCategorizedOnlineOffersState,
+    numberOfEntertainmentCategorizedOnlineOffersState,
+    numberOfFoodCategorizedOnlineOffersState,
+    numberOfHealthAndBeautyCategorizedOnlineOffersState,
+    numberOfHomeCategorizedOnlineOffersState, numberOfOfficeAndBusinessCategorizedOnlineOffersState,
+    numberOfOnlineOffersState,
+    numberOfRetailCategorizedOnlineOffersState, numberOfServicesAndSubscriptionsCategorizedOnlineOffersState
+} from "../../../../recoil/StoreOfferAtom";
 
 /**
  * RegistrationComponent component.
@@ -131,6 +141,14 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [existentAccountVisible, setExistentAccountVisible] = useState<boolean>(false);
     // constants used to keep track of shared states
     const [numberOfOnlineOffers, setNumberOfOnlineOffers] = useRecoilState(numberOfOnlineOffersState);
+    const [numberOfFoodCategorizedOnlineOffers, setNumberOfFoodCategorizedOnlineOffers] = useRecoilState(numberOfFoodCategorizedOnlineOffersState);
+    const [numberOfRetailCategorizedOnlineOffers, setNumberOfRetailCategorizedOnlineOffers] = useRecoilState(numberOfRetailCategorizedOnlineOffersState);
+    const [numberOfEntertainmentCategorizedOnlineOffers, setNumberOfEntertainmentCategorizedOnlineOffers] = useRecoilState(numberOfEntertainmentCategorizedOnlineOffersState);
+    const [numberOfElectronicsCategorizedOnlineOffers, setNumberOfElectronicsCategorizedOnlineOffers] = useRecoilState(numberOfElectronicsCategorizedOnlineOffersState);
+    const [numberOfHomeCategorizedOnlineOffers, setNumberOfHomeCategorizedOnlineOffers] = useRecoilState(numberOfHomeCategorizedOnlineOffersState);
+    const [numberOfHealthAndBeautyCategorizedOnlineOffers, setNumberOfHealthAndBeautyCategorizedOnlineOffers] = useRecoilState(numberOfHealthAndBeautyCategorizedOnlineOffersState);
+    const [numberOfOfficeAndBusinessCategorizedOnlineOffers, setNumberOfOfficeAndBusinessCategorizedOnlineOffers] = useRecoilState(numberOfOfficeAndBusinessCategorizedOnlineOffersState);
+    const [numberOfServicesAndSubscriptionsCategorizedOnlineOffers, setNumberOfServicesAndSubscriptionsCategorizedOnlineOffers] = useRecoilState(numberOfServicesAndSubscriptionsCategorizedOnlineOffersState);
     const [mainRootNavigation,] = useRecoilState(mainRootNavigationState);
     const [, setDeferToLogin] = useRecoilState(deferToLoginState);
     const [automaticallyVerifyRegistrationCode, setAutomaticallyVerifyRegistrationCode] = useRecoilState(automaticallyVerifyRegistrationCodeState);
@@ -1157,6 +1175,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                              *      - Fidelis partners for initial load (for 1 week only)
                                                              *      - the list of online offers (first page only) for initial load (for 1 week only)
                                                              *      - the list of offers near user's home address (first page only) for initial load (for 1 week only)
+                                                             *      - the list of categorized online offers
                                                              * - we just cache an empty profile photo for the user for initial load
                                                              */
                                                             if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-fidelisPartners`) !== null) {
@@ -1176,6 +1195,86 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                                 console.log('online offers are not cached');
                                                                 marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
                                                                     await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers));
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineFoodOffers`) !== null) {
+                                                                console.log('online food offers are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineFoodOffers`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineFoodOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfFoodCategorizedOnlineOffers, setNumberOfFoodCategorizedOnlineOffers, OfferCategory.Food));
+                                                            } else {
+                                                                console.log('online food offers are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineFoodOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfFoodCategorizedOnlineOffers, setNumberOfFoodCategorizedOnlineOffers, OfferCategory.Food));
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineRetailOffers`) !== null) {
+                                                                console.log('online retail offers are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineRetailOffers`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineRetailOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfRetailCategorizedOnlineOffers, setNumberOfRetailCategorizedOnlineOffers, OfferCategory.Retail));
+                                                            } else {
+                                                                console.log('online retail offers are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineRetailOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfRetailCategorizedOnlineOffers, setNumberOfRetailCategorizedOnlineOffers, OfferCategory.Retail));
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineEntertainmentOffers`) !== null) {
+                                                                console.log('online entertainment offers are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineEntertainmentOffers`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineEntertainmentOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfEntertainmentCategorizedOnlineOffers, setNumberOfEntertainmentCategorizedOnlineOffers, OfferCategory.Entertainment));
+                                                            } else {
+                                                                console.log('online entertainment offers are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineEntertainmentOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfEntertainmentCategorizedOnlineOffers, setNumberOfEntertainmentCategorizedOnlineOffers, OfferCategory.Entertainment));
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineElectronicsOffers`) !== null) {
+                                                                console.log('online electronics offers are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineElectronicsOffers`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineElectronicsOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfElectronicsCategorizedOnlineOffers, setNumberOfElectronicsCategorizedOnlineOffers, OfferCategory.Electronics));
+                                                            } else {
+                                                                console.log('online electronics offers are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineElectronicsOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfElectronicsCategorizedOnlineOffers, setNumberOfElectronicsCategorizedOnlineOffers, OfferCategory.Electronics));
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineHomeOffers`) !== null) {
+                                                                console.log('online home offers are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineHomeOffers`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineHomeOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfHomeCategorizedOnlineOffers, setNumberOfHomeCategorizedOnlineOffers, OfferCategory.Home));
+                                                            } else {
+                                                                console.log('online home offers are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineHomeOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfHomeCategorizedOnlineOffers, setNumberOfHomeCategorizedOnlineOffers, OfferCategory.Home));
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineHealthAndBeautyOffers`) !== null) {
+                                                                console.log('online health and beauty offers are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineHealthAndBeautyOffers`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineHealthAndBeautyOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfHealthAndBeautyCategorizedOnlineOffers, setNumberOfHealthAndBeautyCategorizedOnlineOffers, OfferCategory.HealthAndBeauty));
+                                                            } else {
+                                                                console.log('online health and beauty offers are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineHealthAndBeautyOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfHealthAndBeautyCategorizedOnlineOffers, setNumberOfHealthAndBeautyCategorizedOnlineOffers, OfferCategory.HealthAndBeauty));
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOfficeAndBusinessOffers`) !== null) {
+                                                                console.log('online office and business offers are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineOfficeAndBusinessOffers`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOfficeAndBusinessOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfOfficeAndBusinessCategorizedOnlineOffers, setNumberOfOfficeAndBusinessCategorizedOnlineOffers, OfferCategory.OfficeAndBusiness));
+                                                            } else {
+                                                                console.log('online office and business offers are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOfficeAndBusinessOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfOfficeAndBusinessCategorizedOnlineOffers, setNumberOfOfficeAndBusinessCategorizedOnlineOffers, OfferCategory.OfficeAndBusiness));
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineServicesAndSubscriptionsOffers`) !== null) {
+                                                                console.log('online services and subscriptions offers are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineServicesAndSubscriptionsOffers`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineServicesAndSubscriptionsOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfServicesAndSubscriptionsCategorizedOnlineOffers, setNumberOfServicesAndSubscriptionsCategorizedOnlineOffers, OfferCategory.ServicesAndSubscriptions));
+                                                            } else {
+                                                                console.log('online services and subscriptions offers are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineServicesAndSubscriptionsOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfServicesAndSubscriptionsCategorizedOnlineOffers, setNumberOfServicesAndSubscriptionsCategorizedOnlineOffers, OfferCategory.ServicesAndSubscriptions));
                                                             }
                                                             if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
                                                                 console.log('old profile picture is cached, needs cleaning up');

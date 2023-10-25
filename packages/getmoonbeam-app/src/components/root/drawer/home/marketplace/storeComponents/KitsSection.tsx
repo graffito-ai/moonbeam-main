@@ -21,81 +21,81 @@ import MoonbeamRetailKitPicture from "../../../../../../../assets/art/moonbeam_r
 // @ts-ignore
 import MoonbeamServicesAndSubscriptionsKitPicture from "../../../../../../../assets/art/moonbeam_services_and_subscriptions_kit.png";
 import {ImageBackground} from 'expo-image'
-
-/**
- * Enum representing the Moonbeam kit type
- */
-enum MoonbeamKitType {
-    FOOD,
-    RETAIL,
-    ENTERTAINMENT,
-    ELECTRONICS,
-    HOME,
-    HEALTH_AND_BEAUTY,
-    OFFICE_AND_BUSINESS,
-    SERVICES_AND_SUBSCRIPTIONS
-}
+import {OfferCategory} from "@moonbeam/moonbeam-models";
+import {NativeStackNavigationProp} from "@react-navigation/native-stack";
+import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
+import {currentActiveKitState} from "../../../../../../recoil/StoreOfferAtom";
+import {useRecoilState} from "recoil";
 
 /**
  * Interface representing the Moonbeam kit object
  */
 interface MoonbeamKit {
-    type: MoonbeamKitType,
+    type: OfferCategory,
     backgroundPictureSource: any,
     title: String,
+    secondaryTitle: String,
     titleButton: String
 }
 
 /**
  * Array representing the Moonbeam available Kits
  */
-const moonbeamKits: MoonbeamKit[] = [
+export const moonbeamKits: MoonbeamKit[] = [
     {
-        type: MoonbeamKitType.FOOD,
+        type: OfferCategory.Food,
         backgroundPictureSource: MoonbeamFoodKitPicture,
         title: 'Food Kit',
+        secondaryTitle: 'Food',
         titleButton: 'View All'
     },
     {
-        type: MoonbeamKitType.RETAIL,
+        type: OfferCategory.Retail,
         backgroundPictureSource: MoonbeamRetailKitPicture,
         title: 'Retail Kit',
+        secondaryTitle: 'Retail',
         titleButton: 'View All'
     },
     {
-        type: MoonbeamKitType.ENTERTAINMENT,
+        type: OfferCategory.Entertainment,
         backgroundPictureSource: MoonbeamEntertainmentKitPicture,
         title: 'Entertainment Kit',
+        secondaryTitle: 'Entertainment',
         titleButton: 'View All'
     },
     {
-        type: MoonbeamKitType.ELECTRONICS,
+        type: OfferCategory.Electronics,
         backgroundPictureSource: MoonbeamElectronicsKitPicture,
         title: 'Electronics Kit',
+        secondaryTitle: 'Electronics',
         titleButton: 'View All'
     },
     {
-        type: MoonbeamKitType.HOME,
+        type: OfferCategory.Home,
         backgroundPictureSource: MoonbeamHomeKitPicture,
         title: 'Home Kit',
+        secondaryTitle: 'Home',
         titleButton: 'View All'
     },
     {
-        type: MoonbeamKitType.HEALTH_AND_BEAUTY,
+        type: OfferCategory.HealthAndBeauty,
         backgroundPictureSource: MoonbeamHealthAndBeautyKitPicture,
         title: 'Health & Beauty Kit',
+        secondaryTitle: 'Health & Beauty',
         titleButton: 'View All'
     },
     {
-        type: MoonbeamKitType.OFFICE_AND_BUSINESS,
+        type: OfferCategory.OfficeAndBusiness,
         backgroundPictureSource: MoonbeamOfficeAndBusinessKitPicture,
         title: 'Office Kit',
+        secondaryTitle: 'Office',
         titleButton: 'View All'
     },
     {
-        type: MoonbeamKitType.SERVICES_AND_SUBSCRIPTIONS,
+        type: OfferCategory.ServicesAndSubscriptions,
         backgroundPictureSource: MoonbeamServicesAndSubscriptionsKitPicture,
         title: 'Subscriptions Kit',
+        secondaryTitle: 'Subscriptions',
         titleButton: 'View All'
     }
 ]
@@ -103,12 +103,17 @@ const moonbeamKits: MoonbeamKit[] = [
 /**
  * KitsSection component.
  *
+ * @param props properties to be passed into the component
  * @constructor constructor for the component.
  */
-export const KitsSection = () => {
+export const KitsSection = (props: {
+    navigation: NativeStackNavigationProp<MarketplaceStackParamList, 'Store'>
+}) => {
     // constants used to keep track of local component state
     const [dataProvider, setDataProvider] = useState<DataProvider | null>(null);
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
+    // constants used to keep track of shared states
+    const [, setCurrentActiveKit] = useRecoilState(currentActiveKitState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -148,7 +153,12 @@ export const KitsSection = () => {
                         <Card
                             style={styles.kitsCard}
                             onPress={() => {
-
+                                // navigate to the appropriate Kit, depending on the type of offer/kit displayed
+                                props.navigation.navigate('Kit', {
+                                    kitType: data.type
+                                });
+                                // set the kit appropriately
+                                setCurrentActiveKit(data.type);
                             }}
                         >
                             <ImageBackground
