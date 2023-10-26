@@ -9,33 +9,22 @@ export const styles = StyleSheet.create({
         backgroundColor: '#313030',
         alignItems: 'flex-start'
     },
-    verticalScrollView: {
-        marginTop: hp(1),
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        flex: 1,
-        flexGrow: 1
-    },
     onlineKitOffersView: {
-        width: wp(100),
-        height: hp(35),
-        top: hp(15),
-        left: wp(4.5)
+        flex: 1,
+        flexGrow: 1,
     },
-
     onlineKitOffersTitleView: {
         justifyContent: 'space-between',
         flexDirection: 'column',
-        top: hp(5)
-    },
-    onlineKitOffersLeftTitleView: {
-        flexDirection: 'column'
+        width: wp(100),
+        left: wp(5),
+        top: hp(2)
     },
     onlineKitOffersTitleSub: {
         fontSize: hp(1.3),
         fontFamily: 'Changa-Medium',
         textDecorationLine: 'none',
-        color: '#F2FF5D',
+        color: '#FFFFFF',
         bottom: hp(0.5),
         alignSelf: 'flex-start'
     },
@@ -43,7 +32,7 @@ export const styles = StyleSheet.create({
         fontSize: hp(2.5),
         fontFamily: 'Saira-Medium',
         alignSelf: 'flex-start',
-        color: '#F2FF5D'
+        color: '#FFFFFF'
     },
     onlineKitOffersTitleButton: {
         right: wp(3),
@@ -53,5 +42,168 @@ export const styles = StyleSheet.create({
         textDecorationLine: 'underline',
         alignSelf: 'flex-end',
         bottom: hp(2.7)
+    },
+    onlineOfferCard: {
+        backgroundColor: 'transparent',
+        marginLeft: wp(2),
+        width: wp(100),
+        height: hp(10),
+        shadowColor: 'transparent',
+        shadowOffset: {width: -2, height: 1},
+        shadowOpacity: 0.6,
+        shadowRadius: 2,
+        elevation: 15
+    },
+    onlineOfferLogo: {
+        bottom: hp(1.5),
+        alignSelf: 'flex-start',
+        marginRight: wp(4),
+        height: hp(7),
+        width: hp(7),
+        borderWidth: wp(0.05),
+        borderColor: '#F2FF5D',
+        borderRadius: 10
+    },
+    onlineOfferName: {
+        fontFamily: 'Raleway-SemiBold',
+        color: '#FFFFFF',
+        fontSize: hp(1.8),
+        width: wp(50)
+    },
+    onlineOfferBenefitsView: {
+        fontFamily: 'Raleway-SemiBold',
+        color: '#FFFFFF',
+        fontSize: hp(1.8)
+    },
+    onlineOfferBenefit: {
+        fontFamily: 'Saira-Bold',
+        color: '#F2FF5D'
+    },
+    onlineOfferBenefits: {
+        fontFamily: 'Saira-SemiBold',
+        color: '#FFFFFF',
+        fontSize: hp(1.6)
+    },
+    onlineNoOffersName: {
+        fontFamily: 'Raleway-SemiBold',
+        color: '#FFFFFF',
+        fontSize: hp(1.8),
+        width: wp(50),
+        top: hp(2),
+        left: wp(26)
+    },
+    moreButton: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignSelf: 'flex-end',
+        right: wp(8),
+        bottom: hp(3.8),
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    moreButtonText: {
+        color: '#F2FF5D',
+        fontFamily: 'Saira-Medium',
+        textDecorationLine: 'underline',
+        fontSize: hp(1.8),
+        marginTop: hp(1)
+    },
+    loadCard: {
+        left: wp(1),
+        width: wp(20),
+        height: hp(30),
+        backgroundColor: 'transparent',
+        shadowColor: 'transparent',
+        shadowOffset: {width: -2, height: 1},
+        shadowOpacity: 0.6,
+        shadowRadius: 2,
+        elevation: 15
+    },
+    mapHorizontalView: {
+        height: hp(20),
+        width: wp(100)
+    },
+    mapHorizontalMapView: {
+        height: hp(15),
+        width: wp(92),
+        left: wp(5)
+    },
+    toolTipMain: {
+        height: hp(9.5),
+        width: wp(25),
+        flexDirection: 'row',
+        alignContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center'
+    },
+    toolTipImageDetail: {
+        alignSelf: 'center',
+        height: hp(2.5),
+        bottom: hp(0.7),
+        left: wp(1),
+        width: wp(10)
+    },
+    toolTipImagePrice: {
+        alignSelf: 'center',
+        fontFamily: 'Raleway-ExtraBold',
+        fontSize: hp(1.7),
+        bottom: hp(0.7),
+        textAlign: 'center',
+        color: '#313030'
+    },
+    nearbyLoadingOfferCard: {
+        left: wp(5),
+        bottom: hp(4),
+        backgroundColor: 'transparent',
+        width: wp(85),
+        height: hp(30),
+        shadowColor: 'transparent',
+        shadowOffset: {width: -2, height: 1},
+        shadowOpacity: 0.6,
+        shadowRadius: 2,
+        elevation: 15
+    },
+    locationServicesEnableView: {
+        top: hp(2),
+        right: wp(4),
+        height: hp(33),
+        backgroundColor: '#262626',
+        flexDirection: 'column',
+        alignItems: 'center',
+        alignContent: 'center',
+        alignSelf: 'flex-start'
+    },
+    locationServicesEnableWarningMessage: {
+        top: hp(2),
+        width: wp(85),
+        fontSize: hp(1.8),
+        fontFamily: 'Saira-Medium',
+        textAlign: 'center',
+        color: '#FFFFFF'
+    },
+    locationServicesButton: {
+        backgroundColor: '#F2FF5D',
+        width: wp(50),
+        height: hp(5),
+        top: hp(1),
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    locationServicesImage: {
+        width: wp(30),
+        height: hp(15),
+    },
+    noOffersKitImage: {
+        width: wp(45),
+        height: hp(15),
+        left: wp(6)
+    },
+    locationServicesButtonText: {
+        color: '#313030',
+        fontFamily: 'Saira-Medium',
+        fontSize: hp(2.3),
+        marginTop: hp(1)
     },
 });

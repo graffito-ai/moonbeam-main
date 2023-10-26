@@ -3,10 +3,13 @@ import {KitProps} from "../../../../../../models/props/MarketplaceProps";
 import {useRecoilState} from "recoil";
 import {bottomTabShownState} from "../../../../../../recoil/HomeAtom";
 import {appDrawerHeaderShownState, customBannerShown, drawerSwipeState} from "../../../../../../recoil/AppDrawerAtom";
-import {storeNavigationState} from "../../../../../../recoil/StoreOfferAtom";
-import {ScrollView, View} from "react-native";
-import { styles } from '../../../../../../styles/kit.module';
+import {fullScreenKitMapActiveState, storeNavigationState} from "../../../../../../recoil/StoreOfferAtom";
+import {View} from "react-native";
+import {styles} from '../../../../../../styles/kit.module';
 import {OnlineKitSection} from "./OnlineKitSection";
+import {Portal} from 'react-native-paper';
+import {MapHorizontalKitSection} from "./MapHorizontalKitSection";
+import {FullScreenMapKitSection} from "./FullScreenMapKitSection";
 
 /**
  * Kit component.
@@ -14,13 +17,14 @@ import {OnlineKitSection} from "./OnlineKitSection";
  * @param navigation navigation object passed in from the parent navigator.
  * @constructor constructor for the component.
  */
-export const Kit = ({navigation, route}: KitProps) => {
+export const Kit = ({navigation}: KitProps) => {
     // constants used to keep track of shared states
-    const [, setStoreNavigationState] = useRecoilState(storeNavigationState);
-    const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
-    const [, setBannerShown] = useRecoilState(customBannerShown);
-    const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
-    const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
+    const [fullScreenKitMapActive, ] = useRecoilState(fullScreenKitMapActiveState);
+    const [storeNavigation, setStoreNavigation] = useRecoilState(storeNavigationState);
+    const [bottomTabShown, setBottomTabShown] = useRecoilState(bottomTabShownState);
+    const [bannerShown, setBannerShown] = useRecoilState(customBannerShown);
+    const [appDrawerHeaderShown, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
+    const [drawerSwipeEnabled, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -30,31 +34,27 @@ export const Kit = ({navigation, route}: KitProps) => {
      * included in here.
      */
     useEffect(() => {
-        setStoreNavigationState(navigation);
+        !storeNavigation && setStoreNavigation(navigation);
         // set the app drawer status accordingly, custom banner visibility and drawer swipe actions accordingly
-        setAppDrawerHeaderShown(false);
-        setBannerShown(false);
-        setDrawerSwipeEnabled(false);
-        setBottomTabShown(false);
-    }, []);
+        appDrawerHeaderShown && setAppDrawerHeaderShown(false);
+        bannerShown && setBannerShown(false);
+        drawerSwipeEnabled && setDrawerSwipeEnabled(false);
+        bottomTabShown && setBottomTabShown(false);
+    }, [bottomTabShown, appDrawerHeaderShown, storeNavigation]);
 
     // return the component for the Kit page
     return (
         <View style={styles.content}>
-            <ScrollView
-                scrollEnabled={true}
-                horizontal={false}
-                persistentScrollbar={false}
-                showsVerticalScrollIndicator={false}
-                keyboardShouldPersistTaps={'handled'}
-                showsHorizontalScrollIndicator={false}
-            >
-                <>
-                    <View style={styles.verticalScrollView}>
-                        <OnlineKitSection navigation={navigation}/>
-                    </View>
-                </>
-            </ScrollView>
+            <Portal.Host>
+                {
+                    fullScreenKitMapActive ? <FullScreenMapKitSection navigation={navigation}/>
+                        :
+                        <>
+                            <OnlineKitSection navigation={navigation}/>
+                            <MapHorizontalKitSection navigation={navigation}/>
+                        </>
+                }
+            </Portal.Host>
         </View>
     );
 };

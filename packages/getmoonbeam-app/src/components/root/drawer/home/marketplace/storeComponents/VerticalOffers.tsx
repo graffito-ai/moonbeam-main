@@ -94,17 +94,17 @@ export const VerticalOffers = (props: {
                 setNearbyDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedNearbyOfferList));
                 setVerticalListLoading(false);
             }
-            setTimeout(() => {
-                if (whichVerticalSectionActive === 'online') {
-                    setOnlineDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedOnlineOfferList));
-                    setVerticalListLoading(false);
-                    setOnlineLoadingOffers(false);
-                } else if (whichVerticalSectionActive === 'nearby') {
-                    setNearbyDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedNearbyOfferList));
-                    setVerticalListLoading(false);
-                    setNearbyLoadingOffers(false);
-                }
-            }, whichVerticalSectionActive === 'online' ? 2000 : 3000);
+            // setTimeout(() => {
+            //     if (whichVerticalSectionActive === 'online') {
+            //         setOnlineDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedOnlineOfferList));
+            //         setVerticalListLoading(false);
+            //         setOnlineLoadingOffers(false);
+            //     } else if (whichVerticalSectionActive === 'nearby') {
+            //         setNearbyDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedNearbyOfferList));
+            //         setVerticalListLoading(false);
+            //         setNearbyLoadingOffers(false);
+            //     }
+            // }, whichVerticalSectionActive === 'online' ? 2000 : 3000);
         }
 
         // populate the online offer data provider and list view

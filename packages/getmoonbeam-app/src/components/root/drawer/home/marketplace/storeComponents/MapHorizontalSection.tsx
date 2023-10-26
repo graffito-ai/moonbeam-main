@@ -6,7 +6,10 @@ import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
 import {Marker, PROVIDER_GOOGLE, Region} from "react-native-maps";
 import * as Location from "expo-location";
 import {LocationObject} from "expo-location";
-import {uniqueNearbyOffersListForMainHorizontalMapState} from "../../../../../../recoil/StoreOfferAtom";
+import {
+    toggleViewPressedState,
+    uniqueNearbyOffersListForMainHorizontalMapState
+} from "../../../../../../recoil/StoreOfferAtom";
 import {Image} from "expo-image";
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
@@ -34,6 +37,7 @@ export const MapHorizontalSection = () => {
         latitudeDelta: 0
     });
     // constants used to keep track of shared states
+    const [, setToggleViewPressed] = useRecoilState(toggleViewPressedState);
     const uniqueNearbyOffersListForMainHorizontalMap = useRecoilValue(uniqueNearbyOffersListForMainHorizontalMapState);
     const [currentUserLocation, setCurrentUserLocation] = useRecoilState(currentUserLocationState);
 
@@ -189,6 +193,9 @@ export const MapHorizontalSection = () => {
                                          setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                             }
                             <MapView
+                                onPress={() => {
+                                    setToggleViewPressed('map');
+                                }}
                                 initialRegion={currentMapRegion}
                                 clusteringEnabled={true}
                                 clusterColor={'#313030'}

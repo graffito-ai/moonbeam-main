@@ -491,7 +491,7 @@ export const styles = StyleSheet.create({
         top: hp(5)
     },
     nearbyLoadingOfferCard: {
-        left: wp(4),
+        left: wp(6),
         bottom: hp(1),
         backgroundColor: 'transparent',
         width: wp(85),
@@ -628,14 +628,13 @@ export const styles = StyleSheet.create({
         alignSelf: 'flex-start'
     },
     verticalOfferBenefit: {
-        fontFamily: 'Raleway-Bold',
+        fontFamily: 'Saira-Bold',
         color: '#F2FF5D'
     },
     verticalOfferBenefits: {
-        marginTop: '2%',
-        fontFamily: 'Raleway-SemiBold',
+        fontFamily: 'Saira-SemiBold',
         color: '#FFFFFF',
-        fontSize: hp(1.8)
+        fontSize: hp(1.6)
     },
     verticalOfferBannerName: {
         alignSelf: 'center',
@@ -670,7 +669,10 @@ export const styles = StyleSheet.create({
         alignSelf: 'flex-start',
         marginRight: wp(4),
         height: hp(7),
-        width: hp(7)
+        width: hp(7),
+        borderWidth: wp(0.05),
+        borderColor: '#F2FF5D',
+        borderRadius: 10
     },
     fullScreenMapLoadingCard: {
         backgroundColor: 'transparent',
@@ -748,5 +750,42 @@ export const styles = StyleSheet.create({
         width: wp(90),
         height: hp(5.5),
         borderRadius: 0
+    },
+    kitsHeaderPicture: {
+        height: hp(18),
+        width: wp(100),
+        flexDirection: 'column'
+    },
+    kitsHeaderView: {
+        height: hp(18),
+        width: wp(100)
+    },
+    kitsHeaderTitle: {
+        top: hp(9),
+        left: wp(2),
+        alignSelf: 'flex-start',
+        color: '#F2FF5D',
+        textAlign: 'center',
+        fontSize: hp(4),
+        fontFamily: 'Saira-SemiBold'
+    },
+    kitsHeaderDismissButton: {
+        alignSelf: 'flex-end',
+        top: hp(2.5)
+    },
+    kitRadiusView: {
+        backgroundColor: '#313030',
+        height: hp(5),
+        width: wp(100),
+        borderRadius: 60,
+        bottom: hp(2)
+    },
+    kitRadiusFullMapView: {
+        backgroundColor: '#313030',
+        height: hp(8),
+        width: wp(100),
+        bottom: hp(3),
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30
     }
 });

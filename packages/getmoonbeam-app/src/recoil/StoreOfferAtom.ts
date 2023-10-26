@@ -1130,11 +1130,38 @@ const currentActiveKitState = atom<OfferCategory | null>({
     default: null
 });
 
+/**
+ * Atom used to keep track of the online list kit expansion state.
+ */
+const onlineKitListIsExpandedState = atom<boolean>({
+    key: "onlineKitListIsExpandedState",
+    default: false
+});
+
+/**
+ * Atom used to keep track of the nearby list kit expansion state.
+ */
+const nearbyKitListIsExpandedState = atom<boolean>({
+    key: "nearbyKitListIsExpandedState",
+    default: false
+});
+
+/**
+ * Atom used to keep track of whether the full screen kit map
+ * is active or not.
+ */
+const fullScreenKitMapActiveState = atom<boolean>({
+    key: "fullScreenKitMapActiveState",
+    default: false
+});
 
 /**
  * Export all atoms and/or selectors
  */
 export {
+    fullScreenKitMapActiveState,
+    onlineKitListIsExpandedState,
+    nearbyKitListIsExpandedState,
     currentActiveKitState,
     storeNavigationState,
     numberOfOnlineOffersState,

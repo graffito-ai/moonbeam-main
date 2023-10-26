@@ -6,15 +6,20 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {MarketplaceStackParamList} from "../../../../../models/props/MarketplaceProps";
 import {Store} from './Store';
 import {StoreOffer} from './storeOffer/StoreOffer';
-import {View} from "react-native";
+import {Text, View} from "react-native";
 import {Kit} from "./kitCommponents/Kit";
 import {OfferCategory} from "@moonbeam/moonbeam-models";
 import {IconButton} from "react-native-paper";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
-import {commonStyles} from "../../../../../styles/common.module";
 import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
-import {currentActiveKitState, storeNavigationState} from "../../../../../recoil/StoreOfferAtom";
+import {
+    currentActiveKitState, fullScreenKitMapActiveState, nearbyKitListIsExpandedState,
+    onlineKitListIsExpandedState,
+    storeNavigationState
+} from "../../../../../recoil/StoreOfferAtom";
 import {moonbeamKits} from "./storeComponents/KitsSection";
+import {styles} from "../../../../../styles/store.module";
+import {ImageBackground} from 'expo-image';
 
 /**
  * Marketplace component.
@@ -24,9 +29,13 @@ import {moonbeamKits} from "./storeComponents/KitsSection";
  */
 export const Marketplace = ({navigation}: MarketplaceProps) => {
     // constants used to keep track of local component state
+    const [kitImage, setKitImage] = useState<any>(null);
     const [kitTitle, setKitTitle] = useState<string>("Kit");
     // constants used to keep track of shared states
-    const [currentActiveKit, ] = useRecoilState(currentActiveKitState);
+    const [fullScreenKitMapActive, setFullScreenKitMapActive] = useRecoilState(fullScreenKitMapActiveState);
+    const [, setOnlineKitListExpanded] = useRecoilState(onlineKitListIsExpandedState);
+    const [, setNearbyKitListExpanded] = useRecoilState(nearbyKitListIsExpandedState);
+    const [currentActiveKit, setCurrentActiveKit] = useRecoilState(currentActiveKitState);
     const [storeNavigation,] = useRecoilState(storeNavigationState);
     const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
     const [, setBannerShown] = useRecoilState(customBannerShown);
@@ -53,7 +62,10 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
         // set the kit title, according to the user selected option
         if (currentActiveKit !== null) {
             const filteredKits = moonbeamKits.filter(kit => kit.type === currentActiveKit);
-            filteredKits.length === 1 && setKitTitle(filteredKits[0].secondaryTitle.toString());
+            if (filteredKits.length === 1) {
+                setKitImage(filteredKits[0].backgroundPictureSource);
+                setKitTitle(filteredKits[0].secondaryTitle.toString());
+            }
         }
     }, [navigation.getState(), currentActiveKit]);
 
@@ -86,32 +98,58 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
                     options={{
                         headerShown: true,
                         gestureEnabled: false,
-                        headerStyle: {
-                            backgroundColor: '#5B5A5A'
-                        },
-                        headerLargeStyle: {
-                            backgroundColor: '#5B5A5A'
-                        },
-                        headerLargeTitle: true,
-                        headerLargeTitleStyle: {
-                            color: '#FFFFFF',
-                            fontSize: hp(3.5),
-                            fontFamily: 'Saira-Medium'
-                        },
-                        headerBackVisible: false,
-                        headerTitle: kitTitle,
-                        headerRight: () =>
-                            <IconButton
-                                rippleColor={'transparent'}
-                                icon="close"
-                                iconColor={"#F2FF5D"}
-                                size={hp(4)}
-                                style={[commonStyles.backButtonDismiss, {left: wp(3), top: hp(4)}]}
-                                onPress={() => {
-                                    setBottomTabShown(true);
-                                    storeNavigation && storeNavigation.navigate('Store', {});
-                                }}
-                            />
+                        header: () =>
+                            <View style={styles.kitsHeaderView}>
+                                <ImageBackground
+                                    style={styles.kitsHeaderPicture}
+                                    source={kitImage}
+                                    contentFit={'cover'}
+                                    cachePolicy={'memory-disk'}
+                                >
+                                    <Text style={styles.kitsHeaderTitle}>
+                                        {kitTitle}
+                                    </Text>
+                                    <IconButton
+                                        rippleColor={'transparent'}
+                                        icon="close"
+                                        iconColor={"#F2FF5D"}
+                                        size={hp(4)}
+                                        style={styles.kitsHeaderDismissButton}
+                                        onPress={() => {
+                                            setFullScreenKitMapActive(false);
+                                            setCurrentActiveKit(null);
+                                            setOnlineKitListExpanded(false);
+                                            setNearbyKitListExpanded(false);
+                                            setBottomTabShown(true);
+                                            storeNavigation && storeNavigation.navigate('Store', {});
+                                        }}
+                                    />
+                                </ImageBackground>
+                                {
+                                    fullScreenKitMapActive ?
+                                        <View
+                                            style={styles.kitRadiusFullMapView}
+                                        >
+                                            <Text style={{
+                                                alignSelf: 'center',
+                                                marginLeft: wp(2),
+                                                fontSize: hp(3.5),
+                                                fontFamily: 'Saira-SemiBold',
+                                                color: '#FFFFFF'
+                                            }}>
+                                                Find
+                                            </Text>
+                                            <Text style={[styles.mainSubtitle, {alignSelf: 'center', bottom: hp(1), marginLeft: wp(2)}]}>
+                                                {
+                                                    `your favorite ${kitTitle} brands`
+                                                }
+                                            </Text>
+                                        </View>
+                                        :
+                                        <View style={styles.kitRadiusView}/>
+                                }
+
+                            </View>
                     }}
                 />
             </Stack.Navigator>

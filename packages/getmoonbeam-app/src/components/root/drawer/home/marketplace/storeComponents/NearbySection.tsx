@@ -246,11 +246,11 @@ export const NearbySection = (props: {
             setHorizontalListLoading(false);
             setNearbyOffersSpinnerShown(false);
 
-            setTimeout(() => {
-                setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedNearbyOfferList));
-                setHorizontalListLoading(false);
-                setNearbyOffersSpinnerShown(false);
-            }, 3000);
+            // setTimeout(() => {
+            //     setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedNearbyOfferList));
+            //     setHorizontalListLoading(false);
+            //     setNearbyOffersSpinnerShown(false);
+            // }, 3000);
         }
 
         // populate the nearby offer data provider and list view

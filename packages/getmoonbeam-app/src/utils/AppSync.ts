@@ -373,7 +373,7 @@ export const retrieveCategorizedOnlineOffersList = async (totalNumberOfOffersAva
             getOffersInput: {
                 availability: OfferAvailability.Global,
                 countryCode: CountryCode.Us,
-                filterType: OfferFilter.Online,
+                filterType: OfferFilter.CategorizedOnline,
                 offerStates: [OfferState.Active, OfferState.Scheduled],
                 pageNumber: pageNumber !== undefined ? pageNumber : 1, // if no page number is passed in, revert to the first page number
                 pageSize: 15, // load 15 offers
@@ -1088,7 +1088,7 @@ export const retrieveCategorizedOffersNearby = async (pageNumber: number, setPag
                     getOffersInput: {
                         availability: OfferAvailability.Global,
                         countryCode: CountryCode.Us,
-                        filterType: OfferFilter.Nearby,
+                        filterType: OfferFilter.CategorizedNearby,
                         offerStates: [OfferState.Active, OfferState.Scheduled],
                         pageNumber: pageNumber,
                         pageSize: 15, // load 15 offers at a time
@@ -1196,7 +1196,7 @@ const retrieveCategorizedOffersNearLocation = async (address: string, pageNumber
                 getOffersInput: {
                     availability: OfferAvailability.Global,
                     countryCode: CountryCode.Us,
-                    filterType: OfferFilter.Nearby,
+                    filterType: OfferFilter.CategorizedNearby,
                     offerStates: [OfferState.Active, OfferState.Scheduled],
                     pageNumber: pageNumber,
                     pageSize: 15, // load 15 offers at a time

@@ -118,11 +118,11 @@ export const OnlineSection = (props: {
             setHorizontalListLoading(false);
             setOnlineOffersSpinnerShown(false);
 
-            setTimeout(() => {
-                setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedOnlineOfferList));
-                setHorizontalListLoading(false);
-                setOnlineOffersSpinnerShown(false);
-            }, 2000);
+            // setTimeout(() => {
+            //     setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedOnlineOfferList));
+            //     setHorizontalListLoading(false);
+            //     setOnlineOffersSpinnerShown(false);
+            // }, 2000);
         }
 
         // populate the online offer data provider and list view

@@ -16,8 +16,10 @@ import {LocationObject} from "expo-location";
 import {
     currentActiveKitState,
     locationServicesButtonState,
-    nearbyOffersListForFullScreenMapState, nearbyOffersSpinnerShownState,
-    reloadNearbyDueToPermissionsChangeState, storeNavigationState,
+    nearbyOffersListForFullScreenMapState,
+    nearbyOffersSpinnerShownState,
+    reloadNearbyDueToPermissionsChangeState,
+    storeNavigationState,
     storeOfferPhysicalLocationState,
     storeOfferState,
     uniqueNearbyOffersListForFullScreenMapState
@@ -41,15 +43,16 @@ import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
 
 /**
- * FullScreenMap component.
+ * FullScreenMapKitSection component.
  *
  * @param props properties to be passed into the component
  * @constructor constructor for the component.
  */
-export const FullScreenMap = (props: {
-    navigation: NativeStackNavigationProp<MarketplaceStackParamList, 'Store'>
+export const FullScreenMapKitSection = (props: {
+    navigation: NativeStackNavigationProp<MarketplaceStackParamList, 'Kit'>
 }) => {
     // constants used to keep track of local component state
+    const [currentActiveKit,] = useRecoilState(currentActiveKitState);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [adjustedMapLoading, setIsAdjustedMapLoading] = useState<boolean>(false);
     const [mapIsDisplayed, setIsMapDisplayed] = useState<boolean>(false);
@@ -181,118 +184,121 @@ export const FullScreenMap = (props: {
 
         // for each unique offer, build a Map Marker to return specifying the offer percentage
         for (let i = 0; i < uniqueNearbyOffersListForFullScreenMap.length; i++) {
-            // get the physical location of this offer alongside its coordinates
-            let physicalLocation: string = '';
-            let storeLatitude: number = 0;
-            let storeLongitude: number = 0;
-            uniqueNearbyOffersListForFullScreenMap[i] && uniqueNearbyOffersListForFullScreenMap[i].storeDetails !== undefined &&
-            uniqueNearbyOffersListForFullScreenMap[i].storeDetails !== null && uniqueNearbyOffersListForFullScreenMap[i].storeDetails!.forEach(store => {
-                /**
-                 * there are many possible stores with physical locations.
-                 * We want to get the one closest (within 5-7 miles from the user,
-                 * which is equivalent to approximately 10 km, which is 10000 meters)
-                 */
-                if (physicalLocation === '' && store !== null && store!.isOnline === false && store!.distance !== null &&
-                    store!.distance !== undefined && store!.distance! <= 10000) {
-                    // set the store's coordinates accordingly
-                    storeLatitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
-                    store!.geoLocation!.latitude !== null && store!.geoLocation!.latitude !== undefined
-                        ? store!.geoLocation!.latitude! : 0;
-                    storeLongitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
-                    store!.geoLocation!.longitude !== null && store!.geoLocation!.longitude !== undefined
-                        ? store!.geoLocation!.longitude! : 0;
+            // filter the incoming offers according to the kit passed in
+            if (uniqueNearbyOffersListForFullScreenMap[i].brandParentCategory !== null && uniqueNearbyOffersListForFullScreenMap[i].brandParentCategory !== undefined &&
+                uniqueNearbyOffersListForFullScreenMap[i].brandParentCategory === currentActiveKit) {
+                // get the physical location of this offer alongside its coordinates
+                let physicalLocation: string = '';
+                let storeLatitude: number = 0;
+                let storeLongitude: number = 0;
+                uniqueNearbyOffersListForFullScreenMap[i] && uniqueNearbyOffersListForFullScreenMap[i].storeDetails !== undefined &&
+                uniqueNearbyOffersListForFullScreenMap[i].storeDetails !== null && uniqueNearbyOffersListForFullScreenMap[i].storeDetails!.forEach(store => {
+                    /**
+                     * there are many possible stores with physical locations.
+                     * We want to get the one closest (within 5-7 miles from the user,
+                     * which is equivalent to approximately 10 km, which is 10000 meters)
+                     */
+                    if (physicalLocation === '' && store !== null && store!.isOnline === false && store!.distance !== null &&
+                        store!.distance !== undefined && store!.distance! <= 10000) {
+                        // set the store's coordinates accordingly
+                        storeLatitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
+                        store!.geoLocation!.latitude !== null && store!.geoLocation!.latitude !== undefined
+                            ? store!.geoLocation!.latitude! : 0;
+                        storeLongitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
+                        store!.geoLocation!.longitude !== null && store!.geoLocation!.longitude !== undefined
+                            ? store!.geoLocation!.longitude! : 0;
 
-                    // Olive needs to get better at displaying the address. For now, we will do this input sanitization
-                    if (store!.address1 !== undefined && store!.address1 !== null && store!.address1!.length !== 0 &&
-                        store!.city !== undefined && store!.city !== null && store!.city!.length !== 0 &&
-                        store!.state !== undefined && store!.state !== null && store!.state!.length !== 0 &&
-                        store!.postCode !== undefined && store!.postCode !== null && store!.postCode!.length !== 0) {
-                        physicalLocation =
-                            (store!.address1!.toLowerCase().includes(store!.city!.toLowerCase())
-                                && store!.address1!.toLowerCase().includes(store!.state!.toLowerCase())
-                                && store!.address1!.toLowerCase().includes(store!.postCode!.toLowerCase()))
-                                ? store!.address1!
-                                : `${store!.address1!}, ${store!.city!}, ${store!.state!}, ${store!.postCode!}`;
-                    } else {
-                        physicalLocation = store!.address1!;
+                        // Olive needs to get better at displaying the address. For now, we will do this input sanitization
+                        if (store!.address1 !== undefined && store!.address1 !== null && store!.address1!.length !== 0 &&
+                            store!.city !== undefined && store!.city !== null && store!.city!.length !== 0 &&
+                            store!.state !== undefined && store!.state !== null && store!.state!.length !== 0 &&
+                            store!.postCode !== undefined && store!.postCode !== null && store!.postCode!.length !== 0) {
+                            physicalLocation =
+                                (store!.address1!.toLowerCase().includes(store!.city!.toLowerCase())
+                                    && store!.address1!.toLowerCase().includes(store!.state!.toLowerCase())
+                                    && store!.address1!.toLowerCase().includes(store!.postCode!.toLowerCase()))
+                                    ? store!.address1!
+                                    : `${store!.address1!}, ${store!.city!}, ${store!.state!}, ${store!.postCode!}`;
+                        } else {
+                            physicalLocation = store!.address1!;
+                        }
                     }
-                }
-            });
+                });
 
-            // add this Map Marker for the store belonging to this unique offer, if there are valid coordinates retrieved from it
-            storeLatitude !== 0 && storeLongitude !== 0 && markers.push(
-                <Marker
-                    onPress={async () => {
-                        // set the clicked offer/partner accordingly
-                        setStoreOfferClicked(uniqueNearbyOffersListForFullScreenMap[i]);
-                        // set the clicked offer physical location
-                        setStoreOfferPhysicalLocation({
+                // add this Map Marker for the store belonging to this unique offer, if there are valid coordinates retrieved from it
+                storeLatitude !== 0 && storeLongitude !== 0 && markers.push(
+                    <Marker
+                        onPress={async () => {
+                            // set the clicked offer/partner accordingly
+                            setStoreOfferClicked(uniqueNearbyOffersListForFullScreenMap[i]);
+                            // set the clicked offer physical location
+                            setStoreOfferPhysicalLocation({
+                                latitude: storeLatitude,
+                                longitude: storeLongitude,
+                                latitudeDelta: 0,
+                                longitudeDelta: 0,
+                                addressAsString: physicalLocation
+                            });
+                            // @ts-ignore
+                            props.navigation.navigate('StoreOffer', {});
+                        }}
+                        tappable={true}
+                        key={uniqueNearbyOffersListForFullScreenMap[i].id}
+                        coordinate={{
                             latitude: storeLatitude,
-                            longitude: storeLongitude,
-                            latitudeDelta: 0,
-                            longitudeDelta: 0,
-                            addressAsString: physicalLocation
-                        });
-                        // @ts-ignore
-                        props.navigation.navigate('StoreOffer', {});
-                    }}
-                    tappable={true}
-                    key={uniqueNearbyOffersListForFullScreenMap[i].id}
-                    coordinate={{
-                        latitude: storeLatitude,
-                        longitude: storeLongitude
-                    }}
-                >
-                    <TouchableOpacity onPress={async () => {
-                        // set the clicked offer/partner accordingly
-                        setStoreOfferClicked(uniqueNearbyOffersListForFullScreenMap[i]);
-                        // set the clicked offer physical location
-                        setStoreOfferPhysicalLocation({
-                            latitude: storeLatitude,
-                            longitude: storeLongitude,
-                            latitudeDelta: 0,
-                            longitudeDelta: 0,
-                            addressAsString: physicalLocation
-                        });
-                        // @ts-ignore
-                        props.navigation.navigate('StoreOffer', {});
-                    }}>
-                        <Image
-                            style={styles.toolTipMain}
-                            source={MoonbeamPinImage}
-                            contentFit={'contain'}
-                            transition={1000}
-                            cachePolicy={'memory-disk'}
-                        >
+                            longitude: storeLongitude
+                        }}
+                    >
+                        <TouchableOpacity onPress={async () => {
+                            // set the clicked offer/partner accordingly
+                            setStoreOfferClicked(uniqueNearbyOffersListForFullScreenMap[i]);
+                            // set the clicked offer physical location
+                            setStoreOfferPhysicalLocation({
+                                latitude: storeLatitude,
+                                longitude: storeLongitude,
+                                latitudeDelta: 0,
+                                longitudeDelta: 0,
+                                addressAsString: physicalLocation
+                            });
+                            // @ts-ignore
+                            props.navigation.navigate('StoreOffer', {});
+                        }}>
                             <Image
-                                style={styles.toolTipImageDetail}
-                                source={{
-                                    uri: uniqueNearbyOffersListForFullScreenMap[i].brandLogoSm!
-                                }}
-                                placeholder={MoonbeamPlaceholderImage}
-                                placeholderContentFit={'contain'}
+                                style={styles.toolTipMain}
+                                source={MoonbeamPinImage}
                                 contentFit={'contain'}
                                 transition={1000}
                                 cachePolicy={'memory-disk'}
-                            />
-                            <Text style={styles.toolTipImagePrice}>
-                                {uniqueNearbyOffersListForFullScreenMap[i]!.reward!.type! === RewardType.RewardPercent
-                                    ? `${uniqueNearbyOffersListForFullScreenMap[i]!.reward!.value}%`
-                                    : `$${uniqueNearbyOffersListForFullScreenMap[i]!.reward!.value}`}
-                                {" Off "}
-                            </Text>
-                        </Image>
-                    </TouchableOpacity>
-                </Marker>
-            );
+                            >
+                                <Image
+                                    style={styles.toolTipImageDetail}
+                                    source={{
+                                        uri: uniqueNearbyOffersListForFullScreenMap[i].brandLogoSm!
+                                    }}
+                                    placeholder={MoonbeamPlaceholderImage}
+                                    placeholderContentFit={'contain'}
+                                    contentFit={'contain'}
+                                    transition={1000}
+                                    cachePolicy={'memory-disk'}
+                                />
+                                <Text style={styles.toolTipImagePrice}>
+                                    {uniqueNearbyOffersListForFullScreenMap[i]!.reward!.type! === RewardType.RewardPercent
+                                        ? `${uniqueNearbyOffersListForFullScreenMap[i]!.reward!.value}%`
+                                        : `$${uniqueNearbyOffersListForFullScreenMap[i]!.reward!.value}`}
+                                    {" Off "}
+                                </Text>
+                            </Image>
+                        </TouchableOpacity>
+                    </Marker>
+                );
+            }
         }
         return markers;
     }, [uniqueNearbyOffersListForFullScreenMap]);
 
-    // return the component for the FullScreenMap page
+    // return the component for the FullScreenMapKitSection page
     return (
         <>
-
             <Portal>
                 <Dialog style={[commonStyles.permissionsDialogStyle, {bottom: hp(6)}]}
                         visible={permissionsModalVisible}
@@ -458,7 +464,7 @@ export const FullScreenMap = (props: {
                                             }
                                         })}
                                         style={[StyleSheet.absoluteFillObject, {
-                                            borderRadius: 30,
+                                            borderRadius: 0,
                                             backgroundColor: '#313030'
                                         }]}
                                     >

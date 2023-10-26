@@ -125,13 +125,13 @@ import {splashStatusState} from "../../recoil/SplashAtom";
 import {
     currentActiveKitState,
     filteredByDiscountPressedState,
-    filtersActiveState,
+    filtersActiveState, fullScreenKitMapActiveState,
     locationServicesButtonState, nearbyElectronicsCategorizedOffersListState,
     nearbyElectronicsCategorizedOffersPageNumberState, nearbyEntertainmentCategorizedOffersListState,
     nearbyEntertainmentCategorizedOffersPageNumberState, nearbyFoodCategorizedOffersListState,
     nearbyFoodCategorizedOffersPageNumberState, nearbyHealthAndBeautyCategorizedOffersListState,
     nearbyHealthAndBeautyCategorizedOffersPageNumberState, nearbyHomeCategorizedOffersListState,
-    nearbyHomeCategorizedOffersPageNumberState,
+    nearbyHomeCategorizedOffersPageNumberState, nearbyKitListIsExpandedState,
     nearbyOffersListForFullScreenMapState,
     nearbyOffersListForMainHorizontalMapState,
     nearbyOffersListState,
@@ -185,7 +185,7 @@ import {
     onlineHealthAndBeautyCategorizedOfferListState,
     onlineHealthAndBeautyCategorizedOffersPageNumberState,
     onlineHomeCategorizedOfferListState,
-    onlineHomeCategorizedOffersPageNumberState,
+    onlineHomeCategorizedOffersPageNumberState, onlineKitListIsExpandedState,
     onlineOffersListState,
     onlineOffersPageNumberState,
     onlineOfficeAndBusinessCategorizedOfferListState,
@@ -233,6 +233,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const [userInformation,] = useRecoilState(currentUserInformation);
     const [profilePictureURI,] = useRecoilState(profilePictureURIState);
     // Recoil atoms to reset
+    const [reloadNearbyDueToPermissionsChange, ] = useRecoilState(reloadNearbyDueToPermissionsChangeState);
     const verificationDocumentAppWallStateReset = useResetRecoilState(verificationDocumentAppWallState);
     const isReadyAppWallStateReset = useResetRecoilState(isReadyAppWallState);
     const isPhotoUploadedAppWallStateReset = useResetRecoilState(isPhotoUploadedAppWallState);
@@ -426,6 +427,9 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const nearbyServicesAndSubscriptionsCategorizedOffersListReset = useResetRecoilState(nearbyServicesAndSubscriptionsCategorizedOffersListState);
     const storeNavigationReset = useResetRecoilState(storeNavigationState);
     const currentActiveKitReset = useResetRecoilState(currentActiveKitState);
+    const onlineKitListIsExpandedReset = useResetRecoilState(onlineKitListIsExpandedState);
+    const nearbyKitListIsExpandedReset = useResetRecoilState(nearbyKitListIsExpandedState);
+    const fullScreenKitMapActiveReset = useResetRecoilState(fullScreenKitMapActiveState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -435,6 +439,9 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
      * included in here.
      */
     useEffect(() => {
+        // if we need to reload due to nearby permissions change, then just sign out so we can reload the app
+        reloadNearbyDueToPermissionsChange && logOut();
+
         if (userInformation["custom:userId"]) {
             // check to see if the user information object has been populated accordingly
             if (userInformation["given_name"] && userInformation["family_name"]) {
@@ -444,8 +451,247 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             }
         }
     }, [userInformation["custom:userId"], userInformation["given_name"],
-        userInformation["family_name"], profilePictureURI]);
+        userInformation["family_name"], profilePictureURI, reloadNearbyDueToPermissionsChange]);
 
+    /**
+     * Function used to log out of the app.
+     */
+    const logOut = async (): Promise<void> => {
+        try {
+            // navigate to the Login Screen
+            setIsLoadingAppOverviewNeeded(true);
+            // @ts-ignore
+            mainRootNavigation && mainRootNavigation!.navigate('AppOverview', {});
+
+            // reset all Recoil atoms
+            verificationDocumentAppWallStateReset();
+            isReadyAppWallStateReset();
+            isPhotoUploadedAppWallStateReset();
+            isDocumentUploadAppWallStateReset();
+            drawerDashboardStateReset();
+            appDrawerHeaderShownStateReset();
+            appDrawerHeaderShownStateReset();
+            additionalAppWallDocumentationNeededReset();
+            additionalAppWallDocumentationErrorsReset();
+            cardLinkingStatusStateReset();
+            customBannerShownReset();
+            drawerSwipeStateReset();
+            profilePictureURIStateReset();
+            verificationDocumentStateReset();
+            mainRootNavigationStateReset();
+            isLoadingAppOverviewNeededStateReset();
+            globalAmplifyCacheStateReset();
+            marketplaceAmplifyCacheStateReset();
+            isPhotoUploadedStateReset();
+            isDocumentUploadedStateReset();
+            isReadyRegistrationStateReset();
+            authRegistrationNavigationReset();
+            expoPushTokenStateReset();
+            cardLinkingRegistrationStatusStateReset();
+            additionalDocumentationErrorsReset();
+            additionalDocumentationNeededReset();
+            militaryVerificationStatusReset();
+            amplifySignUpProcessErrorsStateReset();
+            registrationPasswordStateReset();
+            registrationPasswordErrorsStateReset();
+            registrationConfirmationPasswordStateReset();
+            registrationConfirmationPasswordErrorsStateReset();
+            dutyStatusErrorsStateReset();
+            militaryBranchErrorsStateReset();
+            enlistingYearStateReset();
+            militaryRegistrationDisclaimerCheckStateReset();
+            accountCreationDisclaimerCheckStateReset();
+            addressStateStateReset();
+            addressCityStateReset();
+            addressLineStateReset();
+            addressZipStateReset();
+            enlistingYearErrorsStateReset();
+            addressLineErrorsStateReset();
+            addressCityErrorsStateReset();
+            addressZipErrorsStateReset();
+            addressStateErrorsStateReset();
+            militaryBranchStateReset();
+            militaryBranchValueStateReset();
+            dutyStatusValueStateReset();
+            dutyStatusStateReset();
+            verificationCodeErrorsStateReset();
+            firstNameErrorsStateReset();
+            lastNameErrorsStateReset();
+            birthdayErrorStateReset();
+            emailErrorsStateReset();
+            phoneNumberErrorsStateReset();
+            registrationCodeTimerValueReset();
+            registrationVerificationDigit1Reset();
+            registrationVerificationDigit2Reset();
+            registrationVerificationDigit3Reset();
+            registrationVerificationDigit4Reset();
+            registrationVerificationDigit5Reset();
+            registrationVerificationDigit6Reset();
+            registrationStepNumberReset();
+            currentUserInformationReset();
+            initialAuthenticationScreenReset();
+            registrationBackButtonShownReset();
+            registrationMainErrorStateReset();
+            firstNameStateReset();
+            lastNameStateReset();
+            emailStateReset();
+            birthdayStateReset();
+            phoneNumberStateReset();
+            codeVerificationSheetShownReset();
+            codeVerifiedStateReset();
+            customBannerStateReset();
+            showWalletBottomSheetStateReset();
+            transactionDataStateReset();
+            showTransactionBottomSheetStateReset();
+            faqListStateReset();
+            bottomTabShownStateReset();
+            bottomBarNavigationStateReset();
+            drawerNavigationStateReset();
+            deviceTypeStateReset();
+            goToProfileSettingsStateReset();
+            splashStatusStateReset();
+            storeOfferStateReset();
+            storeOfferPhysicalLocationStateReset();
+            cardLinkingBottomSheetStateReset();
+            firstTimeLoggedInStateReset();
+            moonbeamUserIdStateReset();
+            moonbeamUserIdPassStateReset();
+            permissionsModalVisibleStateReset();
+            permissionsModalCustomMessageStateReset();
+            permissionsInstructionsCustomMessageStateReset();
+            documentsRePickPhotoStateReset();
+            documentsReCapturePhotoStateReset();
+            appWallPermissionsModalVisibleStateReset();
+            appWallPermissionsModalCustomMessageStateReset();
+            appWallPermissionsInstructionsCustomMessageStateReset();
+            appWallDocumentsRePickPhotoStateReset();
+            appWallDocumentsReCapturePhotoStateReset();
+            automaticallyVerifyRegistrationCodeStateReset();
+            deferToLoginStateReset();
+            nearbyOffersPageNumberStateReset();
+            onlineOffersPageNumberStateReset();
+            onlineOffersListStateReset();
+            nearbyOffersListStateReset();
+            noNearbyOffersToLoadStateReset();
+            noOnlineOffersToLoadStateReset();
+            offersNearUserLocationFlagStateReset();
+            premierNearbyOffersPageNumberStateReset();
+            premierOnlineOffersPageNumberStateReset();
+            locationServicesButtonStateReset();
+            reloadNearbyDueToPermissionsChangeStateReset();
+            nearbyOffersSpinnerShownStateReset();
+            resetSearchStateReset();
+            toggleViewPressedStateReset();
+            verticalSectionActiveStateReset();
+            searchQueryStateReset();
+            filteredByDiscountPressedStateReset();
+            filtersActiveStateReset();
+            currentUserLocationStateReset();
+            numberOfOffersWithin5MilesReset();
+            numberOfOffersWithin25MilesReset();
+            nearbyOffersListForMainHorizontalMapReset();
+            nearbyOffersListForFullScreenMapReset();
+            numberOfOnlineOffersReset();
+            numberOfFoodCategorizedOnlineOffersReset();
+            numberOfRetailCategorizedOnlineOffersReset();
+            numberOfEntertainmentCategorizedOnlineOffersReset();
+            numberOfElectronicsCategorizedOnlineOffersReset();
+            numberOfHomeCategorizedOnlineOffersReset();
+            numberOfHealthAndBeautyCategorizedOnlineOffersReset();
+            numberOfOfficeAndBusinessCategorizedOnlineOffersReset();
+            numberOfServicesAndSubscriptionsCategorizedOnlineOffersReset();
+            onlineFoodCategorizedOffersPageNumberReset();
+            onlineRetailCategorizedOffersPageNumberReset();
+            onlineEntertainmentCategorizedOffersPageNumberReset();
+            onlineElectronicsCategorizedOffersPageNumberReset();
+            onlineHomeCategorizedOffersPageNumberReset();
+            onlineHealthAndBeautyCategorizedOffersPageNumberReset();
+            onlineOfficeAndBusinessCategorizedOffersPageNumberReset();
+            onlineServicesAndSubscriptionsCategorizedOffersPageNumberReset();
+            noOnlineFoodCategorizedOffersToLoadReset();
+            noOnlineRetailCategorizedOffersToLoadReset();
+            noOnlineEntertainmentCategorizedOffersToLoadReset();
+            noOnlineElectronicsCategorizedOffersToLoadReset();
+            noOnlineHomeCategorizedOffersToLoadReset();
+            noOnlineHealthAndBeautyCategorizedOffersToLoadReset();
+            noOnlineOfficeAndBusinessCategorizedOffersToLoadReset();
+            noOnlineServicesAndSubscriptionsCategorizedOffersToLoadReset();
+            onlineFoodCategorizedOfferListReset();
+            onlineRetailCategorizedOfferListReset();
+            onlineEntertainmentCategorizedOfferListReset();
+            onlineElectronicsCategorizedOfferListReset();
+            onlineHomeCategorizedOfferListReset();
+            onlineHealthAndBeautyCategorizedOfferListReset();
+            onlineOfficeAndBusinessCategorizedOfferListReset();
+            onlineServicesAndSubscriptionsCategorizedOfferListReset();
+            numberOfFoodCategorizedOffersWithin25MilesReset();
+            numberOfRetailCategorizedOffersWithin25MilesReset();
+            numberOfEntertainmentCategorizedOffersWithin25MilesReset();
+            numberOfElectronicsCategorizedOffersWithin25MilesReset();
+            numberOfHomeCategorizedOffersWithin25MilesReset();
+            numberOfHealthAndBeautyCategorizedOffersWithin25MilesReset();
+            numberOfOfficeAndBusinessCategorizedOffersWithin25MilesReset();
+            numberOfServicesAndSubscriptionsCategorizedOffersWithin25MilesReset();
+            nearbyFoodCategorizedOffersPageNumberReset();
+            nearbyRetailCategorizedOffersPageNumberReset();
+            nearbyEntertainmentCategorizedOffersPageNumberReset();
+            nearbyElectronicsCategorizedOffersPageNumberReset();
+            nearbyHomeCategorizedOffersPageNumberReset();
+            nearbyHealthAndBeautyCategorizedOffersPageNumberReset();
+            nearbyOfficeAndBusinessCategorizedOffersPageNumberReset();
+            nearbyServicesAndSubscriptionsCategorizedOffersPageNumberReset();
+            noNearbyFoodCategorizedOffersToLoadReset();
+            noNearbyRetailCategorizedOffersToLoadReset();
+            noNearbyEntertainmentCategorizedOffersToLoadReset();
+            noNearbyElectronicsCategorizedOffersToLoadReset();
+            noNearbyHomeCategorizedOffersToLoadReset();
+            noNearbyHealthAndBeautyCategorizedOffersToLoadReset();
+            noNearbyOfficeAndBusinessCategorizedOffersToLoadReset();
+            noNearbyServicesAndSubscriptionsCategorizedOffersToLoadReset();
+            nearbyFoodCategorizedOffersListReset();
+            nearbyRetailCategorizedOffersListReset();
+            nearbyEntertainmentCategorizedOffersListReset();
+            nearbyElectronicsCategorizedOffersListReset();
+            nearbyHomeCategorizedOffersListReset();
+            nearbyHealthAndBeautyCategorizedOffersListReset();
+            nearbyOfficeAndBusinessCategorizedOffersListReset();
+            nearbyServicesAndSubscriptionsCategorizedOffersListReset();
+            storeNavigationReset();
+            currentActiveKitReset();
+            onlineKitListIsExpandedReset();
+            nearbyKitListIsExpandedReset();
+            fullScreenKitMapActiveReset();
+
+            /**
+             * ensure that the current user's biometric session is interrupted, and that the already signed in flag is reset
+             * so next user can set up biometrics once more, and they can also benefit from skipping the overview screen.
+             */
+            await SecureStore.deleteItemAsync(`biometrics-enabled`, {
+                requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+            });
+            await SecureStore.deleteItemAsync(`moonbeam-user-id`, {
+                requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+            });
+            await SecureStore.deleteItemAsync(`moonbeam-user-passcode`, {
+                requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+            });
+            await SecureStore.deleteItemAsync(`moonbeam-skip-overview`, {
+                requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+            });
+            await SecureStore.deleteItemAsync(`biometrics-type`, {
+                requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+            });
+
+            // clear the cache
+            marketplaceCache !== null && marketplaceCache.clear();
+            cache !== null && cache.clear();
+
+            // performing the Sign-Out action through Amplify
+            await Auth.signOut();
+        } catch (error) {
+            console.log('error while signing out: ', error);
+        }
+    }
 
     // return the component for the CustomDrawer component, part of the AppDrawer pages.
     return (
@@ -567,237 +813,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                 labelStyle={[styles.drawerItemLabel]}
                                 label={'Log Out'}
                                 onPress={async () => {
-                                    try {
-                                        // navigate to the Login Screen
-                                        setIsLoadingAppOverviewNeeded(true);
-                                        // @ts-ignore
-                                        mainRootNavigation && mainRootNavigation!.navigate('AppOverview', {});
-
-                                        // reset all Recoil atoms
-                                        verificationDocumentAppWallStateReset();
-                                        isReadyAppWallStateReset();
-                                        isPhotoUploadedAppWallStateReset();
-                                        isDocumentUploadAppWallStateReset();
-                                        drawerDashboardStateReset();
-                                        appDrawerHeaderShownStateReset();
-                                        appDrawerHeaderShownStateReset();
-                                        additionalAppWallDocumentationNeededReset();
-                                        additionalAppWallDocumentationErrorsReset();
-                                        cardLinkingStatusStateReset();
-                                        customBannerShownReset();
-                                        drawerSwipeStateReset();
-                                        profilePictureURIStateReset();
-                                        verificationDocumentStateReset();
-                                        mainRootNavigationStateReset();
-                                        isLoadingAppOverviewNeededStateReset();
-                                        globalAmplifyCacheStateReset();
-                                        marketplaceAmplifyCacheStateReset();
-                                        isPhotoUploadedStateReset();
-                                        isDocumentUploadedStateReset();
-                                        isReadyRegistrationStateReset();
-                                        authRegistrationNavigationReset();
-                                        expoPushTokenStateReset();
-                                        cardLinkingRegistrationStatusStateReset();
-                                        additionalDocumentationErrorsReset();
-                                        additionalDocumentationNeededReset();
-                                        militaryVerificationStatusReset();
-                                        amplifySignUpProcessErrorsStateReset();
-                                        registrationPasswordStateReset();
-                                        registrationPasswordErrorsStateReset();
-                                        registrationConfirmationPasswordStateReset();
-                                        registrationConfirmationPasswordErrorsStateReset();
-                                        dutyStatusErrorsStateReset();
-                                        militaryBranchErrorsStateReset();
-                                        enlistingYearStateReset();
-                                        militaryRegistrationDisclaimerCheckStateReset();
-                                        accountCreationDisclaimerCheckStateReset();
-                                        addressStateStateReset();
-                                        addressCityStateReset();
-                                        addressLineStateReset();
-                                        addressZipStateReset();
-                                        enlistingYearErrorsStateReset();
-                                        addressLineErrorsStateReset();
-                                        addressCityErrorsStateReset();
-                                        addressZipErrorsStateReset();
-                                        addressStateErrorsStateReset();
-                                        militaryBranchStateReset();
-                                        militaryBranchValueStateReset();
-                                        dutyStatusValueStateReset();
-                                        dutyStatusStateReset();
-                                        verificationCodeErrorsStateReset();
-                                        firstNameErrorsStateReset();
-                                        lastNameErrorsStateReset();
-                                        birthdayErrorStateReset();
-                                        emailErrorsStateReset();
-                                        phoneNumberErrorsStateReset();
-                                        registrationCodeTimerValueReset();
-                                        registrationVerificationDigit1Reset();
-                                        registrationVerificationDigit2Reset();
-                                        registrationVerificationDigit3Reset();
-                                        registrationVerificationDigit4Reset();
-                                        registrationVerificationDigit5Reset();
-                                        registrationVerificationDigit6Reset();
-                                        registrationStepNumberReset();
-                                        currentUserInformationReset();
-                                        initialAuthenticationScreenReset();
-                                        registrationBackButtonShownReset();
-                                        registrationMainErrorStateReset();
-                                        firstNameStateReset();
-                                        lastNameStateReset();
-                                        emailStateReset();
-                                        birthdayStateReset();
-                                        phoneNumberStateReset();
-                                        codeVerificationSheetShownReset();
-                                        codeVerifiedStateReset();
-                                        customBannerStateReset();
-                                        showWalletBottomSheetStateReset();
-                                        transactionDataStateReset();
-                                        showTransactionBottomSheetStateReset();
-                                        faqListStateReset();
-                                        bottomTabShownStateReset();
-                                        bottomBarNavigationStateReset();
-                                        drawerNavigationStateReset();
-                                        deviceTypeStateReset();
-                                        goToProfileSettingsStateReset();
-                                        splashStatusStateReset();
-                                        storeOfferStateReset();
-                                        storeOfferPhysicalLocationStateReset();
-                                        cardLinkingBottomSheetStateReset();
-                                        firstTimeLoggedInStateReset();
-                                        moonbeamUserIdStateReset();
-                                        moonbeamUserIdPassStateReset();
-                                        permissionsModalVisibleStateReset();
-                                        permissionsModalCustomMessageStateReset();
-                                        permissionsInstructionsCustomMessageStateReset();
-                                        documentsRePickPhotoStateReset();
-                                        documentsReCapturePhotoStateReset();
-                                        appWallPermissionsModalVisibleStateReset();
-                                        appWallPermissionsModalCustomMessageStateReset();
-                                        appWallPermissionsInstructionsCustomMessageStateReset();
-                                        appWallDocumentsRePickPhotoStateReset();
-                                        appWallDocumentsReCapturePhotoStateReset();
-                                        automaticallyVerifyRegistrationCodeStateReset();
-                                        deferToLoginStateReset();
-                                        nearbyOffersPageNumberStateReset();
-                                        onlineOffersPageNumberStateReset();
-                                        onlineOffersListStateReset();
-                                        nearbyOffersListStateReset();
-                                        noNearbyOffersToLoadStateReset();
-                                        noOnlineOffersToLoadStateReset();
-                                        offersNearUserLocationFlagStateReset();
-                                        premierNearbyOffersPageNumberStateReset();
-                                        premierOnlineOffersPageNumberStateReset();
-                                        locationServicesButtonStateReset();
-                                        reloadNearbyDueToPermissionsChangeStateReset();
-                                        nearbyOffersSpinnerShownStateReset();
-                                        resetSearchStateReset();
-                                        toggleViewPressedStateReset();
-                                        verticalSectionActiveStateReset();
-                                        searchQueryStateReset();
-                                        filteredByDiscountPressedStateReset();
-                                        filtersActiveStateReset();
-                                        currentUserLocationStateReset();
-                                        numberOfOffersWithin5MilesReset();
-                                        numberOfOffersWithin25MilesReset();
-                                        nearbyOffersListForMainHorizontalMapReset();
-                                        nearbyOffersListForFullScreenMapReset();
-                                        numberOfOnlineOffersReset();
-                                        numberOfFoodCategorizedOnlineOffersReset();
-                                        numberOfRetailCategorizedOnlineOffersReset();
-                                        numberOfEntertainmentCategorizedOnlineOffersReset();
-                                        numberOfElectronicsCategorizedOnlineOffersReset();
-                                        numberOfHomeCategorizedOnlineOffersReset();
-                                        numberOfHealthAndBeautyCategorizedOnlineOffersReset();
-                                        numberOfOfficeAndBusinessCategorizedOnlineOffersReset();
-                                        numberOfServicesAndSubscriptionsCategorizedOnlineOffersReset();
-                                        onlineFoodCategorizedOffersPageNumberReset();
-                                        onlineRetailCategorizedOffersPageNumberReset();
-                                        onlineEntertainmentCategorizedOffersPageNumberReset();
-                                        onlineElectronicsCategorizedOffersPageNumberReset();
-                                        onlineHomeCategorizedOffersPageNumberReset();
-                                        onlineHealthAndBeautyCategorizedOffersPageNumberReset();
-                                        onlineOfficeAndBusinessCategorizedOffersPageNumberReset();
-                                        onlineServicesAndSubscriptionsCategorizedOffersPageNumberReset();
-                                        noOnlineFoodCategorizedOffersToLoadReset();
-                                        noOnlineRetailCategorizedOffersToLoadReset();
-                                        noOnlineEntertainmentCategorizedOffersToLoadReset();
-                                        noOnlineElectronicsCategorizedOffersToLoadReset();
-                                        noOnlineHomeCategorizedOffersToLoadReset();
-                                        noOnlineHealthAndBeautyCategorizedOffersToLoadReset();
-                                        noOnlineOfficeAndBusinessCategorizedOffersToLoadReset();
-                                        noOnlineServicesAndSubscriptionsCategorizedOffersToLoadReset();
-                                        onlineFoodCategorizedOfferListReset();
-                                        onlineRetailCategorizedOfferListReset();
-                                        onlineEntertainmentCategorizedOfferListReset();
-                                        onlineElectronicsCategorizedOfferListReset();
-                                        onlineHomeCategorizedOfferListReset();
-                                        onlineHealthAndBeautyCategorizedOfferListReset();
-                                        onlineOfficeAndBusinessCategorizedOfferListReset();
-                                        onlineServicesAndSubscriptionsCategorizedOfferListReset();
-                                        numberOfFoodCategorizedOffersWithin25MilesReset();
-                                        numberOfRetailCategorizedOffersWithin25MilesReset();
-                                        numberOfEntertainmentCategorizedOffersWithin25MilesReset();
-                                        numberOfElectronicsCategorizedOffersWithin25MilesReset();
-                                        numberOfHomeCategorizedOffersWithin25MilesReset();
-                                        numberOfHealthAndBeautyCategorizedOffersWithin25MilesReset();
-                                        numberOfOfficeAndBusinessCategorizedOffersWithin25MilesReset();
-                                        numberOfServicesAndSubscriptionsCategorizedOffersWithin25MilesReset();
-                                        nearbyFoodCategorizedOffersPageNumberReset();
-                                        nearbyRetailCategorizedOffersPageNumberReset();
-                                        nearbyEntertainmentCategorizedOffersPageNumberReset();
-                                        nearbyElectronicsCategorizedOffersPageNumberReset();
-                                        nearbyHomeCategorizedOffersPageNumberReset();
-                                        nearbyHealthAndBeautyCategorizedOffersPageNumberReset();
-                                        nearbyOfficeAndBusinessCategorizedOffersPageNumberReset();
-                                        nearbyServicesAndSubscriptionsCategorizedOffersPageNumberReset();
-                                        noNearbyFoodCategorizedOffersToLoadReset();
-                                        noNearbyRetailCategorizedOffersToLoadReset();
-                                        noNearbyEntertainmentCategorizedOffersToLoadReset();
-                                        noNearbyElectronicsCategorizedOffersToLoadReset();
-                                        noNearbyHomeCategorizedOffersToLoadReset();
-                                        noNearbyHealthAndBeautyCategorizedOffersToLoadReset();
-                                        noNearbyOfficeAndBusinessCategorizedOffersToLoadReset();
-                                        noNearbyServicesAndSubscriptionsCategorizedOffersToLoadReset();
-                                        nearbyFoodCategorizedOffersListReset();
-                                        nearbyRetailCategorizedOffersListReset();
-                                        nearbyEntertainmentCategorizedOffersListReset();
-                                        nearbyElectronicsCategorizedOffersListReset();
-                                        nearbyHomeCategorizedOffersListReset();
-                                        nearbyHealthAndBeautyCategorizedOffersListReset();
-                                        nearbyOfficeAndBusinessCategorizedOffersListReset();
-                                        nearbyServicesAndSubscriptionsCategorizedOffersListReset();
-                                        storeNavigationReset();
-                                        currentActiveKitReset();
-
-                                        /**
-                                         * ensure that the current user's biometric session is interrupted, and that the already signed in flag is reset
-                                         * so next user can set up biometrics once more, and they can also benefit from skipping the overview screen.
-                                         */
-                                        await SecureStore.deleteItemAsync(`biometrics-enabled`, {
-                                            requireAuthentication: false // we don't need this to be under authentication, so we can check at login
-                                        });
-                                        await SecureStore.deleteItemAsync(`moonbeam-user-id`, {
-                                            requireAuthentication: false // we don't need this to be under authentication, so we can check at login
-                                        });
-                                        await SecureStore.deleteItemAsync(`moonbeam-user-passcode`, {
-                                            requireAuthentication: false // we don't need this to be under authentication, so we can check at login
-                                        });
-                                        await SecureStore.deleteItemAsync(`moonbeam-skip-overview`, {
-                                            requireAuthentication: false // we don't need this to be under authentication, so we can check at login
-                                        });
-                                        await SecureStore.deleteItemAsync(`biometrics-type`, {
-                                            requireAuthentication: false // we don't need this to be under authentication, so we can check at login
-                                        });
-
-                                        // clear the cache
-                                        marketplaceCache !== null && marketplaceCache.clear();
-                                        cache !== null && cache.clear();
-
-                                        // performing the Sign-Out action through Amplify
-                                        await Auth.signOut();
-                                    } catch (error) {
-                                        console.log('error while signing out: ', error);
-                                    }
+                                    await logOut();
                                 }}>
                             </DrawerItem>
                         </View>
