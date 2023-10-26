@@ -7,9 +7,12 @@ import {Marker, PROVIDER_GOOGLE, Region} from "react-native-maps";
 import * as Location from "expo-location";
 import {LocationObject} from "expo-location";
 import {
-    currentActiveKitState, fullScreenKitMapActiveState,
+    currentActiveKitState,
+    fullScreenKitMapActiveState,
     locationServicesButtonState,
-    nearbyKitListIsExpandedState, nearbyOffersSpinnerShownState,
+    nearbyKitListIsExpandedState,
+    nearbyOffersSpinnerShownState,
+    noNearbyKitOffersAvailableState,
     numberOfElectronicsCategorizedOffersWithin25MilesState,
     numberOfEntertainmentCategorizedOffersWithin25MilesState,
     numberOfFoodCategorizedOffersWithin25MilesState,
@@ -18,7 +21,9 @@ import {
     numberOfOfficeAndBusinessCategorizedOffersWithin25MilesState,
     numberOfRetailCategorizedOffersWithin25MilesState,
     numberOfServicesAndSubscriptionsCategorizedOffersWithin25MilesState,
-    onlineKitListIsExpandedState, reloadNearbyDueToPermissionsChangeState, storeNavigationState,
+    onlineKitListIsExpandedState,
+    reloadNearbyDueToPermissionsChangeState,
+    storeNavigationState,
     uniqueNearbyElectronicsOffersListState,
     uniqueNearbyEntertainmentOffersListState,
     uniqueNearbyFoodOffersListState,
@@ -37,8 +42,6 @@ import {Offer, OfferCategory, RewardType} from "@moonbeam/moonbeam-models";
 import MoonbeamPinImage from "../../../../../../../assets/pin-shape.png";
 import MapView from "react-native-map-clustering";
 import {Spinner} from "../../../../../common/Spinner";
-import {NativeStackNavigationProp} from "@react-navigation/native-stack";
-import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
 import {moonbeamKits} from "../storeComponents/KitsSection";
 // @ts-ignore
 import MoonbeamNoOffersKit from "../../../../../../../assets/art/moonbeam-no-offers-kit.png";
@@ -56,12 +59,9 @@ import {bottomTabShownState} from "../../../../../../recoil/HomeAtom";
 /**
  * MapHorizontalSection component.
  *
- * @param props properties to be passed into the component
  * @constructor constructor for the component.
  */
-export const MapHorizontalKitSection = (props: {
-    navigation: NativeStackNavigationProp<MarketplaceStackParamList, 'Kit'>
-}) => {
+export const MapHorizontalKitSection = () => {
     // constants used to keep track of local component state
     const [permissionsModalVisible, setPermissionsModalVisible] = useState<boolean>(false);
     const [permissionsModalCustomMessage, setPermissionsModalCustomMessage] = useState<string>("");
@@ -90,14 +90,14 @@ export const MapHorizontalKitSection = (props: {
     const [, setNearbyKitListExpanded] = useRecoilState(nearbyKitListIsExpandedState);
     const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
     const [storeNavigation,] = useRecoilState(storeNavigationState);
-    const [numberOfFoodOffersWithin25Miles, setNumberOfFoodOffersWitin25Miles] = useRecoilState(numberOfFoodCategorizedOffersWithin25MilesState);
-    const [numberOfRetailOffersWithin25Miles, setNumberOfRetailOffersWithin25Miles] = useRecoilState(numberOfRetailCategorizedOffersWithin25MilesState);
-    const [numberOfEntertainmentOffersWithin25Miles, setNumberOfEntertainmentOffersWithin25Miles] = useRecoilState(numberOfEntertainmentCategorizedOffersWithin25MilesState);
-    const [numberOfElectronicsOffersWithin25Miles, setNumberOfElectronicsOffersWithin25Miles] = useRecoilState(numberOfElectronicsCategorizedOffersWithin25MilesState);
-    const [numberOfHomeOffersWithin25Miles, setNumberOfHomeOffersWithin25Miles] = useRecoilState(numberOfHomeCategorizedOffersWithin25MilesState);
-    const [numberOfHealthAndBeautyOffersWithin25Miles, setNumberOfHealthAndBeautyOffersWithin25Miles] = useRecoilState(numberOfHealthAndBeautyCategorizedOffersWithin25MilesState);
-    const [numberOfOfficeAndBusinessOffersWithin25Miles, setNumberOfOfficeAndBusinessOffersWithin25Miles] = useRecoilState(numberOfOfficeAndBusinessCategorizedOffersWithin25MilesState);
-    const [numberOfServicesAndSubscriptionsOffersWithin25Miles, setNumberOfServicesAndSubscriptionsOffersWithin25Miles] = useRecoilState(numberOfServicesAndSubscriptionsCategorizedOffersWithin25MilesState);
+    const [numberOfFoodOffersWithin25Miles,] = useRecoilState(numberOfFoodCategorizedOffersWithin25MilesState);
+    const [numberOfRetailOffersWithin25Miles,] = useRecoilState(numberOfRetailCategorizedOffersWithin25MilesState);
+    const [numberOfEntertainmentOffersWithin25Miles,] = useRecoilState(numberOfEntertainmentCategorizedOffersWithin25MilesState);
+    const [numberOfElectronicsOffersWithin25Miles,] = useRecoilState(numberOfElectronicsCategorizedOffersWithin25MilesState);
+    const [numberOfHomeOffersWithin25Miles,] = useRecoilState(numberOfHomeCategorizedOffersWithin25MilesState);
+    const [numberOfHealthAndBeautyOffersWithin25Miles,] = useRecoilState(numberOfHealthAndBeautyCategorizedOffersWithin25MilesState);
+    const [numberOfOfficeAndBusinessOffersWithin25Miles,] = useRecoilState(numberOfOfficeAndBusinessCategorizedOffersWithin25MilesState);
+    const [numberOfServicesAndSubscriptionsOffersWithin25Miles,] = useRecoilState(numberOfServicesAndSubscriptionsCategorizedOffersWithin25MilesState);
     const uniqueNearbyFoodOffersList = useRecoilValue(uniqueNearbyFoodOffersListState);
     const uniqueNearbyRetailOffersList = useRecoilValue(uniqueNearbyRetailOffersListState);
     const uniqueNearbyEntertainmentOffersList = useRecoilValue(uniqueNearbyEntertainmentOffersListState);
@@ -107,6 +107,7 @@ export const MapHorizontalKitSection = (props: {
     const uniqueNearbyOfficeAndBusinessOffersList = useRecoilValue(uniqueNearbyOfficeAndBusinessOffersListState);
     const uniqueNearbyServicesAndSubscriptionsOffersList = useRecoilValue(uniqueNearbyServicesAndSubscriptionsOffersListState);
     const [currentUserLocation, setCurrentUserLocation] = useRecoilState(currentUserLocationState);
+    const [noNearbyKitOffersAvailable, setNoNearbyKitOffersAvailable] = useRecoilState(noNearbyKitOffersAvailableState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -170,6 +171,13 @@ export const MapHorizontalKitSection = (props: {
                 setIsMapDisplayed(true);
             });
         }
+        if (!noNearbyKitOffersAvailable && (uniqueNearbyOffersListForMainHorizontalMap.length === 0 || numberOfNearbyCategorizedOffers === 0)) {
+            setNoNearbyKitOffersAvailable(true)
+        }
+        if (noNearbyKitOffersAvailable && (uniqueNearbyOffersListForMainHorizontalMap.length !== 0 || numberOfNearbyCategorizedOffers !== 0)) {
+            setNoNearbyKitOffersAvailable(false);
+        }
+
     }, [currentActiveKit, currentUserLocation, mapIsDisplayed, mapViewRef, uniqueNearbyOffersListForMainHorizontalMap, numberOfNearbyCategorizedOffers,
         numberOfFoodOffersWithin25Miles, numberOfRetailOffersWithin25Miles, numberOfEntertainmentOffersWithin25Miles, numberOfElectronicsOffersWithin25Miles,
         numberOfHomeOffersWithin25Miles, numberOfHealthAndBeautyOffersWithin25Miles, numberOfOfficeAndBusinessOffersWithin25Miles,
@@ -299,7 +307,8 @@ export const MapHorizontalKitSection = (props: {
     return (
         <>
             <Portal>
-                <Dialog style={[commonStyles.permissionsDialogStyle, {height: hp(75), bottom: hp(1)}]} visible={permissionsModalVisible}
+                <Dialog style={[commonStyles.permissionsDialogStyle, {height: hp(75), bottom: hp(1)}]}
+                        visible={permissionsModalVisible}
                         onDismiss={() => setPermissionsModalVisible(false)}>
                     <Dialog.Title
                         style={commonStyles.dialogTitle}>{'Permissions not granted!'}</Dialog.Title>
@@ -315,7 +324,10 @@ export const MapHorizontalKitSection = (props: {
                            style={commonStyles.permissionsDialogImage}/>
                     <Dialog.Content>
                         <Text
-                            style={[commonStyles.dialogParagraphInstructions, {fontSize: hp(1.5), marginBottom: hp(1)}]}>{permissionsInstructionsCustomMessage}</Text>
+                            style={[commonStyles.dialogParagraphInstructions, {
+                                fontSize: hp(1.5),
+                                marginBottom: hp(1)
+                            }]}>{permissionsInstructionsCustomMessage}</Text>
                     </Dialog.Content>
                     <Dialog.Actions style={{alignSelf: 'center', flexDirection: 'column'}}>
                         <ModalButton buttonStyle={commonStyles.dialogButton}
@@ -354,11 +366,13 @@ export const MapHorizontalKitSection = (props: {
                     </Dialog.Actions>
                 </Dialog>
             </Portal>
-            <View style={(locationServicesButton || (uniqueNearbyOffersListForMainHorizontalMap.length == 0 || numberOfNearbyCategorizedOffers === 0)) ? {bottom: hp(16)} : {bottom: hp(26)}}>
+            <View
+                style={[(locationServicesButton || (uniqueNearbyOffersListForMainHorizontalMap.length === 0 || numberOfNearbyCategorizedOffers === 0)) ? {bottom: hp(16)} : {top: hp(2)},
+                    nearbyKitListExpanded && {top: hp(1)}]}>
                 {
                     !onlineKitListExpanded && !nearbyKitListExpanded &&
-                    <View style={styles.onlineKitOffersTitleView}>
-                        <Text style={styles.onlineKitOffersTitleMain}>
+                    <View style={styles.kitOffersTitleView}>
+                        <Text style={styles.kitOffersTitleMain}>
                             {`Near You`}
                         </Text>
                         <TouchableOpacity
@@ -407,7 +421,7 @@ export const MapHorizontalKitSection = (props: {
                         </Card.Content>
                     </Card>
                     :
-                    (uniqueNearbyOffersListForMainHorizontalMap.length == 0 || numberOfNearbyCategorizedOffers === 0)  && !onlineKitListExpanded && !nearbyKitListExpanded
+                    (uniqueNearbyOffersListForMainHorizontalMap.length === 0 || numberOfNearbyCategorizedOffers === 0) && !onlineKitListExpanded && !nearbyKitListExpanded
                         ?
                         <Card style={styles.nearbyLoadingOfferCard}>
                             <Card.Content>
@@ -417,51 +431,55 @@ export const MapHorizontalKitSection = (props: {
                                         style={styles.noOffersKitImage}
                                         source={MoonbeamNoOffersKit}/>
                                     <Text
-                                        style={[styles.locationServicesEnableWarningMessage, {color: '#F2FF5D', fontSize: hp(2.2), top: hp(1)}]}>
+                                        style={[styles.locationServicesEnableWarningMessage, {
+                                            color: '#F2FF5D',
+                                            fontSize: hp(2.2),
+                                            top: hp(1)
+                                        }]}>
                                         {`No ${kitName} offers nearby!`}
                                     </Text>
                                 </View>
                             </Card.Content>
                         </Card>
                         :
-                    currentUserLocation !== null && !nearbyKitListExpanded && !onlineKitListExpanded &&
-                    <View style={styles.mapHorizontalView}>
-                        <View style={styles.mapHorizontalMapView}>
-                            <Portal.Host>
-                                {
-                                    loadingSpinnerShown &&
-                                    <Spinner paddingForSpinner={true}
-                                             loadingSpinnerShown={loadingSpinnerShown}
-                                             setLoadingSpinnerShown={setLoadingSpinnerShown}/>
-                                }
-                                <MapView
-                                    onPress={() => {
-                                        setFullScreenKitMapActive(true);
-                                    }}
-                                    initialRegion={currentMapRegion}
-                                    clusteringEnabled={true}
-                                    clusterColor={'#313030'}
-                                    clusterFontFamily={'Raleway-Medium'}
-                                    clusterTextColor={'#F2FF5D'}
-                                    provider={PROVIDER_GOOGLE}
-                                    userInterfaceStyle={'light'}
-                                    ref={mapViewRef}
-                                    userLocationCalloutEnabled={true}
-                                    showsUserLocation={true}
-                                    zoomControlEnabled={false}
-                                    pitchEnabled={false}
-                                    rotateEnabled={false}
-                                    scrollEnabled={false}
-                                    zoomEnabled={false}
-                                    style={[StyleSheet.absoluteFillObject, {borderRadius: 10}]}
-                                >
+                        currentUserLocation !== null && !onlineKitListExpanded && !nearbyKitListExpanded &&
+                        <View style={styles.mapHorizontalView}>
+                            <View style={styles.mapHorizontalMapView}>
+                                <Portal.Host>
                                     {
-                                        displayMapMarkersWithinMap()
+                                        loadingSpinnerShown &&
+                                        <Spinner paddingForSpinner={true}
+                                                 loadingSpinnerShown={loadingSpinnerShown}
+                                                 setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                                     }
-                                </MapView>
-                            </Portal.Host>
+                                    <MapView
+                                        onPress={() => {
+                                            setFullScreenKitMapActive(true);
+                                        }}
+                                        initialRegion={currentMapRegion}
+                                        clusteringEnabled={true}
+                                        clusterColor={'#313030'}
+                                        clusterFontFamily={'Raleway-Medium'}
+                                        clusterTextColor={'#F2FF5D'}
+                                        provider={PROVIDER_GOOGLE}
+                                        userInterfaceStyle={'light'}
+                                        ref={mapViewRef}
+                                        userLocationCalloutEnabled={true}
+                                        showsUserLocation={true}
+                                        zoomControlEnabled={false}
+                                        pitchEnabled={false}
+                                        rotateEnabled={false}
+                                        scrollEnabled={false}
+                                        zoomEnabled={false}
+                                        style={[StyleSheet.absoluteFillObject, {borderRadius: 10}]}
+                                    >
+                                        {
+                                            displayMapMarkersWithinMap()
+                                        }
+                                    </MapView>
+                                </Portal.Host>
+                            </View>
                         </View>
-                    </View>
                 }
             </View>
         </>

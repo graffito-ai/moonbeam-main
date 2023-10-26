@@ -144,7 +144,7 @@ import {
     noNearbyEntertainmentCategorizedOffersToLoadState,
     noNearbyFoodCategorizedOffersToLoadState,
     noNearbyHealthAndBeautyCategorizedOffersToLoadState,
-    noNearbyHomeCategorizedOffersToLoadState,
+    noNearbyHomeCategorizedOffersToLoadState, noNearbyKitOffersAvailableState,
     noNearbyOffersToLoadState, noNearbyOfficeAndBusinessCategorizedOffersToLoadState,
     noNearbyRetailCategorizedOffersToLoadState, noNearbyServicesAndSubscriptionsCategorizedOffersToLoadState,
     noOnlineElectronicsCategorizedOffersToLoadState,
@@ -430,6 +430,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const onlineKitListIsExpandedReset = useResetRecoilState(onlineKitListIsExpandedState);
     const nearbyKitListIsExpandedReset = useResetRecoilState(nearbyKitListIsExpandedState);
     const fullScreenKitMapActiveReset = useResetRecoilState(fullScreenKitMapActiveState);
+    const noNearbyKitOffersAvailableReset = useResetRecoilState(noNearbyKitOffersAvailableState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -661,6 +662,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             onlineKitListIsExpandedReset();
             nearbyKitListIsExpandedReset();
             fullScreenKitMapActiveReset();
+            noNearbyKitOffersAvailableReset();
 
             /**
              * ensure that the current user's biometric session is interrupted, and that the already signed in flag is reset

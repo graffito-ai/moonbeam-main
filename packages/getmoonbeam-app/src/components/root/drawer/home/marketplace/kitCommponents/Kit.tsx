@@ -3,13 +3,18 @@ import {KitProps} from "../../../../../../models/props/MarketplaceProps";
 import {useRecoilState} from "recoil";
 import {bottomTabShownState} from "../../../../../../recoil/HomeAtom";
 import {appDrawerHeaderShownState, customBannerShown, drawerSwipeState} from "../../../../../../recoil/AppDrawerAtom";
-import {fullScreenKitMapActiveState, storeNavigationState} from "../../../../../../recoil/StoreOfferAtom";
+import {
+    fullScreenKitMapActiveState, nearbyKitListIsExpandedState,
+    onlineKitListIsExpandedState,
+    storeNavigationState
+} from "../../../../../../recoil/StoreOfferAtom";
 import {View} from "react-native";
 import {styles} from '../../../../../../styles/kit.module';
 import {OnlineKitSection} from "./OnlineKitSection";
 import {Portal} from 'react-native-paper';
 import {MapHorizontalKitSection} from "./MapHorizontalKitSection";
 import {FullScreenMapKitSection} from "./FullScreenMapKitSection";
+import {NearbyKitSection} from "./NearbyKitSection";
 
 /**
  * Kit component.
@@ -19,7 +24,9 @@ import {FullScreenMapKitSection} from "./FullScreenMapKitSection";
  */
 export const Kit = ({navigation}: KitProps) => {
     // constants used to keep track of shared states
-    const [fullScreenKitMapActive, ] = useRecoilState(fullScreenKitMapActiveState);
+    const [onlineKitListExpanded,] = useRecoilState(onlineKitListIsExpandedState);
+    const [nearbyKitListExpanded,] = useRecoilState(nearbyKitListIsExpandedState);
+    const [fullScreenKitMapActive,] = useRecoilState(fullScreenKitMapActiveState);
     const [storeNavigation, setStoreNavigation] = useRecoilState(storeNavigationState);
     const [bottomTabShown, setBottomTabShown] = useRecoilState(bottomTabShownState);
     const [bannerShown, setBannerShown] = useRecoilState(customBannerShown);
@@ -50,8 +57,24 @@ export const Kit = ({navigation}: KitProps) => {
                     fullScreenKitMapActive ? <FullScreenMapKitSection navigation={navigation}/>
                         :
                         <>
-                            <OnlineKitSection navigation={navigation}/>
-                            <MapHorizontalKitSection navigation={navigation}/>
+                            {
+                                !nearbyKitListExpanded && onlineKitListExpanded &&
+                                    <OnlineKitSection navigation={navigation}/>
+
+                            }
+                            {
+                                !nearbyKitListExpanded && !onlineKitListExpanded &&
+                                <>
+                                    <OnlineKitSection navigation={navigation}/>
+                                    <MapHorizontalKitSection/>
+                                    <NearbyKitSection navigation={navigation}/>
+                                </>
+
+                            }
+                            {
+                                !onlineKitListExpanded && nearbyKitListExpanded &&
+                                <NearbyKitSection navigation={navigation}/>
+                            }
                         </>
                 }
             </Portal.Host>

@@ -780,12 +780,36 @@ export const styles = StyleSheet.create({
         borderRadius: 60,
         bottom: hp(2)
     },
+    kitsRadiusDismissButton: {
+        top: hp(1),
+        width: wp(10),
+        left: wp(5)
+    },
     kitRadiusFullMapView: {
+        flexDirection: 'row',
         backgroundColor: '#313030',
         height: hp(8),
         width: wp(100),
         bottom: hp(3),
         borderTopLeftRadius: 30,
         borderTopRightRadius: 30
+    },
+    kitRadiusFullMapViewTitle: {
+        alignSelf: 'center',
+        marginLeft: wp(2),
+        fontSize: hp(3.5),
+        fontFamily: 'Saira-SemiBold',
+        color: '#FFFFFF'
+    },
+    kitRadiusFullMapViewSubtitle: {
+        alignSelf: 'center',
+        bottom: hp(1),
+        marginLeft: wp(2)
+    },
+    kitRadiusFullMapViewTitleView: {
+        alignSelf: 'center',
+        flexDirection: 'column',
+        left: wp(17),
+        height: hp(8)
     }
 });

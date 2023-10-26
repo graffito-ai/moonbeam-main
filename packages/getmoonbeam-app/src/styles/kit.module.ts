@@ -9,18 +9,18 @@ export const styles = StyleSheet.create({
         backgroundColor: '#313030',
         alignItems: 'flex-start'
     },
-    onlineKitOffersView: {
+    kitOffersView: {
         flex: 1,
         flexGrow: 1,
     },
-    onlineKitOffersTitleView: {
+    kitOffersTitleView: {
         justifyContent: 'space-between',
         flexDirection: 'column',
         width: wp(100),
         left: wp(5),
         top: hp(2)
     },
-    onlineKitOffersTitleSub: {
+    kitOffersTitleSub: {
         fontSize: hp(1.3),
         fontFamily: 'Changa-Medium',
         textDecorationLine: 'none',
@@ -28,13 +28,13 @@ export const styles = StyleSheet.create({
         bottom: hp(0.5),
         alignSelf: 'flex-start'
     },
-    onlineKitOffersTitleMain: {
+    kitOffersTitleMain: {
         fontSize: hp(2.5),
         fontFamily: 'Saira-Medium',
         alignSelf: 'flex-start',
         color: '#FFFFFF'
     },
-    onlineKitOffersTitleButton: {
+    kitOffersTitleButton: {
         right: wp(3),
         fontSize: hp(1.5),
         fontFamily: 'Raleway-Bold',
@@ -43,7 +43,7 @@ export const styles = StyleSheet.create({
         alignSelf: 'flex-end',
         bottom: hp(2.7)
     },
-    onlineOfferCard: {
+    kitOfferCard: {
         backgroundColor: 'transparent',
         marginLeft: wp(2),
         width: wp(100),
@@ -54,7 +54,7 @@ export const styles = StyleSheet.create({
         shadowRadius: 2,
         elevation: 15
     },
-    onlineOfferLogo: {
+    kitOfferLogo: {
         bottom: hp(1.5),
         alignSelf: 'flex-start',
         marginRight: wp(4),
@@ -64,27 +64,33 @@ export const styles = StyleSheet.create({
         borderColor: '#F2FF5D',
         borderRadius: 10
     },
-    onlineOfferName: {
+    kitOfferName: {
         fontFamily: 'Raleway-SemiBold',
         color: '#FFFFFF',
         fontSize: hp(1.8),
         width: wp(50)
     },
-    onlineOfferBenefitsView: {
+    kitOfferDistance: {
+        fontFamily: 'Saira-SemiBold',
+        color: '#F2FF5D',
+        fontSize: hp(1.3),
+        alignSelf: 'flex-start'
+    },
+    kitOfferBenefitsView: {
         fontFamily: 'Raleway-SemiBold',
         color: '#FFFFFF',
         fontSize: hp(1.8)
     },
-    onlineOfferBenefit: {
+    kitOfferBenefit: {
         fontFamily: 'Saira-Bold',
         color: '#F2FF5D'
     },
-    onlineOfferBenefits: {
+    kitOfferBenefits: {
         fontFamily: 'Saira-SemiBold',
         color: '#FFFFFF',
         fontSize: hp(1.6)
     },
-    onlineNoOffersName: {
+    kitNoOffersName: {
         fontFamily: 'Raleway-SemiBold',
         color: '#FFFFFF',
         fontSize: hp(1.8),
@@ -97,7 +103,7 @@ export const styles = StyleSheet.create({
         flexWrap: 'wrap',
         alignSelf: 'flex-end',
         right: wp(8),
-        bottom: hp(3.8),
+        bottom: hp(4),
         alignItems: 'center',
         justifyContent: 'center'
     },

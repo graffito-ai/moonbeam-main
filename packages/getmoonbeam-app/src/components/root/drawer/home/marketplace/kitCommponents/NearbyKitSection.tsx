@@ -7,47 +7,42 @@ import {ActivityIndicator, Card, List, Text} from "react-native-paper";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
     currentActiveKitState,
+    nearbyElectronicsCategorizedOffersListState,
     nearbyElectronicsCategorizedOffersPageNumberState,
+    nearbyEntertainmentCategorizedOffersListState,
     nearbyEntertainmentCategorizedOffersPageNumberState,
+    nearbyFoodCategorizedOffersListState,
     nearbyFoodCategorizedOffersPageNumberState,
+    nearbyHealthAndBeautyCategorizedOffersListState,
     nearbyHealthAndBeautyCategorizedOffersPageNumberState,
+    nearbyHomeCategorizedOffersListState,
     nearbyHomeCategorizedOffersPageNumberState,
-    nearbyKitListIsExpandedState, nearbyOfficeAndBusinessCategorizedOffersPageNumberState,
-    nearbyRetailCategorizedOffersPageNumberState, nearbyServicesAndSubscriptionsCategorizedOffersPageNumberState,
-    noOnlineElectronicsCategorizedOffersToLoadState,
-    noOnlineEntertainmentCategorizedOffersToLoadState,
-    noOnlineFoodCategorizedOffersToLoadState,
-    noOnlineHealthAndBeautyCategorizedOffersToLoadState,
-    noOnlineHomeCategorizedOffersToLoadState,
-    noOnlineOfficeAndBusinessCategorizedOffersToLoadState,
-    noOnlineRetailCategorizedOffersToLoadState,
-    noOnlineServicesAndSubscriptionsCategorizedOffersToLoadState,
-    onlineElectronicsCategorizedOfferListState,
-    onlineElectronicsCategorizedOffersPageNumberState,
-    onlineEntertainmentCategorizedOfferListState,
-    onlineEntertainmentCategorizedOffersPageNumberState,
-    onlineFoodCategorizedOfferListState,
-    onlineFoodCategorizedOffersPageNumberState,
-    onlineHealthAndBeautyCategorizedOfferListState,
-    onlineHealthAndBeautyCategorizedOffersPageNumberState,
-    onlineHomeCategorizedOfferListState,
-    onlineHomeCategorizedOffersPageNumberState,
-    onlineKitListIsExpandedState,
-    onlineOfficeAndBusinessCategorizedOfferListState,
-    onlineOfficeAndBusinessCategorizedOffersPageNumberState,
-    onlineRetailCategorizedOfferListState,
-    onlineRetailCategorizedOffersPageNumberState,
-    onlineServicesAndSubscriptionsCategorizedOfferListState,
-    onlineServicesAndSubscriptionsCategorizedOffersPageNumberState,
+    nearbyKitListIsExpandedState,
+    nearbyOfficeAndBusinessCategorizedOffersListState,
+    nearbyOfficeAndBusinessCategorizedOffersPageNumberState,
+    nearbyRetailCategorizedOffersListState,
+    nearbyRetailCategorizedOffersPageNumberState,
+    nearbyServicesAndSubscriptionsCategorizedOffersListState,
+    nearbyServicesAndSubscriptionsCategorizedOffersPageNumberState,
+    noNearbyElectronicsCategorizedOffersToLoadState,
+    noNearbyEntertainmentCategorizedOffersToLoadState,
+    noNearbyFoodCategorizedOffersToLoadState,
+    noNearbyHealthAndBeautyCategorizedOffersToLoadState,
+    noNearbyHomeCategorizedOffersToLoadState,
+    noNearbyOfficeAndBusinessCategorizedOffersToLoadState,
+    noNearbyRetailCategorizedOffersToLoadState,
+    noNearbyServicesAndSubscriptionsCategorizedOffersToLoadState,
+    offersNearUserLocationFlagState,
+    onlineKitListIsExpandedState, storeOfferPhysicalLocationState,
     storeOfferState,
-    uniqueOnlineElectronicsOffersListState,
-    uniqueOnlineEntertainmentOffersListState,
-    uniqueOnlineFoodOffersListState,
-    uniqueOnlineHealthAndBeautyOffersListState,
-    uniqueOnlineHomeOffersListState,
-    uniqueOnlineOfficeAndBusinessOffersListState,
-    uniqueOnlineRetailOffersListState,
-    uniqueOnlineServicesAndSubscriptionsOffersListState
+    uniqueNearbyElectronicsOffersListState,
+    uniqueNearbyEntertainmentOffersListState,
+    uniqueNearbyFoodOffersListState,
+    uniqueNearbyHealthAndBeautyOffersListState,
+    uniqueNearbyHomeOffersListState,
+    uniqueNearbyOfficeAndBusinessOffersListState,
+    uniqueNearbyRetailOffersListState,
+    uniqueNearbyServicesAndSubscriptionsOffersListState
 } from "../../../../../../recoil/StoreOfferAtom";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
@@ -56,9 +51,12 @@ import {Image} from "expo-image";
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {moonbeamKits} from "../storeComponents/KitsSection";
-import {retrieveCategorizedOnlineOffersList} from "../../../../../../utils/AppSync";
+import {retrieveCategorizedOffersNearby} from "../../../../../../utils/AppSync";
 // @ts-ignore
 import MoonbeamNoOffersKit from "../../../../../../../assets/art/moonbeam-no-offers-kit.png";
+import {currentUserInformation} from "../../../../../../recoil/AuthAtom";
+import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
+import {getDistance} from "geolib";
 
 /**
  * NearbyKitSection component.
@@ -74,7 +72,7 @@ export const NearbyKitSection = (props: {
     const [kitName, setKitName] = useState<string>('Kit');
     const [numberOfNearbyOffers, setNumberOfNearbyOffers] = useState<number>(0);
     const [noNearbyOffersToLoad, setNoNearbyOffersToLoad] = useState<boolean | null>(null);
-    const [nearbyOfferList, setNearbyeOfferList] = useState<Offer[]>([]);
+    const [nearbyOfferList, setNearbyOfferList] = useState<Offer[]>([]);
     const [deDuplicatedNearbyOfferList, setDeduplicatedNearbyOfferList] = useState<Offer[]>([]);
     const [verticalListLoading, setVerticalListLoading] = useState<boolean>(false);
     const [nearbyOffersSpinnerShown, setNearbyOffersSpinnerShown] = useState<boolean>(false);
@@ -83,9 +81,12 @@ export const NearbyKitSection = (props: {
 
     // constants used to keep track of shared states
     const [onlineKitListExpanded, setIsOnlineKitListExpanded] = useRecoilState(onlineKitListIsExpandedState);
-    const [nearbyKitListExpanded,] = useRecoilState(nearbyKitListIsExpandedState);
+    const [nearbyKitListExpanded, setIsNearbyKitListExpanded] = useRecoilState(nearbyKitListIsExpandedState);
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
     const [currentActiveKit,] = useRecoilState(currentActiveKitState);
+    const [userInformation,] = useRecoilState(currentUserInformation);
+    const [currentUserLocation, setCurrentUserLocation] = useRecoilState(currentUserLocationState);
+    const [, setOffersNearUserLocationFlag] = useRecoilState(offersNearUserLocationFlagState);
     const [nearbyFoodCategorizedPageNumber, setNearbyFoodCategorizedPageNumber] = useRecoilState(nearbyFoodCategorizedOffersPageNumberState);
     const [nearbyRetailCategorizedPageNumber, setNearbyRetailCategorizedPageNumber] = useRecoilState(nearbyRetailCategorizedOffersPageNumberState);
     const [nearbyEntertainmentCategorizedPageNumber, setNearbyEntertainmentCategorizedPageNumber] = useRecoilState(nearbyEntertainmentCategorizedOffersPageNumberState);
@@ -94,31 +95,31 @@ export const NearbyKitSection = (props: {
     const [nearbyHealthAndBeautyCategorizedPageNumber, setNearbyHealthAndBeautyCategorizedPageNumber] = useRecoilState(nearbyHealthAndBeautyCategorizedOffersPageNumberState);
     const [nearbyOfficeAndBusinessCategorizedPageNumber, setNearbyOfficeAndBusinessCategorizedPageNumber] = useRecoilState(nearbyOfficeAndBusinessCategorizedOffersPageNumberState);
     const [nearbyServicesAndSubscriptionsCategorizedPageNumber, setNearbyServicesAndSubscriptionsCategorizedPageNumber] = useRecoilState(nearbyServicesAndSubscriptionsCategorizedOffersPageNumberState);
-
-    const [noNearbyFoodCategorizedOffersToLoad, setNoNearbyFoodCategorizedOffersToLoad] = useRecoilState(noOnlineFoodCategorizedOffersToLoadState);
-    const [noNearbyRetailCategorizedOffersToLoad, setNoNearbyRetailCategorizedOffersToLoad] = useRecoilState(noOnlineRetailCategorizedOffersToLoadState);
-    const [noNearbyEntertainmentCategorizedOffersToLoad, setNoNearbyEntertainmentCategorizedOffersToLoad] = useRecoilState(noOnlineEntertainmentCategorizedOffersToLoadState);
-    const [noNearbyElectronicsCategorizedOffersToLoad, setNoNearbyElectronicsCategorizedOffersToLoad] = useRecoilState(noOnlineElectronicsCategorizedOffersToLoadState);
-    const [noNearbyHomeCategorizedOffersToLoad, setNoOnlineHomeCategorizedOffersToLoad] = useRecoilState(noOnlineHomeCategorizedOffersToLoadState);
-    const [noNearbyHealthAndBeautyCategorizedOffersToLoad, setNoOnlineHealthAndBeautyCategorizedOffersToLoad] = useRecoilState(noOnlineHealthAndBeautyCategorizedOffersToLoadState);
-    const [noNearbyOfficeAndBusinessCategorizedOffersToLoad, setNoOnlineOfficeAndBusinessCategorizedOffersToLoad] = useRecoilState(noOnlineOfficeAndBusinessCategorizedOffersToLoadState);
-    const [noNearbyServicesAndSubscriptionsCategorizedOffersToLoad, setNoOnlineServicesAndSubscriptionsCategorizedOffersToLoad] = useRecoilState(noOnlineServicesAndSubscriptionsCategorizedOffersToLoadState);
-    const uniqueOnlineFoodOffersList = useRecoilValue(uniqueOnlineFoodOffersListState);
-    const [onlineFoodCategorizedOfferList, setOnlineFoodCategorizedOfferList] = useRecoilState(onlineFoodCategorizedOfferListState);
-    const uniqueOnlineRetailOffersList = useRecoilValue(uniqueOnlineRetailOffersListState);
-    const [onlineRetailCategorizedOfferList, setOnlineRetailCategorizedOfferList] = useRecoilState(onlineRetailCategorizedOfferListState);
-    const uniqueOnlineEntertainmentOffersList = useRecoilValue(uniqueOnlineEntertainmentOffersListState);
-    const [onlineEntertainmentCategorizedOfferList, setOnlineEntertainmentCategorizedOfferList] = useRecoilState(onlineEntertainmentCategorizedOfferListState);
-    const uniqueOnlineElectronicsOffersList = useRecoilValue(uniqueOnlineElectronicsOffersListState);
-    const [onlineElectronicsCategorizedOfferList, setOnlineElectronicsCategorizedOfferList] = useRecoilState(onlineElectronicsCategorizedOfferListState);
-    const uniqueOnlineHomeOffersList = useRecoilValue(uniqueOnlineHomeOffersListState);
-    const [onlineHomeCategorizedOfferList, setOnlineHomeCategorizedOfferList] = useRecoilState(onlineHomeCategorizedOfferListState);
-    const uniqueOnlineHealthAndBeautyOffersList = useRecoilValue(uniqueOnlineHealthAndBeautyOffersListState);
-    const [onlineHealthAndBeautyCategorizedOfferList, setOnlineHealthAndBeautyCategorizedOfferList] = useRecoilState(onlineHealthAndBeautyCategorizedOfferListState);
-    const uniqueOnlineOfficeAndBusinessOffersList = useRecoilValue(uniqueOnlineOfficeAndBusinessOffersListState);
-    const [onlineOfficeAndBusinessCategorizedOfferList, setOnlineOfficeAndBusinessCategorizedOfferList] = useRecoilState(onlineOfficeAndBusinessCategorizedOfferListState);
-    const uniqueOnlineServicesAndSubscriptionsOffersList = useRecoilValue(uniqueOnlineServicesAndSubscriptionsOffersListState);
-    const [onlineServicesAndSubscriptionsCategorizedOfferList, setOnlineServicesAndSubscriptionsCategorizedOfferList] = useRecoilState(onlineServicesAndSubscriptionsCategorizedOfferListState);
+    const [noNearbyFoodCategorizedOffersToLoad, setNoNearbyFoodCategorizedOffersToLoad] = useRecoilState(noNearbyFoodCategorizedOffersToLoadState);
+    const [noNearbyRetailCategorizedOffersToLoad, setNoNearbyRetailCategorizedOffersToLoad] = useRecoilState(noNearbyRetailCategorizedOffersToLoadState);
+    const [noNearbyEntertainmentCategorizedOffersToLoad, setNoNearbyEntertainmentCategorizedOffersToLoad] = useRecoilState(noNearbyEntertainmentCategorizedOffersToLoadState);
+    const [noNearbyElectronicsCategorizedOffersToLoad, setNoNearbyElectronicsCategorizedOffersToLoad] = useRecoilState(noNearbyElectronicsCategorizedOffersToLoadState);
+    const [noNearbyHomeCategorizedOffersToLoad, setNoNearbyHomeCategorizedOffersToLoad] = useRecoilState(noNearbyHomeCategorizedOffersToLoadState);
+    const [noNearbyHealthAndBeautyCategorizedOffersToLoad, setNoNearbyHealthAndBeautyCategorizedOffersToLoad] = useRecoilState(noNearbyHealthAndBeautyCategorizedOffersToLoadState);
+    const [noNearbyOfficeAndBusinessCategorizedOffersToLoad, setNoNearbyOfficeAndBusinessCategorizedOffersToLoad] = useRecoilState(noNearbyOfficeAndBusinessCategorizedOffersToLoadState);
+    const [noNearbyServicesAndSubscriptionsCategorizedOffersToLoad, setNoNearbyServicesAndSubscriptionsCategorizedOffersToLoad] = useRecoilState(noNearbyServicesAndSubscriptionsCategorizedOffersToLoadState);
+    const [nearbyFoodCategorizedOfferList, setNearbyFoodCategorizedOfferList] = useRecoilState(nearbyFoodCategorizedOffersListState);
+    const [nearbyRetailCategorizedOfferList, setNearbyRetailCategorizedOfferList] = useRecoilState(nearbyRetailCategorizedOffersListState);
+    const [nearbyEntertainmentCategorizedOfferList, setNearbyEntertainmentCategorizedOfferList] = useRecoilState(nearbyEntertainmentCategorizedOffersListState);
+    const [nearbyElectronicsCategorizedOfferList, setNearbyElectronicsCategorizedOfferList] = useRecoilState(nearbyElectronicsCategorizedOffersListState);
+    const [nearbyHomeCategorizedOfferList, setNearbyHomeCategorizedOfferList] = useRecoilState(nearbyHomeCategorizedOffersListState);
+    const [nearbyHealthAndBeautyCategorizedOfferList, setNearbyHealthAndBeautyCategorizedOfferList] = useRecoilState(nearbyHealthAndBeautyCategorizedOffersListState);
+    const [nearbyOfficeAndBusinessCategorizedOfferList, setNearbyOfficeAndBusinessCategorizedOfferList] = useRecoilState(nearbyOfficeAndBusinessCategorizedOffersListState);
+    const [nearbyServicesAndSubscriptionsCategorizedOfferList, setNearbyServicesAndSubscriptionsCategorizedOfferList] = useRecoilState(nearbyServicesAndSubscriptionsCategorizedOffersListState);
+    const uniqueNearbyFoodOffersList = useRecoilValue(uniqueNearbyFoodOffersListState);
+    const uniqueNearbyRetailOffersList = useRecoilValue(uniqueNearbyRetailOffersListState);
+    const uniqueNearbyEntertainmentOffersList = useRecoilValue(uniqueNearbyEntertainmentOffersListState);
+    const uniqueNearbyElectronicsOffersList = useRecoilValue(uniqueNearbyElectronicsOffersListState);
+    const uniqueNearbyHomeOffersList = useRecoilValue(uniqueNearbyHomeOffersListState);
+    const uniqueNearbyHealthAndBeautyOffersList = useRecoilValue(uniqueNearbyHealthAndBeautyOffersListState);
+    const uniqueNearbyOfficeAndBusinessOffersList = useRecoilValue(uniqueNearbyOfficeAndBusinessOffersListState);
+    const uniqueNearbyServicesAndSubscriptionsOffersList = useRecoilValue(uniqueNearbyServicesAndSubscriptionsOffersListState);
+    const [, setStoreOfferPhysicalLocation] = useRecoilState(storeOfferPhysicalLocationState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -135,47 +136,47 @@ export const NearbyKitSection = (props: {
                 filteredKit.length === 1 && setKitName(filteredKit[0].secondaryTitle.toString());
             }
 
-            // set the online offer list, according to the type of kit that's active
+            // set the nearby offer list, according to the type of kit that's active
             switch (currentActiveKit as OfferCategory) {
                 case OfferCategory.Food:
-                    setDeduplicatedOnlineOfferList(uniqueOnlineFoodOffersList);
-                    setOnlineOfferList(onlineFoodCategorizedOfferList);
-                    setNoOnlineOffersToLoad(noOnlineFoodCategorizedOffersToLoad);
+                    setDeduplicatedNearbyOfferList(uniqueNearbyFoodOffersList);
+                    setNearbyOfferList(nearbyFoodCategorizedOfferList);
+                    setNoNearbyOffersToLoad(noNearbyFoodCategorizedOffersToLoad);
                     break;
                 case OfferCategory.Retail:
-                    setDeduplicatedOnlineOfferList(uniqueOnlineRetailOffersList);
-                    setOnlineOfferList(onlineRetailCategorizedOfferList);
-                    setNoOnlineOffersToLoad(noOnlineRetailCategorizedOffersToLoad);
+                    setDeduplicatedNearbyOfferList(uniqueNearbyRetailOffersList);
+                    setNearbyOfferList(nearbyRetailCategorizedOfferList);
+                    setNoNearbyOffersToLoad(noNearbyRetailCategorizedOffersToLoad);
                     break;
                 case OfferCategory.Entertainment:
-                    setDeduplicatedOnlineOfferList(uniqueOnlineEntertainmentOffersList);
-                    setOnlineOfferList(onlineEntertainmentCategorizedOfferList);
-                    setNoOnlineOffersToLoad(noOnlineEntertainmentCategorizedOffersToLoad);
+                    setDeduplicatedNearbyOfferList(uniqueNearbyEntertainmentOffersList);
+                    setNearbyOfferList(nearbyEntertainmentCategorizedOfferList);
+                    setNoNearbyOffersToLoad(noNearbyEntertainmentCategorizedOffersToLoad);
                     break;
                 case OfferCategory.Electronics:
-                    setDeduplicatedOnlineOfferList(uniqueOnlineElectronicsOffersList);
-                    setOnlineOfferList(onlineElectronicsCategorizedOfferList);
-                    setNoOnlineOffersToLoad(noOnlineElectronicsCategorizedOffersToLoad);
+                    setDeduplicatedNearbyOfferList(uniqueNearbyElectronicsOffersList);
+                    setNearbyOfferList(nearbyElectronicsCategorizedOfferList);
+                    setNoNearbyOffersToLoad(noNearbyElectronicsCategorizedOffersToLoad);
                     break;
                 case OfferCategory.Home:
-                    setDeduplicatedOnlineOfferList(uniqueOnlineHomeOffersList);
-                    setOnlineOfferList(onlineHomeCategorizedOfferList);
-                    setNoOnlineOffersToLoad(noOnlineHomeCategorizedOffersToLoad);
+                    setDeduplicatedNearbyOfferList(uniqueNearbyHomeOffersList);
+                    setNearbyOfferList(nearbyHomeCategorizedOfferList);
+                    setNoNearbyOffersToLoad(noNearbyHomeCategorizedOffersToLoad);
                     break;
                 case OfferCategory.HealthAndBeauty:
-                    setDeduplicatedOnlineOfferList(uniqueOnlineHealthAndBeautyOffersList);
-                    setOnlineOfferList(onlineHealthAndBeautyCategorizedOfferList);
-                    setNoOnlineOffersToLoad(noOnlineHealthAndBeautyCategorizedOffersToLoad);
+                    setDeduplicatedNearbyOfferList(uniqueNearbyHealthAndBeautyOffersList);
+                    setNearbyOfferList(nearbyHealthAndBeautyCategorizedOfferList);
+                    setNoNearbyOffersToLoad(noNearbyHealthAndBeautyCategorizedOffersToLoad);
                     break;
                 case OfferCategory.OfficeAndBusiness:
-                    setDeduplicatedOnlineOfferList(uniqueOnlineOfficeAndBusinessOffersList);
-                    setOnlineOfferList(onlineOfficeAndBusinessCategorizedOfferList);
-                    setNoOnlineOffersToLoad(noOnlineOfficeAndBusinessCategorizedOffersToLoad);
+                    setDeduplicatedNearbyOfferList(uniqueNearbyOfficeAndBusinessOffersList);
+                    setNearbyOfferList(nearbyOfficeAndBusinessCategorizedOfferList);
+                    setNoNearbyOffersToLoad(noNearbyOfficeAndBusinessCategorizedOffersToLoad);
                     break;
                 case OfferCategory.ServicesAndSubscriptions:
-                    setDeduplicatedOnlineOfferList(uniqueOnlineServicesAndSubscriptionsOffersList);
-                    setOnlineOfferList(onlineServicesAndSubscriptionsCategorizedOfferList);
-                    setNoOnlineOffersToLoad(noOnlineServicesAndSubscriptionsCategorizedOffersToLoad);
+                    setDeduplicatedNearbyOfferList(uniqueNearbyServicesAndSubscriptionsOffersList);
+                    setNearbyOfferList(nearbyServicesAndSubscriptionsCategorizedOfferList);
+                    setNoNearbyOffersToLoad(noNearbyServicesAndSubscriptionsCategorizedOffersToLoad);
                     break;
                 default:
                     break;
@@ -184,13 +185,13 @@ export const NearbyKitSection = (props: {
 
         // update the list data providers if we are loading more offers accordingly
         if (verticalListLoading) {
-            setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedOnlineOfferList));
+            setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedNearbyOfferList));
             setVerticalListLoading(false);
-            setOnlineOffersSpinnerShown(false);
+            setNearbyOffersSpinnerShown(false);
         }
         // populate the online offer data provider and list view
-        if ((onlineOfferList && onlineOfferList.length > 0 && layoutProvider === null && dataProvider === null)) {
-            setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedOnlineOfferList.slice(0, 2)));
+        if ((nearbyOfferList && nearbyOfferList.length > 0 && layoutProvider === null && dataProvider === null)) {
+            setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedNearbyOfferList.slice(0, 2)));
             setLayoutProvider(new LayoutProvider(
                 _ => 0,
                 (_, dim) => {
@@ -199,40 +200,97 @@ export const NearbyKitSection = (props: {
                 }
             ));
         }
-    }, [currentActiveKit, dataProvider, layoutProvider, deDuplicatedOnlineOfferList, verticalListLoading,
-        uniqueOnlineFoodOffersList, uniqueOnlineRetailOffersList, uniqueOnlineEntertainmentOffersList, uniqueOnlineElectronicsOffersList,
-        uniqueOnlineHomeOffersList, uniqueOnlineHealthAndBeautyOffersList, uniqueOnlineOfficeAndBusinessOffersList, uniqueOnlineServicesAndSubscriptionsOffersList,
-        onlineFoodCategorizedOfferList, onlineRetailCategorizedOfferList, onlineEntertainmentCategorizedOfferList, onlineElectronicsCategorizedOfferList,
-        onlineHomeCategorizedOfferList, onlineHealthAndBeautyCategorizedOfferList, onlineOfficeAndBusinessCategorizedOfferList, onlineServicesAndSubscriptionsCategorizedOfferList]);
+    }, [currentActiveKit, dataProvider, layoutProvider, deDuplicatedNearbyOfferList, verticalListLoading,
+        uniqueNearbyFoodOffersList, uniqueNearbyRetailOffersList, uniqueNearbyEntertainmentOffersList, uniqueNearbyElectronicsOffersList,
+        uniqueNearbyHomeOffersList, uniqueNearbyHealthAndBeautyOffersList, uniqueNearbyOfficeAndBusinessOffersList, uniqueNearbyServicesAndSubscriptionsOffersList,
+        nearbyFoodCategorizedOfferList, nearbyRetailCategorizedOfferList, nearbyEntertainmentCategorizedOfferList, nearbyElectronicsCategorizedOfferList,
+        nearbyHomeCategorizedOfferList, nearbyHealthAndBeautyCategorizedOfferList, nearbyOfficeAndBusinessCategorizedOfferList, nearbyServicesAndSubscriptionsCategorizedOfferList]);
 
     /**
-     * Function used to populate the rows containing the online offers data.
+     * Function used to populate the rows containing the nearby offers data.
      *
      * @param type row type to be passed in
      * @param data data to be passed in for the row
      * @param index row index
      *
      * @return a {@link JSX.Element} or an {@link Array} of {@link JSX.Element} representing the
-     * React node and/or nodes containing the online offers.
+     * React node and/or nodes containing the nearby offers.
      */
-    const renderOnlineRowData = useMemo(() => (_type: string | number, data: Offer, index: number): JSX.Element | JSX.Element[] => {
+    const renderNearbyRowData = useMemo(() => (_type: string | number, data: Offer, index: number): JSX.Element | JSX.Element[] => {
         // flag to determine whether there are any offers shown at all - so we can display the empty message otherwise
         let offersShown = false;
 
+        // get the physical location of this offer alongside its coordinates
+        let physicalLocation: string = '';
+        let storeLatitude: number = 0;
+        let storeLongitude: number = 0;
+        data && data.storeDetails !== undefined && data.storeDetails !== null && data.storeDetails!.forEach(store => {
+            /**
+             * there are many possible stores with physical locations.
+             * We want to get the one closest (within 25 miles from the user,
+             * which is equivalent to approximately 50 km, which is 50000 meters)
+             */
+            if (physicalLocation === '' && store !== null &&
+                store!.isOnline === false && store!.distance !== null && store!.distance !== undefined
+                && store!.distance! <= 50000) {
+                // set the store's coordinates accordingly
+                storeLatitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
+                store!.geoLocation!.latitude !== null && store!.geoLocation!.latitude !== undefined
+                    ? store!.geoLocation!.latitude! : 0;
+                storeLongitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
+                store!.geoLocation!.longitude !== null && store!.geoLocation!.longitude !== undefined
+                    ? store!.geoLocation!.longitude! : 0;
+
+                // Olive needs to get better at displaying the address. For now, we will do this input sanitization
+                if (store!.address1 !== undefined && store!.address1 !== null && store!.address1!.length !== 0 &&
+                    store!.city !== undefined && store!.city !== null && store!.city!.length !== 0 &&
+                    store!.state !== undefined && store!.state !== null && store!.state!.length !== 0 &&
+                    store!.postCode !== undefined && store!.postCode !== null && store!.postCode!.length !== 0) {
+                    physicalLocation =
+                        (store!.address1!.toLowerCase().includes(store!.city!.toLowerCase())
+                            && store!.address1!.toLowerCase().includes(store!.state!.toLowerCase())
+                            && store!.address1!.toLowerCase().includes(store!.postCode!.toLowerCase()))
+                            ? store!.address1!
+                            : `${store!.address1!}, ${store!.city!}, ${store!.state!}, ${store!.postCode!}`;
+                } else {
+                    physicalLocation = store!.address1!;
+                }
+            }
+        });
+
+        // calculate the distance between the location of the store displayed and the user's current location (in miles)
+        let calculatedDistance = currentUserLocation !== null && storeLatitude !== 0 && storeLongitude !== 0 ? getDistance({
+            latitude: storeLatitude,
+            longitude: storeLongitude
+        }, {
+            latitude: currentUserLocation.coords.latitude,
+            longitude: currentUserLocation.coords.longitude
+        }, 1) : 0;
+        // the accuracy above is in meters, so we are calculating it up to miles where 1 mile = 1609.34 meters
+        calculatedDistance = Math.round((calculatedDistance / 1609.34) * 100) / 100
+
         // offer listing
-        if (deDuplicatedOnlineOfferList.length !== 0) {
+        if (deDuplicatedNearbyOfferList.length !== 0) {
             offersShown = true;
-            return (
+            return physicalLocation !== '' ? (
                 <>
                     {
                         index === 0
                             ?
                             <>
                                 <View style={{flexDirection: 'column'}}>
-                                    <Card style={styles.onlineOfferCard}
+                                    <Card style={styles.kitOfferCard}
                                           onPress={() => {
                                               // set the clicked offer/partner accordingly
                                               setStoreOfferClicked(data);
+                                              // set the clicked offer physical location
+                                              setStoreOfferPhysicalLocation({
+                                                  latitude: storeLatitude,
+                                                  longitude: storeLongitude,
+                                                  latitudeDelta: 0,
+                                                  longitudeDelta: 0,
+                                                  addressAsString: physicalLocation
+                                              });
                                               // @ts-ignore
                                               props.navigation.navigate('StoreOffer', {});
                                           }}>
@@ -242,7 +300,7 @@ export const NearbyKitSection = (props: {
                                                        style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
                                             <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
                                                 <Image
-                                                    style={styles.onlineOfferLogo}
+                                                    style={styles.kitOfferLogo}
                                                     source={{
                                                         uri: data.brandLogoSm!,
                                                     }}
@@ -253,15 +311,18 @@ export const NearbyKitSection = (props: {
                                                     cachePolicy={'none'}
                                                 />
                                                 <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                                    <Text numberOfLines={2}
-                                                          style={styles.onlineOfferName}>{data.brandDba}</Text>
-                                                    <Text numberOfLines={2} style={styles.onlineOfferBenefitsView}>
-                                                        <Text style={styles.onlineOfferBenefit}>
+                                                    <Text numberOfLines={1}
+                                                          style={styles.kitOfferName}>{data.brandDba}</Text>
+                                                    <Text numberOfLines={1} style={styles.kitOfferBenefitsView}>
+                                                        <Text style={styles.kitOfferBenefit}>
                                                             {data.reward!.type! === RewardType.RewardPercent
                                                                 ? `${data.reward!.value}%`
                                                                 : `$${data.reward!.value}`}
                                                         </Text>
                                                         {" Off "}
+                                                    </Text>
+                                                    <Text numberOfLines={1} style={styles.kitOfferDistance}>
+                                                        {`${calculatedDistance} miles away`}
                                                     </Text>
                                                 </View>
                                             </View>
@@ -270,10 +331,18 @@ export const NearbyKitSection = (props: {
                                 </View>
                             </>
                             :
-                            <Card style={styles.onlineOfferCard}
+                            <Card style={styles.kitOfferCard}
                                   onPress={() => {
                                       // set the clicked offer/partner accordingly
                                       setStoreOfferClicked(data);
+                                      // set the clicked offer physical location
+                                      setStoreOfferPhysicalLocation({
+                                          latitude: storeLatitude,
+                                          longitude: storeLongitude,
+                                          latitudeDelta: 0,
+                                          longitudeDelta: 0,
+                                          addressAsString: physicalLocation
+                                      });
                                       // @ts-ignore
                                       props.navigation.navigate('StoreOffer', {});
                                   }}>
@@ -283,7 +352,7 @@ export const NearbyKitSection = (props: {
                                                style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
                                     <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
                                         <Image
-                                            style={styles.onlineOfferLogo}
+                                            style={styles.kitOfferLogo}
                                             source={{
                                                 uri: data.brandLogoSm!,
                                             }}
@@ -294,15 +363,18 @@ export const NearbyKitSection = (props: {
                                             cachePolicy={'none'}
                                         />
                                         <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                            <Text numberOfLines={2}
-                                                  style={styles.onlineOfferName}>{data.brandDba}</Text>
-                                            <Text numberOfLines={2} style={styles.onlineOfferBenefitsView}>
-                                                <Text style={styles.onlineOfferBenefit}>
+                                            <Text numberOfLines={1}
+                                                  style={styles.kitOfferName}>{data.brandDba}</Text>
+                                            <Text numberOfLines={1} style={styles.kitOfferBenefitsView}>
+                                                <Text style={styles.kitOfferBenefit}>
                                                     {data.reward!.type! === RewardType.RewardPercent
                                                         ? `${data.reward!.value}%`
                                                         : `$${data.reward!.value}`}
                                                 </Text>
                                                 {" Off "}
+                                            </Text>
+                                            <Text numberOfLines={1} style={styles.kitOfferDistance}>
+                                                {`${calculatedDistance} miles away`}
                                             </Text>
                                         </View>
                                     </View>
@@ -310,17 +382,17 @@ export const NearbyKitSection = (props: {
                             </Card>
                     }
                 </>
-            )
+            ): <></>
         }
 
         // filtered no offers to be displayed
         if (!offersShown) {
             return (
-                <Card style={styles.onlineOfferCard}>
+                <Card style={styles.kitOfferCard}>
                     <Card.Content>
                         <View style={{flexDirection: 'row'}}>
                             <Text
-                                style={[styles.onlineNoOffersName, {color: '#F2FF5D'}]}>{`No Online ${kitName} Offers Available`}</Text>
+                                style={[styles.kitNoOffersName, {color: '#F2FF5D'}]}>{`No Nearby ${kitName} Offers Available`}</Text>
                         </View>
                     </Card.Content>
                 </Card>
@@ -328,85 +400,72 @@ export const NearbyKitSection = (props: {
         }
 
         return (<></>);
-    }, [onlineOfferList, deDuplicatedOnlineOfferList]);
+    }, [nearbyOfferList, deDuplicatedNearbyOfferList]);
 
     // return the component for the NearbyKitSection page
     return (
         <>
-            <View style={[
-                styles.onlineKitOffersView,
-                !onlineKitListExpanded ? {height: hp(30)} : {height: hp(100)}]}>
-                {
-                    <>
-                        <View style={styles.onlineKitOffersTitleView}>
-                            <Text style={styles.onlineKitOffersTitleMain}>
-                                {`Online Offers`}
-                            </Text>
-                            <TouchableOpacity
-                                style={styles.moreButton}
-                                onPress={() => {
-                                    console.log('button pressed');
-                                    if (!onlineKitListExpanded) {
-                                        // display all offers loaded in the list
-                                        setVerticalListLoading(true);
-                                        setIsOnlineKitListExpanded(true);
-                                    } else {
-                                        setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedOnlineOfferList.slice(0, 2)));
-                                        setLayoutProvider(new LayoutProvider(
-                                            _ => 0,
-                                            (_, dim) => {
-                                                dim.width = wp(33);
-                                                dim.height = hp(25);
-                                            }
-                                        ));
-                                        setVerticalListLoading(false);
-                                        setOnlineOffersSpinnerShown(false);
-                                        setIsOnlineKitListExpanded(false);
-                                    }
-                                }}
-                            >
-                                <Text
-                                    style={styles.moreButtonText}>{onlineKitListExpanded ? 'See Less' : 'See All'}</Text>
-                            </TouchableOpacity>
-                        </View>
-                        {
-                            !deDuplicatedOnlineOfferList || !onlineOfferList ||
-                            deDuplicatedOnlineOfferList.length === 0 || onlineOfferList.length === 0 ?
-                                <Card style={styles.nearbyLoadingOfferCard}>
-                                    <Card.Content>
-                                        <View
-                                            style={[styles.locationServicesEnableView, {height: hp(23)}]}>
-                                            <Image
-                                                style={styles.noOffersKitImage}
-                                                source={MoonbeamNoOffersKit}/>
-                                            <Text
-                                                style={[styles.locationServicesEnableWarningMessage, {
-                                                    color: '#F2FF5D',
-                                                    fontSize: hp(2.2),
-                                                    top: hp(1)
-                                                }]}>
-                                                {`No ${kitName} online offers!`}
-                                            </Text>
-                                        </View>
-                                    </Card.Content>
-                                </Card>
-                                :
-                                dataProvider !== null && layoutProvider !== null &&
+            {
+                deDuplicatedNearbyOfferList.length !== 0 && nearbyOfferList.length !== 0 &&
+                <View style={[
+                    styles.kitOffersView,
+                    !nearbyKitListExpanded ? {height: hp(30), top: hp(2)} : {height: hp(100)},
+                    onlineKitListExpanded && {display: 'none'}]}>
+                    {
+                        <>
+                            <View style={styles.kitOffersTitleView}>
+                                {
+                                    nearbyKitListExpanded &&
+                                    <Text style={styles.kitOffersTitleMain}>
+                                        {`Nearby Offers`}
+                                    </Text>
+                                }
+                                <TouchableOpacity
+                                    style={styles.moreButton}
+                                    onPress={() => {
+                                        console.log('button pressed');
+                                        if (!nearbyKitListExpanded) {
+                                            // display all nearby loaded in the list
+                                            setVerticalListLoading(true);
+                                            setIsOnlineKitListExpanded(false);
+                                            setIsNearbyKitListExpanded(true);
+                                        } else {
+                                            setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedNearbyOfferList.slice(0, 2)));
+                                            setLayoutProvider(new LayoutProvider(
+                                                _ => 0,
+                                                (_, dim) => {
+                                                    dim.width = wp(33);
+                                                    dim.height = hp(25);
+                                                }
+                                            ));
+                                            setVerticalListLoading(false);
+                                            setNearbyOffersSpinnerShown(false);
+                                            setIsNearbyKitListExpanded(false);
+                                        }
+                                    }}
+                                >
+                                    <Text
+                                        style={styles.moreButtonText}>{nearbyKitListExpanded ? 'See Less' : 'See All'}</Text>
+                                </TouchableOpacity>
+                            </View>
+                            {
+                                deDuplicatedNearbyOfferList && nearbyOfferList &&
+                                deDuplicatedNearbyOfferList.length !== 0 && nearbyOfferList.length !== 0 && dataProvider !== null && layoutProvider !== null &&
                                 <RecyclerListView
                                     // @ts-ignore
-                                    ref={onlineListView}
+                                    ref={nearbyListView}
                                     style={{
                                         width: wp(100),
                                         right: wp(1)
                                     }}
                                     layoutProvider={layoutProvider!}
                                     dataProvider={dataProvider!}
-                                    rowRenderer={renderOnlineRowData}
+                                    rowRenderer={renderNearbyRowData}
                                     isHorizontal={false}
                                     forceNonDeterministicRendering={true}
                                     renderFooter={() => {
                                         return (
-                                            onlineOffersSpinnerShown && onlineKitListExpanded ?
+                                            nearbyOffersSpinnerShown && nearbyKitListExpanded ?
                                                 <>
                                                     <View
                                                         style={{
@@ -454,75 +513,85 @@ export const NearbyKitSection = (props: {
                                     onEndReached={async () => {
                                         console.log(`End of list reached. Trying to refresh more items.`);
 
+                                        console.log(noNearbyOffersToLoad);
+
                                         // if there are items to load
-                                        if (onlineKitListExpanded && !noOnlineOffersToLoad && currentActiveKit !== null) {
+                                        if (nearbyKitListExpanded && !noNearbyOffersToLoad && currentActiveKit !== null) {
                                             // set the loader
-                                            setOnlineOffersSpinnerShown(true);
-                                            // retrieving more online offers
+                                            setNearbyOffersSpinnerShown(true);
+                                            // retrieving more nearby offers
                                             switch (currentActiveKit as OfferCategory) {
                                                 case OfferCategory.Food:
-                                                    const additionalFoodOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
-                                                        currentActiveKit, onlineFoodCategorizedPageNumber, setOnlineFoodCategorizedPageNumber)
-                                                    setOnlineFoodCategorizedOfferList(oldOnlineOffers => {
-                                                        return [...oldOnlineOffers, ...additionalFoodOffersToLoad]
+                                                    const additionalFoodOffersToLoad = await retrieveCategorizedOffersNearby(nearbyFoodCategorizedPageNumber, setNearbyFoodCategorizedPageNumber,
+                                                        userInformation, setOffersNearUserLocationFlag, currentUserLocation, setCurrentUserLocation, numberOfNearbyOffers,
+                                                        setNumberOfNearbyOffers, currentActiveKit);
+                                                    (additionalFoodOffersToLoad === null || additionalFoodOffersToLoad.length === 0) && setNoNearbyFoodCategorizedOffersToLoad(true);
+                                                    additionalFoodOffersToLoad !== null && setNearbyFoodCategorizedOfferList(oldNearbyOffers => {
+                                                        return [...oldNearbyOffers, ...additionalFoodOffersToLoad]
                                                     });
-                                                    additionalFoodOffersToLoad.length === 0 && setNoOnlineFoodCategorizedOffersToLoad(true);
                                                     break;
                                                 case OfferCategory.Retail:
-                                                    const additionalRetailOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
-                                                        currentActiveKit, onlineRetailCategorizedPageNumber, setOnlineRetailCategorizedPageNumber)
-                                                    setOnlineRetailCategorizedOfferList(oldOnlineOffers => {
-                                                        return [...oldOnlineOffers, ...additionalRetailOffersToLoad]
+                                                    const additionalRetailOffersToLoad = await retrieveCategorizedOffersNearby(nearbyRetailCategorizedPageNumber, setNearbyRetailCategorizedPageNumber,
+                                                        userInformation, setOffersNearUserLocationFlag, currentUserLocation, setCurrentUserLocation, numberOfNearbyOffers,
+                                                        setNumberOfNearbyOffers, currentActiveKit);
+                                                    (additionalRetailOffersToLoad === null || additionalRetailOffersToLoad.length === 0) && setNoNearbyRetailCategorizedOffersToLoad(true);
+                                                    additionalRetailOffersToLoad !== null && setNearbyRetailCategorizedOfferList(oldNearbyOffers => {
+                                                        return [...oldNearbyOffers, ...additionalRetailOffersToLoad]
                                                     });
-                                                    additionalRetailOffersToLoad.length === 0 && setNoOnlineRetailCategorizedOffersToLoad(true);
                                                     break;
                                                 case OfferCategory.Entertainment:
-                                                    const additionalEntertainmentOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
-                                                        currentActiveKit, onlineEntertainmentCategorizedPageNumber, setOnlineEntertainmentCategorizedPageNumber)
-                                                    setOnlineEntertainmentCategorizedOfferList(oldOnlineOffers => {
-                                                        return [...oldOnlineOffers, ...additionalEntertainmentOffersToLoad]
+                                                    const additionalEntertainmentOffersToLoad = await retrieveCategorizedOffersNearby(nearbyEntertainmentCategorizedPageNumber, setNearbyEntertainmentCategorizedPageNumber,
+                                                        userInformation, setOffersNearUserLocationFlag, currentUserLocation, setCurrentUserLocation, numberOfNearbyOffers,
+                                                        setNumberOfNearbyOffers, currentActiveKit);
+                                                    (additionalEntertainmentOffersToLoad === null || additionalEntertainmentOffersToLoad.length === 0) && setNoNearbyEntertainmentCategorizedOffersToLoad(true);
+                                                    additionalEntertainmentOffersToLoad !== null && setNearbyEntertainmentCategorizedOfferList(oldNearbyOffers => {
+                                                        return [...oldNearbyOffers, ...additionalEntertainmentOffersToLoad]
                                                     });
-                                                    additionalEntertainmentOffersToLoad.length === 0 && setNoOnlineEntertainmentCategorizedOffersToLoad(true);
                                                     break;
                                                 case OfferCategory.Electronics:
-                                                    const additionalElectronicsOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
-                                                        currentActiveKit, onlineElectronicsCategorizedPageNumber, setOnlineElectronicsCategorizedPageNumber)
-                                                    setOnlineElectronicsCategorizedOfferList(oldOnlineOffers => {
-                                                        return [...oldOnlineOffers, ...additionalElectronicsOffersToLoad]
+                                                    const additionalElectronicsOffersToLoad = await retrieveCategorizedOffersNearby(nearbyElectronicsCategorizedPageNumber, setNearbyElectronicsCategorizedPageNumber,
+                                                        userInformation, setOffersNearUserLocationFlag, currentUserLocation, setCurrentUserLocation, numberOfNearbyOffers,
+                                                        setNumberOfNearbyOffers, currentActiveKit);
+                                                    (additionalElectronicsOffersToLoad === null || additionalElectronicsOffersToLoad.length === 0) && setNoNearbyElectronicsCategorizedOffersToLoad(true);
+                                                    additionalElectronicsOffersToLoad !== null && setNearbyElectronicsCategorizedOfferList(oldNearbyOffers => {
+                                                        return [...oldNearbyOffers, ...additionalElectronicsOffersToLoad]
                                                     });
-                                                    additionalElectronicsOffersToLoad.length === 0 && setNoOnlineElectronicsCategorizedOffersToLoad(true);
                                                     break;
                                                 case OfferCategory.Home:
-                                                    const additionalHomeOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
-                                                        currentActiveKit, onlineHomeCategorizedPageNumber, setOnlineHomeCategorizedPageNumber)
-                                                    setOnlineHomeCategorizedOfferList(oldOnlineOffers => {
-                                                        return [...oldOnlineOffers, ...additionalHomeOffersToLoad]
+                                                    const additionalHomeOffersToLoad = await retrieveCategorizedOffersNearby(nearbyHomeCategorizedPageNumber, setNearbyHomeCategorizedPageNumber,
+                                                        userInformation, setOffersNearUserLocationFlag, currentUserLocation, setCurrentUserLocation, numberOfNearbyOffers,
+                                                        setNumberOfNearbyOffers, currentActiveKit);
+                                                    (additionalHomeOffersToLoad === null || additionalHomeOffersToLoad.length === 0) && setNoNearbyHomeCategorizedOffersToLoad(true);
+                                                    additionalHomeOffersToLoad !== null && setNearbyHomeCategorizedOfferList(oldNearbyOffers => {
+                                                        return [...oldNearbyOffers, ...additionalHomeOffersToLoad]
                                                     });
-                                                    additionalHomeOffersToLoad.length === 0 && setNoOnlineHomeCategorizedOffersToLoad(true);
                                                     break;
                                                 case OfferCategory.HealthAndBeauty:
-                                                    const additionalHealthAndBeautyOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
-                                                        currentActiveKit, onlineHealthAndBeautyCategorizedPageNumber, setOnlineHealthAndBeautyCategorizedPageNumber)
-                                                    setOnlineHealthAndBeautyCategorizedOfferList(oldOnlineOffers => {
-                                                        return [...oldOnlineOffers, ...additionalHealthAndBeautyOffersToLoad]
+                                                    const additionalHealthAndBeautyOffersToLoad = await retrieveCategorizedOffersNearby(nearbyHealthAndBeautyCategorizedPageNumber, setNearbyHealthAndBeautyCategorizedPageNumber,
+                                                        userInformation, setOffersNearUserLocationFlag, currentUserLocation, setCurrentUserLocation, numberOfNearbyOffers,
+                                                        setNumberOfNearbyOffers, currentActiveKit);
+                                                    (additionalHealthAndBeautyOffersToLoad === null || additionalHealthAndBeautyOffersToLoad.length === 0) && setNoNearbyHealthAndBeautyCategorizedOffersToLoad(true);
+                                                    additionalHealthAndBeautyOffersToLoad !== null && setNearbyHealthAndBeautyCategorizedOfferList(oldNearbyOffers => {
+                                                        return [...oldNearbyOffers, ...additionalHealthAndBeautyOffersToLoad]
                                                     });
-                                                    additionalHealthAndBeautyOffersToLoad.length === 0 && setNoOnlineHealthAndBeautyCategorizedOffersToLoad(true);
                                                     break;
                                                 case OfferCategory.OfficeAndBusiness:
-                                                    const additionalOfficeAndBusinessOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
-                                                        currentActiveKit, onlineOfficeAndBusinessCategorizedPageNumber, setOnlineOfficeAndBusinessCategorizedPageNumber)
-                                                    setOnlineOfficeAndBusinessCategorizedOfferList(oldOnlineOffers => {
-                                                        return [...oldOnlineOffers, ...additionalOfficeAndBusinessOffersToLoad]
+                                                    const additionalOfficeAndBusinessOffersToLoad = await retrieveCategorizedOffersNearby(nearbyOfficeAndBusinessCategorizedPageNumber, setNearbyOfficeAndBusinessCategorizedPageNumber,
+                                                        userInformation, setOffersNearUserLocationFlag, currentUserLocation, setCurrentUserLocation, numberOfNearbyOffers,
+                                                        setNumberOfNearbyOffers, currentActiveKit);
+                                                    (additionalOfficeAndBusinessOffersToLoad === null || additionalOfficeAndBusinessOffersToLoad.length === 0) && setNoNearbyOfficeAndBusinessCategorizedOffersToLoad(true);
+                                                    additionalOfficeAndBusinessOffersToLoad !== null && setNearbyOfficeAndBusinessCategorizedOfferList(oldNearbyOffers => {
+                                                        return [...oldNearbyOffers, ...additionalOfficeAndBusinessOffersToLoad]
                                                     });
-                                                    additionalOfficeAndBusinessOffersToLoad.length === 0 && setNoOnlineOfficeAndBusinessCategorizedOffersToLoad(true);
                                                     break;
                                                 case OfferCategory.ServicesAndSubscriptions:
-                                                    const additionalServicesAndSubscriptionsOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
-                                                        currentActiveKit, onlineServicesAndSubscriptionsCategorizedPageNumber, setOnlineServicesAndSubscriptionsCategorizedPageNumber)
-                                                    setOnlineServicesAndSubscriptionsCategorizedOfferList(oldOnlineOffers => {
-                                                        return [...oldOnlineOffers, ...additionalServicesAndSubscriptionsOffersToLoad]
+                                                    const additionalServicesAndSubscriptionsOffersToLoad = await retrieveCategorizedOffersNearby(nearbyServicesAndSubscriptionsCategorizedPageNumber, setNearbyServicesAndSubscriptionsCategorizedPageNumber,
+                                                        userInformation, setOffersNearUserLocationFlag, currentUserLocation, setCurrentUserLocation, numberOfNearbyOffers,
+                                                        setNumberOfNearbyOffers, currentActiveKit);
+                                                    (additionalServicesAndSubscriptionsOffersToLoad === null || additionalServicesAndSubscriptionsOffersToLoad.length === 0) && setNoNearbyServicesAndSubscriptionsCategorizedOffersToLoad(true);
+                                                    additionalServicesAndSubscriptionsOffersToLoad !== null && setNearbyServicesAndSubscriptionsCategorizedOfferList(oldNearbyOffers => {
+                                                        return [...oldNearbyOffers, ...additionalServicesAndSubscriptionsOffersToLoad]
                                                     });
-                                                    additionalServicesAndSubscriptionsOffersToLoad.length === 0 && setNoOnlineServicesAndSubscriptionsCategorizedOffersToLoad(true);
                                                     break;
                                                 default:
                                                     break;
@@ -530,12 +599,14 @@ export const NearbyKitSection = (props: {
                                             setVerticalListLoading(true);
                                             // this makes the scrolling seem infinite - we artificially scroll up a little, so we have enough time to load
                                             // @ts-ignore
-                                            onlineListView.current?.scrollToIndex(deDuplicatedOnlineOfferList.length - 2);
+                                            nearbyListView.current?.scrollToIndex(deDuplicatedNearbyOfferList.length - 2);
                                         } else {
-                                            console.log(`Maximum number of categorized online offers reached for category ${currentActiveKit} ${deDuplicatedOnlineOfferList.length}`);
+                                            setVerticalListLoading(true);
+                                            console.log(`Maximum number of categorized nearby offers reached for category ${currentActiveKit} ${deDuplicatedNearbyOfferList.length}`);
                                         }
                                     }}
                                     scrollViewProps={{
+                                        scrollEnabled: nearbyKitListExpanded,
                                         pagingEnabled: "true",
                                         decelerationRate: "fast",
                                         snapToAlignment: "start",
@@ -544,10 +615,11 @@ export const NearbyKitSection = (props: {
                                         showsHorizontalScrollIndicator: false
                                     }}
                                 />
-                        }
-                    </>
-                }
-            </View>
+                            }
+                        </>
+                    }
+                </View>
+            }
         </>
     );
 };

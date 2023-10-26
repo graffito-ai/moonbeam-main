@@ -10,10 +10,12 @@ import {Text, View} from "react-native";
 import {Kit} from "./kitCommponents/Kit";
 import {OfferCategory} from "@moonbeam/moonbeam-models";
 import {IconButton} from "react-native-paper";
-import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
+import {heightPercentageToDP as hp} from "react-native-responsive-screen";
 import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
 import {
-    currentActiveKitState, fullScreenKitMapActiveState, nearbyKitListIsExpandedState,
+    currentActiveKitState,
+    fullScreenKitMapActiveState,
+    nearbyKitListIsExpandedState,
     onlineKitListIsExpandedState,
     storeNavigationState
 } from "../../../../../recoil/StoreOfferAtom";
@@ -130,20 +132,27 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
                                         <View
                                             style={styles.kitRadiusFullMapView}
                                         >
-                                            <Text style={{
-                                                alignSelf: 'center',
-                                                marginLeft: wp(2),
-                                                fontSize: hp(3.5),
-                                                fontFamily: 'Saira-SemiBold',
-                                                color: '#FFFFFF'
-                                            }}>
-                                                Find
-                                            </Text>
-                                            <Text style={[styles.mainSubtitle, {alignSelf: 'center', bottom: hp(1), marginLeft: wp(2)}]}>
-                                                {
-                                                    `your favorite ${kitTitle} brands`
-                                                }
-                                            </Text>
+                                            <IconButton
+                                                rippleColor={'transparent'}
+                                                icon="chevron-left"
+                                                iconColor={"#F2FF5D"}
+                                                size={hp(4)}
+                                                style={styles.kitsRadiusDismissButton}
+                                                onPress={() => {
+                                                    setFullScreenKitMapActive(false);
+                                                }}
+                                            />
+                                            <View style={styles.kitRadiusFullMapViewTitleView}>
+                                                <Text style={styles.kitRadiusFullMapViewTitle}>
+                                                    Find
+                                                </Text>
+                                                <Text
+                                                    style={[styles.mainSubtitle, styles.kitRadiusFullMapViewSubtitle]}>
+                                                    {
+                                                        `your favorite brands`
+                                                    }
+                                                </Text>
+                                            </View>
                                         </View>
                                         :
                                         <View style={styles.kitRadiusView}/>

@@ -7,7 +7,7 @@ import {ActivityIndicator, Card, List, Text} from "react-native-paper";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
     currentActiveKitState,
-    nearbyKitListIsExpandedState,
+    nearbyKitListIsExpandedState, noNearbyKitOffersAvailableState,
     noOnlineElectronicsCategorizedOffersToLoadState,
     noOnlineEntertainmentCategorizedOffersToLoadState,
     noOnlineFoodCategorizedOffersToLoadState,
@@ -77,7 +77,7 @@ export const OnlineKitSection = (props: {
 
     // constants used to keep track of shared states
     const [onlineKitListExpanded, setIsOnlineKitListExpanded] = useRecoilState(onlineKitListIsExpandedState);
-    const [nearbyKitListExpanded,] = useRecoilState(nearbyKitListIsExpandedState);
+    const [nearbyKitListExpanded, setNearbyKitListExpanded] = useRecoilState(nearbyKitListIsExpandedState);
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
     const [currentActiveKit,] = useRecoilState(currentActiveKitState);
     const [onlineFoodCategorizedPageNumber, setOnlineFoodCategorizedPageNumber] = useRecoilState(onlineFoodCategorizedOffersPageNumberState);
@@ -112,6 +112,7 @@ export const OnlineKitSection = (props: {
     const [onlineOfficeAndBusinessCategorizedOfferList, setOnlineOfficeAndBusinessCategorizedOfferList] = useRecoilState(onlineOfficeAndBusinessCategorizedOfferListState);
     const uniqueOnlineServicesAndSubscriptionsOffersList = useRecoilValue(uniqueOnlineServicesAndSubscriptionsOffersListState);
     const [onlineServicesAndSubscriptionsCategorizedOfferList, setOnlineServicesAndSubscriptionsCategorizedOfferList] = useRecoilState(onlineServicesAndSubscriptionsCategorizedOfferListState);
+    const [noNearbyKitOffersAvailable, ] = useRecoilState(noNearbyKitOffersAvailableState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -222,7 +223,7 @@ export const OnlineKitSection = (props: {
                             ?
                             <>
                                 <View style={{flexDirection: 'column'}}>
-                                    <Card style={styles.onlineOfferCard}
+                                    <Card style={styles.kitOfferCard}
                                           onPress={() => {
                                               // set the clicked offer/partner accordingly
                                               setStoreOfferClicked(data);
@@ -235,7 +236,7 @@ export const OnlineKitSection = (props: {
                                                        style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
                                             <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
                                                 <Image
-                                                    style={styles.onlineOfferLogo}
+                                                    style={styles.kitOfferLogo}
                                                     source={{
                                                         uri: data.brandLogoSm!,
                                                     }}
@@ -247,9 +248,9 @@ export const OnlineKitSection = (props: {
                                                 />
                                                 <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
                                                     <Text numberOfLines={2}
-                                                          style={styles.onlineOfferName}>{data.brandDba}</Text>
-                                                    <Text numberOfLines={2} style={styles.onlineOfferBenefitsView}>
-                                                        <Text style={styles.onlineOfferBenefit}>
+                                                          style={styles.kitOfferName}>{data.brandDba}</Text>
+                                                    <Text numberOfLines={2} style={styles.kitOfferBenefitsView}>
+                                                        <Text style={styles.kitOfferBenefit}>
                                                             {data.reward!.type! === RewardType.RewardPercent
                                                                 ? `${data.reward!.value}%`
                                                                 : `$${data.reward!.value}`}
@@ -263,7 +264,7 @@ export const OnlineKitSection = (props: {
                                 </View>
                             </>
                             :
-                            <Card style={styles.onlineOfferCard}
+                            <Card style={styles.kitOfferCard}
                                   onPress={() => {
                                       // set the clicked offer/partner accordingly
                                       setStoreOfferClicked(data);
@@ -276,7 +277,7 @@ export const OnlineKitSection = (props: {
                                                style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
                                     <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
                                         <Image
-                                            style={styles.onlineOfferLogo}
+                                            style={styles.kitOfferLogo}
                                             source={{
                                                 uri: data.brandLogoSm!,
                                             }}
@@ -288,9 +289,9 @@ export const OnlineKitSection = (props: {
                                         />
                                         <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
                                             <Text numberOfLines={2}
-                                                  style={styles.onlineOfferName}>{data.brandDba}</Text>
-                                            <Text numberOfLines={2} style={styles.onlineOfferBenefitsView}>
-                                                <Text style={styles.onlineOfferBenefit}>
+                                                  style={styles.kitOfferName}>{data.brandDba}</Text>
+                                            <Text numberOfLines={2} style={styles.kitOfferBenefitsView}>
+                                                <Text style={styles.kitOfferBenefit}>
                                                     {data.reward!.type! === RewardType.RewardPercent
                                                         ? `${data.reward!.value}%`
                                                         : `$${data.reward!.value}`}
@@ -309,11 +310,11 @@ export const OnlineKitSection = (props: {
         // filtered no offers to be displayed
         if (!offersShown) {
             return (
-                <Card style={styles.onlineOfferCard}>
+                <Card style={styles.kitOfferCard}>
                     <Card.Content>
                         <View style={{flexDirection: 'row'}}>
                             <Text
-                                style={[styles.onlineNoOffersName, {color: '#F2FF5D'}]}>{`No Online ${kitName} Offers Available`}</Text>
+                                style={[styles.kitNoOffersName, {color: '#F2FF5D'}]}>{`No Online ${kitName} Offers Available`}</Text>
                         </View>
                     </Card.Content>
                 </Card>
@@ -326,221 +327,228 @@ export const OnlineKitSection = (props: {
     // return the component for the OnlineKitSection page
     return (
         <>
-            <View style={[
-                styles.onlineKitOffersView,
-                !onlineKitListExpanded ? {height: hp(30)} : {height: hp(100)}]}>
-                {
-                    <>
-                        <View style={styles.onlineKitOffersTitleView}>
-                            <Text style={styles.onlineKitOffersTitleMain}>
-                                {`Online Offers`}
-                            </Text>
-                            <TouchableOpacity
-                                style={styles.moreButton}
-                                onPress={() => {
-                                    console.log('button pressed');
-                                    if (!onlineKitListExpanded) {
-                                        // display all offers loaded in the list
-                                        setVerticalListLoading(true);
-                                        setIsOnlineKitListExpanded(true);
-                                    } else {
-                                        setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedOnlineOfferList.slice(0, 2)));
-                                        setLayoutProvider(new LayoutProvider(
-                                            _ => 0,
-                                            (_, dim) => {
-                                                dim.width = wp(33);
-                                                dim.height = hp(25);
-                                            }
-                                        ));
-                                        setVerticalListLoading(false);
-                                        setOnlineOffersSpinnerShown(false);
-                                        setIsOnlineKitListExpanded(false);
-                                    }
-                                }}
-                            >
-                                <Text
-                                    style={styles.moreButtonText}>{onlineKitListExpanded ? 'See Less' : 'See All'}</Text>
-                            </TouchableOpacity>
-                        </View>
-                        {
-                            !deDuplicatedOnlineOfferList || !onlineOfferList ||
-                            deDuplicatedOnlineOfferList.length === 0 || onlineOfferList.length === 0 ?
-                                <Card style={styles.nearbyLoadingOfferCard}>
-                                    <Card.Content>
-                                        <View
-                                            style={[styles.locationServicesEnableView, {height: hp(23)}]}>
-                                            <Image
-                                                style={styles.noOffersKitImage}
-                                                source={MoonbeamNoOffersKit}/>
-                                            <Text
-                                                style={[styles.locationServicesEnableWarningMessage, {
-                                                    color: '#F2FF5D',
-                                                    fontSize: hp(2.2),
-                                                    top: hp(1)
-                                                }]}>
-                                                {`No ${kitName} online offers!`}
-                                            </Text>
-                                        </View>
-                                    </Card.Content>
-                                </Card>
-                                :
-                                dataProvider !== null && layoutProvider !== null &&
-                                <RecyclerListView
-                                    // @ts-ignore
-                                    ref={onlineListView}
-                                    style={{
-                                        width: wp(100),
-                                        right: wp(1)
-                                    }}
-                                    layoutProvider={layoutProvider!}
-                                    dataProvider={dataProvider!}
-                                    rowRenderer={renderOnlineRowData}
-                                    isHorizontal={false}
-                                    forceNonDeterministicRendering={true}
-                                    renderFooter={() => {
-                                        return (
-                                            onlineOffersSpinnerShown && onlineKitListExpanded ?
-                                                <>
-                                                    <View
-                                                        style={{
-                                                            width: wp(100),
-                                                            alignSelf: 'center'
-                                                        }}/>
-                                                    <Card
-                                                        style={[styles.loadCard,
-                                                            {
-                                                                width: wp(100),
-                                                                height: hp(10),
-                                                                bottom: hp(2)
-                                                            }
-                                                        ]}>
-                                                        <Card.Content>
-                                                            <View style={{flexDirection: 'column'}}>
-                                                                <View style={{
-                                                                    flexDirection: 'row'
-                                                                }}>
-                                                                    <View>
-                                                                        <ActivityIndicator
-                                                                            style={{
-                                                                                alignSelf: 'center',
-                                                                                top: hp(2),
-                                                                                left: wp(40)
-                                                                            }}
-                                                                            animating={true}
-                                                                            color={'#F2FF5D'}
-                                                                            size={hp(5)}
-                                                                        />
-
-                                                                    </View>
-                                                                </View>
-                                                            </View>
-                                                        </Card.Content>
-                                                    </Card>
-                                                </> : <></>
-                                        )
-                                    }}
-                                    {
-                                        ...(Platform.OS === 'ios') ?
-                                            {onEndReachedThreshold: 0} :
-                                            {onEndReachedThreshold: 1}
-                                    }
-                                    onEndReached={async () => {
-                                        console.log(`End of list reached. Trying to refresh more items.`);
-
-                                        // if there are items to load
-                                        if (onlineKitListExpanded && !noOnlineOffersToLoad && currentActiveKit !== null) {
-                                            // set the loader
-                                            setOnlineOffersSpinnerShown(true);
-                                            // retrieving more online offers
-                                            switch (currentActiveKit as OfferCategory) {
-                                                case OfferCategory.Food:
-                                                    const additionalFoodOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
-                                                        currentActiveKit, onlineFoodCategorizedPageNumber, setOnlineFoodCategorizedPageNumber)
-                                                    setOnlineFoodCategorizedOfferList(oldOnlineOffers => {
-                                                        return [...oldOnlineOffers, ...additionalFoodOffersToLoad]
-                                                    });
-                                                    additionalFoodOffersToLoad.length === 0 && setNoOnlineFoodCategorizedOffersToLoad(true);
-                                                    break;
-                                                case OfferCategory.Retail:
-                                                    const additionalRetailOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
-                                                        currentActiveKit, onlineRetailCategorizedPageNumber, setOnlineRetailCategorizedPageNumber)
-                                                    setOnlineRetailCategorizedOfferList(oldOnlineOffers => {
-                                                        return [...oldOnlineOffers, ...additionalRetailOffersToLoad]
-                                                    });
-                                                    additionalRetailOffersToLoad.length === 0 && setNoOnlineRetailCategorizedOffersToLoad(true);
-                                                    break;
-                                                case OfferCategory.Entertainment:
-                                                    const additionalEntertainmentOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
-                                                        currentActiveKit, onlineEntertainmentCategorizedPageNumber, setOnlineEntertainmentCategorizedPageNumber)
-                                                    setOnlineEntertainmentCategorizedOfferList(oldOnlineOffers => {
-                                                        return [...oldOnlineOffers, ...additionalEntertainmentOffersToLoad]
-                                                    });
-                                                    additionalEntertainmentOffersToLoad.length === 0 && setNoOnlineEntertainmentCategorizedOffersToLoad(true);
-                                                    break;
-                                                case OfferCategory.Electronics:
-                                                    const additionalElectronicsOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
-                                                        currentActiveKit, onlineElectronicsCategorizedPageNumber, setOnlineElectronicsCategorizedPageNumber)
-                                                    setOnlineElectronicsCategorizedOfferList(oldOnlineOffers => {
-                                                        return [...oldOnlineOffers, ...additionalElectronicsOffersToLoad]
-                                                    });
-                                                    additionalElectronicsOffersToLoad.length === 0 && setNoOnlineElectronicsCategorizedOffersToLoad(true);
-                                                    break;
-                                                case OfferCategory.Home:
-                                                    const additionalHomeOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
-                                                        currentActiveKit, onlineHomeCategorizedPageNumber, setOnlineHomeCategorizedPageNumber)
-                                                    setOnlineHomeCategorizedOfferList(oldOnlineOffers => {
-                                                        return [...oldOnlineOffers, ...additionalHomeOffersToLoad]
-                                                    });
-                                                    additionalHomeOffersToLoad.length === 0 && setNoOnlineHomeCategorizedOffersToLoad(true);
-                                                    break;
-                                                case OfferCategory.HealthAndBeauty:
-                                                    const additionalHealthAndBeautyOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
-                                                        currentActiveKit, onlineHealthAndBeautyCategorizedPageNumber, setOnlineHealthAndBeautyCategorizedPageNumber)
-                                                    setOnlineHealthAndBeautyCategorizedOfferList(oldOnlineOffers => {
-                                                        return [...oldOnlineOffers, ...additionalHealthAndBeautyOffersToLoad]
-                                                    });
-                                                    additionalHealthAndBeautyOffersToLoad.length === 0 && setNoOnlineHealthAndBeautyCategorizedOffersToLoad(true);
-                                                    break;
-                                                case OfferCategory.OfficeAndBusiness:
-                                                    const additionalOfficeAndBusinessOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
-                                                        currentActiveKit, onlineOfficeAndBusinessCategorizedPageNumber, setOnlineOfficeAndBusinessCategorizedPageNumber)
-                                                    setOnlineOfficeAndBusinessCategorizedOfferList(oldOnlineOffers => {
-                                                        return [...oldOnlineOffers, ...additionalOfficeAndBusinessOffersToLoad]
-                                                    });
-                                                    additionalOfficeAndBusinessOffersToLoad.length === 0 && setNoOnlineOfficeAndBusinessCategorizedOffersToLoad(true);
-                                                    break;
-                                                case OfferCategory.ServicesAndSubscriptions:
-                                                    const additionalServicesAndSubscriptionsOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
-                                                        currentActiveKit, onlineServicesAndSubscriptionsCategorizedPageNumber, setOnlineServicesAndSubscriptionsCategorizedPageNumber)
-                                                    setOnlineServicesAndSubscriptionsCategorizedOfferList(oldOnlineOffers => {
-                                                        return [...oldOnlineOffers, ...additionalServicesAndSubscriptionsOffersToLoad]
-                                                    });
-                                                    additionalServicesAndSubscriptionsOffersToLoad.length === 0 && setNoOnlineServicesAndSubscriptionsCategorizedOffersToLoad(true);
-                                                    break;
-                                                default:
-                                                    break;
-                                            }
+            {
+                <View style={[
+                    styles.kitOffersView,
+                    !onlineKitListExpanded ? {height: hp(30)} : {height: hp(100)},
+                    nearbyKitListExpanded && {display: 'none'},
+                    noNearbyKitOffersAvailable && !onlineKitListExpanded && {marginBottom: hp(18)}]}>
+                    {
+                        <>
+                            <View style={styles.kitOffersTitleView}>
+                                <Text style={styles.kitOffersTitleMain}>
+                                    {`Online Offers`}
+                                </Text>
+                                <TouchableOpacity
+                                    style={styles.moreButton}
+                                    onPress={() => {
+                                        console.log('button pressed');
+                                        if (!onlineKitListExpanded) {
+                                            // display all offers loaded in the list
                                             setVerticalListLoading(true);
-                                            // this makes the scrolling seem infinite - we artificially scroll up a little, so we have enough time to load
-                                            // @ts-ignore
-                                            onlineListView.current?.scrollToIndex(deDuplicatedOnlineOfferList.length - 2);
+                                            setNearbyKitListExpanded(false);
+                                            setIsOnlineKitListExpanded(true);
                                         } else {
-                                            console.log(`Maximum number of categorized online offers reached for category ${currentActiveKit} ${deDuplicatedOnlineOfferList.length}`);
+                                            setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedOnlineOfferList.slice(0, 2)));
+                                            setLayoutProvider(new LayoutProvider(
+                                                _ => 0,
+                                                (_, dim) => {
+                                                    dim.width = wp(33);
+                                                    dim.height = hp(25);
+                                                }
+                                            ));
+                                            setVerticalListLoading(false);
+                                            setOnlineOffersSpinnerShown(false);
+                                            setIsOnlineKitListExpanded(false);
                                         }
                                     }}
-                                    scrollViewProps={{
-                                        pagingEnabled: "true",
-                                        decelerationRate: "fast",
-                                        snapToAlignment: "start",
-                                        persistentScrollbar: false,
-                                        showsVerticalScrollIndicator: false,
-                                        showsHorizontalScrollIndicator: false
-                                    }}
-                                />
-                        }
-                    </>
-                }
-            </View>
+                                >
+                                    <Text
+                                        style={styles.moreButtonText}>{onlineKitListExpanded ? 'See Less' : 'See All'}</Text>
+                                </TouchableOpacity>
+                            </View>
+                            {
+                                !deDuplicatedOnlineOfferList || !onlineOfferList ||
+                                deDuplicatedOnlineOfferList.length === 0 || onlineOfferList.length === 0 ?
+                                    <Card style={styles.nearbyLoadingOfferCard}>
+                                        <Card.Content>
+                                            <View
+                                                style={[styles.locationServicesEnableView, {height: hp(23)}]}>
+                                                <Image
+                                                    style={styles.noOffersKitImage}
+                                                    source={MoonbeamNoOffersKit}/>
+                                                <Text
+                                                    style={[styles.locationServicesEnableWarningMessage, {
+                                                        color: '#F2FF5D',
+                                                        fontSize: hp(2.2),
+                                                        top: hp(1)
+                                                    }]}>
+                                                    {`No ${kitName} online offers!`}
+                                                </Text>
+                                            </View>
+                                        </Card.Content>
+                                    </Card>
+                                    :
+                                    dataProvider !== null && layoutProvider !== null &&
+                                    <RecyclerListView
+                                        // @ts-ignore
+                                        ref={onlineListView}
+                                        style={{
+                                            width: wp(100),
+                                            right: wp(1)
+                                        }}
+                                        layoutProvider={layoutProvider!}
+                                        dataProvider={dataProvider!}
+                                        rowRenderer={renderOnlineRowData}
+                                        isHorizontal={false}
+                                        forceNonDeterministicRendering={true}
+                                        renderFooter={() => {
+                                            return (
+                                                onlineOffersSpinnerShown && onlineKitListExpanded ?
+                                                    <>
+                                                        <View
+                                                            style={{
+                                                                width: wp(100),
+                                                                alignSelf: 'center'
+                                                            }}/>
+                                                        <Card
+                                                            style={[styles.loadCard,
+                                                                {
+                                                                    width: wp(100),
+                                                                    height: hp(10),
+                                                                    bottom: hp(2)
+                                                                }
+                                                            ]}>
+                                                            <Card.Content>
+                                                                <View style={{flexDirection: 'column'}}>
+                                                                    <View style={{
+                                                                        flexDirection: 'row'
+                                                                    }}>
+                                                                        <View>
+                                                                            <ActivityIndicator
+                                                                                style={{
+                                                                                    alignSelf: 'center',
+                                                                                    top: hp(2),
+                                                                                    left: wp(40)
+                                                                                }}
+                                                                                animating={true}
+                                                                                color={'#F2FF5D'}
+                                                                                size={hp(5)}
+                                                                            />
+
+                                                                        </View>
+                                                                    </View>
+                                                                </View>
+                                                            </Card.Content>
+                                                        </Card>
+                                                    </> : <></>
+                                            )
+                                        }}
+                                        {
+                                            ...(Platform.OS === 'ios') ?
+                                                {onEndReachedThreshold: 0} :
+                                                {onEndReachedThreshold: 1}
+                                        }
+                                        onEndReached={async () => {
+                                            console.log(`End of list reached. Trying to refresh more items.`);
+
+                                            // if there are items to load
+                                            if (onlineKitListExpanded && !noOnlineOffersToLoad && currentActiveKit !== null) {
+                                                // set the loader
+                                                setOnlineOffersSpinnerShown(true);
+                                                // retrieving more online offers
+                                                switch (currentActiveKit as OfferCategory) {
+                                                    case OfferCategory.Food:
+                                                        const additionalFoodOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
+                                                            currentActiveKit, onlineFoodCategorizedPageNumber, setOnlineFoodCategorizedPageNumber)
+                                                        setOnlineFoodCategorizedOfferList(oldOnlineOffers => {
+                                                            return [...oldOnlineOffers, ...additionalFoodOffersToLoad]
+                                                        });
+                                                        additionalFoodOffersToLoad.length === 0 && setNoOnlineFoodCategorizedOffersToLoad(true);
+                                                        break;
+                                                    case OfferCategory.Retail:
+                                                        const additionalRetailOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
+                                                            currentActiveKit, onlineRetailCategorizedPageNumber, setOnlineRetailCategorizedPageNumber)
+                                                        setOnlineRetailCategorizedOfferList(oldOnlineOffers => {
+                                                            return [...oldOnlineOffers, ...additionalRetailOffersToLoad]
+                                                        });
+                                                        additionalRetailOffersToLoad.length === 0 && setNoOnlineRetailCategorizedOffersToLoad(true);
+                                                        break;
+                                                    case OfferCategory.Entertainment:
+                                                        const additionalEntertainmentOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
+                                                            currentActiveKit, onlineEntertainmentCategorizedPageNumber, setOnlineEntertainmentCategorizedPageNumber)
+                                                        setOnlineEntertainmentCategorizedOfferList(oldOnlineOffers => {
+                                                            return [...oldOnlineOffers, ...additionalEntertainmentOffersToLoad]
+                                                        });
+                                                        additionalEntertainmentOffersToLoad.length === 0 && setNoOnlineEntertainmentCategorizedOffersToLoad(true);
+                                                        break;
+                                                    case OfferCategory.Electronics:
+                                                        const additionalElectronicsOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
+                                                            currentActiveKit, onlineElectronicsCategorizedPageNumber, setOnlineElectronicsCategorizedPageNumber)
+                                                        setOnlineElectronicsCategorizedOfferList(oldOnlineOffers => {
+                                                            return [...oldOnlineOffers, ...additionalElectronicsOffersToLoad]
+                                                        });
+                                                        additionalElectronicsOffersToLoad.length === 0 && setNoOnlineElectronicsCategorizedOffersToLoad(true);
+                                                        break;
+                                                    case OfferCategory.Home:
+                                                        const additionalHomeOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
+                                                            currentActiveKit, onlineHomeCategorizedPageNumber, setOnlineHomeCategorizedPageNumber)
+                                                        setOnlineHomeCategorizedOfferList(oldOnlineOffers => {
+                                                            return [...oldOnlineOffers, ...additionalHomeOffersToLoad]
+                                                        });
+                                                        additionalHomeOffersToLoad.length === 0 && setNoOnlineHomeCategorizedOffersToLoad(true);
+                                                        break;
+                                                    case OfferCategory.HealthAndBeauty:
+                                                        const additionalHealthAndBeautyOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
+                                                            currentActiveKit, onlineHealthAndBeautyCategorizedPageNumber, setOnlineHealthAndBeautyCategorizedPageNumber)
+                                                        setOnlineHealthAndBeautyCategorizedOfferList(oldOnlineOffers => {
+                                                            return [...oldOnlineOffers, ...additionalHealthAndBeautyOffersToLoad]
+                                                        });
+                                                        additionalHealthAndBeautyOffersToLoad.length === 0 && setNoOnlineHealthAndBeautyCategorizedOffersToLoad(true);
+                                                        break;
+                                                    case OfferCategory.OfficeAndBusiness:
+                                                        const additionalOfficeAndBusinessOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
+                                                            currentActiveKit, onlineOfficeAndBusinessCategorizedPageNumber, setOnlineOfficeAndBusinessCategorizedPageNumber)
+                                                        setOnlineOfficeAndBusinessCategorizedOfferList(oldOnlineOffers => {
+                                                            return [...oldOnlineOffers, ...additionalOfficeAndBusinessOffersToLoad]
+                                                        });
+                                                        additionalOfficeAndBusinessOffersToLoad.length === 0 && setNoOnlineOfficeAndBusinessCategorizedOffersToLoad(true);
+                                                        break;
+                                                    case OfferCategory.ServicesAndSubscriptions:
+                                                        const additionalServicesAndSubscriptionsOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
+                                                            currentActiveKit, onlineServicesAndSubscriptionsCategorizedPageNumber, setOnlineServicesAndSubscriptionsCategorizedPageNumber)
+                                                        setOnlineServicesAndSubscriptionsCategorizedOfferList(oldOnlineOffers => {
+                                                            return [...oldOnlineOffers, ...additionalServicesAndSubscriptionsOffersToLoad]
+                                                        });
+                                                        additionalServicesAndSubscriptionsOffersToLoad.length === 0 && setNoOnlineServicesAndSubscriptionsCategorizedOffersToLoad(true);
+                                                        break;
+                                                    default:
+                                                        break;
+                                                }
+                                                setVerticalListLoading(true);
+                                                // this makes the scrolling seem infinite - we artificially scroll up a little, so we have enough time to load
+                                                // @ts-ignore
+                                                onlineListView.current?.scrollToIndex(deDuplicatedOnlineOfferList.length - 2);
+                                            } else {
+                                                setVerticalListLoading(true);
+                                                console.log(`Maximum number of categorized online offers reached for category ${currentActiveKit} ${deDuplicatedOnlineOfferList.length}`);
+                                            }
+                                        }}
+                                        scrollViewProps={{
+                                            scrollEnabled: onlineKitListExpanded,
+                                            pagingEnabled: "true",
+                                            decelerationRate: "fast",
+                                            snapToAlignment: "start",
+                                            persistentScrollbar: false,
+                                            showsVerticalScrollIndicator: false,
+                                            showsHorizontalScrollIndicator: false
+                                        }}
+                                    />
+                            }
+                        </>
+                    }
+                </View>
+            }
         </>
     );
 };

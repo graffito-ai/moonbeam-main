@@ -1156,9 +1156,18 @@ const fullScreenKitMapActiveState = atom<boolean>({
 });
 
 /**
+ * Atom used to keep track of whether there are any nearby offers available or not
+ */
+const noNearbyKitOffersAvailableState = atom<boolean>({
+    key: "noNearbyKitOffersAvailableState",
+    default: false
+});
+
+/**
  * Export all atoms and/or selectors
  */
 export {
+    noNearbyKitOffersAvailableState,
     fullScreenKitMapActiveState,
     onlineKitListIsExpandedState,
     nearbyKitListIsExpandedState,
