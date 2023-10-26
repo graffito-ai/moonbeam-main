@@ -188,7 +188,7 @@ export const SearchSection = (props: {
                               icon={() => (
                                   <Icon name="star"
                                         type={'material-community'}
-                                        size={hp(2.5)}
+                                        size={hp(2)}
                                         color={whichVerticalSectionActive === 'fidelis' ? '#5B5A5A' : '#F2FF5D'}/>
                               )}
                               onPress={() => {
@@ -217,7 +217,7 @@ export const SearchSection = (props: {
                               icon={() => (
                                   <Icon name="web"
                                         type={'material-community'}
-                                        size={hp(2.5)}
+                                        size={hp(2)}
                                         color={whichVerticalSectionActive === 'online' ? '#5B5A5A' : '#F2FF5D'}/>
                               )}
                               onPress={() => {
@@ -247,7 +247,7 @@ export const SearchSection = (props: {
                                       icon={() => (
                                           <Icon name="map-marker"
                                                 type={'material-community'}
-                                                size={hp(2.5)}
+                                                size={hp(2)}
                                                 color={whichVerticalSectionActive === 'nearby' ? '#5B5A5A' : '#F2FF5D'}/>
                                       )}
                                       textStyle={[styles.verticalSectionActiveChipText, whichVerticalSectionActive === 'nearby' ? {color: '#5B5A5A'} : {color: '#F2FF5D'}]}

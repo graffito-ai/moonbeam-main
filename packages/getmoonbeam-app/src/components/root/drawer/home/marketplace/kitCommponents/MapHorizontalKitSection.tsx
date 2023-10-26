@@ -367,7 +367,7 @@ export const MapHorizontalKitSection = () => {
                 </Dialog>
             </Portal>
             <View
-                style={[(locationServicesButton || (uniqueNearbyOffersListForMainHorizontalMap.length === 0 || numberOfNearbyCategorizedOffers === 0)) ? {bottom: hp(16)} : {top: hp(2)},
+                style={[(locationServicesButton || (uniqueNearbyOffersListForMainHorizontalMap.length === 0 || numberOfNearbyCategorizedOffers === 0)) ? {bottom: hp(16)} : {top: hp(0)},
                     nearbyKitListExpanded && {top: hp(1)}]}>
                 {
                     !onlineKitListExpanded && !nearbyKitListExpanded &&

@@ -177,7 +177,7 @@ export const OnlineKitSection = (props: {
         }
 
         // update the list data providers if we are loading more offers accordingly
-        if (verticalListLoading) {
+        if (verticalListLoading && onlineKitListExpanded) {
             setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedOnlineOfferList));
             setVerticalListLoading(false);
             setOnlineOffersSpinnerShown(false);
@@ -264,7 +264,7 @@ export const OnlineKitSection = (props: {
                                 </View>
                             </>
                             :
-                            <Card style={styles.kitOfferCard}
+                            <Card style={[styles.kitOfferCard, !onlineKitListExpanded && index === 1 && {bottom: hp(1.5)}]}
                                   onPress={() => {
                                       // set the clicked offer/partner accordingly
                                       setStoreOfferClicked(data);
@@ -370,24 +370,26 @@ export const OnlineKitSection = (props: {
                             {
                                 !deDuplicatedOnlineOfferList || !onlineOfferList ||
                                 deDuplicatedOnlineOfferList.length === 0 || onlineOfferList.length === 0 ?
-                                    <Card style={styles.nearbyLoadingOfferCard}>
-                                        <Card.Content>
-                                            <View
-                                                style={[styles.locationServicesEnableView, {height: hp(23)}]}>
-                                                <Image
-                                                    style={styles.noOffersKitImage}
-                                                    source={MoonbeamNoOffersKit}/>
-                                                <Text
-                                                    style={[styles.locationServicesEnableWarningMessage, {
-                                                        color: '#F2FF5D',
-                                                        fontSize: hp(2.2),
-                                                        top: hp(1)
-                                                    }]}>
-                                                    {`No ${kitName} online offers!`}
-                                                </Text>
-                                            </View>
-                                        </Card.Content>
-                                    </Card>
+                                    <>
+                                        <Card style={styles.nearbyLoadingOfferCard}>
+                                            <Card.Content>
+                                                <View
+                                                    style={[styles.locationServicesEnableView, {height: hp(23)}]}>
+                                                    <Image
+                                                        style={styles.noOffersKitImage}
+                                                        source={MoonbeamNoOffersKit}/>
+                                                    <Text
+                                                        style={[styles.locationServicesEnableWarningMessage, {
+                                                            color: '#F2FF5D',
+                                                            fontSize: hp(2.2),
+                                                            top: hp(1)
+                                                        }]}>
+                                                        {`No ${kitName} online offers!`}
+                                                    </Text>
+                                                </View>
+                                            </Card.Content>
+                                        </Card>
+                                    </>
                                     :
                                     dataProvider !== null && layoutProvider !== null &&
                                     <RecyclerListView
@@ -395,7 +397,8 @@ export const OnlineKitSection = (props: {
                                         ref={onlineListView}
                                         style={{
                                             width: wp(100),
-                                            right: wp(1)
+                                            right: wp(1),
+                                            flexGrow: 1
                                         }}
                                         layoutProvider={layoutProvider!}
                                         dataProvider={dataProvider!}

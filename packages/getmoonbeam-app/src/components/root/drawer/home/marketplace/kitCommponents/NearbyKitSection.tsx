@@ -184,13 +184,14 @@ export const NearbyKitSection = (props: {
         }
 
         // update the list data providers if we are loading more offers accordingly
-        if (verticalListLoading) {
+        if (verticalListLoading && nearbyKitListExpanded) {
             setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedNearbyOfferList));
             setVerticalListLoading(false);
             setNearbyOffersSpinnerShown(false);
         }
         // populate the online offer data provider and list view
         if ((nearbyOfferList && nearbyOfferList.length > 0 && layoutProvider === null && dataProvider === null)) {
+            console.log('here bitches');
             setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedNearbyOfferList.slice(0, 2)));
             setLayoutProvider(new LayoutProvider(
                 _ => 0,
@@ -200,7 +201,7 @@ export const NearbyKitSection = (props: {
                 }
             ));
         }
-    }, [currentActiveKit, dataProvider, layoutProvider, deDuplicatedNearbyOfferList, verticalListLoading,
+    }, [currentActiveKit, dataProvider, layoutProvider, deDuplicatedNearbyOfferList, verticalListLoading, nearbyOfferList,
         uniqueNearbyFoodOffersList, uniqueNearbyRetailOffersList, uniqueNearbyEntertainmentOffersList, uniqueNearbyElectronicsOffersList,
         uniqueNearbyHomeOffersList, uniqueNearbyHealthAndBeautyOffersList, uniqueNearbyOfficeAndBusinessOffersList, uniqueNearbyServicesAndSubscriptionsOffersList,
         nearbyFoodCategorizedOfferList, nearbyRetailCategorizedOfferList, nearbyEntertainmentCategorizedOfferList, nearbyElectronicsCategorizedOfferList,
@@ -331,7 +332,7 @@ export const NearbyKitSection = (props: {
                                 </View>
                             </>
                             :
-                            <Card style={styles.kitOfferCard}
+                            <Card style={[styles.kitOfferCard, !nearbyKitListExpanded && index === 1 && {bottom: hp(1.5)}]}
                                   onPress={() => {
                                       // set the clicked offer/partner accordingly
                                       setStoreOfferClicked(data);
@@ -409,7 +410,7 @@ export const NearbyKitSection = (props: {
                 deDuplicatedNearbyOfferList.length !== 0 && nearbyOfferList.length !== 0 &&
                 <View style={[
                     styles.kitOffersView,
-                    !nearbyKitListExpanded ? {height: hp(30), top: hp(2)} : {height: hp(100)},
+                    !nearbyKitListExpanded ? {height: hp(30), top: hp(0)} : {height: hp(100)},
                     onlineKitListExpanded && {display: 'none'}]}>
                     {
                         <>
@@ -454,10 +455,10 @@ export const NearbyKitSection = (props: {
                                 <RecyclerListView
                                     // @ts-ignore
                                     ref={nearbyListView}
-                                    style={{
+                                    style={[{
                                         width: wp(100),
                                         right: wp(1)
-                                    }}
+                                    }, !nearbyKitListExpanded && {bottom: hp(2)}]}
                                     layoutProvider={layoutProvider!}
                                     dataProvider={dataProvider!}
                                     rowRenderer={renderNearbyRowData}
@@ -512,8 +513,6 @@ export const NearbyKitSection = (props: {
                                     }
                                     onEndReached={async () => {
                                         console.log(`End of list reached. Trying to refresh more items.`);
-
-                                        console.log(noNearbyOffersToLoad);
 
                                         // if there are items to load
                                         if (nearbyKitListExpanded && !noNearbyOffersToLoad && currentActiveKit !== null) {

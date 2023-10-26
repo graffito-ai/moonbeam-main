@@ -49,19 +49,20 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF'
     },
     verticalSectionActiveChip: {
-        marginRight: wp(9.80),
+        marginRight: wp(3),
         borderColor: 'transparent'
     },
     verticalSectionActiveChipText: {
         alignSelf: 'center',
         fontFamily: 'Raleway-Medium',
-        fontSize: hp(1.5),
+        fontSize: hp(1.25),
         color: '#F2FF5D'
     },
     filterChipView: {
-        left: wp(6),
+        left: wp(4),
         alignSelf: 'flex-start',
         marginTop: hp(1.5),
+        width: wp(100),
         flexDirection: 'row',
         flexWrap: 'wrap'
     },

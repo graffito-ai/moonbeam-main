@@ -11,7 +11,7 @@ export const styles = StyleSheet.create({
     },
     kitOffersView: {
         flex: 1,
-        flexGrow: 1,
+        flexGrow: 1
     },
     kitOffersTitleView: {
         justifyContent: 'space-between',
@@ -202,9 +202,10 @@ export const styles = StyleSheet.create({
         height: hp(15),
     },
     noOffersKitImage: {
-        width: wp(45),
+        top: hp(2),
+        width: wp(35),
         height: hp(15),
-        left: wp(6)
+        left: wp(5)
     },
     locationServicesButtonText: {
         color: '#313030',

@@ -80,7 +80,9 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
         alignSelf: 'center',
         alignItems: 'center',
-        top: hp(7)
+        bottom: 0,
+        top: hp(38),
+        position: 'absolute'
     },
     statLeftView: {
         height: hp(8),
