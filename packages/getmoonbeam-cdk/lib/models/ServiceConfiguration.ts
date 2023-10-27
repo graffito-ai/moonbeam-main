@@ -294,3 +294,24 @@ export interface UserAuthSessionConfiguration {
     readonly getUserAuthSessionResolverName: string;
 }
 
+// Added by Capstone 2023.
+
+/**
+ * Interface used to define the configuration for automatic document verification fan-out pattern.
+ */
+export interface MilitaryDocumentVerificationFanOutConfiguration {
+    readonly militaryDocumentVerificationProcessingTopicName: string;
+    readonly militaryDocumentVerificationProcessingQueueName: string;
+    readonly militaryDocumentVerificationProcessingDLQName: string;
+    readonly militaryDocumentVerificationProcessingDLQTopicName: string;
+    readonly militaryDocumentVerificationProcessingEventSourceMapping: string;
+}
+
+/**
+ * Interface used to define the configuration for the automatic document verification.
+ */
+export interface MilitaryDocumentVerificationConfiguration {
+    readonly militaryDocumentVerificationConsumerFunctionName: string;
+    readonly militaryDocumentVerificationProducerFunctionName: string;
+    readonly militaryDocumentVerificationFanOutConfig: MilitaryDocumentVerificationFanOutConfiguration;
+}

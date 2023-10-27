@@ -18,7 +18,9 @@ import {
     TransactionsConfiguration,
     TransactionsProducerConsumerConfiguration,
     UpdatedTransactionsProducerConsumerConfiguration,
-    UserAuthSessionConfiguration
+    UserAuthSessionConfiguration,
+    MilitaryDocumentVerificationConfiguration,
+    MilitaryDocumentVerificationFanOutConfiguration
 } from "./ServiceConfiguration";
 
 /**
@@ -47,4 +49,6 @@ export interface StageConfiguration {
     readonly notificationsConfig: NotificationsConfiguration;
     readonly physicalDevicesConfig: PhysicalDevicesConfiguration;
     readonly environmentVariables: Map<string, string>;
+    // Added by Capsone 2023.
+    readonly militaryDocumentVerificationConfig: MilitaryDocumentVerificationConfiguration;
 }

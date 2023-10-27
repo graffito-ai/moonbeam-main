@@ -180,7 +180,20 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 updateUserAuthSessionResolverName: 'updateUserAuthSession',
                 getUserAuthSessionResolverName: 'getUserAuthSession'
             },
-            environmentVariables: new Map<string, string>([])
+            environmentVariables: new Map<string, string>([]),
+            
+            // Added by Capstone 2023.
+            militaryDocumentVerificationConfig: {
+                militaryDocumentVerificationConsumerFunctionName: 'militaryDocumentVerificationConsumerFunction',
+                militaryDocumentVerificationProducerFunctionName: 'militaryDocumentVerificationProducerFunction',
+                militaryDocumentVerificationFanOutConfig: {
+                    militaryDocumentVerificationProcessingTopicName: 'militaryDocumentVerificationProcessingTopic',
+                    militaryDocumentVerificationProcessingQueueName: 'militaryDocumentVerificationProcessingQueue',
+                    militaryDocumentVerificationProcessingDLQName: 'militaryDocumentVerificationProcessingQueueDLQ',
+                    militaryDocumentVerificationProcessingDLQTopicName: 'militaryDocumentVerificationProcessingTopicDLQ',
+                    militaryDocumentVerificationProcessingEventSourceMapping: 'militaryDocumentVerificationProcessingEventSourceMapping'
+                }
+            }
         },
         [`${Stages.PROD}-${Regions.PDX}`]: {
             stage: Stages.PROD,
@@ -356,7 +369,20 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 updateUserAuthSessionResolverName: 'updateUserAuthSession',
                 getUserAuthSessionResolverName: 'getUserAuthSession'
             },
-            environmentVariables: new Map<string, string>([])
+            environmentVariables: new Map<string, string>([]),
+
+            // Added by Capstone 2023.
+            militaryDocumentVerificationConfig: {
+                militaryDocumentVerificationConsumerFunctionName: 'militaryDocumentVerificationConsumerFunction',
+                militaryDocumentVerificationProducerFunctionName: 'militaryDocumentVerificationProducerFunction',
+                militaryDocumentVerificationFanOutConfig: {
+                    militaryDocumentVerificationProcessingTopicName: 'militaryDocumentVerificationProcessingTopic',
+                    militaryDocumentVerificationProcessingQueueName: 'militaryDocumentVerificationProcessingQueue',
+                    militaryDocumentVerificationProcessingDLQName: 'militaryDocumentVerificationProcessingQueueDLQ',
+                    militaryDocumentVerificationProcessingDLQTopicName: 'militaryDocumentVerificationProcessingTopic',
+                    militaryDocumentVerificationProcessingEventSourceMapping: 'militaryDocumentVerificationProcessingEventSourceMapping'
+                }
+            }
         },
         // ToDo: add more stages in here
     }
