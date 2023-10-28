@@ -20,7 +20,6 @@ import {
     UpdatedTransactionsProducerConsumerConfiguration,
     UserAuthSessionConfiguration,
     MilitaryDocumentVerificationConfiguration,
-    MilitaryDocumentVerificationFanOutConfiguration
 } from "./ServiceConfiguration";
 
 /**
