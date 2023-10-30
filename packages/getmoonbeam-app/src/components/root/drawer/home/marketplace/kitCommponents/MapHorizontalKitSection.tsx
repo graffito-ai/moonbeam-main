@@ -33,7 +33,7 @@ import {
     uniqueNearbyRetailOffersListState,
     uniqueNearbyServicesAndSubscriptionsOffersListState
 } from "../../../../../../recoil/StoreOfferAtom";
-import {Image} from "expo-image";
+import {Image, ImageBackground} from "expo-image";
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {Card, Dialog, Portal, Text} from "react-native-paper";
@@ -47,7 +47,7 @@ import {moonbeamKits} from "../storeComponents/KitsSection";
 import MoonbeamNoOffersKit from "../../../../../../../assets/art/moonbeam-no-offers-kit.png";
 // @ts-ignore
 import MoonbeamLocationServices from "../../../../../../../assets/art/moonbeam-location-services-1.png";
-import {heightPercentageToDP as hp} from "react-native-responsive-screen";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import {commonStyles} from "../../../../../../styles/common.module";
 // @ts-ignore
 import MoonbeamPreferencesIOS from "../../../../../../../assets/art/moonbeam-preferences-ios.jpg";
@@ -169,6 +169,15 @@ export const MapHorizontalKitSection = () => {
             displayMapWithOffers().then(updatedMapRegion => {
                 setCurrentMapRegion(updatedMapRegion);
                 setIsMapDisplayed(true);
+
+                // go to the current region on the map, based on the updated map region
+                // @ts-ignore
+                mapViewRef && mapViewRef.current && mapViewRef.current.animateToRegion({
+                    latitude: updatedMapRegion.latitude,
+                    longitude: updatedMapRegion.longitude,
+                    latitudeDelta: updatedMapRegion.latitudeDelta,
+                    longitudeDelta: updatedMapRegion.longitudeDelta,
+                }, 0);
             });
         }
         if (!noNearbyKitOffersAvailable && (uniqueNearbyOffersListForMainHorizontalMap.length === 0 || numberOfNearbyCategorizedOffers === 0)) {
@@ -271,31 +280,33 @@ export const MapHorizontalKitSection = () => {
                             longitude: storeLongitude
                         }}
                     >
-                        <Image
+                        <ImageBackground
                             style={styles.toolTipMain}
                             source={MoonbeamPinImage}
                             contentFit={'contain'}
                             transition={1000}
                             cachePolicy={'memory-disk'}
                         >
-                            <Image
-                                style={styles.toolTipImageDetail}
-                                source={{
-                                    uri: uniqueNearbyOffersListForMainHorizontalMap[i].brandLogoSm!
-                                }}
-                                placeholder={MoonbeamPlaceholderImage}
-                                placeholderContentFit={'contain'}
-                                contentFit={'contain'}
-                                transition={1000}
-                                cachePolicy={'memory-disk'}
-                            />
-                            <Text style={styles.toolTipImagePrice}>
-                                {uniqueNearbyOffersListForMainHorizontalMap[i]!.reward!.type! === RewardType.RewardPercent
-                                    ? `${uniqueNearbyOffersListForMainHorizontalMap[i]!.reward!.value}%`
-                                    : `$${uniqueNearbyOffersListForMainHorizontalMap[i]!.reward!.value}`}
-                                {" Off "}
-                            </Text>
-                        </Image>
+                            <View style={{flexDirection: 'row', width: wp(25)}}>
+                                <Image
+                                    style={styles.toolTipImageDetail}
+                                    source={{
+                                        uri: uniqueNearbyOffersListForMainHorizontalMap[i].brandLogoSm!
+                                    }}
+                                    placeholder={MoonbeamPlaceholderImage}
+                                    placeholderContentFit={'contain'}
+                                    contentFit={'contain'}
+                                    transition={1000}
+                                    cachePolicy={'memory-disk'}
+                                />
+                                <Text style={styles.toolTipImagePrice}>
+                                    {uniqueNearbyOffersListForMainHorizontalMap[i]!.reward!.type! === RewardType.RewardPercent
+                                        ? `${uniqueNearbyOffersListForMainHorizontalMap[i]!.reward!.value}%`
+                                        : `$${uniqueNearbyOffersListForMainHorizontalMap[i]!.reward!.value}`}
+                                    {" Off "}
+                                </Text>
+                            </View>
+                        </ImageBackground>
                     </Marker>
                 </>
             )
@@ -394,7 +405,10 @@ export const MapHorizontalKitSection = () => {
                                 style={styles.locationServicesEnableView}>
                                 <Image
                                     style={styles.locationServicesImage}
-                                    source={MoonbeamLocationServices}/>
+                                    source={MoonbeamLocationServices}
+                                    contentFit={'contain'}
+                                    cachePolicy={'memory-disk'}
+                                />
                                 <TouchableOpacity
                                     style={styles.locationServicesButton}
                                     onPress={
@@ -429,7 +443,10 @@ export const MapHorizontalKitSection = () => {
                                     style={[styles.locationServicesEnableView, {height: hp(23)}]}>
                                     <Image
                                         style={styles.noOffersKitImage}
-                                        source={MoonbeamNoOffersKit}/>
+                                        source={MoonbeamNoOffersKit}
+                                        contentFit={'contain'}
+                                        cachePolicy={'memory-disk'}
+                                    />
                                     <Text
                                         style={[styles.locationServicesEnableWarningMessage, {
                                             color: '#F2FF5D',

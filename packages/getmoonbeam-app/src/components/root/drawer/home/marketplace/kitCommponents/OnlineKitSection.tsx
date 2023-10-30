@@ -377,7 +377,10 @@ export const OnlineKitSection = (props: {
                                                     style={[styles.locationServicesEnableView, {height: hp(23)}]}>
                                                     <Image
                                                         style={styles.noOffersKitImage}
-                                                        source={MoonbeamNoOffersKit}/>
+                                                        source={MoonbeamNoOffersKit}
+                                                        contentFit={'contain'}
+                                                        cachePolicy={'memory-disk'}
+                                                    />
                                                     <Text
                                                         style={[styles.locationServicesEnableWarningMessage, {
                                                             color: '#F2FF5D',

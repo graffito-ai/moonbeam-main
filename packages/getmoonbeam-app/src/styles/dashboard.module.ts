@@ -297,17 +297,18 @@ export const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     toolTipImageDetail: {
-        alignSelf: 'center',
-        height: hp(2.5),
+        alignSelf: 'flex-start',
+        height: hp(2.8),
         bottom: hp(0.7),
-        left: wp(1),
-        width: wp(10)
+        right: wp(0.35),
+        width: wp(12)
     },
     toolTipImagePrice: {
-        alignSelf: 'center',
+        right: wp(0.7),
+        alignSelf: 'flex-end',
         fontFamily: 'Raleway-ExtraBold',
         fontSize: hp(1.7),
-        bottom: hp(0.7),
+        bottom: hp(1),
         textAlign: 'center',
         color: '#313030'
     },

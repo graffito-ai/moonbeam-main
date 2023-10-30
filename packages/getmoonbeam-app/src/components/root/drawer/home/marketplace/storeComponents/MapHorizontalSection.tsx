@@ -10,7 +10,7 @@ import {
     toggleViewPressedState,
     uniqueNearbyOffersListForMainHorizontalMapState
 } from "../../../../../../recoil/StoreOfferAtom";
-import {Image} from "expo-image";
+import {Image, ImageBackground} from "expo-image";
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {Portal, Text} from "react-native-paper";
@@ -19,6 +19,7 @@ import {RewardType} from "@moonbeam/moonbeam-models";
 import MoonbeamPinImage from "../../../../../../../assets/pin-shape.png";
 import MapView from "react-native-map-clustering";
 import {Spinner} from "../../../../../common/Spinner";
+import {widthPercentageToDP as wp} from "react-native-responsive-screen";
 
 /**
  * MapHorizontalSection component.
@@ -56,6 +57,15 @@ export const MapHorizontalSection = () => {
             displayMapWithOffers().then(updatedMapRegion => {
                 setCurrentMapRegion(updatedMapRegion);
                 setIsMapDisplayed(true);
+
+                // go to the current region on the map, based on the updated map region
+                // @ts-ignore
+                mapViewRef && mapViewRef.current && mapViewRef.current.animateToRegion({
+                    latitude: updatedMapRegion.latitude,
+                    longitude: updatedMapRegion.longitude,
+                    latitudeDelta: updatedMapRegion.latitudeDelta,
+                    longitudeDelta: updatedMapRegion.longitudeDelta,
+                }, 0);
             });
         }
     }, [currentUserLocation, mapIsDisplayed, mapViewRef, uniqueNearbyOffersListForMainHorizontalMap]);
@@ -146,31 +156,33 @@ export const MapHorizontalSection = () => {
                             longitude: storeLongitude
                         }}
                     >
-                        <Image
+                        <ImageBackground
                             style={styles.toolTipMain}
                             source={MoonbeamPinImage}
                             contentFit={'contain'}
                             transition={1000}
                             cachePolicy={'memory-disk'}
                         >
-                            <Image
-                                style={styles.toolTipImageDetail}
-                                source={{
-                                    uri: uniqueNearbyOffersListForMainHorizontalMap[i].brandLogoSm!
-                                }}
-                                placeholder={MoonbeamPlaceholderImage}
-                                placeholderContentFit={'contain'}
-                                contentFit={'contain'}
-                                transition={1000}
-                                cachePolicy={'memory-disk'}
-                            />
-                            <Text style={styles.toolTipImagePrice}>
-                                {uniqueNearbyOffersListForMainHorizontalMap[i]!.reward!.type! === RewardType.RewardPercent
-                                    ? `${uniqueNearbyOffersListForMainHorizontalMap[i]!.reward!.value}%`
-                                    : `$${uniqueNearbyOffersListForMainHorizontalMap[i]!.reward!.value}`}
-                                {" Off "}
-                            </Text>
-                        </Image>
+                            <View style={{flexDirection: 'row', width: wp(25)}}>
+                                <Image
+                                    style={styles.toolTipImageDetail}
+                                    source={{
+                                        uri: uniqueNearbyOffersListForMainHorizontalMap[i].brandLogoSm!
+                                    }}
+                                    placeholder={MoonbeamPlaceholderImage}
+                                    placeholderContentFit={'contain'}
+                                    contentFit={'contain'}
+                                    transition={1000}
+                                    cachePolicy={'memory-disk'}
+                                />
+                                <Text style={styles.toolTipImagePrice}>
+                                    {uniqueNearbyOffersListForMainHorizontalMap[i]!.reward!.type! === RewardType.RewardPercent
+                                        ? `${uniqueNearbyOffersListForMainHorizontalMap[i]!.reward!.value}%`
+                                        : `$${uniqueNearbyOffersListForMainHorizontalMap[i]!.reward!.value}`}
+                                    {" Off "}
+                                </Text>
+                            </View>
+                        </ImageBackground>
                     </Marker>
                 </>
             )

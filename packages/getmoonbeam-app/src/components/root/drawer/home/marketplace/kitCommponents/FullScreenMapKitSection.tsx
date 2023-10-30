@@ -26,9 +26,9 @@ import {
 } from "../../../../../../recoil/StoreOfferAtom";
 // @ts-ignore
 import MoonbeamLocationServices from "../../../../../../../assets/art/moonbeam-location-services-1.png";
-import {heightPercentageToDP as hp} from "react-native-responsive-screen";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import {currentUserInformation} from "../../../../../../recoil/AuthAtom";
-import {Image} from "expo-image";
+import {Image, ImageBackground} from "expo-image";
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 // @ts-ignore
@@ -105,6 +105,15 @@ export const FullScreenMapKitSection = (props: {
                 setLoadingSpinnerShown(false);
                 setCurrentMapRegion(updatedMapRegion);
                 setIsMapDisplayed(true);
+
+                // go to the current region on the map, based on the updated map region
+                // @ts-ignore
+                mapViewRef && mapViewRef.current && mapViewRef.current.animateToRegion({
+                    latitude: updatedMapRegion.latitude,
+                    longitude: updatedMapRegion.longitude,
+                    latitudeDelta: updatedMapRegion.latitudeDelta,
+                    longitudeDelta: updatedMapRegion.longitudeDelta,
+                }, 0);
             });
             setTimeout(() => {
                 setCanSearchForAdditionalOffers(true);
@@ -263,31 +272,33 @@ export const FullScreenMapKitSection = (props: {
                             // @ts-ignore
                             props.navigation.navigate('StoreOffer', {});
                         }}>
-                            <Image
+                            <ImageBackground
                                 style={styles.toolTipMain}
                                 source={MoonbeamPinImage}
                                 contentFit={'contain'}
                                 transition={1000}
                                 cachePolicy={'memory-disk'}
                             >
-                                <Image
-                                    style={styles.toolTipImageDetail}
-                                    source={{
-                                        uri: uniqueNearbyOffersListForFullScreenMap[i].brandLogoSm!
-                                    }}
-                                    placeholder={MoonbeamPlaceholderImage}
-                                    placeholderContentFit={'contain'}
-                                    contentFit={'contain'}
-                                    transition={1000}
-                                    cachePolicy={'memory-disk'}
-                                />
-                                <Text style={styles.toolTipImagePrice}>
-                                    {uniqueNearbyOffersListForFullScreenMap[i]!.reward!.type! === RewardType.RewardPercent
-                                        ? `${uniqueNearbyOffersListForFullScreenMap[i]!.reward!.value}%`
-                                        : `$${uniqueNearbyOffersListForFullScreenMap[i]!.reward!.value}`}
-                                    {" Off "}
-                                </Text>
-                            </Image>
+                                <View style={{flexDirection: 'row', width: wp(25)}}>
+                                    <Image
+                                        style={styles.toolTipImageDetail}
+                                        source={{
+                                            uri: uniqueNearbyOffersListForFullScreenMap[i].brandLogoSm!
+                                        }}
+                                        placeholder={MoonbeamPlaceholderImage}
+                                        placeholderContentFit={'contain'}
+                                        contentFit={'contain'}
+                                        transition={1000}
+                                        cachePolicy={'memory-disk'}
+                                    />
+                                    <Text style={styles.toolTipImagePrice}>
+                                        {uniqueNearbyOffersListForFullScreenMap[i]!.reward!.type! === RewardType.RewardPercent
+                                            ? `${uniqueNearbyOffersListForFullScreenMap[i]!.reward!.value}%`
+                                            : `$${uniqueNearbyOffersListForFullScreenMap[i]!.reward!.value}`}
+                                        {" Off "}
+                                    </Text>
+                                </View>
+                            </ImageBackground>
                         </TouchableOpacity>
                     </Marker>
                 );

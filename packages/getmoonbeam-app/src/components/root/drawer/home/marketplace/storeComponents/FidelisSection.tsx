@@ -177,7 +177,7 @@ export const FidelisSection = (props: {
                 </Text>
                 <Text
                     style={[styles.featuredPartnersTitleSub, {left: wp(6)}]}>
-                    {`Get better discounts with Moonbeam exclusive brands`}
+                    {`Better discounts from exclusive brands`}
                 </Text>
                 {
                     dataProvider !== null && layoutProvider !== null &&

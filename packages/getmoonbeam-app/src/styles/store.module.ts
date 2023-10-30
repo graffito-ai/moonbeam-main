@@ -107,17 +107,18 @@ export const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     toolTipImageDetail: {
-        alignSelf: 'center',
-        height: hp(2.5),
+        alignSelf: 'flex-start',
+        height: hp(2.8),
         bottom: hp(0.7),
-        left: wp(1),
-        width: wp(10)
+        right: wp(0.35),
+        width: wp(12)
     },
     toolTipImagePrice: {
-        alignSelf: 'center',
+        right: wp(0.7),
+        alignSelf: 'flex-end',
         fontFamily: 'Raleway-ExtraBold',
         fontSize: hp(1.7),
-        bottom: hp(0.7),
+        bottom: hp(1),
         textAlign: 'center',
         color: '#313030'
     },
@@ -423,12 +424,13 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF'
     },
     featuredPartnersTitleSub: {
-        fontSize: hp(1.6),
+        fontSize: hp(1.5),
         fontFamily: 'Changa-Medium',
         textDecorationLine: 'none',
         color: '#F2FF5D',
         left: wp(6),
         bottom: hp(0.5),
+        width: wp(80),
         alignSelf: 'flex-start'
     },
     featuredPartnerCardSubtitle: {
@@ -526,7 +528,7 @@ export const styles = StyleSheet.create({
     },
     locationServicesEnableWarningMessage: {
         top: hp(2),
-        width: wp(85),
+        width: wp(80),
         fontSize: hp(1.8),
         fontFamily: 'Saira-Medium',
         textAlign: 'center',
@@ -717,7 +719,7 @@ export const styles = StyleSheet.create({
     },
     fullScreenMapServicesImage: {
         top: hp(15),
-        width: wp(45),
+        width: wp(55),
         height: hp(25),
     },
     fullScreenMapServicesButtonText: {

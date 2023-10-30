@@ -18,7 +18,8 @@ import {useRecoilState} from "recoil";
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 // @ts-ignore
 import MoonbeamPinImage from "../../../../../../../assets/pin-shape.png";
-import {Image} from "expo-image";
+import {Image, ImageBackground} from "expo-image";
+import {widthPercentageToDP as wp} from "react-native-responsive-screen";
 
 /**
  * Interface to be used for determining the location of transaction
@@ -258,28 +259,30 @@ export const TransactionsBottomSheet = (props: {
                                         <TouchableOpacity onPress={async () => {
                                             await retrieveStoreGeolocation();
                                         }}>
-                                                <Image
+                                                <ImageBackground
                                                     style={styles.toolTipMain}
                                                     source={MoonbeamPinImage}
                                                     contentFit={'contain'}
                                                     transition={1000}
                                                     cachePolicy={'memory-disk'}
                                                 >
-                                                    <Image
-                                                        style={styles.toolTipImageDetail}
-                                                        source={{
-                                                            uri: props.brandImage
-                                                        }}
-                                                        placeholder={MoonbeamPlaceholderImage}
-                                                        placeholderContentFit={'contain'}
-                                                        contentFit={'contain'}
-                                                        transition={1000}
-                                                        cachePolicy={'memory-disk'}
-                                                    />
-                                                    <Text style={styles.toolTipImagePrice}>
-                                                        {`${discountPercentage} Off `}
-                                                    </Text>
-                                                </Image>
+                                                    <View style={{flexDirection: 'row', width: wp(25)}}>
+                                                        <Image
+                                                            style={styles.toolTipImageDetail}
+                                                            source={{
+                                                                uri: props.brandImage
+                                                            }}
+                                                            placeholder={MoonbeamPlaceholderImage}
+                                                            placeholderContentFit={'contain'}
+                                                            contentFit={'contain'}
+                                                            transition={1000}
+                                                            cachePolicy={'memory-disk'}
+                                                        />
+                                                        <Text style={styles.toolTipImagePrice}>
+                                                            {`${discountPercentage} Off `}
+                                                        </Text>
+                                                    </View>
+                                                </ImageBackground>
                                         </TouchableOpacity>
                                     </Marker>
                                 }
