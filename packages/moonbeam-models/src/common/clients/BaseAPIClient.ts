@@ -22,7 +22,8 @@ import {
     MoonbeamTransactionsByStatusResponse,
     MoonbeamTransactionsResponse,
     MoonbeamUpdatedTransactionResponse,
-    NotificationChannelType, NotificationReminderResponse,
+    NotificationChannelType,
+    NotificationReminderResponse,
     NotificationResponse,
     NotificationType,
     OffersResponse,
@@ -32,9 +33,11 @@ import {
     Transaction,
     TransactionResponse,
     UpdatedTransactionEvent,
-    UpdatedTransactionEventResponse, UpdateNotificationReminderInput,
+    UpdatedTransactionEventResponse,
+    UpdateNotificationReminderInput,
     UpdateTransactionInput,
-    UserDevicesResponse, UserForNotificationReminderResponse
+    UserDevicesResponse,
+    UserForNotificationReminderResponse
 } from "../GraphqlExports";
 
 /**
@@ -85,7 +88,15 @@ export abstract class BaseAPIClient {
     protected async retrieveServiceCredentials(verificationClientSecretsName: string, internalRestBased?: boolean,
                                                notificationType?: NotificationType, includeLoyaltyPrograms?: boolean,
                                                cognitoClientAccess?: boolean, channelType?: NotificationChannelType)
-        : Promise<[string | null, string | null, (string | null)?, (string | null)?, (string | null)?, (string | null)?, (string | null)?, (string | null)?]> {
+        : Promise<[string | null, string | null,
+        (string | null)?,
+        (string | null)?,
+        (string | null)?,
+        (string | null)?,
+        (string | null)?,
+        (string | null)?,
+        (string | null)?
+    ]> {
         try {
             // retrieve the secrets pair for the API client, depending on the current environment and region
             const verificationClientAPIPair = await this.secretsClient
@@ -164,6 +175,20 @@ export abstract class BaseAPIClient {
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_CARD_LINKING_REMINDER_AUTH_TOKEN],
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_CARD_LINKING_REMINDER_TEMPLATE_ID]];
                                     }
+                                case NotificationType.NewMapFeatureReminder:
+                                    if (channelType !== undefined) {
+                                        return channelType === NotificationChannelType.Email
+                                            ? [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_NEW_MAP_FEATURE_REMINDER_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_NEW_MAP_FEATURE_REMINDER_TEMPLATE_ID]]
+                                            : [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_NEW_MAP_FEATURE_REMINDER_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_NEW_MAP_FEATURE_REMINDER_TEMPLATE_ID]];
+                                    } else {
+                                        return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_NEW_MAP_FEATURE_REMINDER_AUTH_TOKEN],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_NEW_MAP_FEATURE_REMINDER_TEMPLATE_ID]];
+                                    }
                                 default:
                                     console.log(`Unknown notifications type to retrieve secrets in ${verificationClientSecretsName}`);
                                     return [null, null];
@@ -184,6 +209,7 @@ export abstract class BaseAPIClient {
                                 clientPairAsJson[Constants.AWSPairConstants.OLIVE_MOONBEAM_ONLINE_LOYALTY],
                                 clientPairAsJson[Constants.AWSPairConstants.OLIVE_MOONBEAM_PREMIER_ONLINE_LOYALTY],
                                 clientPairAsJson[Constants.AWSPairConstants.OLIVE_MOONBEAM_PREMIER_NEARBY_LOYALTY],
+                                clientPairAsJson[Constants.AWSPairConstants.OLIVE_MOONBEAM_VETERANS_DAY_LOYALTY],
                             ]
                             : [clientPairAsJson[Constants.AWSPairConstants.OLIVE_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.OLIVE_PUBLIC_KEY], clientPairAsJson[Constants.AWSPairConstants.OLIVE_PRIVATE_KEY]];
                     default:
@@ -236,10 +262,11 @@ export abstract class BaseAPIClient {
     protected updateNotificationReminder?(updateNotificationReminderInput: UpdateNotificationReminderInput): Promise<NotificationReminderResponse>;
 
     /**
-     * Function used to get all users' emails and custom user IDs from Cognito.
+     * Function used to get all the users used to delivered
+     * notification reminders to.
      *
      * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
-     * user ID and email attributes.
+     * user ID, first, last name and email.
      *
      * @protected
      */

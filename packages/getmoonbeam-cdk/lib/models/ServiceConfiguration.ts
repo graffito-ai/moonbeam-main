@@ -279,4 +279,5 @@ export interface NotificationReminderConfiguration {
     readonly createNotificationReminderResolverName: string;
     readonly getNotificationRemindersResolverName: string;
     readonly updateNotificationReminderResolverName: string;
+    readonly getAllUsersForNotificationRemindersResolverName: string;
 }

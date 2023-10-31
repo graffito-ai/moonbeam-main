@@ -93,8 +93,11 @@ export const createNotification = async (fieldName: string, createNotificationIn
                     return militaryStatusUpdateNotification(createNotificationInput, courierClient, dynamoDbClient,
                         NotificationType.MilitaryStatusChangedPendingToVerified);
                 case NotificationType.CardLinkingReminder:
-                    return cardLinkingReminderNotification(createNotificationInput, courierClient, dynamoDbClient,
+                    return standardEmailAndPushNotification(createNotificationInput, courierClient, dynamoDbClient,
                         NotificationType.CardLinkingReminder);
+                case NotificationType.NewMapFeatureReminder:
+                    return standardEmailAndPushNotification(createNotificationInput, courierClient, dynamoDbClient,
+                        NotificationType.NewMapFeatureReminder);
                 default:
                     const errorMessage = `Unexpected notification type ${createNotificationInput.type}`;
                     console.log(errorMessage);
@@ -115,7 +118,9 @@ export const createNotification = async (fieldName: string, createNotificationIn
 }
 
 /**
- * Function used to remind users that they have not linked a card.
+ * Function used for standard notification reminders:
+ * - for users that they have not linked a card.
+ * - for new features (e.g - the new map feature that we have)
  *
  * @param createNotificationInput create notifications input object, used to create a notification
  * for a user card linking reminder.
@@ -125,9 +130,9 @@ export const createNotification = async (fieldName: string, createNotificationIn
  *
  * @returns {@link Promise} of {@link CreateNotificationResponse}
  */
-const cardLinkingReminderNotification = async (createNotificationInput: CreateNotificationInput, courierClient: CourierClient,
+const standardEmailAndPushNotification = async (createNotificationInput: CreateNotificationInput, courierClient: CourierClient,
                                                 dynamoDbClient: DynamoDBClient, notificationType: NotificationType): Promise<CreateNotificationResponse> => {
-    console.log('Sending card linking reminder notifications');
+    console.log(`Sending standard email and push notification reminder for ${notificationType}`);
     switch (createNotificationInput.channelType) {
         case NotificationChannelType.Email:
             // validate that we have the necessary information to send an email

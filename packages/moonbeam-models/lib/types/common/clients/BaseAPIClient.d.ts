@@ -34,7 +34,17 @@ export declare abstract class BaseAPIClient {
      *
      * @return a {@link Promise} of a {@link string} pair, containing various secrets to be used
      */
-    protected retrieveServiceCredentials(verificationClientSecretsName: string, internalRestBased?: boolean, notificationType?: NotificationType, includeLoyaltyPrograms?: boolean, cognitoClientAccess?: boolean, channelType?: NotificationChannelType): Promise<[string | null, string | null, (string | null)?, (string | null)?, (string | null)?, (string | null)?, (string | null)?, (string | null)?]>;
+    protected retrieveServiceCredentials(verificationClientSecretsName: string, internalRestBased?: boolean, notificationType?: NotificationType, includeLoyaltyPrograms?: boolean, cognitoClientAccess?: boolean, channelType?: NotificationChannelType): Promise<[
+        string | null,
+        string | null,
+        (string | null)?,
+        (string | null)?,
+        (string | null)?,
+        (string | null)?,
+        (string | null)?,
+        (string | null)?,
+        (string | null)?
+    ]>;
     /**
      * Function used to get the users with no linked cards.
      *
@@ -65,10 +75,11 @@ export declare abstract class BaseAPIClient {
      */
     protected updateNotificationReminder?(updateNotificationReminderInput: UpdateNotificationReminderInput): Promise<NotificationReminderResponse>;
     /**
-     * Function used to get all users' emails and custom user IDs from Cognito.
+     * Function used to get all the users used to delivered
+     * notification reminders to.
      *
      * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
-     * user ID and email attributes.
+     * user ID, first, last name and email.
      *
      * @protected
      */

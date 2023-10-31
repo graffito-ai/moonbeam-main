@@ -16,6 +16,7 @@ export const createNotificationReminder = /* GraphQL */ `
                 nextTriggerAt
                 notificationChannelType
                 notificationReminderCount
+                notificationReminderMaxCount
             }
         }
     }
@@ -37,6 +38,7 @@ export const updateNotificationReminder = /* GraphQL */ `
                 nextTriggerAt
                 notificationChannelType
                 notificationReminderCount
+                notificationReminderMaxCount
             }
         }
     }

@@ -1185,8 +1185,11 @@ export class OliveClient extends BaseAPIClient {
             // retrieve the API Key and Base URL, needed in order to make the GET offers call through the client
             const [oliveBaseURL, olivePublicKey, olivePrivateKey,
                 moonbeamDefaultLoyalty, moonbeamFidelisDefaultLoyalty, moonbeamOnlineLoyalty,
-                moonbeamPremierOnlineLoyalty, moonbeamPremierNearbyLoyalty] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.OLIVE_SECRET_NAME, undefined,
-                undefined, true);
+                moonbeamPremierOnlineLoyalty, moonbeamPremierNearbyLoyalty, moonbeamVeteransDayLoyalty] = await super.retrieveServiceCredentials(
+                Constants.AWSPairConstants.OLIVE_SECRET_NAME,
+                undefined,
+                undefined,
+                true);
 
             // check to see if we obtained any invalid secret values from the call above
             if (oliveBaseURL === null || oliveBaseURL.length === 0 ||
@@ -1194,7 +1197,8 @@ export class OliveClient extends BaseAPIClient {
                 olivePrivateKey === null || olivePrivateKey!.length === 0 ||
                 moonbeamDefaultLoyalty === null || moonbeamDefaultLoyalty!.length === 0 ||
                 moonbeamFidelisDefaultLoyalty === null || moonbeamFidelisDefaultLoyalty!.length === 0 ||
-                moonbeamOnlineLoyalty === null || moonbeamOnlineLoyalty!.length === 0) {
+                moonbeamOnlineLoyalty === null || moonbeamOnlineLoyalty!.length === 0 ||
+                moonbeamVeteransDayLoyalty === null || moonbeamVeteransDayLoyalty!.length === 0) {
                 const errorMessage = "Invalid Secrets obtained for Olive API call!";
                 console.log(errorMessage);
 
@@ -1233,6 +1237,9 @@ export class OliveClient extends BaseAPIClient {
                 case OfferFilter.PremierNearby:
                     loyaltyProgramId = moonbeamPremierNearbyLoyalty;
                     break;
+                case OfferFilter.VeteransDay:
+                    loyaltyProgramId = moonbeamVeteransDayLoyalty;
+                    break
                 default:
                     console.log(`Unknown offer filter passed in ${getOffersInput.filterType} resulting in invalid loyalty program id!`);
                     break;

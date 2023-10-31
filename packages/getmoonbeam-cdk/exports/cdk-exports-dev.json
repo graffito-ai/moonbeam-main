@@ -14,9 +14,6 @@
     "awsappsyncregion": "us-west-2",
     "awsappsyncgraphqlEndpoint": "https://a3fdqxqu2jfxvolboiywrkgoau.appsync-api.us-west-2.amazonaws.com/graphql"
   },
-  "moonbeam-military-verification-updates-producer-consumer-dev-us-west-2": {
-    "ExportsOutputFnGetAttmilitaryVerificationNotificationProducerFunctiondevuswest2702290A6ArnC9125219": "arn:aws:lambda:us-west-2:963863720257:function:militaryVerificationNotificationProducerFunction-dev-us-west-2"
-  },
   "moonbeam-storage-resolver-dev-us-west-2": {
     "awsuserfiless3bucketregion": "us-west-2",
     "awsuserfiless3bucket": "moonbeam-files-bucket-dev-us-west-2"
@@ -26,6 +23,9 @@
   },
   "moonbeam-updated-transactions-producer-consumer-dev-us-west-2": {
     "ExportsOutputFnGetAttupdatedTransactionsProducerLambdaFunctiondevuswest27E1FEE2BArn7AF88284": "arn:aws:lambda:us-west-2:963863720257:function:updatedTransactionsProducerLambdaFunction-dev-us-west-2"
+  },
+  "moonbeam-military-verification-updates-producer-consumer-dev-us-west-2": {
+    "ExportsOutputFnGetAttmilitaryVerificationNotificationProducerFunctiondevuswest2702290A6ArnC9125219": "arn:aws:lambda:us-west-2:963863720257:function:militaryVerificationNotificationProducerFunction-dev-us-west-2"
   },
   "moonbeam-api-gateway-dev-us-west-2": {
     "cardLinkingServiceAPIdevuswest2Endpoint8235E493": "https://rs9fn3vxf4.execute-api.us-west-2.amazonaws.com/prod/"

@@ -72,10 +72,11 @@ export class MoonbeamClient extends BaseAPIClient {
     }
 
     /**
-     * Function used to get all users' emails and custom user IDs from Cognito.
+     * Function used to get all the users used to delivered
+     * notification reminders to.
      *
      * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
-     * user ID and email attributes.
+     * user ID, first, last name and email.
      */
     async getAllUsersForNotificationReminders(): Promise<UserForNotificationReminderResponse> {
         // easily identifiable API endpoint information

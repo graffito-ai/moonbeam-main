@@ -170,7 +170,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 notificationReminderTableName: 'notificationReminderTable',
                 createNotificationReminderResolverName: 'createNotificationReminder',
                 getNotificationRemindersResolverName: 'getNotificationReminders',
-                updateNotificationReminderResolverName: 'updateNotificationReminder'
+                updateNotificationReminderResolverName: 'updateNotificationReminder',
+                getAllUsersForNotificationRemindersResolverName: 'getAllUsersForNotificationReminders'
             },
             environmentVariables: new Map<string, string>([])
         },
@@ -338,7 +339,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 notificationReminderTableName: 'notificationReminderTable',
                 createNotificationReminderResolverName: 'createNotificationReminder',
                 getNotificationRemindersResolverName: 'getNotificationReminders',
-                updateNotificationReminderResolverName: 'updateNotificationReminder'
+                updateNotificationReminderResolverName: 'updateNotificationReminder',
+                getAllUsersForNotificationRemindersResolverName: 'getAllUsersForNotificationReminders'
             },
             environmentVariables: new Map<string, string>([])
         },

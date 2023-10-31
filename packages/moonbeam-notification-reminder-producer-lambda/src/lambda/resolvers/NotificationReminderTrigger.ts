@@ -3,7 +3,9 @@ import {
     MoonbeamClient,
     NotificationReminderResponse,
     NotificationReminderStatus,
-    NotificationReminderType, NotificationType, UserDetailsForNotifications
+    NotificationReminderType,
+    NotificationType,
+    UserDetailsForNotifications, UserForNotificationReminderResponse
 } from "@moonbeam/moonbeam-models";
 import {PublishCommand, SNSClient} from "@aws-sdk/client-sns";
 
@@ -27,7 +29,9 @@ export const triggerNotificationReminder = async (): Promise<void> => {
          * 2) For the reminders that are of:
          *    - CARD_LINKING_REMINDER type, call the getUsersWithNoCards
          *    AppSync Query API, in order to get all users to send notification reminders to.
-         *    - for any other types, this is TBD.
+         *
+         *    - NEW_MAP_FEATURE_REMINDER type, call the getAllUsersForNotificationReminders AppSync Query
+         *    API, in order to get all the users to send notification reminders to.
          *
          * 3) For each applicable user from step 2) drop a message into the appropriate SNS topic.
          *
@@ -53,6 +57,7 @@ export const triggerNotificationReminder = async (): Promise<void> => {
                     const currentDate: Date = new Date(Date.now());
                     if (nextTriggerDate.getDate() === currentDate.getDate() && nextTriggerDate.getMonth() === currentDate.getMonth() &&
                         nextTriggerDate.getFullYear() === currentDate.getFullYear()) {
+                        // depending on the type of notifications that we're sending, act accordingly
                         switch (reminder!.notificationReminderType) {
                             case NotificationReminderType.CardLinkingReminder:
                                 console.log(`__________________________________________________________________________________________________________________________________`);
@@ -146,6 +151,104 @@ export const triggerNotificationReminder = async (): Promise<void> => {
                                      * in the future we might need some alerts and metrics emitting here
                                      */
                                     console.log(`Users with no cards retrieval through GET users with no cards call failed`);
+                                }
+                                break;
+                            case NotificationReminderType.NewMapFeatureReminder:
+                                console.log(`__________________________________________________________________________________________________________________________________`);
+                                console.log(`Found new ACTIVE notification reminder ${reminder!.id} of type ${NotificationReminderType.NewMapFeatureReminder}`);
+
+                                // 2) For any ACTIVE reminders of type NEW_MAP_FEATURE_REMINDER, call the getAllUsersForNotificationReminders Moonbeam AppSync Query API endpoint.
+                                const allUsersForNotificationReminder: UserForNotificationReminderResponse = await moonbeamClient.getAllUsersForNotificationReminders();
+
+                                // check if the get all users for notification reminders call was successful or not.
+                                if (allUsersForNotificationReminder !== null && allUsersForNotificationReminder !== undefined && !allUsersForNotificationReminder.errorMessage &&
+                                    !allUsersForNotificationReminder.errorType && allUsersForNotificationReminder.data !== null && allUsersForNotificationReminder.data !== undefined &&
+                                    allUsersForNotificationReminder.data.length !== 0) {
+
+                                    // 3) For each applicable user from step 2) drop a message into the appropriate SNS topic.
+                                    let successfulUserMessagesSent = 0;
+                                    for (const user of allUsersForNotificationReminder.data) {
+                                        // ToDo: Remove this after Google Approves us
+                                        if (user!.email === 'marius@moonbeam.vet' || user!.email === 'johnluke@moonbeam.vet') {
+                                            // initializing the SNS Client
+                                            const snsClient = new SNSClient({region: region});
+
+                                            /**
+                                             * drop the ineligible user input as a message to the notification reminder processing topic
+                                             */
+                                            const userDetailsForNotifications: UserDetailsForNotifications = {
+                                                id: user!.id,
+                                                email: user!.email,
+                                                firstName: user!.firstName,
+                                                lastName: user!.lastName,
+                                                notificationChannelType: reminder!.notificationChannelType,
+                                                notificationType: NotificationType.NewMapFeatureReminder
+                                            }
+                                            const notificationReminderReceipt = await snsClient.send(new PublishCommand({
+                                                TopicArn: process.env.NOTIFICATION_REMINDER_PROCESSING_TOPIC_ARN!,
+                                                Message: JSON.stringify(userDetailsForNotifications),
+                                                /**
+                                                 * the message group id, will be represented by the Moonbeam internal user id, so that we can group the notification reminder update messages for a particular
+                                                 * user id, and sort them in the FIFO processing topic accordingly.
+                                                 */
+                                                MessageGroupId: user!.id
+                                            }));
+
+                                            // ensure that the notification reminder message was properly sent to the appropriate processing topic
+                                            if (notificationReminderReceipt !== null && notificationReminderReceipt !== undefined && notificationReminderReceipt.MessageId &&
+                                                notificationReminderReceipt.MessageId.length !== 0 && notificationReminderReceipt.SequenceNumber && notificationReminderReceipt.SequenceNumber.length !== 0) {
+                                                // the notification reminder message has been successfully dropped into the topic, and will be picked up by the notification reminder consumer
+                                                console.log(`Notification reminder successfully sent to topic for processing with receipt information: ${notificationReminderReceipt.MessageId} ${notificationReminderReceipt.SequenceNumber}`);
+                                                // increase the number of messages sent to the topic
+                                                successfulUserMessagesSent += 1;
+                                            } else {
+                                                /**
+                                                 * no need for further actions, since this error will be logged and nothing will execute further.
+                                                 * in the future we might need some alerts and metrics emitting here
+                                                 */
+                                                console.log(`Unexpected error while sending the notification reminder for user ${user!.id}`);
+                                            }
+                                        }
+                                    }
+                                    // check if all applicable users have had successful messages dropped in the notification reminder topic
+                                    if (successfulUserMessagesSent === allUsersForNotificationReminder.data.length) {
+                                        console.log(`__________________________________________________________________________________________________________________________________`);
+                                        console.log(`Notification reminder successfully sent for users:\n${JSON.stringify(allUsersForNotificationReminder.data)}`);
+                                        /**
+                                         * 4) Once all users have been notified, then update the card linking reminder accordingly,
+                                         * by calling the updateNotificationReminder AppSync Mutation API.
+                                         */
+                                        const updateNotificationReminderResponse: NotificationReminderResponse = await moonbeamClient.updateNotificationReminder({
+                                            id: reminder!.id,
+                                            notificationReminderStatus: NotificationReminderStatus.Active
+                                        });
+
+                                        // check if the update notification reminder call was successful or not.
+                                        if (updateNotificationReminderResponse !== null && updateNotificationReminderResponse !== undefined &&
+                                            !updateNotificationReminderResponse.errorMessage && !updateNotificationReminderResponse.errorType &&
+                                            updateNotificationReminderResponse.data !== undefined && updateNotificationReminderResponse.data !== null &&
+                                            updateNotificationReminderResponse.data.length !== 0) {
+                                            console.log(`Notification reminder ${reminder!.id} successfully updated`);
+                                        } else {
+                                            /**
+                                             * no need for further actions, since this error will be logged and nothing will execute further.
+                                             * in the future we might need some alerts and metrics emitting here
+                                             */
+                                            console.log(`Update notification reminder through UPDATE notification reminder call failed`);
+                                        }
+                                    } else {
+                                        /**
+                                         * no need for further actions, since this error will be logged and nothing will execute further.
+                                         * in the future we might need some alerts and metrics emitting here
+                                         */
+                                        console.log(`Not all applicable users have had notification events dropped in the appropriate topic. Re-process these failed messages accordingly.`);
+                                    }
+                                } else {
+                                    /**
+                                     * no need for further actions, since this error will be logged and nothing will execute further.
+                                     * in the future we might need some alerts and metrics emitting here
+                                     */
+                                    console.log(`Users for notification reminders retrieval through GET all users for notification reminders call failed`);
                                 }
                                 break;
                             default:

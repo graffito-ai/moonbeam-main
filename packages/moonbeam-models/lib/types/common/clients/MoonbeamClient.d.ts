@@ -14,10 +14,11 @@ export declare class MoonbeamClient extends BaseAPIClient {
      */
     constructor(environment: string, region: string);
     /**
-     * Function used to get all users' emails and custom user IDs from Cognito.
+     * Function used to get all the users used to delivered
+     * notification reminders to.
      *
      * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
-     * user ID and email attributes.
+     * user ID, first, last name and email.
      */
     getAllUsersForNotificationReminders(): Promise<UserForNotificationReminderResponse>;
     /**

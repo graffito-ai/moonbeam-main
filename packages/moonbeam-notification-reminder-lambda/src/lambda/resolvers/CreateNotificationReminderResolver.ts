@@ -2,6 +2,7 @@ import {AttributeValue, DynamoDBClient, GetItemCommand, PutItemCommand} from "@a
 import {
     CreateNotificationReminderInput,
     NotificationReminder,
+    NotificationReminderCadence,
     NotificationReminderErrorType,
     NotificationReminderResponse
 } from "@moonbeam/moonbeam-models";
@@ -72,14 +73,36 @@ export const createNotificationReminder = async (fieldName: string, createNotifi
                 })
             });
 
-            // store the next trigger date/time, to start the next day
-            const triggerDate = new Date(Date.now());
-            triggerDate.setDate(triggerDate.getDate() + 1);
-            triggerDate.setHours(19, 0,0,0); // set the UTC time to match 12 PM MST/ 2 PM CST / 3 PM EST
-            createNotificationReminderInput.nextTriggerAt = triggerDate.toISOString();
+            // store the next trigger date/time, to start the next day if there is no trigger date passed in
+            if (createNotificationReminderInput.nextTriggerAt === null || createNotificationReminderInput.nextTriggerAt === undefined || createNotificationReminderInput.nextTriggerAt.length === 0) {
+                const triggerDate = new Date(Date.now());
+                triggerDate.setDate(triggerDate.getDate() + 1);
+                triggerDate.setHours(19, 0, 0, 0); // set the UTC time to match 12 PM MST/ 2 PM CST / 3 PM EST
+                createNotificationReminderInput.nextTriggerAt = triggerDate.toISOString();
+            }
 
             // initially set this as 0 times since this has never been triggered at the creation time
             createNotificationReminderInput.notificationReminderCount = 0;
+
+            // if there is no max count for the reminder, then set it to 999,999, otherwise set it according to what we get from the input
+            switch (createNotificationReminderInput.notificationReminderCadence) {
+                case NotificationReminderCadence.OneTime:
+                    // for the one time run we set it to one regardless of what we get as the input
+                    createNotificationReminderInput.notificationReminderMaxCount = 1;
+                    break;
+                case NotificationReminderCadence.Daily:
+                case NotificationReminderCadence.Weekly:
+                case NotificationReminderCadence.BiWeekly:
+                case NotificationReminderCadence.Monthly:
+                    createNotificationReminderInput.notificationReminderMaxCount =
+                        createNotificationReminderInput.notificationReminderMaxCount === null || createNotificationReminderInput.notificationReminderMaxCount === undefined
+                            ? 999999
+                            : createNotificationReminderInput.notificationReminderMaxCount;
+                    break;
+                default:
+                    createNotificationReminderInput.notificationReminderMaxCount = 999999;
+                    break;
+            }
 
             // store the Notification Reminder object
             await dynamoDbClient.send(new PutItemCommand({
@@ -108,6 +131,9 @@ export const createNotificationReminder = async (fieldName: string, createNotifi
                     },
                     notificationReminderCount: {
                         N: createNotificationReminderInput.notificationReminderCount!.toString()
+                    },
+                    notificationReminderMaxCount: {
+                        N: createNotificationReminderInput.notificationReminderMaxCount!.toString()
                     },
                     notificationChannelType: {
                         L: notificationChannelType

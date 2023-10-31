@@ -10,5 +10,6 @@ export const FidelisVeteranOwnedPartners: string[] = [
     'Woobie Gear',
     'Olde Man Granola',
     'Kovr Military-Grade Sunscreen',
-    'Triangle Fragrance'
+    'Triangle Fragrance',
+    'Mythos'
 ];

@@ -9,6 +9,7 @@ enum NotificationReminderErrorType {
 
 enum NotificationReminderType {
     CARD_LINKING_REMINDER
+    NEW_MAP_FEATURE_REMINDER
 }
 
 enum NotificationReminderStatus {
@@ -36,6 +37,8 @@ type NotificationReminder @aws_cognito_user_pools @aws_api_key {
     notificationChannelType: [NotificationChannelType]!
     # this represents the number of times that this notification reminder was triggered
     notificationReminderCount: Int!
+    # this represents the number of time that this notification reminder can run - we default to 999,999 times as our INDEFINITE number
+    notificationReminderMaxCount: Int!
 }
 
 type UserDetailsForNotifications @aws_cognito_user_pools @aws_api_key {
@@ -69,6 +72,7 @@ input CreateNotificationReminderInput {
     nextTriggerAt: AWSDateTime
     notificationChannelType: [NotificationChannelType]!
     notificationReminderCount: Int
+    notificationReminderMaxCount: Int
 }
 
 input UpdateNotificationReminderInput {

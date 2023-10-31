@@ -26,6 +26,19 @@ query GetNotificationReminders {
             nextTriggerAt
             notificationChannelType
             notificationReminderCount
+            notificationReminderMaxCount
+        }
+    }
+}
+query GetAllUsersForNotificationReminders {
+    getAllUsersForNotificationReminders {
+        errorMessage
+        errorType
+        data {
+            id
+            email
+            firstName
+            lastName
         }
     }
 }

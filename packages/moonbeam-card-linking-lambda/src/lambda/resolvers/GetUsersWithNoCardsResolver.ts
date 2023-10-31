@@ -96,7 +96,7 @@ export const getUsersWithNoCards = async (fieldName: string): Promise<Ineligible
                 };
             } else {
                 // if there are no eligible users found, then we can conclude that all users retrieved are ineligible/have no linked cards
-                const errorMessage = `Eligible linked users not found, returning all linked users instead!`;
+                const errorMessage = `Eligible linked users not found, returning all un-linked/ineligible users instead!`;
                 console.log(errorMessage);
 
                 return {

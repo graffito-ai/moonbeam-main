@@ -14,6 +14,7 @@ mutation CreateNotificationReminder($createNotificationReminderInput: CreateNoti
             nextTriggerAt
             notificationChannelType
             notificationReminderCount
+            notificationReminderMaxCount
         }
     }
 }
@@ -31,6 +32,7 @@ mutation UpdateNotificationReminder($updateNotificationReminderInput: UpdateNoti
             nextTriggerAt
             notificationChannelType
             notificationReminderCount
+            notificationReminderMaxCount
         }
     }
 }

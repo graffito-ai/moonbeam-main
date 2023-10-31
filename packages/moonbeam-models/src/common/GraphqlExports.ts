@@ -173,6 +173,7 @@ export type CreateNotificationReminderInput = {
   notificationChannelType: Array<InputMaybe<NotificationChannelType>>;
   notificationReminderCadence: NotificationReminderCadence;
   notificationReminderCount?: InputMaybe<Scalars['Int']>;
+  notificationReminderMaxCount?: InputMaybe<Scalars['Int']>;
   notificationReminderStatus: NotificationReminderStatus;
   notificationReminderType: NotificationReminderType;
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
@@ -697,6 +698,7 @@ export type NotificationReminder = {
   notificationChannelType: Array<Maybe<NotificationChannelType>>;
   notificationReminderCadence: NotificationReminderCadence;
   notificationReminderCount: Scalars['Int'];
+  notificationReminderMaxCount: Scalars['Int'];
   notificationReminderStatus: NotificationReminderStatus;
   notificationReminderType: NotificationReminderType;
   updatedAt: Scalars['AWSDateTime'];
@@ -730,7 +732,8 @@ export enum NotificationReminderStatus {
 }
 
 export enum NotificationReminderType {
-  CardLinkingReminder = 'CARD_LINKING_REMINDER'
+  CardLinkingReminder = 'CARD_LINKING_REMINDER',
+  NewMapFeatureReminder = 'NEW_MAP_FEATURE_REMINDER'
 }
 
 export type NotificationResponse = {
@@ -753,6 +756,7 @@ export enum NotificationType {
   MarketingRelated = 'MARKETING_RELATED',
   MilitaryStatusChangedPendingToRejected = 'MILITARY_STATUS_CHANGED_PENDING_TO_REJECTED',
   MilitaryStatusChangedPendingToVerified = 'MILITARY_STATUS_CHANGED_PENDING_TO_VERIFIED',
+  NewMapFeatureReminder = 'NEW_MAP_FEATURE_REMINDER',
   NewQualifyingOfferAvailable = 'NEW_QUALIFYING_OFFER_AVAILABLE',
   NewUserSignup = 'NEW_USER_SIGNUP',
   QualifyingOffer = 'QUALIFYING_OFFER'
@@ -832,7 +836,8 @@ export enum OfferFilter {
   Nearby = 'NEARBY',
   Online = 'ONLINE',
   PremierNearby = 'PREMIER_NEARBY',
-  PremierOnline = 'PREMIER_ONLINE'
+  PremierOnline = 'PREMIER_ONLINE',
+  VeteransDay = 'VETERANS_DAY'
 }
 
 export enum OfferReach {
@@ -901,6 +906,7 @@ export type PushDevice = {
 
 export type Query = {
   __typename?: 'Query';
+  getAllUsersForNotificationReminders: UserForNotificationReminderResponse;
   getCardLink: CardLinkResponse;
   getDevice: UserDeviceResponse;
   getDeviceByToken: UserDeviceResponse;
@@ -1279,14 +1285,14 @@ export type CreateNotificationReminderMutationVariables = Exact<{
 }>;
 
 
-export type CreateNotificationReminderMutation = { __typename?: 'Mutation', createNotificationReminder: { __typename?: 'NotificationReminderResponse', errorMessage?: string | null, errorType?: NotificationReminderErrorType | null, data?: Array<{ __typename?: 'NotificationReminder', id: string, notificationReminderType: NotificationReminderType, notificationReminderStatus: NotificationReminderStatus, notificationReminderCadence: NotificationReminderCadence, createdAt: string, updatedAt: string, nextTriggerAt: string, notificationChannelType: Array<NotificationChannelType | null>, notificationReminderCount: number } | null> | null } };
+export type CreateNotificationReminderMutation = { __typename?: 'Mutation', createNotificationReminder: { __typename?: 'NotificationReminderResponse', errorMessage?: string | null, errorType?: NotificationReminderErrorType | null, data?: Array<{ __typename?: 'NotificationReminder', id: string, notificationReminderType: NotificationReminderType, notificationReminderStatus: NotificationReminderStatus, notificationReminderCadence: NotificationReminderCadence, createdAt: string, updatedAt: string, nextTriggerAt: string, notificationChannelType: Array<NotificationChannelType | null>, notificationReminderCount: number, notificationReminderMaxCount: number } | null> | null } };
 
 export type UpdateNotificationReminderMutationVariables = Exact<{
   updateNotificationReminderInput: UpdateNotificationReminderInput;
 }>;
 
 
-export type UpdateNotificationReminderMutation = { __typename?: 'Mutation', updateNotificationReminder: { __typename?: 'NotificationReminderResponse', errorMessage?: string | null, errorType?: NotificationReminderErrorType | null, data?: Array<{ __typename?: 'NotificationReminder', id: string, notificationReminderType: NotificationReminderType, notificationReminderStatus: NotificationReminderStatus, notificationReminderCadence: NotificationReminderCadence, createdAt: string, updatedAt: string, nextTriggerAt: string, notificationChannelType: Array<NotificationChannelType | null>, notificationReminderCount: number } | null> | null } };
+export type UpdateNotificationReminderMutation = { __typename?: 'Mutation', updateNotificationReminder: { __typename?: 'NotificationReminderResponse', errorMessage?: string | null, errorType?: NotificationReminderErrorType | null, data?: Array<{ __typename?: 'NotificationReminder', id: string, notificationReminderType: NotificationReminderType, notificationReminderStatus: NotificationReminderStatus, notificationReminderCadence: NotificationReminderCadence, createdAt: string, updatedAt: string, nextTriggerAt: string, notificationChannelType: Array<NotificationChannelType | null>, notificationReminderCount: number, notificationReminderMaxCount: number } | null> | null } };
 
 export type CreateUserAuthSessionMutationVariables = Exact<{
   createUserAuthSessionInput: CreateUserAuthSessionInput;
@@ -1389,7 +1395,12 @@ export type GetUserAuthSessionQuery = { __typename?: 'Query', getUserAuthSession
 export type GetNotificationRemindersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetNotificationRemindersQuery = { __typename?: 'Query', getNotificationReminders: { __typename?: 'NotificationReminderResponse', errorMessage?: string | null, errorType?: NotificationReminderErrorType | null, data?: Array<{ __typename?: 'NotificationReminder', id: string, notificationReminderType: NotificationReminderType, notificationReminderStatus: NotificationReminderStatus, notificationReminderCadence: NotificationReminderCadence, createdAt: string, updatedAt: string, nextTriggerAt: string, notificationChannelType: Array<NotificationChannelType | null>, notificationReminderCount: number } | null> | null } };
+export type GetNotificationRemindersQuery = { __typename?: 'Query', getNotificationReminders: { __typename?: 'NotificationReminderResponse', errorMessage?: string | null, errorType?: NotificationReminderErrorType | null, data?: Array<{ __typename?: 'NotificationReminder', id: string, notificationReminderType: NotificationReminderType, notificationReminderStatus: NotificationReminderStatus, notificationReminderCadence: NotificationReminderCadence, createdAt: string, updatedAt: string, nextTriggerAt: string, notificationChannelType: Array<NotificationChannelType | null>, notificationReminderCount: number, notificationReminderMaxCount: number } | null> | null } };
+
+export type GetAllUsersForNotificationRemindersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllUsersForNotificationRemindersQuery = { __typename?: 'Query', getAllUsersForNotificationReminders: { __typename?: 'UserForNotificationReminderResponse', errorMessage?: string | null, errorType?: NotificationReminderErrorType | null, data?: Array<{ __typename?: 'RetrieveUserDetailsForNotifications', id: string, email: string, firstName: string, lastName: string } | null> | null } };
 
 export type GetFaQsQueryVariables = Exact<{ [key: string]: never; }>;
 

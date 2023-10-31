@@ -32,6 +32,23 @@ export const getNotificationReminders = /* GraphQL */ `
                 nextTriggerAt
                 notificationChannelType
                 notificationReminderCount
+                notificationReminderMaxCount
+            }
+        }
+    }
+`;
+
+// Query used to retrieve all Users for Notification Reminders
+export const getAllUsersForNotificationReminders = /* GraphQL */ `
+    query GetAllUsersForNotificationReminders {
+        getAllUsersForNotificationReminders {
+            errorMessage
+            errorType
+            data {
+                id
+                email
+                firstName
+                lastName
             }
         }
     }

@@ -71,6 +71,7 @@ export const getNotificationReminders = async (fieldName: string): Promise<Notif
                     notificationChannelType: notificationChannelType,
                     notificationReminderCadence: notificationReminderResult.notificationReminderCadence.S! as NotificationReminderCadence,
                     notificationReminderCount: Number(notificationReminderResult.notificationReminderCount.N!),
+                    notificationReminderMaxCount: Number(notificationReminderResult.notificationReminderMaxCount.N!),
                     notificationReminderStatus: notificationReminderResult.notificationReminderStatus.S! as NotificationReminderStatus,
                     notificationReminderType: notificationReminderResult.notificationReminderType.S! as NotificationReminderType
                 });

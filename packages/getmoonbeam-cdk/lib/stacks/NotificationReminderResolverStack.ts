@@ -67,6 +67,10 @@ export class NotificationReminderResolverStack extends Stack {
             typeName: "Mutation",
             fieldName: `${props.notificationReminderConfig.updateNotificationReminderResolverName}`
         });
+        notificationReminderLambdaSource.createResolver(`${props.notificationReminderConfig.getAllUsersForNotificationRemindersResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Query",
+            fieldName: `${props.notificationReminderConfig.getAllUsersForNotificationRemindersResolverName}`
+        });
 
         // create a new table to be used for Notification Reminder purposes
         const notificationReminderTable = new aws_dynamodb.Table(this, `${props.notificationReminderConfig.notificationReminderTableName}-${props.stage}-${props.env!.region}`, {
