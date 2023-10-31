@@ -117,9 +117,7 @@ export class MilitaryDocumentVerificationStack extends Stack {
             target: this.militaryDocumentVerificationProducerLambda,
             eventSourceArn: `arn:aws:s3:::${mainFilesBucketName}/public/`,
             /**
-             * we do not want the lambda to batch more than 1 records at a time from the queue, we want it to process 1 military verification update at a time instead.
-             * for future purposes, we might want to save cost by increasing this number somewhere between 1-10 (10 max for FIFO queues), in order to process
-             * more messages at the same time
+             * Just process one document at a time and send it to the lambda.
              */
             batchSize: 1,
             reportBatchItemFailures: true
