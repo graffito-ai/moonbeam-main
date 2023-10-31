@@ -168,46 +168,43 @@ export const triggerNotificationReminder = async (): Promise<void> => {
                                     // 3) For each applicable user from step 2) drop a message into the appropriate SNS topic.
                                     let successfulUserMessagesSent = 0;
                                     for (const user of allUsersForNotificationReminder.data) {
-                                        // ToDo: Remove this after Google Approves us
-                                        if (user!.email === 'marius@moonbeam.vet' || user!.email === 'johnluke@moonbeam.vet') {
-                                            // initializing the SNS Client
-                                            const snsClient = new SNSClient({region: region});
+                                        // initializing the SNS Client
+                                        const snsClient = new SNSClient({region: region});
 
+                                        /**
+                                         * drop the ineligible user input as a message to the notification reminder processing topic
+                                         */
+                                        const userDetailsForNotifications: UserDetailsForNotifications = {
+                                            id: user!.id,
+                                            email: user!.email,
+                                            firstName: user!.firstName,
+                                            lastName: user!.lastName,
+                                            notificationChannelType: reminder!.notificationChannelType,
+                                            notificationType: NotificationType.NewMapFeatureReminder
+                                        }
+                                        const notificationReminderReceipt = await snsClient.send(new PublishCommand({
+                                            TopicArn: process.env.NOTIFICATION_REMINDER_PROCESSING_TOPIC_ARN!,
+                                            Message: JSON.stringify(userDetailsForNotifications),
                                             /**
-                                             * drop the ineligible user input as a message to the notification reminder processing topic
+                                             * the message group id, will be represented by the Moonbeam internal user id, so that we can group the notification reminder update messages for a particular
+                                             * user id, and sort them in the FIFO processing topic accordingly.
                                              */
-                                            const userDetailsForNotifications: UserDetailsForNotifications = {
-                                                id: user!.id,
-                                                email: user!.email,
-                                                firstName: user!.firstName,
-                                                lastName: user!.lastName,
-                                                notificationChannelType: reminder!.notificationChannelType,
-                                                notificationType: NotificationType.NewMapFeatureReminder
-                                            }
-                                            const notificationReminderReceipt = await snsClient.send(new PublishCommand({
-                                                TopicArn: process.env.NOTIFICATION_REMINDER_PROCESSING_TOPIC_ARN!,
-                                                Message: JSON.stringify(userDetailsForNotifications),
-                                                /**
-                                                 * the message group id, will be represented by the Moonbeam internal user id, so that we can group the notification reminder update messages for a particular
-                                                 * user id, and sort them in the FIFO processing topic accordingly.
-                                                 */
-                                                MessageGroupId: user!.id
-                                            }));
+                                            MessageGroupId: user!.id
+                                        }));
 
-                                            // ensure that the notification reminder message was properly sent to the appropriate processing topic
-                                            if (notificationReminderReceipt !== null && notificationReminderReceipt !== undefined && notificationReminderReceipt.MessageId &&
-                                                notificationReminderReceipt.MessageId.length !== 0 && notificationReminderReceipt.SequenceNumber && notificationReminderReceipt.SequenceNumber.length !== 0) {
-                                                // the notification reminder message has been successfully dropped into the topic, and will be picked up by the notification reminder consumer
-                                                console.log(`Notification reminder successfully sent to topic for processing with receipt information: ${notificationReminderReceipt.MessageId} ${notificationReminderReceipt.SequenceNumber}`);
-                                                // increase the number of messages sent to the topic
-                                                successfulUserMessagesSent += 1;
-                                            } else {
-                                                /**
-                                                 * no need for further actions, since this error will be logged and nothing will execute further.
-                                                 * in the future we might need some alerts and metrics emitting here
-                                                 */
-                                                console.log(`Unexpected error while sending the notification reminder for user ${user!.id}`);
-                                            }
+                                        // ensure that the notification reminder message was properly sent to the appropriate processing topic
+                                        if (notificationReminderReceipt !== null && notificationReminderReceipt !== undefined && notificationReminderReceipt.MessageId &&
+                                            notificationReminderReceipt.MessageId.length !== 0 && notificationReminderReceipt.SequenceNumber && notificationReminderReceipt.SequenceNumber.length !== 0) {
+                                            // the notification reminder message has been successfully dropped into the topic, and will be picked up by the notification reminder consumer
+                                            console.log(`Notification reminder successfully sent to topic for processing with receipt information: ${notificationReminderReceipt.MessageId} ${notificationReminderReceipt.SequenceNumber}`);
+                                            // increase the number of messages sent to the topic
+                                            successfulUserMessagesSent += 1;
+                                        } else {
+                                            /**
+                                             * no need for further actions, since this error will be logged and nothing will execute further.
+                                             * in the future we might need some alerts and metrics emitting here
+                                             */
+                                            console.log(`Unexpected error while sending the notification reminder for user ${user!.id}`);
                                         }
                                     }
                                     // check if all applicable users have had successful messages dropped in the notification reminder topic

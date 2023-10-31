@@ -48,7 +48,7 @@ export class NotificationReminderProducerConsumerStack extends Stack {
             handler: 'handler',
             runtime: aws_lambda.Runtime.NODEJS_18_X,
             // we add a timeout here different from the default of 3 seconds, since we expect these API calls to take longer
-            timeout: Duration.seconds(30),
+            timeout: Duration.seconds(900),
             bundling: {
                 minify: true, // minify code, defaults to false
                 sourceMap: true, // include source map, defaults to false
@@ -64,7 +64,7 @@ export class NotificationReminderProducerConsumerStack extends Stack {
             // set the CRON timezone to the UTC time to match 6:10 PM UTC, 11:10 AM MST/ 1:10 PM CST / 2:10 PM EST
             schedule: Schedule.cron({
                 day: '*',
-                minute: '10',
+                minute: '33',
                 hour: '18'
             }),
             targets: [new LambdaFunction(this.notificationReminderProducerLambda)],
@@ -77,7 +77,7 @@ export class NotificationReminderProducerConsumerStack extends Stack {
             handler: 'handler',
             runtime: aws_lambda.Runtime.NODEJS_18_X,
             // we add a timeout here different from the default of 3 seconds, since we expect these API calls to take longer
-            timeout: Duration.seconds(50),
+            timeout: Duration.seconds(900),
             bundling: {
                 minify: true, // minify code, defaults to false
                 sourceMap: true, // include source map, defaults to false
