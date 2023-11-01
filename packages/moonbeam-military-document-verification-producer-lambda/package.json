@@ -1,0 +1,24 @@
+{
+  "name": "@moonbeam/moonbeam-military-verification-lambda",
+  "version": "1.0.0",
+  "description": "This sub-package represents a producer Lambda function, used for military document verification purposes.",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "repository": "https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/packages/moonbeam-military-document-verification-producer-lambda/package.json/browse",
+  "author": "Marius Acsinte <marius@moonbeam.vet>",
+  "license": "Moonbeam Inc. Proprietary Code License <https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/LICENSE/browse>",
+  "scripts": {
+    "build": "rm -rf ./lib && tsc",
+    "clean": "rm -rf build/ lib/ node_modules/"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.338.0",
+    "@aws-sdk/types": "^3.272.0",
+    "@aws-sdk/util-dynamodb": "^3.284.0",
+    "@moonbeam/moonbeam-models": "1.0.0",
+    "@moonbeam/moonbeam-tsconfig": "1.0.0",
+    "@types/aws-lambda": "^8.10.120",
+    "axios": "^1.4.0"
+  },
+  "private": true
+}
