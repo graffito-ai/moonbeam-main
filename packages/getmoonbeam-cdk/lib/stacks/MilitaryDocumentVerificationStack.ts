@@ -2,16 +2,19 @@ import {aws_lambda, aws_lambda_nodejs, aws_sns, aws_sqs, Duration, Stack, StackP
 import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
 import path from "path";
-//import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
-import {Constants} from "@moonbeam/moonbeam-models";
+import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
+import {Constants, Stages} from "@moonbeam/moonbeam-models";
 import {SqsSubscription} from "aws-cdk-lib/aws-sns-subscriptions";
 import * as events from 'aws-cdk-lib/aws-events';
 import * as targets from 'aws-cdk-lib/aws-events-targets';
 
 export class MilitaryDocumentVerificationStack extends Stack {
 
-    // Consumer lambda from team 1. Will extract ID from document and put in SNS topic.
+    // Producer lambda from team 1. Will extract ID from document and put in SNS topic.
     readonly militaryDocumentVerificationProducerLambda: aws_lambda_nodejs.NodejsFunction;
+
+    // Consumer lambda for team 2: Will get document and ID from consumer queue 
+    readonly militaryDocumentVerificationConsumerLambda: aws_lambda_nodejs.NodejsFunction;
 
     constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'militaryDocumentVerificationConfig'>) {
         super(scope, id, props);
@@ -33,13 +36,52 @@ export class MilitaryDocumentVerificationStack extends Stack {
             }
         });
 
-        /**
-         * Define Consumer lambda here.
-         */
+        // Consumer lambda for team 2.
+        this.militaryDocumentVerificationConsumerLambda = new aws_lambda_nodejs.NodejsFunction(this, `${props.militaryDocumentVerificationConfig.militaryDocumentVerificationConsumerFunctionName}-${props.stage}-${props.env!.region}`, {
+            functionName: `${props.militaryDocumentVerificationConfig.militaryDocumentVerificationConsumerFunctionName}-${props.stage}-${props.env!.region}`,
+            entry: path.resolve(path.join(__dirname, '../../../moonbeam-military-document-verification-producer-lambda/src/lambda/main.ts')),
+            handler: 'handler',
+            runtime: aws_lambda.Runtime.NODEJS_18_X,
+            // we add a timeout here different from the default of 3 seconds, since we expect these API calls to take longer
+            timeout: Duration.seconds(50),
+            bundling: {
+                minify: true, // minify code, defaults to false
+                sourceMap: true, // include source map, defaults to false
+                sourceMapMode: aws_lambda_nodejs.SourceMapMode.BOTH, // defaults to SourceMapMode.DEFAULT
+                sourcesContent: false, // do not include original source into source map, defaults to true
+                target: 'esnext', // target environment for the generated JavaScript code
+            }
+        });
+        
+        // Give the consumer lambda access to api secrets.
+        this.militaryDocumentVerificationConsumerLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "secretsmanager:GetSecretValue"
+                ],
+                resources: [
+                    // this ARN is retrieved post secret creation
+                    ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:moonbeam-internal-secret-pair-dev-us-west-2-vgMpp2"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:moonbeam-internal-secret-pair-prod-us-west-2-9xP6tj"] : []
+                ]
+            })
+        );
 
-        /**
-         * Give Consumer access to moonbeam api secrets and graphql related stuff goes here.
-         */
+        // Given the consumer lambda access to mutations and queries.
+        this.militaryDocumentVerificationConsumerLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "appsync:GraphQL"
+                ],
+                resources: [
+                    // this ARN is retrieved post secret creation
+                    ...props.stage === Stages.DEV ? ["arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Mutation/*"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Mutation/*"] : []
+                ]
+            })
+        );
 
         // Fifo SNS topic that will come before the queue.
         const militaryDocumentVerificationProcessingTopic = new aws_sns.Topic(this, `${props.militaryDocumentVerificationConfig.militaryDocumentVerificationFanOutConfig.militaryDocumentVerificationProcessingTopicName}-${props.stage}-${props.env!.region}`, {
@@ -106,9 +148,8 @@ export class MilitaryDocumentVerificationStack extends Stack {
             })
         }));
 
-        /**
-         * Lambda Consumer given access to queue goes here.
-         */
+        // Allow consumer lambda to get messages from the team 1 queue.
+        militaryDocumentVerificationProcessingQueue.grantConsumeMessages(this.militaryDocumentVerificationConsumerLambda);
 
         // Get files bucket name for the event bridge.
         const mainFilesBucketName = `${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}-${props.stage}-${props.env!.region}`;
@@ -128,8 +169,11 @@ export class MilitaryDocumentVerificationStack extends Stack {
             }
         }});
 
-        // Make the target of the payload the lambda function.
+        // Add the producer lambda function as a target for this event.
         S3EventRule.addTarget(new targets.LambdaFunction(this.militaryDocumentVerificationProducerLambda));
+
+        // Add the consumer lambda function as a target for this event.
+        S3EventRule.addTarget(new targets.LambdaFunction(this.militaryDocumentVerificationConsumerLambda));
     }
 
 }
