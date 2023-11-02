@@ -5,9 +5,8 @@ import path from "path";
 //import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
 import {Constants} from "@moonbeam/moonbeam-models";
 import {SqsSubscription} from "aws-cdk-lib/aws-sns-subscriptions";
-import {EventSourceMapping} from "aws-cdk-lib/aws-lambda";
-import * as lambdaEventSources from 'aws-cdk-lib/aws-lambda-event-sources';
-import * as s3 from 'aws-cdk-lib/aws-s3'
+import * as events from 'aws-cdk-lib/aws-events';
+import * as targets from 'aws-cdk-lib/aws-events-targets';
 
 export class MilitaryDocumentVerificationStack extends Stack {
 
@@ -111,25 +110,26 @@ export class MilitaryDocumentVerificationStack extends Stack {
          * Lambda Consumer given access to queue goes here.
          */
 
-        // Get files bucket name and use for eventSourceArn for the event bridge.
+        // Get files bucket name for the event bridge.
         const mainFilesBucketName = `${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}-${props.stage}-${props.env!.region}`;
 
-        const mainFilesBucket = s3.Bucket.fromBucketArn(this, 'mainFilesBucketPublic', mainFilesBucketName);
+        // Create the S3 event bridge.
+        const S3EventRule = new events.Rule(this, `${props.militaryDocumentVerificationConfig.militaryDocumentVerificationFanOutConfig.militaryDocumentVerificationProcessingEventRule}`, {
+            eventPattern: {
+                source: ['aws.s3'],
+                detailType: ['Take document from S3 bucket and send to producer lambda in document verification stack.'],
+                detail: {
+                    eeventSource: ['s3.amazonaws.com'],
+                    eventName: ['PutObject'],
+                    requestParameters: {
+                      bucketName: [mainFilesBucketName],
+                      key: { 'prefix': ['public/'] },
+                }
+            }
+        }});
 
-        this.militaryDocumentVerificationProducerLambda.addEventSource(new lambdaEventSources.S3EventSource(mainFilesBucket, {
-
-        }))      
-
-        // Event source mapping from S3 bucket to producer lambda. 
-        //new EventSourceMapping(this, `${props.militaryDocumentVerificationConfig.militaryDocumentVerificationFanOutConfig.militaryDocumentVerificationProcessingEventSourceMapping}-${props.stage}-${props.env!.region}`, {
-            //target: this.militaryDocumentVerificationProducerLambda,
-            //eventSourceArn: `arn:aws:s3:::${mainFilesBucketName}/public/`,
-            /**
-             * Just process one document at a time and send it to the lambda.
-             */
-            //batchSize: 1,
-            //reportBatchItemFailures: true
-        //});
+        // Make the target of the payload the lambda function.
+        S3EventRule.addTarget(new targets.LambdaFunction(this.militaryDocumentVerificationProducerLambda));
     }
 
 }

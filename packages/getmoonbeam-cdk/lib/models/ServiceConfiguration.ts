@@ -304,7 +304,7 @@ export interface MilitaryDocumentVerificationFanOutConfiguration {
     readonly militaryDocumentVerificationProcessingQueueName: string;
     readonly militaryDocumentVerificationProcessingDLQName: string;
     readonly militaryDocumentVerificationProcessingDLQTopicName: string;
-    readonly militaryDocumentVerificationProcessingEventSourceMapping: string;
+    readonly militaryDocumentVerificationProcessingEventRule: string;
 }
 
 /**
