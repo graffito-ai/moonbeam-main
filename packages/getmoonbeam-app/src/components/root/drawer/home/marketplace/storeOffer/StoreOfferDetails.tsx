@@ -76,7 +76,6 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
         // @ts-ignore
         if (storeOfferClicked!.numberOfOffers !== undefined) {
             const retrievedClickedObject = storeOfferClicked as FidelisPartner;
-            let retrievedOfferCount = 0;
 
             // filter through the retrieved offers for the partner, and return them
             for (const retrievedPartnerOffer of retrievedClickedObject.offers) {
@@ -116,8 +115,10 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                         <Text>{`• And ${6 - participatingLocationsNumber} more locations near you!\n`}</Text>)
                 }
 
-                results.push(
-                    <>
+                // always display every day offers first
+                if (offerType === `Everyday` && results.length === 1) {
+                    const veteransDayOfferToCopy = results[0];
+                    results[0] = <>
                         <List.Accordion
                             onPress={() => {
                                 // set the setOfferIdExpanded accordingly
@@ -193,17 +194,100 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                                 }/>
                         </List.Accordion>
                         {
-                            retrievedOfferCount !== retrievedClickedObject.offers.length - 1 &&
                             <View style={{
-                                backgroundColor: 'red',
-                                height: hp(5),
-                                top: hp(2),
+                                height: hp(2),
                                 width: wp(100)
                             }}/>
                         }
-                    </>
-                );
-                retrievedOfferCount += 1;
+                    </>;
+                    results[1] = veteransDayOfferToCopy;
+                } else {
+                    results.push(
+                        <>
+                            <List.Accordion
+                                onPress={() => {
+                                    // set the setOfferIdExpanded accordingly
+                                    offerIdExpanded === retrievedPartnerOffer!.id!
+                                        ? setOfferIdExpanded(null)
+                                        : setOfferIdExpanded(retrievedPartnerOffer!.id!);
+                                }}
+                                expanded={offerIdExpanded === retrievedPartnerOffer!.id!}
+                                rippleColor={'transparent'}
+                                style={styles.offerAccordionStyle}
+                                titleStyle={styles.offerAccordionTitle}
+                                titleNumberOfLines={2}
+                                descriptionNumberOfLines={5}
+                                title={offerType}
+                                right={() =>
+                                    <Icon style={styles.offerRightIcon}
+                                          color={'#F2FF5D'}
+                                          name={offerIdExpanded !== retrievedPartnerOffer!.id! ? "chevron-down" : "chevron-up"}
+                                          size={hp(4)}/>}
+                                left={() =>
+                                    <>
+                                        <View style={styles.offerLeftView}>
+                                            <Text style={styles.offerLeftDiscountPercentage}>
+                                                {retrievedPartnerOffer!.reward!.type! === RewardType.RewardPercent
+                                                    ? `${retrievedPartnerOffer!.reward!.value}%`
+                                                    : `$${retrievedPartnerOffer!.reward!.value}`}
+                                                <Text style={styles.offerLeftDiscount}>
+                                                    {" Off"}
+                                                </Text>
+                                            </Text>
+                                        </View>
+                                    </>
+                                }>
+                                <List.Item
+                                    style={styles.offerItem}
+                                    titleStyle={styles.offerItemTitle}
+                                    descriptionStyle={styles.offerItemDescription}
+                                    titleNumberOfLines={500}
+                                    descriptionNumberOfLines={500}
+                                    title={'Offer Details'}
+                                    description={
+                                        <Text>
+                                            {(retrievedPartnerOffer!.qualifier && retrievedPartnerOffer!.qualifier!.length !== 0)
+                                                ? retrievedPartnerOffer!.qualifier!
+                                                : retrievedPartnerOffer!.title!}{"\n\n"}
+                                            {
+                                                <>
+                                                    <Text style={styles.offerItemTitle}>Additional
+                                                        Restrictions{"\n"}</Text>
+                                                    <Text>
+                                                        {
+                                                            offerType == `Everyday`
+                                                                ? "• Offer applicable to every purchase, subject to the discounts aforementioned.\n• No limits on the minimum or maximum amount for purchase.\n• Offer available only at participating merchant locations."
+                                                                : (offerType === `Birthday`
+                                                                        ? "• Offer limited to one purchase for your birthday, subject to the discounts aforementioned.\n• No limits on the minimum or maximum amount for purchase.\n• Offer available at merchant participant locations."
+                                                                        : "• Offer limited to one purchase for Veteran's Day, subject to the discounts aforementioned.\n• No limits on the minimum or maximum amount for purchase.\n• Offer available at merchant participant locations."
+                                                                )
+                                                        }
+                                                    </Text>
+                                                </>
+                                            }
+                                            {"\n\n"}
+                                            {
+                                                retrievedPartnerOffer!.storeDetails && retrievedPartnerOffer!.storeDetails.length !== 0 &&
+                                                <>
+                                                    <Text style={styles.offerItemTitle}>Participating
+                                                        Location/s{"\n"}</Text>
+                                                    <Text>
+                                                        {participatingLocations}
+                                                    </Text>
+                                                </>
+                                            }
+                                        </Text>
+                                    }/>
+                            </List.Accordion>
+                            {
+                                <View style={{
+                                    height: hp(2),
+                                    width: wp(100)
+                                }}/>
+                            }
+                        </>
+                    );
+                }
             }
         } else {
             const retrievedClickedObject = storeOfferClicked as Offer;

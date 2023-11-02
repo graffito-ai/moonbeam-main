@@ -20,6 +20,8 @@ import MoonbeamOfficeAndBusinessKitPicture from "../../../../../../../assets/art
 import MoonbeamRetailKitPicture from "../../../../../../../assets/art/moonbeam_retail_kit.png";
 // @ts-ignore
 import MoonbeamServicesAndSubscriptionsKitPicture from "../../../../../../../assets/art/moonbeam_services_and_subscriptions_kit.png";
+// @ts-ignore
+import MoonbeamVeteransKitPicture from "../../../../../../../assets/art/moonbeam_veterans_kit.png"
 import {ImageBackground} from 'expo-image'
 import {OfferCategory} from "@moonbeam/moonbeam-models";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
@@ -42,6 +44,13 @@ interface MoonbeamKit {
  * Array representing the Moonbeam available Kits
  */
 export const moonbeamKits: MoonbeamKit[] = [
+    {
+        type: OfferCategory.VeteranDay,
+        backgroundPictureSource: MoonbeamVeteransKitPicture,
+        title: 'Veterans Day Kit',
+        secondaryTitle: 'Veterans Day',
+        titleButton: 'View All'
+    },
     {
         type: OfferCategory.Food,
         backgroundPictureSource: MoonbeamFoodKitPicture,

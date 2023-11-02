@@ -66,6 +66,10 @@ export class OffersResolverStack extends Stack {
             typeName: "Query",
             fieldName: `${props.offersConfig.getPremierOffersResolverName}`
         });
+        offersLambdaSource.createResolver(`${props.offersConfig.getSeasonalOffersResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Query",
+            fieldName: `${props.offersConfig.getSeasonalOffersResolverName}`
+        });
 
         // enable the Lambda function the retrieval of the Olive API secrets
         offersLambda.addToRolePolicy(

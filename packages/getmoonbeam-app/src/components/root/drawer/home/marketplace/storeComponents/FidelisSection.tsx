@@ -7,7 +7,7 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-nativ
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
 import {useRecoilState} from "recoil";
-import {storeOfferState} from "../../../../../../recoil/StoreOfferAtom";
+import {fidelisPartnerListState, storeOfferState} from "../../../../../../recoil/StoreOfferAtom";
 import {Image} from 'expo-image';
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
@@ -22,14 +22,14 @@ import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
  * @constructor constructor for the component.
  */
 export const FidelisSection = (props: {
-    fidelisPartnerList: FidelisPartner[],
     navigation: NativeStackNavigationProp<MarketplaceStackParamList, 'Store'>,
     areNearbyOffersReady: boolean
 }) => {
     // constants used to keep track of local component state
     const [dataProvider, setDataProvider] = useState<DataProvider | null>(null);
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
-    // constants used to keep track of shared states]
+    // constants used to keep track of shared states
+    const [fidelisPartnerList, ] = useRecoilState(fidelisPartnerListState);
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
 
     /**
@@ -44,20 +44,19 @@ export const FidelisSection = (props: {
      */
         // @ts-ignore
     const renderRowData = useMemo(() => (type: string | number, data: FidelisPartner, index: number): JSX.Element | JSX.Element[] => {
-            if (props.fidelisPartnerList.length !== 0) {
+            if (fidelisPartnerList.length !== 0) {
                 // retrieve appropriate offer for partner (everyday)
                 let offer: Offer | null = null;
                 for (const matchedOffer of data.offers) {
-                    if (matchedOffer!.title!.includes("Military Discount")) {
+                    console.log(JSON.stringify(matchedOffer));
+                    if (matchedOffer!.title!.includes("Military Discount") || matchedOffer!.title!.includes("Veterans")) {
                         offer = matchedOffer!;
                         break;
                     }
                 }
-                const subtitle =
-                    offer!.reward!.type! === RewardType.RewardPercent
-                        ? `Starting at ${offer!.reward!.value}% Off`
-                        : `Starting at $${offer!.reward!.value} Off`;
-
+                const subtitle = offer!.reward!.type! === RewardType.RewardPercent
+                    ? `Starting at ${offer!.reward!.value}% Off`
+                    : `Starting at $${offer!.reward!.value} Off`;
                 return offer !== null ? (
                     <>
                         <Card
@@ -144,7 +143,7 @@ export const FidelisSection = (props: {
             } else {
                 return (<></>);
             }
-        }, [props.fidelisPartnerList]);
+        }, [fidelisPartnerList]);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -154,8 +153,8 @@ export const FidelisSection = (props: {
      * included in here.
      */
     useEffect(() => {
-        if (props.fidelisPartnerList.length > 0 && layoutProvider === null && dataProvider === null) {
-            setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(props.fidelisPartnerList));
+        if (fidelisPartnerList.length > 0 && layoutProvider === null && dataProvider === null) {
+            setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(fidelisPartnerList));
             setLayoutProvider(new LayoutProvider(
                 _ => 0,
                 (_, dim) => {
@@ -164,7 +163,7 @@ export const FidelisSection = (props: {
                 }
             ));
         }
-    }, [dataProvider, layoutProvider, props.fidelisPartnerList]);
+    }, [dataProvider, layoutProvider, fidelisPartnerList]);
 
     // return the component for the FidelisSection page
     return (

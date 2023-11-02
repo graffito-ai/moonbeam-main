@@ -7,11 +7,13 @@ import {
     FidelisPartner,
     getDeviceByToken,
     getFidelisPartners,
-    getOffers, getPremierOffers,
+    getOffers,
+    getPremierOffers, getSeasonalOffers,
     getUserAuthSession,
     Offer,
-    OfferAvailability, OfferCategory,
-    OfferFilter,
+    OfferAvailability,
+    OfferCategory,
+    OfferFilter, OfferSeasonalType,
     OfferState,
     PushDevice,
     RedemptionType,
@@ -368,28 +370,44 @@ export const retrieveCategorizedOnlineOffersList = async (totalNumberOfOffersAva
     let onlineOffers: Offer[] = [];
 
     try {
-        // call the getOffers API
-        const onlineOffersResult = await API.graphql(graphqlOperation(getOffers, {
-            getOffersInput: {
-                availability: OfferAvailability.Global,
-                countryCode: CountryCode.Us,
-                filterType: OfferFilter.CategorizedOnline,
-                offerStates: [OfferState.Active, OfferState.Scheduled],
-                pageNumber: pageNumber !== undefined ? pageNumber : 1, // if no page number is passed in, revert to the first page number
-                pageSize: 15, // load 15 offers
-                redemptionType: RedemptionType.Cardlinked,
-                offerCategory: offerCategory
-            }
-        }));
+        // call the getOffers API for all categorized other than Veterans Day, for which we call getSeasonalOffers API
+        const onlineOffersResult = offerCategory !== OfferCategory.VeteranDay
+            ? await API.graphql(graphqlOperation(getOffers, {
+                getOffersInput: {
+                    availability: OfferAvailability.Global,
+                    countryCode: CountryCode.Us,
+                    filterType: OfferFilter.CategorizedOnline,
+                    offerStates: [OfferState.Active, OfferState.Scheduled],
+                    pageNumber: pageNumber !== undefined ? pageNumber : 1, // if no page number is passed in, revert to the first page number
+                    pageSize: 15, // load 15 offers
+                    redemptionType: RedemptionType.Cardlinked,
+                    offerCategory: offerCategory
+                }
+            }))
+            : await API.graphql(graphqlOperation(getSeasonalOffers, {
+                getOffersInput: {
+                    availability: OfferAvailability.ClientOnly,
+                    countryCode: CountryCode.Us,
+                    filterType: OfferFilter.SeasonalOnline,
+                    offerStates: [OfferState.Active, OfferState.Scheduled],
+                    pageNumber: pageNumber !== undefined ? pageNumber : 1, // if no page number is passed in, revert to the first page number
+                    pageSize: 20, // load 15 offers
+                    redemptionType: RedemptionType.Cardlinked,
+                    offerSeasonalType: OfferSeasonalType.VeteransDay
+                }
+            }));
 
         // retrieve the data block from the response
         // @ts-ignore
         const responseData = onlineOffersResult ? onlineOffersResult.data : null;
 
+        // get the appropriate property depending on whether the offers are seasonal or not
+        const offerProperty = offerCategory !== OfferCategory.VeteranDay ? 'getOffers' : 'getSeasonalOffers';
+
         // check if there are any errors in the returned response
-        if (responseData && responseData.getOffers.errorMessage === null) {
+        if (responseData && responseData[`${offerProperty}`].errorMessage === null) {
             // retrieve the array of online offers from the API call
-            onlineOffers = responseData.getOffers.data.offers;
+            onlineOffers = responseData[`${offerProperty}`].data.offers;
 
             // ensure that there is at least one online offer in the list
             if (onlineOffers.length > 0) {
@@ -398,8 +416,8 @@ export const retrieveCategorizedOnlineOffersList = async (totalNumberOfOffersAva
                 setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
 
                 // set the total number of online offers available, if not previously set
-                totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
-                setTotalNumberOfOffersAvailable !== undefined && setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
+                totalNumberOfOffersAvailable !== responseData[`${offerProperty}`].data.totalNumberOfRecords &&
+                setTotalNumberOfOffersAvailable !== undefined && setTotalNumberOfOffersAvailable(responseData[`${offerProperty}`].data.totalNumberOfRecords);
 
                 return onlineOffers;
             } else {
@@ -410,7 +428,8 @@ export const retrieveCategorizedOnlineOffersList = async (totalNumberOfOffersAva
             console.log(`Unexpected error while retrieving categorized online offers for category ${offerCategory} ${JSON.stringify(onlineOffersResult)}`);
             return onlineOffers;
         }
-    } catch (error) {
+    } catch
+        (error) {
         console.log(`Unexpected error while attempting to retrieve categorized online offers for category ${offerCategory} ${JSON.stringify(error)} ${error}`);
         return onlineOffers;
     }

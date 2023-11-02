@@ -58,26 +58,36 @@ import {OfferCategory, PremierOnlineProdOfferIds, Stages, UserAuthSessionRespons
 import {currentUserLocationState, firstTimeLoggedInState} from "../../../recoil/RootAtom";
 import * as envInfo from "../../../../local-env-info.json";
 import {
-    locationServicesButtonState, nearbyElectronicsCategorizedOffersListState,
-    nearbyElectronicsCategorizedOffersPageNumberState, nearbyEntertainmentCategorizedOffersListState,
-    nearbyEntertainmentCategorizedOffersPageNumberState, nearbyFoodCategorizedOffersListState,
-    nearbyFoodCategorizedOffersPageNumberState, nearbyHealthAndBeautyCategorizedOffersListState,
-    nearbyHealthAndBeautyCategorizedOffersPageNumberState, nearbyHomeCategorizedOffersListState,
+    locationServicesButtonState,
+    nearbyElectronicsCategorizedOffersListState,
+    nearbyElectronicsCategorizedOffersPageNumberState,
+    nearbyEntertainmentCategorizedOffersListState,
+    nearbyEntertainmentCategorizedOffersPageNumberState,
+    nearbyFoodCategorizedOffersListState,
+    nearbyFoodCategorizedOffersPageNumberState,
+    nearbyHealthAndBeautyCategorizedOffersListState,
+    nearbyHealthAndBeautyCategorizedOffersPageNumberState,
+    nearbyHomeCategorizedOffersListState,
     nearbyHomeCategorizedOffersPageNumberState,
     nearbyOffersListForFullScreenMapState,
     nearbyOffersListForMainHorizontalMapState,
     nearbyOffersListState,
-    nearbyOffersPageNumberState, nearbyOfficeAndBusinessCategorizedOffersListState,
-    nearbyOfficeAndBusinessCategorizedOffersPageNumberState, nearbyRetailCategorizedOffersListState,
-    nearbyRetailCategorizedOffersPageNumberState, nearbyServicesAndSubscriptionsCategorizedOffersListState,
+    nearbyOffersPageNumberState,
+    nearbyOfficeAndBusinessCategorizedOffersListState,
+    nearbyOfficeAndBusinessCategorizedOffersPageNumberState,
+    nearbyRetailCategorizedOffersListState,
+    nearbyRetailCategorizedOffersPageNumberState,
+    nearbyServicesAndSubscriptionsCategorizedOffersListState,
     nearbyServicesAndSubscriptionsCategorizedOffersPageNumberState,
     noNearbyElectronicsCategorizedOffersToLoadState,
     noNearbyEntertainmentCategorizedOffersToLoadState,
     noNearbyFoodCategorizedOffersToLoadState,
     noNearbyHealthAndBeautyCategorizedOffersToLoadState,
     noNearbyHomeCategorizedOffersToLoadState,
-    noNearbyOffersToLoadState, noNearbyOfficeAndBusinessCategorizedOffersToLoadState,
-    noNearbyRetailCategorizedOffersToLoadState, noNearbyServicesAndSubscriptionsCategorizedOffersToLoadState,
+    noNearbyOffersToLoadState,
+    noNearbyOfficeAndBusinessCategorizedOffersToLoadState,
+    noNearbyRetailCategorizedOffersToLoadState,
+    noNearbyServicesAndSubscriptionsCategorizedOffersToLoadState,
     noOnlineElectronicsCategorizedOffersToLoadState,
     noOnlineEntertainmentCategorizedOffersToLoadState,
     noOnlineFoodCategorizedOffersToLoadState,
@@ -87,6 +97,7 @@ import {
     noOnlineOfficeAndBusinessCategorizedOffersToLoadState,
     noOnlineRetailCategorizedOffersToLoadState,
     noOnlineServicesAndSubscriptionsCategorizedOffersToLoadState,
+    noOnlineVeteransDayCategorizedOffersToLoadState,
     numberOfElectronicsCategorizedOffersWithin25MilesState,
     numberOfElectronicsCategorizedOnlineOffersState,
     numberOfEntertainmentCategorizedOffersWithin25MilesState,
@@ -106,6 +117,7 @@ import {
     numberOfRetailCategorizedOnlineOffersState,
     numberOfServicesAndSubscriptionsCategorizedOffersWithin25MilesState,
     numberOfServicesAndSubscriptionsCategorizedOnlineOffersState,
+    numberOfVeteransDayCategorizedOnlineOffersState,
     offersNearUserLocationFlagState,
     onlineElectronicsCategorizedOfferListState,
     onlineElectronicsCategorizedOffersPageNumberState,
@@ -125,6 +137,8 @@ import {
     onlineRetailCategorizedOffersPageNumberState,
     onlineServicesAndSubscriptionsCategorizedOfferListState,
     onlineServicesAndSubscriptionsCategorizedOffersPageNumberState,
+    onlineVeteransDayCategorizedOfferListState,
+    onlineVeteransDayCategorizedOffersPageNumberState,
     premierNearbyOffersPageNumberState,
     premierOnlineOffersPageNumberState,
     reloadNearbyDueToPermissionsChangeState,
@@ -141,6 +155,7 @@ import {LocationObject} from "expo-location";
 export const AuthenticationComponent = ({route, navigation}: AuthenticationProps) => {
         // constants used to keep track of local component state
         const [checkedOnlineCache, setCheckOnlineCache] = useState<boolean>(false);
+        const [checkedVeteransDayOnlineCache, setCheckVeteransDayOnlineCache] = useState<boolean>(false);
         const [checkedFoodOnlineCache, setCheckFoodOnlineCache] = useState<boolean>(false);
         const [checkedRetailOnlineCache, setCheckRetailOnlineCache] = useState<boolean>(false);
         const [checkedEntertainmentOnlineCache, setCheckEntertainmentOnlineCache] = useState<boolean>(false);
@@ -160,6 +175,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [loadingNearbyOfficeAndBusinessCategorizedOffersInProgress, setIsLoadingNearbyOfficeAndBusinessCategorizedOffersInProgress] = useState<boolean>(false);
         const [loadingNearbyServicesAndSubscriptionsCategorizedOffersInProgress, setIsLoadingNearbyServicesAndSubscriptionsCategorizedOffersInProgress] = useState<boolean>(false);
         const [loadingOnlineInProgress, setIsLoadingOnlineInProgress] = useState<boolean>(false);
+        const [loadingOnlineVeteransDayCategorizedInProgress, setIsLoadingOnlineVeteransDayCategorizedInProgress] = useState<boolean>(false);
         const [loadingOnlineFoodCategorizedInProgress, setIsLoadingOnlineFoodCategorizedInProgress] = useState<boolean>(false);
         const [loadingOnlineRetailCategorizedInProgress, setIsLoadingOnlineRetailCategorizedInProgress] = useState<boolean>(false);
         const [loadingOnlineEntertainmentCategorizedInProgress, setIsLoadingOnlineEntertainmentCategorizedInProgress] = useState<boolean>(false);
@@ -175,6 +191,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [areOffersForFullScreenMapLoaded, setAreOffersForFullScreenMapLoaded] = useState<boolean>(false);
         // constants used to keep track of shared states
         const [numberOfOnlineOffers, setNumberOfOnlineOffers] = useRecoilState(numberOfOnlineOffersState);
+        const [numberOfVeteransDayCategorizedOnlineOffers, setNumberOfVeteransDayCategorizedOnlineOffers] = useRecoilState(numberOfVeteransDayCategorizedOnlineOffersState);
         const [numberOfFoodCategorizedOnlineOffers, setNumberOfFoodCategorizedOnlineOffers] = useRecoilState(numberOfFoodCategorizedOnlineOffersState);
         const [numberOfRetailCategorizedOnlineOffers, setNumberOfRetailCategorizedOnlineOffers] = useRecoilState(numberOfRetailCategorizedOnlineOffersState);
         const [numberOfEntertainmentCategorizedOnlineOffers, setNumberOfEntertainmentCategorizedOnlineOffers] = useRecoilState(numberOfEntertainmentCategorizedOnlineOffersState);
@@ -205,6 +222,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [nearbyServicesAndSubscriptionsCategorizedOffersPageNumber, setNearbyServicesAndSubscriptionsCategorizedOffersPageNumber] = useRecoilState(nearbyServicesAndSubscriptionsCategorizedOffersPageNumberState);
         const [premierNearbyOffersPageNumber, setPremierNearbyOffersPageNumber] = useRecoilState(premierNearbyOffersPageNumberState);
         const [onlineOffersPageNumber, setOnlineOffersPageNumber] = useRecoilState(onlineOffersPageNumberState);
+        const [onlineVeteransDayCategorizedOffersPageNumber, setOnlineVeteransDayCategorizedOffersPageNumber] = useRecoilState(onlineVeteransDayCategorizedOffersPageNumberState);
         const [onlineFoodCategorizedOffersPageNumber, setOnlineFoodCategorizedOffersPageNumber] = useRecoilState(onlineFoodCategorizedOffersPageNumberState);
         const [onlineRetailCategorizedOffersPageNumber, setOnlineRetailCategorizedOffersPageNumber] = useRecoilState(onlineRetailCategorizedOffersPageNumberState);
         const [onlineEntertainmentCategorizedOffersPageNumber, setOnlineEntertainmentCategorizedOffersPageNumber] = useRecoilState(onlineEntertainmentCategorizedOffersPageNumberState);
@@ -215,6 +233,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [onlineServicesAndSubscriptionsCategorizedOffersPageNumber, setOnlineServicesAndSubscriptionsCategorizedOffersPageNumber] = useRecoilState(onlineServicesAndSubscriptionsCategorizedOffersPageNumberState);
         const [premierOnlineOffersPageNumber, setPremierOnlineOffersPageNumber] = useRecoilState(premierOnlineOffersPageNumberState);
         const [noOnlineOffersToLoad, setNoOnlineOffersToLoad] = useRecoilState(noOnlineOffersToLoadState);
+        const [noOnlineVeteransDayCategorizedOffersToLoad, setNoOnlineVeteransDayCategorizedOffersToLoad] = useRecoilState(noOnlineVeteransDayCategorizedOffersToLoadState);
         const [noOnlineFoodCategorizedOffersToLoad, setNoOnlineFoodCategorizedOffersToLoad] = useRecoilState(noOnlineFoodCategorizedOffersToLoadState);
         const [noOnlineRetailCategorizedOffersToLoad, setNoOnlineRetailCategorizedOffersToLoad] = useRecoilState(noOnlineRetailCategorizedOffersToLoadState);
         const [noOnlineEntertainmentCategorizedOffersToLoad, setNoOnlineEntertainmentCategorizedOffersToLoad] = useRecoilState(noOnlineEntertainmentCategorizedOffersToLoadState);
@@ -247,6 +266,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [nearbyOfficeAndBusinessCategorizedOfferList, setNearbyOfficeAndBusinessCategorizedOfferList] = useRecoilState(nearbyOfficeAndBusinessCategorizedOffersListState);
         const [nearbyServicesAndSubscriptionsCategorizedOfferList, setNearbyServicesAndSubscriptionsCategorizedOfferList] = useRecoilState(nearbyServicesAndSubscriptionsCategorizedOffersListState);
         const [onlineOfferList, setOnlineOfferList] = useRecoilState(onlineOffersListState);
+        const [onlineVeteransDayCategorizedOfferList, setOnlineVeteransDayCategorizedOfferList] = useRecoilState(onlineVeteransDayCategorizedOfferListState);
         const [onlineFoodCategorizedOfferList, setOnlineFoodCategorizedOfferList] = useRecoilState(onlineFoodCategorizedOfferListState);
         const [onlineRetailCategorizedOfferList, setOnlineRetailCategorizedOfferList] = useRecoilState(onlineRetailCategorizedOfferListState);
         const [onlineEntertainmentCategorizedOfferList, setOnlineEntertainmentCategorizedOfferList] = useRecoilState(onlineEntertainmentCategorizedOfferListState);
@@ -356,8 +376,61 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                         break;
                 }
             });
-        }, [userIsAuthenticated, reloadNearbyDueToPermissionsChange, noNearbyOffersToLoad, nearbyOfferList,
-            onlineOfferList, marketplaceCache, loadingOnlineInProgress, noOnlineOffersToLoad]);
+        }, [
+            userIsAuthenticated, reloadNearbyDueToPermissionsChange,
+
+            noNearbyOffersToLoad, noNearbyFoodCategorizedOffersToLoad, noNearbyRetailCategorizedOffersToLoad, noNearbyEntertainmentCategorizedOffersToLoadState,
+            noNearbyElectronicsCategorizedOffersToLoad, noNearbyHealthAndBeautyCategorizedOffersToLoad, noNearbyOfficeAndBusinessCategorizedOffersToLoad,
+            noNearbyServicesAndSubscriptionsCategorizedOffersToLoad,
+
+            nearbyOfferList, nearbyFoodCategorizedOfferList, nearbyRetailCategorizedOfferList, nearbyEntertainmentCategorizedOfferList,
+            nearbyElectronicsCategorizedOfferList, nearbyHealthAndBeautyCategorizedOfferList, nearbyOfficeAndBusinessCategorizedOfferList,
+            nearbyServicesAndSubscriptionsCategorizedOfferList,
+
+            onlineOfferList, onlineVeteransDayCategorizedOfferList, onlineFoodCategorizedOfferList, onlineRetailCategorizedOfferList,
+            onlineEntertainmentCategorizedOfferList, onlineElectronicsCategorizedOfferList, onlineHealthAndBeautyCategorizedOfferList,
+            onlineOfficeAndBusinessCategorizedOfferList, onlineServicesAndSubscriptionsCategorizedOfferList,
+
+            marketplaceCache,
+
+            loadingOnlineInProgress, loadingOnlineVeteransDayCategorizedInProgress,
+            loadingOnlineFoodCategorizedInProgress, loadingNearbyFoodCategorizedOffersInProgress,
+            loadingOnlineRetailCategorizedInProgress, loadingNearbyRetailCategorizedOffersInProgress,
+            loadingOnlineEntertainmentCategorizedInProgress, loadingNearbyEntertainmentCategorizedOffersInProgress,
+            loadingOnlineElectronicsCategorizedInProgress, loadingNearbyElectronicsCategorizedOffersInProgress,
+            loadingOnlineHealthAndBeautyCategorizedInProgress, loadingNearbyHealthAndBeautyCategorizedOffersInProgress,
+            loadingOnlineOfficeAndBusinessCategorizedInProgress, loadingNearbyOfficeAndBusinessCategorizedOffersInProgress,
+            loadingOnlineServicesAndSubscriptionsCategorizedInProgress, loadingNearbyServicesAndSubscriptionsCategorizedOffersInProgress,
+
+            noOnlineOffersToLoad, noOnlineVeteransDayCategorizedOffersToLoad, noOnlineFoodCategorizedOffersToLoad, noOnlineRetailCategorizedOffersToLoad,
+            noOnlineEntertainmentCategorizedOffersToLoad, noOnlineElectronicsCategorizedOffersToLoad, noOnlineHealthAndBeautyCategorizedOffersToLoad,
+            noOnlineOfficeAndBusinessCategorizedOffersToLoad, noOnlineServicesAndSubscriptionsCategorizedOffersToLoad
+        ]);
+
+        /**
+         * Function used to load the online VETERANS_DAY categorized data
+         */
+        const loadOnlineVeteransDayCategorizedData = async (): Promise<void> => {
+            setIsLoadingOnlineVeteransDayCategorizedInProgress(true);
+
+            const additionalOnlineVeteransDayCategoryOffers =
+                await retrieveCategorizedOnlineOffersList(numberOfVeteransDayCategorizedOnlineOffers, setNumberOfVeteransDayCategorizedOnlineOffers,
+                    OfferCategory.VeteranDay, onlineVeteransDayCategorizedOffersPageNumber, setOnlineVeteransDayCategorizedOffersPageNumber);
+
+            if (additionalOnlineVeteransDayCategoryOffers.length === 0) {
+                setNoOnlineVeteransDayCategorizedOffersToLoad(true);
+                setOnlineVeteransDayCategorizedOfferList(oldOnlineVeteransDayCategorizedOfferList => {
+                    return [...oldOnlineVeteransDayCategorizedOfferList, ...additionalOnlineVeteransDayCategoryOffers]
+                });
+            } else {
+                setNoOnlineVeteransDayCategorizedOffersToLoad(false);
+                setOnlineVeteransDayCategorizedOfferList(oldOnlineVeteransDayCategorizedOfferList => {
+                    return [...oldOnlineVeteransDayCategorizedOfferList, ...additionalOnlineVeteransDayCategoryOffers]
+                });
+            }
+
+            setIsLoadingOnlineVeteransDayCategorizedInProgress(false);
+        }
 
         /**
          * Function used to load the online FOOD categorized data
@@ -927,6 +1000,15 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                 (cachedOnlineOffers === null || cachedOnlineOffers.length < 20) && await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, null);
             }
             // check to see if we have cached categorized Online Offers. If we do, set them appropriately
+            const onlineVeteransDayOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineVeteransDayOffers`);
+            if (marketplaceCache !== null && onlineVeteransDayOffersCached !== null && onlineVeteransDayOffersCached.length !== 0 && !checkedVeteransDayOnlineCache) {
+                console.log('pre-emptively loading - online Veterans Day offers are cached');
+                setCheckVeteransDayOnlineCache(true);
+                const cachedVeteransDayOnlineOffers = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineVeteransDayOffers`);
+                setOnlineVeteransDayCategorizedOfferList(cachedVeteransDayOnlineOffers);
+                setIsLoadingOnlineVeteransDayCategorizedInProgress(false);
+                (cachedVeteransDayOnlineOffers === null || cachedVeteransDayOnlineOffers.length < 20) && await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineVeteransDayOffers`, null);
+            }
             const onlineFoodOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineFoodOffers`);
             if (marketplaceCache !== null && onlineFoodOffersCached !== null && onlineFoodOffersCached.length !== 0 && !checkedFoodOnlineCache) {
                 console.log('pre-emptively loading - online food offers are cached');
@@ -1019,6 +1101,15 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                 });
             }
             // stop caching online categorized offers until we have at least 5 and at most 20 offers loaded, or until we run out of offers to load.
+            if ((marketplaceCache && onlineVeteransDayCategorizedOfferList.length >= 5 && onlineVeteransDayCategorizedOfferList.length < 20) || (marketplaceCache && noOnlineVeteransDayCategorizedOffersToLoad)) {
+                marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineVeteransDayOffers`).then(onlineVeteransDayOffersCached => {
+                    // check if there's really a need for caching
+                    if (((onlineVeteransDayOffersCached !== null && onlineVeteransDayOffersCached.length < onlineVeteransDayCategorizedOfferList.length) || onlineVeteransDayOffersCached === null)) {
+                        console.log('Caching additional online Veterans Day offers');
+                        marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineVeteransDayOffers`, onlineVeteransDayCategorizedOfferList);
+                    }
+                });
+            }
             if ((marketplaceCache && onlineFoodCategorizedOfferList.length >= 5 && onlineFoodCategorizedOfferList.length < 20) || (marketplaceCache && noOnlineFoodCategorizedOffersToLoad)) {
                 marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineFoodOffers`).then(onlineFoodOffersCached => {
                     // check if there's really a need for caching
@@ -1069,7 +1160,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                     // check if there's really a need for caching
                     if (((onlineHealthAndBeautyOffersCached !== null && onlineHealthAndBeautyOffersCached.length < onlineHealthAndBeautyCategorizedOfferList.length) || onlineHealthAndBeautyOffersCached === null)) {
                         console.log('Caching additional online health and beauty offers');
-                        marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineFoodOffers`, onlineHealthAndBeautyCategorizedOfferList);
+                        marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineHealthAndBeautyOffers`, onlineHealthAndBeautyCategorizedOfferList);
                     }
                 });
             }
@@ -1095,6 +1186,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             if (envInfo.envName === Stages.DEV) {
                 if (reloadNearbyDueToPermissionsChange) {
                     setIsLoadingOnlineInProgress(false);
+                    setIsLoadingOnlineVeteransDayCategorizedInProgress(false);
                     setIsLoadingOnlineFoodCategorizedInProgress(false);
                     setIsLoadingOnlineRetailCategorizedInProgress(false);
                     setIsLoadingOnlineEntertainmentCategorizedInProgress(false);
@@ -1131,6 +1223,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                     setNoNearbyServicesAndSubscriptionsCategorizedOffersToLoad(false);
 
                     setNoOnlineOffersToLoad(false);
+                    setNoOnlineVeteransDayCategorizedOffersToLoad(false);
                     setNoOnlineFoodCategorizedOffersToLoad(false);
                     setNoOnlineRetailCategorizedOffersToLoad(false);
                     setNoOnlineEntertainmentCategorizedOffersToLoad(false);
@@ -1155,31 +1248,33 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                 await Promise.all([
                     !loadingOnlineInProgress && !noPremierOnlineOffersToLoad && onlineOfferList.length < PremierOnlineProdOfferIds.length && loadPremierOnlineData(),
                     !loadingOnlineInProgress && !noOnlineOffersToLoad && PremierOnlineProdOfferIds.length <= onlineOfferList.length && onlineOfferList.length < 100 && loadOnlineData(),
-                    !loadingOnlineFoodCategorizedInProgress && !noOnlineFoodCategorizedOffersToLoad && onlineFoodCategorizedOfferList.length < 20 && loadOnlineFoodCategorizedData(),
-                    !loadingOnlineRetailCategorizedInProgress && !noOnlineRetailCategorizedOffersToLoad && onlineRetailCategorizedOfferList.length < 20 && loadOnlineRetailCategorizedData(),
-                    !loadingOnlineEntertainmentCategorizedInProgress && !noOnlineEntertainmentCategorizedOffersToLoad && onlineEntertainmentCategorizedOfferList.length < 20 && loadOnlineEntertainmentCategorizedData(),
-                    !loadingOnlineElectronicsCategorizedInProgress && !noOnlineElectronicsCategorizedOffersToLoad && onlineElectronicsCategorizedOfferList.length < 20 && loadOnlineElectronicsCategorizedData(),
-                    !loadingOnlineHomeCategorizedInProgress && !noOnlineHomeCategorizedOffersToLoad && onlineHomeCategorizedOfferList.length < 20 && loadOnlineHomeCategorizedData(),
-                    !loadingOnlineHealthAndBeautyCategorizedInProgress && !noOnlineHealthAndBeautyCategorizedOffersToLoad && onlineHealthAndBeautyCategorizedOfferList.length < 20 && loadOnlineHealthAndBeautyCategorizedData(),
-                    !loadingOnlineOfficeAndBusinessCategorizedInProgress && !noOnlineOfficeAndBusinessCategorizedOffersToLoad && onlineOfficeAndBusinessCategorizedOfferList.length < 20 && loadOnlineOfficeAndBusinessCategorizedData(),
-                    !loadingOnlineServicesAndSubscriptionsCategorizedInProgress && !noOnlineServicesAndSubscriptionsCategorizedOffersToLoad && onlineServicesAndSubscriptionsCategorizedOfferList.length < 20 && loadOnlineServicesAndSubscriptionsCategorizedData(),
-                    !loadingNearbyOffersForHorizontalMapInProgress && !areOffersForMainHorizontalMapLoaded && nearbyOffersListForMainHorizontalMap.length === 0 && loadNearbyDataForMainHorizontalMap(),
-                    !loadingNearbyOffersForFullScreenMapInProgress && !areOffersForFullScreenMapLoaded && nearbyOffersListForFullScreenMap.length === 0 && loadNearbyDataForFullScreenMap(),
-                    !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && loadPremierNearbyData(),
-                    !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && nearbyOfferList.length < 100 && loadNearbyData(),
-                    !loadingNearbyFoodCategorizedOffersInProgress && !noNearbyFoodCategorizedOffersToLoad && nearbyFoodCategorizedOfferList.length < 20 && loadNearbyFoodCategorizedData(),
-                    !loadingNearbyRetailCategorizedOffersInProgress && !noNearbyRetailCategorizedOffersToLoad && nearbyRetailCategorizedOfferList.length < 20 && loadNearbyRetailCategorizedData(),
-                    !loadingNearbyEntertainmentCategorizedOffersInProgress && !noNearbyEntertainmentCategorizedOffersToLoad && nearbyEntertainmentCategorizedOfferList.length < 20 && loadNearbyEntertainmentCategorizedData(),
-                    !loadingNearbyElectronicsCategorizedOffersInProgress && !noNearbyElectronicsCategorizedOffersToLoad && nearbyElectronicsCategorizedOfferList.length < 20 && loadNearbyElectronicsCategorizedData(),
-                    !loadingNearbyHomeCategorizedOffersInProgress && !noNearbyHomeCategorizedOffersToLoad && nearbyHomeCategorizedOfferList.length < 20 && loadNearbyHomeCategorizedData(),
-                    !loadingNearbyHealthAndBeautyCategorizedOffersInProgress && !noNearbyHealthAndBeautyCategorizedOffersToLoad && nearbyHealthAndBeautyCategorizedOfferList.length < 20 && loadNearbyHealthAndBeautyCategorizedData(),
-                    !loadingNearbyOfficeAndBusinessCategorizedOffersInProgress && !noNearbyOfficeAndBusinessCategorizedOffersToLoad && nearbyOfficeAndBusinessCategorizedOfferList.length < 20 && loadNearbyOfficeAndBusinessCategorizedData(),
-                    !loadingNearbyServicesAndSubscriptionsCategorizedOffersInProgress && !noNearbyServicesAndSubscriptionsCategorizedOffersToLoad && nearbyServicesAndSubscriptionsCategorizedOfferList.length < 20 && loadNearbyServicesAndSubscriptionsCategorizedData()
+                    !loadingOnlineVeteransDayCategorizedInProgress && !noOnlineVeteransDayCategorizedOffersToLoad && onlineVeteransDayCategorizedOfferList.length < 20 && loadOnlineVeteransDayCategorizedData(),
+                    // !loadingOnlineFoodCategorizedInProgress && !noOnlineFoodCategorizedOffersToLoad && onlineFoodCategorizedOfferList.length < 20 && loadOnlineFoodCategorizedData(),
+                    // !loadingOnlineRetailCategorizedInProgress && !noOnlineRetailCategorizedOffersToLoad && onlineRetailCategorizedOfferList.length < 20 && loadOnlineRetailCategorizedData(),
+                    // !loadingOnlineEntertainmentCategorizedInProgress && !noOnlineEntertainmentCategorizedOffersToLoad && onlineEntertainmentCategorizedOfferList.length < 20 && loadOnlineEntertainmentCategorizedData(),
+                    // !loadingOnlineElectronicsCategorizedInProgress && !noOnlineElectronicsCategorizedOffersToLoad && onlineElectronicsCategorizedOfferList.length < 20 && loadOnlineElectronicsCategorizedData(),
+                    // !loadingOnlineHomeCategorizedInProgress && !noOnlineHomeCategorizedOffersToLoad && onlineHomeCategorizedOfferList.length < 20 && loadOnlineHomeCategorizedData(),
+                    // !loadingOnlineHealthAndBeautyCategorizedInProgress && !noOnlineHealthAndBeautyCategorizedOffersToLoad && onlineHealthAndBeautyCategorizedOfferList.length < 20 && loadOnlineHealthAndBeautyCategorizedData(),
+                    // !loadingOnlineOfficeAndBusinessCategorizedInProgress && !noOnlineOfficeAndBusinessCategorizedOffersToLoad && onlineOfficeAndBusinessCategorizedOfferList.length < 20 && loadOnlineOfficeAndBusinessCategorizedData(),
+                    // !loadingOnlineServicesAndSubscriptionsCategorizedInProgress && !noOnlineServicesAndSubscriptionsCategorizedOffersToLoad && onlineServicesAndSubscriptionsCategorizedOfferList.length < 20 && loadOnlineServicesAndSubscriptionsCategorizedData(),
+                    // !loadingNearbyOffersForHorizontalMapInProgress && !areOffersForMainHorizontalMapLoaded && nearbyOffersListForMainHorizontalMap.length === 0 && loadNearbyDataForMainHorizontalMap(),
+                    // !loadingNearbyOffersForFullScreenMapInProgress && !areOffersForFullScreenMapLoaded && nearbyOffersListForFullScreenMap.length === 0 && loadNearbyDataForFullScreenMap(),
+                    // !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && loadPremierNearbyData(),
+                    // !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && nearbyOfferList.length < 100 && loadNearbyData(),
+                    // !loadingNearbyFoodCategorizedOffersInProgress && !noNearbyFoodCategorizedOffersToLoad && nearbyFoodCategorizedOfferList.length < 20 && loadNearbyFoodCategorizedData(),
+                    // !loadingNearbyRetailCategorizedOffersInProgress && !noNearbyRetailCategorizedOffersToLoad && nearbyRetailCategorizedOfferList.length < 20 && loadNearbyRetailCategorizedData(),
+                    // !loadingNearbyEntertainmentCategorizedOffersInProgress && !noNearbyEntertainmentCategorizedOffersToLoad && nearbyEntertainmentCategorizedOfferList.length < 20 && loadNearbyEntertainmentCategorizedData(),
+                    // !loadingNearbyElectronicsCategorizedOffersInProgress && !noNearbyElectronicsCategorizedOffersToLoad && nearbyElectronicsCategorizedOfferList.length < 20 && loadNearbyElectronicsCategorizedData(),
+                    // !loadingNearbyHomeCategorizedOffersInProgress && !noNearbyHomeCategorizedOffersToLoad && nearbyHomeCategorizedOfferList.length < 20 && loadNearbyHomeCategorizedData(),
+                    // !loadingNearbyHealthAndBeautyCategorizedOffersInProgress && !noNearbyHealthAndBeautyCategorizedOffersToLoad && nearbyHealthAndBeautyCategorizedOfferList.length < 20 && loadNearbyHealthAndBeautyCategorizedData(),
+                    // !loadingNearbyOfficeAndBusinessCategorizedOffersInProgress && !noNearbyOfficeAndBusinessCategorizedOffersToLoad && nearbyOfficeAndBusinessCategorizedOfferList.length < 20 && loadNearbyOfficeAndBusinessCategorizedData(),
+                    // !loadingNearbyServicesAndSubscriptionsCategorizedOffersInProgress && !noNearbyServicesAndSubscriptionsCategorizedOffersToLoad && nearbyServicesAndSubscriptionsCategorizedOfferList.length < 20 && loadNearbyServicesAndSubscriptionsCategorizedData()
                 ]);
             }
             if (envInfo.envName === Stages.PROD) {
                 if (reloadNearbyDueToPermissionsChange) {
                     setIsLoadingOnlineInProgress(false);
+                    setIsLoadingOnlineVeteransDayCategorizedInProgress(false);
                     setIsLoadingOnlineFoodCategorizedInProgress(false);
                     setIsLoadingOnlineRetailCategorizedInProgress(false);
                     setIsLoadingOnlineEntertainmentCategorizedInProgress(false);
@@ -1216,6 +1311,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                     setNoNearbyServicesAndSubscriptionsCategorizedOffersToLoad(false);
 
                     setNoOnlineOffersToLoad(false);
+                    setNoOnlineVeteransDayCategorizedOffersToLoad(false);
                     setNoOnlineFoodCategorizedOffersToLoad(false);
                     setNoOnlineRetailCategorizedOffersToLoad(false);
                     setNoOnlineEntertainmentCategorizedOffersToLoad(false);
@@ -1240,6 +1336,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                 await Promise.all([
                     !loadingOnlineInProgress && !noPremierOnlineOffersToLoad && onlineOfferList.length < PremierOnlineProdOfferIds.length && loadPremierOnlineData(),
                     !loadingOnlineInProgress && !noOnlineOffersToLoad && PremierOnlineProdOfferIds.length <= onlineOfferList.length && onlineOfferList.length < 100 && loadOnlineData(),
+                    !loadingOnlineVeteransDayCategorizedInProgress && !noOnlineVeteransDayCategorizedOffersToLoad && onlineVeteransDayCategorizedOfferList.length < 20 && loadOnlineVeteransDayCategorizedData(),
                     !loadingOnlineFoodCategorizedInProgress && !noOnlineFoodCategorizedOffersToLoad && onlineFoodCategorizedOfferList.length < 20 && loadOnlineFoodCategorizedData(),
                     !loadingOnlineRetailCategorizedInProgress && !noOnlineRetailCategorizedOffersToLoad && onlineRetailCategorizedOfferList.length < 20 && loadOnlineRetailCategorizedData(),
                     !loadingOnlineEntertainmentCategorizedInProgress && !noOnlineEntertainmentCategorizedOffersToLoad && onlineEntertainmentCategorizedOfferList.length < 20 && loadOnlineEntertainmentCategorizedData(),
@@ -1423,6 +1520,16 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                                                 console.log('online offers are not cached');
                                                                 marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
                                                                     await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers));
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineVeteransDayOffers`) !== null) {
+                                                                console.log('online Veterans Day offers are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineVeteransDayOffers`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineVeteransDayOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfVeteransDayCategorizedOnlineOffers, setNumberOfVeteransDayCategorizedOnlineOffers, OfferCategory.VeteranDay));
+                                                            } else {
+                                                                console.log('online Veterans Day offers are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineVeteransDayOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfVeteransDayCategorizedOnlineOffers, setNumberOfVeteransDayCategorizedOnlineOffers, OfferCategory.VeteranDay));
                                                             }
                                                             if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineFoodOffers`) !== null) {
                                                                 console.log('online food offers are cached, needs cleaning up');

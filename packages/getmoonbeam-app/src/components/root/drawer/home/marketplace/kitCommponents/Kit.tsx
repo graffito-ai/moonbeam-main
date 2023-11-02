@@ -4,6 +4,7 @@ import {useRecoilState} from "recoil";
 import {bottomTabShownState} from "../../../../../../recoil/HomeAtom";
 import {appDrawerHeaderShownState, customBannerShown, drawerSwipeState} from "../../../../../../recoil/AppDrawerAtom";
 import {
+    currentActiveKitState,
     fullScreenKitMapActiveState, nearbyKitListIsExpandedState,
     onlineKitListIsExpandedState,
     storeNavigationState
@@ -15,6 +16,7 @@ import {Portal} from 'react-native-paper';
 import {MapHorizontalKitSection} from "./MapHorizontalKitSection";
 import {FullScreenMapKitSection} from "./FullScreenMapKitSection";
 import {NearbyKitSection} from "./NearbyKitSection";
+import {OfferCategory} from "@moonbeam/moonbeam-models";
 
 /**
  * Kit component.
@@ -24,6 +26,7 @@ import {NearbyKitSection} from "./NearbyKitSection";
  */
 export const Kit = ({navigation}: KitProps) => {
     // constants used to keep track of shared states
+    const [currentActiveKit,] = useRecoilState(currentActiveKitState);
     const [onlineKitListExpanded,] = useRecoilState(onlineKitListIsExpandedState);
     const [nearbyKitListExpanded,] = useRecoilState(nearbyKitListIsExpandedState);
     const [fullScreenKitMapActive,] = useRecoilState(fullScreenKitMapActiveState);
@@ -66,13 +69,18 @@ export const Kit = ({navigation}: KitProps) => {
                                 !nearbyKitListExpanded && !onlineKitListExpanded &&
                                 <>
                                     <OnlineKitSection navigation={navigation}/>
-                                    <MapHorizontalKitSection/>
-                                    <NearbyKitSection navigation={navigation}/>
+                                    {
+                                        currentActiveKit !== null && currentActiveKit !== OfferCategory.VeteranDay &&
+                                        <>
+                                            <MapHorizontalKitSection/>
+                                            <NearbyKitSection navigation={navigation}/>
+                                        </>
+                                    }
                                 </>
 
                             }
                             {
-                                !onlineKitListExpanded && nearbyKitListExpanded &&
+                                !onlineKitListExpanded && nearbyKitListExpanded && currentActiveKit !== null && currentActiveKit !== OfferCategory.VeteranDay &&
                                 <NearbyKitSection navigation={navigation}/>
                             }
                         </>

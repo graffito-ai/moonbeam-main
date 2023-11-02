@@ -123,9 +123,12 @@ import {
     numberOfEntertainmentCategorizedOnlineOffersState,
     numberOfFoodCategorizedOnlineOffersState,
     numberOfHealthAndBeautyCategorizedOnlineOffersState,
-    numberOfHomeCategorizedOnlineOffersState, numberOfOfficeAndBusinessCategorizedOnlineOffersState,
+    numberOfHomeCategorizedOnlineOffersState,
+    numberOfOfficeAndBusinessCategorizedOnlineOffersState,
     numberOfOnlineOffersState,
-    numberOfRetailCategorizedOnlineOffersState, numberOfServicesAndSubscriptionsCategorizedOnlineOffersState
+    numberOfRetailCategorizedOnlineOffersState,
+    numberOfServicesAndSubscriptionsCategorizedOnlineOffersState,
+    numberOfVeteransDayCategorizedOnlineOffersState
 } from "../../../../recoil/StoreOfferAtom";
 
 /**
@@ -141,6 +144,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [existentAccountVisible, setExistentAccountVisible] = useState<boolean>(false);
     // constants used to keep track of shared states
     const [numberOfOnlineOffers, setNumberOfOnlineOffers] = useRecoilState(numberOfOnlineOffersState);
+    const [numberOfVeteransDayCategorizedOnlineOffers, setNumberOfVeteransDayCategorizedOnlineOffers] = useRecoilState(numberOfVeteransDayCategorizedOnlineOffersState);
     const [numberOfFoodCategorizedOnlineOffers, setNumberOfFoodCategorizedOnlineOffers] = useRecoilState(numberOfFoodCategorizedOnlineOffersState);
     const [numberOfRetailCategorizedOnlineOffers, setNumberOfRetailCategorizedOnlineOffers] = useRecoilState(numberOfRetailCategorizedOnlineOffersState);
     const [numberOfEntertainmentCategorizedOnlineOffers, setNumberOfEntertainmentCategorizedOnlineOffers] = useRecoilState(numberOfEntertainmentCategorizedOnlineOffersState);
@@ -1195,6 +1199,16 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                                 console.log('online offers are not cached');
                                                                 marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
                                                                     await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers));
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineVeteransDayOffers`) !== null) {
+                                                                console.log('online Veterans Day offers are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineVeteransDayOffers`);
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineVeteransDayOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfVeteransDayCategorizedOnlineOffers, setNumberOfVeteransDayCategorizedOnlineOffers, OfferCategory.VeteranDay));
+                                                            } else {
+                                                                console.log('online Veterans Day offers are not cached');
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineVeteransDayOffers`,
+                                                                    await retrieveCategorizedOnlineOffersList(numberOfVeteransDayCategorizedOnlineOffers, setNumberOfVeteransDayCategorizedOnlineOffers, OfferCategory.VeteranDay));
                                                             }
                                                             if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineFoodOffers`) !== null) {
                                                                 console.log('online food offers are cached, needs cleaning up');

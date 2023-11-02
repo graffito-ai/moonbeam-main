@@ -7,7 +7,9 @@ import {ActivityIndicator, Card, List, Text} from "react-native-paper";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
     currentActiveKitState,
-    nearbyKitListIsExpandedState, noNearbyKitOffersAvailableState,
+    fidelisPartnerListState,
+    nearbyKitListIsExpandedState,
+    noNearbyKitOffersAvailableState,
     noOnlineElectronicsCategorizedOffersToLoadState,
     noOnlineEntertainmentCategorizedOffersToLoadState,
     noOnlineFoodCategorizedOffersToLoadState,
@@ -16,6 +18,7 @@ import {
     noOnlineOfficeAndBusinessCategorizedOffersToLoadState,
     noOnlineRetailCategorizedOffersToLoadState,
     noOnlineServicesAndSubscriptionsCategorizedOffersToLoadState,
+    noOnlineVeteransDayCategorizedOffersToLoadState,
     onlineElectronicsCategorizedOfferListState,
     onlineElectronicsCategorizedOffersPageNumberState,
     onlineEntertainmentCategorizedOfferListState,
@@ -33,6 +36,8 @@ import {
     onlineRetailCategorizedOffersPageNumberState,
     onlineServicesAndSubscriptionsCategorizedOfferListState,
     onlineServicesAndSubscriptionsCategorizedOffersPageNumberState,
+    onlineVeteransDayCategorizedOfferListState,
+    onlineVeteransDayCategorizedOffersPageNumberState,
     storeOfferState,
     uniqueOnlineElectronicsOffersListState,
     uniqueOnlineEntertainmentOffersListState,
@@ -41,7 +46,8 @@ import {
     uniqueOnlineHomeOffersListState,
     uniqueOnlineOfficeAndBusinessOffersListState,
     uniqueOnlineRetailOffersListState,
-    uniqueOnlineServicesAndSubscriptionsOffersListState
+    uniqueOnlineServicesAndSubscriptionsOffersListState,
+    uniqueOnlineVeteransDayOffersListState
 } from "../../../../../../recoil/StoreOfferAtom";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
@@ -79,7 +85,9 @@ export const OnlineKitSection = (props: {
     const [onlineKitListExpanded, setIsOnlineKitListExpanded] = useRecoilState(onlineKitListIsExpandedState);
     const [nearbyKitListExpanded, setNearbyKitListExpanded] = useRecoilState(nearbyKitListIsExpandedState);
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
+    const [fidelisPartnerList,] = useRecoilState(fidelisPartnerListState);
     const [currentActiveKit,] = useRecoilState(currentActiveKitState);
+    const [onlineVeteransDayCategorizedPageNumber, setOnlineVeteransDayCategorizedPageNumber] = useRecoilState(onlineVeteransDayCategorizedOffersPageNumberState);
     const [onlineFoodCategorizedPageNumber, setOnlineFoodCategorizedPageNumber] = useRecoilState(onlineFoodCategorizedOffersPageNumberState);
     const [onlineRetailCategorizedPageNumber, setOnlineRetailCategorizedPageNumber] = useRecoilState(onlineRetailCategorizedOffersPageNumberState);
     const [onlineEntertainmentCategorizedPageNumber, setOnlineEntertainmentCategorizedPageNumber] = useRecoilState(onlineEntertainmentCategorizedOffersPageNumberState);
@@ -88,6 +96,7 @@ export const OnlineKitSection = (props: {
     const [onlineHealthAndBeautyCategorizedPageNumber, setOnlineHealthAndBeautyCategorizedPageNumber] = useRecoilState(onlineHealthAndBeautyCategorizedOffersPageNumberState);
     const [onlineOfficeAndBusinessCategorizedPageNumber, setOnlineOfficeAndBusinessCategorizedPageNumber] = useRecoilState(onlineOfficeAndBusinessCategorizedOffersPageNumberState);
     const [onlineServicesAndSubscriptionsCategorizedPageNumber, setOnlineServicesAndSubscriptionsCategorizedPageNumber] = useRecoilState(onlineServicesAndSubscriptionsCategorizedOffersPageNumberState);
+    const [noOnlineVeteransDayCategorizedOffersToLoad, setNoOnlineVeteransDayCategorizedOffersToLoad] = useRecoilState(noOnlineVeteransDayCategorizedOffersToLoadState);
     const [noOnlineFoodCategorizedOffersToLoad, setNoOnlineFoodCategorizedOffersToLoad] = useRecoilState(noOnlineFoodCategorizedOffersToLoadState);
     const [noOnlineRetailCategorizedOffersToLoad, setNoOnlineRetailCategorizedOffersToLoad] = useRecoilState(noOnlineRetailCategorizedOffersToLoadState);
     const [noOnlineEntertainmentCategorizedOffersToLoad, setNoOnlineEntertainmentCategorizedOffersToLoad] = useRecoilState(noOnlineEntertainmentCategorizedOffersToLoadState);
@@ -96,6 +105,8 @@ export const OnlineKitSection = (props: {
     const [noOnlineHealthAndBeautyCategorizedOffersToLoad, setNoOnlineHealthAndBeautyCategorizedOffersToLoad] = useRecoilState(noOnlineHealthAndBeautyCategorizedOffersToLoadState);
     const [noOnlineOfficeAndBusinessCategorizedOffersToLoad, setNoOnlineOfficeAndBusinessCategorizedOffersToLoad] = useRecoilState(noOnlineOfficeAndBusinessCategorizedOffersToLoadState);
     const [noOnlineServicesAndSubscriptionsCategorizedOffersToLoad, setNoOnlineServicesAndSubscriptionsCategorizedOffersToLoad] = useRecoilState(noOnlineServicesAndSubscriptionsCategorizedOffersToLoadState);
+    const uniqueOnlineVeteransDayOffersList = useRecoilValue(uniqueOnlineVeteransDayOffersListState);
+    const [onlineVeteransDayCategorizedOfferList, setOnlineVeteransDayCategorizedOfferList] = useRecoilState(onlineVeteransDayCategorizedOfferListState);
     const uniqueOnlineFoodOffersList = useRecoilValue(uniqueOnlineFoodOffersListState);
     const [onlineFoodCategorizedOfferList, setOnlineFoodCategorizedOfferList] = useRecoilState(onlineFoodCategorizedOfferListState);
     const uniqueOnlineRetailOffersList = useRecoilValue(uniqueOnlineRetailOffersListState);
@@ -112,7 +123,7 @@ export const OnlineKitSection = (props: {
     const [onlineOfficeAndBusinessCategorizedOfferList, setOnlineOfficeAndBusinessCategorizedOfferList] = useRecoilState(onlineOfficeAndBusinessCategorizedOfferListState);
     const uniqueOnlineServicesAndSubscriptionsOffersList = useRecoilValue(uniqueOnlineServicesAndSubscriptionsOffersListState);
     const [onlineServicesAndSubscriptionsCategorizedOfferList, setOnlineServicesAndSubscriptionsCategorizedOfferList] = useRecoilState(onlineServicesAndSubscriptionsCategorizedOfferListState);
-    const [noNearbyKitOffersAvailable, ] = useRecoilState(noNearbyKitOffersAvailableState);
+    const [noNearbyKitOffersAvailable,] = useRecoilState(noNearbyKitOffersAvailableState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -131,6 +142,11 @@ export const OnlineKitSection = (props: {
 
             // set the online offer list, according to the type of kit that's active
             switch (currentActiveKit as OfferCategory) {
+                case OfferCategory.VeteranDay:
+                    setDeduplicatedOnlineOfferList(uniqueOnlineVeteransDayOffersList);
+                    setOnlineOfferList(onlineVeteransDayCategorizedOfferList);
+                    setNoOnlineOffersToLoad(noOnlineVeteransDayCategorizedOffersToLoad);
+                    break;
                 case OfferCategory.Food:
                     setDeduplicatedOnlineOfferList(uniqueOnlineFoodOffersList);
                     setOnlineOfferList(onlineFoodCategorizedOfferList);
@@ -176,6 +192,11 @@ export const OnlineKitSection = (props: {
             }
         }
 
+        // for the Veterans Day kit list should be expanded
+        if (currentActiveKit === OfferCategory.VeteranDay && !onlineKitListExpanded) {
+            setIsOnlineKitListExpanded(true);
+        }
+
         // update the list data providers if we are loading more offers accordingly
         if (verticalListLoading && onlineKitListExpanded) {
             setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedOnlineOfferList));
@@ -184,7 +205,11 @@ export const OnlineKitSection = (props: {
         }
         // populate the online offer data provider and list view
         if ((onlineOfferList && onlineOfferList.length > 0 && layoutProvider === null && dataProvider === null)) {
-            setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedOnlineOfferList.slice(0, 2)));
+            setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(
+                currentActiveKit === OfferCategory.VeteranDay
+                    ? deDuplicatedOnlineOfferList
+                    : deDuplicatedOnlineOfferList.slice(0, 2))
+            );
             setLayoutProvider(new LayoutProvider(
                 _ => 0,
                 (_, dim) => {
@@ -194,10 +219,12 @@ export const OnlineKitSection = (props: {
             ));
         }
     }, [currentActiveKit, dataProvider, layoutProvider, deDuplicatedOnlineOfferList, verticalListLoading,
-        uniqueOnlineFoodOffersList, uniqueOnlineRetailOffersList, uniqueOnlineEntertainmentOffersList, uniqueOnlineElectronicsOffersList,
-        uniqueOnlineHomeOffersList, uniqueOnlineHealthAndBeautyOffersList, uniqueOnlineOfficeAndBusinessOffersList, uniqueOnlineServicesAndSubscriptionsOffersList,
-        onlineFoodCategorizedOfferList, onlineRetailCategorizedOfferList, onlineEntertainmentCategorizedOfferList, onlineElectronicsCategorizedOfferList,
-        onlineHomeCategorizedOfferList, onlineHealthAndBeautyCategorizedOfferList, onlineOfficeAndBusinessCategorizedOfferList, onlineServicesAndSubscriptionsCategorizedOfferList]);
+        uniqueOnlineVeteransDayOffersList, uniqueOnlineFoodOffersList, uniqueOnlineRetailOffersList, uniqueOnlineEntertainmentOffersList,
+        uniqueOnlineElectronicsOffersList, uniqueOnlineHomeOffersList, uniqueOnlineHealthAndBeautyOffersList, uniqueOnlineOfficeAndBusinessOffersList,
+        uniqueOnlineServicesAndSubscriptionsOffersList, onlineVeteransDayCategorizedOfferList, onlineFoodCategorizedOfferList, onlineRetailCategorizedOfferList,
+        onlineEntertainmentCategorizedOfferList, onlineElectronicsCategorizedOfferList, onlineHomeCategorizedOfferList, onlineHealthAndBeautyCategorizedOfferList,
+        onlineOfficeAndBusinessCategorizedOfferList, onlineServicesAndSubscriptionsCategorizedOfferList
+    ]);
 
     /**
      * Function used to populate the rows containing the online offers data.
@@ -226,7 +253,11 @@ export const OnlineKitSection = (props: {
                                     <Card style={styles.kitOfferCard}
                                           onPress={() => {
                                               // set the clicked offer/partner accordingly
-                                              setStoreOfferClicked(data);
+                                              if (currentActiveKit === OfferCategory.VeteranDay) {
+                                                  setStoreOfferClicked(fidelisPartnerList.filter(fidelisPartner => fidelisPartner.brandName === data.brandDba)[0]);
+                                              } else {
+                                                  setStoreOfferClicked(data);
+                                              }
                                               // @ts-ignore
                                               props.navigation.navigate('StoreOffer', {});
                                           }}>
@@ -255,7 +286,7 @@ export const OnlineKitSection = (props: {
                                                                 ? `${data.reward!.value}%`
                                                                 : `$${data.reward!.value}`}
                                                         </Text>
-                                                        {" Off "}
+                                                        {" Off 🇺🇸"}
                                                     </Text>
                                                 </View>
                                             </View>
@@ -264,13 +295,18 @@ export const OnlineKitSection = (props: {
                                 </View>
                             </>
                             :
-                            <Card style={[styles.kitOfferCard, !onlineKitListExpanded && index === 1 && {bottom: hp(1.5)}]}
-                                  onPress={() => {
-                                      // set the clicked offer/partner accordingly
-                                      setStoreOfferClicked(data);
-                                      // @ts-ignore
-                                      props.navigation.navigate('StoreOffer', {});
-                                  }}>
+                            <Card
+                                style={[styles.kitOfferCard, !onlineKitListExpanded && index === 1 && {bottom: hp(1.5)}]}
+                                onPress={() => {
+                                    // set the clicked offer/partner accordingly
+                                    if (currentActiveKit === OfferCategory.VeteranDay) {
+                                        setStoreOfferClicked(fidelisPartnerList.filter(fidelisPartner => fidelisPartner.brandName === data.brandDba)[0]);
+                                    } else {
+                                        setStoreOfferClicked(data);
+                                    }
+                                    // @ts-ignore
+                                    props.navigation.navigate('StoreOffer', {});
+                                }}>
                                 <Card.Content>
                                     <List.Icon color={'#F2FF5D'}
                                                icon="chevron-right"
@@ -296,7 +332,7 @@ export const OnlineKitSection = (props: {
                                                         ? `${data.reward!.value}%`
                                                         : `$${data.reward!.value}`}
                                                 </Text>
-                                                {" Off "}
+                                                {" Off 🇺🇸"}
                                             </Text>
                                         </View>
                                     </View>
@@ -336,42 +372,51 @@ export const OnlineKitSection = (props: {
                     {
                         <>
                             <View style={styles.kitOffersTitleView}>
-                                <Text style={styles.kitOffersTitleMain}>
-                                    {`Online Offers`}
-                                </Text>
-                                <TouchableOpacity
-                                    style={styles.moreButton}
-                                    onPress={() => {
-                                        console.log('button pressed');
-                                        if (!onlineKitListExpanded) {
-                                            // display all offers loaded in the list
-                                            setVerticalListLoading(true);
-                                            setNearbyKitListExpanded(false);
-                                            setIsOnlineKitListExpanded(true);
-                                        } else {
-                                            setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedOnlineOfferList.slice(0, 2)));
-                                            setLayoutProvider(new LayoutProvider(
-                                                _ => 0,
-                                                (_, dim) => {
-                                                    dim.width = wp(33);
-                                                    dim.height = hp(25);
+                                {
+                                    currentActiveKit !== null && currentActiveKit !== OfferCategory.VeteranDay &&
+                                    <>
+                                        <Text style={styles.kitOffersTitleMain}>
+                                            {`Online Offers`}
+                                        </Text>
+                                        <TouchableOpacity
+                                            style={styles.moreButton}
+                                            onPress={() => {
+                                                console.log('button pressed');
+                                                if (!onlineKitListExpanded) {
+                                                    // display all offers loaded in the list
+                                                    setVerticalListLoading(true);
+                                                    setNearbyKitListExpanded(false);
+                                                    setIsOnlineKitListExpanded(true);
+                                                } else {
+                                                    setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedOnlineOfferList.slice(0, 2)));
+                                                    setLayoutProvider(new LayoutProvider(
+                                                        _ => 0,
+                                                        (_, dim) => {
+                                                            dim.width = wp(33);
+                                                            dim.height = hp(25);
+                                                        }
+                                                    ));
+                                                    setVerticalListLoading(false);
+                                                    setOnlineOffersSpinnerShown(false);
+                                                    setIsOnlineKitListExpanded(false);
                                                 }
-                                            ));
-                                            setVerticalListLoading(false);
-                                            setOnlineOffersSpinnerShown(false);
-                                            setIsOnlineKitListExpanded(false);
-                                        }
-                                    }}
-                                >
-                                    <Text
-                                        style={styles.moreButtonText}>{onlineKitListExpanded ? 'See Less' : 'See All'}</Text>
-                                </TouchableOpacity>
+                                            }}
+                                        >
+                                            <Text
+                                                style={styles.moreButtonText}>{onlineKitListExpanded ? 'See Less' : 'See All'}</Text>
+                                        </TouchableOpacity>
+                                    </>
+                                }
                             </View>
                             {
                                 !deDuplicatedOnlineOfferList || !onlineOfferList ||
                                 deDuplicatedOnlineOfferList.length === 0 || onlineOfferList.length === 0 ?
                                     <>
-                                        <Card style={styles.nearbyLoadingOfferCard}>
+                                        <Card
+                                            style={[styles.nearbyLoadingOfferCard, currentActiveKit !== null && currentActiveKit === OfferCategory.VeteranDay && {
+                                                top: hp(3),
+                                                left: wp(8)
+                                            }]}>
                                             <Card.Content>
                                                 <View
                                                     style={[styles.locationServicesEnableView, {height: hp(23)}]}>
@@ -398,11 +443,13 @@ export const OnlineKitSection = (props: {
                                     <RecyclerListView
                                         // @ts-ignore
                                         ref={onlineListView}
-                                        style={{
+                                        style={[{
                                             width: wp(100),
                                             right: wp(1),
                                             flexGrow: 1
-                                        }}
+                                        }, currentActiveKit === OfferCategory.VeteranDay && {
+                                            marginTop: hp(8)
+                                        }]}
                                         layoutProvider={layoutProvider!}
                                         dataProvider={dataProvider!}
                                         rowRenderer={renderOnlineRowData}
@@ -464,6 +511,14 @@ export const OnlineKitSection = (props: {
                                                 setOnlineOffersSpinnerShown(true);
                                                 // retrieving more online offers
                                                 switch (currentActiveKit as OfferCategory) {
+                                                    case OfferCategory.VeteranDay:
+                                                        const additionalVeteransDayOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
+                                                            currentActiveKit, onlineVeteransDayCategorizedPageNumber, setOnlineVeteransDayCategorizedPageNumber)
+                                                        setOnlineVeteransDayCategorizedOfferList(oldOnlineOffers => {
+                                                            return [...oldOnlineOffers, ...additionalVeteransDayOffersToLoad]
+                                                        });
+                                                        additionalVeteransDayOffersToLoad.length === 0 && setNoOnlineVeteransDayCategorizedOffersToLoad(true);
+                                                        break;
                                                     case OfferCategory.Food:
                                                         const additionalFoodOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
                                                             currentActiveKit, onlineFoodCategorizedPageNumber, setOnlineFoodCategorizedPageNumber)

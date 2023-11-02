@@ -1,7 +1,13 @@
-import {FidelisPartnerResponse, GetOffersInput, OffersErrorType, OffersResponse} from "@moonbeam/moonbeam-models";
+import {
+    FidelisPartnerResponse,
+    GetOffersInput,
+    OffersErrorType,
+    OffersResponse
+} from "@moonbeam/moonbeam-models";
 import { getFidelisPartners } from "./resolvers/GetFidelisPartnersResolver";
 import { getOffers } from "./resolvers/GetOffersResolver";
 import {getPremierOffers} from "./resolvers/GetPremierOffersResolver";
+import { getSeasonalOffers } from "./resolvers/GetSeasonalOffersResolver";
 
 /**
  * Mapping out the App Sync event type, so we can use it as a type in the Lambda Handler
@@ -36,6 +42,8 @@ exports.handler = async (event: AppSyncEvent): Promise<OffersResponse | FidelisP
             return await getFidelisPartners(event.info.fieldName);
         case "getPremierOffers":
             return await getPremierOffers(event.info.fieldName, event.arguments.getOffersInput);
+        case "getSeasonalOffers":
+            return await getSeasonalOffers(event.info.fieldName, event.arguments.getOffersInput);
         default:
             const errorMessage = `Unexpected field name: ${event.info.fieldName}`;
             console.log(errorMessage);

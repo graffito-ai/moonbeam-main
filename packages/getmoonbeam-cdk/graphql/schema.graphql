@@ -4,6 +4,7 @@ type Query {
     getFAQs: FAQResponse! @aws_cognito_user_pools
     getOffers(getOffersInput: GetOffersInput!): OffersResponse! @aws_cognito_user_pools
     getPremierOffers(getOffersInput: GetOffersInput!): OffersResponse! @aws_cognito_user_pools
+    getSeasonalOffers(getOffersInput: GetOffersInput!): OffersResponse! @aws_cognito_user_pools
     getFidelisPartners: FidelisPartnerResponse! @aws_cognito_user_pools
     getDevicesForUser(getDevicesForUserInput: GetDevicesForUserInput!): UserDevicesResponse! @aws_cognito_user_pools @aws_api_key
     getDevice(getDeviceInput: GetDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
@@ -805,6 +806,10 @@ enum CountryCode {
     CA
 }
 
+enum OfferSeasonalType {
+    VETERANS_DAY
+}
+
 enum OfferFilter {
     FIDELIS
     ONLINE
@@ -813,6 +818,8 @@ enum OfferFilter {
     CATEGORIZED_NEARBY
     PREMIER_NEARBY
     PREMIER_ONLINE
+    SEASONAL_NEARBY
+    SEASONAL_ONLINE
     VETERANS_DAY
 }
 
@@ -830,6 +837,7 @@ enum OfferCategory {
     office_and_business
     utilities_and_telecom
     services_and_subscriptions
+    veteran_day
 }
 
 # this is an Olive-based object, and therefore since their documentation lacks clarity on which fields are
@@ -942,10 +950,11 @@ input GetOffersInput {
     pageNumber: Int!
     brandName: String
     offerCategory: OfferCategory
-    radiusLatitude: Float # required only when the offer filter is NEARBY, PREMIER_NEARBY or CATEGORIZED_NEARBY
-    radiusLongitude: Float # required only when the offer filter is NEARBY, PREMIER_NEARBY or CATEGORIZED_NEARBY
-    radius: Int # required only when the offer filter is NEARBY, PREMIER_NEARBY or CATEGORIZED_NEARBY
-    radiusIncludeOnlineStores: Boolean # required only when the offer filter is NEARBY, PREMIER_NEARBY or CATEGORIZED_NEARBY
+    radiusLatitude: Float # required only when the offer filter is NEARBY, PREMIER_NEARBY, CATEGORIZED_NEARBY or SEASONAL_NEARBY
+    radiusLongitude: Float # required only when the offer filter is NEARBY, PREMIER_NEARBY, CATEGORIZED_NEARBY or SEASONAL_NEARBY
+    radius: Int # required only when the offer filter is NEARBY, PREMIER_NEARBY, CATEGORIZED_NEARBY or SEASONAL_NEARBY
+    radiusIncludeOnlineStores: Boolean # required only when the offer filter is NEARBY, PREMIER_NEARBY, CATEGORIZED_NEARBY or SEASONAL_NEARBY
+    offerSeasonalType: OfferSeasonalType # required only when the offer filter is SEASONAL_NEARBY or SEASONAL_ONLINE
 }
 
 # graphql/FAQSchema.graphql

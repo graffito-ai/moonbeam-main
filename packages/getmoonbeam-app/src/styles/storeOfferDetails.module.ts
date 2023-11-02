@@ -20,11 +20,13 @@ export const styles = StyleSheet.create({
         flexDirection: 'column'
     },
     brandLogo: {
+        top: hp(2),
         alignSelf: 'center',
-        height: hp(16),
-        width: hp(16)
+        height: hp(13),
+        width: hp(13)
     },
     brandTitle: {
+        top: hp(3),
         alignSelf: 'center',
         fontFamily: 'Saira-SemiBold',
         fontSize: hp(2.5),

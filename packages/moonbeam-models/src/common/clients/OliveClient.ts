@@ -8,6 +8,7 @@ import {
     MemberResponse,
     Offer,
     OfferFilter,
+    OfferSeasonalType,
     OffersErrorType,
     OffersResponse,
     RemoveCardResponse,
@@ -1185,11 +1186,12 @@ export class OliveClient extends BaseAPIClient {
             // retrieve the API Key and Base URL, needed in order to make the GET offers call through the client
             const [oliveBaseURL, olivePublicKey, olivePrivateKey,
                 moonbeamDefaultLoyalty, moonbeamFidelisDefaultLoyalty, moonbeamOnlineLoyalty,
-                moonbeamPremierOnlineLoyalty, moonbeamPremierNearbyLoyalty, moonbeamVeteransDayLoyalty] = await super.retrieveServiceCredentials(
-                Constants.AWSPairConstants.OLIVE_SECRET_NAME,
-                undefined,
-                undefined,
-                true);
+                moonbeamPremierOnlineLoyalty, moonbeamPremierNearbyLoyalty, moonbeamVeteransDayLoyalty] =
+                await super.retrieveServiceCredentials(
+                    Constants.AWSPairConstants.OLIVE_SECRET_NAME,
+                    undefined,
+                    undefined,
+                    true);
 
             // check to see if we obtained any invalid secret values from the call above
             if (oliveBaseURL === null || oliveBaseURL.length === 0 ||
@@ -1239,7 +1241,14 @@ export class OliveClient extends BaseAPIClient {
                     break;
                 case OfferFilter.VeteransDay:
                     loyaltyProgramId = moonbeamVeteransDayLoyalty;
-                    break
+                    break;
+                case OfferFilter.SeasonalOnline:
+                case OfferFilter.SeasonalNearby:
+                    loyaltyProgramId =
+                        getOffersInput.offerSeasonalType === OfferSeasonalType.VeteransDay
+                            ? moonbeamVeteransDayLoyalty
+                            : '';
+                    break;
                 default:
                     console.log(`Unknown offer filter passed in ${getOffersInput.filterType} resulting in invalid loyalty program id!`);
                     break;
@@ -1249,7 +1258,12 @@ export class OliveClient extends BaseAPIClient {
             getOffersInput.offerStates.forEach(state => {
                 requestURL += `&offerStates=${state}`;
             })
-            requestURL += (getOffersInput.filterType === OfferFilter.Nearby || getOffersInput.filterType === OfferFilter.PremierNearby || getOffersInput.filterType === OfferFilter.CategorizedNearby)
+            requestURL += (
+                getOffersInput.filterType === OfferFilter.Nearby
+                || getOffersInput.filterType === OfferFilter.PremierNearby
+                || getOffersInput.filterType === OfferFilter.CategorizedNearby
+                || getOffersInput.filterType === OfferFilter.SeasonalNearby
+            )
                 ? `&radiusLatitude=${getOffersInput.radiusLatitude!}&radiusLongitude=${getOffersInput.radiusLongitude!}&radius=${getOffersInput.radius!}&radiusIncludeOnlineStores=${getOffersInput.radiusIncludeOnlineStores!}`
                 : ``;
             requestURL += getOffersInput.brandName

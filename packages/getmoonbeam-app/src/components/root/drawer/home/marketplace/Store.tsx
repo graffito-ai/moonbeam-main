@@ -38,6 +38,7 @@ import {NearbySection} from "./storeComponents/NearbySection";
 import {OnlineSection} from "./storeComponents/OnlineSection";
 import {SearchSection} from "./storeComponents/SearchSection";
 import {
+    fidelisPartnerListState,
     locationServicesButtonState,
     nearbyOffersListState,
     nearbyOffersPageNumberState,
@@ -70,10 +71,10 @@ export const Store = ({navigation}: StoreProps) => {
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [filteredOffersSpinnerShown, setFilteredOffersSpinnerShown] = useState<boolean>(false);
     const [noFilteredOffersAvailable, setNoFilteredOffersAvailable] = useState<boolean>(false);
-    const [fidelisPartnerList, setFidelisPartnerList] = useState<FidelisPartner[]>([]);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [shouldCacheImages, setShouldCacheImages] = useState<boolean>(true);
     // constants used to keep track of shared states
+    const [fidelisPartnerList, setFidelisPartnerList] = useRecoilState(fidelisPartnerListState);
     const [, setStoreNavigationState] = useRecoilState(storeNavigationState);
     const [currentUserLocation, setCurrentUserLocation] = useRecoilState(currentUserLocationState);
     const [toggleViewPressed,] = useRecoilState(toggleViewPressedState);
@@ -573,7 +574,6 @@ export const Store = ({navigation}: StoreProps) => {
                                                             navigation={navigation}
                                                         />
                                                         <FidelisSection
-                                                            fidelisPartnerList={fidelisPartnerList}
                                                             navigation={navigation}
                                                             areNearbyOffersReady={areNearbyOffersReady}
                                                         />

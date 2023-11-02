@@ -217,6 +217,76 @@ export const getOffers = /* GraphQL */ `
     }
 `;
 
+// Query used to retrieve available seasonal offers using certain filtering (this will pass through seasonal offers from Olive directly)
+export const getSeasonalOffers = /* GraphQL */ `
+    query GetSeasonalOffers($getOffersInput: GetOffersInput!) {
+        getSeasonalOffers(getOffersInput: $getOffersInput) {
+            errorMessage
+            errorType
+            data {
+                totalNumberOfPages
+                totalNumberOfRecords
+                offers {
+                    id
+                    corporateId
+                    created
+                    offerState
+                    availability
+                    brandId
+                    brandDba
+                    brandLogo
+                    brandLogoSm
+                    brandBanner
+                    brandParentCategory
+                    brandStubCopy
+                    brandWebsite
+                    storeDetails {
+                        id
+                        name
+                        phone
+                        address1
+                        city
+                        state
+                        countryCode
+                        postCode
+                        geoLocation {
+                            latitude
+                            longitude
+                        }
+                        isOnline
+                        distance
+                    }
+                    description
+                    reach
+                    title
+                    qualifier
+                    tile
+                    startDate
+                    endDate
+                    currency
+                    extOfferId
+                    supplierOfferKey
+                    redemptionType
+                    redemptionInstructionUrl
+                    redemptionTrigger
+                    budget
+                    daysAvailability
+                    stores
+                    totalRedeemLimit
+                    redeemLimitPerUser
+                    purchaseAmount
+                    purchaseFrequency
+                    reward {
+                        type
+                        value
+                        maxValue
+                    }
+                }
+            }
+        }
+    }
+`;
+
 // Query used to retrieve available premier offers using certain filtering (this will pass through premier offers from Olive directly)
 export const getPremierOffers = /* GraphQL */ `
     query GetPremierOffers($getOffersInput: GetOffersInput!) {

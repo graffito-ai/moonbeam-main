@@ -191,7 +191,6 @@ export const NearbyKitSection = (props: {
         }
         // populate the online offer data provider and list view
         if ((nearbyOfferList && nearbyOfferList.length > 0 && layoutProvider === null && dataProvider === null)) {
-            console.log('here bitches');
             setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedNearbyOfferList.slice(0, 2)));
             setLayoutProvider(new LayoutProvider(
                 _ => 0,

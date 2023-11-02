@@ -25,7 +25,7 @@ export const getOffers = async (fieldName: string, getOffersInput: GetOffersInpu
         // check if a valid filter is passed in
         if (getOffersInput.filterType !== OfferFilter.Nearby && getOffersInput.filterType !== OfferFilter.Online &&
             getOffersInput.filterType !== OfferFilter.CategorizedOnline && getOffersInput.filterType !== OfferFilter.CategorizedNearby) {
-            const errorMessage = `Unsupported filter for offers query filter ${getOffersInput.filterType}. Use getFidelisPartners or getPremierOffers instead.`;
+            const errorMessage = `Unsupported filter for offers query filter ${getOffersInput.filterType}. Use getFidelisPartners, getPremierOffers or getSeasonalOffers instead.`;
             console.log(errorMessage);
 
             return {

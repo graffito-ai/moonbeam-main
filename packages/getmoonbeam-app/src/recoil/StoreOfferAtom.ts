@@ -132,6 +132,15 @@ const onlineOffersPageNumberState = atom<number>({
 });
 
 /**
+ * Atom used to keep track of the page number for the online Veterans Day offers, that we left off at, so next time
+ * we load more offers, we know where to start from.
+ */
+const onlineVeteransDayCategorizedOffersPageNumberState = atom<number>({
+    key: "onlineVeteransDayCategorizedOffersPageNumberState",
+    default: 1
+});
+
+/**
  * Atom used to keep track of the page number for the online food offers, that we left off at, so next time
  * we load more offers, we know where to start from.
  */
@@ -227,6 +236,31 @@ const uniqueOnlineOffersListState = selector<Offer[]>({
     key: 'uniqueOnlineOffersListState',
     get: ({get}) => {
         const onlineOfferList = get(onlineOffersListState);
+        if (onlineOfferList === null) {
+            return [];
+        } else {
+            // make sure that all transactions are unique based on their id
+            return [...new Map(onlineOfferList.map(offer =>
+                [offer.id, offer])).values()];
+        }
+    }
+});
+
+/**
+ * Atom used to keep track of the list of online Veterans Day offers to be displayed to the end user.
+ */
+const onlineVeteransDayCategorizedOfferListState = atom<Offer[]>({
+    key: "onlineVeteransDayCategorizedOfferListState",
+    default: []
+});
+
+/**
+ * A selector used to make sure that there are no duplicate online Veterans Day offers returned.
+ */
+const uniqueOnlineVeteransDayOffersListState = selector<Offer[]>({
+    key: 'uniqueOnlineVeteransDayOffersListState',
+    get: ({get}) => {
+        const onlineOfferList = get(onlineVeteransDayCategorizedOfferListState);
         if (onlineOfferList === null) {
             return [];
         } else {
@@ -741,6 +775,14 @@ const noOnlineOffersToLoadState = atom<boolean>({
 });
 
 /**
+ * Atom used to keep track of whether there are any more online Veterans Day offers to load.
+ */
+const noOnlineVeteransDayCategorizedOffersToLoadState = atom<boolean>({
+    key: "noOnlineVeteransDayCategorizedOffersToLoadState",
+    default: false
+});
+
+/**
  * Atom used to keep track of whether there are any more online food offers to load.
  */
 const noOnlineFoodCategorizedOffersToLoadState = atom<boolean>({
@@ -1051,6 +1093,14 @@ const numberOfOnlineOffersState = atom<number>({
 });
 
 /**
+ * Atom used to keep track of the number of online veterans day offers.
+ */
+const numberOfVeteransDayCategorizedOnlineOffersState = atom<number>({
+    key: "numberOfVeteransDayCategorizedOnlineOffersState",
+    default: 0
+});
+
+/**
  * Atom used to keep track of the number of online food offers.
  */
 const numberOfFoodCategorizedOnlineOffersState = atom<number>({
@@ -1164,9 +1214,23 @@ const noNearbyKitOffersAvailableState = atom<boolean>({
 });
 
 /**
+ * Atom used to keep track of all Fidelis Partners loaded
+ */
+const fidelisPartnerListState = atom<FidelisPartner[]>({
+    key: "fidelisPartnerListState",
+    default: []
+});
+
+/**
  * Export all atoms and/or selectors
  */
 export {
+    fidelisPartnerListState,
+    onlineVeteransDayCategorizedOffersPageNumberState,
+    noOnlineVeteransDayCategorizedOffersToLoadState,
+    numberOfVeteransDayCategorizedOnlineOffersState,
+    onlineVeteransDayCategorizedOfferListState,
+    uniqueOnlineVeteransDayOffersListState,
     noNearbyKitOffersAvailableState,
     fullScreenKitMapActiveState,
     onlineKitListIsExpandedState,

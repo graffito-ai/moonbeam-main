@@ -213,5 +213,5 @@ export const styles = StyleSheet.create({
         fontFamily: 'Saira-Medium',
         fontSize: hp(2.3),
         marginTop: hp(1)
-    },
+    }
 });

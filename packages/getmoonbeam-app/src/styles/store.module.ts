@@ -814,5 +814,32 @@ export const styles = StyleSheet.create({
         flexDirection: 'column',
         left: wp(17),
         height: hp(8)
+    },
+    seasonalOffersBannerCard: {
+        bottom: hp(2),
+        backgroundColor: '#262626',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        height: hp(10),
+        width: wp(100),
+        shadowColor: 'transparent',
+        shadowOffset: {width: -2, height: 1},
+        shadowOpacity: 0.6,
+        shadowRadius: 2,
+        elevation: 15
+    },
+    seasonalOfferBannerName: {
+        alignSelf: 'center',
+        fontFamily: 'Saira-SemiBold',
+        color: '#F2FF5D',
+        fontSize: hp(2.5),
+        top: hp(1)
+    },
+    seasonalOfferBannerSubtitleName: {
+        alignSelf: 'center',
+        fontFamily: 'Saira-Medium',
+        color: '#FFFFFF',
+        fontSize: hp(1.8),
+        top: hp(0.5)
     }
 });

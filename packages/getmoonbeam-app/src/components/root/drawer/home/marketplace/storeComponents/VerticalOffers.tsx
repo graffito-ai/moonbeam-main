@@ -870,7 +870,6 @@ export const VerticalOffers = (props: {
                                                                     <>
                                                                         <View
                                                                             style={{
-                                                                                backgroundColor: 'red',
                                                                                 width: wp(100),
                                                                                 alignSelf: 'center'
                                                                             }}/>
@@ -952,7 +951,6 @@ export const VerticalOffers = (props: {
                                                                 <>
                                                                     <View
                                                                         style={{
-                                                                            backgroundColor: 'red',
                                                                             width: wp(100),
                                                                             alignSelf: 'center'
                                                                         }}/>

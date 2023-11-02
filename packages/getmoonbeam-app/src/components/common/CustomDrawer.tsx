@@ -123,30 +123,43 @@ import {
 } from "../../recoil/RootAtom";
 import {splashStatusState} from "../../recoil/SplashAtom";
 import {
-    currentActiveKitState,
+    currentActiveKitState, fidelisPartnerListState,
     filteredByDiscountPressedState,
-    filtersActiveState, fullScreenKitMapActiveState,
-    locationServicesButtonState, nearbyElectronicsCategorizedOffersListState,
-    nearbyElectronicsCategorizedOffersPageNumberState, nearbyEntertainmentCategorizedOffersListState,
-    nearbyEntertainmentCategorizedOffersPageNumberState, nearbyFoodCategorizedOffersListState,
-    nearbyFoodCategorizedOffersPageNumberState, nearbyHealthAndBeautyCategorizedOffersListState,
-    nearbyHealthAndBeautyCategorizedOffersPageNumberState, nearbyHomeCategorizedOffersListState,
-    nearbyHomeCategorizedOffersPageNumberState, nearbyKitListIsExpandedState,
+    filtersActiveState,
+    fullScreenKitMapActiveState,
+    locationServicesButtonState,
+    nearbyElectronicsCategorizedOffersListState,
+    nearbyElectronicsCategorizedOffersPageNumberState,
+    nearbyEntertainmentCategorizedOffersListState,
+    nearbyEntertainmentCategorizedOffersPageNumberState,
+    nearbyFoodCategorizedOffersListState,
+    nearbyFoodCategorizedOffersPageNumberState,
+    nearbyHealthAndBeautyCategorizedOffersListState,
+    nearbyHealthAndBeautyCategorizedOffersPageNumberState,
+    nearbyHomeCategorizedOffersListState,
+    nearbyHomeCategorizedOffersPageNumberState,
+    nearbyKitListIsExpandedState,
     nearbyOffersListForFullScreenMapState,
     nearbyOffersListForMainHorizontalMapState,
     nearbyOffersListState,
     nearbyOffersPageNumberState,
-    nearbyOffersSpinnerShownState, nearbyOfficeAndBusinessCategorizedOffersListState,
-    nearbyOfficeAndBusinessCategorizedOffersPageNumberState, nearbyRetailCategorizedOffersListState,
-    nearbyRetailCategorizedOffersPageNumberState, nearbyServicesAndSubscriptionsCategorizedOffersListState,
+    nearbyOffersSpinnerShownState,
+    nearbyOfficeAndBusinessCategorizedOffersListState,
+    nearbyOfficeAndBusinessCategorizedOffersPageNumberState,
+    nearbyRetailCategorizedOffersListState,
+    nearbyRetailCategorizedOffersPageNumberState,
+    nearbyServicesAndSubscriptionsCategorizedOffersListState,
     nearbyServicesAndSubscriptionsCategorizedOffersPageNumberState,
     noNearbyElectronicsCategorizedOffersToLoadState,
     noNearbyEntertainmentCategorizedOffersToLoadState,
     noNearbyFoodCategorizedOffersToLoadState,
     noNearbyHealthAndBeautyCategorizedOffersToLoadState,
-    noNearbyHomeCategorizedOffersToLoadState, noNearbyKitOffersAvailableState,
-    noNearbyOffersToLoadState, noNearbyOfficeAndBusinessCategorizedOffersToLoadState,
-    noNearbyRetailCategorizedOffersToLoadState, noNearbyServicesAndSubscriptionsCategorizedOffersToLoadState,
+    noNearbyHomeCategorizedOffersToLoadState,
+    noNearbyKitOffersAvailableState,
+    noNearbyOffersToLoadState,
+    noNearbyOfficeAndBusinessCategorizedOffersToLoadState,
+    noNearbyRetailCategorizedOffersToLoadState,
+    noNearbyServicesAndSubscriptionsCategorizedOffersToLoadState,
     noOnlineElectronicsCategorizedOffersToLoadState,
     noOnlineEntertainmentCategorizedOffersToLoadState,
     noOnlineFoodCategorizedOffersToLoadState,
@@ -156,6 +169,7 @@ import {
     noOnlineOfficeAndBusinessCategorizedOffersToLoadState,
     noOnlineRetailCategorizedOffersToLoadState,
     noOnlineServicesAndSubscriptionsCategorizedOffersToLoadState,
+    noOnlineVeteransDayCategorizedOffersToLoadState,
     numberOfElectronicsCategorizedOffersWithin25MilesState,
     numberOfElectronicsCategorizedOnlineOffersState,
     numberOfEntertainmentCategorizedOffersWithin25MilesState,
@@ -175,6 +189,7 @@ import {
     numberOfRetailCategorizedOnlineOffersState,
     numberOfServicesAndSubscriptionsCategorizedOffersWithin25MilesState,
     numberOfServicesAndSubscriptionsCategorizedOnlineOffersState,
+    numberOfVeteransDayCategorizedOnlineOffersState,
     offersNearUserLocationFlagState,
     onlineElectronicsCategorizedOfferListState,
     onlineElectronicsCategorizedOffersPageNumberState,
@@ -185,7 +200,8 @@ import {
     onlineHealthAndBeautyCategorizedOfferListState,
     onlineHealthAndBeautyCategorizedOffersPageNumberState,
     onlineHomeCategorizedOfferListState,
-    onlineHomeCategorizedOffersPageNumberState, onlineKitListIsExpandedState,
+    onlineHomeCategorizedOffersPageNumberState,
+    onlineKitListIsExpandedState,
     onlineOffersListState,
     onlineOffersPageNumberState,
     onlineOfficeAndBusinessCategorizedOfferListState,
@@ -194,11 +210,14 @@ import {
     onlineRetailCategorizedOffersPageNumberState,
     onlineServicesAndSubscriptionsCategorizedOfferListState,
     onlineServicesAndSubscriptionsCategorizedOffersPageNumberState,
+    onlineVeteransDayCategorizedOfferListState,
+    onlineVeteransDayCategorizedOffersPageNumberState,
     premierNearbyOffersPageNumberState,
     premierOnlineOffersPageNumberState,
     reloadNearbyDueToPermissionsChangeState,
     resetSearchState,
-    searchQueryState, storeNavigationState,
+    searchQueryState,
+    storeNavigationState,
     storeOfferPhysicalLocationState,
     storeOfferState,
     toggleViewPressedState,
@@ -431,6 +450,11 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const nearbyKitListIsExpandedReset = useResetRecoilState(nearbyKitListIsExpandedState);
     const fullScreenKitMapActiveReset = useResetRecoilState(fullScreenKitMapActiveState);
     const noNearbyKitOffersAvailableReset = useResetRecoilState(noNearbyKitOffersAvailableState);
+    const onlineVeteransDayCategorizedOfferListReset = useResetRecoilState(onlineVeteransDayCategorizedOfferListState);
+    const numberOfVeteransDayCategorizedOnlineOffersReset = useResetRecoilState(numberOfVeteransDayCategorizedOnlineOffersState);
+    const noOnlineVeteransDayCategorizedOffersToLoadReset = useResetRecoilState(noOnlineVeteransDayCategorizedOffersToLoadState);
+    const onlineVeteransDayCategorizedOffersPageNumberReset = useResetRecoilState(onlineVeteransDayCategorizedOffersPageNumberState);
+    const fidelisPartnerListReset = useResetRecoilState(fidelisPartnerListState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -663,6 +687,11 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             nearbyKitListIsExpandedReset();
             fullScreenKitMapActiveReset();
             noNearbyKitOffersAvailableReset();
+            onlineVeteransDayCategorizedOfferListReset();
+            numberOfVeteransDayCategorizedOnlineOffersReset();
+            noOnlineVeteransDayCategorizedOffersToLoadReset();
+            onlineVeteransDayCategorizedOffersPageNumberReset();
+            fidelisPartnerListReset();
 
             /**
              * ensure that the current user's biometric session is interrupted, and that the already signed in flag is reset

@@ -155,9 +155,19 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
                                             </View>
                                         </View>
                                         :
-                                        <View style={styles.kitRadiusView}/>
+                                        currentActiveKit !== null && currentActiveKit !== OfferCategory.VeteranDay
+                                            ?
+                                            <View style={styles.kitRadiusView}/>
+                                            :
+                                            <View style={styles.seasonalOffersBannerCard}>
+                                                <View style={{flexDirection: 'column', top: hp(1)}}>
+                                                    <Text
+                                                        style={styles.seasonalOfferBannerName}>{'Exclusive Offers'}</Text>
+                                                    <Text
+                                                        style={styles.seasonalOfferBannerSubtitleName}>{'Available only on November 11th'}</Text>
+                                                </View>
+                                            </View>
                                 }
-
                             </View>
                     }}
                 />
