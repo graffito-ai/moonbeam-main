@@ -19,6 +19,8 @@ import {FAQResolverStack} from "../stacks/FAQResolverStack";
 import {UpdateTransactionsProducerConsumerStack} from "../stacks/UpdateTransactionsProducerConsumerStack";
 import {MilitaryVerificationProducerConsumerStack} from "../stacks/MilitaryVerificationProducerConsumerStack";
 import {UserAuthSessionResolverStack} from "../stacks/UserAuthSessionResolverStack";
+// Capstone 2023
+import {MilitaryDocumentVerificationStack} from "../stacks/MilitaryDocumentVerificationStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -316,6 +318,17 @@ export class StageUtils {
                 apiGatewayStack.addDependency(updatedTransactionsProducerConsumerStack);
                 apiGatewayStack.addDependency(reimbursementsProducerConsumerStack);
                 apiGatewayStack.addDependency(militaryVerificationUpdatesProducerConsumerStack);
+
+                // Capstone 2023 Document Verification Stack
+                const militaryDocumentVerificationStack = new MilitaryDocumentVerificationStack(this.app, `moonbeam-military-documentation-verification-${stageKey}`, {
+                    stackName: `moonbeam-military-documentation-verification-${stageKey}`,
+                    description: 'This stack is used for the automatic verification of military documentation.',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    militaryDocumentVerificationConfig: stageConfiguration.militaryDocumentVerificationConfig,
+                    environmentVariables: stageConfiguration.environmentVariables,
+                });
+                militaryDocumentVerificationStack.addDependency(appSyncStack);
             }
         }
     };

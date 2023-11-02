@@ -1,5 +1,5 @@
 {
-  "name": "@moonbeam/moonbeam-military-verification-lambda",
+  "name": "@moonbeam/moonbeam-military-document-verification-producer-lambda",
   "version": "1.0.0",
   "description": "This sub-package represents a producer Lambda function, used for military document verification purposes.",
   "main": "lib/index.js",

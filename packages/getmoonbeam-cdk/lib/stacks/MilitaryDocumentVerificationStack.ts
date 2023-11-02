@@ -2,10 +2,12 @@ import {aws_lambda, aws_lambda_nodejs, aws_sns, aws_sqs, Duration, Stack, StackP
 import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
 import path from "path";
-import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
-import {Constants, Stages} from "@moonbeam/moonbeam-models";
+//import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
+import {Constants} from "@moonbeam/moonbeam-models";
 import {SqsSubscription} from "aws-cdk-lib/aws-sns-subscriptions";
 import {EventSourceMapping} from "aws-cdk-lib/aws-lambda";
+import * as lambdaEventSources from 'aws-cdk-lib/aws-lambda-event-sources';
+import * as s3 from 'aws-cdk-lib/aws-s3'
 
 export class MilitaryDocumentVerificationStack extends Stack {
 
@@ -112,16 +114,22 @@ export class MilitaryDocumentVerificationStack extends Stack {
         // Get files bucket name and use for eventSourceArn for the event bridge.
         const mainFilesBucketName = `${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}-${props.stage}-${props.env!.region}`;
 
-        // Event source mapping from S3 bucket to producer lambda.
-        new EventSourceMapping(this, `${props.militaryDocumentVerificationConfig.militaryDocumentVerificationFanOutConfig.militaryDocumentVerificationProcessingEventSourceMapping}-${props.stage}-${props.env!.region}`, {
-            target: this.militaryDocumentVerificationProducerLambda,
-            eventSourceArn: `arn:aws:s3:::${mainFilesBucketName}/public/`,
+        const mainFilesBucket = s3.Bucket.fromBucketArn(this, 'mainFilesBucketPublic', mainFilesBucketName);
+
+        this.militaryDocumentVerificationProducerLambda.addEventSource(new lambdaEventSources.S3EventSource(mainFilesBucket, {
+
+        }))      
+
+        // Event source mapping from S3 bucket to producer lambda. 
+        //new EventSourceMapping(this, `${props.militaryDocumentVerificationConfig.militaryDocumentVerificationFanOutConfig.militaryDocumentVerificationProcessingEventSourceMapping}-${props.stage}-${props.env!.region}`, {
+            //target: this.militaryDocumentVerificationProducerLambda,
+            //eventSourceArn: `arn:aws:s3:::${mainFilesBucketName}/public/`,
             /**
              * Just process one document at a time and send it to the lambda.
              */
-            batchSize: 1,
-            reportBatchItemFailures: true
-        });
+            //batchSize: 1,
+            //reportBatchItemFailures: true
+        //});
     }
 
 }

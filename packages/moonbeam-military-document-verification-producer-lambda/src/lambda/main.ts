@@ -6,3 +6,5 @@ exports.handler = async (event) => {
         }
     }
 }
+
+export {}
