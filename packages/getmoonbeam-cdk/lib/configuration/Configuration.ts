@@ -372,6 +372,7 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             environmentVariables: new Map<string, string>([]),
 
             // Added by Capstone 2023.
+            
             militaryDocumentVerificationConfig: {
                 militaryDocumentVerificationConsumerFunctionName: 'militaryDocumentVerificationConsumerFunction',
                 militaryDocumentVerificationProducerFunctionName: 'militaryDocumentVerificationProducerFunction',
