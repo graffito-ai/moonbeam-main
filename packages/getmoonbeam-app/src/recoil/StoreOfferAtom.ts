@@ -1222,9 +1222,91 @@ const fidelisPartnerListState = atom<FidelisPartner[]>({
 });
 
 /**
+ * Atom used to keep track of whether the Veterans Day kit was previously loaded
+ */
+const isVeteransDayKitLoadedState = atom<boolean>({
+    key: "isVeteransDayKitLoadedState",
+    default: false
+});
+
+/**
+ * Atom used to keep track of whether the food kit was previously loaded
+ */
+const isFoodKitLoadedState = atom<boolean>({
+    key: "isFoodKitLoadedState",
+    default: false
+});
+
+/**
+ * Atom used to keep track of whether the retail kit was previously loaded
+ */
+const isRetailKitLoadedState = atom<boolean>({
+    key: "isRetailKitLoadedState",
+    default: false
+});
+
+/**
+ * Atom used to keep track of whether the entertainment kit was previously loaded
+ */
+const isEntertainmentKitLoadedState = atom<boolean>({
+    key: "isEntertainmentKitLoadedState",
+    default: false
+});
+
+/**
+ * Atom used to keep track of whether the electronics kit was previously loaded
+ */
+const isElectronicsKitLoadedState = atom<boolean>({
+    key: "isElectronicsKitLoadedState",
+    default: false
+});
+
+/**
+ * Atom used to keep track of whether the home kit was previously loaded
+ */
+const isHomeKitLoadedState = atom<boolean>({
+    key: "isHomeKitLoadedState",
+    default: false
+});
+
+/**
+ * Atom used to keep track of whether the health and beauty kit was previously loaded
+ */
+const isHealthAndBeautyKitLoadedState = atom<boolean>({
+    key: "isHealthAndBeautyKitLoadedState",
+    default: false
+});
+
+/**
+ * Atom used to keep track of whether the office and business kit was previously loaded
+ */
+const isOfficeAndBusinessKitLoadedState = atom<boolean>({
+    key: "isOfficeAndBusinessKitLoadedState",
+    default: false
+});
+
+/**
+ * Atom used to keep track of whether the services and subscriptions kit was previously loaded
+ */
+const isServicesAndSubscriptionsKitLoadedState = atom<boolean>({
+    key: "isServicesAndSubscriptionsKitLoadedState",
+    default: false
+});
+
+
+/**
  * Export all atoms and/or selectors
  */
 export {
+    isVeteransDayKitLoadedState,
+    isFoodKitLoadedState,
+    isRetailKitLoadedState,
+    isElectronicsKitLoadedState,
+    isEntertainmentKitLoadedState,
+    isHomeKitLoadedState,
+    isHealthAndBeautyKitLoadedState,
+    isOfficeAndBusinessKitLoadedState,
+    isServicesAndSubscriptionsKitLoadedState,
     fidelisPartnerListState,
     onlineVeteransDayCategorizedOffersPageNumberState,
     noOnlineVeteransDayCategorizedOffersToLoadState,

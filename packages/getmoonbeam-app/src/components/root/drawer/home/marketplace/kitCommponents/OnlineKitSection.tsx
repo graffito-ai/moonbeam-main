@@ -414,7 +414,7 @@ export const OnlineKitSection = (props: {
                                     <>
                                         <Card
                                             style={[styles.nearbyLoadingOfferCard, currentActiveKit !== null && currentActiveKit === OfferCategory.VeteranDay && {
-                                                top: hp(3),
+                                                top: hp(7),
                                                 left: wp(8)
                                             }]}>
                                             <Card.Content>

@@ -123,10 +123,15 @@ import {
 } from "../../recoil/RootAtom";
 import {splashStatusState} from "../../recoil/SplashAtom";
 import {
-    currentActiveKitState, fidelisPartnerListState,
+    currentActiveKitState,
+    fidelisPartnerListState,
     filteredByDiscountPressedState,
     filtersActiveState,
     fullScreenKitMapActiveState,
+    isElectronicsKitLoadedState, isEntertainmentKitLoadedState,
+    isFoodKitLoadedState, isHealthAndBeautyKitLoadedState, isHomeKitLoadedState, isOfficeAndBusinessKitLoadedState,
+    isRetailKitLoadedState, isServicesAndSubscriptionsKitLoadedState,
+    isVeteransDayKitLoadedState,
     locationServicesButtonState,
     nearbyElectronicsCategorizedOffersListState,
     nearbyElectronicsCategorizedOffersPageNumberState,
@@ -455,6 +460,15 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const noOnlineVeteransDayCategorizedOffersToLoadReset = useResetRecoilState(noOnlineVeteransDayCategorizedOffersToLoadState);
     const onlineVeteransDayCategorizedOffersPageNumberReset = useResetRecoilState(onlineVeteransDayCategorizedOffersPageNumberState);
     const fidelisPartnerListReset = useResetRecoilState(fidelisPartnerListState);
+    const isVeteransDayKitLoadedReset = useResetRecoilState(isVeteransDayKitLoadedState);
+    const isFoodKitLoadedReset = useResetRecoilState(isFoodKitLoadedState);
+    const isRetailKitLoadedReset = useResetRecoilState(isRetailKitLoadedState);
+    const isElectronicsKitLoadedReset = useResetRecoilState(isElectronicsKitLoadedState);
+    const isEntertainmentKitLoadedReset = useResetRecoilState(isEntertainmentKitLoadedState);
+    const isHomeKitLoadedReset = useResetRecoilState(isHomeKitLoadedState);
+    const isHealthAndBeautyKitLoadedReset = useResetRecoilState(isHealthAndBeautyKitLoadedState);
+    const isOfficeAndBusinessKitLoadedReset = useResetRecoilState(isOfficeAndBusinessKitLoadedState);
+    const isServicesAndSubscriptionsKitLoadedReset = useResetRecoilState(isServicesAndSubscriptionsKitLoadedState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -692,6 +706,15 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             noOnlineVeteransDayCategorizedOffersToLoadReset();
             onlineVeteransDayCategorizedOffersPageNumberReset();
             fidelisPartnerListReset();
+            isVeteransDayKitLoadedReset();
+            isFoodKitLoadedReset();
+            isRetailKitLoadedReset();
+            isElectronicsKitLoadedReset();
+            isEntertainmentKitLoadedReset();
+            isHomeKitLoadedReset();
+            isHealthAndBeautyKitLoadedReset();
+            isOfficeAndBusinessKitLoadedReset();
+            isServicesAndSubscriptionsKitLoadedReset();
 
             /**
              * ensure that the current user's biometric session is interrupted, and that the already signed in flag is reset

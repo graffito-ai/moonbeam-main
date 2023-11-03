@@ -122,15 +122,15 @@ export const Store = ({navigation}: StoreProps) => {
                     marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, fidelisPartners);
                 } else {
                     console.log(`No Fidelis partners to display ${JSON.stringify(fidelisPartnersResult)}`);
-                    setModalVisible(true);
+                    // setModalVisible(true);
                 }
             } else {
                 console.log(`Unexpected error while retrieving Fidelis partner offers ${JSON.stringify(fidelisPartnersResult)}`);
-                setModalVisible(true);
+                // setModalVisible(true);
             }
         } catch (error) {
             console.log(`Unexpected error while attempting to retrieve the Fidelis partner offers ${JSON.stringify(error)} ${error}`);
-            setModalVisible(true);
+            // setModalVisible(true);
         }
     }
 
@@ -181,7 +181,7 @@ export const Store = ({navigation}: StoreProps) => {
                      * otherwise display an error.
                      */
                     if (onlineOfferList.length === 0) {
-                        setModalVisible(true);
+                        // setModalVisible(true);
                     } else {
                         // set the online offers to load flag
                         setNoOnlineOffersToLoad(true);
@@ -189,11 +189,11 @@ export const Store = ({navigation}: StoreProps) => {
                 }
             } else {
                 console.log(`Unexpected error while retrieving online offers ${JSON.stringify(onlineOffersResult)}`);
-                setModalVisible(true);
+                // setModalVisible(true);
             }
         } catch (error) {
             console.log(`Unexpected error while attempting to retrieve online offers ${JSON.stringify(error)} ${error}`);
-            setModalVisible(true);
+            // setModalVisible(true);
         }
     }
 
@@ -298,7 +298,7 @@ export const Store = ({navigation}: StoreProps) => {
                              * otherwise display an error.
                              */
                             if (nearbyOfferList.length === 0) {
-                                setModalVisible(true);
+                                // setModalVisible(true);
                             } else {
                                 setNearbyOffersSpinnerShown(false);
                                 // set the no nearby offers to load flag
@@ -307,7 +307,7 @@ export const Store = ({navigation}: StoreProps) => {
                         }
                     } else {
                         console.log(`Unexpected error while retrieving offers near user's home location ${JSON.stringify(nearbyOffersResult)}`);
-                        setModalVisible(true);
+                        // setModalVisible(true);
                         setAreNearbyOffersReady(true);
                         setNearbyOffersSpinnerShown(false);
                     }
@@ -316,7 +316,7 @@ export const Store = ({navigation}: StoreProps) => {
 
         } catch (error) {
             console.log(`Unexpected error while attempting to retrieve offers near user's home location ${JSON.stringify(error)} ${error}`);
-            setModalVisible(true);
+            // setModalVisible(true);
             setAreNearbyOffersReady(true);
             setNearbyOffersSpinnerShown(false);
         }
@@ -400,13 +400,13 @@ export const Store = ({navigation}: StoreProps) => {
                         }
                     } else {
                         console.log(`Unexpected error while retrieving nearby offers ${JSON.stringify(nearbyOffersResult)}`);
-                        setModalVisible(true);
+                        // setModalVisible(true);
                         setAreNearbyOffersReady(true);
                         setNearbyOffersSpinnerShown(false);
                     }
                 } else {
                     console.log(`Unable to retrieve the current user's location coordinates!`);
-                    setModalVisible(true);
+                    // setModalVisible(true);
                     setAreNearbyOffersReady(true);
                     setNearbyOffersSpinnerShown(false);
                 }

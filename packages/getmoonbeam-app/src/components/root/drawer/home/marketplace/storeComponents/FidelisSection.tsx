@@ -48,7 +48,6 @@ export const FidelisSection = (props: {
                 // retrieve appropriate offer for partner (everyday)
                 let offer: Offer | null = null;
                 for (const matchedOffer of data.offers) {
-                    console.log(JSON.stringify(matchedOffer));
                     if (matchedOffer!.title!.includes("Military Discount") || matchedOffer!.title!.includes("Veterans")) {
                         offer = matchedOffer!;
                         break;
