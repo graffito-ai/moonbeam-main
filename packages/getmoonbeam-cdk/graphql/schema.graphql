@@ -19,6 +19,7 @@ type Query {
     getNotificationReminders: NotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
     getAllUsersForNotificationReminders: UserForNotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
     getUserAuthSession(getUserAuthSessionInput: GetUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
+    getAppUpgradeCredentials: AppUpgradeResponse! @aws_cognito_user_pools
 }
 
 type Mutation {
@@ -1126,3 +1127,17 @@ input UpdateNotificationReminderInput {
 }
 
 
+# graphql/AppUpgradeSchema.graphql
+# App Upgrade Schema File
+enum AppUpgradeErrorType {
+    DUPLICATE_OBJECT_FOUND
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+    NONE_OR_ABSENT
+}
+
+type AppUpgradeResponse @aws_cognito_user_pools @aws_api_key {
+    data: String
+    errorType: AppUpgradeErrorType
+    errorMessage: String
+}

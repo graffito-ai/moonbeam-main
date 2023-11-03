@@ -1,5 +1,16 @@
 // This is a file used to define the all GraphQL query constants
 
+// Query used to retrieve the App Upgrade credentials/details
+export const getAppUpgradeCredentials = /* GraphQL */ `
+    query GetAppUpgradeCredentials {
+        getAppUpgradeCredentials {
+            errorMessage
+            errorType
+            data
+        }
+    }
+`;
+
 // Query used to retrieve a User Auth Session, for a particular user
 export const getUserAuthSession = /* GraphQL */ `
     query GetUserAuthSession($getUserAuthSessionInput: GetUserAuthSessionInput!) {

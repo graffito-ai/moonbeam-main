@@ -2,6 +2,7 @@ import {GetSecretValueCommand, SecretsManagerClient} from "@aws-sdk/client-secre
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {Constants} from "../Constants";
 import {
+    AppUpgradeResponse,
     Card,
     CardLinkResponse,
     CreateNotificationInput,
@@ -118,6 +119,8 @@ export abstract class BaseAPIClient {
                                 ? [clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_REST_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_REST_API_KEY]]
                                 : [clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.MOONBEAM_INTERNAL_API_KEY]];
                         }
+                    case Constants.AWSPairConstants.APP_UPGRADE_SECRET_NAME:
+                        return [clientPairAsJson[Constants.AWSPairConstants.APP_UPGRADE_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.APP_UPGRADE_API_KEY]];
                     case Constants.AWSPairConstants.COURIER_INTERNAL_SECRET_NAME:
                         // return the appropriate secrets, depending on the type of notification passed in
                         if (!notificationType) {
@@ -228,6 +231,16 @@ export abstract class BaseAPIClient {
             throw new Error(errorMessage);
         }
     }
+
+    /**
+     * Function used to get the API Key for the App Upgrade service.
+     *
+     * @returns a {@link AppUpgradeResponse}, representing the API Key
+     * used for the App Upgrade service.
+     *
+     * @protected
+     */
+    protected getAppUpgradeAPIKey?(): Promise<AppUpgradeResponse>;
 
     /**
      * Function used to get the users with no linked cards.

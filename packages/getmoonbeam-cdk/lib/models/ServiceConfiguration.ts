@@ -282,3 +282,12 @@ export interface NotificationReminderConfiguration {
     readonly updateNotificationReminderResolverName: string;
     readonly getAllUsersForNotificationRemindersResolverName: string;
 }
+
+/**
+ * Interface used to define the configuration for the app upgrade service resolvers (GraphQL based),
+ * and other afferent data stores.
+ */
+export interface AppUpgradeConfiguration {
+    readonly appUpgradeFunctionName: string;
+    readonly getAppUpgradeCredentialsResolverName: string;
+}

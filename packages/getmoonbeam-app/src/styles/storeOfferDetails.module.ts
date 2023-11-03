@@ -36,7 +36,6 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF'
     },
     brandTitleAddress: {
-        bottom: hp(2.5),
         alignSelf: 'center',
         fontFamily: 'Saira-Regular',
         fontSize: hp(2),

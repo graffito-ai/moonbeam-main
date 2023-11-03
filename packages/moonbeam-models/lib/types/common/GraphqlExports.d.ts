@@ -34,6 +34,18 @@ export type AddCardInput = {
     memberId: Scalars['ID'];
     updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
+export declare enum AppUpgradeErrorType {
+    DuplicateObjectFound = "DUPLICATE_OBJECT_FOUND",
+    NoneOrAbsent = "NONE_OR_ABSENT",
+    UnexpectedError = "UNEXPECTED_ERROR",
+    ValidationError = "VALIDATION_ERROR"
+}
+export type AppUpgradeResponse = {
+    __typename?: 'AppUpgradeResponse';
+    data?: Maybe<Scalars['String']>;
+    errorMessage?: Maybe<Scalars['String']>;
+    errorType?: Maybe<AppUpgradeErrorType>;
+};
 export type Card = {
     __typename?: 'Card';
     additionalProgramID?: Maybe<Scalars['String']>;
@@ -799,6 +811,7 @@ export type PushDevice = {
 export type Query = {
     __typename?: 'Query';
     getAllUsersForNotificationReminders: UserForNotificationReminderResponse;
+    getAppUpgradeCredentials: AppUpgradeResponse;
     getCardLink: CardLinkResponse;
     getDevice: UserDeviceResponse;
     getDeviceByToken: UserDeviceResponse;
@@ -1458,6 +1471,18 @@ export type UpdateMilitaryVerificationStatusMutation = {
         errorMessage?: string | null;
         id?: string | null;
         militaryVerificationStatus?: MilitaryVerificationStatusType | null;
+    };
+};
+export type GetAppUpgradeCredentialsQueryVariables = Exact<{
+    [key: string]: never;
+}>;
+export type GetAppUpgradeCredentialsQuery = {
+    __typename?: 'Query';
+    getAppUpgradeCredentials: {
+        __typename?: 'AppUpgradeResponse';
+        errorMessage?: string | null;
+        errorType?: AppUpgradeErrorType | null;
+        data?: string | null;
     };
 };
 export type GetUserAuthSessionQueryVariables = Exact<{

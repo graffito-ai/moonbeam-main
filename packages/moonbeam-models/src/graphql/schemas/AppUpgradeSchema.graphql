@@ -1,0 +1,14 @@
+# graphql/AppUpgradeSchema.graphql
+# App Upgrade Schema File
+enum AppUpgradeErrorType {
+    DUPLICATE_OBJECT_FOUND
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+    NONE_OR_ABSENT
+}
+
+type AppUpgradeResponse @aws_cognito_user_pools @aws_api_key {
+    data: String
+    errorType: AppUpgradeErrorType
+    errorMessage: String
+}

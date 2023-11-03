@@ -174,6 +174,10 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 updateNotificationReminderResolverName: 'updateNotificationReminder',
                 getAllUsersForNotificationRemindersResolverName: 'getAllUsersForNotificationReminders'
             },
+            appUpgradeConfig: {
+                appUpgradeFunctionName: 'appUpgradeFunction',
+                getAppUpgradeCredentialsResolverName: 'getAppUpgradeCredentials'
+            },
             environmentVariables: new Map<string, string>([])
         },
         [`${Stages.PROD}-${Regions.PDX}`]: {
@@ -343,6 +347,10 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 getNotificationRemindersResolverName: 'getNotificationReminders',
                 updateNotificationReminderResolverName: 'updateNotificationReminder',
                 getAllUsersForNotificationRemindersResolverName: 'getAllUsersForNotificationReminders'
+            },
+            appUpgradeConfig: {
+                appUpgradeFunctionName: 'appUpgradeFunction',
+                getAppUpgradeCredentialsResolverName: 'getAppUpgradeCredentials'
             },
             environmentVariables: new Map<string, string>([])
         },

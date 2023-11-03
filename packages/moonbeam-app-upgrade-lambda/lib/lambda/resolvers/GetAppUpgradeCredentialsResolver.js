@@ -1,0 +1,30 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getAppUpgradeCredentials = void 0;
+const moonbeam_models_1 = require("@moonbeam/moonbeam-models");
+/**
+ * GetAppUpgradeCredentials resolver
+ *
+ * @param fieldName name of the resolver path from the AppSync event
+ * @returns {@link Promise} of {@link AppUpgradeResponse}
+ */
+const getAppUpgradeCredentials = async (fieldName) => {
+    try {
+        // retrieving the current function region
+        const region = process.env.AWS_REGION;
+        // initialize a new App Upgrade client, in order to retrieve the App Upgrade credentials
+        const appUpgradeClient = new moonbeam_models_1.AppUpgradeClient(process.env.ENV_NAME, region);
+        // return the App Upgrade credentials
+        return appUpgradeClient.getAppUpgradeAPIKey();
+    }
+    catch (err) {
+        const errorMessage = `Unexpected error while executing ${fieldName} query ${err}`;
+        console.log(errorMessage);
+        return {
+            errorMessage: errorMessage,
+            errorType: moonbeam_models_1.AppUpgradeErrorType.UnexpectedError
+        };
+    }
+};
+exports.getAppUpgradeCredentials = getAppUpgradeCredentials;
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiR2V0QXBwVXBncmFkZUNyZWRlbnRpYWxzUmVzb2x2ZXIuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyIuLi8uLi8uLi9zcmMvbGFtYmRhL3Jlc29sdmVycy9HZXRBcHBVcGdyYWRlQ3JlZGVudGlhbHNSZXNvbHZlci50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7QUFBQSwrREFBb0c7QUFFcEc7Ozs7O0dBS0c7QUFDSSxNQUFNLHdCQUF3QixHQUFHLEtBQUssRUFBRSxTQUFpQixFQUErQixFQUFFO0lBQzdGLElBQUk7UUFDQSx5Q0FBeUM7UUFDekMsTUFBTSxNQUFNLEdBQUcsT0FBTyxDQUFDLEdBQUcsQ0FBQyxVQUFXLENBQUM7UUFFdkMsd0ZBQXdGO1FBQ3hGLE1BQU0sZ0JBQWdCLEdBQUcsSUFBSSxrQ0FBZ0IsQ0FBQyxPQUFPLENBQUMsR0FBRyxDQUFDLFFBQVMsRUFBRSxNQUFNLENBQUMsQ0FBQztRQUU3RSxxQ0FBcUM7UUFDckMsT0FBTyxnQkFBZ0IsQ0FBQyxtQkFBbUIsRUFBRSxDQUFDO0tBQ2pEO0lBQUMsT0FBTyxHQUFHLEVBQUU7UUFDVixNQUFNLFlBQVksR0FBRyxvQ0FBb0MsU0FBUyxVQUFVLEdBQUcsRUFBRSxDQUFDO1FBQ2xGLE9BQU8sQ0FBQyxHQUFHLENBQUMsWUFBWSxDQUFDLENBQUM7UUFDMUIsT0FBTztZQUNILFlBQVksRUFBRSxZQUFZO1lBQzFCLFNBQVMsRUFBRSxxQ0FBbUIsQ0FBQyxlQUFlO1NBQ2pELENBQUM7S0FDTDtBQUNMLENBQUMsQ0FBQTtBQWxCWSxRQUFBLHdCQUF3Qiw0QkFrQnBDIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHtBcHBVcGdyYWRlRXJyb3JUeXBlLCBBcHBVcGdyYWRlUmVzcG9uc2UsIEFwcFVwZ3JhZGVDbGllbnR9IGZyb20gXCJAbW9vbmJlYW0vbW9vbmJlYW0tbW9kZWxzXCI7XG5cbi8qKlxuICogR2V0QXBwVXBncmFkZUNyZWRlbnRpYWxzIHJlc29sdmVyXG4gKlxuICogQHBhcmFtIGZpZWxkTmFtZSBuYW1lIG9mIHRoZSByZXNvbHZlciBwYXRoIGZyb20gdGhlIEFwcFN5bmMgZXZlbnRcbiAqIEByZXR1cm5zIHtAbGluayBQcm9taXNlfSBvZiB7QGxpbmsgQXBwVXBncmFkZVJlc3BvbnNlfVxuICovXG5leHBvcnQgY29uc3QgZ2V0QXBwVXBncmFkZUNyZWRlbnRpYWxzID0gYXN5bmMgKGZpZWxkTmFtZTogc3RyaW5nKTogUHJvbWlzZTxBcHBVcGdyYWRlUmVzcG9uc2U+ID0+IHtcbiAgICB0cnkge1xuICAgICAgICAvLyByZXRyaWV2aW5nIHRoZSBjdXJyZW50IGZ1bmN0aW9uIHJlZ2lvblxuICAgICAgICBjb25zdCByZWdpb24gPSBwcm9jZXNzLmVudi5BV1NfUkVHSU9OITtcblxuICAgICAgICAvLyBpbml0aWFsaXplIGEgbmV3IEFwcCBVcGdyYWRlIGNsaWVudCwgaW4gb3JkZXIgdG8gcmV0cmlldmUgdGhlIEFwcCBVcGdyYWRlIGNyZWRlbnRpYWxzXG4gICAgICAgIGNvbnN0IGFwcFVwZ3JhZGVDbGllbnQgPSBuZXcgQXBwVXBncmFkZUNsaWVudChwcm9jZXNzLmVudi5FTlZfTkFNRSEsIHJlZ2lvbik7XG5cbiAgICAgICAgLy8gcmV0dXJuIHRoZSBBcHAgVXBncmFkZSBjcmVkZW50aWFsc1xuICAgICAgICByZXR1cm4gYXBwVXBncmFkZUNsaWVudC5nZXRBcHBVcGdyYWRlQVBJS2V5KCk7XG4gICAgfSBjYXRjaCAoZXJyKSB7XG4gICAgICAgIGNvbnN0IGVycm9yTWVzc2FnZSA9IGBVbmV4cGVjdGVkIGVycm9yIHdoaWxlIGV4ZWN1dGluZyAke2ZpZWxkTmFtZX0gcXVlcnkgJHtlcnJ9YDtcbiAgICAgICAgY29uc29sZS5sb2coZXJyb3JNZXNzYWdlKTtcbiAgICAgICAgcmV0dXJuIHtcbiAgICAgICAgICAgIGVycm9yTWVzc2FnZTogZXJyb3JNZXNzYWdlLFxuICAgICAgICAgICAgZXJyb3JUeXBlOiBBcHBVcGdyYWRlRXJyb3JUeXBlLlVuZXhwZWN0ZWRFcnJvclxuICAgICAgICB9O1xuICAgIH1cbn1cbiJdfQ==

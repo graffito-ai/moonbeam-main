@@ -43,6 +43,7 @@ import {DocumentsViewer} from "../../common/DocumentsViewer";
 import * as SMS from "expo-sms";
 import {styles} from "../../../styles/registration.module";
 import {
+    appUpgradeCheck,
     retrieveFidelisPartnerList,
     retrieveOffersNearby,
     retrieveOffersNearbyForMap,
@@ -84,6 +85,7 @@ import {LocationObject} from "expo-location";
  */
 export const AuthenticationComponent = ({route, navigation}: AuthenticationProps) => {
         // constants used to keep track of local component state
+        const [appUpgradeChecked, setAppUpgradeChecked] = useState<boolean>(false);
         const [checkedOnlineCache, setCheckOnlineCache] = useState<boolean>(false);
         const [userIsAuthenticated, setIsUserAuthenticated] = useState<boolean>(false);
         const [loadingNearbyOffersInProgress, setIsLoadingNearbyOffersInProgress] = useState<boolean>(false);
@@ -166,8 +168,32 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             // set the expo push token accordingly, to be used in later stages, as part of the current user information object
             setExpoPushToken(route.params.expoPushToken);
 
-            userIsAuthenticated && loadStoreData().then(() => {
-            });
+            // for the 0.0.10 version we need to clear the user's cache once, so they see the latest Veteran's Day offers
+            if (marketplaceCache !== null) {
+                marketplaceCache!.getItem(`${userInformation["custom:userId"]}-clearedForNewVersion`).then(clearedFlag => {
+                    if (clearedFlag === null) {
+                        marketplaceCache.clear();
+                        // clear the cache once for this version
+                        marketplaceCache!.setItem(`${userInformation["custom:userId"]}-clearedForNewVersion`, true);
+                    }
+
+                    // load the store data if the cache is null
+                    userIsAuthenticated && loadStoreData().then(() => {
+                        // check if the user needs to upgrade the app (forcefully or not - in case of breaking changes)
+                        !appUpgradeChecked && appUpgradeCheck().then(() => {
+                            setAppUpgradeChecked(true);
+                        });
+                    });
+                });
+            } else {
+                // load the store data if the cache is null
+                userIsAuthenticated && loadStoreData().then(() => {
+                    // check if the user needs to upgrade the app (forcefully or not - in case of breaking changes)
+                    !appUpgradeChecked && appUpgradeCheck().then(() => {
+                        setAppUpgradeChecked(true);
+                    });
+                });
+            }
 
             /**
              * initialize the Amplify Hub, and start listening to various events, that would help in capturing important metrics,
@@ -468,11 +494,11 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                  */
                 await Promise.all([
                     !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && loadPremierNearbyData(),
-                    !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && nearbyOfferList.length < 20 && loadNearbyData()
+                    !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && nearbyOfferList.length < 50 && loadNearbyData()
                 ]);
                 await Promise.all([
                     !loadingOnlineInProgress && !noPremierOnlineOffersToLoad && onlineOfferList.length < PremierOnlineProdOfferIds.length && loadPremierOnlineData(),
-                    !loadingOnlineInProgress && !noOnlineOffersToLoad && PremierOnlineProdOfferIds.length <= onlineOfferList.length && onlineOfferList.length < 50 && loadOnlineData()
+                    !loadingOnlineInProgress && !noOnlineOffersToLoad && PremierOnlineProdOfferIds.length <= onlineOfferList.length && onlineOfferList.length < 100 && loadOnlineData()
                 ]);
                 await Promise.all([
                     !loadingNearbyOffersForHorizontalMapInProgress && !areOffersForMainHorizontalMapLoaded && nearbyOffersListForMainHorizontalMap.length === 0 && loadNearbyDataForMainHorizontalMap(),

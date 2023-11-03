@@ -12,6 +12,7 @@ schema:
   - ./src/graphql/schemas/FAQSchema.graphql
   - ./src/graphql/schemas/UserAuthSessionSchema.graphql
   - ./src/graphql/schemas/NotificationReminderSchema.graphql
+  - ./src/graphql/schemas/AppUpgradeSchema.graphql
 documents:
   - ./src/graphql/queries/Queries.graphql
   - ./src/graphql/mutations/Mutations.graphql

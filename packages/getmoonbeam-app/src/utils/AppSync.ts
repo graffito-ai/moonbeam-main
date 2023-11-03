@@ -4,7 +4,7 @@ import {
     createNotification,
     CreateNotificationInput,
     createUserAuthSession,
-    FidelisPartner,
+    FidelisPartner, getAppUpgradeCredentials,
     getDeviceByToken,
     getFidelisPartners,
     getOffers,
@@ -16,7 +16,7 @@ import {
     OfferFilter, OfferSeasonalType,
     OfferState,
     PushDevice,
-    RedemptionType,
+    RedemptionType, Stages,
     updateDevice,
     updateUserAuthSession,
     UserAuthSession,
@@ -30,6 +30,62 @@ import {dynamicSort} from "./Main";
 import * as Location from "expo-location";
 import {LocationObject} from "expo-location";
 import {SetterOrUpdater} from "recoil";
+import {appUpgradeVersionCheck} from 'app-upgrade-react-native-sdk';
+import {Platform} from "react-native";
+import * as envInfo from "../../local-env-info.json";
+
+/**
+ * Function used to check whether the users have the most updated version of the app or not.
+ *
+ * This will integrate with App Upgrade {@link https://appupgrade.dev}, in order to check
+ * whether we prompt users with an alert recommending an app upgrade or not.
+ *
+ * Depending on whether we have a breaking app version out, this might be turned on or off.
+ */
+export const appUpgradeCheck = async (): Promise<void> => {
+    try {
+        // first retrieve the API Key for App Upgrade by performing the getAppUpgradeCredentials AWS AppSync call
+        const getAppUpgradeCredentialsResult = await API.graphql(graphqlOperation(getAppUpgradeCredentials));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const appUpgradeCredentialsResponseData = getAppUpgradeCredentialsResult ? getAppUpgradeCredentialsResult.data : null;
+
+        // check if there are any errors in the returned response
+        if (appUpgradeCredentialsResponseData !== null && appUpgradeCredentialsResponseData !== undefined &&
+            appUpgradeCredentialsResponseData.getAppUpgradeCredentials.errorMessage === null) {
+            const appStorageAPIKey = appUpgradeCredentialsResponseData.getAppUpgradeCredentials.data;
+
+            // build the app information used to decide whether the user will get prompted with the app upgrade notification or not
+            const appInfo = {
+                appId: Platform.OS === 'android' ? 'com.moonbeam.moonbeamfin' : '6450375130', // The App ID from the Play Store or App Store
+                appName: 'Moonbeam Finance', // The App Name
+                appVersion: '0.0.10', // The targeted App Version
+                platform: Platform.OS ==='android' ? 'android' : 'ios', // The App Platform
+                environment:  envInfo.envName === Stages.DEV ? 'development': 'production', // App Environment, production, development
+                appLanguage: 'en', // App Language ex: en, es, etc.
+            };
+
+            // configure the alert that will get displayed to the user accordingly
+            const alertConfig = {
+                title: 'Please Update',
+                updateButtonTitle: 'Update Now',
+                // laterButtonTitle: 'Later',
+                // onDismissCallback: () => { console.log('Dismiss') },
+                // onLaterCallback: () => { console.log('Later') }
+            };
+
+            // perform the user check for the App Upgrade
+            appUpgradeVersionCheck(appInfo, appStorageAPIKey, alertConfig);
+        } else {
+            console.log(`Unexpected error while creating retrieving the App Storage API Key through the create notification API ${JSON.stringify(appUpgradeCredentialsResponseData)}`);
+        }
+    } catch (error) {
+        const errorMessage = `Unexpected error while checking the App Upgrade version ${error} ${JSON.stringify(error)}`;
+        console.log(errorMessage);
+    }
+}
+
 
 /**
  * Function used to update a user authentication statistic. This will ensure that a user

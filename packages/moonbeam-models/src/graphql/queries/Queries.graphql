@@ -1,5 +1,12 @@
 # graphql/Queries.graphql
 # Queries Schema File
+query GetAppUpgradeCredentials {
+    getAppUpgradeCredentials {
+        errorMessage
+        errorType
+        data
+    }
+}
 query GetUserAuthSession($getUserAuthSessionInput: GetUserAuthSessionInput!) {
     getUserAuthSession(getUserAuthSessionInput: $getUserAuthSessionInput) {
         errorMessage
