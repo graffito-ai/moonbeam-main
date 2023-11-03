@@ -39,7 +39,7 @@ export class MilitaryDocumentVerificationStack extends Stack {
         // Consumer lambda for team 2.
         this.militaryDocumentVerificationConsumerLambda = new aws_lambda_nodejs.NodejsFunction(this, `${props.militaryDocumentVerificationConfig.militaryDocumentVerificationConsumerFunctionName}-${props.stage}-${props.env!.region}`, {
             functionName: `${props.militaryDocumentVerificationConfig.militaryDocumentVerificationConsumerFunctionName}-${props.stage}-${props.env!.region}`,
-            entry: path.resolve(path.join(__dirname, '../../../moonbeam-military-document-verification-producer-lambda/src/lambda/main.ts')),
+            entry: path.resolve(path.join(__dirname, '../../../moonbeam-military-document-verification-consumer-lambda/src/lambda/main.ts')),
             handler: 'handler',
             runtime: aws_lambda.Runtime.NODEJS_18_X,
             // we add a timeout here different from the default of 3 seconds, since we expect these API calls to take longer
