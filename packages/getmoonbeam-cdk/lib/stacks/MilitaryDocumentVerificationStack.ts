@@ -1,4 +1,4 @@
-import {aws_lambda, aws_lambda_nodejs, aws_sns, aws_sqs, Duration, Stack, StackProps} from "aws-cdk-lib";
+import {aws_lambda, aws_lambda_event_sources, aws_lambda_nodejs, aws_sns, aws_sqs, Duration, Stack, StackProps} from "aws-cdk-lib";
 import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
 import path from "path";
@@ -52,6 +52,8 @@ export class MilitaryDocumentVerificationStack extends Stack {
                 target: 'esnext', // target environment for the generated JavaScript code
             }
         });
+
+        // const s3PutEventSource = new aws_lambda_event_sources.S3EventSource(Ampl)
         
         // Give the consumer lambda access to api secrets.
         this.militaryDocumentVerificationConsumerLambda.addToRolePolicy(
@@ -160,7 +162,7 @@ export class MilitaryDocumentVerificationStack extends Stack {
                 source: ['aws.s3'],
                 detailType: ['Take document from S3 bucket and send to producer lambda in document verification stack.'],
                 detail: {
-                    eeventSource: ['s3.amazonaws.com'],
+                    eventSource: ['s3.amazonaws.com'],
                     eventName: ['PutObject'],
                     requestParameters: {
                       bucketName: [mainFilesBucketName],
