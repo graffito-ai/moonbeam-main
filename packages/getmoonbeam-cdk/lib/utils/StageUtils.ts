@@ -329,6 +329,7 @@ export class StageUtils {
                     environmentVariables: stageConfiguration.environmentVariables,
                 });
                 militaryDocumentVerificationStack.addDependency(appSyncStack);
+                militaryDocumentVerificationStack.addDependency(storageStack);
             }
         }
     };

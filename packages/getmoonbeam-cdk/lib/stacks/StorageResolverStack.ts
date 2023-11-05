@@ -78,7 +78,8 @@ export class StorageResolverStack extends Stack {
                     ],
                     maxAge: 3000
                 }
-            ]
+            ],
+            eventBridgeEnabled: true
         });
 
         // create the identity used to access the bucket through CloudFront, and grant it read Access through the bucket
