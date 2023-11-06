@@ -192,6 +192,10 @@ export abstract class BaseAPIClient {
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_NEW_MAP_FEATURE_REMINDER_AUTH_TOKEN],
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_NEW_MAP_FEATURE_REMINDER_TEMPLATE_ID]];
                                     }
+                                case NotificationType.VeteransDayTemplate_1Reminder:
+                                    return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                        clientPairAsJson[Constants.AWSPairConstants.PUSH_VETERANS_DAY_TEMPLATE_1_AUTH_TOKEN],
+                                        clientPairAsJson[Constants.AWSPairConstants.PUSH_VETERANS_DAY_TEMPLATE_1_TEMPLATE_ID]];
                                 default:
                                     console.log(`Unknown notifications type to retrieve secrets in ${verificationClientSecretsName}`);
                                     return [null, null];

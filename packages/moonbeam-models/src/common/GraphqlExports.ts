@@ -748,7 +748,10 @@ export enum NotificationReminderStatus {
 
 export enum NotificationReminderType {
   CardLinkingReminder = 'CARD_LINKING_REMINDER',
-  NewMapFeatureReminder = 'NEW_MAP_FEATURE_REMINDER'
+  NewMapFeatureReminder = 'NEW_MAP_FEATURE_REMINDER',
+  VeteransDayTemplate_1Reminder = 'VETERANS_DAY_TEMPLATE_1_REMINDER',
+  VeteransDayTemplate_2Reminder = 'VETERANS_DAY_TEMPLATE_2_REMINDER',
+  VeteransDayTemplate_3Reminder = 'VETERANS_DAY_TEMPLATE_3_REMINDER'
 }
 
 export type NotificationResponse = {
@@ -774,7 +777,10 @@ export enum NotificationType {
   NewMapFeatureReminder = 'NEW_MAP_FEATURE_REMINDER',
   NewQualifyingOfferAvailable = 'NEW_QUALIFYING_OFFER_AVAILABLE',
   NewUserSignup = 'NEW_USER_SIGNUP',
-  QualifyingOffer = 'QUALIFYING_OFFER'
+  QualifyingOffer = 'QUALIFYING_OFFER',
+  VeteransDayTemplate_1Reminder = 'VETERANS_DAY_TEMPLATE_1_REMINDER',
+  VeteransDayTemplate_2Reminder = 'VETERANS_DAY_TEMPLATE_2_REMINDER',
+  VeteransDayTemplate_3Reminder = 'VETERANS_DAY_TEMPLATE_3_REMINDER'
 }
 
 export enum NotificationsErrorType {

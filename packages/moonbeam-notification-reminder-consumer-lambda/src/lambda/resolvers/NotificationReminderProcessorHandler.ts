@@ -5,7 +5,6 @@ import {
     MoonbeamClient,
     NotificationChannelType,
     NotificationStatus,
-    NotificationType,
     UserDetailsForNotifications,
     UserDeviceErrorType,
     UserDevicesResponse,
@@ -104,7 +103,7 @@ export const processNotificationReminder = async (event: SQSEvent): Promise<SQSB
                                     itemIdentifier: userNotificationReminderRecord.messageId
                                 });
                             } else {
-                                console.log(`${NotificationType.CardLinkingReminder} notification email successfully sent to ${userDetailsReminder.id}`);
+                                console.log(`${userDetailsReminder.notificationType} notification email successfully sent to ${userDetailsReminder.id}`);
                             }
                             break;
                         case NotificationChannelType.Push:
@@ -128,7 +127,7 @@ export const processNotificationReminder = async (event: SQSEvent): Promise<SQSB
                                         itemIdentifier: userNotificationReminderRecord.messageId
                                     });
                                 } else {
-                                    console.log(`${NotificationType.CardLinkingReminder} notification push event successfully sent to ${userDetailsReminder.id}`);
+                                    console.log(`${userDetailsReminder.notificationType} notification push event successfully sent to ${userDetailsReminder.id}`);
                                 }
                             }
                             break;

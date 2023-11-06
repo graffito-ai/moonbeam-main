@@ -10,6 +10,9 @@ enum NotificationReminderErrorType {
 enum NotificationReminderType {
     CARD_LINKING_REMINDER
     NEW_MAP_FEATURE_REMINDER
+    VETERANS_DAY_TEMPLATE_1_REMINDER
+    VETERANS_DAY_TEMPLATE_2_REMINDER
+    VETERANS_DAY_TEMPLATE_3_REMINDER
 }
 
 enum NotificationReminderStatus {
