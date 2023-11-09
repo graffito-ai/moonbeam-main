@@ -196,6 +196,24 @@ export abstract class BaseAPIClient {
                                     return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
                                         clientPairAsJson[Constants.AWSPairConstants.PUSH_VETERANS_DAY_TEMPLATE_1_AUTH_TOKEN],
                                         clientPairAsJson[Constants.AWSPairConstants.PUSH_VETERANS_DAY_TEMPLATE_1_TEMPLATE_ID]];
+                                case NotificationType.VeteransDayTemplate_2Reminder:
+                                    return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                        clientPairAsJson[Constants.AWSPairConstants.PUSH_VETERANS_DAY_TEMPLATE_2_AUTH_TOKEN],
+                                        clientPairAsJson[Constants.AWSPairConstants.PUSH_VETERANS_DAY_TEMPLATE_2_TEMPLATE_ID]];
+                                case NotificationType.VeteransDayTemplate_3Reminder:
+                                    if (channelType !== undefined) {
+                                        return channelType === NotificationChannelType.Email
+                                            ? [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_VETERANS_DAY_TEMPLATE_3_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_VETERANS_DAY_TEMPLATE_3_TEMPLATE_ID]]
+                                            : [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_VETERANS_DAY_TEMPLATE_3_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_VETERANS_DAY_TEMPLATE_3_TEMPLATE_ID]];
+                                    } else {
+                                        return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_VETERANS_DAY_TEMPLATE_3_AUTH_TOKEN],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_VETERANS_DAY_TEMPLATE_3_TEMPLATE_ID]];
+                                    }
                                 default:
                                     console.log(`Unknown notifications type to retrieve secrets in ${verificationClientSecretsName}`);
                                     return [null, null];

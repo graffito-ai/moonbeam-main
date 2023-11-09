@@ -101,6 +101,12 @@ export const createNotification = async (fieldName: string, createNotificationIn
                 case NotificationType.VeteransDayTemplate_1Reminder:
                     return standardPushNotification(createNotificationInput, courierClient, dynamoDbClient,
                         NotificationType.VeteransDayTemplate_1Reminder);
+                case NotificationType.VeteransDayTemplate_2Reminder:
+                    return standardPushNotification(createNotificationInput, courierClient, dynamoDbClient,
+                        NotificationType.VeteransDayTemplate_2Reminder);
+                case NotificationType.VeteransDayTemplate_3Reminder:
+                    return standardEmailAndPushNotification(createNotificationInput, courierClient, dynamoDbClient,
+                        NotificationType.VeteransDayTemplate_3Reminder);
                 default:
                     const errorMessage = `Unexpected notification type ${createNotificationInput.type}`;
                     console.log(errorMessage);
