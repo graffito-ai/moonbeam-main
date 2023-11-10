@@ -16,7 +16,7 @@ export class MilitaryDocumentVerificationStack extends Stack {
 
     readonly militaryDocumentVerificationProcessingQueue: aws_sqs.Queue;
 
-    constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'militaryDocumentVerificationConfig'>) {
+    constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'militaryDocumentVerificationConfig'> & { militaryVerificationConfig }) {
         super(scope, id, props);
 
         // Consumer lambda for team 2.
@@ -66,6 +66,19 @@ export class MilitaryDocumentVerificationStack extends Stack {
             })
         );
 
+        // Given the consumer lambda access to mutations and queries.
+        this.militaryDocumentVerificationConsumerLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: ['dynamodb:GetItem'],
+                resources: [
+                    // this ARN is retrieved post secret creation
+                    ...props.stage === Stages.DEV ? [`arn:aws:dynamodb:${props.env!.region}:963863720257:table/${props.militaryVerificationConfig.militaryVerificationTableName}`] : [],
+                    ...props.stage === Stages.PROD ? [`arn:aws:dynamodb:${props.env!.region}:251312580862:table/${props.militaryVerificationConfig.militaryVerificationTableName}`] : []
+                ]
+            })
+        );
+
         // Queue that follows the SNS topic.
         this.militaryDocumentVerificationProcessingQueue = new aws_sqs.Queue(this, `${props.militaryDocumentVerificationConfig.militaryDocumentVerificationFanOutConfig.militaryDocumentVerificationProcessingQueueName}-${props.stage}-${props.env!.region}.fifo`, {
             visibilityTimeout: Duration.hours(12)
@@ -89,7 +102,7 @@ export class MilitaryDocumentVerificationStack extends Stack {
 
         // Add the consumer lambda function as a target for this event.
         s3EventRule.addTarget(new targets.SqsQueue(this.militaryDocumentVerificationProcessingQueue));
-        
+
         const eventSource = new SqsEventSource(this.militaryDocumentVerificationProcessingQueue, {
             batchSize: 1
         })

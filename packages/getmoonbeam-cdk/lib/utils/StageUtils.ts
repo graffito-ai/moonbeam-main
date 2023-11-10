@@ -327,6 +327,7 @@ export class StageUtils {
                     stage: stageConfiguration.stage,
                     militaryDocumentVerificationConfig: stageConfiguration.militaryDocumentVerificationConfig,
                     environmentVariables: stageConfiguration.environmentVariables,
+                    militaryVerificationConfig: stageConfiguration.militaryVerificationConfig,
                 });
                 militaryDocumentVerificationStack.addDependency(appSyncStack);
                 militaryDocumentVerificationStack.addDependency(storageStack);
