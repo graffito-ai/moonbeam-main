@@ -7,6 +7,7 @@ import { Constants, Stages } from "@moonbeam/moonbeam-models";
 // import {SqsSubscription} from "aws-cdk-lib/aws-sns-subscriptions";
 import * as events from 'aws-cdk-lib/aws-events';
 import * as targets from 'aws-cdk-lib/aws-events-targets'
+import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 
 export class MilitaryDocumentVerificationStack extends Stack {
 
@@ -67,7 +68,7 @@ export class MilitaryDocumentVerificationStack extends Stack {
 
         // Queue that follows the SNS topic.
         this.militaryDocumentVerificationProcessingQueue = new aws_sqs.Queue(this, `${props.militaryDocumentVerificationConfig.militaryDocumentVerificationFanOutConfig.militaryDocumentVerificationProcessingQueueName}-${props.stage}-${props.env!.region}.fifo`, {
-
+            visibilityTimeout: Duration.hours(12)
         });
 
         // Get files bucket name for the event bridge.
@@ -88,6 +89,11 @@ export class MilitaryDocumentVerificationStack extends Stack {
 
         // Add the consumer lambda function as a target for this event.
         s3EventRule.addTarget(new targets.SqsQueue(this.militaryDocumentVerificationProcessingQueue));
+        
+        const eventSource = new SqsEventSource(this.militaryDocumentVerificationProcessingQueue, {
+            batchSize: 1
+        })
+        this.militaryDocumentVerificationConsumerLambda.addEventSource(eventSource)
     }
 
 }

@@ -191,7 +191,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     militaryDocumentVerificationProcessingQueueName: 'militaryDocumentVerificationProcessingQueue',
                     militaryDocumentVerificationProcessingDLQName: 'militaryDocumentVerificationProcessingQueueDLQ',
                     militaryDocumentVerificationProcessingDLQTopicName: 'militaryDocumentVerificationProcessingTopicDLQ',
-                    militaryDocumentVerificationProcessingEventRule: 'militaryDocumentVerificationProcessingEventRule'
+                    militaryDocumentVerificationProcessingEventRule: 'militaryDocumentVerificationProcessingEventRule',
+                    militaryDocumentVerificationProcessingEventSourceMapping: 'militaryDocumentVerificationProcessingEventSourceMapping'
                 }
             }
         },
@@ -381,7 +382,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     militaryDocumentVerificationProcessingQueueName: 'militaryDocumentVerificationProcessingQueue',
                     militaryDocumentVerificationProcessingDLQName: 'militaryDocumentVerificationProcessingQueueDLQ',
                     militaryDocumentVerificationProcessingDLQTopicName: 'militaryDocumentVerificationProcessingTopic',
-                    militaryDocumentVerificationProcessingEventRule: 'militaryDocumentVerificationProcessingEventRule'
+                    militaryDocumentVerificationProcessingEventRule: 'militaryDocumentVerificationProcessingEventRule',
+                    militaryDocumentVerificationProcessingEventSourceMapping: 'militaryDocumentVerificationProcessingEventSourceMapping'
                 }
             }
         },
