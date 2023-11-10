@@ -70,10 +70,17 @@ export class MilitaryDocumentVerificationStack extends Stack {
         this.militaryDocumentVerificationConsumerLambda.addToRolePolicy(
             new PolicyStatement({
                 effect: Effect.ALLOW,
-                actions: ['dynamodb:GetItem'],
+                actions: [
+                    "dynamodb:GetItem",
+                    "dynamodb:PutItem",
+                    "dynamodb:Query",
+                    "dynamodb:UpdateItem",
+                    "dynamodb:DeleteItem"
+                ],
                 resources: [
-                    // this ARN is retrieved post secret creation
-                    ...props.stage === Stages.DEV ? [`arn:aws:dynamodb:${props.env!.region}:963863720257:table/${props.militaryVerificationConfig.militaryVerificationTableName}`] : [],
+                    // ToDo: Unbake ARN
+                    ...props.stage === Stages.DEV? [`arn:aws:dynamodb:us-west-2:963863720257:table/militaryVerificationTable-dev-us-west-2`] : [],
+                    // ...props.stage === Stages.DEV ? [`arn:aws:dynamodb:${props.env!.region}:963863720257:table/${props.militaryVerificationConfig.militaryVerificationTableName}`] : [],
                     ...props.stage === Stages.PROD ? [`arn:aws:dynamodb:${props.env!.region}:251312580862:table/${props.militaryVerificationConfig.militaryVerificationTableName}`] : []
                 ]
             })
