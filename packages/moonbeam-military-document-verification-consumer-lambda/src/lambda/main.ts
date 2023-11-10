@@ -18,10 +18,14 @@ exports.handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
     const docClient = DynamoDBDocumentClient.from(client);
     const tableName = "militaryVerificationTable-dev-us-west-2"
 
+    const objectKey : string = JSON.parse(event.Records[0].body)['detail']['object']['key']
+    const fileName = objectKey.split('/')[1]
+    const userId = fileName.split('-').slice(0, 5).join('-')
+
     const command = new GetCommand({
         TableName: tableName,
         Key: {
-            id: "84d088f2-3514-4e92-babb-31812c462ac7",
+            id: userId,
         },
     });
     const response = await docClient.send(command);
