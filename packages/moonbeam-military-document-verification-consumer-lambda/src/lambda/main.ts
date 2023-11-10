@@ -8,8 +8,8 @@ import { SQSBatchResponse, SQSEvent } from 'aws-lambda';
  * @returns a {@link Promise} containing a {@link SQSBatchResponse}
  */
 exports.handler = async (event: SQSEvent): Promise<SQSBatchResponse> => {
-    console.log(event[0])
-
+    console.log(`Received new military document for verification, with number of records ${event.Records.length}, id: ${event.Records[0].messageId}, contents: ${event.Records[0].body}`);
+    console.log(`Object key is: ${JSON.parse(event.Records[0].body)['detail']['object']['key']}`)
     // Return a Promise that includes the expected properties
     return Promise.resolve({
         batchItemFailures: [], // You can populate this array with appropriate data if needed
