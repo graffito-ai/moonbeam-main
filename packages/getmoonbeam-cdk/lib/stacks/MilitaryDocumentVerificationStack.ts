@@ -86,6 +86,28 @@ export class MilitaryDocumentVerificationStack extends Stack {
             })
         );
 
+        // Give the consumer lambda access to s3, textract, secretsmanager
+        this.militaryDocumentVerificationConsumerLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "s3:GetObject",
+                    "textract:StartDocumentTextDetection",
+                    "textract:GetDocumentTextDetection",
+                    "secretsmanager:GetSecretValue"
+                ],
+                resources: [
+                    // TODO: remove wildcard
+                    ...props.stage === Stages.DEV ? ['*'] : [],
+                ]
+            })
+        );
+
+        this.militaryDocumentVerificationConsumerLambda.addEnvironment(
+            Constants.MoonbeamConstants.MILITARY_VERIFICATION_TABLE,
+            'militaryVerificationTable-dev-us-west-2'
+        );
+
         // Queue that follows the SNS topic.
         this.militaryDocumentVerificationProcessingQueue = new aws_sqs.Queue(this, `${props.militaryDocumentVerificationConfig.militaryDocumentVerificationFanOutConfig.militaryDocumentVerificationProcessingQueueName}-${props.stage}-${props.env!.region}.fifo`, {
             visibilityTimeout: Duration.hours(12)

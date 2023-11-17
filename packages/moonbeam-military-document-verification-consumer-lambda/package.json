@@ -13,12 +13,12 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.338.0",
+    "@aws-sdk/client-textract": "^3.451.0",
     "@aws-sdk/types": "^3.272.0",
     "@aws-sdk/util-dynamodb": "^3.284.0",
     "@moonbeam/moonbeam-models": "1.0.0",
     "@moonbeam/moonbeam-tsconfig": "1.0.0",
-    "@types/aws-lambda": "^8.10.120",
-    "axios": "^1.4.0"
+    "@types/aws-lambda": "^8.10.120"
   },
   "private": true
 }
