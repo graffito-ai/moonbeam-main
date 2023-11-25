@@ -1,0 +1,23 @@
+# graphql/AppsFlyerSchema.graphql
+# Apps Flyer Schema File
+enum AppsFlyerErrorType {
+    DUPLICATE_OBJECT_FOUND
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+    NONE_OR_ABSENT
+}
+
+enum OSType {
+    iOS,
+    Android
+}
+
+input GetAppsFlyerCredentialsInput {
+    osType: OSType!
+}
+
+type AppsFlyerResponse @aws_cognito_user_pools @aws_api_key {
+    data: String
+    errorType: AppsFlyerErrorType
+    errorMessage: String
+}

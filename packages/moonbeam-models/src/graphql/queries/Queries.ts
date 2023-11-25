@@ -1,5 +1,16 @@
 // This is a file used to define the all GraphQL query constants
 
+// Query used to retrieve the Apps Flyer credentials/details
+export const getAppsFlyerCredentials = /* GraphQL */ `
+    query GetAppsFlyerCredentials($getAppsFlyerCredentialsInput: GetAppsFlyerCredentialsInput!) {
+        getAppsFlyerCredentials(getAppsFlyerCredentialsInput: $getAppsFlyerCredentialsInput) {
+            errorMessage
+            errorType
+            data
+        }
+    }
+`;
+
 // Query used to retrieve the App Upgrade credentials/details
 export const getAppUpgradeCredentials = /* GraphQL */ `
     query GetAppUpgradeCredentials {

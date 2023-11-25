@@ -291,3 +291,12 @@ export interface AppUpgradeConfiguration {
     readonly appUpgradeFunctionName: string;
     readonly getAppUpgradeCredentialsResolverName: string;
 }
+
+/**
+ * Interface used to define the configuration for the apps flyer service resolvers (GraphQL based),
+ * and other afferent data stores.
+ */
+export interface AppsFlyerConfiguration {
+    readonly appsFlyerFunctionName: string;
+    readonly getAppsFlyerCredentialsResolverName: string;
+}

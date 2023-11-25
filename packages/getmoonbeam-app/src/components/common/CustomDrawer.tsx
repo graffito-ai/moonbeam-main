@@ -232,7 +232,10 @@ import {cardLinkingBottomSheetState} from "../../recoil/WalletAtom";
 import * as SecureStore from 'expo-secure-store';
 // @ts-ignore
 import MoonbeamProfilePlaceholder from "../../../assets/art/moonbeam-profile-placeholder.png";
+// @ts-ignore
+import MoonbeamFriendReferral from "../../../assets/art/moonbeam-refer-friend.png";
 import {Image as ExpoImage} from "expo-image/build/Image";
+import {Image} from "expo-image";
 
 /**
  * CustomDrawer component. This component will be used to further tailor our sidebar navigation drawer, mainly
@@ -257,7 +260,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const [userInformation,] = useRecoilState(currentUserInformation);
     const [profilePictureURI,] = useRecoilState(profilePictureURIState);
     // Recoil atoms to reset
-    const [reloadNearbyDueToPermissionsChange, ] = useRecoilState(reloadNearbyDueToPermissionsChangeState);
+    const [reloadNearbyDueToPermissionsChange,] = useRecoilState(reloadNearbyDueToPermissionsChangeState);
     const verificationDocumentAppWallStateReset = useResetRecoilState(verificationDocumentAppWallState);
     const isReadyAppWallStateReset = useResetRecoilState(isReadyAppWallState);
     const isPhotoUploadedAppWallStateReset = useResetRecoilState(isPhotoUploadedAppWallState);
@@ -393,14 +396,14 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const numberOfHealthAndBeautyCategorizedOnlineOffersReset = useResetRecoilState(numberOfHealthAndBeautyCategorizedOnlineOffersState);
     const numberOfOfficeAndBusinessCategorizedOnlineOffersReset = useResetRecoilState(numberOfOfficeAndBusinessCategorizedOnlineOffersState);
     const numberOfServicesAndSubscriptionsCategorizedOnlineOffersReset = useResetRecoilState(numberOfServicesAndSubscriptionsCategorizedOnlineOffersState);
-    const  onlineFoodCategorizedOffersPageNumberReset = useResetRecoilState(onlineFoodCategorizedOffersPageNumberState);
-    const  onlineRetailCategorizedOffersPageNumberReset = useResetRecoilState(onlineRetailCategorizedOffersPageNumberState);
-    const  onlineEntertainmentCategorizedOffersPageNumberReset = useResetRecoilState(onlineEntertainmentCategorizedOffersPageNumberState);
-    const  onlineElectronicsCategorizedOffersPageNumberReset = useResetRecoilState(onlineElectronicsCategorizedOffersPageNumberState);
-    const  onlineHomeCategorizedOffersPageNumberReset = useResetRecoilState(onlineHomeCategorizedOffersPageNumberState);
-    const  onlineHealthAndBeautyCategorizedOffersPageNumberReset = useResetRecoilState(onlineHealthAndBeautyCategorizedOffersPageNumberState);
-    const  onlineOfficeAndBusinessCategorizedOffersPageNumberReset = useResetRecoilState(onlineOfficeAndBusinessCategorizedOffersPageNumberState);
-    const  onlineServicesAndSubscriptionsCategorizedOffersPageNumberReset = useResetRecoilState(onlineServicesAndSubscriptionsCategorizedOffersPageNumberState);
+    const onlineFoodCategorizedOffersPageNumberReset = useResetRecoilState(onlineFoodCategorizedOffersPageNumberState);
+    const onlineRetailCategorizedOffersPageNumberReset = useResetRecoilState(onlineRetailCategorizedOffersPageNumberState);
+    const onlineEntertainmentCategorizedOffersPageNumberReset = useResetRecoilState(onlineEntertainmentCategorizedOffersPageNumberState);
+    const onlineElectronicsCategorizedOffersPageNumberReset = useResetRecoilState(onlineElectronicsCategorizedOffersPageNumberState);
+    const onlineHomeCategorizedOffersPageNumberReset = useResetRecoilState(onlineHomeCategorizedOffersPageNumberState);
+    const onlineHealthAndBeautyCategorizedOffersPageNumberReset = useResetRecoilState(onlineHealthAndBeautyCategorizedOffersPageNumberState);
+    const onlineOfficeAndBusinessCategorizedOffersPageNumberReset = useResetRecoilState(onlineOfficeAndBusinessCategorizedOffersPageNumberState);
+    const onlineServicesAndSubscriptionsCategorizedOffersPageNumberReset = useResetRecoilState(onlineServicesAndSubscriptionsCategorizedOffersPageNumberState);
     const noOnlineFoodCategorizedOffersToLoadReset = useResetRecoilState(noOnlineFoodCategorizedOffersToLoadState);
     const noOnlineRetailCategorizedOffersToLoadReset = useResetRecoilState(noOnlineRetailCategorizedOffersToLoadState);
     const noOnlineEntertainmentCategorizedOffersToLoadReset = useResetRecoilState(noOnlineEntertainmentCategorizedOffersToLoadState);
@@ -854,8 +857,6 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                             </View>
                         </DrawerContentScrollView>
                         <View style={styles.bottomDrawerItemListView}>
-                            <Divider
-                                style={[commonStyles.divider]}/>
                             {/*@ts-ignore*/}
                             <DrawerItem
                                 activeBackgroundColor={'transparent'}
@@ -870,6 +871,30 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                     await logOut();
                                 }}>
                             </DrawerItem>
+                            <Divider
+                                style={[commonStyles.divider]}/>
+                            <TouchableOpacity
+                                style={styles.referralView}
+                                onPress={() => {
+                                    // go to the Referral screen
+                                    setGoToProfileSettings(false);
+                                    // @ts-ignore
+                                    drawerNavigation && drawerNavigation!.navigate('Referral', {});
+                                }}
+                            >
+                                <View style={styles.referralTopView}>
+                                    <Text style={styles.referralTopText}>Refer a friend!</Text>
+                                    <Image
+                                        style={styles.referralImage}
+                                        source={MoonbeamFriendReferral}
+                                        contentFit={'contain'}
+                                        cachePolicy={'memory-disk'}
+                                    />
+                                </View>
+                                <View>
+                                    <Text style={styles.referralBottomText}>Earn a chance at a $200 Gift Card!</Text>
+                                </View>
+                            </TouchableOpacity>
                         </View>
                     </View>
             }

@@ -1,5 +1,12 @@
 # graphql/Queries.graphql
 # Queries Schema File
+query GetAppsFlyerCredentials($getAppsFlyerCredentialsInput: GetAppsFlyerCredentialsInput!) {
+    getAppsFlyerCredentials(getAppsFlyerCredentialsInput: $getAppsFlyerCredentialsInput) {
+        errorMessage
+        errorType
+        data
+    }
+}
 query GetAppUpgradeCredentials {
     getAppUpgradeCredentials {
         errorMessage

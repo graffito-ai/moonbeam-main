@@ -44,13 +44,13 @@ interface MoonbeamKit {
  * Array representing the Moonbeam available Kits
  */
 export const moonbeamKits: MoonbeamKit[] = [
-    {
-        type: OfferCategory.VeteranDay,
-        backgroundPictureSource: MoonbeamVeteransKitPicture,
-        title: 'Veterans Day Kit',
-        secondaryTitle: 'Veterans Day',
-        titleButton: 'View All'
-    },
+    // {
+    //     type: OfferCategory.VeteranDay,
+    //     backgroundPictureSource: MoonbeamVeteransKitPicture,
+    //     title: 'Veterans Day Kit',
+    //     secondaryTitle: 'Veterans Day',
+    //     titleButton: 'View All'
+    // },
     {
         type: OfferCategory.Food,
         backgroundPictureSource: MoonbeamFoodKitPicture,
@@ -202,7 +202,7 @@ export const KitsSection = (props: {
             <View style={styles.kitsView}>
                 <Text style={styles.kitsTitleMain}>
                     <Text style={styles.kitsTitle}>
-                        {""}
+                        {"Shop by Category"}
                     </Text>️
                 </Text>
                 {

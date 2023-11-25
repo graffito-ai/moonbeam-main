@@ -168,15 +168,18 @@ export const FidelisSection = (props: {
     return (
         <>
             <View style={styles.featuredPartnersView}>
-                <Text style={styles.featuredPartnersTitleMain}>
-                    <Text style={styles.featuredPartnersTitle}>
-                        Fidelis Partner Offers
-                    </Text>{`   🎖`}️
-                </Text>
-                <Text
-                    style={[styles.featuredPartnersTitleSub, {left: wp(6)}]}>
-                    {`Better discounts from exclusive brands`}
-                </Text>
+                <View style={styles.featuredPartnerTitleView}>
+                    <Text style={styles.featuredPartnersTitleMain}>
+                        <Text style={styles.featuredPartnersTitle}>
+                            Fidelis Partner Offers
+                        </Text>
+                        {/*{`   🎖`}️*/}
+                    </Text>
+                    <Text
+                        style={[styles.featuredPartnersTitleSub, {left: wp(6)}]}>
+                        {`Better discounts from exclusive brands`}
+                    </Text>
+                </View>
                 {
                     dataProvider !== null && layoutProvider !== null &&
                     <RecyclerListView

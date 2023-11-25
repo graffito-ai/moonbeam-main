@@ -30,6 +30,7 @@ enum RedemptionType {
     cardlinked
     click
     mobile
+    all
 }
 
 enum RedemptionTrigger {

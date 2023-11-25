@@ -42,6 +42,20 @@ export type AppUpgradeResponse = {
   errorType?: Maybe<AppUpgradeErrorType>;
 };
 
+export enum AppsFlyerErrorType {
+  DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  ValidationError = 'VALIDATION_ERROR'
+}
+
+export type AppsFlyerResponse = {
+  __typename?: 'AppsFlyerResponse';
+  data?: Maybe<Scalars['String']>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<AppsFlyerErrorType>;
+};
+
 export type Card = {
   __typename?: 'Card';
   additionalProgramID?: Maybe<Scalars['String']>;
@@ -336,6 +350,10 @@ export enum FileAccessLevel {
 export enum FileType {
   Main = 'MAIN'
 }
+
+export type GetAppsFlyerCredentialsInput = {
+  osType: OsType;
+};
 
 export type GetCardLinkInput = {
   id: Scalars['ID'];
@@ -790,6 +808,11 @@ export enum NotificationsErrorType {
   ValidationError = 'VALIDATION_ERROR'
 }
 
+export enum OsType {
+  Android = 'Android',
+  IOs = 'iOS'
+}
+
 export type Offer = {
   __typename?: 'Offer';
   availability?: Maybe<OfferAvailability>;
@@ -936,6 +959,7 @@ export type Query = {
   __typename?: 'Query';
   getAllUsersForNotificationReminders: UserForNotificationReminderResponse;
   getAppUpgradeCredentials: AppUpgradeResponse;
+  getAppsFlyerCredentials: AppsFlyerResponse;
   getCardLink: CardLinkResponse;
   getDevice: UserDeviceResponse;
   getDeviceByToken: UserDeviceResponse;
@@ -953,6 +977,11 @@ export type Query = {
   getTransactionByStatus: MoonbeamTransactionsByStatusResponse;
   getUserAuthSession: UserAuthSessionResponse;
   getUsersWithNoCards: IneligibleLinkedUsersResponse;
+};
+
+
+export type QueryGetAppsFlyerCredentialsArgs = {
+  getAppsFlyerCredentialsInput: GetAppsFlyerCredentialsInput;
 };
 
 
@@ -1022,6 +1051,7 @@ export enum RedemptionTrigger {
 }
 
 export enum RedemptionType {
+  All = 'all',
   Cardlinked = 'cardlinked',
   Click = 'click',
   Mobile = 'mobile'
@@ -1419,6 +1449,13 @@ export type UpdateMilitaryVerificationStatusMutationVariables = Exact<{
 
 
 export type UpdateMilitaryVerificationStatusMutation = { __typename?: 'Mutation', updateMilitaryVerificationStatus: { __typename?: 'UpdateMilitaryVerificationResponse', errorType?: MilitaryVerificationErrorType | null, errorMessage?: string | null, id?: string | null, militaryVerificationStatus?: MilitaryVerificationStatusType | null } };
+
+export type GetAppsFlyerCredentialsQueryVariables = Exact<{
+  getAppsFlyerCredentialsInput: GetAppsFlyerCredentialsInput;
+}>;
+
+
+export type GetAppsFlyerCredentialsQuery = { __typename?: 'Query', getAppsFlyerCredentials: { __typename?: 'AppsFlyerResponse', errorMessage?: string | null, errorType?: AppsFlyerErrorType | null, data?: string | null } };
 
 export type GetAppUpgradeCredentialsQueryVariables = Exact<{ [key: string]: never; }>;
 

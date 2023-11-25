@@ -178,6 +178,10 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 appUpgradeFunctionName: 'appUpgradeFunction',
                 getAppUpgradeCredentialsResolverName: 'getAppUpgradeCredentials'
             },
+            appsFlyerConfig: {
+                appsFlyerFunctionName: 'appsFlyerFunction',
+                getAppsFlyerCredentialsResolverName: 'getAppsFlyerCredentials'
+            },
             environmentVariables: new Map<string, string>([])
         },
         [`${Stages.PROD}-${Regions.PDX}`]: {
@@ -351,6 +355,10 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             appUpgradeConfig: {
                 appUpgradeFunctionName: 'appUpgradeFunction',
                 getAppUpgradeCredentialsResolverName: 'getAppUpgradeCredentials'
+            },
+            appsFlyerConfig: {
+                appsFlyerFunctionName: 'appsFlyerFunction',
+                getAppsFlyerCredentialsResolverName: 'getAppsFlyerCredentials'
             },
             environmentVariables: new Map<string, string>([])
         },

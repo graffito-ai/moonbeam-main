@@ -11,6 +11,7 @@ import {
     OfferSeasonalType,
     OffersErrorType,
     OffersResponse,
+    RedemptionType,
     RemoveCardResponse,
     Transaction,
     TransactionResponse,
@@ -1231,7 +1232,12 @@ export class OliveClient extends BaseAPIClient {
                     break;
                 case OfferFilter.CategorizedOnline:
                 case OfferFilter.Online:
-                    loyaltyProgramId = moonbeamOnlineLoyalty;
+                    // if the redemption type is click, then we go to the default program for the affiliate networks
+                    if (getOffersInput.redemptionType === RedemptionType.Click) {
+                        loyaltyProgramId = moonbeamDefaultLoyalty;
+                    } else {
+                        loyaltyProgramId = moonbeamOnlineLoyalty;
+                    }
                     break;
                 case OfferFilter.PremierOnline:
                     loyaltyProgramId = moonbeamPremierOnlineLoyalty;

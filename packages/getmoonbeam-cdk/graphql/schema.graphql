@@ -20,6 +20,7 @@ type Query {
     getAllUsersForNotificationReminders: UserForNotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
     getUserAuthSession(getUserAuthSessionInput: GetUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
     getAppUpgradeCredentials: AppUpgradeResponse! @aws_cognito_user_pools
+    getAppsFlyerCredentials(getAppsFlyerCredentialsInput: GetAppsFlyerCredentialsInput!): AppsFlyerResponse! @aws_cognito_user_pools
 }
 
 type Mutation {
@@ -792,6 +793,7 @@ enum RedemptionType {
     cardlinked
     click
     mobile
+    all
 }
 
 enum RedemptionTrigger {
@@ -1145,5 +1147,28 @@ enum AppUpgradeErrorType {
 type AppUpgradeResponse @aws_cognito_user_pools @aws_api_key {
     data: String
     errorType: AppUpgradeErrorType
+    errorMessage: String
+}
+# graphql/AppsFlyerSchema.graphql
+# Apps Flyer Schema File
+enum AppsFlyerErrorType {
+    DUPLICATE_OBJECT_FOUND
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+    NONE_OR_ABSENT
+}
+
+enum OSType {
+    iOS,
+    Android
+}
+
+input GetAppsFlyerCredentialsInput {
+    osType: OSType!
+}
+
+type AppsFlyerResponse @aws_cognito_user_pools @aws_api_key {
+    data: String
+    errorType: AppsFlyerErrorType
     errorMessage: String
 }

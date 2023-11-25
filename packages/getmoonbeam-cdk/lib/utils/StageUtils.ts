@@ -19,6 +19,7 @@ import {UserAuthSessionResolverStack} from "../stacks/UserAuthSessionResolverSta
 import {NotificationReminderResolverStack} from "../stacks/NotificationReminderResolverStack";
 import {NotificationReminderProducerConsumerStack} from "../stacks/NotificationReminderProducerConsumerStack";
 import {AppUpgradeResolverStack} from "../stacks/AppUpgradeResolverStack";
+import {AppsFlyerResolverStack} from "../stacks/AppsFlyerResolverStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -298,6 +299,19 @@ export class StageUtils {
                     environmentVariables: stageConfiguration.environmentVariables
                 });
                 appUpgradeResolverStack.addDependency(appSyncStack);
+
+                // create the Apps Flyer resolver stack && add it to the CDK app
+                const appsFlyerResolverStack = new AppsFlyerResolverStack(this.app, `moonbeam-apps-flyer-resolver-${stageKey}`, {
+                    stackName: `moonbeam-apps-flyer-resolver-${stageKey}`,
+                    description: 'This stack will contain all the AppSync related resources needed by the Lambda Apps Flyer resolver',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    graphqlApiId: appSyncStack.graphqlApiId,
+                    graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
+                    appsFlyerConfig: stageConfiguration.appsFlyerConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                appsFlyerResolverStack.addDependency(appSyncStack);
 
                 // create the API Gateway Service API stack && add it to the CDK app
                 const apiGatewayStack = new APIGatewayServiceStack(this.app, `moonbeam-api-gateway-${stageKey}`, {

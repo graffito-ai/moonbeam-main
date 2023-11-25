@@ -145,23 +145,24 @@ export const OnlineSection = (props: {
                 style={[styles.onlineOffersView,  (nearbyOfferList.length < 6) &&
                     {
                         height: hp(15),
-                        top: -hp(15),
+                        top: -hp(17),
                     },
                     locationServicesButton &&
                     {
                         height: hp(30),
-                        top: -hp(1),
+                        top: -hp(7),
                     }
                 ]}>
                 <View style={styles.onlineOffersTitleView}>
                     <View style={styles.onlineOffersLeftTitleView}>
                         <Text style={styles.onlineOffersTitleMain}>
                             <Text style={styles.onlineOffersTitle}>
-                                Shop Online at
-                            </Text>{`   🛍️`}
+                                Shop Online
+                            </Text>
+                            {/*{`   🛍️`}*/}
                         </Text>
                     </View>
-                    <View style={{flexDirection: 'column'}}>
+                    <View style={{flexDirection: 'column', bottom: hp(3)}}>
                         <Text
                             style={[styles.onlineOffersTitleSub, {left: wp(6)}]}>
                             {`${numberOfOnlineOffers} online offers available`}

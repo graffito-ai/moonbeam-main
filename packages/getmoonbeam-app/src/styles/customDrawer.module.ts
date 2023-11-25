@@ -58,5 +58,36 @@ export const styles = StyleSheet.create({
         fontSize: hp(2),
         fontFamily: 'Raleway-Medium',
         color: '#FFFFFF'
+    },
+    referralView: {
+        height: hp(18),
+        backgroundColor: 'transparent'
+    },
+    referralTopView: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: wp(70)
+    },
+    referralTopText: {
+        alignSelf: 'flex-start',
+        fontFamily: 'Saira-Medium',
+        fontSize: wp(4.5),
+        color: '#F2FF5D',
+        top: hp(3),
+        left: wp(4)
+    },
+    referralImage: {
+        top: hp(1),
+        height: hp(15),
+        width: wp(27),
+        alignSelf: 'flex-start'
+    },
+    referralBottomText: {
+        fontFamily: 'Saira-Regular',
+        fontSize: wp(4),
+        color: '#FFFFFF',
+        left: wp(4),
+        width: wp(40),
+        bottom: hp(8)
     }
 });

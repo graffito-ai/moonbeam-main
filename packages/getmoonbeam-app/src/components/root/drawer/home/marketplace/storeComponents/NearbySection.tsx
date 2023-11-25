@@ -282,7 +282,8 @@ export const NearbySection = (props: {
                                         <Text
                                             style={styles.nearbyLoadingOffersTitle}>
                                             {'Offers near you'}
-                                        </Text>{`   🌎️`}
+                                        </Text>
+                                        {/*{`   🌎️`}*/}
                                     </Text>
                                 </View>
                             </View>
@@ -346,7 +347,8 @@ export const NearbySection = (props: {
                                         <Text
                                             style={styles.nearbyLoadingOffersTitle}>
                                             {'Retrieving offers near you...'}
-                                        </Text>{`   🌎️`}
+                                        </Text>
+                                        {/*{`   🌎️`}*/}
                                     </Text>
                                 </View>
                             </View>
@@ -400,7 +402,8 @@ export const NearbySection = (props: {
                                         {!props.offersNearUserLocationFlag
                                             ? 'Offers near you'
                                             : `Offers in ${userInformation["address"]["formatted"].split(',')[1].trimStart().trimEnd()}`}
-                                    </Text>{`   🌎️`}
+                                    </Text>
+                                    {/*{`   🌎️`}*/}
                                 </Text>
                                 <Text
                                     style={[styles.nearbyOffersTitleSub, props.offersNearUserLocationFlag && {left: wp(6)}]}>
@@ -421,7 +424,7 @@ export const NearbySection = (props: {
                         </View>
                         <Portal.Host>
                             <MapHorizontalSection/>
-                            <View style={{bottom: hp(2)}}>
+                            <View style={{bottom: hp(0), height: hp(5)}}>
                                 <Text
                                     style={[styles.nearbyOffersForMapTitleSub, props.offersNearUserLocationFlag && {left: wp(6)}]}>
                                     {`${numberOfOffersWithin25Miles} offers within 25 miles`}

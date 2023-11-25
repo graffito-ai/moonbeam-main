@@ -54,6 +54,7 @@ import {Support} from "./support/Support";
 import {createPhysicalDevice, proceedWithDeviceCreation} from "../../../utils/AppSync";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import Image = Animated.Image;
+import {Referral} from "./home/referrals/Referral";
 
 /**
  * AppDrawer component.
@@ -753,6 +754,11 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                                                           setShowWalletBottomSheet(false);
                                                                           navigation.openDrawer();
                                                                       }}/>,
+                                        headerRight: () => <IconButton icon={'gift'} iconColor={'#FFFFFF'}
+                                                                      size={hp(3.5)}
+                                                                      onPress={() => {
+                                                                          navigation.navigate('Referral', {});
+                                                                      }}/>,
                                         headerTitle: () =>
                                             <Image resizeMode={"contain"}
                                                    style={{
@@ -857,6 +863,25 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                                 <Icon
                                                     size={hp(3)}
                                                     name={'help-circle-outline'} color={'#F2FF5D'}/>
+                                            ),
+                                            headerShown: drawerHeaderShown
+                                        }}
+                                    />
+                                    <ApplicationDrawer.Screen
+                                        name={"Referral"}
+                                        component={Referral}
+                                        initialParams={{}}
+                                        options={{
+                                            swipeEnabled: drawerSwipeEnabled,
+                                            drawerItemStyle: {
+                                                display: 'none',
+                                                right: wp(2),
+                                                marginBottom: 0
+                                            },
+                                            drawerIcon: () => (
+                                                <Icon
+                                                    size={hp(3)}
+                                                    name={'gift'} color={'#F2FF5D'}/>
                                             ),
                                             headerShown: drawerHeaderShown
                                         }}

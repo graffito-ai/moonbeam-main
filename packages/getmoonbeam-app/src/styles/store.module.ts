@@ -84,7 +84,7 @@ export const styles = StyleSheet.create({
         top: hp(1.5)
     },
     mapHorizontalViewTitleButton: {
-        top: hp(3.8),
+        top: hp(4.75),
         fontSize: hp(1.5),
         fontFamily: 'Raleway-Bold',
         color: '#F2FF5D',
@@ -124,25 +124,24 @@ export const styles = StyleSheet.create({
     },
     kitsScrollView: {
         bottom: hp(2),
-        height: hp(35),
-        width: wp(100)
-    },
-    kitsView: {
         height: hp(30),
         width: wp(100),
-        bottom: hp(4)
+        paddingLeft: hp(2.5)
+    },
+    kitsView: {
+        height: hp(40),
+        width: wp(100)
     },
     kitsTitleMain: {
-        fontSize: hp(2.3),
-        fontFamily: 'Changa-Medium',
+        fontSize: hp(3),
+        fontFamily: 'Changa-Bold',
         left: wp(6),
         alignSelf: 'flex-start',
         color: '#FFFFFF'
     },
     kitsTitle: {
-        fontSize: hp(2.3),
-        fontFamily: 'Changa-Medium',
-        textDecorationLine: 'underline',
+        fontSize: hp(2.75),
+        fontFamily: 'Changa-Bold',
         left: wp(6),
         alignSelf: 'flex-start',
         color: '#FFFFFF'
@@ -152,30 +151,31 @@ export const styles = StyleSheet.create({
         width: wp(100),
         bottom: hp(7)
     },
+    featuredPartnerTitleView: {
+        width: wp(100),
+        bottom: hp(4),
+        // backgroundColor: '#262626'
+    },
     featuredPartnersTitleMain: {
-        fontSize: hp(2.3),
-        fontFamily: 'Changa-Medium',
         left: wp(6),
         alignSelf: 'flex-start',
         flexDirection: 'column',
         color: '#FFFFFF'
     },
     featuredPartnersTitle: {
-        fontSize: hp(2.3),
-        fontFamily: 'Changa-Medium',
-        textDecorationLine: 'underline',
+        fontSize: hp(3),
+        fontFamily: 'Changa-Bold',
         left: wp(6),
         alignSelf: 'flex-start',
         color: '#FFFFFF'
     },
     featuredPartnersScrollView: {
-        bottom: hp(2),
-        height: hp(35),
+        bottom: hp(4.5),
         width: wp(100)
     },
     onlineOffersView: {
-        height: hp(45),
-        top: hp(15)
+        height: hp(42),
+        top: hp(10),
     },
     onlineOffersTitleView: {
         justifyContent: 'space-between',
@@ -183,7 +183,10 @@ export const styles = StyleSheet.create({
         top: hp(1)
     },
     onlineOffersLeftTitleView: {
-        flexDirection: 'column'
+        flexDirection: 'column',
+        // backgroundColor: '#262626',
+        width: wp(100),
+        height: hp(8)
     },
     onlineOffersTitleSub: {
         fontSize: hp(1.3),
@@ -202,9 +205,8 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF'
     },
     onlineOffersTitle: {
-        fontSize: hp(2.3),
-        fontFamily: 'Changa-Medium',
-        textDecorationLine: 'underline',
+        fontSize: hp(3),
+        fontFamily: 'Changa-Bold',
         left: wp(4),
         alignSelf: 'flex-start',
         color: '#FFFFFF'
@@ -222,7 +224,7 @@ export const styles = StyleSheet.create({
         left: wp(3),
         width: wp(100),
         height: hp(25),
-        bottom: hp(2)
+        bottom: hp(4)
     },
     onlineOfferCard: {
         right: wp(2),
@@ -261,12 +263,13 @@ export const styles = StyleSheet.create({
     nearbyOffersView: {
         height: hp(40),
         width: wp(100),
-        bottom: hp(8)
+        bottom: hp(12)
     },
     nearbyOffersTitleView: {
+        // backgroundColor: '#262626',
         justifyContent: 'space-between',
         flexDirection: 'row',
-        top: hp(3),
+        top: hp(2.5),
         width: wp(100)
     },
     nearbyOffersLeftTitleView: {
@@ -288,16 +291,14 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF'
     },
     nearbyLoadingOffersTitle: {
-        fontSize: hp(2.3),
-        fontFamily: 'Changa-Medium',
-        textDecorationLine: 'underline',
+        fontSize: hp(3),
+        fontFamily: 'Changa-Bold',
         left: wp(6),
-        color: '#F2FF5D'
+        color: '#FFFFFF'
     },
     nearbyOffersTitle: {
-        fontSize: hp(2.3),
-        fontFamily: 'Changa-Medium',
-        textDecorationLine: 'underline',
+        fontSize: hp(3),
+        fontFamily: 'Changa-Bold',
         left: wp(6),
         alignSelf: 'flex-start',
         color: '#FFFFFF'
@@ -308,7 +309,7 @@ export const styles = StyleSheet.create({
         textDecorationLine: 'none',
         color: '#F2FF5D',
         left: wp(6),
-        top: hp(3),
+        top: hp(1),
         alignSelf: 'flex-start'
     },
     nearbyOffersTitleSub: {
@@ -317,7 +318,7 @@ export const styles = StyleSheet.create({
         textDecorationLine: 'none',
         color: '#F2FF5D',
         left: wp(6),
-        bottom: hp(0.5),
+        bottom: hp(1),
         alignSelf: 'flex-start'
     },
     nearbyOffersTitleButton: {
@@ -327,8 +328,8 @@ export const styles = StyleSheet.create({
         color: '#F2FF5D',
         textDecorationLine: 'underline',
         alignSelf: 'flex-end',
-        top: hp(1),
-        marginBottom: hp(1)
+        bottom: hp(1),
+        marginBottom: hp(3)
     },
     nearbyOffersScrollView: {
         top: hp(1),
@@ -350,10 +351,13 @@ export const styles = StyleSheet.create({
     },
     kitsCard: {
         top: hp(2.5),
-        marginLeft: wp(5),
+        marginRight: wp(5),
         backgroundColor: 'transparent',
         width: wp(70),
-        height: hp(15),
+        height: hp(30),
+        // borderTopWidth: hp(0.15),
+        borderRadius: 0,
+        // borderTopColor: '#5B5A5A',
         shadowColor: 'transparent',
         shadowOffset: {width: -2, height: 1},
         shadowOpacity: 0.6,
@@ -387,7 +391,7 @@ export const styles = StyleSheet.create({
         bottom: hp(6)
     },
     featuredPartnerCard: {
-        top: hp(2.5),
+        top: hp(1),
         marginLeft: wp(5),
         backgroundColor: '#5B5A5A',
         width: wp(85),
@@ -429,7 +433,7 @@ export const styles = StyleSheet.create({
         textDecorationLine: 'none',
         color: '#F2FF5D',
         left: wp(6),
-        bottom: hp(0.5),
+        bottom: hp(1),
         width: wp(80),
         alignSelf: 'flex-start'
     },

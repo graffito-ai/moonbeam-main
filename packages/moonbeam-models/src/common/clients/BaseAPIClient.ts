@@ -2,6 +2,7 @@ import {GetSecretValueCommand, SecretsManagerClient} from "@aws-sdk/client-secre
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {Constants} from "../Constants";
 import {
+    AppsFlyerResponse,
     AppUpgradeResponse,
     Card,
     CardLinkResponse,
@@ -27,7 +28,7 @@ import {
     NotificationReminderResponse,
     NotificationResponse,
     NotificationType,
-    OffersResponse,
+    OffersResponse, OsType,
     RemoveCardResponse,
     SendEmailNotificationInput,
     SendMobilePushNotificationInput,
@@ -121,6 +122,8 @@ export abstract class BaseAPIClient {
                         }
                     case Constants.AWSPairConstants.APP_UPGRADE_SECRET_NAME:
                         return [clientPairAsJson[Constants.AWSPairConstants.APP_UPGRADE_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.APP_UPGRADE_API_KEY]];
+                    case Constants.AWSPairConstants.APPS_FLYER_SECRET_NAME:
+                        return [clientPairAsJson[Constants.AWSPairConstants.APPS_FLYER_IOS_API_KEY], clientPairAsJson[Constants.AWSPairConstants.APPS_FLYER_ANDROID_API_KEY]];
                     case Constants.AWSPairConstants.COURIER_INTERNAL_SECRET_NAME:
                         // return the appropriate secrets, depending on the type of notification passed in
                         if (!notificationType) {
@@ -253,6 +256,19 @@ export abstract class BaseAPIClient {
             throw new Error(errorMessage);
         }
     }
+
+    /**
+     * Function used to get the API Key for the Apps Flyer service.
+     *
+     * @param osType the type of operating system installed on the device,
+     * that will determine which API Key we will be returning.
+     *
+     * @returns a {@link AppsFlyerResponse}, representing the API Key
+     * used for the Apps Flyer service.
+     *
+     * @protected
+     */
+    protected getAppsFlyerAPIKey?(osType: OsType): Promise<AppsFlyerResponse>;
 
     /**
      * Function used to get the API Key for the App Upgrade service.

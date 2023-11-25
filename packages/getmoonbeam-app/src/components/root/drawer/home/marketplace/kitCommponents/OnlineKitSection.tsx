@@ -286,7 +286,11 @@ export const OnlineKitSection = (props: {
                                                                 ? `${data.reward!.value}%`
                                                                 : `$${data.reward!.value}`}
                                                         </Text>
-                                                        {" Off 🇺🇸"}
+                                                        {
+                                                            currentActiveKit === OfferCategory.VeteranDay
+                                                                ? " Off 🇺🇸"
+                                                                : " Off "
+                                                        }
                                                     </Text>
                                                 </View>
                                             </View>
@@ -332,7 +336,11 @@ export const OnlineKitSection = (props: {
                                                         ? `${data.reward!.value}%`
                                                         : `$${data.reward!.value}`}
                                                 </Text>
-                                                {" Off 🇺🇸"}
+                                                {
+                                                    currentActiveKit === OfferCategory.VeteranDay
+                                                        ? " Off 🇺🇸"
+                                                        : " Off "
+                                                }
                                             </Text>
                                         </View>
                                     </View>

@@ -29,7 +29,7 @@ export class AppUpgradeClient extends BaseAPIClient {
         const endpointInfo = 'getAppUpgradeAPIKey Query Moonbeam GraphQL API';
 
         try {
-            // retrieve the API Key and Base URL, needed in order to get the API Key for App Storage retrieval call through the client
+            // retrieve the API Key and Base URL, needed in order to get the API Key for App Upgrade retrieval call through the client
             const [appUpgradeBaseURL, appUpgradeAPIKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.APP_UPGRADE_SECRET_NAME);
 
             // check to see if we obtained any invalid secret values from the call above
