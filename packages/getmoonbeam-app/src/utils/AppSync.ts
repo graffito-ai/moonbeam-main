@@ -4,19 +4,25 @@ import {
     createNotification,
     CreateNotificationInput,
     createUserAuthSession,
-    FidelisPartner, getAppUpgradeCredentials,
+    FidelisPartner,
+    getAppsFlyerCredentials,
+    getAppUpgradeCredentials,
     getDeviceByToken,
     getFidelisPartners,
     getOffers,
-    getPremierOffers, getSeasonalOffers,
+    getPremierOffers,
+    getSeasonalOffers,
     getUserAuthSession,
     Offer,
     OfferAvailability,
     OfferCategory,
-    OfferFilter, OfferSeasonalType,
+    OfferFilter,
+    OfferSeasonalType,
     OfferState,
+    OsType,
     PushDevice,
-    RedemptionType, Stages,
+    RedemptionType,
+    Stages,
     updateDevice,
     updateUserAuthSession,
     UserAuthSession,
@@ -33,6 +39,61 @@ import {SetterOrUpdater} from "recoil";
 import {appUpgradeVersionCheck} from 'app-upgrade-react-native-sdk';
 import {Platform} from "react-native";
 import * as envInfo from "../../local-env-info.json";
+import appsFlyer from 'react-native-appsflyer';
+
+/**
+ * Function used to initialize the Apps Flyer SDK in order to start using
+ * marketing and/or attribution events.
+ *
+ * @link {https://dev.appsflyer.com/hc/docs/rn_integration}
+ */
+export const appsFlyerInit = async (): Promise<void> => {
+    try {
+        // first retrieve the API Key for Apps Flyer depending on the OS by performing the getAppsFlyerCredentials AWS AppSync call
+        const getAppsFlyerCredentialsResult = await API.graphql(graphqlOperation(getAppsFlyerCredentials, {
+            getAppsFlyerCredentialsInput: {
+                osType: Platform.OS === 'android' ? OsType.Android : OsType.IOs
+            }
+        }));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const appsFlyerCredentialsResponseData = getAppsFlyerCredentialsResult ? getAppsFlyerCredentialsResult.data : null;
+
+        // check if there are any errors in the returned response
+        if (appsFlyerCredentialsResponseData !== null && appsFlyerCredentialsResponseData !== undefined &&
+            appsFlyerCredentialsResponseData.getAppsFlyerCredentials.errorMessage === null) {
+            const appsFlyerAPIKey = appsFlyerCredentialsResponseData.getAppsFlyerCredentials.data;
+
+            /**
+             * initialize the Apps Flyer SDK
+             * @link {https://dev.appsflyer.com/hc/docs/rn_integration}
+             */
+            appsFlyer.initSdk(
+                {
+                    devKey: appsFlyerAPIKey,
+                    isDebug: envInfo.envName === Stages.DEV,
+                    appId: Platform.OS === 'ios' ? 'id6450375130' : 'com.moonbeam.moonbeamfin',
+                    onInstallConversionDataListener: true,
+                    onDeepLinkListener: true,
+                    timeToWaitForATTUserAuthorization: 5
+                },
+                (result) => {
+                    console.log(`Successfully initializes the AppsFlyer SDK ${result}`);
+                },
+                (error) => {
+                    console.log(`Error while initializing the AppsFlyer SDK ${error}`);
+                }
+            );
+        } else {
+            console.log(`Unexpected error while creating retrieving the Apps Flyer API Key through the getAppsFlyerCredentials API ${JSON.stringify(appsFlyerCredentialsResponseData)}`);
+        }
+    } catch (error) {
+        const errorMessage = `Unexpected error while initializing the Apps Flyer client, for OS ${Platform.OS} ${error} ${JSON.stringify(error)}`;
+        console.log(errorMessage);
+    }
+}
+
 
 /**
  * Function used to check whether the users have the most updated version of the app or not.
@@ -78,7 +139,7 @@ export const appUpgradeCheck = async (): Promise<void> => {
             // perform the user check for the App Upgrade
             appUpgradeVersionCheck(appInfo, appStorageAPIKey, alertConfig);
         } else {
-            console.log(`Unexpected error while creating retrieving the App Storage API Key through the create notification API ${JSON.stringify(appUpgradeCredentialsResponseData)}`);
+            console.log(`Unexpected error while creating retrieving the App Storage API Key through the getAppUpgradeCredentials API ${JSON.stringify(appUpgradeCredentialsResponseData)}`);
         }
     } catch (error) {
         const errorMessage = `Unexpected error while checking the App Upgrade version ${error} ${JSON.stringify(error)}`;

@@ -25,7 +25,6 @@ import {LocationObject} from 'expo-location';
 import {Image} from 'expo-image';
 import * as envInfo from "./local-env-info.json";
 import {Stages} from "@moonbeam/moonbeam-models";
-import appsFlyer from 'react-native-appsflyer';
 
 // this handler determines how your app handles notifications that come in while the app is foregrounded.
 Notifications.setNotificationHandler({
@@ -229,32 +228,6 @@ export default function App() {
                 // clear previous disk and memory images cache
                 await Image.clearDiskCache();
                 await Image.clearMemoryCache();
-
-                /**
-                 * AppsFlyer configuration
-                 * @link {https://dev.appsflyer.com/hc/docs/rn_integration}
-                 */
-                await appsFlyer.initSdk(
-                    {
-                        // depending on the OS that we are targeting, we have different development keys
-                        devKey: 'K2***********99',
-                        // depending on which environment we are in, decide whether this is for testing purposes or not
-                        isDebug: envInfo.envName === Stages.DEV,
-                        // only add the appId attribute in case of iOS
-                        ...(Platform.OS === 'ios' && {
-                            appId: '41*****44',
-                        }),
-                        onInstallConversionDataListener: true, //Optional
-                        onDeepLinkListener: true, //Optional
-                        timeToWaitForATTUserAuthorization: 10 //for iOS 14.5
-                    },
-                    (result) => {
-                        console.log(result);
-                    },
-                    (error) => {
-                        console.error(error);
-                    }
-                );
 
                 // set the current user's position accordingly
                 if (currentUserLocation === null) {
