@@ -53,6 +53,20 @@ export interface StorageConfiguration {
 }
 
 /**
+ * Interface used to define the configuration for the referral service resolvers (GraphQL based),
+ * and other afferent data stores.
+ */
+export interface ReferralConfiguration {
+    readonly referralFunctionName: string;
+    readonly referralTableName: string;
+    readonly referralStatusGlobalIndex: string;
+    readonly getReferralsByStatusResolverName: string;
+    readonly getUserFromReferralResolverName: string;
+    readonly createReferralResolverName: string;
+    readonly updateReferralResolverName: string;
+}
+
+/**
  * Interface used to define the configuration for the Military verification service resolvers
  * (GraphQL based), and other afferent data stores.
  */
@@ -118,6 +132,29 @@ export interface NotificationReminderProducerConsumerConfiguration {
     readonly notificationReminderConsumerFunctionName: string;
     readonly notificationReminderCronRuleName: string;
     readonly notificationReminderFanOutConfig: NotificationReminderFanOutConfiguration;
+}
+
+/**
+ * Interface used to define the configuration for the referral-related fan-out pattern, composed
+ * of an event-based process, driven by SNS and SQS.
+ */
+export interface ReferralFanOutConfiguration {
+    readonly referralProcessingTopicName: string;
+    readonly referralProcessingQueueName: string;
+    readonly referralProcessingDLQName: string;
+    readonly referralProcessingTopicDLQName: string;
+    readonly referralProcessingEventSourceMapping: string;
+}
+
+/**
+ * Interface used to define all the resources for the producer and consumers, taking advantage
+ * of the async referral data.
+ */
+export interface ReferralProducerConsumerConfiguration {
+    readonly referralProducerFunctionName: string;
+    readonly referralConsumerFunctionName: string;
+    readonly referralProducerCronRuleName: string;
+    readonly referralFanOutConfig: ReferralFanOutConfiguration;
 }
 
 /**

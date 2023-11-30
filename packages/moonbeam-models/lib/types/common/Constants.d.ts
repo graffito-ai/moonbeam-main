@@ -53,6 +53,8 @@ export declare namespace Constants {
         const PARTNER_MERCHANT_TABLE: string;
         const CARD_LINKING_TABLE: string;
         const CARD_LINKING_STATUS_GLOBAL_INDEX: string;
+        const REFERRAL_TABLE: string;
+        const REFERRAL_STATUS_GLOBAL_INDEX: string;
         const TRANSACTIONS_TABLE: string;
         const PHYSICAL_DEVICES_TABLE: string;
         const PHYSICAL_DEVICES_ID_GLOBAL_INDEX: string;
@@ -63,6 +65,7 @@ export declare namespace Constants {
         const NOTIFICATIONS_STATUS_LOCAL_INDEX: string;
         const NOTIFICATION_REMINDER_PROCESSING_TOPIC_ARN: string;
         const UPDATED_TRANSACTIONS_PROCESSING_TOPIC_ARN: string;
+        const REFERRAL_PROCESSING_TOPIC_ARN: string;
         const TRANSACTIONS_PROCESSING_TOPIC_ARN: string;
         const MILITARY_VERIFICATION_NOTIFICATION_PROCESSING_TOPIC_ARN: string;
         const TRANSACTIONS_ID_GLOBAL_INDEX: string;

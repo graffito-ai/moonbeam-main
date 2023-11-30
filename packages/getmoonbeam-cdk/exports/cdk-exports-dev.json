@@ -26,8 +26,5 @@
   },
   "moonbeam-military-verification-updates-producer-consumer-dev-us-west-2": {
     "ExportsOutputFnGetAttmilitaryVerificationNotificationProducerFunctiondevuswest2702290A6ArnC9125219": "arn:aws:lambda:us-west-2:963863720257:function:militaryVerificationNotificationProducerFunction-dev-us-west-2"
-  },
-  "moonbeam-api-gateway-dev-us-west-2": {
-    "cardLinkingServiceAPIdevuswest2Endpoint8235E493": "https://rs9fn3vxf4.execute-api.us-west-2.amazonaws.com/prod/"
   }
 }

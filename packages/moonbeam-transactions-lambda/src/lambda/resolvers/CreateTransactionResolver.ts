@@ -49,7 +49,7 @@ export const createTransaction = async (fieldName: string, createTransactionInpu
             }
         }));
 
-        // if there is an item retrieved, then we need to check its contents
+        // if there is an item retrieved, then we return an error
         if (preExistingTransaction && preExistingTransaction.Item) {
             /**
              * if there is a pre-existing transaction with the same composite primary key (userId/id, timestamp) combination,

@@ -1,5 +1,34 @@
 // This is a file used to define the all GraphQL query constants
 
+// Query used to retrieve a user's details from a referral code
+export const getUserFromReferral = /* GraphQL */ `
+    query GetUserFromReferral($getUserFromRefferalInput: UserFromReferralInput!) {
+        getUserFromReferral(userFromReferralInput: $getUserFromRefferalInput) {
+            errorMessage
+            errorType
+            data
+        }
+    }
+`;
+
+// Query used to get referrals filtered by a particular status
+export const getReferralsByStatus = /* GraphQL */ `
+    query GetReferralsByStatus($getReferralsByStatusInput: GetReferralsByStatusInput!) {
+        getReferralsByStatus(getReferralsByStatusInput: $getReferralsByStatusInput) {
+            errorMessage
+            errorType
+            data {
+                fromId
+                toId
+                campaignCode
+                createdAt
+                updatedAt
+                status
+            }
+        }
+    }
+`;
+
 // Query used to retrieve the Apps Flyer credentials/details
 export const getAppsFlyerCredentials = /* GraphQL */ `
     query GetAppsFlyerCredentials($getAppsFlyerCredentialsInput: GetAppsFlyerCredentialsInput!) {

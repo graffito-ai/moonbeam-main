@@ -64,6 +64,18 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 updatedTransactionsAcknowledgmentMethodName: `updatedTransactionsAcknowledgment`,
                 militaryVerificationUpdatesAcknowledgmentMethodName: `militaryVerificationUpdatesAcknowledgment`
             },
+            referralProducerConsumerConfig: {
+                referralProducerFunctionName: 'referralProducerFunction',
+                referralConsumerFunctionName: 'referralConsumerFunction',
+                referralProducerCronRuleName: 'referralProducerCronRule',
+                referralFanOutConfig: {
+                    referralProcessingTopicName: 'referralProcessingTopic',
+                    referralProcessingQueueName: 'referralProcessingQueue',
+                    referralProcessingDLQName: 'referralProcessingDLQ',
+                    referralProcessingTopicDLQName: 'referralProcessingTopicDLQ',
+                    referralProcessingEventSourceMapping: 'referralProcessingEventSourceMapping',
+                }
+            },
             transactionsProducerConsumerConfig: {
                 transactionsProducerFunctionName: 'transactionsProducerLambdaFunction',
                 transactionalOffersNotificationsConsumerFunctionName: 'transactionalOffersNotificationsConsumerFunction',
@@ -182,6 +194,15 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 appsFlyerFunctionName: 'appsFlyerFunction',
                 getAppsFlyerCredentialsResolverName: 'getAppsFlyerCredentials'
             },
+            referralConfig: {
+                referralFunctionName: 'referralFunction',
+                referralTableName: 'referralTable',
+                referralStatusGlobalIndex: 'referralStatusGlobalIndex',
+                getReferralsByStatusResolverName: 'getReferralsByStatus',
+                getUserFromReferralResolverName: 'getUserFromReferral',
+                createReferralResolverName: 'createReferral',
+                updateReferralResolverName: 'updateReferral'
+            },
             environmentVariables: new Map<string, string>([])
         },
         [`${Stages.PROD}-${Regions.PDX}`]: {
@@ -241,6 +262,18 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 transactionsAcknowledgmentMethodName: `transactionsAcknowledgment`,
                 updatedTransactionsAcknowledgmentMethodName: `updatedTransactionsAcknowledgment`,
                 militaryVerificationUpdatesAcknowledgmentMethodName: `militaryVerificationUpdatesAcknowledgment`
+            },
+            referralProducerConsumerConfig: {
+                referralProducerFunctionName: 'referralProducerFunction',
+                referralConsumerFunctionName: 'referralConsumerFunction',
+                referralProducerCronRuleName: 'referralProducerCronRule',
+                referralFanOutConfig: {
+                    referralProcessingTopicName: 'referralProcessingTopic',
+                    referralProcessingQueueName: 'referralProcessingQueue',
+                    referralProcessingDLQName: 'referralProcessingDLQ',
+                    referralProcessingTopicDLQName: 'referralProcessingTopicDLQ',
+                    referralProcessingEventSourceMapping: 'referralProcessingEventSourceMapping',
+                }
             },
             transactionsProducerConsumerConfig: {
                 transactionsProducerFunctionName: 'transactionsProducerLambdaFunction',
@@ -359,6 +392,15 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             appsFlyerConfig: {
                 appsFlyerFunctionName: 'appsFlyerFunction',
                 getAppsFlyerCredentialsResolverName: 'getAppsFlyerCredentials'
+            },
+            referralConfig: {
+                referralFunctionName: 'referralFunction',
+                referralTableName: 'referralTable',
+                referralStatusGlobalIndex: 'referralStatusGlobalIndex',
+                getReferralsByStatusResolverName: 'getReferralsByStatus',
+                getUserFromReferralResolverName: 'getUserFromReferral',
+                createReferralResolverName: 'createReferral',
+                updateReferralResolverName: 'updateReferral'
             },
             environmentVariables: new Map<string, string>([])
         },

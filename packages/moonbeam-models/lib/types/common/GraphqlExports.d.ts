@@ -199,6 +199,13 @@ export type CreateNotificationResponse = {
     errorType?: Maybe<NotificationsErrorType>;
     id?: Maybe<Scalars['ID']>;
 };
+export type CreateReferralInput = {
+    campaignCode: MarketingCampaignCode;
+    createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+    fromId: Scalars['ID'];
+    toId: Scalars['ID'];
+    updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
 export type CreateTransactionInput = {
     brandId: Scalars['ID'];
     cardId: Scalars['ID'];
@@ -358,6 +365,9 @@ export type GetOffersInput = {
     radiusLongitude?: InputMaybe<Scalars['Float']>;
     redemptionType: RedemptionType;
 };
+export type GetReferralsByStatusInput = {
+    status: ReferralStatus;
+};
 export type GetStorageInput = {
     expires?: InputMaybe<Scalars['Boolean']>;
     id?: InputMaybe<Scalars['String']>;
@@ -383,6 +393,10 @@ export type IneligibleLinkedUsersResponse = {
     errorMessage?: Maybe<Scalars['String']>;
     errorType?: Maybe<CardLinkErrorType>;
 };
+export declare enum MarketingCampaignCode {
+    Raffleregdec23 = "RAFFLEREGDEC23",
+    Raffleregjan24 = "RAFFLEREGJAN24"
+}
 export type Member = {
     __typename?: 'Member';
     id: Scalars['ID'];
@@ -549,12 +563,14 @@ export type Mutation = {
     createMilitaryVerification: CreateMilitaryVerificationResponse;
     createNotification: CreateNotificationResponse;
     createNotificationReminder: NotificationReminderResponse;
+    createReferral: ReferralResponse;
     createTransaction: MoonbeamTransactionResponse;
     createUserAuthSession: UserAuthSessionResponse;
     deleteCard: CardResponse;
     updateDevice: UserDeviceResponse;
     updateMilitaryVerificationStatus: UpdateMilitaryVerificationResponse;
     updateNotificationReminder: NotificationReminderResponse;
+    updateReferral: ReferralResponse;
     updateTransaction: MoonbeamUpdatedTransactionResponse;
     updateUserAuthSession: UserAuthSessionResponse;
 };
@@ -579,6 +595,9 @@ export type MutationCreateNotificationArgs = {
 export type MutationCreateNotificationReminderArgs = {
     createNotificationReminderInput: CreateNotificationReminderInput;
 };
+export type MutationCreateReferralArgs = {
+    createReferralInput: CreateReferralInput;
+};
 export type MutationCreateTransactionArgs = {
     createTransactionInput: CreateTransactionInput;
 };
@@ -596,6 +615,9 @@ export type MutationUpdateMilitaryVerificationStatusArgs = {
 };
 export type MutationUpdateNotificationReminderArgs = {
     updateNotificationReminderInput: UpdateNotificationReminderInput;
+};
+export type MutationUpdateReferralArgs = {
+    updateReferralInput: UpdateReferralInput;
 };
 export type MutationUpdateTransactionArgs = {
     updateTransactionInput: UpdateTransactionInput;
@@ -849,11 +871,13 @@ export type Query = {
     getNotificationReminders: NotificationReminderResponse;
     getOffers: OffersResponse;
     getPremierOffers: OffersResponse;
+    getReferralsByStatus: ReferralResponse;
     getSeasonalOffers: OffersResponse;
     getStorage: StorageResponse;
     getTransaction: MoonbeamTransactionsResponse;
     getTransactionByStatus: MoonbeamTransactionsByStatusResponse;
     getUserAuthSession: UserAuthSessionResponse;
+    getUserFromReferral: UserFromReferralResponse;
     getUsersWithNoCards: IneligibleLinkedUsersResponse;
 };
 export type QueryGetAppsFlyerCredentialsArgs = {
@@ -880,6 +904,9 @@ export type QueryGetOffersArgs = {
 export type QueryGetPremierOffersArgs = {
     getOffersInput: GetOffersInput;
 };
+export type QueryGetReferralsByStatusArgs = {
+    getReferralsByStatusInput: GetReferralsByStatusInput;
+};
 export type QueryGetSeasonalOffersArgs = {
     getOffersInput: GetOffersInput;
 };
@@ -895,6 +922,9 @@ export type QueryGetTransactionByStatusArgs = {
 export type QueryGetUserAuthSessionArgs = {
     getUserAuthSessionInput: GetUserAuthSessionInput;
 };
+export type QueryGetUserFromReferralArgs = {
+    userFromReferralInput: UserFromReferralInput;
+};
 export declare enum RedemptionTrigger {
     CumulativePurchaseAmount = "cumulative_purchase_amount",
     MinimumPurchaseAmount = "minimum_purchase_amount",
@@ -905,6 +935,34 @@ export declare enum RedemptionType {
     Cardlinked = "cardlinked",
     Click = "click",
     Mobile = "mobile"
+}
+export type Referral = {
+    __typename?: 'Referral';
+    campaignCode: MarketingCampaignCode;
+    createdAt: Scalars['AWSDateTime'];
+    fromId: Scalars['ID'];
+    status: ReferralStatus;
+    timestamp: Scalars['AWSTimestamp'];
+    toId: Scalars['ID'];
+    updatedAt: Scalars['AWSDateTime'];
+};
+export declare enum ReferralErrorType {
+    DuplicateObjectFound = "DUPLICATE_OBJECT_FOUND",
+    NoneOrAbsent = "NONE_OR_ABSENT",
+    UnexpectedError = "UNEXPECTED_ERROR",
+    ValidationError = "VALIDATION_ERROR"
+}
+export type ReferralResponse = {
+    __typename?: 'ReferralResponse';
+    data?: Maybe<Array<Maybe<Referral>>>;
+    errorMessage?: Maybe<Scalars['String']>;
+    errorType?: Maybe<ReferralErrorType>;
+};
+export declare enum ReferralStatus {
+    Invalid = "INVALID",
+    Pending = "PENDING",
+    Redeemed = "REDEEMED",
+    Valid = "VALID"
 }
 export type RemoveCardResponse = {
     __typename?: 'RemoveCardResponse';
@@ -1048,6 +1106,12 @@ export type UpdateNotificationReminderInput = {
     notificationReminderStatus: NotificationReminderStatus;
     updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
+export type UpdateReferralInput = {
+    fromId: Scalars['ID'];
+    status: ReferralStatus;
+    timestamp: Scalars['AWSTimestamp'];
+    updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
 export type UpdateTransactionEventTransactionData = {
     __typename?: 'UpdateTransactionEventTransactionData';
     amount?: Maybe<Scalars['Float']>;
@@ -1154,6 +1218,55 @@ export type UserForNotificationReminderResponse = {
     data?: Maybe<Array<Maybe<RetrieveUserDetailsForNotifications>>>;
     errorMessage?: Maybe<Scalars['String']>;
     errorType?: Maybe<NotificationReminderErrorType>;
+};
+export type UserFromReferralInput = {
+    referralCode: Scalars['ID'];
+};
+export type UserFromReferralResponse = {
+    __typename?: 'UserFromReferralResponse';
+    data?: Maybe<Scalars['ID']>;
+    errorMessage?: Maybe<Scalars['String']>;
+    errorType?: Maybe<ReferralErrorType>;
+};
+export type CreateReferralMutationVariables = Exact<{
+    createReferralInput: CreateReferralInput;
+}>;
+export type CreateReferralMutation = {
+    __typename?: 'Mutation';
+    createReferral: {
+        __typename?: 'ReferralResponse';
+        errorMessage?: string | null;
+        errorType?: ReferralErrorType | null;
+        data?: Array<{
+            __typename?: 'Referral';
+            fromId: string;
+            toId: string;
+            campaignCode: MarketingCampaignCode;
+            createdAt: string;
+            updatedAt: string;
+            status: ReferralStatus;
+        } | null> | null;
+    };
+};
+export type UpdateReferralMutationVariables = Exact<{
+    updateReferralInput: UpdateReferralInput;
+}>;
+export type UpdateReferralMutation = {
+    __typename?: 'Mutation';
+    updateReferral: {
+        __typename?: 'ReferralResponse';
+        errorMessage?: string | null;
+        errorType?: ReferralErrorType | null;
+        data?: Array<{
+            __typename?: 'Referral';
+            fromId: string;
+            toId: string;
+            campaignCode: MarketingCampaignCode;
+            createdAt: string;
+            updatedAt: string;
+            status: ReferralStatus;
+        } | null> | null;
+    };
 };
 export type CreateNotificationReminderMutationVariables = Exact<{
     createNotificationReminderInput: CreateNotificationReminderInput;
@@ -1501,6 +1614,38 @@ export type UpdateMilitaryVerificationStatusMutation = {
         errorMessage?: string | null;
         id?: string | null;
         militaryVerificationStatus?: MilitaryVerificationStatusType | null;
+    };
+};
+export type GetUserFromReferralQueryVariables = Exact<{
+    getUserFromRefferalInput: UserFromReferralInput;
+}>;
+export type GetUserFromReferralQuery = {
+    __typename?: 'Query';
+    getUserFromReferral: {
+        __typename?: 'UserFromReferralResponse';
+        errorMessage?: string | null;
+        errorType?: ReferralErrorType | null;
+        data?: string | null;
+    };
+};
+export type GetReferralsByStatusQueryVariables = Exact<{
+    getReferralsByStatusInput: GetReferralsByStatusInput;
+}>;
+export type GetReferralsByStatusQuery = {
+    __typename?: 'Query';
+    getReferralsByStatus: {
+        __typename?: 'ReferralResponse';
+        errorMessage?: string | null;
+        errorType?: ReferralErrorType | null;
+        data?: Array<{
+            __typename?: 'Referral';
+            fromId: string;
+            toId: string;
+            campaignCode: MarketingCampaignCode;
+            createdAt: string;
+            updatedAt: string;
+            status: ReferralStatus;
+        } | null> | null;
     };
 };
 export type GetAppsFlyerCredentialsQueryVariables = Exact<{

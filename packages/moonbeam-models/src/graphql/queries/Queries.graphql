@@ -1,5 +1,27 @@
 # graphql/Queries.graphql
 # Queries Schema File
+query GetUserFromReferral($getUserFromRefferalInput: UserFromReferralInput!) {
+    getUserFromReferral(userFromReferralInput: $getUserFromRefferalInput) {
+        errorMessage
+        errorType
+        data
+    }
+}
+
+query GetReferralsByStatus($getReferralsByStatusInput: GetReferralsByStatusInput!) {
+    getReferralsByStatus(getReferralsByStatusInput: $getReferralsByStatusInput) {
+        errorMessage
+        errorType
+        data {
+            fromId
+            toId
+            campaignCode
+            createdAt
+            updatedAt
+            status
+        }
+    }
+}
 query GetAppsFlyerCredentials($getAppsFlyerCredentialsInput: GetAppsFlyerCredentialsInput!) {
     getAppsFlyerCredentials(getAppsFlyerCredentialsInput: $getAppsFlyerCredentialsInput) {
         errorMessage

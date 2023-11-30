@@ -1,5 +1,33 @@
 # graphql/Mutations.graphql
 # Mutations Schema File
+mutation CreateReferral($createReferralInput: CreateReferralInput!) {
+    createReferral(createReferralInput: $createReferralInput) {
+        errorMessage
+        errorType
+        data {
+            fromId
+            toId
+            campaignCode
+            createdAt
+            updatedAt
+            status
+        }
+    }
+}
+mutation UpdateReferral($updateReferralInput: UpdateReferralInput!) {
+    updateReferral(updateReferralInput: $updateReferralInput) {
+        errorMessage
+        errorType
+        data {
+            fromId
+            toId
+            campaignCode
+            createdAt
+            updatedAt
+            status
+        }
+    }
+}
 mutation CreateNotificationReminder($createNotificationReminderInput: CreateNotificationReminderInput!) {
     createNotificationReminder(createNotificationReminderInput: $createNotificationReminderInput) {
         errorMessage

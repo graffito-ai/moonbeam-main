@@ -11,7 +11,7 @@ import {
     NotificationReminderProducerConsumerConfiguration,
     NotificationsConfiguration,
     OffersConfiguration,
-    PhysicalDevicesConfiguration,
+    PhysicalDevicesConfiguration, ReferralConfiguration, ReferralProducerConsumerConfiguration,
     SESConfiguration,
     StorageConfiguration,
     TransactionsConfiguration,
@@ -34,6 +34,7 @@ export interface StageConfiguration {
     readonly cardLinkingConfig: CardLinkingConfiguration;
     readonly apiGatewayServiceConfig: APIGatewayServiceConfiguration;
     readonly notificationReminderProducerConsumerConfig: NotificationReminderProducerConsumerConfiguration;
+    readonly referralProducerConsumerConfig: ReferralProducerConsumerConfiguration;
     readonly transactionsProducerConsumerConfig: TransactionsProducerConsumerConfiguration;
     readonly militaryVerificationProducerConsumerConfig: MilitaryVerificationProducerConsumerConfiguration;
     readonly updatedTransactionsProducerConsumerConfig: UpdatedTransactionsProducerConsumerConfiguration;
@@ -46,5 +47,6 @@ export interface StageConfiguration {
     readonly notificationReminderConfig: NotificationReminderConfiguration;
     readonly appUpgradeConfig: AppUpgradeConfiguration;
     readonly appsFlyerConfig: AppsFlyerConfiguration;
+    readonly referralConfig: ReferralConfiguration;
     readonly environmentVariables: Map<string, string>;
 }

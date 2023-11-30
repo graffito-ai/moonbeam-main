@@ -21,6 +21,8 @@ type Query {
     getUserAuthSession(getUserAuthSessionInput: GetUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
     getAppUpgradeCredentials: AppUpgradeResponse! @aws_cognito_user_pools
     getAppsFlyerCredentials(getAppsFlyerCredentialsInput: GetAppsFlyerCredentialsInput!): AppsFlyerResponse! @aws_cognito_user_pools
+    getReferralsByStatus(getReferralsByStatusInput: GetReferralsByStatusInput!): ReferralResponse! @aws_cognito_user_pools @aws_api_key
+    getUserFromReferral(userFromReferralInput: UserFromReferralInput!): UserFromReferralResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Mutation {
@@ -39,6 +41,8 @@ type Mutation {
     updateUserAuthSession(updateUserAuthSessionInput: UpdateUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
     createNotificationReminder(createNotificationReminderInput: CreateNotificationReminderInput!): NotificationReminderResponse! @aws_cognito_user_pools
     updateNotificationReminder(updateNotificationReminderInput: UpdateNotificationReminderInput!): NotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
+    createReferral(createReferralInput: CreateReferralInput!): ReferralResponse! @aws_cognito_user_pools @aws_api_key
+    updateReferral(updateReferralInput: UpdateReferralInput!): ReferralResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Subscription {
@@ -1172,3 +1176,78 @@ type AppsFlyerResponse @aws_cognito_user_pools @aws_api_key {
     errorType: AppsFlyerErrorType
     errorMessage: String
 }
+# graphql/Referral.graphql
+# Referral Schema File
+enum ReferralErrorType {
+    DUPLICATE_OBJECT_FOUND
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+}
+
+# Defines the status for the referrals. For the most part this is pretty self-explanatory:
+# PENDING - the referral has been accounted for internally but not all qualifying terms have been met yet
+# VALID - the referral has been accounted for internally and all qualifying terms have been met
+# INVALID - the referral has been accounted for internally and the qualifying terms have not been met/have expired
+# REDEEMED - the referral has been accounted for internally and the member has used it to redeem their prize
+enum ReferralStatus {
+    PENDING
+    VALID
+    INVALID
+    REDEEMED
+}
+
+# Defines the different marketing campaign codes which will help us understand what campaign this referral has been a
+# part of.
+enum MarketingCampaignCode {
+    RAFFLEREGDEC23
+    RAFFLEREGJAN24
+}
+
+# The referral object which will get stored in the Referrals table
+type Referral @aws_api_key @aws_cognito_user_pools {
+    fromId: ID! # this represents the userID of the user who made the referral
+    timestamp: AWSTimestamp! # this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    toId: ID!  # this represents the userID of the user who got referred
+    campaignCode: MarketingCampaignCode!
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+    status: ReferralStatus!
+}
+
+type ReferralResponse @aws_cognito_user_pools @aws_api_key {
+    data: [Referral]
+    errorType: ReferralErrorType
+    errorMessage: String
+}
+
+type UserFromReferralResponse @aws_cognito_user_pools @aws_api_key {
+    data: ID # this represents the userID of the user who made the referral
+    errorType: ReferralErrorType
+    errorMessage: String
+}
+
+input GetReferralsByStatusInput {
+    status: ReferralStatus!
+}
+
+input CreateReferralInput {
+    fromId: ID!
+    toId: ID!
+    campaignCode: MarketingCampaignCode!
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+}
+
+input UpdateReferralInput {
+    fromId: ID!
+    timestamp: AWSTimestamp!
+    status: ReferralStatus!
+    updatedAt: AWSDateTime
+}
+
+input UserFromReferralInput {
+    referralCode: ID! # this represents the referral code of the user who refers ({lastName}-{firstOfFirstName}-{CRC32(userId)})
+}
+
+

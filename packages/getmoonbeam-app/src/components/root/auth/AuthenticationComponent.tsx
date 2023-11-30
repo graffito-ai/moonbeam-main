@@ -43,7 +43,6 @@ import {DocumentsViewer} from "../../common/DocumentsViewer";
 import * as SMS from "expo-sms";
 import {styles} from "../../../styles/registration.module";
 import {
-    appsFlyerInit,
     appUpgradeCheck,
     retrieveFidelisPartnerList,
     retrieveOffersNearby,
@@ -86,7 +85,7 @@ import {LocationObject} from "expo-location";
  */
 export const AuthenticationComponent = ({route, navigation}: AuthenticationProps) => {
         // constants used to keep track of local component state
-        const [appsFlyerInitialized, setIsAppsFlyerInitialized] = useState<boolean>(false);
+        // const [appsFlyerInitialized, setIsAppsFlyerInitialized] = useState<boolean>(false);
         const [appUpgradeChecked, setAppUpgradeChecked] = useState<boolean>(false);
         const [checkedOnlineCache, setCheckOnlineCache] = useState<boolean>(false);
         const [userIsAuthenticated, setIsUserAuthenticated] = useState<boolean>(false);
@@ -171,9 +170,9 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             setExpoPushToken(route.params.expoPushToken);
 
             // initialize the AppsFlyer SDK
-            !appsFlyerInitialized && appsFlyerInit().then(() => {
-                setIsAppsFlyerInitialized(false);
-            });
+            // !appsFlyerInitialized && appsFlyerInit().then(() => {
+            //     setIsAppsFlyerInitialized(false);
+            // });
 
             // load the store data if the cache is null
             userIsAuthenticated && loadStoreData().then(() => {
@@ -230,7 +229,8 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             userIsAuthenticated, reloadNearbyDueToPermissionsChange,
             noNearbyOffersToLoad, nearbyOfferList, onlineOfferList,
             marketplaceCache, loadingOnlineInProgress, noOnlineOffersToLoad,
-            appUpgradeChecked, appsFlyerInitialized
+            appUpgradeChecked,
+            // appsFlyerInitialized
         ]);
 
         /**

@@ -1,5 +1,41 @@
 // This is a file used to define the all GraphQL query constants
 
+// Mutation used to create a Referral.
+export const createReferral = /* GraphQL */ `
+    mutation CreateReferral($createReferralInput: CreateReferralInput!) {
+        createReferral(createReferralInput: $createReferralInput) {
+            errorMessage
+            errorType
+            data {
+                fromId
+                toId
+                campaignCode
+                createdAt
+                updatedAt
+                status
+            }
+        }
+    }
+`;
+
+// Mutation used to update a Referral's details.
+export const updateReferral = /* GraphQL */ `
+    mutation UpdateReferral($updateReferralInput: UpdateReferralInput!) {
+        updateReferral(updateReferralInput: $updateReferralInput) {
+            errorMessage
+            errorType
+            data {
+                fromId
+                toId
+                campaignCode
+                createdAt
+                updatedAt
+                status
+            }
+        }
+    }
+`;
+
 // Mutation used to create a new Notification Reminder.
 export const createNotificationReminder = /* GraphQL */ `
     mutation CreateNotificationReminder($createNotificationReminderInput: CreateNotificationReminderInput!) {

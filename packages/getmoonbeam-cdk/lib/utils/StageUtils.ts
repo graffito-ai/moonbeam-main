@@ -20,6 +20,8 @@ import {NotificationReminderResolverStack} from "../stacks/NotificationReminderR
 import {NotificationReminderProducerConsumerStack} from "../stacks/NotificationReminderProducerConsumerStack";
 import {AppUpgradeResolverStack} from "../stacks/AppUpgradeResolverStack";
 import {AppsFlyerResolverStack} from "../stacks/AppsFlyerResolverStack";
+import {ReferralResolverStack} from "../stacks/ReferralResolverStack";
+import {ReferralProducerConsumerStack} from "../stacks/ReferralProducerConsumerStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -312,6 +314,30 @@ export class StageUtils {
                     environmentVariables: stageConfiguration.environmentVariables
                 });
                 appsFlyerResolverStack.addDependency(appSyncStack);
+
+                // create the Referral Producer Consumer stack && add it to the CDK app
+                const referralProducerConsumerStack = new ReferralProducerConsumerStack(this.app, `moonbeam-referral-producer-consumer-${stageKey}`, {
+                    stackName: `moonbeam-referral-producer-consumer-${stageKey}`,
+                    description: 'This stack will contain all the resources needed for the referral consumers, as well as producers',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    referralProducerConsumerConfig: stageConfiguration.referralProducerConsumerConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                referralProducerConsumerStack.addDependency(appSyncStack);
+
+                // create the Referral resolver stack && add it to the CDK app
+                const referralResolverStack = new ReferralResolverStack(this.app, `moonbeam-referral-resolver-${stageKey}`, {
+                    stackName: `moonbeam-referral-resolver-${stageKey}`,
+                    description: 'This stack will contain all the AppSync related resources needed by the Lambda Referral resolver',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    graphqlApiId: appSyncStack.graphqlApiId,
+                    graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
+                    referralConfig: stageConfiguration.referralConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                referralResolverStack.addDependency(appSyncStack);
 
                 // create the API Gateway Service API stack && add it to the CDK app
                 const apiGatewayStack = new APIGatewayServiceStack(this.app, `moonbeam-api-gateway-${stageKey}`, {

@@ -57,14 +57,14 @@ export class NotificationReminderProducerConsumerStack extends Stack {
                 target: 'esnext', // target environment for the generated JavaScript code
             }
         });
-        // create a CRON expression trigger that will enable running the notification reminder producer lambda to run at 11 PM every day
+        // create a CRON expression trigger that will enable running the notification reminder producer lambda to run on a schedule
         new Rule(this, `${props.notificationReminderProducerConsumerConfig.notificationReminderCronRuleName}-${props.stage}-${props.env!.region}`, {
             ruleName: `${props.notificationReminderProducerConsumerConfig.notificationReminderCronRuleName}-${props.stage}-${props.env!.region}`,
-            description: "Schedule the Notification Reminder Trigger Lambda which initiates the notification reminder Lambda/process daily, at 7PM CST",
-            // set the CRON timezone to the UTC time to match 6:10 PM UTC, 11:10 AM MST/ 1:10 PM CST / 2:10 PM EST
+            description: "Schedule the Notification Reminder Trigger Lambda which initiates the notification reminder Lambda/process daily, at 6:30PM UTC",
+            // set the CRON timezone to the UTC time to match 6:30 PM UTC, 11:30 AM MST
             schedule: Schedule.cron({
                 day: '*',
-                minute: '33',
+                minute: '30',
                 hour: '18'
             }),
             targets: [new LambdaFunction(this.notificationReminderProducerLambda)],

@@ -75,12 +75,6 @@
     },
     "plugins": [
       [
-        "react-native-appsflyer",
-        {
-          "shouldUseStrictMode": false
-        }
-      ],
-      [
         "expo-updates",
         {
           "username": "moonbeamfin"
