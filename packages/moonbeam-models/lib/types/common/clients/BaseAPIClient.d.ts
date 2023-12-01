@@ -1,6 +1,6 @@
 import { SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import { AppsFlyerResponse, AppUpgradeResponse, Card, CardLinkResponse, CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetOffersInput, GetTransactionByStatusInput, GetTransactionInput, IneligibleLinkedUsersResponse, MemberDetailsResponse, MemberResponse, MilitaryVerificationNotificationUpdate, MilitaryVerificationStatusType, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationChannelType, NotificationReminderResponse, NotificationResponse, NotificationType, OffersResponse, OsType, RemoveCardResponse, SendEmailNotificationInput, SendMobilePushNotificationInput, Transaction, TransactionResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse, UpdateNotificationReminderInput, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse } from "../GraphqlExports";
+import { AppsFlyerResponse, AppUpgradeResponse, Card, CardLinkResponse, CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetOffersInput, GetReferralsByStatusInput, GetTransactionByStatusInput, GetTransactionInput, IneligibleLinkedUsersResponse, MemberDetailsResponse, MemberResponse, MilitaryVerificationNotificationUpdate, MilitaryVerificationStatusType, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationChannelType, NotificationReminderResponse, NotificationResponse, NotificationType, OffersResponse, OsType, ReferralResponse, RemoveCardResponse, SendEmailNotificationInput, SendMobilePushNotificationInput, Transaction, TransactionResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse, UpdateNotificationReminderInput, UpdateReferralInput, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse } from "../GraphqlExports";
 /**
  * Class used as the base/generic client for all API clients that
  * we will be connecting to.
@@ -45,6 +45,29 @@ export declare abstract class BaseAPIClient {
         (string | null)?,
         (string | null)?
     ]>;
+    /**
+     * Function used to update a referral's particular information.
+     *
+     * @param updateReferralInput the input containing any information relevant in
+     * updating an existing referral object
+     *
+     * @returns a {@link ReferralResponse}, representing the updated referral information.
+     *
+     * @protected
+     */
+    protected updateReferral?(updateReferralInput: UpdateReferralInput): Promise<ReferralResponse>;
+    /**
+     * Function used to get existing referrals filtered by a particular status.
+     *
+     * @param getReferralsByStatusInput the input containing any filtering information
+     * pertaining the referral status that we would use to filter existing referrals by.
+     *
+     * @returns a {@link ReferralResponse}, representing the referral information filtered
+     * by status.
+     *
+     * @protected
+     */
+    protected getReferralByStatus?(getReferralsByStatusInput: GetReferralsByStatusInput): Promise<ReferralResponse>;
     /**
      * Function used to get the API Key for the Apps Flyer service.
      *

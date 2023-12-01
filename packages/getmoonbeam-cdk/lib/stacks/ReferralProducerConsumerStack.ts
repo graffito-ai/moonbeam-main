@@ -64,7 +64,7 @@ export class ReferralProducerConsumerStack extends Stack {
             // set the CRON timezone to the UTC time to match 10:00 PM UTC, 3:00 PM MST
             schedule: Schedule.cron({
                 day: '*',
-                minute: '00',
+                minute: '36',
                 hour: '22'
             }),
             targets: [new LambdaFunction(this.referralProducerLambda)],

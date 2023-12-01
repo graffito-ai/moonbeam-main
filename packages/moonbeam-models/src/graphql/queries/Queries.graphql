@@ -14,6 +14,7 @@ query GetReferralsByStatus($getReferralsByStatusInput: GetReferralsByStatusInput
         errorType
         data {
             fromId
+            timestamp
             toId
             campaignCode
             createdAt

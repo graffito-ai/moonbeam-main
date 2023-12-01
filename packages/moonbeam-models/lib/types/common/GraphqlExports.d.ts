@@ -1240,6 +1240,7 @@ export type CreateReferralMutation = {
         data?: Array<{
             __typename?: 'Referral';
             fromId: string;
+            timestamp: number;
             toId: string;
             campaignCode: MarketingCampaignCode;
             createdAt: string;
@@ -1260,6 +1261,7 @@ export type UpdateReferralMutation = {
         data?: Array<{
             __typename?: 'Referral';
             fromId: string;
+            timestamp: number;
             toId: string;
             campaignCode: MarketingCampaignCode;
             createdAt: string;
@@ -1640,6 +1642,7 @@ export type GetReferralsByStatusQuery = {
         data?: Array<{
             __typename?: 'Referral';
             fromId: string;
+            timestamp: number;
             toId: string;
             campaignCode: MarketingCampaignCode;
             createdAt: string;

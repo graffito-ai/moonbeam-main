@@ -8,6 +8,7 @@ export const createReferral = /* GraphQL */ `
             errorType
             data {
                 fromId
+                timestamp
                 toId
                 campaignCode
                 createdAt
@@ -26,6 +27,7 @@ export const updateReferral = /* GraphQL */ `
             errorType
             data {
                 fromId
+                timestamp
                 toId
                 campaignCode
                 createdAt

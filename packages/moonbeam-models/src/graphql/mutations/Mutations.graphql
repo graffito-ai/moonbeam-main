@@ -6,6 +6,7 @@ mutation CreateReferral($createReferralInput: CreateReferralInput!) {
         errorType
         data {
             fromId
+            timestamp
             toId
             campaignCode
             createdAt
@@ -20,6 +21,7 @@ mutation UpdateReferral($updateReferralInput: UpdateReferralInput!) {
         errorType
         data {
             fromId
+            timestamp
             toId
             campaignCode
             createdAt

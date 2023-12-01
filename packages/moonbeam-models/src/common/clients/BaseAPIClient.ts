@@ -11,7 +11,7 @@ import {
     EligibleLinkedUsersResponse,
     EmailFromCognitoResponse,
     GetDevicesForUserInput,
-    GetOffersInput,
+    GetOffersInput, GetReferralsByStatusInput,
     GetTransactionByStatusInput,
     GetTransactionInput,
     IneligibleLinkedUsersResponse,
@@ -28,7 +28,7 @@ import {
     NotificationReminderResponse,
     NotificationResponse,
     NotificationType,
-    OffersResponse, OsType,
+    OffersResponse, OsType, ReferralResponse,
     RemoveCardResponse,
     SendEmailNotificationInput,
     SendMobilePushNotificationInput,
@@ -36,7 +36,7 @@ import {
     TransactionResponse,
     UpdatedTransactionEvent,
     UpdatedTransactionEventResponse,
-    UpdateNotificationReminderInput,
+    UpdateNotificationReminderInput, UpdateReferralInput,
     UpdateTransactionInput,
     UserDevicesResponse,
     UserForNotificationReminderResponse
@@ -256,6 +256,31 @@ export abstract class BaseAPIClient {
             throw new Error(errorMessage);
         }
     }
+
+    /**
+     * Function used to update a referral's particular information.
+     *
+     * @param updateReferralInput the input containing any information relevant in
+     * updating an existing referral object
+     *
+     * @returns a {@link ReferralResponse}, representing the updated referral information.
+     *
+     * @protected
+     */
+    protected updateReferral?(updateReferralInput: UpdateReferralInput): Promise<ReferralResponse>;
+
+    /**
+     * Function used to get existing referrals filtered by a particular status.
+     *
+     * @param getReferralsByStatusInput the input containing any filtering information
+     * pertaining the referral status that we would use to filter existing referrals by.
+     *
+     * @returns a {@link ReferralResponse}, representing the referral information filtered
+     * by status.
+     *
+     * @protected
+     */
+    protected getReferralByStatus?(getReferralsByStatusInput: GetReferralsByStatusInput): Promise<ReferralResponse>;
 
     /**
      * Function used to get the API Key for the Apps Flyer service.

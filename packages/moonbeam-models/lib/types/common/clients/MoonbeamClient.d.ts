@@ -1,5 +1,5 @@
 import { BaseAPIClient } from "./BaseAPIClient";
-import { CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetTransactionByStatusInput, GetTransactionInput, IneligibleLinkedUsersResponse, MilitaryVerificationNotificationUpdate, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationReminderResponse, UpdatedTransactionEvent, UpdateNotificationReminderInput, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse } from "../GraphqlExports";
+import { CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetReferralsByStatusInput, GetTransactionByStatusInput, GetTransactionInput, IneligibleLinkedUsersResponse, MilitaryVerificationNotificationUpdate, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationReminderResponse, ReferralResponse, UpdatedTransactionEvent, UpdateNotificationReminderInput, UpdateReferralInput, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse } from "../GraphqlExports";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 /**
  * Class used as the base/generic client for all Moonbeam internal AppSync
@@ -13,6 +13,29 @@ export declare class MoonbeamClient extends BaseAPIClient {
      * @param region the AWS region passed in from the Lambda resolver.
      */
     constructor(environment: string, region: string);
+    /**
+     * Function used to update a referral's particular information.
+     *
+     * @param updateReferralInput the input containing any information relevant in
+     * updating an existing referral object
+     *
+     * @returns a {@link ReferralResponse}, representing the updated referral information.
+     *
+     * @protected
+     */
+    updateReferral(updateReferralInput: UpdateReferralInput): Promise<ReferralResponse>;
+    /**
+     * Function used to get existing referrals filtered by a particular status.
+     *
+     * @param getReferralsByStatusInput the input containing any filtering information
+     * pertaining the referral status that we would use to filter existing referrals by.
+     *
+     * @returns a {@link ReferralResponse}, representing the referral information filtered
+     * by status.
+     *
+     * @protected
+     */
+    getReferralByStatus(getReferralsByStatusInput: GetReferralsByStatusInput): Promise<ReferralResponse>;
     /**
      * Function used to get all the users used to delivered
      * notification reminders to.

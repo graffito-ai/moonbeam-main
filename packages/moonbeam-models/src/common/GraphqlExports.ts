@@ -1441,14 +1441,14 @@ export type CreateReferralMutationVariables = Exact<{
 }>;
 
 
-export type CreateReferralMutation = { __typename?: 'Mutation', createReferral: { __typename?: 'ReferralResponse', errorMessage?: string | null, errorType?: ReferralErrorType | null, data?: Array<{ __typename?: 'Referral', fromId: string, toId: string, campaignCode: MarketingCampaignCode, createdAt: string, updatedAt: string, status: ReferralStatus } | null> | null } };
+export type CreateReferralMutation = { __typename?: 'Mutation', createReferral: { __typename?: 'ReferralResponse', errorMessage?: string | null, errorType?: ReferralErrorType | null, data?: Array<{ __typename?: 'Referral', fromId: string, timestamp: number, toId: string, campaignCode: MarketingCampaignCode, createdAt: string, updatedAt: string, status: ReferralStatus } | null> | null } };
 
 export type UpdateReferralMutationVariables = Exact<{
   updateReferralInput: UpdateReferralInput;
 }>;
 
 
-export type UpdateReferralMutation = { __typename?: 'Mutation', updateReferral: { __typename?: 'ReferralResponse', errorMessage?: string | null, errorType?: ReferralErrorType | null, data?: Array<{ __typename?: 'Referral', fromId: string, toId: string, campaignCode: MarketingCampaignCode, createdAt: string, updatedAt: string, status: ReferralStatus } | null> | null } };
+export type UpdateReferralMutation = { __typename?: 'Mutation', updateReferral: { __typename?: 'ReferralResponse', errorMessage?: string | null, errorType?: ReferralErrorType | null, data?: Array<{ __typename?: 'Referral', fromId: string, timestamp: number, toId: string, campaignCode: MarketingCampaignCode, createdAt: string, updatedAt: string, status: ReferralStatus } | null> | null } };
 
 export type CreateNotificationReminderMutationVariables = Exact<{
   createNotificationReminderInput: CreateNotificationReminderInput;
@@ -1567,7 +1567,7 @@ export type GetReferralsByStatusQueryVariables = Exact<{
 }>;
 
 
-export type GetReferralsByStatusQuery = { __typename?: 'Query', getReferralsByStatus: { __typename?: 'ReferralResponse', errorMessage?: string | null, errorType?: ReferralErrorType | null, data?: Array<{ __typename?: 'Referral', fromId: string, toId: string, campaignCode: MarketingCampaignCode, createdAt: string, updatedAt: string, status: ReferralStatus } | null> | null } };
+export type GetReferralsByStatusQuery = { __typename?: 'Query', getReferralsByStatus: { __typename?: 'ReferralResponse', errorMessage?: string | null, errorType?: ReferralErrorType | null, data?: Array<{ __typename?: 'Referral', fromId: string, timestamp: number, toId: string, campaignCode: MarketingCampaignCode, createdAt: string, updatedAt: string, status: ReferralStatus } | null> | null } };
 
 export type GetAppsFlyerCredentialsQueryVariables = Exact<{
   getAppsFlyerCredentialsInput: GetAppsFlyerCredentialsInput;

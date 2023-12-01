@@ -8,7 +8,7 @@ import {
     EligibleLinkedUser,
     EligibleLinkedUsersResponse,
     EmailFromCognitoResponse,
-    GetDevicesForUserInput,
+    GetDevicesForUserInput, GetReferralsByStatusInput,
     GetTransactionByStatusInput,
     GetTransactionInput, IneligibleLinkedUsersResponse,
     MilitaryVerificationErrorType,
@@ -23,9 +23,9 @@ import {
     Notification, NotificationReminder,
     NotificationReminderErrorType, NotificationReminderResponse,
     NotificationsErrorType,
-    PushDevice, RetrieveUserDetailsForNotifications,
+    PushDevice, Referral, ReferralErrorType, ReferralResponse, RetrieveUserDetailsForNotifications,
     TransactionsErrorType,
-    UpdatedTransactionEvent, UpdateNotificationReminderInput,
+    UpdatedTransactionEvent, UpdateNotificationReminderInput, UpdateReferralInput,
     UpdateTransactionInput,
     UserDeviceErrorType,
     UserDevicesResponse,
@@ -36,7 +36,8 @@ import {
     createNotification,
     createTransaction,
     updateTransaction,
-    updateNotificationReminder
+    updateNotificationReminder,
+    updateReferral
 } from "../../graphql/mutations/Mutations";
 import {
     getUsersWithNoCards,
@@ -44,7 +45,7 @@ import {
     getEligibleLinkedUsers,
     getNotificationReminders,
     getTransaction,
-    getTransactionByStatus
+    getTransactionByStatus, getReferralsByStatus
 } from "../../graphql/queries/Queries";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {
@@ -69,6 +70,257 @@ export class MoonbeamClient extends BaseAPIClient {
      */
     constructor(environment: string, region: string) {
         super(region, environment);
+    }
+
+    /**
+     * Function used to update a referral's particular information.
+     *
+     * @param updateReferralInput the input containing any information relevant in
+     * updating an existing referral object
+     *
+     * @returns a {@link ReferralResponse}, representing the updated referral information.
+     *
+     * @protected
+     */
+    async updateReferral(updateReferralInput: UpdateReferralInput): Promise<ReferralResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'updateReferral Query Moonbeam GraphQL API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the referral updated call through the client
+            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
+                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: ReferralErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * updateReferral Query
+             *
+             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
+             * with the appropriate information.
+             *
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.post(`${moonbeamBaseURL}`, {
+                query: updateReferral,
+                variables: {
+                    updateReferralInput: updateReferralInput
+                }
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": moonbeamPrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
+            }).then(updateReferralResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(updateReferralResponse.data)}`);
+
+                // retrieve the data block from the response
+                const responseData = (updateReferralResponse && updateReferralResponse.data) ? updateReferralResponse.data.data : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.updateReferral.errorMessage === null) {
+                    // returned the successfully retrieved referrals
+                    return {
+                        data: responseData.updateReferral.data as Referral[]
+                    }
+                } else {
+                    return responseData ?
+                        // return the error message and type, from the original AppSync call
+                        {
+                            errorMessage: responseData.updateReferral.errorMessage,
+                            errorType: responseData.updateReferral.errorType
+                        } :
+                        // return the error response indicating an invalid structure returned
+                        {
+                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                            errorType: ReferralErrorType.ValidationError
+                        }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: ReferralErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: ReferralErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: ReferralErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while updating referral through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: ReferralErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
+     * Function used to get existing referrals filtered by a particular status.
+     *
+     * @param getReferralsByStatusInput the input containing any filtering information
+     * pertaining the referral status that we would use to filter existing referrals by.
+     *
+     * @returns a {@link ReferralResponse}, representing the referral information filtered
+     * by status.
+     *
+     * @protected
+     */
+    async getReferralByStatus(getReferralsByStatusInput: GetReferralsByStatusInput): Promise<ReferralResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'getReferralByStatus Query Moonbeam GraphQL API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the referral by status retrieval call through the client
+            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
+                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: ReferralErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * getReferralByStatus Query
+             *
+             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
+             * with the appropriate information.
+             *
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.post(`${moonbeamBaseURL}`, {
+                query: getReferralsByStatus,
+                variables: {
+                    getReferralsByStatusInput: getReferralsByStatusInput
+                }
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": moonbeamPrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
+            }).then(getReferralsByStatusResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(getReferralsByStatusResponse.data)}`);
+
+                // retrieve the data block from the response
+                const responseData = (getReferralsByStatusResponse && getReferralsByStatusResponse.data) ? getReferralsByStatusResponse.data.data : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.getReferralsByStatus.errorMessage === null) {
+                    // returned the successfully retrieved referrals
+                    return {
+                        data: responseData.getReferralsByStatus.data as Referral[]
+                    }
+                } else {
+                    return responseData ?
+                        // return the error message and type, from the original AppSync call
+                        {
+                            errorMessage: responseData.getReferralsByStatus.errorMessage,
+                            errorType: responseData.getReferralsByStatus.errorType
+                        } :
+                        // return the error response indicating an invalid structure returned
+                        {
+                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                            errorType: ReferralErrorType.ValidationError
+                        }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: ReferralErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: ReferralErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: ReferralErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while retrieving referrals by status through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: ReferralErrorType.UnexpectedError
+            };
+        }
     }
 
     /**

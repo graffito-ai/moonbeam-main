@@ -19,6 +19,7 @@ export const getReferralsByStatus = /* GraphQL */ `
             errorType
             data {
                 fromId
+                timestamp
                 toId
                 campaignCode
                 createdAt
