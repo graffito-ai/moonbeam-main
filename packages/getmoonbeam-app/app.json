@@ -41,6 +41,9 @@
       },
       "config": {
         "googleMapsApiKey": "AIzaSyBlj5BVB9ZxZS0V_Usf9pAhuCnw2mQhcaQ",
+        "branch": {
+          "apiKey": "key_live_dCiEy5Jy3M9LvuF3YtBmXogiEtfJdz6J"
+        },
         "usesNonExemptEncryption": false
       }
     },
@@ -67,6 +70,9 @@
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyB8OpXoKULaEO8t46npUBbmIAM-ranxVfk"
+        },
+        "branch": {
+          "apiKey": "key_live_dCiEy5Jy3M9LvuF3YtBmXogiEtfJdz6J"
         }
       }
     },
@@ -74,6 +80,9 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      [
+        "@config-plugins/react-native-branch"
+      ],
       [
         "expo-updates",
         {

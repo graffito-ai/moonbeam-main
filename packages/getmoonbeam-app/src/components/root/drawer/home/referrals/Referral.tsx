@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {ReferralProps} from "../../../../../models/props/AppDrawerProps";
 import {useRecoilState} from "recoil";
 import {appDrawerHeaderShownState, drawerSwipeState} from "../../../../../recoil/AppDrawerAtom";
@@ -9,6 +9,9 @@ import {styles} from "../../../../../styles/referral.module";
 import {Image} from 'expo-image';
 // @ts-ignore
 import MoonbeamContentReferral from "../../../../../../assets/art/moonbeam-referral-gifts.png";
+import {currentUserInformation} from "../../../../../recoil/AuthAtom";
+import * as crc32 from 'crc-32';
+import Share, {Social} from "react-native-share";
 
 /**
  * Referral component.
@@ -18,8 +21,10 @@ import MoonbeamContentReferral from "../../../../../../assets/art/moonbeam-refer
  */
 export const Referral = ({navigation}: ReferralProps) => {
     // constants used to keep track of local component state
+    const [userReferralCode, setUserReferralCode] = useState<string>("");
 
     // constants used to keep track of shared states
+    const [userInformation,] = useRecoilState(currentUserInformation);
     const [appDrawerHeaderShown, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
     const [drawerSwipeEnabled, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
 
@@ -31,12 +36,14 @@ export const Referral = ({navigation}: ReferralProps) => {
      * included in here.
      */
     useEffect(() => {
+        userReferralCode.length === 0 &&
+        setUserReferralCode(`${userInformation["family_name"].toUpperCase()}-${userInformation["given_name"].charAt(0).toUpperCase()}-${crc32.str(userInformation["custom:userId"]).toString().split('-')[1]}`);
+
         if (navigation.getState().index === 4) {
             appDrawerHeaderShown && setAppDrawerHeaderShown(false);
             drawerSwipeEnabled && setDrawerSwipeEnabled(false);
         }
-    }, [appDrawerHeaderShown, drawerSwipeEnabled, navigation.getState()]);
-
+    }, [userReferralCode, appDrawerHeaderShown, drawerSwipeEnabled, navigation.getState()]);
 
     // return the component for the Referral page
     return (
@@ -63,20 +70,67 @@ export const Referral = ({navigation}: ReferralProps) => {
                     />
                     <View style={styles.referralContentMessageView}>
                         <Text style={styles.referralContentMessageTitle}>
-                            {"Win a $200\nAmazon Gift Card"}
+                            {"Win a $100\nAmazon Gift Card"}
                         </Text>
                         <Text style={styles.referralContentMessageTitleValidity}>
-                            {"offer valid until 12/31/2023"}
+                            {"Next drawing on 12/18/2023"}
                         </Text>
                         <Text style={styles.referralContentMessageSubtitle}>
-                            {"Take advantage of your member code, and share it with your friends. Once they sign up for an account and link a card, you will both earn a chance at winning a $200 gift card.\n"}
-                            <TouchableOpacity>
-                                <Text style={styles.referralContentMessageSubtitleHighlighted}>
-                                    Learn More
-                                </Text>
-                            </TouchableOpacity>
+                            {"Share your member code with your friends. Once they sign up for an account and link a card, you will both earn a chance at winning a $100 gift card.\n\n"}
                         </Text>
                     </View>
+                    {/*<TouchableOpacity*/}
+                    {/*    style={styles.referralCodeView}*/}
+                    {/*    onPress={() => {*/}
+                    {/*    }}*/}
+                    {/*>*/}
+                    {/*    <View style={styles.referralCodeInnerView}>*/}
+                    {/*        <Icon*/}
+                    {/*            name={'content-copy'}*/}
+                    {/*            size={hp(3)}*/}
+                    {/*            color={'#F2FF5D'}*/}
+                    {/*            onPress={async () => {*/}
+
+                    {/*            }}*/}
+                    {/*        />*/}
+                    {/*        <Text style={styles.referralCode}>*/}
+                    {/*            {`${userInformation["family_name"].toUpperCase()}-${userInformation["given_name"].charAt(0).toUpperCase()}-${crc32.str(userInformation["custom:userId"]).toString().split('-')[1]}`}*/}
+                    {/*        </Text>*/}
+                    {/*    </View>*/}
+                    {/*</TouchableOpacity>*/}
+                    <TouchableOpacity
+                        style={styles.shareButton}
+                        onPress={
+                            async () => {
+                                // share the code with other apps
+                                try {
+                                    await Share.shareSingle({
+                                        message: 'Here\'s my personal invite code for you to join Moonbeam, the first automatic military discounts platform!\nRegister for an account, link your Visa or MasterCard and earn a chance at a $100 Amazon Gift card.\n',
+                                        title: 'Fight Bad Guys, Get Money! 🪖🪖🪖',
+                                        url: 'https://www.moonbeam.vet',
+                                        social: Social.Facebook,
+                                        subject: 'Get Moonbeam - The First Automatic Military Discounts Platform',
+                                        email: 'Here\'s my personal invite code for you to join Moonbeam, the first automatic military discounts platform!\nRegister for an account, link your Visa or MasterCard and earn a chance at a $100 Amazon Gift card.\n'
+                                    });
+                                } catch (error) {
+                                    console.error(`Error sharing referral code ${error}`);
+                                }
+                            }
+                        }
+                    >
+                        <Icon
+                            name={'ios-share'}
+                            size={hp(2.3)}
+                            color={'#1e1e21'}
+                            onPress={async () => {
+
+                            }}
+                        />
+                        <Text style={styles.shareButtonText}>Share Code</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.referralContentMessageSubtitleHighlighted}>
+                        Increase your chances of winning with unlimited referrals
+                    </Text>
                 </View>
             </View>
         </>

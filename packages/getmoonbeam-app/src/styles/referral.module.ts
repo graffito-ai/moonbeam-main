@@ -30,15 +30,15 @@ export const styles = StyleSheet.create({
         bottom: hp(7.5)
     },
     referralContentMessageTitle: {
-        color: '#F2FF5D',
-        fontFamily: 'Raleway-SemiBold',
+        color: '#FFFFFF',
+        fontFamily: 'Raleway-Bold',
         fontSize: hp(3.5),
         width: wp(80),
         textAlign: 'center'
     },
     referralContentMessageTitleValidity: {
         color: '#FFFFFF',
-        fontFamily: 'Saira-Bold',
+        fontFamily: 'Saira-Medium',
         fontSize: hp(1.8),
         width: wp(95),
         top: hp(2),
@@ -46,7 +46,7 @@ export const styles = StyleSheet.create({
         textAlign: 'center'
     },
     referralContentMessageSubtitle: {
-        color: '#FFFFFF',
+        color: '#a4a4a4',
         fontFamily: 'Raleway-Regular',
         fontSize: hp(2.1),
         width: wp(95),
@@ -55,11 +55,48 @@ export const styles = StyleSheet.create({
     },
     referralContentMessageSubtitleHighlighted: {
         color: '#F2FF5D',
-        textDecorationLine: 'underline',
         fontFamily: 'Saira-Bold',
         fontSize: hp(2.1),
         width: wp(95),
         top: hp(2),
+        textAlign: 'center',
+        alignSelf: 'center'
+    },
+    referralCodeView: {
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        width: wp(100),
+        alignSelf: 'center',
+        alignItems: 'center',
+        alignContent: 'center'
+    },
+    referralCodeInnerView: {
+        alignSelf: 'center',
+        flexDirection: 'row'
+    },
+    referralCode: {
+        color: '#F2FF5D',
+        fontFamily: 'Saira-Medium',
+        fontSize: hp(2.1),
+        left: wp(3),
         textAlign: 'center'
+    },
+    shareButton: {
+        backgroundColor: '#F2FF5D',
+        width: wp(75),
+        height: hp(5),
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignSelf: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: hp(2)
+    },
+    shareButtonText: {
+        color: '#1e1e21',
+        fontFamily: 'Saira-Medium',
+        fontSize: hp(2.3),
+        marginTop: hp(1.3),
+        left: wp(2)
     }
 });
