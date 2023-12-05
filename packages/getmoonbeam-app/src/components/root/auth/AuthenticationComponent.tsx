@@ -36,7 +36,7 @@ import {
     registrationStepNumber
 } from '../../../recoil/AuthAtom';
 import {AccountRecoveryComponent} from "./AccountRecoveryComponent";
-import {TouchableOpacity, View} from "react-native";
+import {Linking, TouchableOpacity, View} from "react-native";
 import {commonStyles} from "../../../styles/common.module";
 import {AppDrawer} from "../drawer/AppDrawer";
 import {DocumentsViewer} from "../../common/DocumentsViewer";
@@ -77,6 +77,9 @@ import {
 import {registerListener, removeListener} from "../../../utils/AmplifyHub";
 import * as Location from "expo-location";
 import {LocationObject} from "expo-location";
+import {branchRootUniversalObjectState, referralCodeState} from "../../../recoil/BranchAtom";
+import {initializeBranch} from "../../../utils/Branch";
+import {Spinner} from "../../common/Spinner";
 
 /**
  * Authentication component.
@@ -85,7 +88,7 @@ import {LocationObject} from "expo-location";
  */
 export const AuthenticationComponent = ({route, navigation}: AuthenticationProps) => {
         // constants used to keep track of local component state
-        // const [appsFlyerInitialized, setIsAppsFlyerInitialized] = useState<boolean>(false);
+        const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
         const [appUpgradeChecked, setAppUpgradeChecked] = useState<boolean>(false);
         const [checkedOnlineCache, setCheckOnlineCache] = useState<boolean>(false);
         const [userIsAuthenticated, setIsUserAuthenticated] = useState<boolean>(false);
@@ -97,6 +100,8 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [loadingNearbyOffersForFullScreenMapInProgress, setIsLoadingNearbyOffersForFullScreenMapInProgress] = useState<boolean>(false);
         const [areOffersForFullScreenMapLoaded, setAreOffersForFullScreenMapLoaded] = useState<boolean>(false);
         // constants used to keep track of shared states
+        const [, setReferralCode] = useRecoilState(referralCodeState);
+        const [authScreen, setAuthScreen] = useRecoilState(initialAuthenticationScreen);
         const [numberOfOnlineOffers, setNumberOfOnlineOffers] = useRecoilState(numberOfOnlineOffersState);
         const [numberOfOffersWithin5Miles, setNumberOfOffersWithin5Miles] = useRecoilState(numberOfOffersWithin5MilesState);
         const [numberOfOffersWithin25Miles, setNumberOfOffersWithin25Miles] = useRecoilState(numberOfOffersWithin25MilesState);
@@ -125,6 +130,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [userInformation,] = useRecoilState(currentUserInformation);
         const [, setExpoPushToken] = useRecoilState(expoPushTokenState);
         const [, setFirstTimeLoggedIn] = useRecoilState(firstTimeLoggedInState);
+        const [, setBranchRootUniversalObject] = useRecoilState(branchRootUniversalObjectState);
         // step 1
         const [, setFirstName] = useRecoilState(firstNameState);
         const [, setLastName] = useRecoilState(lastNameState);
@@ -157,7 +163,26 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
          * included in here.
          */
         useEffect(() => {
-            // set the mai root navigation of the app accordingly
+            // handle incoming deep-links
+            authScreen === null && Linking.getInitialURL().then((url) => {
+                if (url !== null) {
+                    /**
+                     * most (if not all) of these links will be coming from Branch.IO through universal link redirects,
+                     * so we need to handle them all, depending on where they redirect to.
+                     */
+                    console.log(`app opened through external URL and/or deep-link: ${url}`);
+
+                    // for deep-links coming from any campaigns meant to re-direct to the registration screen
+                    if (url.includes('moonbeamfin://register?r=')) {
+                        // set the referral code to be used during registration
+                        setReferralCode(url.split('moonbeamfin://register?r=')[1].split('&')[0]);
+                        // re-direct to the registration screen
+                        setAuthScreen('Registration');
+                    }
+                }
+            });
+
+            // set the main root navigation of the app accordingly
             setMainRootNavigation(navigation);
             // set the Cache to the global cache passed in from the App root component
             setGlobalCache(route.params.cache);
@@ -169,13 +194,13 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             // set the expo push token accordingly, to be used in later stages, as part of the current user information object
             setExpoPushToken(route.params.expoPushToken);
 
-            // initialize the AppsFlyer SDK
-            // !appsFlyerInitialized && appsFlyerInit().then(() => {
-            //     setIsAppsFlyerInitialized(false);
-            // });
-
             // load the store data if the cache is null
             userIsAuthenticated && loadStoreData().then(() => {
+                // once a user is authenticated, then initialize the Branch.io SDK appropriately
+                initializeBranch(userInformation).then(rootBUO => {
+                    setBranchRootUniversalObject(rootBUO);
+                });
+
                 // check if the user needs to upgrade the app (forcefully or not - in case of breaking changes)
                 !appUpgradeChecked && appUpgradeCheck().then(() => {
                     setAppUpgradeChecked(true);
@@ -229,8 +254,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             userIsAuthenticated, reloadNearbyDueToPermissionsChange,
             noNearbyOffersToLoad, nearbyOfferList, onlineOfferList,
             marketplaceCache, loadingOnlineInProgress, noOnlineOffersToLoad,
-            appUpgradeChecked,
-            // appsFlyerInitialized
+            appUpgradeChecked, authScreen
         ]);
 
         /**
@@ -529,172 +553,177 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         // return the component for the Authentication stack
         return (
             <>
-                <View style={{flex: 1, backgroundColor: '#313030'}}>
-                    <Stack.Navigator
-                        initialRouteName={useRecoilValue(initialAuthenticationScreen) == 'SignIn' ? "SignIn" : 'Registration'}
-                        screenOptions={{
-                            headerShown: false,
-                            gestureEnabled: false
-                        }}
-                    >
-                        <Stack.Screen
-                            name="SignIn"
-                            component={SignInComponent}
-                            initialParams={{}}
-                        />
-                        <Stack.Screen
-                            name="Registration"
-                            component={RegistrationComponent}
-                            options={({navigation}) => {
-                                return ({
-                                    headerTitle: '',
-                                    headerShown: true,
-                                    headerTransparent: true,
-                                    headerRight: () => {
-                                        return useRecoilValue(registrationBackButtonShown) || (stepNumber >= 3 && stepNumber !== 8)
-                                            ? (
-                                                <IconButton
-                                                    icon="help"
-                                                    iconColor={"#F2FF5D"}
-                                                    size={hp(3)}
-                                                    style={[commonStyles.backButton, !isRegistrationReady && {display: 'none'}]}
-                                                    onPress={async () => {
-                                                        // go to the support
-                                                        await contactSupport();
-                                                    }}
-                                                />) : <>{}</>
-                                    },
-                                    headerLeft: () => {
-                                        return useRecoilValue(registrationBackButtonShown)
-                                            ?
-                                            (<IconButton
-                                                icon="chevron-left"
-                                                iconColor={"#FFFFFF"}
-                                                size={hp(3)}
-                                                style={[commonStyles.backButton, !isRegistrationReady && {display: 'none'}]}
-                                                onPress={() => {
-                                                    // clear the registration values
-                                                    // step 1
-                                                    setFirstName("");
-                                                    setLastName("");
-                                                    setEmail("");
-                                                    setBirthday("");
-                                                    setPhoneNumber("");
-                                                    setDutyStatus("");
-                                                    setEnlistingYear("");
-                                                    // step 2
-                                                    setAddressLine("");
-                                                    setAddressCity("");
-                                                    setAddressZip("");
-                                                    setAddressState("");
-                                                    setMilitaryBranch("");
-                                                    // step 3
-                                                    setPassword("");
-                                                    setConfirmationPassword("");
-                                                    setAccountRegistrationDisclaimer(false);
-                                                    setAmplifySignUpErrors([]);
-                                                    // do not need to clear next steps because back button won't be shown for subsequent ones
+                {
+                    authScreen === null ?
+                        <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
+                        :
+                        <View style={{flex: 1, backgroundColor: '#313030'}}>
+                            <Stack.Navigator
+                                initialRouteName={authScreen == 'SignIn' ? "SignIn" : 'Registration'}
+                                screenOptions={{
+                                    headerShown: false,
+                                    gestureEnabled: false
+                                }}
+                            >
+                                <Stack.Screen
+                                    name="SignIn"
+                                    component={SignInComponent}
+                                    initialParams={{}}
+                                />
+                                <Stack.Screen
+                                    name="Registration"
+                                    component={RegistrationComponent}
+                                    options={({navigation}) => {
+                                        return ({
+                                            headerTitle: '',
+                                            headerShown: true,
+                                            headerTransparent: true,
+                                            headerRight: () => {
+                                                return useRecoilValue(registrationBackButtonShown) || (stepNumber >= 3 && stepNumber !== 8)
+                                                    ? (
+                                                        <IconButton
+                                                            icon="help"
+                                                            iconColor={"#F2FF5D"}
+                                                            size={hp(3)}
+                                                            style={[commonStyles.backButton, !isRegistrationReady && {display: 'none'}]}
+                                                            onPress={async () => {
+                                                                // go to the support
+                                                                await contactSupport();
+                                                            }}
+                                                        />) : <>{}</>
+                                            },
+                                            headerLeft: () => {
+                                                return useRecoilValue(registrationBackButtonShown)
+                                                    ?
+                                                    (<IconButton
+                                                        icon="chevron-left"
+                                                        iconColor={"#FFFFFF"}
+                                                        size={hp(3)}
+                                                        style={[commonStyles.backButton, !isRegistrationReady && {display: 'none'}]}
+                                                        onPress={() => {
+                                                            // clear the registration values
+                                                            // step 1
+                                                            setFirstName("");
+                                                            setLastName("");
+                                                            setEmail("");
+                                                            setBirthday("");
+                                                            setPhoneNumber("");
+                                                            setDutyStatus("");
+                                                            setEnlistingYear("");
+                                                            // step 2
+                                                            setAddressLine("");
+                                                            setAddressCity("");
+                                                            setAddressZip("");
+                                                            setAddressState("");
+                                                            setMilitaryBranch("");
+                                                            // step 3
+                                                            setPassword("");
+                                                            setConfirmationPassword("");
+                                                            setAccountRegistrationDisclaimer(false);
+                                                            setAmplifySignUpErrors([]);
+                                                            // do not need to clear next steps because back button won't be shown for subsequent ones
 
-                                                    // main
-                                                    setRegistrationMainError(false);
-                                                    setStepNumber(0);
-
-                                                    // navigate to the AppOverviewComponent page - in case we have not already been to the SignIn
-                                                    if (isLoadingAppOverviewNeeded) {
-                                                        // navigate to the SignIn page - in case we have already been there
-                                                        mainRootNavigation && mainRootNavigation!.navigate('AppOverview', {
-                                                            marketplaceCache: route.params.marketplaceCache,
-                                                            cache: route.params.cache,
-                                                            expoPushToken: route.params.expoPushToken,
-                                                            onLayoutRootView: route.params.onLayoutRootView
-                                                        });
-                                                    } else {
-                                                        // navigate to the SignIn page - in case we have already been there
-                                                        navigation.navigate('SignIn', {});
-                                                    }
-                                                }}
-                                            />)
-                                            : (stepNumber === 4 || stepNumber === 7 ?
-                                                <TouchableOpacity
-                                                    style={[styles.buttonSkip, !isRegistrationReady && {display: 'none'}]}
-                                                    onPress={async () => {
-                                                        if (stepNumber === 4) {
-                                                            // skip the current step
-                                                            setStepNumber(stepNumber + 1);
-
-                                                            // clear the registration error
+                                                            // main
                                                             setRegistrationMainError(false);
-                                                        } else {
-                                                            // clear the registration error
-                                                            setRegistrationMainError(false);
+                                                            setStepNumber(0);
 
-                                                            setIsReady(false);
-                                                            /**
-                                                             * if everything was successful, then:
-                                                             * - we just cache the list of:
-                                                             *      - Fidelis partners for initial load (for 1 week only)
-                                                             *      - the list of online offers (first page only) for initial load (for 1 week only)
-                                                             *      - the list of offers near user's home address (first page only) for initial load (for 1 week only)
-                                                             *       - the list of categorized online offers
-                                                             * - we just cache an empty profile photo for the user for initial load
-                                                             */
-                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-fidelisPartners`) !== null) {
-                                                                console.log('old Fidelis Partners are cached, needs cleaning up');
-                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-fidelisPartners`);
-                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, await retrieveFidelisPartnerList());
+                                                            // navigate to the AppOverviewComponent page - in case we have not already been to the SignIn
+                                                            if (isLoadingAppOverviewNeeded) {
+                                                                // navigate to the SignIn page - in case we have already been there
+                                                                mainRootNavigation && mainRootNavigation!.navigate('AppOverview', {
+                                                                    marketplaceCache: route.params.marketplaceCache,
+                                                                    cache: route.params.cache,
+                                                                    expoPushToken: route.params.expoPushToken,
+                                                                    onLayoutRootView: route.params.onLayoutRootView
+                                                                });
                                                             } else {
-                                                                console.log('Fidelis Partners are not cached');
-                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, await retrieveFidelisPartnerList());
+                                                                // navigate to the SignIn page - in case we have already been there
+                                                                navigation.navigate('SignIn', {});
                                                             }
-                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`) !== null) {
-                                                                console.log('online offers are cached, needs cleaning up');
-                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineOffers`);
-                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
-                                                                    await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers));
-                                                            } else {
-                                                                console.log('online offers are not cached');
-                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
-                                                                    await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers));
-                                                            }
-                                                            if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
-                                                                console.log('old profile picture is cached, needs cleaning up');
-                                                                await globalCache!.removeItem(`${userInformation["custom:userId"]}-profilePictureURI`);
-                                                                await globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, "");
-                                                            } else {
-                                                                console.log('profile picture is not cached');
-                                                                globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, "");
-                                                            }
-                                                            setIsReady(true);
+                                                        }}
+                                                    />)
+                                                    : (stepNumber === 4 || stepNumber === 7 ?
+                                                        <TouchableOpacity
+                                                            style={[styles.buttonSkip, !isRegistrationReady && {display: 'none'}]}
+                                                            onPress={async () => {
+                                                                if (stepNumber === 4) {
+                                                                    // skip the current step
+                                                                    setStepNumber(stepNumber + 1);
 
-                                                            // go to the dashboard
-                                                            navigation.navigate("AppDrawer", {});
-                                                        }
-                                                    }}
-                                                >
-                                                    <Text style={styles.buttonSkipText}>Skip</Text>
-                                                </TouchableOpacity> : <></>)
-                                    }
-                                })
-                            }}
-                            initialParams={{}}
-                        />
-                        <Stack.Screen
-                            name="AccountRecovery"
-                            component={AccountRecoveryComponent}
-                            initialParams={{}}
-                        />
-                        <Stack.Screen
-                            name="AppDrawer"
-                            component={AppDrawer}
-                            initialParams={{}}
-                        />
-                        <Stack.Screen
-                            name="DocumentsViewer"
-                            component={DocumentsViewer}
-                            initialParams={{}}
-                        />
-                    </Stack.Navigator>
-                </View>
+                                                                    // clear the registration error
+                                                                    setRegistrationMainError(false);
+                                                                } else {
+                                                                    // clear the registration error
+                                                                    setRegistrationMainError(false);
+
+                                                                    setIsReady(false);
+                                                                    /**
+                                                                     * if everything was successful, then:
+                                                                     * - we just cache the list of:
+                                                                     *      - Fidelis partners for initial load (for 1 week only)
+                                                                     *      - the list of online offers (first page only) for initial load (for 1 week only)
+                                                                     *      - the list of offers near user's home address (first page only) for initial load (for 1 week only)
+                                                                     *       - the list of categorized online offers
+                                                                     * - we just cache an empty profile photo for the user for initial load
+                                                                     */
+                                                                    if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-fidelisPartners`) !== null) {
+                                                                        console.log('old Fidelis Partners are cached, needs cleaning up');
+                                                                        await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-fidelisPartners`);
+                                                                        await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, await retrieveFidelisPartnerList());
+                                                                    } else {
+                                                                        console.log('Fidelis Partners are not cached');
+                                                                        marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, await retrieveFidelisPartnerList());
+                                                                    }
+                                                                    if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`) !== null) {
+                                                                        console.log('online offers are cached, needs cleaning up');
+                                                                        await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineOffers`);
+                                                                        await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
+                                                                            await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers));
+                                                                    } else {
+                                                                        console.log('online offers are not cached');
+                                                                        marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
+                                                                            await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers));
+                                                                    }
+                                                                    if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
+                                                                        console.log('old profile picture is cached, needs cleaning up');
+                                                                        await globalCache!.removeItem(`${userInformation["custom:userId"]}-profilePictureURI`);
+                                                                        await globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, "");
+                                                                    } else {
+                                                                        console.log('profile picture is not cached');
+                                                                        globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, "");
+                                                                    }
+                                                                    setIsReady(true);
+
+                                                                    // go to the dashboard
+                                                                    navigation.navigate("AppDrawer", {});
+                                                                }
+                                                            }}
+                                                        >
+                                                            <Text style={styles.buttonSkipText}>Skip</Text>
+                                                        </TouchableOpacity> : <></>)
+                                            }
+                                        })
+                                    }}
+                                    initialParams={{}}
+                                />
+                                <Stack.Screen
+                                    name="AccountRecovery"
+                                    component={AccountRecoveryComponent}
+                                    initialParams={{}}
+                                />
+                                <Stack.Screen
+                                    name="AppDrawer"
+                                    component={AppDrawer}
+                                    initialParams={{}}
+                                />
+                                <Stack.Screen
+                                    name="DocumentsViewer"
+                                    component={DocumentsViewer}
+                                    initialParams={{}}
+                                />
+                            </Stack.Navigator>
+                        </View>
+                }
             </>
         );
     }

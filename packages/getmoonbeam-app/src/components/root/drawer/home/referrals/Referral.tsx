@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {ReferralProps} from "../../../../../models/props/AppDrawerProps";
 import {useRecoilState} from "recoil";
 import {appDrawerHeaderShownState, drawerSwipeState} from "../../../../../recoil/AppDrawerAtom";
-import {Text, TouchableOpacity, View} from "react-native";
+import {Platform, Share, Text, TouchableOpacity, View} from "react-native";
 import {Icon} from "@rneui/base";
 import {heightPercentageToDP as hp} from "react-native-responsive-screen";
 import {styles} from "../../../../../styles/referral.module";
@@ -11,7 +11,9 @@ import {Image} from 'expo-image';
 import MoonbeamContentReferral from "../../../../../../assets/art/moonbeam-referral-gifts.png";
 import {currentUserInformation} from "../../../../../recoil/AuthAtom";
 import * as crc32 from 'crc-32';
-import Share, {Social} from "react-native-share";
+import {branchRootUniversalObjectState} from "../../../../../recoil/BranchAtom";
+import * as envInfo from "./../../../../../../local-env-info.json";
+import {MarketingCampaignCode} from "@moonbeam/moonbeam-models";
 
 /**
  * Referral component.
@@ -22,11 +24,13 @@ import Share, {Social} from "react-native-share";
 export const Referral = ({navigation}: ReferralProps) => {
     // constants used to keep track of local component state
     const [userReferralCode, setUserReferralCode] = useState<string>("");
+    const [userReferralLink, setUserReferralLink] = useState<string>('');
 
     // constants used to keep track of shared states
     const [userInformation,] = useRecoilState(currentUserInformation);
     const [appDrawerHeaderShown, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
     const [drawerSwipeEnabled, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
+    const [branchUniversalRootObject,] = useRecoilState(branchRootUniversalObjectState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -36,14 +40,49 @@ export const Referral = ({navigation}: ReferralProps) => {
      * included in here.
      */
     useEffect(() => {
+        // generate a referral code that will be appended everywhere in the referral links and will be used to track the user during the referral process
         userReferralCode.length === 0 &&
         setUserReferralCode(`${userInformation["family_name"].toUpperCase()}-${userInformation["given_name"].charAt(0).toUpperCase()}-${crc32.str(userInformation["custom:userId"]).toString().split('-')[1]}`);
+
+        // generate a referral short url through Branch.io to be displayed to the user
+        generateUserReferralLink();
 
         if (navigation.getState().index === 4) {
             appDrawerHeaderShown && setAppDrawerHeaderShown(false);
             drawerSwipeEnabled && setDrawerSwipeEnabled(false);
         }
-    }, [userReferralCode, appDrawerHeaderShown, drawerSwipeEnabled, navigation.getState()]);
+    }, [userReferralLink, userReferralCode, appDrawerHeaderShown, drawerSwipeEnabled, navigation.getState()]);
+
+    const generateUserReferralLink = async () => {
+        // first attempt to generate a user referral link. This might have been generated before, so we'll just reuse that in case it was already generated, so we avoid duplicates
+        try {
+            // @ts-ignore
+            await branchUniversalRootObject.generateShortUrl({
+                alias: `${userReferralCode}`,
+                campaign: MarketingCampaignCode.Raffleregdec23,
+                feature: 'referrals',
+                channel: `referral-pasted`,
+                stage: envInfo.envName,
+                tags: [
+                    `${userReferralCode}`
+                ]
+            }, {
+                $ios_url: `moonbeamfin://register?r=${userInformation["family_name"].toUpperCase()}-${userReferralCode}`,
+                $android_url: `moonbeamfin://register?r=${userInformation["family_name"].toUpperCase()}-${userReferralCode}`,
+                $desktop_url: 'https://www.moonbeam.vet',
+                $fallback_url: 'https://www.moonbeam.vet'
+            });
+        } catch (error) {
+            // check to see if we have a duplicate link, in which case we will just re-use that, otherwise we error out
+            // @ts-ignore
+            if (error.message !== null && error.message !== undefined && error.message.includes('A resource with this identifier already exists.')) {
+                setUserReferralLink(`https://app.moonbeam.vet/${userReferralCode}`);
+            } else {
+                console.log(`Error while generating a referral code for the user`);
+                setUserReferralLink(`Error while generating referral code`);
+            }
+        }
+    }
 
     // return the component for the Referral page
     return (
@@ -79,39 +118,34 @@ export const Referral = ({navigation}: ReferralProps) => {
                             {"Share your member code with your friends. Once they sign up for an account and link a card, you will both earn a chance at winning a $100 gift card.\n\n"}
                         </Text>
                     </View>
-                    {/*<TouchableOpacity*/}
-                    {/*    style={styles.referralCodeView}*/}
-                    {/*    onPress={() => {*/}
-                    {/*    }}*/}
-                    {/*>*/}
-                    {/*    <View style={styles.referralCodeInnerView}>*/}
-                    {/*        <Icon*/}
-                    {/*            name={'content-copy'}*/}
-                    {/*            size={hp(3)}*/}
-                    {/*            color={'#F2FF5D'}*/}
-                    {/*            onPress={async () => {*/}
-
-                    {/*            }}*/}
-                    {/*        />*/}
-                    {/*        <Text style={styles.referralCode}>*/}
-                    {/*            {`${userInformation["family_name"].toUpperCase()}-${userInformation["given_name"].charAt(0).toUpperCase()}-${crc32.str(userInformation["custom:userId"]).toString().split('-')[1]}`}*/}
-                    {/*        </Text>*/}
-                    {/*    </View>*/}
-                    {/*</TouchableOpacity>*/}
+                    <TouchableOpacity
+                        style={styles.referralCodeView}
+                        onPress={() => {
+                        }}
+                    >
+                        <View style={styles.referralCodeInnerView}>
+                            <Icon
+                                style={styles.referralCodeIcon}
+                                name={'content-copy'}
+                                size={hp(3)}
+                                color={'#F2FF5D'}
+                            />
+                            <Text style={styles.referralCode}>{`${userReferralLink}`}</Text>
+                        </View>
+                    </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.shareButton}
                         onPress={
                             async () => {
-                                // share the code with other apps
+                                // share the referral code with other apps through a Branch.io universal link
                                 try {
-                                    await Share.shareSingle({
-                                        message: 'Here\'s my personal invite code for you to join Moonbeam, the first automatic military discounts platform!\nRegister for an account, link your Visa or MasterCard and earn a chance at a $100 Amazon Gift card.\n',
+                                    await Share.share({
                                         title: 'Fight Bad Guys, Get Money! 🪖🪖🪖',
-                                        url: 'https://www.moonbeam.vet',
-                                        social: Social.Facebook,
-                                        subject: 'Get Moonbeam - The First Automatic Military Discounts Platform',
-                                        email: 'Here\'s my personal invite code for you to join Moonbeam, the first automatic military discounts platform!\nRegister for an account, link your Visa or MasterCard and earn a chance at a $100 Amazon Gift card.\n'
-                                    });
+                                        message: `Here\'s my personal invite code for you to join Moonbeam, the first automatic military discounts platform!\n\nRegister for an account, link your Visa or MasterCard and earn a chance at a $100 Amazon Gift card.\n${Platform.OS === 'android' ? `\n${userReferralLink}`: ''}`,
+                                        ...(Platform.OS === 'ios' && {
+                                            url: `${userReferralLink}`
+                                        })
+                                    })
                                 } catch (error) {
                                     console.error(`Error sharing referral code ${error}`);
                                 }
@@ -128,9 +162,9 @@ export const Referral = ({navigation}: ReferralProps) => {
                         />
                         <Text style={styles.shareButtonText}>Share Code</Text>
                     </TouchableOpacity>
-                    <Text style={styles.referralContentMessageSubtitleHighlighted}>
-                        Increase your chances of winning with unlimited referrals
-                    </Text>
+                    {/*<Text style={styles.referralContentMessageSubtitleHighlighted}>*/}
+                    {/*    Increase your chances of winning with unlimited referrals*/}
+                    {/*</Text>*/}
                 </View>
             </View>
         </>

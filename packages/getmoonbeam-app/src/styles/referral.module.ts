@@ -55,7 +55,7 @@ export const styles = StyleSheet.create({
     },
     referralContentMessageSubtitleHighlighted: {
         color: '#F2FF5D',
-        fontFamily: 'Saira-Bold',
+        fontFamily: 'Saira-Medium',
         fontSize: hp(2.1),
         width: wp(95),
         top: hp(2),
@@ -63,6 +63,7 @@ export const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     referralCodeView: {
+        marginTop: -hp(5),
         flexDirection: 'column',
         justifyContent: 'space-between',
         width: wp(100),
@@ -72,14 +73,26 @@ export const styles = StyleSheet.create({
     },
     referralCodeInnerView: {
         alignSelf: 'center',
-        flexDirection: 'row'
+        backgroundColor: '#313030',
+        flexDirection: 'row',
+        width: wp(80),
+        height: hp(8),
+        borderWidth: hp(0.05),
+        borderColor: '#F2FF5D',
+        borderStyle: 'dashed'
     },
     referralCode: {
         color: '#F2FF5D',
         fontFamily: 'Saira-Medium',
         fontSize: hp(2.1),
+        width: wp(60),
+        top: hp(0.75),
         left: wp(3),
         textAlign: 'center'
+    },
+    referralCodeIcon: {
+        top: hp(1),
+        paddingLeft: wp(4)
     },
     shareButton: {
         backgroundColor: '#F2FF5D',
@@ -90,7 +103,8 @@ export const styles = StyleSheet.create({
         alignSelf: 'center',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: hp(2)
+        marginTop: hp(4),
+        marginBottom: hp(0.5)
     },
     shareButtonText: {
         color: '#1e1e21',

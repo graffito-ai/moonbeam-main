@@ -38,9 +38,9 @@ const currentUserInformation = atom({
  * Atom used to keep track of whether the authentication component has
  * rendered before or not.
  */
-const initialAuthenticationScreen = atom({
+const initialAuthenticationScreen = atom<'Registration' | 'SignIn' | null>({
     key: "initialAuthenticationScreen",
-    default: "SignIn"
+    default: null
 });
 
 /**

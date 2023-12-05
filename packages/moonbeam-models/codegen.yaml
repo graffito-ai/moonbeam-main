@@ -13,7 +13,6 @@ schema:
   - ./src/graphql/schemas/UserAuthSessionSchema.graphql
   - ./src/graphql/schemas/NotificationReminderSchema.graphql
   - ./src/graphql/schemas/AppUpgradeSchema.graphql
-  - ./src/graphql/schemas/AppsFlyerSchema.graphql
   - ./src/graphql/schemas/ReferralSchema.graphql
 documents:
   - ./src/graphql/queries/Queries.graphql

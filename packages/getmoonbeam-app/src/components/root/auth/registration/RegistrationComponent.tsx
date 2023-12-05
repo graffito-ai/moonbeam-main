@@ -117,6 +117,7 @@ import {Button} from "@rneui/base";
 import * as Notifications from "expo-notifications";
 import * as ImagePicker from 'expo-image-picker';
 import {numberOfOnlineOffersState} from "../../../../recoil/StoreOfferAtom";
+import {referralCodeState} from "../../../../recoil/BranchAtom";
 
 /**
  * RegistrationComponent component.
@@ -130,6 +131,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     const [existentAccountVisible, setExistentAccountVisible] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [referralCode, ] = useRecoilState(referralCodeState);
     const [numberOfOnlineOffers, setNumberOfOnlineOffers] = useRecoilState(numberOfOnlineOffersState);
     const [mainRootNavigation,] = useRecoilState(mainRootNavigationState);
     const [, setDeferToLogin] = useRecoilState(deferToLoginState);
@@ -1052,6 +1054,13 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
 
                                                                 // check if the confirmation was successful
                                                                 if (signUpConfirmationFlag) {
+                                                                    /**
+                                                                     * if the user successfully signed up and confirmed their account (through the email confirmation
+                                                                     * then we can kickstart the referral check process).
+                                                                     */
+                                                                    
+
+
                                                                     setRegistrationMainError(false);
                                                                     checksPassed = true;
                                                                 } else {

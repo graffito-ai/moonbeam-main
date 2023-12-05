@@ -20,7 +20,6 @@ type Query {
     getAllUsersForNotificationReminders: UserForNotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
     getUserAuthSession(getUserAuthSessionInput: GetUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
     getAppUpgradeCredentials: AppUpgradeResponse! @aws_cognito_user_pools
-    getAppsFlyerCredentials(getAppsFlyerCredentialsInput: GetAppsFlyerCredentialsInput!): AppsFlyerResponse! @aws_cognito_user_pools
     getReferralsByStatus(getReferralsByStatusInput: GetReferralsByStatusInput!): ReferralResponse! @aws_cognito_user_pools @aws_api_key
     getUserFromReferral(userFromReferralInput: UserFromReferralInput!): UserFromReferralResponse! @aws_cognito_user_pools @aws_api_key
 }

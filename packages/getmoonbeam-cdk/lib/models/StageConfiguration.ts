@@ -1,7 +1,7 @@
 import {Stages} from "@moonbeam/moonbeam-models";
 import {
     AmplifyConfiguration,
-    APIGatewayServiceConfiguration, AppsFlyerConfiguration,
+    APIGatewayServiceConfiguration,
     AppSyncConfiguration, AppUpgradeConfiguration,
     CardLinkingConfiguration,
     FAQConfiguration,
@@ -46,7 +46,6 @@ export interface StageConfiguration {
     readonly physicalDevicesConfig: PhysicalDevicesConfiguration;
     readonly notificationReminderConfig: NotificationReminderConfiguration;
     readonly appUpgradeConfig: AppUpgradeConfiguration;
-    readonly appsFlyerConfig: AppsFlyerConfiguration;
     readonly referralConfig: ReferralConfiguration;
     readonly environmentVariables: Map<string, string>;
 }

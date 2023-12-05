@@ -190,10 +190,6 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 appUpgradeFunctionName: 'appUpgradeFunction',
                 getAppUpgradeCredentialsResolverName: 'getAppUpgradeCredentials'
             },
-            appsFlyerConfig: {
-                appsFlyerFunctionName: 'appsFlyerFunction',
-                getAppsFlyerCredentialsResolverName: 'getAppsFlyerCredentials'
-            },
             referralConfig: {
                 referralFunctionName: 'referralFunction',
                 referralTableName: 'referralTable',
@@ -388,10 +384,6 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             appUpgradeConfig: {
                 appUpgradeFunctionName: 'appUpgradeFunction',
                 getAppUpgradeCredentialsResolverName: 'getAppUpgradeCredentials'
-            },
-            appsFlyerConfig: {
-                appsFlyerFunctionName: 'appsFlyerFunction',
-                getAppsFlyerCredentialsResolverName: 'getAppsFlyerCredentials'
             },
             referralConfig: {
                 referralFunctionName: 'referralFunction',

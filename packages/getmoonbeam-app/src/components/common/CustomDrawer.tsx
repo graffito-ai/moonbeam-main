@@ -128,9 +128,14 @@ import {
     filteredByDiscountPressedState,
     filtersActiveState,
     fullScreenKitMapActiveState,
-    isElectronicsKitLoadedState, isEntertainmentKitLoadedState,
-    isFoodKitLoadedState, isHealthAndBeautyKitLoadedState, isHomeKitLoadedState, isOfficeAndBusinessKitLoadedState,
-    isRetailKitLoadedState, isServicesAndSubscriptionsKitLoadedState,
+    isElectronicsKitLoadedState,
+    isEntertainmentKitLoadedState,
+    isFoodKitLoadedState,
+    isHealthAndBeautyKitLoadedState,
+    isHomeKitLoadedState,
+    isOfficeAndBusinessKitLoadedState,
+    isRetailKitLoadedState,
+    isServicesAndSubscriptionsKitLoadedState,
     isVeteransDayKitLoadedState,
     locationServicesButtonState,
     nearbyElectronicsCategorizedOffersListState,
@@ -236,6 +241,7 @@ import MoonbeamProfilePlaceholder from "../../../assets/art/moonbeam-profile-pla
 import MoonbeamFriendReferral from "../../../assets/art/moonbeam-refer-friend.png";
 import {Image as ExpoImage} from "expo-image/build/Image";
 import {Image} from "expo-image";
+import {branchRootUniversalObjectState, referralCodeState} from "../../recoil/BranchAtom";
 
 /**
  * CustomDrawer component. This component will be used to further tailor our sidebar navigation drawer, mainly
@@ -472,6 +478,8 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const isHealthAndBeautyKitLoadedReset = useResetRecoilState(isHealthAndBeautyKitLoadedState);
     const isOfficeAndBusinessKitLoadedReset = useResetRecoilState(isOfficeAndBusinessKitLoadedState);
     const isServicesAndSubscriptionsKitLoadedReset = useResetRecoilState(isServicesAndSubscriptionsKitLoadedState);
+    const branchRootUniversalObjectReset = useResetRecoilState(branchRootUniversalObjectState);
+    const referralCodeStateReset = useResetRecoilState(referralCodeState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -718,6 +726,8 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             isHealthAndBeautyKitLoadedReset();
             isOfficeAndBusinessKitLoadedReset();
             isServicesAndSubscriptionsKitLoadedReset();
+            branchRootUniversalObjectReset();
+            referralCodeStateReset();
 
             /**
              * ensure that the current user's biometric session is interrupted, and that the already signed in flag is reset
