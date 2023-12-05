@@ -77,7 +77,11 @@ import {
 import {registerListener, removeListener} from "../../../utils/AmplifyHub";
 import * as Location from "expo-location";
 import {LocationObject} from "expo-location";
-import {branchRootUniversalObjectState, referralCodeState} from "../../../recoil/BranchAtom";
+import {
+    branchRootUniversalObjectState,
+    referralCodeMarketingCampaignState,
+    referralCodeState
+} from "../../../recoil/BranchAtom";
 import {initializeBranch} from "../../../utils/Branch";
 import {Spinner} from "../../common/Spinner";
 
@@ -100,6 +104,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [loadingNearbyOffersForFullScreenMapInProgress, setIsLoadingNearbyOffersForFullScreenMapInProgress] = useState<boolean>(false);
         const [areOffersForFullScreenMapLoaded, setAreOffersForFullScreenMapLoaded] = useState<boolean>(false);
         // constants used to keep track of shared states
+        const [, setReferralCodeMarketingCampaign] = useRecoilState(referralCodeMarketingCampaignState);
         const [, setReferralCode] = useRecoilState(referralCodeState);
         const [authScreen, setAuthScreen] = useRecoilState(initialAuthenticationScreen);
         const [numberOfOnlineOffers, setNumberOfOnlineOffers] = useRecoilState(numberOfOnlineOffersState);
@@ -176,6 +181,12 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                     if (url.includes('moonbeamfin://register?r=')) {
                         // set the referral code to be used during registration
                         setReferralCode(url.split('moonbeamfin://register?r=')[1].split('&')[0]);
+
+                        // set the marketing campaign code used for the referral
+                        if (url.includes('&utm_campaign=')) {
+                            setReferralCodeMarketingCampaign(url.split('&utm_campaign=')[1].split('&')[0]);
+                        }
+
                         // re-direct to the registration screen
                         setAuthScreen('Registration');
                     }

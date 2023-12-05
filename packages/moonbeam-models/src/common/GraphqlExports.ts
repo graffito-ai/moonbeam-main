@@ -42,20 +42,6 @@ export type AppUpgradeResponse = {
   errorType?: Maybe<AppUpgradeErrorType>;
 };
 
-export enum AppsFlyerErrorType {
-  DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
-  NoneOrAbsent = 'NONE_OR_ABSENT',
-  UnexpectedError = 'UNEXPECTED_ERROR',
-  ValidationError = 'VALIDATION_ERROR'
-}
-
-export type AppsFlyerResponse = {
-  __typename?: 'AppsFlyerResponse';
-  data?: Maybe<Scalars['String']>;
-  errorMessage?: Maybe<Scalars['String']>;
-  errorType?: Maybe<AppsFlyerErrorType>;
-};
-
 export type Card = {
   __typename?: 'Card';
   additionalProgramID?: Maybe<Scalars['String']>;
@@ -358,10 +344,6 @@ export enum FileAccessLevel {
 export enum FileType {
   Main = 'MAIN'
 }
-
-export type GetAppsFlyerCredentialsInput = {
-  osType: OsType;
-};
 
 export type GetCardLinkInput = {
   id: Scalars['ID'];
@@ -837,11 +819,6 @@ export enum NotificationsErrorType {
   ValidationError = 'VALIDATION_ERROR'
 }
 
-export enum OsType {
-  Android = 'Android',
-  IOs = 'iOS'
-}
-
 export type Offer = {
   __typename?: 'Offer';
   availability?: Maybe<OfferAvailability>;
@@ -988,7 +965,6 @@ export type Query = {
   __typename?: 'Query';
   getAllUsersForNotificationReminders: UserForNotificationReminderResponse;
   getAppUpgradeCredentials: AppUpgradeResponse;
-  getAppsFlyerCredentials: AppsFlyerResponse;
   getCardLink: CardLinkResponse;
   getDevice: UserDeviceResponse;
   getDeviceByToken: UserDeviceResponse;
@@ -1008,11 +984,6 @@ export type Query = {
   getUserAuthSession: UserAuthSessionResponse;
   getUserFromReferral: UserFromReferralResponse;
   getUsersWithNoCards: IneligibleLinkedUsersResponse;
-};
-
-
-export type QueryGetAppsFlyerCredentialsArgs = {
-  getAppsFlyerCredentialsInput: GetAppsFlyerCredentialsInput;
 };
 
 
@@ -1568,13 +1539,6 @@ export type GetReferralsByStatusQueryVariables = Exact<{
 
 
 export type GetReferralsByStatusQuery = { __typename?: 'Query', getReferralsByStatus: { __typename?: 'ReferralResponse', errorMessage?: string | null, errorType?: ReferralErrorType | null, data?: Array<{ __typename?: 'Referral', fromId: string, timestamp: number, toId: string, campaignCode: MarketingCampaignCode, createdAt: string, updatedAt: string, status: ReferralStatus } | null> | null } };
-
-export type GetAppsFlyerCredentialsQueryVariables = Exact<{
-  getAppsFlyerCredentialsInput: GetAppsFlyerCredentialsInput;
-}>;
-
-
-export type GetAppsFlyerCredentialsQuery = { __typename?: 'Query', getAppsFlyerCredentials: { __typename?: 'AppsFlyerResponse', errorMessage?: string | null, errorType?: AppsFlyerErrorType | null, data?: string | null } };
 
 export type GetAppUpgradeCredentialsQueryVariables = Exact<{ [key: string]: never; }>;
 

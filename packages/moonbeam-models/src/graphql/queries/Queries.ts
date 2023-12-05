@@ -30,17 +30,6 @@ export const getReferralsByStatus = /* GraphQL */ `
     }
 `;
 
-// Query used to retrieve the Apps Flyer credentials/details
-export const getAppsFlyerCredentials = /* GraphQL */ `
-    query GetAppsFlyerCredentials($getAppsFlyerCredentialsInput: GetAppsFlyerCredentialsInput!) {
-        getAppsFlyerCredentials(getAppsFlyerCredentialsInput: $getAppsFlyerCredentialsInput) {
-            errorMessage
-            errorType
-            data
-        }
-    }
-`;
-
 // Query used to retrieve the App Upgrade credentials/details
 export const getAppUpgradeCredentials = /* GraphQL */ `
     query GetAppUpgradeCredentials {

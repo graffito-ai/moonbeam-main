@@ -157,7 +157,6 @@ export const AdditionalRegistrationStep = () => {
                                     : `${component.long_name}`;
                             }
                         });
-                        console.log(autoFilledAddressLine);
                         setAddressCity(autoFilledCity);
                         setAddressState(autoFilledState);
                         setAddressZip(autoFilledZip);

@@ -24,6 +24,7 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-nativ
 import {moonbeamUserIdPassState, moonbeamUserIdState} from "../../../recoil/RootAtom";
 import * as SecureStore from "expo-secure-store";
 import * as LocalAuthentication from 'expo-local-authentication';
+import {referralCodeState} from "../../../recoil/BranchAtom";
 
 /**
  * Sign In component.
@@ -47,9 +48,10 @@ export const SignInComponent = ({navigation}: SignInProps) => {
     const [passwordShown, setIsPasswordShown] = useState<boolean>(false);
     const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [referralCode,] = useRecoilState(referralCodeState);
     const [, setMoonbeamUserId] = useRecoilState(moonbeamUserIdState);
     const [, setMoonbeamUserIdPass] = useRecoilState(moonbeamUserIdPassState);
-    const [mainRootNavigation, ] = useRecoilState(mainRootNavigationState);
+    const [mainRootNavigation,] = useRecoilState(mainRootNavigationState);
     const [, setIsLoadingAppOverviewNeeded] = useRecoilState(isLoadingAppOverviewNeededState);
     const [, setUserInformation] = useRecoilState(currentUserInformation);
 
@@ -65,7 +67,7 @@ export const SignInComponent = ({navigation}: SignInProps) => {
      */
     useEffect(() => {
         // determine whether biometric sign-in is enabled or not, and sign-in user using biometrics if that's available
-        !biometricCheckReady && !biometricCheckInitiated && signInWithBiometrics().then(_ => {
+        referralCode.length === 0 && !biometricCheckReady && !biometricCheckInitiated && signInWithBiometrics().then(_ => {
             setBiometricCheckReady(true);
         });
 
@@ -104,7 +106,7 @@ export const SignInComponent = ({navigation}: SignInProps) => {
             keyboardDidHideListener.remove();
             keyboardDidShowListener.remove();
         };
-    }, [isKeyboardShown, email, emailFocus, password, passwordFocus]);
+    }, [isKeyboardShown, email, emailFocus, password, passwordFocus, referralCode]);
 
 
     /**
@@ -459,8 +461,9 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                                     >
                                         <Text style={styles.loginButtonContentStyle}>Sign In</Text>
                                     </TouchableOpacity>
-                                    <View style={(emailErrors.length !== 0 || passwordErrors.length !== 0 || !loginMainError)
-                                        ? {marginTop: hp(5)} : {marginTop: hp(1)}}>
+                                    <View
+                                        style={(emailErrors.length !== 0 || passwordErrors.length !== 0 || !loginMainError)
+                                            ? {marginTop: hp(5)} : {marginTop: hp(1)}}>
                                         <Image source={LoginLogo}
                                                style={styles.loginLogo}
                                                resizeMode={'contain'}/>

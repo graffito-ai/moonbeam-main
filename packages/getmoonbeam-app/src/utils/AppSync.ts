@@ -2,7 +2,7 @@ import {
     CountryCode,
     createDevice,
     createNotification,
-    CreateNotificationInput,
+    CreateNotificationInput, createReferral,
     createUserAuthSession,
     FidelisPartner,
     getAppUpgradeCredentials,
@@ -11,7 +11,7 @@ import {
     getOffers,
     getPremierOffers,
     getSeasonalOffers,
-    getUserAuthSession,
+    getUserAuthSession, getUserFromReferral, MarketingCampaignCode,
     Offer,
     OfferAvailability,
     OfferCategory,
@@ -19,7 +19,7 @@ import {
     OfferSeasonalType,
     OfferState,
     PushDevice,
-    RedemptionType,
+    RedemptionType, Referral, ReferralErrorType, ReferralResponse,
     Stages,
     updateDevice,
     updateUserAuthSession,
@@ -64,7 +64,7 @@ export const appUpgradeCheck = async (): Promise<void> => {
             const appInfo = {
                 appId: Platform.OS === 'android' ? 'com.moonbeam.moonbeamfin' : '6450375130', // The App ID from the Play Store or App Store
                 appName: 'Moonbeam Finance', // The App Name
-                appVersion: '0.0.10', // The targeted App Version
+                appVersion: '0.0.10', // The targeted App Version - TBD this needs to be retrieved programmatically instead
                 platform: Platform.OS === 'android' ? 'android' : 'ios', // The App Platform
                 environment: envInfo.envName === Stages.DEV ? 'development' : 'production', // App Environment, production, development
                 appLanguage: 'en', // App Language ex: en, es, etc.
@@ -87,6 +87,89 @@ export const appUpgradeCheck = async (): Promise<void> => {
     } catch (error) {
         const errorMessage = `Unexpected error while checking the App Upgrade version ${error} ${JSON.stringify(error)}`;
         console.log(errorMessage);
+    }
+}
+
+/**
+ * Function used to process a user referral, if the registration has been
+ * started from a deep-link obtained from a Branch Universal Link, pointing
+ * to the registration page, given a referral code.
+ *
+ * @param referralCode referral code passed through the deep-link which re-directed
+ * users to the registration page.
+ * @param toId the user id representing the user who was referred
+ * @param campaignCode the campaign code which led to the referral needing to be processed
+ *
+ * @returns a {@link Promise} containing a {@link ReferralResponse, representing whether a
+ * user referral was processed or not, and if it was, what the referral object contains.
+ *
+ */
+export const processUserReferral = async (referralCode: string, toId: string, campaignCode: string): Promise<ReferralResponse> => {
+    try {
+        // first call the getUserFromReferral API, to determine a user's id from the referral code
+        const userFromReferralResult = await API.graphql(graphqlOperation(getUserFromReferral, {
+            getUserFromRefferalInput: {
+                referralCode: referralCode
+            }
+        }));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const userFromReferralData = userFromReferralResult ? userFromReferralResult.data : null;
+
+        // check if there are any errors in the returned response
+        if (userFromReferralData !== null && userFromReferralData !== undefined &&
+            userFromReferralData.getUserFromReferral.errorMessage === null &&
+            userFromReferralData.getUserFromReferral.data !== null &&
+            userFromReferralData.getUserFromReferral.data !== undefined) {
+            // given a retrieved user id, obtained from the referral code, create a new referral object accordingly
+            const createReferralResult = await API.graphql(graphqlOperation(createReferral, {
+                createReferralInput: {
+                    fromId: userFromReferralData.getUserFromReferral.data, // the user id obtained from the referral code, through the API response above
+                    toId: toId,
+                    campaignCode: campaignCode as MarketingCampaignCode
+                }
+            }));
+
+            // retrieve the data block from the response
+            // @ts-ignore
+            const newReferralData = createReferralResult ? createReferralResult.data : null;
+
+            // check if there are any errors in the returned response
+            if (newReferralData !== null && newReferralData !== undefined &&
+                newReferralData.createReferral.errorMessage === null &&
+                newReferralData.createReferral.data !== null &&
+                newReferralData.createReferral.data !== undefined &&
+                newReferralData.createReferral.data.length === 1) {
+                // return the new referral object accordingly
+                return {
+                    data: newReferralData.createReferral.data as [Referral]
+                }
+            } else {
+                // throw an error if creation of a referral through the createReferral API failed
+                const errorMessage = `Unexpected error while creating a new referral through the createReferral API ${JSON.stringify(createReferralResult)}`;
+                console.log(errorMessage);
+                return {
+                    errorMessage: errorMessage,
+                    errorType: ReferralErrorType.UnexpectedError
+                }
+            }
+        } else {
+            // throw an error if the user id retrieval from the getUserFromReferral API failed
+            const errorMessage = `Unexpected error while retrieving existing user id through the getUserFromReferral API ${JSON.stringify(userFromReferralResult)}`;
+            console.log(errorMessage);
+            return {
+                errorMessage: errorMessage,
+                errorType: ReferralErrorType.UnexpectedError
+            }
+        }
+    } catch (error) {
+        const errorMessage = `Unexpected error while processing user referral ${error} ${JSON.stringify(error)}`;
+        console.log(errorMessage);
+        return {
+            errorMessage: errorMessage,
+            errorType: ReferralErrorType.UnexpectedError
+        }
     }
 }
 

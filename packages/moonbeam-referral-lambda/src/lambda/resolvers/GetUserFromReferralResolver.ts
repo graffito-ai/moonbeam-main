@@ -1,11 +1,11 @@
 import {
-    CRC32,
     MoonbeamClient,
     ReferralErrorType,
     UserForNotificationReminderResponse,
     UserFromReferralInput,
     UserFromReferralResponse
 } from "@moonbeam/moonbeam-models";
+import * as crc32 from 'crc-32';
 
 /**
  * GetUserFromReferral resolver
@@ -40,9 +40,6 @@ export const getUserFromReferral = async (fieldName: string, userFromReferralInp
         const referralCodeFirstNamePart = referralCodeParts[1];
         const referralCodeNumberPart = referralCodeParts[2];
 
-        // initialize the CRC32 client in order to compute a checksum hash of the user id (custom:userId)
-        const crc32 = new CRC32();
-
         // check to see if the get all users call was successful or not
         if (allRegisteredUsersResponse && !allRegisteredUsersResponse.errorMessage && !allRegisteredUsersResponse.errorType &&
             allRegisteredUsersResponse.data && allRegisteredUsersResponse.data.length !== 0) {
@@ -53,7 +50,7 @@ export const getUserFromReferral = async (fieldName: string, userFromReferralInp
                 registeredUserData !== null &&
                 registeredUserData.lastName.toLowerCase() === referralCodeLastNamePart.toLowerCase() &&
                 registeredUserData.firstName.toLowerCase().charAt(0) === referralCodeFirstNamePart.toLowerCase() &&
-                crc32.calculate(registeredUserData.id).toString() === referralCodeNumberPart &&
+                crc32.str(registeredUserData.id).toString().split('-')[1] === referralCodeNumberPart &&
                 matchedUserIds.push(registeredUserData.id));
 
             // if there is not only 1 matched user, then we will return an error because we need only 1 match per call

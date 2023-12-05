@@ -83,7 +83,7 @@ import {
     MilitaryVerificationStatusType,
     NotificationChannelType,
     NotificationStatus,
-    NotificationType
+    NotificationType, ReferralResponse
 } from "@moonbeam/moonbeam-models";
 import {v4 as uuidv4} from 'uuid';
 import {MilitaryStatusSplashStep} from "./MilitaryStatusSplashStep";
@@ -102,7 +102,7 @@ import CardLinkedSuccessImage from '../../../../../assets/art/card-linked-succes
 import RegistrationBackgroundImage from '../../../../../assets/backgrounds/registration-background.png';
 import {
     createPhysicalDevice,
-    proceedWithDeviceCreation,
+    proceedWithDeviceCreation, processUserReferral,
     retrieveFidelisPartnerList,
     retrieveOnlineOffersList,
     sendNotification
@@ -117,7 +117,7 @@ import {Button} from "@rneui/base";
 import * as Notifications from "expo-notifications";
 import * as ImagePicker from 'expo-image-picker';
 import {numberOfOnlineOffersState} from "../../../../recoil/StoreOfferAtom";
-import {referralCodeState} from "../../../../recoil/BranchAtom";
+import {referralCodeMarketingCampaignState, referralCodeState} from "../../../../recoil/BranchAtom";
 
 /**
  * RegistrationComponent component.
@@ -131,6 +131,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     const [existentAccountVisible, setExistentAccountVisible] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [referralCodeMarketingCampaign, ] = useRecoilState(referralCodeMarketingCampaignState);
     const [referralCode, ] = useRecoilState(referralCodeState);
     const [numberOfOnlineOffers, setNumberOfOnlineOffers] = useRecoilState(numberOfOnlineOffersState);
     const [mainRootNavigation,] = useRecoilState(mainRootNavigationState);
@@ -522,6 +523,22 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                         }
                     } else {
                         console.log(`Not necessary to create a physical device for user!`);
+                    }
+
+                    /**
+                     * if the user successfully signed up and confirmed their account (through the email confirmation
+                     * then we can kickstart the referral check process).
+                     */
+                    const referralResponse: ReferralResponse = await processUserReferral(referralCode, userInformation["userId"], referralCodeMarketingCampaign);
+
+                    /**
+                     * we do not throw an error here so we interrupt the registration flow, but merely so we know if the
+                     * referral through the registration process has been successful or not
+                     */
+                    if (referralResponse.data !== null && referralResponse.data !== undefined) {
+                        console.log(`Referral through registration successfully processed for user ${userInformation["userId"]}`);
+                    } else {
+                        console.log(`Referral through registration was not successfully processed for user ${userInformation["userId"]}`);
                     }
 
                     // release the loader on button press
@@ -1054,13 +1071,6 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
 
                                                                 // check if the confirmation was successful
                                                                 if (signUpConfirmationFlag) {
-                                                                    /**
-                                                                     * if the user successfully signed up and confirmed their account (through the email confirmation
-                                                                     * then we can kickstart the referral check process).
-                                                                     */
-                                                                    
-
-
                                                                     setRegistrationMainError(false);
                                                                     checksPassed = true;
                                                                 } else {

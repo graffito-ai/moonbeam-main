@@ -241,7 +241,11 @@ import MoonbeamProfilePlaceholder from "../../../assets/art/moonbeam-profile-pla
 import MoonbeamFriendReferral from "../../../assets/art/moonbeam-refer-friend.png";
 import {Image as ExpoImage} from "expo-image/build/Image";
 import {Image} from "expo-image";
-import {branchRootUniversalObjectState, referralCodeState} from "../../recoil/BranchAtom";
+import {
+    branchRootUniversalObjectState,
+    referralCodeMarketingCampaignState,
+    referralCodeState
+} from "../../recoil/BranchAtom";
 
 /**
  * CustomDrawer component. This component will be used to further tailor our sidebar navigation drawer, mainly
@@ -480,6 +484,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const isServicesAndSubscriptionsKitLoadedReset = useResetRecoilState(isServicesAndSubscriptionsKitLoadedState);
     const branchRootUniversalObjectReset = useResetRecoilState(branchRootUniversalObjectState);
     const referralCodeStateReset = useResetRecoilState(referralCodeState);
+    const referralCodeMarketingCampaignStateReset = useResetRecoilState(referralCodeMarketingCampaignState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -728,6 +733,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             isServicesAndSubscriptionsKitLoadedReset();
             branchRootUniversalObjectReset();
             referralCodeStateReset();
+            referralCodeMarketingCampaignStateReset();
 
             /**
              * ensure that the current user's biometric session is interrupted, and that the already signed in flag is reset

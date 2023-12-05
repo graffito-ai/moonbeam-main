@@ -65,7 +65,7 @@ export const SearchSection = (props: {
                         {
                             toggleViewPressed === 'map'
                                 ? 'your favorite brands.'
-                                : 'at select merchant partners.'
+                                : 'at select merchants.'
                         }
                     </Text>
                 </View>

@@ -135,8 +135,5 @@ export declare namespace Constants {
         const APP_UPGRADE_SECRET_NAME = "app-upgrade-secret-pair";
         const APP_UPGRADE_API_KEY = "APP-UPGRADE-API-KEY";
         const APP_UPGRADE_BASE_URL = "APP-UPGRADE-BASE-URL";
-        const APPS_FLYER_SECRET_NAME = "apps-flyer-secret-pair";
-        const APPS_FLYER_IOS_API_KEY = "APPS-FLYER-IOS-API-KEY";
-        const APPS_FLYER_ANDROID_API_KEY = "APPS-FLYER-ANDROID-API-KEY";
     }
 }

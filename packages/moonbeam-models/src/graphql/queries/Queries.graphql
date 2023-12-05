@@ -23,13 +23,7 @@ query GetReferralsByStatus($getReferralsByStatusInput: GetReferralsByStatusInput
         }
     }
 }
-query GetAppsFlyerCredentials($getAppsFlyerCredentialsInput: GetAppsFlyerCredentialsInput!) {
-    getAppsFlyerCredentials(getAppsFlyerCredentialsInput: $getAppsFlyerCredentialsInput) {
-        errorMessage
-        errorType
-        data
-    }
-}
+
 query GetAppUpgradeCredentials {
     getAppUpgradeCredentials {
         errorMessage

@@ -19,9 +19,19 @@ const referralCodeState =  atom<string>({
 });
 
 /**
+ * Atom used to keep track of the marketing campaign code used for tracking referral codes,
+ * obtained through a deep-link coming from Branch Universal Link.
+ */
+const referralCodeMarketingCampaignState = atom<string>({
+    key: 'referralCodeMarketingCampaignState',
+    default: ""
+});
+
+/**
  * Export all atoms and/or selectors
  */
 export {
     branchRootUniversalObjectState,
-    referralCodeState
+    referralCodeState,
+    referralCodeMarketingCampaignState
 }
