@@ -7,11 +7,12 @@ import {LinearGradient} from "expo-linear-gradient";
 import {Text} from "react-native-paper";
 import GestureRecognizer from 'react-native-swipe-gestures';
 import {useRecoilState} from "recoil";
-import {initialAuthenticationScreen, deferToLoginState} from "../../recoil/AuthAtom";
+import {deferToLoginState, initialAuthenticationScreen} from "../../recoil/AuthAtom";
 import {appOverviewSteps} from "../../models/Constants";
 import {requestAppTrackingTransparencyPermission} from "../../utils/Permissions";
 import * as SecureStore from "expo-secure-store";
 import {referralCodeMarketingCampaignState, referralCodeState} from "../../recoil/BranchAtom";
+import branch from "react-native-branch";
 
 /**
  * AppOverview component.
@@ -38,8 +39,43 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
      * included in here.
      */
     useEffect(() => {
-        // handle incoming deep-links
-        authScreen === null && Linking.getInitialURL().then((url) => {
+        // handle incoming links through the branch subscription mechanism
+        // branch.subscribe({
+        //     onOpenStart: ({uri, cachedInitialEvent}) => {
+        //         console.log(`subscribe onOpenStart, will open ${uri} cachedInitialEvent is ${cachedInitialEvent}`);
+        //     },
+        //     onOpenComplete: ({error, params, uri}) => {
+        //         if (error) {
+        //             console.log(params);
+        //             console.log(`subscribe onOpenComplete, Error from opening uri ${uri} error ${error}`);
+        //             return;
+        //         } else if (params) {
+        //             if (params['$android_url'] && params['$android_url'].toString().includes('moonbeamfin://register?r=')) {
+        //                 // set the referral code to be used during registration
+        //                 setReferralCode(params['$android_url'].toString().split('moonbeamfin://register?r=')[1].split('&')[0]);
+        //             }
+        //
+        //             // set the marketing campaign code used for the referral
+        //             if (params['~campaign']) {
+        //                 setReferralCodeMarketingCampaign(params['~campaign'].toString());
+        //             }
+        //
+        //             // re-direct to the registration screen
+        //             setAuthScreen('Registration');
+        //             navigation.navigate("Authentication", {
+        //                 marketplaceCache: route.params.marketplaceCache,
+        //                 cache: route.params.cache,
+        //                 currentUserLocation: route.params.currentUserLocation,
+        //                 expoPushToken: route.params.expoPushToken,
+        //                 onLayoutRootView: route.params.onLayoutRootView
+        //             });
+        //             return;
+        //         }
+        //     },
+        // });
+
+        // handle incoming deep-links through the linking module
+        Linking.getInitialURL().then((url) => {
             if (url !== null) {
                 /**
                  * most (if not all) of these links will be coming from Branch.IO through universal link redirects,
@@ -72,13 +108,14 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
         });
 
         // necessary for iOS compliance purposes
-        requestAppTrackingTransparencyPermission().then(_ => {});
+        requestAppTrackingTransparencyPermission().then(_ => {
+        });
 
         // check if we need to skip on the overview screen
         !deepLinkingSourced && SecureStore.getItemAsync(`moonbeam-skip-overview`, {
             requireAuthentication: false // we don't need this to be under authentication, so we can check at login
         }).then(moonbeamSkipOverviewPreference => {
-            if(moonbeamSkipOverviewPreference !== null && moonbeamSkipOverviewPreference.length !== 0 && moonbeamSkipOverviewPreference === '1') {
+            if (moonbeamSkipOverviewPreference !== null && moonbeamSkipOverviewPreference.length !== 0 && moonbeamSkipOverviewPreference === '1') {
                 /**
                  * navigate to the Authentication component, and set the recoil state accordingly,
                  * in order to display the right subcomponent for Authentication.

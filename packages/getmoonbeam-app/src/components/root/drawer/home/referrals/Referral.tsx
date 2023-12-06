@@ -23,9 +23,9 @@ import {MarketingCampaignCode} from "@moonbeam/moonbeam-models";
  */
 export const Referral = ({navigation}: ReferralProps) => {
     // constants used to keep track of local component state
+    const [userReferralLink, setUserReferralLink] = useState<string>("");
     const [nextDrawingDate, setNextDrawingDate] = useState<string>("");
     const [userReferralCode, setUserReferralCode] = useState<string>("");
-    const [userReferralLink, setUserReferralLink] = useState<string>("");
 
     // constants used to keep track of shared states
     const [userInformation,] = useRecoilState(currentUserInformation);
@@ -44,18 +44,25 @@ export const Referral = ({navigation}: ReferralProps) => {
         // generate the next drawing date
         nextDrawingDate.length === 0 && getNextDrawingDate();
 
-        // generate a referral code that will be appended everywhere in the referral links and will be used to track the user during the referral process
-        userReferralCode.length === 0 &&
-        setUserReferralCode(`${userInformation["family_name"].toUpperCase()}-${userInformation["given_name"].charAt(0).toUpperCase()}-${crc32.str(userInformation["custom:userId"]).toString().split('-')[1]}`);
+        // generate the referral link for the user
+        (userReferralLink === undefined || userReferralLink.length === 0) &&
+        generateUserReferralLink().then(referralLink => {
+            setUserReferralLink(referralLink);
+        });
 
-        // generate a referral short url through Branch.io to be displayed to the user
-        userReferralLink.length === 0 && generateUserReferralLink();
+        // generate a referral code that will be appended everywhere in the referral links and will be used to track the user during the referral process
+        (userReferralCode === undefined || userReferralCode.length === 0) &&
+        setUserReferralCode(
+            crc32.str(userInformation["custom:userId"]).toString().includes('-')
+                ? `${userInformation["family_name"].toUpperCase()}-${userInformation["given_name"].charAt(0).toUpperCase()}-${crc32.str(userInformation["custom:userId"]).toString().split('-')[1]}`
+                : `${userInformation["family_name"].toUpperCase()}-${userInformation["given_name"].charAt(0).toUpperCase()}-${crc32.str(userInformation["custom:userId"]).toString()}`
+        );
 
         if (navigation.getState().index === 4) {
             appDrawerHeaderShown && setAppDrawerHeaderShown(false);
             drawerSwipeEnabled && setDrawerSwipeEnabled(false);
         }
-    }, [nextDrawingDate, userReferralLink, userReferralCode, appDrawerHeaderShown, drawerSwipeEnabled, navigation.getState()]);
+    }, [nextDrawingDate, userReferralCode, userReferralLink, appDrawerHeaderShown, drawerSwipeEnabled, navigation.getState()]);
 
 
     /**
@@ -93,34 +100,47 @@ export const Referral = ({navigation}: ReferralProps) => {
      * If the referral link generation fails, that means that the link has been generated before with the
      * customer's unique code, in which case we will just hardcode the link since we know what each user's
      * code is made up of, and also what the structure of the link should be.
+     *
+     * @return a {@link Promise} of a {@link string} representing the user referral link
      */
-    const generateUserReferralLink = async () => {
+    const generateUserReferralLink = async (): Promise<string> => {
+        // referral code generation
+        const referralCode =
+            crc32.str(userInformation["custom:userId"]).toString().includes('-')
+                ? `${userInformation["family_name"].toUpperCase()}-${userInformation["given_name"].charAt(0).toUpperCase()}-${crc32.str(userInformation["custom:userId"]).toString().split('-')[1]}`
+                : `${userInformation["family_name"].toUpperCase()}-${userInformation["given_name"].charAt(0).toUpperCase()}-${crc32.str(userInformation["custom:userId"]).toString()}`;
+
         // first attempt to generate a user referral link. This might have been generated before, so we'll just reuse that in case it was already generated, so we avoid duplicates
         try {
             // @ts-ignore
-            await branchUniversalRootObject.generateShortUrl({
-                alias: `${userReferralCode}`,
+            let {url} = await branchUniversalRootObject.generateShortUrl({
+                alias: `${referralCode}`,
                 campaign: MarketingCampaignCode.Raffleregdec23,
                 feature: 'referrals',
                 channel: `referral-pasted`,
                 stage: envInfo.envName,
                 tags: [
-                    `${userReferralCode}`
+                    `${referralCode}`,
+                    `${MarketingCampaignCode.Raffleregdec23}`
                 ]
             }, {
-                $ios_url: `moonbeamfin://register?r=${userInformation["family_name"].toUpperCase()}-${userReferralCode}`,
-                $android_url: `moonbeamfin://register?r=${userInformation["family_name"].toUpperCase()}-${userReferralCode}`,
+                $ios_url: `moonbeamfin://register?r=${referralCode}`,
+                $ipad_url: `moonbeamfin://register?r=${referralCode}`,
+                $android_url: `moonbeamfin://register?r=${referralCode}`,
+                $samsung_url: `moonbeamfin://register?r=${referralCode}`,
                 $desktop_url: 'https://www.moonbeam.vet',
                 $fallback_url: 'https://www.moonbeam.vet'
             });
+
+            return url;
         } catch (error) {
             // check to see if we have a duplicate link, in which case we will just re-use that, otherwise we error out
             // @ts-ignore
-            if (error.message !== null && error.message !== undefined && error.message.includes('A resource with this identifier already exists.')) {
-                setUserReferralLink(`https://app.moonbeam.vet/${userReferralCode}`);
+            if (error.message !== null && error.message !== undefined && (error.message.includes('A resource with this identifier already exists.') || (error.message !== null && error.message !== undefined && error.code.includes('DuplicateResourceError')))) {
+                return `https://app.moonbeam.vet/${referralCode}`;
             } else {
                 console.log(`Error while generating a referral code for the user`);
-                setUserReferralLink(`Error while generating referral code`);
+                return `Error while generating referral code`;
             }
         }
     }
@@ -159,33 +179,43 @@ export const Referral = ({navigation}: ReferralProps) => {
                             {"Share your member code with your friends. Once they sign up for an account and link a card, you will both earn a chance at winning a $100 gift card.\n\n"}
                         </Text>
                     </View>
-                    <TouchableOpacity
-                        style={styles.referralCodeView}
-                        onPress={() => {
-                        }}
-                    >
-                        <View style={styles.referralCodeInnerView}>
-                            <Icon
-                                style={styles.referralCodeIcon}
-                                name={'content-copy'}
-                                size={hp(3)}
-                                color={'#F2FF5D'}
-                            />
-                            <Text style={styles.referralCode}>{`${userReferralLink}`}</Text>
-                        </View>
-                    </TouchableOpacity>
+                    {
+                        userReferralLink !== undefined && userReferralLink.length !== 0 &&
+                        <TouchableOpacity
+                            style={styles.referralCodeView}
+                            onPress={() => {
+                            }}
+                        >
+                            <View style={styles.referralCodeInnerView}>
+                                <Icon
+                                    style={styles.referralCodeIcon}
+                                    name={'content-copy'}
+                                    size={hp(3)}
+                                    color={'#F2FF5D'}
+                                />
+                                {/*@ts-ignore*/}
+                                <Text style={styles.referralCode}>{`${userReferralLink}`}</Text>
+                            </View>
+                        </TouchableOpacity>
+                    }
                     <TouchableOpacity
                         style={styles.shareButton}
                         onPress={
                             async () => {
+                                const referralLink = await generateUserReferralLink();
+
                                 // share the referral code with other apps through a Branch.io universal link
                                 try {
                                     await Share.share({
                                         title: 'Fight Bad Guys, Get Money! 🪖🪖🪖',
-                                        message: `Here\'s my personal invite code for you to join Moonbeam, the first automatic military discounts platform!\n\nRegister for an account, link your Visa or MasterCard and earn a chance at a $100 Amazon Gift card.\n${Platform.OS === 'android' ? `\n${userReferralLink}` : ''}`,
+                                        message: `Here\'s my personal invite code for you to join Moonbeam, the first automatic military discounts platform!\n\nRegister for an account, link your Visa or MasterCard and earn a chance at a $100 Amazon Gift card.\n${Platform.OS === 'android' ? `\n${referralLink}` : ''}`,
                                         ...(Platform.OS === 'ios' && {
-                                            url: `${userReferralLink}`
-                                        })
+                                            // @ts-ignore
+                                            url: `${referralLink}`
+                                        }),
+                                    }, {
+                                        dialogTitle: 'Fight Bad Guys, Get Money! 🪖🪖🪖',
+                                        subject: 'Moonbeam | Automatic Discounts Platform',
                                     })
                                 } catch (error) {
                                     console.error(`Error sharing referral code ${error}`);

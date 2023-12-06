@@ -168,8 +168,8 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
          * included in here.
          */
         useEffect(() => {
-            // handle incoming deep-links
-            authScreen === null && Linking.getInitialURL().then((url) => {
+            // handle incoming deep-links through the linking module
+            Linking.getInitialURL().then((url) => {
                 if (url !== null) {
                     /**
                      * most (if not all) of these links will be coming from Branch.IO through universal link redirects,
@@ -192,6 +192,34 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                     }
                 }
             });
+
+            // // handle incoming links through the branch subscription mechanism
+            // branch.subscribe({
+            //     onOpenStart: ({uri, cachedInitialEvent}) => {
+            //         console.log(`subscribe onOpenStart, will open ${uri} cachedInitialEvent is ${cachedInitialEvent}`);
+            //     },
+            //     onOpenComplete: ({error, params, uri}) => {
+            //         if (error) {
+            //             console.log(params);
+            //             console.log(`subscribe onOpenComplete, Error from opening uri ${uri} error ${error}`);
+            //             return;
+            //         } else if (params) {
+            //             if (params['$android_url'] && params['$android_url'].toString().includes('moonbeamfin://register?r=')) {
+            //                 // set the referral code to be used during registration
+            //                 setReferralCode(params['$android_url'].toString().split('moonbeamfin://register?r=')[1].split('&')[0]);
+            //             }
+            //
+            //             // set the marketing campaign code used for the referral
+            //             if (params['~campaign']) {
+            //                 setReferralCodeMarketingCampaign(params['~campaign'].toString());
+            //             }
+            //
+            //             // re-direct to the registration screen
+            //             setAuthScreen('Registration');
+            //             return;
+            //         }
+            //     },
+            // });
 
             // set the main root navigation of the app accordingly
             setMainRootNavigation(navigation);
