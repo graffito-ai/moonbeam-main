@@ -24,6 +24,10 @@ enum ReferralStatus {
 enum MarketingCampaignCode {
     RAFFLEREGDEC23
     RAFFLEREGJAN24
+    RAFFLEREGFEB24
+    RAFFLEREGMAR24
+    SUNNYACTUAL1
+    MILBILBOARD1
 }
 
 # The referral object which will get stored in the Referrals table

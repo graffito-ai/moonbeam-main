@@ -84,7 +84,7 @@ export const styles = StyleSheet.create({
         top: hp(1.5)
     },
     mapHorizontalViewTitleButton: {
-        top: hp(4.75),
+        top: hp(4.4),
         fontSize: hp(1.5),
         fontFamily: 'Raleway-Bold',
         color: '#F2FF5D',
@@ -149,7 +149,7 @@ export const styles = StyleSheet.create({
     featuredPartnersView: {
         height: hp(40),
         width: wp(100),
-        bottom: hp(7)
+        bottom: hp(5)
     },
     featuredPartnerTitleView: {
         width: wp(100),
@@ -174,8 +174,8 @@ export const styles = StyleSheet.create({
         width: wp(100)
     },
     onlineOffersView: {
-        height: hp(42),
-        top: hp(10),
+        height: hp(30),
+        bottom: hp(6)
     },
     onlineOffersTitleView: {
         justifyContent: 'space-between',
@@ -218,7 +218,7 @@ export const styles = StyleSheet.create({
         color: '#F2FF5D',
         textDecorationLine: 'underline',
         alignSelf: 'flex-end',
-        bottom: hp(2.7)
+        bottom: hp(3)
     },
     onlineOffersScrollView: {
         left: wp(3),
@@ -261,9 +261,9 @@ export const styles = StyleSheet.create({
         borderBottomLeftRadius: 5,
     },
     nearbyOffersView: {
-        height: hp(40),
+        height: hp(65),
         width: wp(100),
-        bottom: hp(12)
+        bottom: hp(7)
     },
     nearbyOffersTitleView: {
         // backgroundColor: '#262626',
@@ -328,15 +328,14 @@ export const styles = StyleSheet.create({
         color: '#F2FF5D',
         textDecorationLine: 'underline',
         alignSelf: 'flex-end',
-        bottom: hp(1),
-        marginBottom: hp(3)
+        bottom: hp(1.5)
     },
     nearbyOffersScrollView: {
         top: hp(1),
         left: wp(0.01),
         right: wp(2),
-        height: hp(50),
-        width: wp(100)
+        width: wp(100),
+        height: hp(50)
     },
     loadCard: {
         left: wp(1),

@@ -448,8 +448,7 @@ export const Store = ({navigation}: StoreProps) => {
         }
 
         // load the Fidelis partners if their list is empty
-        fidelisPartnerList.length === 0 && loadFidelisData().then(_ => {
-        });
+        fidelisPartnerList.length === 0 && loadFidelisData().then(_ => {});
 
         // make sure to stop loading the store when we have a list of Fidelis partners and at least 7 online offers
         if (fidelisPartnerList.length !== 0 && onlineOfferList.length !== 0) {

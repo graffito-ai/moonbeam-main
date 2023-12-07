@@ -33,10 +33,11 @@ import {
     registrationConfirmationPasswordState,
     registrationMainErrorState,
     registrationPasswordState,
-    registrationStepNumber
+    registrationStepNumber,
+    userIsAuthenticatedState
 } from '../../../recoil/AuthAtom';
 import {AccountRecoveryComponent} from "./AccountRecoveryComponent";
-import {Linking, TouchableOpacity, View} from "react-native";
+import {TouchableOpacity, View} from "react-native";
 import {commonStyles} from "../../../styles/common.module";
 import {AppDrawer} from "../drawer/AppDrawer";
 import {DocumentsViewer} from "../../common/DocumentsViewer";
@@ -84,6 +85,7 @@ import {
 } from "../../../recoil/BranchAtom";
 import {initializeBranch} from "../../../utils/Branch";
 import {Spinner} from "../../common/Spinner";
+import branch from "react-native-branch";
 
 /**
  * Authentication component.
@@ -92,10 +94,11 @@ import {Spinner} from "../../common/Spinner";
  */
 export const AuthenticationComponent = ({route, navigation}: AuthenticationProps) => {
         // constants used to keep track of local component state
+        const [branchInitialized, setIsBranchInitialized] = useState<boolean>(false);
+        const [latestReferringParamsChecked, setLatestReferringParamsChecked] = useState<boolean>(false);
         const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
         const [appUpgradeChecked, setAppUpgradeChecked] = useState<boolean>(false);
         const [checkedOnlineCache, setCheckOnlineCache] = useState<boolean>(false);
-        const [userIsAuthenticated, setIsUserAuthenticated] = useState<boolean>(false);
         const [loadingNearbyOffersInProgress, setIsLoadingNearbyOffersInProgress] = useState<boolean>(false);
         const [loadingOnlineInProgress, setIsLoadingOnlineInProgress] = useState<boolean>(false);
         const [noPremierOnlineOffersToLoad, setNoPremierOnlineOffersToLoad] = useState<boolean>(false);
@@ -104,6 +107,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [loadingNearbyOffersForFullScreenMapInProgress, setIsLoadingNearbyOffersForFullScreenMapInProgress] = useState<boolean>(false);
         const [areOffersForFullScreenMapLoaded, setAreOffersForFullScreenMapLoaded] = useState<boolean>(false);
         // constants used to keep track of shared states
+        const [userIsAuthenticated, setIsUserAuthenticated] = useRecoilState(userIsAuthenticatedState);
         const [, setReferralCodeMarketingCampaign] = useRecoilState(referralCodeMarketingCampaignState);
         const [, setReferralCode] = useRecoilState(referralCodeState);
         const [authScreen, setAuthScreen] = useRecoilState(initialAuthenticationScreen);
@@ -168,58 +172,22 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
          * included in here.
          */
         useEffect(() => {
-            // handle incoming deep-links through the linking module
-            Linking.getInitialURL().then((url) => {
-                if (url !== null) {
-                    /**
-                     * most (if not all) of these links will be coming from Branch.IO through universal link redirects,
-                     * so we need to handle them all, depending on where they redirect to.
-                     */
-                    console.log(`app opened through external URL and/or deep-link: ${url}`);
-
-                    // for deep-links coming from any campaigns meant to re-direct to the registration screen
-                    if (url.includes('moonbeamfin://register?r=')) {
+            // handle incoming deep-links through the latest referring params of the Branch SDK
+            !latestReferringParamsChecked && branch.getLatestReferringParams(false).then(params => {
+                setLatestReferringParamsChecked(true);
+                if (params) {
+                    if (params['~tags'] && params['~tags'].length === 2) {
                         // set the referral code to be used during registration
-                        setReferralCode(url.split('moonbeamfin://register?r=')[1].split('&')[0]);
+                        setReferralCode(params['~tags'][0].toString());
 
                         // set the marketing campaign code used for the referral
-                        if (url.includes('&utm_campaign=')) {
-                            setReferralCodeMarketingCampaign(url.split('&utm_campaign=')[1].split('&')[0]);
-                        }
+                        setReferralCodeMarketingCampaign(params['~tags'][1].toString());
 
                         // re-direct to the registration screen
                         setAuthScreen('Registration');
                     }
                 }
             });
-
-            // // handle incoming links through the branch subscription mechanism
-            // branch.subscribe({
-            //     onOpenStart: ({uri, cachedInitialEvent}) => {
-            //         console.log(`subscribe onOpenStart, will open ${uri} cachedInitialEvent is ${cachedInitialEvent}`);
-            //     },
-            //     onOpenComplete: ({error, params, uri}) => {
-            //         if (error) {
-            //             console.log(params);
-            //             console.log(`subscribe onOpenComplete, Error from opening uri ${uri} error ${error}`);
-            //             return;
-            //         } else if (params) {
-            //             if (params['$android_url'] && params['$android_url'].toString().includes('moonbeamfin://register?r=')) {
-            //                 // set the referral code to be used during registration
-            //                 setReferralCode(params['$android_url'].toString().split('moonbeamfin://register?r=')[1].split('&')[0]);
-            //             }
-            //
-            //             // set the marketing campaign code used for the referral
-            //             if (params['~campaign']) {
-            //                 setReferralCodeMarketingCampaign(params['~campaign'].toString());
-            //             }
-            //
-            //             // re-direct to the registration screen
-            //             setAuthScreen('Registration');
-            //             return;
-            //         }
-            //     },
-            // });
 
             // set the main root navigation of the app accordingly
             setMainRootNavigation(navigation);
@@ -236,8 +204,9 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             // load the store data if the cache is null
             userIsAuthenticated && loadStoreData().then(() => {
                 // once a user is authenticated, then initialize the Branch.io SDK appropriately
-                initializeBranch(userInformation).then(rootBUO => {
+                !branchInitialized && initializeBranch(userInformation).then(rootBUO => {
                     setBranchRootUniversalObject(rootBUO);
+                    setIsBranchInitialized(true);
                 });
 
                 // check if the user needs to upgrade the app (forcefully or not - in case of breaking changes)
@@ -274,7 +243,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                         }
                         break;
                     case 'signOut':
-                        setIsUserAuthenticated(true);
+                        setIsUserAuthenticated(false);
                         /**
                          * Amplify automatically manages the sessions, and when the session token expires, it will log out the user and send an event
                          * here. What we do then is intercept that event, and since the user Sign-Out has already happened, we will perform the cleanup that
@@ -293,7 +262,8 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             userIsAuthenticated, reloadNearbyDueToPermissionsChange,
             noNearbyOffersToLoad, nearbyOfferList, onlineOfferList,
             marketplaceCache, loadingOnlineInProgress, noOnlineOffersToLoad,
-            appUpgradeChecked, authScreen
+            appUpgradeChecked, authScreen, latestReferringParamsChecked,
+            branchInitialized
         ]);
 
         /**
@@ -305,7 +275,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
 
                 const additionalOnlineOffers = await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers, onlineOffersPageNumber, setOnlineOffersPageNumber);
                 if (additionalOnlineOffers.length === 0) {
-                    setNoOnlineOffersToLoad(true);
+                    // setNoOnlineOffersToLoad(true);
                     setOnlineOfferList(oldOnlineOfferList => {
                         return [...oldOnlineOfferList, ...additionalOnlineOffers]
                     });
@@ -335,7 +305,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                         return [...premierOnlineOffers, ...oldOnlineOfferList]
                     });
                 } else {
-                    setNoPremierOnlineOffersToLoad(true);
+                    // setNoPremierOnlineOffersToLoad(true);
                     setOnlineOfferList(oldOnlineOfferList => {
                         return [...premierOnlineOffers, ...oldOnlineOfferList]
                     });
@@ -515,7 +485,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                 ]);
                 await Promise.all([
                     !loadingOnlineInProgress && !noPremierOnlineOffersToLoad && onlineOfferList.length < PremierOnlineProdOfferIds.length && loadPremierOnlineData(),
-                    !loadingOnlineInProgress && !noOnlineOffersToLoad && PremierOnlineProdOfferIds.length <= onlineOfferList.length && onlineOfferList.length < 50 && loadOnlineData()
+                    !loadingOnlineInProgress && !noOnlineOffersToLoad && ((PremierOnlineProdOfferIds.length <= onlineOfferList.length) || noPremierOnlineOffersToLoad) && onlineOfferList.length < 50 && loadOnlineData()
                 ]);
                 await Promise.all([
                     !loadingNearbyOffersForHorizontalMapInProgress && !areOffersForMainHorizontalMapLoaded && nearbyOffersListForMainHorizontalMap.length === 0 && loadNearbyDataForMainHorizontalMap(),
@@ -544,18 +514,19 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                  * - online regular offers
                  * - all categorized offers (online + nearby)
                  */
-                await Promise.all([
-                    !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && loadPremierNearbyData(),
-                    !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && nearbyOfferList.length < 50 && loadNearbyData()
+                nearbyOfferList.length < 6 && !loadingNearbyOffersInProgress && await Promise.all([
+                    loadPremierNearbyData(),
+                    loadNearbyData()
                 ]);
-                await Promise.all([
-                    !loadingOnlineInProgress && !noPremierOnlineOffersToLoad && onlineOfferList.length < PremierOnlineProdOfferIds.length && loadPremierOnlineData(),
-                    !loadingOnlineInProgress && !noOnlineOffersToLoad && PremierOnlineProdOfferIds.length <= onlineOfferList.length && onlineOfferList.length < 100 && loadOnlineData()
+                onlineOfferList.length < 29 && !loadingOnlineInProgress && await Promise.all([
+                    loadPremierOnlineData(),
+                    loadOnlineData()
                 ]);
                 await Promise.all([
                     !loadingNearbyOffersForHorizontalMapInProgress && !areOffersForMainHorizontalMapLoaded && nearbyOffersListForMainHorizontalMap.length === 0 && loadNearbyDataForMainHorizontalMap(),
                     !loadingNearbyOffersForFullScreenMapInProgress && !areOffersForFullScreenMapLoaded && nearbyOffersListForFullScreenMap.length === 0 && loadNearbyDataForFullScreenMap()
                 ]);
+
             }
         }
 

@@ -37,7 +37,7 @@ export const processReferral = async (event: SQSEvent): Promise<SQSBatchResponse
          * 1) Call the getEligibleLinkedUsers Moonbeam AppSync API endpoint, to retrieve all users who have a linked card
          * associated with their account (call this only once).
          *
-         * For Referrals with campaign codes of type "RAFFLEREGDEC23" or "RAFFLEREGDEC24", do the following:
+         * For Referrals with campaign codes of type "RAFFLEREGDEC23" or "RAFFLEREGJAN24", do the following:
          *
          * 2) Determine whether the toId from the incoming referral needed processing is associated with a user who has
          * a linked card to their account.
@@ -64,6 +64,8 @@ export const processReferral = async (event: SQSEvent): Promise<SQSBatchResponse
                 switch (referral.campaignCode) {
                     case MarketingCampaignCode.Raffleregdec23:
                     case MarketingCampaignCode.Raffleregjan24:
+                    case MarketingCampaignCode.Raffleregfeb24:
+                    case MarketingCampaignCode.Raffleregmar24:
                         // flag specifying whether the referred user from the referral matches a user with linked card
                         let userMatched: boolean = false;
 

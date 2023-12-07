@@ -335,7 +335,7 @@ export const NearbySection = (props: {
                             </ScrollView>
                         </View>
                     </> :
-                    (nearbyOfferList.length < 6) &&
+                    nearbyOfferList.length < 6 &&
                     <>
                         <View
                             style={styles.nearbyOffersView}>
@@ -424,7 +424,7 @@ export const NearbySection = (props: {
                         </View>
                         <Portal.Host>
                             <MapHorizontalSection/>
-                            <View style={{bottom: hp(0), height: hp(5)}}>
+                            <View style={{top: hp(1.5), height: hp(5)}}>
                                 <Text
                                     style={[styles.nearbyOffersForMapTitleSub, props.offersNearUserLocationFlag && {left: wp(6)}]}>
                                     {`${numberOfOffersWithin25Miles} offers within 25 miles`}
@@ -440,84 +440,86 @@ export const NearbySection = (props: {
                                     </Text>
                                 </TouchableOpacity>
                             </View>
-                            <View style={{flexDirection: 'row', bottom: hp(2), height: hp(30), width: wp(100)}}>
-                                {
-                                    dataProvider !== null && layoutProvider !== null &&
-                                    <RecyclerListView
-                                        // @ts-ignore
-                                        ref={nearbyListView}
-                                        style={styles.nearbyOffersScrollView}
-                                        layoutProvider={layoutProvider!}
-                                        dataProvider={dataProvider!}
-                                        rowRenderer={renderRowData}
-                                        isHorizontal={true}
-                                        forceNonDeterministicRendering={true}
-                                        renderFooter={() => {
-                                            return (
-                                                horizontalListLoading || nearbyOffersSpinnerShown ?
-                                                    <>
-                                                        <View
-                                                            style={{width: wp(20)}}/>
-                                                        <Card
-                                                            style={[styles.loadCard, {marginTop: hp(4)}]}>
-                                                            <Card.Content>
-                                                                <View style={{flexDirection: 'column'}}>
-                                                                    <View style={{
-                                                                        flexDirection: 'row'
-                                                                    }}>
-                                                                        <View style={{top: hp(3)}}>
-                                                                            <ActivityIndicator
-                                                                                style={{
-                                                                                    right: wp(15)
-                                                                                }}
-                                                                                animating={true}
-                                                                                color={'#F2FF5D'}
-                                                                                size={hp(5)}
-                                                                            />
+                            {
+                                dataProvider !== null && layoutProvider !== null &&
+                                <RecyclerListView
+                                    // @ts-ignore
+                                    ref={nearbyListView}
+                                    style={styles.nearbyOffersScrollView}
+                                    layoutProvider={layoutProvider!}
+                                    dataProvider={dataProvider!}
+                                    rowRenderer={renderRowData}
+                                    isHorizontal={true}
+                                    forceNonDeterministicRendering={true}
+                                    renderFooter={() => {
+                                        return (
+                                            horizontalListLoading || nearbyOffersSpinnerShown ?
+                                                <>
+                                                    <View
+                                                        style={{width: wp(20)}}/>
+                                                    <Card
+                                                        style={[styles.loadCard, {marginTop: hp(4)}]}>
+                                                        <Card.Content>
+                                                            <View style={{flexDirection: 'column'}}>
+                                                                <View style={{
+                                                                    flexDirection: 'row'
+                                                                }}>
+                                                                    <View style={{top: hp(3)}}>
+                                                                        <ActivityIndicator
+                                                                            style={{
+                                                                                right: wp(15)
+                                                                            }}
+                                                                            animating={true}
+                                                                            color={'#F2FF5D'}
+                                                                            size={hp(5)}
+                                                                        />
 
-                                                                        </View>
                                                                     </View>
                                                                 </View>
-                                                            </Card.Content>
-                                                        </Card>
-                                                    </> : <></>
-                                            )
-                                        }}
-                                        {
-                                            ...(Platform.OS === 'ios') ?
-                                                {onEndReachedThreshold: 0} :
-                                                {onEndReachedThreshold: 1}
-                                        }
-                                        onEndReached={async () => {
-                                            console.log(`End of list reached. Trying to refresh more items.`);
+                                                            </View>
+                                                        </Card.Content>
+                                                    </Card>
+                                                </> : <></>
+                                        )
+                                    }}
+                                    {
+                                        ...(Platform.OS === 'ios') ?
+                                            {onEndReachedThreshold: 0} :
+                                            {onEndReachedThreshold: 1}
+                                    }
+                                    onEndReached={async () => {
+                                        console.log(`End of list reached. Trying to refresh more items.`);
 
-                                            // if there are items to load
-                                            if (!noNearbyOffersToLoad) {
-                                                // set the loader
-                                                setNearbyOffersSpinnerShown(true);
-                                                // retrieving more offers (nearby or near user's location)
-                                                !props.offersNearUserLocationFlag
-                                                    ? await props.retrieveNearbyOffersList()
-                                                    : await props.retrieveOffersNearLocation(userInformation["address"]["formatted"]);
-                                                setHorizontalListLoading(true);
-                                                // this makes the scrolling seem infinite - we artificially scroll up a little, so we have enough time to load
-                                                // @ts-ignore
-                                                nearbyListView.current?.scrollToIndex(deDuplicatedNearbyOfferList.length - 2);
-                                            } else {
-                                                console.log(`Maximum number of nearby offers reached ${deDuplicatedNearbyOfferList.length}`);
-                                            }
-                                        }}
-                                        scrollViewProps={{
-                                            pagingEnabled: "true",
-                                            decelerationRate: "fast",
-                                            snapToInterval: wp(70) + wp(20),
-                                            snapToAlignment: "center",
-                                            persistentScrollbar: false,
-                                            showsHorizontalScrollIndicator: false
-                                        }}
-                                    />
-                                }
-                            </View>
+                                        // if there are items to load
+                                        if (!noNearbyOffersToLoad) {
+                                            // set the loader
+                                            setNearbyOffersSpinnerShown(true);
+                                            // retrieving more offers (nearby or near user's location)
+                                            !props.offersNearUserLocationFlag
+                                                ? await props.retrieveNearbyOffersList()
+                                                : await props.retrieveOffersNearLocation(userInformation["address"]["formatted"]);
+                                            setHorizontalListLoading(true);
+                                            // this makes the scrolling seem infinite - we artificially scroll up a little, so we have enough time to load
+                                            // @ts-ignore
+                                            nearbyListView.current?.scrollToIndex(deDuplicatedNearbyOfferList.length - 2);
+                                        } else {
+                                            console.log(`Maximum number of nearby offers reached ${deDuplicatedNearbyOfferList.length}`);
+                                        }
+                                    }}
+                                    scrollViewProps={{
+                                        decelerationRate: "fast",
+                                        snapToInterval: wp(70) + wp(20),
+                                        snapToAlignment: "center",
+                                        persistentScrollbar: false,
+                                        showsHorizontalScrollIndicator: false
+                                    }}
+                                />
+                            }
+
+                            {/*<View style={{height: hp(40), width: wp(100), bottom: hp(2)}}>*/}
+
+
+                            {/*</View>*/}
                         </Portal.Host>
                     </View>
                 </>

@@ -37,7 +37,7 @@ export const initializeBranch = async (userInformation: any): Promise<Object | n
 
         return await branch.createBranchUniversalObject(`moonbeam-root`, {
             title: `Moonbeam | Military Discounts Platform`,
-            contentDescription: `The first military discounts platform.`
+            contentDescription: `The first automatic military discounts platform.`
         });
     } catch (error) {
         const errorMessage = `Unexpected error while initializing the Branch.IO Universal Object, for OS ${Platform.OS} ${error} ${JSON.stringify(error)}`;

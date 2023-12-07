@@ -75,9 +75,9 @@ export const createReferral = async (fieldName: string, createReferralInput: Cre
 
             switch (createReferralInput.campaignCode) {
                 case MarketingCampaignCode.Raffleregdec23:
-                    referralStatus = ReferralStatus.Pending;
-                    break;
                 case MarketingCampaignCode.Raffleregjan24:
+                case MarketingCampaignCode.Raffleregfeb24:
+                case MarketingCampaignCode.Raffleregmar24:
                     referralStatus = ReferralStatus.Pending;
                     break;
                 default:

@@ -64,7 +64,7 @@ export const appUpgradeCheck = async (): Promise<void> => {
             const appInfo = {
                 appId: Platform.OS === 'android' ? 'com.moonbeam.moonbeamfin' : '6450375130', // The App ID from the Play Store or App Store
                 appName: 'Moonbeam Finance', // The App Name
-                appVersion: '0.0.10', // The targeted App Version - TBD this needs to be retrieved programmatically instead
+                appVersion: '0.0.11', // The targeted App Version
                 platform: Platform.OS === 'android' ? 'android' : 'ios', // The App Platform
                 environment: envInfo.envName === Stages.DEV ? 'development' : 'production', // App Environment, production, development
                 appLanguage: 'en', // App Language ex: en, es, etc.

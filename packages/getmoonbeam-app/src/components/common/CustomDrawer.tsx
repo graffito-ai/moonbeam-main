@@ -76,7 +76,7 @@ import {
     registrationVerificationDigit3,
     registrationVerificationDigit4,
     registrationVerificationDigit5,
-    registrationVerificationDigit6,
+    registrationVerificationDigit6, userIsAuthenticatedState,
     verificationCodeErrorsState,
     verificationDocumentState
 } from '../../recoil/AuthAtom';
@@ -246,6 +246,7 @@ import {
     referralCodeMarketingCampaignState,
     referralCodeState
 } from "../../recoil/BranchAtom";
+import branch from "react-native-branch";
 
 /**
  * CustomDrawer component. This component will be used to further tailor our sidebar navigation drawer, mainly
@@ -485,6 +486,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const branchRootUniversalObjectReset = useResetRecoilState(branchRootUniversalObjectState);
     const referralCodeStateReset = useResetRecoilState(referralCodeState);
     const referralCodeMarketingCampaignStateReset = useResetRecoilState(referralCodeMarketingCampaignState);
+    const userIsAuthenticatedStateReset = useResetRecoilState(userIsAuthenticatedState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -734,6 +736,8 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             branchRootUniversalObjectReset();
             referralCodeStateReset();
             referralCodeMarketingCampaignStateReset();
+            userIsAuthenticatedStateReset();
+            branch.logout();
 
             /**
              * ensure that the current user's biometric session is interrupted, and that the already signed in flag is reset
@@ -908,7 +912,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                     />
                                 </View>
                                 <View>
-                                    <Text style={styles.referralBottomText}>Earn a chance at a $200 Gift Card!</Text>
+                                    <Text style={styles.referralBottomText}>Earn a chance at a $100 Gift Card!</Text>
                                 </View>
                             </TouchableOpacity>
                         </View>

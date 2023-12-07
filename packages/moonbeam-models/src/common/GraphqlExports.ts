@@ -425,8 +425,12 @@ export type IneligibleLinkedUsersResponse = {
 };
 
 export enum MarketingCampaignCode {
+  Milbilboard1 = 'MILBILBOARD1',
   Raffleregdec23 = 'RAFFLEREGDEC23',
-  Raffleregjan24 = 'RAFFLEREGJAN24'
+  Raffleregfeb24 = 'RAFFLEREGFEB24',
+  Raffleregjan24 = 'RAFFLEREGJAN24',
+  Raffleregmar24 = 'RAFFLEREGMAR24',
+  Sunnyactual1 = 'SUNNYACTUAL1'
 }
 
 export type Member = {

@@ -285,7 +285,7 @@ export const Kit = ({navigation}: KitProps) => {
                     setTimeout(() => {
                         setIsReady(true);
                         setIsVeteransDayKitLoaded(true);
-                    }, 3000);
+                    }, 5000);
                 } else {
                     setIsReady(true);
                 }
@@ -301,7 +301,7 @@ export const Kit = ({navigation}: KitProps) => {
                     setTimeout(() => {
                         setIsReady(true);
                         setIsFoodKitLoaded(true);
-                    }, 3000);
+                    }, 5000);
                 } else {
                     setIsReady(true);
                 }
@@ -317,7 +317,7 @@ export const Kit = ({navigation}: KitProps) => {
                     setTimeout(() => {
                         setIsReady(true);
                         setIsRetailKitLoaded(true);
-                    }, 3000);
+                    }, 5000);
                 } else {
                     setIsReady(true);
                 }
@@ -333,7 +333,7 @@ export const Kit = ({navigation}: KitProps) => {
                     setTimeout(() => {
                         setIsReady(true);
                         setIsEntertainmentKitLoaded(true);
-                    }, 3000);
+                    }, 5000);
                 } else {
                     setIsReady(true);
                 }
@@ -349,7 +349,7 @@ export const Kit = ({navigation}: KitProps) => {
                     setTimeout(() => {
                         setIsReady(true);
                         setIsElectronicsKitLoaded(true);
-                    }, 3000);
+                    }, 5000);
                 } else {
                     setIsReady(true);
                 }
@@ -365,7 +365,7 @@ export const Kit = ({navigation}: KitProps) => {
                     setTimeout(() => {
                         setIsReady(true);
                         setIsHomeKitLoaded(true);
-                    }, 3000);
+                    }, 5000);
                 } else {
                     setIsReady(true);
                 }
@@ -381,7 +381,7 @@ export const Kit = ({navigation}: KitProps) => {
                     setTimeout(() => {
                         setIsReady(true);
                         setIsHealthAndBeautyKitLoaded(true);
-                    }, 3000);
+                    }, 5000);
                 } else {
                     setIsReady(true);
                 }
@@ -397,7 +397,7 @@ export const Kit = ({navigation}: KitProps) => {
                     setTimeout(() => {
                         setIsReady(true);
                         setIsOfficeAndBusinessKitLoaded(true);
-                    }, 3000);
+                    }, 5000);
                 } else {
                     setIsReady(true);
                 }
@@ -413,7 +413,7 @@ export const Kit = ({navigation}: KitProps) => {
                     setTimeout(() => {
                         setIsReady(true);
                         setIsServicesAndSubscriptionsKitLoaded(true);
-                    }, 3000);
+                    }, 5000);
                 } else {
                     setIsReady(true);
                 }

@@ -46,12 +46,20 @@ export const getUserFromReferral = async (fieldName: string, userFromReferralInp
 
             // filter the users retrieved based on the last name, first letter of the first name and the CRC32(custom:userId) operation
             const matchedUserIds: string[] = [];
-            allRegisteredUsersResponse.data.forEach(registeredUserData =>
-                registeredUserData !== null &&
-                registeredUserData.lastName.toLowerCase() === referralCodeLastNamePart.toLowerCase() &&
-                registeredUserData.firstName.toLowerCase().charAt(0) === referralCodeFirstNamePart.toLowerCase() &&
-                crc32.str(registeredUserData.id).toString().split('-')[1] === referralCodeNumberPart &&
-                matchedUserIds.push(registeredUserData.id));
+            allRegisteredUsersResponse.data.forEach(registeredUserData => {
+                let crc32CheckSumHash = "";
+                if (registeredUserData !== null) {
+                    crc32CheckSumHash = crc32.str(registeredUserData.id).toString().includes('-')
+                        ? crc32.str(registeredUserData.id).toString().split('-')[1]
+                        : crc32.str(registeredUserData.id).toString();
+                }
+                if (registeredUserData !== null &&
+                    registeredUserData.lastName.toLowerCase() === referralCodeLastNamePart.toLowerCase() &&
+                    registeredUserData.firstName.toLowerCase().charAt(0) === referralCodeFirstNamePart.toLowerCase() &&
+                    crc32CheckSumHash === referralCodeNumberPart) {
+                    matchedUserIds.push(registeredUserData.id)
+                }
+            });
 
             // if there is not only 1 matched user, then we will return an error because we need only 1 match per call
             if (matchedUserIds.length !== 1) {

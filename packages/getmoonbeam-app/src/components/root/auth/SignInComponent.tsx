@@ -12,7 +12,7 @@ import {useRecoilState} from "recoil";
 import {
     currentUserInformation,
     isLoadingAppOverviewNeededState,
-    mainRootNavigationState
+    mainRootNavigationState, userIsAuthenticatedState
 } from "../../../recoil/AuthAtom";
 import {Auth} from "aws-amplify";
 import {Spinner} from "../../common/Spinner";
@@ -24,7 +24,7 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-nativ
 import {moonbeamUserIdPassState, moonbeamUserIdState} from "../../../recoil/RootAtom";
 import * as SecureStore from "expo-secure-store";
 import * as LocalAuthentication from 'expo-local-authentication';
-import {referralCodeState} from "../../../recoil/BranchAtom";
+import {referralCodeMarketingCampaignState, referralCodeState} from "../../../recoil/BranchAtom";
 
 /**
  * Sign In component.
@@ -48,6 +48,8 @@ export const SignInComponent = ({navigation}: SignInProps) => {
     const [passwordShown, setIsPasswordShown] = useState<boolean>(false);
     const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [, setIsUserAuthenticated] = useRecoilState(userIsAuthenticatedState);
+    const [referralCodeMarketingCampaign, ] = useRecoilState(referralCodeMarketingCampaignState);
     const [referralCode,] = useRecoilState(referralCodeState);
     const [, setMoonbeamUserId] = useRecoilState(moonbeamUserIdState);
     const [, setMoonbeamUserIdPass] = useRecoilState(moonbeamUserIdPassState);
@@ -66,6 +68,12 @@ export const SignInComponent = ({navigation}: SignInProps) => {
      * included in here.
      */
     useEffect(() => {
+        /**
+         * force the registration navigation in case we got a referral code and marketing code and for some reason the
+         * re-direct did not work
+         */
+        referralCode.length !== 0 && referralCodeMarketingCampaign.length !== 0 && navigation.navigate('Registration', {});
+
         // determine whether biometric sign-in is enabled or not, and sign-in user using biometrics if that's available
         referralCode.length === 0 && !biometricCheckReady && !biometricCheckInitiated && signInWithBiometrics().then(_ => {
             setBiometricCheckReady(true);
@@ -106,7 +114,7 @@ export const SignInComponent = ({navigation}: SignInProps) => {
             keyboardDidHideListener.remove();
             keyboardDidShowListener.remove();
         };
-    }, [isKeyboardShown, email, emailFocus, password, passwordFocus, referralCode]);
+    }, [isKeyboardShown, email, emailFocus, password, passwordFocus, referralCode, referralCodeMarketingCampaign]);
 
 
     /**
@@ -174,6 +182,9 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                             await SecureStore.setItemAsync(`moonbeam-skip-overview`, '1', {
                                 requireAuthentication: false // can only retrieve this if a valid authentication mechanism was successfully passed.
                             });
+
+                            // mark that the user is authenticated
+                            setIsUserAuthenticated(true);
 
                             // navigate to the App Drawer
                             // @ts-ignore
@@ -281,6 +292,9 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                 await SecureStore.setItemAsync(`moonbeam-skip-overview`, '1', {
                     requireAuthentication: false // can only retrieve this if a valid authentication mechanism was successfully passed.
                 });
+
+                // mark that the user is authenticated
+                setIsUserAuthenticated(true);
 
                 return true;
             } else {

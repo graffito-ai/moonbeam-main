@@ -67,7 +67,7 @@ import {
     registrationVerificationDigit3,
     registrationVerificationDigit4,
     registrationVerificationDigit5,
-    registrationVerificationDigit6,
+    registrationVerificationDigit6, userIsAuthenticatedState,
     verificationCodeErrorsState
 } from '../../../../recoil/AuthAtom';
 import {registrationSteps} from "../../../../models/Constants";
@@ -131,6 +131,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     const [existentAccountVisible, setExistentAccountVisible] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [, setIsUserAuthenticated] = useRecoilState(userIsAuthenticatedState);
     const [referralCodeMarketingCampaign, ] = useRecoilState(referralCodeMarketingCampaignState);
     const [referralCode, ] = useRecoilState(referralCodeState);
     const [numberOfOnlineOffers, setNumberOfOnlineOffers] = useRecoilState(numberOfOnlineOffersState);
@@ -543,6 +544,9 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
 
                     // release the loader on button press
                     setIsReady(true);
+
+                    // mark that the user is authenticated
+                    setIsUserAuthenticated(true);
 
                     return true;
                 } else {

@@ -38,7 +38,7 @@ export const OnlineSection = (props: {
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
     const [onlineOffersSpinnerShown, setOnlineOffersSpinnerShown] = useState<boolean>(false);
     // constants used to keep track of shared states
-    const [numberOfOnlineOffers, ] = useRecoilState(numberOfOnlineOffersState);
+    const [numberOfOnlineOffers,] = useRecoilState(numberOfOnlineOffersState);
     const [locationServicesButton,] = useRecoilState(locationServicesButtonState);
     const [nearbyOfferList,] = useRecoilState(nearbyOffersListState);
     const [, setToggleViewPressed] = useRecoilState(toggleViewPressedState);
@@ -142,15 +142,16 @@ export const OnlineSection = (props: {
     return (
         <>
             <View
-                style={[styles.onlineOffersView,  (nearbyOfferList.length < 6) &&
+                style={[styles.onlineOffersView,
+                    nearbyOfferList.length < 6 &&
                     {
-                        height: hp(15),
-                        top: -hp(17),
+                        height: hp(5),
+                        bottom: hp(35)
                     },
                     locationServicesButton &&
                     {
-                        height: hp(30),
-                        top: -hp(7),
+                        height: hp(15),
+                        bottom: hp(25)
                     }
                 ]}>
                 <View style={styles.onlineOffersTitleView}>

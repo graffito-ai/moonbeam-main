@@ -28,7 +28,7 @@
       "backgroundColor": "#313030"
     },
     "ios": {
-      "buildNumber": "1",
+      "buildNumber": "4",
       "bundleIdentifier": "com.moonbeam.moonbeamfinance",
       "supportsTablet": false,
       "infoPlist": {
@@ -48,7 +48,7 @@
       }
     },
     "android": {
-      "versionCode": 24,
+      "versionCode": 25,
       "package": "com.moonbeam.moonbeamfin",
       "googleServicesFile": "./google-services.json",
       "softwareKeyboardLayoutMode": "pan",
@@ -81,7 +81,10 @@
     },
     "plugins": [
       [
-        "@config-plugins/react-native-branch"
+        "@config-plugins/react-native-branch",
+        {
+          "apiKey": "key_live_dCiEy5Jy3M9LvuF3YtBmXogiEtfJdz6J"
+        }
       ],
       [
         "expo-updates",

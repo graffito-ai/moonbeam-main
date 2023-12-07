@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {ImageBackground, Linking, TouchableOpacity, View} from "react-native";
+import {ImageBackground, TouchableOpacity, View} from "react-native";
 import {commonStyles} from '../../styles/common.module';
 import {styles} from '../../styles/appOverview.module';
 import {AppOverviewProps} from "../../models/props/RootProps";
@@ -28,6 +28,7 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
     const [authScreen, setAuthScreen] = useRecoilState(initialAuthenticationScreen);
     const [deferToLogin, setDeferToLogin] = useRecoilState(deferToLoginState);
     // constants used to keep track of local component state
+    const [latestReferringParamsChecked, setLatestReferringParamsChecked] = useState<boolean>(false);
     const [deepLinkingSourced, setDeepLinkingSourced] = useState<boolean>(false);
     const [stepNumber, setStepNumber] = useState<number>(0);
 
@@ -39,60 +40,17 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
      * included in here.
      */
     useEffect(() => {
-        // handle incoming links through the branch subscription mechanism
-        // branch.subscribe({
-        //     onOpenStart: ({uri, cachedInitialEvent}) => {
-        //         console.log(`subscribe onOpenStart, will open ${uri} cachedInitialEvent is ${cachedInitialEvent}`);
-        //     },
-        //     onOpenComplete: ({error, params, uri}) => {
-        //         if (error) {
-        //             console.log(params);
-        //             console.log(`subscribe onOpenComplete, Error from opening uri ${uri} error ${error}`);
-        //             return;
-        //         } else if (params) {
-        //             if (params['$android_url'] && params['$android_url'].toString().includes('moonbeamfin://register?r=')) {
-        //                 // set the referral code to be used during registration
-        //                 setReferralCode(params['$android_url'].toString().split('moonbeamfin://register?r=')[1].split('&')[0]);
-        //             }
-        //
-        //             // set the marketing campaign code used for the referral
-        //             if (params['~campaign']) {
-        //                 setReferralCodeMarketingCampaign(params['~campaign'].toString());
-        //             }
-        //
-        //             // re-direct to the registration screen
-        //             setAuthScreen('Registration');
-        //             navigation.navigate("Authentication", {
-        //                 marketplaceCache: route.params.marketplaceCache,
-        //                 cache: route.params.cache,
-        //                 currentUserLocation: route.params.currentUserLocation,
-        //                 expoPushToken: route.params.expoPushToken,
-        //                 onLayoutRootView: route.params.onLayoutRootView
-        //             });
-        //             return;
-        //         }
-        //     },
-        // });
-
-        // handle incoming deep-links through the linking module
-        Linking.getInitialURL().then((url) => {
-            if (url !== null) {
-                /**
-                 * most (if not all) of these links will be coming from Branch.IO through universal link redirects,
-                 * so we need to handle them all, depending on where they redirect to.
-                 */
-                console.log(`app opened through external URL and/or deep-link: ${url}`);
-                setDeepLinkingSourced(true);
-
-                // for deep-links coming from any campaigns meant to re-direct to the registration screen
-                if (url.includes('moonbeamfin://register?r=')) {
+        // handle incoming deep-links through the latest referring params of the Branch SDK
+        !latestReferringParamsChecked && branch.getLatestReferringParams(false).then(params => {
+            setLatestReferringParamsChecked(true);
+            setDeepLinkingSourced(true);
+            if (params) {
+                if (params['~tags'] && params['~tags'].length === 2) {
                     // set the referral code to be used during registration
-                    setReferralCode(url.split('moonbeamfin://register?r=')[1].split('&')[0]);
+                    setReferralCode(params['~tags'][0].toString());
 
                     // set the marketing campaign code used for the referral
-                    if (url.includes('&utm_campaign=')) {
-                        setReferralCodeMarketingCampaign(url.split('&utm_campaign=')[1].split('&')[0]);
-                    }
+                    setReferralCodeMarketingCampaign(params['~tags'][1].toString());
 
                     // re-direct to the registration screen
                     setAuthScreen('Registration');
@@ -145,7 +103,7 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
             });
             setDeferToLogin(false);
         }
-    }, [deferToLogin, authScreen, deepLinkingSourced]);
+    }, [deferToLogin, authScreen, deepLinkingSourced, latestReferringParamsChecked]);
 
     // return the component for the AppOverview page
     return (

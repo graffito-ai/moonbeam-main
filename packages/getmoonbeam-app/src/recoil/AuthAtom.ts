@@ -560,9 +560,19 @@ const deferToLoginState = atom<boolean>({
 });
 
 /**
+ * Atom used to keep track of whether a user is authenticated throughout the app or not.
+ */
+const userIsAuthenticatedState = atom<boolean>({
+    key: "userIsAuthenticatedState",
+    default: false
+});
+
+
+/**
  * Export all atoms and/or selectors
  */
 export {
+    userIsAuthenticatedState,
     deferToLoginState,
     automaticallyVerifyRegistrationCodeState,
     documentsRePickPhotoState,

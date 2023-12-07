@@ -14,6 +14,7 @@ import * as crc32 from 'crc-32';
 import {branchRootUniversalObjectState} from "../../../../../recoil/BranchAtom";
 import * as envInfo from "./../../../../../../local-env-info.json";
 import {MarketingCampaignCode} from "@moonbeam/moonbeam-models";
+import * as Clipboard from 'expo-clipboard';
 
 /**
  * Referral component.
@@ -23,6 +24,7 @@ import {MarketingCampaignCode} from "@moonbeam/moonbeam-models";
  */
 export const Referral = ({navigation}: ReferralProps) => {
     // constants used to keep track of local component state
+    const [campaignMarketingCode, setCampaignMarketingCode] = useState<MarketingCampaignCode | "">("");
     const [userReferralLink, setUserReferralLink] = useState<string>("");
     const [nextDrawingDate, setNextDrawingDate] = useState<string>("");
     const [userReferralCode, setUserReferralCode] = useState<string>("");
@@ -45,8 +47,8 @@ export const Referral = ({navigation}: ReferralProps) => {
         nextDrawingDate.length === 0 && getNextDrawingDate();
 
         // generate the referral link for the user
-        (userReferralLink === undefined || userReferralLink.length === 0) &&
-        generateUserReferralLink().then(referralLink => {
+        campaignMarketingCode !== "" && (userReferralLink === undefined || userReferralLink.length === 0) &&
+        generateUserReferralLink(campaignMarketingCode).then(referralLink => {
             setUserReferralLink(referralLink);
         });
 
@@ -62,7 +64,9 @@ export const Referral = ({navigation}: ReferralProps) => {
             appDrawerHeaderShown && setAppDrawerHeaderShown(false);
             drawerSwipeEnabled && setDrawerSwipeEnabled(false);
         }
-    }, [nextDrawingDate, userReferralCode, userReferralLink, appDrawerHeaderShown, drawerSwipeEnabled, navigation.getState()]);
+    }, [campaignMarketingCode, nextDrawingDate, userReferralCode, userReferralLink,
+        appDrawerHeaderShown, drawerSwipeEnabled, navigation.getState()
+    ]);
 
 
     /**
@@ -82,15 +86,19 @@ export const Referral = ({navigation}: ReferralProps) => {
         // depending on the current date, determine which raffle drawing date we will show
         if (currentDateFormatted < firstRaffle) {
             setNextDrawingDate(`12/22/2023`);
+            setCampaignMarketingCode(MarketingCampaignCode.Raffleregdec23);
         } else if (currentDateFormatted < secondRaffle) {
-            console.log('here it should not be');
             setNextDrawingDate(`01/05/2024`);
+            setCampaignMarketingCode(MarketingCampaignCode.Raffleregjan24);
         } else if (currentDateFormatted < thirdRaffle) {
             setNextDrawingDate(`01/19/2024`);
+            setCampaignMarketingCode(MarketingCampaignCode.Raffleregjan24);
         } else if (currentDateFormatted < fourthRaffle) {
             setNextDrawingDate(`02/02/2024`);
+            setCampaignMarketingCode(MarketingCampaignCode.Raffleregfeb24);
         } else {
             setNextDrawingDate(`03/01/2024`);
+            setCampaignMarketingCode(MarketingCampaignCode.Raffleregmar24);
         }
     }
 
@@ -101,9 +109,11 @@ export const Referral = ({navigation}: ReferralProps) => {
      * customer's unique code, in which case we will just hardcode the link since we know what each user's
      * code is made up of, and also what the structure of the link should be.
      *
+     * @param campaignMarketingCode the campaign market code to be passed in when creating the link
+     *
      * @return a {@link Promise} of a {@link string} representing the user referral link
      */
-    const generateUserReferralLink = async (): Promise<string> => {
+    const generateUserReferralLink = async (campaignMarketingCode: MarketingCampaignCode | ""): Promise<string> => {
         // referral code generation
         const referralCode =
             crc32.str(userInformation["custom:userId"]).toString().includes('-')
@@ -115,21 +125,14 @@ export const Referral = ({navigation}: ReferralProps) => {
             // @ts-ignore
             let {url} = await branchUniversalRootObject.generateShortUrl({
                 alias: `${referralCode}`,
-                campaign: MarketingCampaignCode.Raffleregdec23,
+                campaign: campaignMarketingCode,
                 feature: 'referrals',
-                channel: `referral-pasted`,
+                channel: `in-app`,
                 stage: envInfo.envName,
                 tags: [
                     `${referralCode}`,
-                    `${MarketingCampaignCode.Raffleregdec23}`
+                    campaignMarketingCode
                 ]
-            }, {
-                $ios_url: `moonbeamfin://register?r=${referralCode}`,
-                $ipad_url: `moonbeamfin://register?r=${referralCode}`,
-                $android_url: `moonbeamfin://register?r=${referralCode}`,
-                $samsung_url: `moonbeamfin://register?r=${referralCode}`,
-                $desktop_url: 'https://www.moonbeam.vet',
-                $fallback_url: 'https://www.moonbeam.vet'
             });
 
             return url;
@@ -183,7 +186,9 @@ export const Referral = ({navigation}: ReferralProps) => {
                         userReferralLink !== undefined && userReferralLink.length !== 0 &&
                         <TouchableOpacity
                             style={styles.referralCodeView}
-                            onPress={() => {
+                            onPress={async () => {
+                                // copy to clipboard
+                                await Clipboard.setStringAsync(userReferralLink);
                             }}
                         >
                             <View style={styles.referralCodeInnerView}>
@@ -198,41 +203,41 @@ export const Referral = ({navigation}: ReferralProps) => {
                             </View>
                         </TouchableOpacity>
                     }
-                    <TouchableOpacity
-                        style={styles.shareButton}
-                        onPress={
-                            async () => {
-                                const referralLink = await generateUserReferralLink();
+                    {
+                        campaignMarketingCode !== "" &&
+                        <TouchableOpacity
+                            style={styles.shareButton}
+                            onPress={
+                                async () => {
+                                    const referralLink = await generateUserReferralLink(campaignMarketingCode);
 
-                                // share the referral code with other apps through a Branch.io universal link
-                                try {
-                                    await Share.share({
-                                        title: 'Fight Bad Guys, Get Money! 🪖🪖🪖',
-                                        message: `Here\'s my personal invite code for you to join Moonbeam, the first automatic military discounts platform!\n\nRegister for an account, link your Visa or MasterCard and earn a chance at a $100 Amazon Gift card.\n${Platform.OS === 'android' ? `\n${referralLink}` : ''}`,
-                                        ...(Platform.OS === 'ios' && {
-                                            // @ts-ignore
-                                            url: `${referralLink}`
-                                        }),
-                                    }, {
-                                        dialogTitle: 'Fight Bad Guys, Get Money! 🪖🪖🪖',
-                                        subject: 'Moonbeam | Automatic Discounts Platform',
-                                    })
-                                } catch (error) {
-                                    console.error(`Error sharing referral code ${error}`);
+                                    // share the referral code with other apps through a Branch.io universal link
+                                    try {
+                                        await Share.share({
+                                            title: 'Fight Bad Guys, Get Money! 🪖🪖🪖',
+                                            message: `Here\'s my personal invite code for you to join Moonbeam, the first automatic military discounts platform!\n\nRegister for an account, link your Visa or MasterCard and earn a chance at a $100 Amazon Gift card.\n${Platform.OS === 'android' ? `\n${referralLink}` : ''}`,
+                                            ...(Platform.OS === 'ios' && {
+                                                // @ts-ignore
+                                                url: `${referralLink}`
+                                            }),
+                                        }, {
+                                            dialogTitle: 'Fight Bad Guys, Get Money! 🪖🪖🪖',
+                                            subject: 'Moonbeam | Automatic Discounts Platform',
+                                        })
+                                    } catch (error) {
+                                        console.error(`Error sharing referral code ${error}`);
+                                    }
                                 }
                             }
-                        }
-                    >
-                        <Icon
-                            name={'ios-share'}
-                            size={hp(2.3)}
-                            color={'#1e1e21'}
-                            onPress={async () => {
-
-                            }}
-                        />
-                        <Text style={styles.shareButtonText}>Share Code</Text>
-                    </TouchableOpacity>
+                        >
+                            <Icon
+                                name={'ios-share'}
+                                size={hp(2.3)}
+                                color={'#1e1e21'}
+                            />
+                            <Text style={styles.shareButtonText}>Share Code</Text>
+                        </TouchableOpacity>
+                    }
                     {/*<Text style={styles.referralContentMessageSubtitleHighlighted}>*/}
                     {/*    Increase your chances of winning with unlimited referrals*/}
                     {/*</Text>*/}
