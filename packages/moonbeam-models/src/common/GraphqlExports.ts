@@ -782,6 +782,10 @@ export enum NotificationReminderStatus {
 export enum NotificationReminderType {
   CardLinkingReminder = 'CARD_LINKING_REMINDER',
   NewMapFeatureReminder = 'NEW_MAP_FEATURE_REMINDER',
+  ReferralTemplate_1Reminder = 'REFERRAL_TEMPLATE_1_REMINDER',
+  ReferralTemplate_2Reminder = 'REFERRAL_TEMPLATE_2_REMINDER',
+  ReferralTemplate_3Reminder = 'REFERRAL_TEMPLATE_3_REMINDER',
+  ReferralTemplateLaunch = 'REFERRAL_TEMPLATE_LAUNCH',
   VeteransDayTemplate_1Reminder = 'VETERANS_DAY_TEMPLATE_1_REMINDER',
   VeteransDayTemplate_2Reminder = 'VETERANS_DAY_TEMPLATE_2_REMINDER',
   VeteransDayTemplate_3Reminder = 'VETERANS_DAY_TEMPLATE_3_REMINDER'
@@ -811,6 +815,10 @@ export enum NotificationType {
   NewQualifyingOfferAvailable = 'NEW_QUALIFYING_OFFER_AVAILABLE',
   NewUserSignup = 'NEW_USER_SIGNUP',
   QualifyingOffer = 'QUALIFYING_OFFER',
+  ReferralTemplate_1Reminder = 'REFERRAL_TEMPLATE_1_REMINDER',
+  ReferralTemplate_2Reminder = 'REFERRAL_TEMPLATE_2_REMINDER',
+  ReferralTemplate_3Reminder = 'REFERRAL_TEMPLATE_3_REMINDER',
+  ReferralTemplateLaunch = 'REFERRAL_TEMPLATE_LAUNCH',
   VeteransDayTemplate_1Reminder = 'VETERANS_DAY_TEMPLATE_1_REMINDER',
   VeteransDayTemplate_2Reminder = 'VETERANS_DAY_TEMPLATE_2_REMINDER',
   VeteransDayTemplate_3Reminder = 'VETERANS_DAY_TEMPLATE_3_REMINDER'

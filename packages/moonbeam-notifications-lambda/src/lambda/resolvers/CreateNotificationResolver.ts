@@ -107,6 +107,9 @@ export const createNotification = async (fieldName: string, createNotificationIn
                 case NotificationType.VeteransDayTemplate_3Reminder:
                     return standardEmailAndPushNotification(createNotificationInput, courierClient, dynamoDbClient,
                         NotificationType.VeteransDayTemplate_3Reminder);
+                case NotificationType.ReferralTemplateLaunch:
+                    return standardEmailAndPushNotification(createNotificationInput, courierClient, dynamoDbClient,
+                        NotificationType.ReferralTemplateLaunch);
                 default:
                     const errorMessage = `Unexpected notification type ${createNotificationInput.type}`;
                     console.log(errorMessage);
@@ -128,7 +131,7 @@ export const createNotification = async (fieldName: string, createNotificationIn
 
 /**
  * Function used for push notification reminders:
- * - for Veterans Day template 1
+ * - for Veterans Day template reminders (which require only push notifications)
  *
  * @param createNotificationInput create notifications input object, used to create a notification
  * for a user card linking reminder.
