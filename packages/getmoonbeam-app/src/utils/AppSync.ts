@@ -64,7 +64,7 @@ export const appUpgradeCheck = async (): Promise<void> => {
             const appInfo = {
                 appId: Platform.OS === 'android' ? 'com.moonbeam.moonbeamfin' : '6450375130', // The App ID from the Play Store or App Store
                 appName: 'Moonbeam Finance', // The App Name
-                appVersion: '0.0.11', // The targeted App Version
+                appVersion: '0.0.11', // The targeted App Version to be updated
                 platform: Platform.OS === 'android' ? 'android' : 'ios', // The App Platform
                 environment: envInfo.envName === Stages.DEV ? 'development' : 'production', // App Environment, production, development
                 appLanguage: 'en', // App Language ex: en, es, etc.
@@ -434,11 +434,70 @@ export const createPhysicalDevice = async (userId: string, tokenId: string): Pro
 }
 
 /**
+ * Function used to retrieve the list of premier click-only online offers that we will
+ * use for caching purposes.
+ *
+ * @param pageNumber optional parameter specifying a page number that we will get the
+ * premier click-only online offer from, in case we are not using this for caching purposes
+ * @param setPageNumber setter or updater used to update the page number, if passed in.
+ *
+ * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function will
+ * be used to cache the list of premier click-only online offers.
+ */
+export const retrievePremierClickOnlyOnlineOffersList = async (pageNumber?: number, setPageNumber?: SetterOrUpdater<number>): Promise<Offer[]> => {
+    // result to return
+    let premierClickOnlyOnlineOffers: Offer[] = [];
+
+    try {
+        // call the getOffers API
+        const premierClickOnlyOnlineOffersResult = await API.graphql(graphqlOperation(getPremierOffers, {
+            getOffersInput: {
+                availability: OfferAvailability.Global,
+                countryCode: CountryCode.Us,
+                filterType: OfferFilter.PremierOnline,
+                offerStates: [OfferState.Active, OfferState.Scheduled],
+                pageNumber: pageNumber !== undefined ? pageNumber : 1,
+                pageSize: 14, // load all the premier click-only online offers, so we can sort them appropriately
+                redemptionType: RedemptionType.Click
+            }
+        }));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const responseData = premierClickOnlyOnlineOffersResult ? premierClickOnlyOnlineOffersResult.data : null;
+
+        // check if there are any errors in the returned response
+        if (responseData && responseData.getPremierOffers.errorMessage === null) {
+            // retrieve the array of premier click-only online offers from the API call
+            premierClickOnlyOnlineOffers = responseData.getPremierOffers.data.offers;
+
+            // ensure that there is at least one premier click-only online offer in the list
+            if (premierClickOnlyOnlineOffers.length > 0) {
+                // increase the page number, if needed
+                pageNumber !== null && pageNumber !== undefined &&
+                setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
+
+                return premierClickOnlyOnlineOffers;
+            } else {
+                console.log(`No premier click-only online offers to display ${JSON.stringify(premierClickOnlyOnlineOffersResult)}`);
+                return premierClickOnlyOnlineOffers;
+            }
+        } else {
+            console.log(`Unexpected error while retrieving premier click-only online offers ${JSON.stringify(premierClickOnlyOnlineOffersResult)}`);
+            return premierClickOnlyOnlineOffers;
+        }
+    } catch (error) {
+        console.log(`Unexpected error while attempting to retrieve premier click-only online offers ${JSON.stringify(error)} ${error}`);
+        return premierClickOnlyOnlineOffers;
+    }
+}
+
+/**
  * Function used to retrieve the list of premier online offers that we will
  * use for caching purposes.
  *
- * @param pageNumber optional parameter specifying a page number that we will get the locations
- * near offers from, in case we are not using this for caching purposes
+ * @param pageNumber optional parameter specifying a page number that we will get the
+ * premier online offer from, in case we are not using this for caching purposes
  * @param setPageNumber setter or updater used to update the page number, if passed in.
  *
  * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function will
@@ -468,10 +527,10 @@ export const retrievePremierOnlineOffersList = async (pageNumber?: number, setPa
 
         // check if there are any errors in the returned response
         if (responseData && responseData.getPremierOffers.errorMessage === null) {
-            // retrieve the array of online offers from the API call
+            // retrieve the array of premier online offers from the API call
             premierOnlineOffers = responseData.getPremierOffers.data.offers;
 
-            // ensure that there is at least one online offer in the list
+            // ensure that there is at least one premier online offer in the list
             if (premierOnlineOffers.length > 0) {
                 // increase the page number, if needed
                 pageNumber !== null && pageNumber !== undefined &&
@@ -575,6 +634,73 @@ export const retrieveCategorizedOnlineOffersList = async (totalNumberOfOffersAva
         (error) {
         console.log(`Unexpected error while attempting to retrieve categorized online offers for category ${offerCategory} ${JSON.stringify(error)} ${error}`);
         return onlineOffers;
+    }
+}
+
+/**
+ * Function used to retrieve the list of click-only online offers that we will
+ * use for caching purposes.
+ *
+ * @param pageNumber optional parameter specifying a page number that we will get the
+ * click-only online from, in case we are not using this for caching purposes
+ * @param setPageNumber optional setter or updater used to update the page number.
+ * @param totalNumberOfOffersAvailable parameter specifying the total number of click-only online offers available.
+ * @param setTotalNumberOfOffersAvailable setter or updates used to update the total number of click-only online
+ * offers available.
+ *
+ * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function will
+ * be used to cache the list of click-only online offers.
+ */
+export const retrieveClickOnlyOnlineOffersList = async (totalNumberOfOffersAvailable: number, setTotalNumberOfOffersAvailable: SetterOrUpdater<number>,
+                                               pageNumber?: number, setPageNumber?: SetterOrUpdater<number>): Promise<Offer[]> => {
+    // result to return
+    let clickOnlyOnlineOffers: Offer[] = [];
+
+    try {
+        // call the getOffers API
+        const clickOnlyOnlineOffersResult = await API.graphql(graphqlOperation(getOffers, {
+            getOffersInput: {
+                availability: OfferAvailability.Global,
+                countryCode: CountryCode.Us,
+                filterType: OfferFilter.Online,
+                offerStates: [OfferState.Active, OfferState.Scheduled],
+                pageNumber: pageNumber !== undefined ? pageNumber : 1, // if no page number is passed in, revert to the first page number
+                pageSize: 15, // load 15 offers
+                redemptionType: RedemptionType.Click
+            }
+        }));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const responseData = clickOnlyOnlineOffersResult ? clickOnlyOnlineOffersResult.data : null;
+
+        // check if there are any errors in the returned response
+        if (responseData && responseData.getOffers.errorMessage === null) {
+            // retrieve the array of click-only online offers from the API call
+            clickOnlyOnlineOffers = responseData.getOffers.data.offers;
+
+            // ensure that there is at least one click-only online offer in the list
+            if (clickOnlyOnlineOffers.length > 0) {
+                // increase the page number, if needed
+                pageNumber !== null && pageNumber !== undefined &&
+                setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
+
+                // set the total number of click-only online offers available, if not previously set
+                totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
+                setTotalNumberOfOffersAvailable !== undefined && setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
+
+                return clickOnlyOnlineOffers;
+            } else {
+                console.log(`No click-only online offers to display ${JSON.stringify(clickOnlyOnlineOffersResult)}`);
+                return clickOnlyOnlineOffers;
+            }
+        } else {
+            console.log(`Unexpected error while retrieving click-only online offers ${JSON.stringify(clickOnlyOnlineOffersResult)}`);
+            return clickOnlyOnlineOffers;
+        }
+    } catch (error) {
+        console.log(`Unexpected error while attempting to retrieve click-only online offers ${JSON.stringify(error)} ${error}`);
+        return clickOnlyOnlineOffers;
     }
 }
 

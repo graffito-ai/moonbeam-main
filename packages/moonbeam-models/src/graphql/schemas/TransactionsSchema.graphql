@@ -205,6 +205,18 @@ type MoonbeamUpdatedTransactionResponse @aws_cognito_user_pools @aws_api_key {
     errorMessage: String
 }
 
+type OfferIdResponse @aws_cognito_user_pools @aws_api_key {
+    data: ID # this represents the ID of the offer id that was redeemed through the transaction
+    errorType: TransactionsErrorType
+    errorMessage: String
+}
+
+type OfferRedemptionTypeResponse @aws_cognito_user_pools @aws_api_key {
+    data: RedemptionType # this represents the redemption type for the offer
+    errorType: TransactionsErrorType
+    errorMessage: String
+}
+
 input GetTransactionInput {
     id: ID! ## this represents the userID which the transactions should be retrieved for
     startDate: AWSDateTime ## the start time to filter transactions for

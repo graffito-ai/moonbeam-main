@@ -7,7 +7,7 @@ import {
     MemberDetailsResponse,
     MemberResponse,
     Offer,
-    OfferFilter,
+    OfferFilter, OfferIdResponse, OfferRedemptionTypeResponse,
     OfferSeasonalType,
     OffersErrorType,
     OffersResponse,
@@ -1057,6 +1057,235 @@ export class OliveClient extends BaseAPIClient {
     }
 
     /**
+     * Function used to retrieve the type of offer redemption, obtained from the offer object.
+     *
+     * @param offerId the id of the offer, used to retrieve the type of redemption for.
+     *
+     * @return a {@link Promise} of {@link OfferRedemptionTypeResponse} representing the redemption
+     * type, obtained from the offer object.
+     */
+    async getOfferRedemptionType(offerId: string): Promise<OfferRedemptionTypeResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'GET /offers/{id} Olive API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the GET offers details call through the client
+            const [oliveBaseURL, olivePublicKey, olivePrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.OLIVE_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (oliveBaseURL === null || oliveBaseURL.length === 0 ||
+                olivePublicKey === null || olivePublicKey.length === 0 ||
+                olivePrivateKey === null || olivePrivateKey!.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Olive API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: TransactionsErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * GET /offers/{id}
+             * @link https://developer.oliveltd.com/reference/get-offer
+             *
+             * build the Olive API request body to be passed in, and perform a GET to it with the appropriate information
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.get(`${oliveBaseURL}/offers/${offerId}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Olive-Key": olivePrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Olive API timed out after 15000ms!'
+            }).then(offerDetailsResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(offerDetailsResponse.data)}`);
+
+                /**
+                 * if we reached this, then we assume that a 2xx response code was returned.
+                 * check the contents of the response, and act appropriately.
+                 */
+                if (offerDetailsResponse.data !== undefined && offerDetailsResponse.data["redemptionType"] !== undefined &&
+                    offerDetailsResponse.data["redemptionType"] !== null) {
+                    // return the offer id, obtained from the transaction details
+                    return {
+                        data: offerDetailsResponse.data["redemptionType"] as RedemptionType
+                    }
+                } else {
+                    return {
+                        errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                        errorType: TransactionsErrorType.ValidationError
+                    }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Olive API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Olive API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while initiating the offer redemption type retrieval through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: TransactionsErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
+     * Function used to retrieve the offer id, obtained from a transaction object, given
+     * a transaction identifier (used for transactional purposes).
+     *
+     * @param transactionId the id of the transaction, used to retrieve the offer id
+     * from.
+     *
+     * @return a {@link Promise} of {@link OfferIdResponse} representing the offer id
+     * and/or the redeemed offer id, obtained from the transaction details.
+     */
+    async getOfferId(transactionId: string): Promise<OfferIdResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'GET /transactions/{id} Olive API used for retrieving offer id';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the GET transaction details call through the client
+            const [oliveBaseURL, olivePublicKey, olivePrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.OLIVE_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (oliveBaseURL === null || oliveBaseURL.length === 0 ||
+                olivePublicKey === null || olivePublicKey.length === 0 ||
+                olivePrivateKey === null || olivePrivateKey!.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Olive API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: TransactionsErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * GET /transactions/{id}
+             * @link https://developer.oliveltd.com/reference/show-transaction-details
+             *
+             * build the Olive API request body to be passed in, and perform a GET to it with the appropriate information
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.get(`${oliveBaseURL}/transactions/${transactionId}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Olive-Key": olivePrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Olive API timed out after 15000ms!'
+            }).then(transactionDetailsResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(transactionDetailsResponse.data)}`);
+
+                /**
+                 * if we reached this, then we assume that a 2xx response code was returned.
+                 * check the contents of the response, and act appropriately.
+                 */
+                if (transactionDetailsResponse.data !== undefined && transactionDetailsResponse.data["redeemedOfferId"] !== undefined &&
+                    transactionDetailsResponse.data["redeemedOfferId"] !== null && transactionDetailsResponse.data["reward"] !== undefined &&
+                    transactionDetailsResponse.data["reward"] !== null && transactionDetailsResponse.data["reward"]["offerId"] !== undefined &&
+                    transactionDetailsResponse.data["reward"]["offerId"] !== null &&
+                    transactionDetailsResponse.data["redeemedOfferId"] === transactionDetailsResponse.data["reward"]["offerId"]) {
+                    // return the offer id, obtained from the transaction details
+                    return {
+                        data: transactionDetailsResponse.data["redeemedOfferId"]
+                    }
+                } else {
+                    return {
+                        errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                        errorType: TransactionsErrorType.ValidationError
+                    }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Olive API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Olive API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while initiating the offer ID retrieval through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: TransactionsErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
      * Function used to retrieve the transaction details, given a transaction ID.
      *
      * @param transaction the transaction object, populated by the initial details
@@ -1187,7 +1416,8 @@ export class OliveClient extends BaseAPIClient {
             // retrieve the API Key and Base URL, needed in order to make the GET offers call through the client
             const [oliveBaseURL, olivePublicKey, olivePrivateKey,
                 moonbeamDefaultLoyalty, moonbeamFidelisDefaultLoyalty, moonbeamOnlineLoyalty,
-                moonbeamPremierOnlineLoyalty, moonbeamPremierNearbyLoyalty, moonbeamVeteransDayLoyalty] =
+                moonbeamPremierOnlineLoyalty, moonbeamPremierNearbyLoyalty, moonbeamVeteransDayLoyalty,
+                moonbeamClickLoyalty, moonbeamPremierClickLoyalty] =
                 await super.retrieveServiceCredentials(
                     Constants.AWSPairConstants.OLIVE_SECRET_NAME,
                     undefined,
@@ -1201,7 +1431,9 @@ export class OliveClient extends BaseAPIClient {
                 moonbeamDefaultLoyalty === null || moonbeamDefaultLoyalty!.length === 0 ||
                 moonbeamFidelisDefaultLoyalty === null || moonbeamFidelisDefaultLoyalty!.length === 0 ||
                 moonbeamOnlineLoyalty === null || moonbeamOnlineLoyalty!.length === 0 ||
-                moonbeamVeteransDayLoyalty === null || moonbeamVeteransDayLoyalty!.length === 0) {
+                moonbeamVeteransDayLoyalty === null || moonbeamVeteransDayLoyalty!.length === 0 ||
+                moonbeamClickLoyalty === null || moonbeamClickLoyalty!.length === 0 ||
+                moonbeamPremierClickLoyalty === null || moonbeamPremierClickLoyalty!.length === 0) {
                 const errorMessage = "Invalid Secrets obtained for Olive API call!";
                 console.log(errorMessage);
 
@@ -1234,13 +1466,18 @@ export class OliveClient extends BaseAPIClient {
                 case OfferFilter.Online:
                     // if the redemption type is click, then we go to the default program for the affiliate networks
                     if (getOffersInput.redemptionType === RedemptionType.Click) {
-                        loyaltyProgramId = moonbeamDefaultLoyalty;
+                        loyaltyProgramId = moonbeamClickLoyalty;
                     } else {
                         loyaltyProgramId = moonbeamOnlineLoyalty;
                     }
                     break;
                 case OfferFilter.PremierOnline:
-                    loyaltyProgramId = moonbeamPremierOnlineLoyalty;
+                    // if the redemption type is click, then we go to the default program for the affiliate networks
+                    if (getOffersInput.redemptionType === RedemptionType.Click) {
+                        loyaltyProgramId = moonbeamPremierClickLoyalty;
+                    } else {
+                        loyaltyProgramId = moonbeamPremierOnlineLoyalty;
+                    }
                     break;
                 case OfferFilter.PremierNearby:
                     loyaltyProgramId = moonbeamPremierNearbyLoyalty;

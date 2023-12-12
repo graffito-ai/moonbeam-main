@@ -85,7 +85,14 @@ import {
 } from "../../../recoil/BranchAtom";
 import {initializeBranch} from "../../../utils/Branch";
 import {Spinner} from "../../common/Spinner";
-import branch from "react-native-branch";
+import Constants from 'expo-constants';
+import {AppOwnership} from "expo-constants/src/Constants.types";
+/**
+ * import branch only if the app is not running in Expo Go (so we can actually run the application without Branch for
+ * Expo Go), for easier testing purposes.
+ */
+const isRunningInExpoGo = Constants.appOwnership === AppOwnership.Expo;
+const branch = !isRunningInExpoGo ? require('react-native-branch') : null;
 
 /**
  * Authentication component.
@@ -173,7 +180,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
          */
         useEffect(() => {
             // handle incoming deep-links through the latest referring params of the Branch SDK
-            !latestReferringParamsChecked && branch.getLatestReferringParams(false).then(params => {
+            branch !== null && !latestReferringParamsChecked && branch.getLatestReferringParams(false).then(params => {
                 setLatestReferringParamsChecked(true);
                 if (params) {
                     if (params['~tags'] && params['~tags'].length === 2) {

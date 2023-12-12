@@ -13,6 +13,8 @@ export * from './common/clients/CourierClient';
 export * from './common/clients/AppUpgradeClient';
 export * from './common/PremierNearbyOfferIds';
 export * from './common/PremierOnlineOfferIds';
+export * from './common/PremierClickOnlyOnlineOfferIds';
 export * from './common/FidelisPartnerOrder';
 export * from './common/FidelisVeteranOwnedPartners';
 export * from './common/PremierOnlineOfferOrder';
+export * from './common/PremierClickOnlineOfferOrder';

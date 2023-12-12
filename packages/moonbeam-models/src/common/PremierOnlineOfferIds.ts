@@ -23,7 +23,6 @@ export const PremierOnlineDevOfferIds: string[] = [
     '9f9dceb9-6ea6-4712-0047-08db41d7d15c'
 ];
 
-
 /**
  * The list of PROD Premier Online Offer IDs
  * to be excluded from the entirety of online offers,

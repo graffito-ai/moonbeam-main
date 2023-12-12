@@ -1,6 +1,6 @@
 import { SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import { AppUpgradeResponse, Card, CardLinkResponse, CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetOffersInput, GetReferralsByStatusInput, GetTransactionByStatusInput, GetTransactionInput, IneligibleLinkedUsersResponse, MemberDetailsResponse, MemberResponse, MilitaryVerificationNotificationUpdate, MilitaryVerificationStatusType, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationChannelType, NotificationReminderResponse, NotificationResponse, NotificationType, OffersResponse, ReferralResponse, RemoveCardResponse, SendEmailNotificationInput, SendMobilePushNotificationInput, Transaction, TransactionResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse, UpdateNotificationReminderInput, UpdateReferralInput, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse } from "../GraphqlExports";
+import { AppUpgradeResponse, Card, CardLinkResponse, CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetOffersInput, GetReferralsByStatusInput, GetTransactionByStatusInput, GetTransactionInput, IneligibleLinkedUsersResponse, MemberDetailsResponse, MemberResponse, MilitaryVerificationNotificationUpdate, MilitaryVerificationStatusType, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationChannelType, NotificationReminderResponse, NotificationResponse, NotificationType, OfferIdResponse, OfferRedemptionTypeResponse, OffersResponse, ReferralResponse, RemoveCardResponse, SendEmailNotificationInput, SendMobilePushNotificationInput, Transaction, TransactionResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse, UpdateNotificationReminderInput, UpdateReferralInput, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse } from "../GraphqlExports";
 /**
  * Class used as the base/generic client for all API clients that
  * we will be connecting to.
@@ -37,6 +37,8 @@ export declare abstract class BaseAPIClient {
     protected retrieveServiceCredentials(verificationClientSecretsName: string, internalRestBased?: boolean, notificationType?: NotificationType, includeLoyaltyPrograms?: boolean, cognitoClientAccess?: boolean, channelType?: NotificationChannelType): Promise<[
         string | null,
         string | null,
+        (string | null)?,
+        (string | null)?,
         (string | null)?,
         (string | null)?,
         (string | null)?,
@@ -385,6 +387,30 @@ export declare abstract class BaseAPIClient {
      * @protected
      */
     protected getTransactionDetails?(transaction: Transaction): Promise<TransactionResponse>;
+    /**
+     * Function used to retrieve the offer id, obtained from a transaction object, given
+     * a transaction identifier (used for transactional purposes).
+     *
+     * @param transactionId the id of the transaction, used to retrieve the offer id
+     * from.
+     *
+     * @return a {@link Promise} of {@link OfferIdResponse} representing the offer id
+     * and/or the redeemed offer id, obtained from the transaction details.
+     *
+     * @protected
+     */
+    protected getOfferId?(transactionId: string): Promise<OfferIdResponse>;
+    /**
+     * Function used to retrieve the type of offer redemption, obtained from the offer object.
+     *
+     * @param offerId the id of the offer, used to retrieve the type of redemption for.
+     *
+     * @return a {@link Promise} of {@link OfferRedemptionTypeResponse} representing the redemption
+     * type, obtained from the offer object.
+     *
+     * @protected
+     */
+    protected getOfferRedemptionType?(offerId: string): Promise<OfferRedemptionTypeResponse>;
     /**
      * Function used to retrieve the transaction details, given a transaction ID (used for updated
      * transactional events purposes).

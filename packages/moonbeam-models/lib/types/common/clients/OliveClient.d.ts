@@ -1,4 +1,4 @@
-import { Card, CardLinkResponse, GetOffersInput, MemberDetailsResponse, MemberResponse, OffersResponse, RemoveCardResponse, Transaction, TransactionResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse } from "../GraphqlExports";
+import { Card, CardLinkResponse, GetOffersInput, MemberDetailsResponse, MemberResponse, OfferIdResponse, OfferRedemptionTypeResponse, OffersResponse, RemoveCardResponse, Transaction, TransactionResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse } from "../GraphqlExports";
 import { BaseAPIClient } from "./BaseAPIClient";
 /**
  * Class used as the base/generic client for all Olive card linking related calls.
@@ -102,6 +102,26 @@ export declare class OliveClient extends BaseAPIClient {
      * that we retrieved
      */
     getUpdatedTransactionDetails(updatedTransactionEvent: UpdatedTransactionEvent): Promise<UpdatedTransactionEventResponse>;
+    /**
+     * Function used to retrieve the type of offer redemption, obtained from the offer object.
+     *
+     * @param offerId the id of the offer, used to retrieve the type of redemption for.
+     *
+     * @return a {@link Promise} of {@link OfferRedemptionTypeResponse} representing the redemption
+     * type, obtained from the offer object.
+     */
+    getOfferRedemptionType(offerId: string): Promise<OfferRedemptionTypeResponse>;
+    /**
+     * Function used to retrieve the offer id, obtained from a transaction object, given
+     * a transaction identifier (used for transactional purposes).
+     *
+     * @param transactionId the id of the transaction, used to retrieve the offer id
+     * from.
+     *
+     * @return a {@link Promise} of {@link OfferIdResponse} representing the offer id
+     * and/or the redeemed offer id, obtained from the transaction details.
+     */
+    getOfferId(transactionId: string): Promise<OfferIdResponse>;
     /**
      * Function used to retrieve the transaction details, given a transaction ID.
      *

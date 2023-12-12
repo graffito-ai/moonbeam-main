@@ -789,11 +789,23 @@ export declare enum OfferFilter {
     SeasonalOnline = "SEASONAL_ONLINE",
     VeteransDay = "VETERANS_DAY"
 }
+export type OfferIdResponse = {
+    __typename?: 'OfferIdResponse';
+    data?: Maybe<Scalars['ID']>;
+    errorMessage?: Maybe<Scalars['String']>;
+    errorType?: Maybe<TransactionsErrorType>;
+};
 export declare enum OfferReach {
     National = "national",
     OnlineOnly = "online_only",
     State = "state"
 }
+export type OfferRedemptionTypeResponse = {
+    __typename?: 'OfferRedemptionTypeResponse';
+    data?: Maybe<RedemptionType>;
+    errorMessage?: Maybe<Scalars['String']>;
+    errorType?: Maybe<TransactionsErrorType>;
+};
 export declare enum OfferSeasonalType {
     VeteransDay = "VETERANS_DAY"
 }

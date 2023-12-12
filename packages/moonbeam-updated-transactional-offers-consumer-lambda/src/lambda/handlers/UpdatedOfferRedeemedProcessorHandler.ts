@@ -101,7 +101,7 @@ export const processUpdatedOfferRedeemedTransactions = async (event: SQSEvent): 
             // initialize the Olive Client API here, in order to call the appropriate endpoints for this handler
             const oliveClient = new OliveClient(process.env.ENV_NAME!, region);
 
-            // 1_ Call the GET member details Olive API to retrieve the member details (extMemberID) for member
+            // 1) Call the GET member details Olive API to retrieve the member details (extMemberID) for member
             const memberDetailsResponse: MemberDetailsResponse = await getMemberDetails(oliveClient, updatedTransactionEvent.data.memberId);
 
             // check to see if the member details call was successful or not

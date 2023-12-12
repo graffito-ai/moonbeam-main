@@ -59,7 +59,7 @@ export const acknowledgeTransaction = async (route: string, requestBody: string 
                          * set the status of all incoming transactions:
                          * - to PENDING if there is no status passed in the ["transaction"]["moonbeamTransactionStatus"] parameter, since then we know that this
                          * got invoked directly by Olive on card swipe, or by our update transactions workflow, when an ineligible transaction became an eligible offer.
-                         * - if the updated transaction workflow passes a status in the ["transaction"]["moonbeamTransactionStatus"] , pass that accordingly.
+                         * - if the updated transaction workflow passes a status in the ["transaction"]["moonbeamTransactionStatus"], pass that accordingly.
                          *
                          * Note: any other statuses such as (PROCESSED, CREDITED or REJECTED) will be updated by the updated transaction workflow accordingly, by
                          * directly calling our AppSync transaction endpoints, instead of going through this flow.

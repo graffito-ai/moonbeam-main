@@ -4,8 +4,9 @@ import {
     OfferFilter,
     OffersErrorType,
     OffersResponse,
-    OliveClient,
-    PremierOnlineOfferOrder
+    OliveClient, PremierClickOnlineOfferOrder,
+    PremierOnlineOfferOrder,
+    RedemptionType
 } from "@moonbeam/moonbeam-models";
 
 /**
@@ -55,13 +56,15 @@ export const getPremierOffers = async (fieldName: string, getOffersInput: GetOff
 
                     // filter the online offers according to how we want them displayed
                     if (getOffersInput.filterType === OfferFilter.PremierOnline) {
-                        // sort the online offers how we want them displayed
+                        // sort the regular online and/or the click-based online offers how we want them displayed
+                        const premierOnlineOffersOrder: string[] = getOffersInput.redemptionType === RedemptionType.Click
+                            ? PremierClickOnlineOfferOrder : PremierOnlineOfferOrder;
                         let premierOnlineSortedMap: Map<number, Offer> = new Map<number, Offer>();
                         offersResponse.data.offers.forEach(offer => {
                             // give a weight to the brand DBA depending on how we want them to show up
                             offer !== undefined && offer !== null && offer!.brandDba !== undefined &&
-                            offer!.brandDba !== null && PremierOnlineOfferOrder.includes(offer!.brandDba!.trimStart().trimEnd()) &&
-                            premierOnlineSortedMap.set(PremierOnlineOfferOrder.indexOf(offer!.brandDba!.trimStart().trimEnd()), offer);
+                            offer!.brandDba !== null && premierOnlineOffersOrder.includes(offer!.brandDba!.trimStart().trimEnd()) &&
+                            premierOnlineSortedMap.set(premierOnlineOffersOrder.indexOf(offer!.brandDba!.trimStart().trimEnd()), offer);
                         });
                         premierOnlineSortedMap = new Map([...premierOnlineSortedMap].sort((a, b) => a[0] - b[0]));
 

@@ -905,11 +905,25 @@ export enum OfferFilter {
   VeteransDay = 'VETERANS_DAY'
 }
 
+export type OfferIdResponse = {
+  __typename?: 'OfferIdResponse';
+  data?: Maybe<Scalars['ID']>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<TransactionsErrorType>;
+};
+
 export enum OfferReach {
   National = 'national',
   OnlineOnly = 'online_only',
   State = 'state'
 }
+
+export type OfferRedemptionTypeResponse = {
+  __typename?: 'OfferRedemptionTypeResponse';
+  data?: Maybe<RedemptionType>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<TransactionsErrorType>;
+};
 
 export enum OfferSeasonalType {
   VeteransDay = 'VETERANS_DAY'

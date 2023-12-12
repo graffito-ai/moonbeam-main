@@ -246,7 +246,14 @@ import {
     referralCodeMarketingCampaignState,
     referralCodeState
 } from "../../recoil/BranchAtom";
-import branch from "react-native-branch";
+import Constants from 'expo-constants';
+import {AppOwnership} from "expo-constants/src/Constants.types";
+/**
+ * import branch only if the app is not running in Expo Go (so we can actually run the application without Branch for
+ * Expo Go), for easier testing purposes.
+ */
+const isRunningInExpoGo = Constants.appOwnership === AppOwnership.Expo;
+const branch = !isRunningInExpoGo ? require('react-native-branch') : null;
 
 /**
  * CustomDrawer component. This component will be used to further tailor our sidebar navigation drawer, mainly
@@ -737,7 +744,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             referralCodeStateReset();
             referralCodeMarketingCampaignStateReset();
             userIsAuthenticatedStateReset();
-            branch.logout();
+            branch !== null && branch.logout();
 
             /**
              * ensure that the current user's biometric session is interrupted, and that the already signed in flag is reset

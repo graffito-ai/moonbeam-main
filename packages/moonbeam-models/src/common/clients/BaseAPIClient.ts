@@ -27,7 +27,7 @@ import {
     NotificationChannelType,
     NotificationReminderResponse,
     NotificationResponse,
-    NotificationType,
+    NotificationType, OfferIdResponse, OfferRedemptionTypeResponse,
     OffersResponse,
     ReferralResponse,
     RemoveCardResponse,
@@ -93,6 +93,8 @@ export abstract class BaseAPIClient {
                                                notificationType?: NotificationType, includeLoyaltyPrograms?: boolean,
                                                cognitoClientAccess?: boolean, channelType?: NotificationChannelType)
         : Promise<[string | null, string | null,
+        (string | null)?,
+        (string | null)?,
         (string | null)?,
         (string | null)?,
         (string | null)?,
@@ -252,6 +254,8 @@ export abstract class BaseAPIClient {
                                 clientPairAsJson[Constants.AWSPairConstants.OLIVE_MOONBEAM_PREMIER_ONLINE_LOYALTY],
                                 clientPairAsJson[Constants.AWSPairConstants.OLIVE_MOONBEAM_PREMIER_NEARBY_LOYALTY],
                                 clientPairAsJson[Constants.AWSPairConstants.OLIVE_MOONBEAM_VETERANS_DAY_LOYALTY],
+                                clientPairAsJson[Constants.AWSPairConstants.OLIVE_MOONBEAM_CLICK_LOYALTY],
+                                clientPairAsJson[Constants.AWSPairConstants.OLIVE_MOONBEAM_PREMIER_CLICK_LOYALTY]
                             ]
                             : [clientPairAsJson[Constants.AWSPairConstants.OLIVE_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.OLIVE_PUBLIC_KEY], clientPairAsJson[Constants.AWSPairConstants.OLIVE_PRIVATE_KEY]];
                     default:
@@ -638,7 +642,33 @@ export abstract class BaseAPIClient {
      *
      * @protected
      */
-    protected getTransactionDetails?(transaction: Transaction): Promise<TransactionResponse>
+    protected getTransactionDetails?(transaction: Transaction): Promise<TransactionResponse>;
+
+    /**
+     * Function used to retrieve the offer id, obtained from a transaction object, given
+     * a transaction identifier (used for transactional purposes).
+     *
+     * @param transactionId the id of the transaction, used to retrieve the offer id
+     * from.
+     *
+     * @return a {@link Promise} of {@link OfferIdResponse} representing the offer id
+     * and/or the redeemed offer id, obtained from the transaction details.
+     *
+     * @protected
+     */
+    protected getOfferId?(transactionId: string): Promise<OfferIdResponse>;
+
+    /**
+     * Function used to retrieve the type of offer redemption, obtained from the offer object.
+     *
+     * @param offerId the id of the offer, used to retrieve the type of redemption for.
+     *
+     * @return a {@link Promise} of {@link OfferRedemptionTypeResponse} representing the redemption
+     * type, obtained from the offer object.
+     *
+     * @protected
+     */
+    protected getOfferRedemptionType?(offerId: string): Promise<OfferRedemptionTypeResponse>;
 
     /**
      * Function used to retrieve the transaction details, given a transaction ID (used for updated

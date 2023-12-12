@@ -55,6 +55,8 @@ import {createPhysicalDevice, proceedWithDeviceCreation} from "../../../utils/Ap
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import Image = Animated.Image;
 import {Referral} from "./home/referrals/Referral";
+import Constants from 'expo-constants';
+import {AppOwnership} from "expo-constants/src/Constants.types";
 
 /**
  * AppDrawer component.
@@ -145,8 +147,10 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     subscribeTransactionsCreatedUpdates(userInformation["custom:userId"]).then(() => setTransactionCreatedSubscribed(true));
 
                     /**
-                     * we then check whether we should proceed with the creation of a new physical device, or not
+                     * we then check whether we should proceed with the creation of a new physical device, or not.
+                     * (only if we are not running the app in Expo Go)
                      */
+                    Constants.appOwnership !== AppOwnership.Expo &&
                     proceedWithDeviceCreation(userInformation["custom:userId"], expoPushToken.data).then((proceedWithDeviceCreationFlag) => {
                         if (proceedWithDeviceCreationFlag) {
                             // if so, we create the physical device accordingly (and associated to the new user)
@@ -176,8 +180,10 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     setUserVerified(true);
 
                     /**
-                     * we then check whether we should proceed with the creation of a new physical device, or not
+                     * we then check whether we should proceed with the creation of a new physical device, or not.
+                     * (only if we are not running the app in Expo Go)
                      */
+                    Constants.appOwnership !== AppOwnership.Expo &&
                     proceedWithDeviceCreation(userInformation["custom:userId"], expoPushToken.data).then((proceedWithDeviceCreationFlag) => {
                         if (proceedWithDeviceCreationFlag) {
                             // if so, we create the physical device accordingly (and associated to the new user)

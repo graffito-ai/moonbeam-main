@@ -4,10 +4,14 @@ import {
     MoonbeamClient,
     MoonbeamTransaction,
     MoonbeamTransactionResponse,
+    OfferIdResponse,
+    OfferRedemptionTypeResponse,
     OliveClient,
+    RedemptionType,
     Transaction,
     TransactionResponse,
-    TransactionsErrorType
+    TransactionsErrorType,
+    TransactionsStatus
 } from "@moonbeam/moonbeam-models";
 import {SQSBatchItemFailure} from "aws-lambda/trigger/sqs";
 
@@ -39,60 +43,100 @@ export const processOfferRedeemedTransactions = async (event: SQSEvent): Promise
             /**
              * The overall transaction processing, will be made up of the following steps:
              *
+             * (Note Step 0 is a pre-requisite in order for us to make sure that we do not incorrectly
+             * process the click-based offers)
+             * 0) Call the GET transaction details Olive API to retrieve the redeemed offer ID. Using that offer ID,
+             * call the GET offer details Olive API to retrieve the offer type for this transaction.
+             * If this offer type is click based and the status of the incoming transaction is PENDING,
+             * then we do not need to go through steps 1-6 (so we do not get false-positives for the click-based offers).
+             *
              * 1) Call the GET member details Olive API to retrieve the member details (extMemberID) for member.
              * 2) Call the GET brand details Olive API to retrieve the brand name for incoming transaction.
              * 3) Call the GET store details Olive API to retrieve the brand store address for incoming transaction.
              * 4) Call the GET transaction details Olive API to retrieve the actual purchase date/time for an incoming transaction.
              * 5) Convert any necessary timestamps and created/updated at times to appropriate formats.
              * 6) Call the createTransaction Moonbeam AppSync API endpoint, to store transaction in Dynamo DB.
+             *
+             * first, convert the incoming event message body, into a transaction object
              */
-                // first, convert the incoming event message body, into a transaction object
             const transaction: Transaction = JSON.parse(transactionalRecord.body) as Transaction;
 
             // initialize the Olive Client API here, in order to call the appropriate endpoints for this handler
             const oliveClient = new OliveClient(process.env.ENV_NAME!, region);
 
-            // 1) Call the GET member details Olive API to retrieve the member details (extMemberID) for member
-            const memberDetailsResponse: MemberDetailsResponse = await getMemberDetails(oliveClient, transaction.memberId);
+            /**
+             * 0) Call the GET transaction details Olive API to retrieve the redeemed offer ID. Using that offer ID,
+             * call the GET offer details Olive API to retrieve the offer type for this transaction.
+             * If this offer type is click based and the status of the incoming transaction is PENDING,
+             * then we do not need to go through steps 1-6 (so we do not get false-positives for the click-based offers).
+             */
+            const clickOfferRedemptionResponse: OfferRedemptionTypeResponse = await getOfferRedemptionType(oliveClient, transaction.transactionId);
 
-            // check to see if the member details call was successful or not
-            if (memberDetailsResponse && !memberDetailsResponse.errorMessage && !memberDetailsResponse.errorType && memberDetailsResponse.data) {
-                // set the transaction id, to be the userID mapped to the extMemberId retrieved from the member details call
-                transaction.id = memberDetailsResponse.data;
+            // check to see if the offer redemption type call was successful or not
+            if (clickOfferRedemptionResponse && !clickOfferRedemptionResponse.errorMessage && !clickOfferRedemptionResponse.errorType &&
+                clickOfferRedemptionResponse.data) {
+                /**
+                 * If this offer type is click based and the status of the incoming transaction is PENDING,
+                 * then we do not need to go through steps 1-6 (so we do not get false-positives for the click-based offers).
+                 */
+                if (!(transaction.transactionStatus === TransactionsStatus.Pending && clickOfferRedemptionResponse.data === RedemptionType.Click)) {
+                    // 1) Call the GET member details Olive API to retrieve the member details (extMemberID) for member
+                    const memberDetailsResponse: MemberDetailsResponse = await getMemberDetails(oliveClient, transaction.memberId);
 
-                // 2) Call the GET brand details Olive API to retrieve the brand name for incoming transaction
-                const brandDetailsResponse: TransactionResponse = await getBrandDetails(oliveClient, transaction);
+                    // check to see if the member details call was successful or not
+                    if (memberDetailsResponse && !memberDetailsResponse.errorMessage && !memberDetailsResponse.errorType && memberDetailsResponse.data) {
+                        // set the transaction id, to be the userID mapped to the extMemberId retrieved from the member details call
+                        transaction.id = memberDetailsResponse.data;
 
-                // check to see if the brand details call was successful or not
-                if (brandDetailsResponse && !brandDetailsResponse.errorMessage && !brandDetailsResponse.errorType && brandDetailsResponse.data) {
-                    // 3) Call the GET store details Olive API to retrieve the brand store address for incoming transaction
-                    const storeDetailsResponse: TransactionResponse = await getStoreDetails(oliveClient, transaction);
+                        // 2) Call the GET brand details Olive API to retrieve the brand name for incoming transaction
+                        const brandDetailsResponse: TransactionResponse = await getBrandDetails(oliveClient, transaction);
 
-                    // check to see if the store details call was successful or not
-                    if (storeDetailsResponse && !storeDetailsResponse.errorMessage && !storeDetailsResponse.errorType && storeDetailsResponse.data) {
-                        // 4) Call the GET transaction details Olive API to retrieve the actual purchase date/time for an incoming transaction
-                        const transactionDetailsResponse: TransactionResponse = await getTransactionDetails(oliveClient, transaction);
+                        // check to see if the brand details call was successful or not
+                        if (brandDetailsResponse && !brandDetailsResponse.errorMessage && !brandDetailsResponse.errorType && brandDetailsResponse.data) {
+                            // 3) Call the GET store details Olive API to retrieve the brand store address for incoming transaction
+                            const storeDetailsResponse: TransactionResponse = await getStoreDetails(oliveClient, transaction);
 
-                        // check to see if the transaction details call was successful or not
-                        if (transactionDetailsResponse && !transactionDetailsResponse.errorMessage && !transactionDetailsResponse.errorType && transactionDetailsResponse.data) {
-                            // 5) Convert any necessary timestamps and created/updated at times to appropriate formats
-                            const createdAtFormatted = new Date(transaction.createdAt).toISOString();
-                            transaction.createdAt = createdAtFormatted;
-                            transaction.updatedAt = createdAtFormatted;
+                            // check to see if the store details call was successful or not
+                            if (storeDetailsResponse && !storeDetailsResponse.errorMessage && !storeDetailsResponse.errorType && storeDetailsResponse.data) {
+                                // 4) Call the GET transaction details Olive API to retrieve the actual purchase date/time for an incoming transaction
+                                const transactionDetailsResponse: TransactionResponse = await getTransactionDetails(oliveClient, transaction);
 
-                            /**
-                             * 6) Call the createTransaction Moonbeam AppSync API endpoint, to store transaction in Dynamo DB
-                             *
-                             * first initialize the Moonbeam Client API here, in order to call the appropriate endpoints for this resolver
-                             */
-                            const moonbeamClient = new MoonbeamClient(process.env.ENV_NAME!, region);
+                                // check to see if the transaction details call was successful or not
+                                if (transactionDetailsResponse && !transactionDetailsResponse.errorMessage && !transactionDetailsResponse.errorType && transactionDetailsResponse.data) {
+                                    // 5) Convert any necessary timestamps and created/updated at times to appropriate formats
+                                    const createdAtFormatted = new Date(transaction.createdAt).toISOString();
+                                    transaction.createdAt = createdAtFormatted;
+                                    transaction.updatedAt = createdAtFormatted;
 
-                            // execute the createTransaction call
-                            const response: MoonbeamTransactionResponse = await moonbeamClient.createTransaction(transaction as MoonbeamTransaction);
+                                    /**
+                                     * 6) Call the createTransaction Moonbeam AppSync API endpoint, to store transaction in Dynamo DB
+                                     *
+                                     * first initialize the Moonbeam Client API here, in order to call the appropriate endpoints for this resolver
+                                     */
+                                    const moonbeamClient = new MoonbeamClient(process.env.ENV_NAME!, region);
 
-                            // check to see if the card linking call was executed successfully
-                            if (!response || response.errorMessage || response.errorType || !response.data || !response.id) {
-                                console.log(`Unexpected error and/or response structure returned from the createTransaction call ${JSON.stringify(response)}!`);
+                                    // execute the createTransaction call
+                                    const response: MoonbeamTransactionResponse = await moonbeamClient.createTransaction(transaction as MoonbeamTransaction);
+
+                                    // check to see if the card linking call was executed successfully
+                                    if (!response || response.errorMessage || response.errorType || !response.data || !response.id) {
+                                        console.log(`Unexpected error and/or response structure returned from the createTransaction call ${JSON.stringify(response)}!`);
+
+                                        // adds an item failure, for the SQS message which failed processing, as part of the incoming event
+                                        itemFailures.push({
+                                            itemIdentifier: transactionalRecord.messageId
+                                        });
+                                    }
+                                } else {
+                                    console.log(`Transaction Details mapping through GET transaction details call failed`);
+
+                                    // adds an item failure, for the SQS message which failed processing, as part of the incoming event
+                                    itemFailures.push({
+                                        itemIdentifier: transactionalRecord.messageId
+                                    });
+                                }
+                            } else {
+                                console.log(`Store Details mapping through GET store details call failed`);
 
                                 // adds an item failure, for the SQS message which failed processing, as part of the incoming event
                                 itemFailures.push({
@@ -100,7 +144,7 @@ export const processOfferRedeemedTransactions = async (event: SQSEvent): Promise
                                 });
                             }
                         } else {
-                            console.log(`Transaction Details mapping through GET transaction details call failed`);
+                            console.log(`Brand Details mapping through GET brand details call failed`);
 
                             // adds an item failure, for the SQS message which failed processing, as part of the incoming event
                             itemFailures.push({
@@ -108,7 +152,7 @@ export const processOfferRedeemedTransactions = async (event: SQSEvent): Promise
                             });
                         }
                     } else {
-                        console.log(`Store Details mapping through GET store details call failed`);
+                        console.log(`UserID mapping through GET member details call failed`);
 
                         // adds an item failure, for the SQS message which failed processing, as part of the incoming event
                         itemFailures.push({
@@ -116,15 +160,10 @@ export const processOfferRedeemedTransactions = async (event: SQSEvent): Promise
                         });
                     }
                 } else {
-                    console.log(`Brand Details mapping through GET brand details call failed`);
-
-                    // adds an item failure, for the SQS message which failed processing, as part of the incoming event
-                    itemFailures.push({
-                        itemIdentifier: transactionalRecord.messageId
-                    });
+                    console.log(`Click-based transactional offer not eligible for further processing ${transaction.transactionId}`);
                 }
             } else {
-                console.log(`UserID mapping through GET member details call failed`);
+                console.log(`Failed to retrieve the redemption type for redeemed offer`);
 
                 // adds an item failure, for the SQS message which failed processing, as part of the incoming event
                 itemFailures.push({
@@ -156,6 +195,56 @@ export const processOfferRedeemedTransactions = async (event: SQSEvent): Promise
                 // for this case, we only process 1 record at a time, we might need to change this in the future
                 itemIdentifier: event.Records[0].messageId
             }]
+        }
+    }
+}
+
+/**
+ * Function used to retrieve the redemption type of offer, redeemed through a transaction, given its
+ * transaction id.
+ *
+ * @param oliveClient client used to make Olive API calls
+ * @param transactionId the id of the transactions which the offer redemption type is retrieved for
+ *
+ * @returns a {@link Promise} of {@link OfferRedemptionTypeResponse} representing the type of offer
+ * redemption, for the offer redeemed through the observed transaction.
+ */
+const getOfferRedemptionType = async (oliveClient: OliveClient, transactionId: string): Promise<OfferRedemptionTypeResponse> => {
+    // execute the offer id retrieval call, in order to get the offer id used to check the redemption type for
+    const offerIdResponse: OfferIdResponse = await oliveClient.getOfferId(transactionId);
+
+    // check to see if the offer id retrieval call was executed successfully
+    if (offerIdResponse && !offerIdResponse.errorMessage && !offerIdResponse.errorType && offerIdResponse.data && offerIdResponse.data.length !== 0) {
+        // given a successfully retrieved offer id, execute the offer redemption type retrieval call
+        const offerRedemptionTypeResponse: OfferRedemptionTypeResponse = await oliveClient.getOfferRedemptionType(offerIdResponse.data);
+
+        // check to see if the redemption type retrieval call was executed successfully
+        if (offerRedemptionTypeResponse && !offerRedemptionTypeResponse.errorMessage && !offerRedemptionTypeResponse.errorType &&
+            offerRedemptionTypeResponse.data && offerRedemptionTypeResponse.data.length !== 0) {
+            // return the type of redemption retrieved from the offer
+            return {
+                data: offerRedemptionTypeResponse.data
+            }
+        } else {
+            const errorMessage = `Unexpected response structure returned from the offer redemption type retrieval call!`;
+            console.log(errorMessage);
+
+            // if there are errors associated with the call, just return the error message and error type from the upstream client
+            return {
+                data: null,
+                errorType: TransactionsErrorType.ValidationError,
+                errorMessage: errorMessage
+            }
+        }
+    } else {
+        const errorMessage = `Unexpected response structure returned from the offer id retrieval call!`;
+        console.log(errorMessage);
+
+        // if there are errors associated with the call, just return the error message and error type from the upstream client
+        return {
+            data: null,
+            errorType: TransactionsErrorType.ValidationError,
+            errorMessage: errorMessage
         }
     }
 }

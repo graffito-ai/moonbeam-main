@@ -104,7 +104,7 @@ import {
     createPhysicalDevice,
     proceedWithDeviceCreation, processUserReferral,
     retrieveFidelisPartnerList,
-    retrieveOnlineOffersList,
+    retrieveOnlineOffersList, retrievePremierOnlineOffersList,
     sendNotification
 } from "../../../../utils/AppSync";
 import {moonbeamUserIdPassState, moonbeamUserIdState} from "../../../../recoil/RootAtom";
@@ -118,6 +118,8 @@ import * as Notifications from "expo-notifications";
 import * as ImagePicker from 'expo-image-picker';
 import {numberOfOnlineOffersState} from "../../../../recoil/StoreOfferAtom";
 import {referralCodeMarketingCampaignState, referralCodeState} from "../../../../recoil/BranchAtom";
+import Constants from 'expo-constants';
+import {AppOwnership} from "expo-constants/src/Constants.types";
 
 /**
  * RegistrationComponent component.
@@ -511,19 +513,22 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                     }
 
                     /**
-                     * we then check whether we should proceed with the creation of a new physical device, or not
+                     * we then check whether we should proceed with the creation of a new physical device, or not.
+                     * (only if we are not running the app in Expo Go)
                      */
-                    const proceedWithDeviceCreationFlag = await proceedWithDeviceCreation(userInformation["userId"], expoPushToken.data);
-                    if (proceedWithDeviceCreationFlag) {
-                        // if so, we create the physical device accordingly (and associated to the new user)
-                        const physicalDeviceCreationFlag = await createPhysicalDevice(userInformation["userId"], expoPushToken.data);
-                        if (physicalDeviceCreationFlag) {
-                            console.log(`Successfully created a physical device for user!`);
+                    if (Constants.appOwnership !== AppOwnership.Expo) {
+                        const proceedWithDeviceCreationFlag = await proceedWithDeviceCreation(userInformation["userId"], expoPushToken.data);
+                        if (proceedWithDeviceCreationFlag) {
+                            // if so, we create the physical device accordingly (and associated to the new user)
+                            const physicalDeviceCreationFlag = await createPhysicalDevice(userInformation["userId"], expoPushToken.data);
+                            if (physicalDeviceCreationFlag) {
+                                console.log(`Successfully created a physical device for user!`);
+                            } else {
+                                console.log(`Unable to create a physical device for user!`);
+                            }
                         } else {
-                            console.log(`Unable to create a physical device for user!`);
+                            console.log(`Not necessary to create a physical device for user!`);
                         }
-                    } else {
-                        console.log(`Not necessary to create a physical device for user!`);
                     }
 
                     /**
@@ -1175,9 +1180,12 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                         case 8:
                                                             setIsReady(false);
                                                             /**
-                                                             * if everything was successful, then:
+                                                             * If everything was successful, then:
                                                              * - we just cache the list of:
                                                              *      - Fidelis partners for initial load (for 1 week only)
+                                                             *      - the list of premier click-only online offers
+                                                             *      - the list of click-only online offers (first page only) for initial load (for 1 week only)
+                                                             *      - the list of premier online offers
                                                              *      - the list of online offers (first page only) for initial load (for 1 week only)
                                                              *      - the list of offers near user's home address (first page only) for initial load (for 1 week only)
                                                              *      - the list of categorized online offers
@@ -1194,12 +1202,22 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                             if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`) !== null) {
                                                                 console.log('online offers are cached, needs cleaning up');
                                                                 await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineOffers`);
+
+                                                                // retrieve the premier online, and regular online offers
+                                                                const onlineOffers = await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers);
+                                                                const premierOnlineOffers = await retrievePremierOnlineOffersList();
+
                                                                 await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
-                                                                    await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers));
+                                                                    [...premierOnlineOffers, ...onlineOffers]);
                                                             } else {
                                                                 console.log('online offers are not cached');
+
+                                                                // retrieve the premier online, and regular online offers
+                                                                const onlineOffers = await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers);
+                                                                const premierOnlineOffers = await retrievePremierOnlineOffersList();
+
                                                                 marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
-                                                                    await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers));
+                                                                    [...premierOnlineOffers, ...onlineOffers]);
                                                             }
                                                             if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
                                                                 console.log('old profile picture is cached, needs cleaning up');
