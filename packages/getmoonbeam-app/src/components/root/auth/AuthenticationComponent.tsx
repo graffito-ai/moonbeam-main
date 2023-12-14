@@ -44,33 +44,34 @@ import {DocumentsViewer} from "../../common/DocumentsViewer";
 import * as SMS from "expo-sms";
 import {styles} from "../../../styles/registration.module";
 import {
-    appUpgradeCheck,
+    appUpgradeCheck, retrieveClickOnlyOnlineOffersList,
     retrieveFidelisPartnerList,
     retrieveOffersNearby,
     retrieveOffersNearbyForMap,
-    retrieveOnlineOffersList,
+    retrieveOnlineOffersList, retrievePremierClickOnlyOnlineOffersList,
     retrievePremierOffersNearby,
     retrievePremierOnlineOffersList,
     updateUserAuthStat
 } from "../../../utils/AppSync";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
-import {PremierOnlineProdOfferIds, Stages, UserAuthSessionResponse} from "@moonbeam/moonbeam-models";
+import {Stages, UserAuthSessionResponse} from "@moonbeam/moonbeam-models";
 import {currentUserLocationState, firstTimeLoggedInState} from "../../../recoil/RootAtom";
 import * as envInfo from "../../../../local-env-info.json";
 import {
+    clickOnlyOnlineOffersListState, clickOnlyOnlineOffersPageNumberState,
     locationServicesButtonState,
     nearbyOffersListForFullScreenMapState,
     nearbyOffersListForMainHorizontalMapState,
     nearbyOffersListState,
-    nearbyOffersPageNumberState,
+    nearbyOffersPageNumberState, noClickOnlyOnlineOffersToLoadState,
     noNearbyOffersToLoadState,
-    noOnlineOffersToLoadState,
+    noOnlineOffersToLoadState, numberOfClickOnlyOnlineOffersState,
     numberOfOffersWithin25MilesState,
     numberOfOffersWithin5MilesState,
     numberOfOnlineOffersState,
     offersNearUserLocationFlagState,
     onlineOffersListState,
-    onlineOffersPageNumberState,
+    onlineOffersPageNumberState, premierClickOnlyOnlineOffersPageNumberState,
     premierNearbyOffersPageNumberState,
     premierOnlineOffersPageNumberState,
     reloadNearbyDueToPermissionsChangeState,
@@ -87,6 +88,7 @@ import {initializeBranch} from "../../../utils/Branch";
 import {Spinner} from "../../common/Spinner";
 import Constants from 'expo-constants';
 import {AppOwnership} from "expo-constants/src/Constants.types";
+
 /**
  * import branch only if the app is not running in Expo Go (so we can actually run the application without Branch for
  * Expo Go), for easier testing purposes.
@@ -106,9 +108,12 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
         const [appUpgradeChecked, setAppUpgradeChecked] = useState<boolean>(false);
         const [checkedOnlineCache, setCheckOnlineCache] = useState<boolean>(false);
+        const [checkedClickOnlyOnlineCache, setCheckClickOnlyOnlineCache] = useState<boolean>(false);
         const [loadingNearbyOffersInProgress, setIsLoadingNearbyOffersInProgress] = useState<boolean>(false);
         const [loadingOnlineInProgress, setIsLoadingOnlineInProgress] = useState<boolean>(false);
-        const [noPremierOnlineOffersToLoad, setNoPremierOnlineOffersToLoad] = useState<boolean>(false);
+        const [loadingClickOnlyOnlineInProgress, setIsLoadingClickOnlyOnlineInProgress] = useState<boolean>(false);
+        const [, setNoPremierOnlineOffersToLoad] = useState<boolean>(false);
+        const [, setNoPremierClickOnlyOnlineOffersToLoad] = useState<boolean>(false);
         const [loadingNearbyOffersForHorizontalMapInProgress, setIsLoadingNearbyOffersForHorizontalMapInProgress] = useState<boolean>(false);
         const [areOffersForMainHorizontalMapLoaded, setAreOffersForMainHorizontalMapLoaded] = useState<boolean>(false);
         const [loadingNearbyOffersForFullScreenMapInProgress, setIsLoadingNearbyOffersForFullScreenMapInProgress] = useState<boolean>(false);
@@ -119,6 +124,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [, setReferralCode] = useRecoilState(referralCodeState);
         const [authScreen, setAuthScreen] = useRecoilState(initialAuthenticationScreen);
         const [numberOfOnlineOffers, setNumberOfOnlineOffers] = useRecoilState(numberOfOnlineOffersState);
+        const [numberOfClickOnlyOnlineOffers, setNumberOfClickOnlyOnlineOffers] = useRecoilState(numberOfClickOnlyOnlineOffersState);
         const [numberOfOffersWithin5Miles, setNumberOfOffersWithin5Miles] = useRecoilState(numberOfOffersWithin5MilesState);
         const [numberOfOffersWithin25Miles, setNumberOfOffersWithin25Miles] = useRecoilState(numberOfOffersWithin25MilesState);
         const [currentUserLocation, setCurrentUserLocation] = useRecoilState(currentUserLocationState);
@@ -127,6 +133,9 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [onlineOffersPageNumber, setOnlineOffersPageNumber] = useRecoilState(onlineOffersPageNumberState);
         const [premierOnlineOffersPageNumber, setPremierOnlineOffersPageNumber] = useRecoilState(premierOnlineOffersPageNumberState);
         const [noOnlineOffersToLoad, setNoOnlineOffersToLoad] = useRecoilState(noOnlineOffersToLoadState);
+        const [clickOnlyOnlineOffersPageNumber, setClickOnlyOnlineOffersPageNumber] = useRecoilState(clickOnlyOnlineOffersPageNumberState);
+        const [premierClickOnlyOnlineOffersPageNumber, setPremierClickOnlyOnlineOffersPageNumber] = useRecoilState(premierClickOnlyOnlineOffersPageNumberState);
+        const [noClickOnlyOnlineOffersToLoad, setNoClickOnlyOnlineOffersToLoad] = useRecoilState(noClickOnlyOnlineOffersToLoadState);
         const [noNearbyOffersToLoad, setNoNearbyOffersToLoad] = useRecoilState(noNearbyOffersToLoadState);
         const [, setOffersNearUserLocationFlag] = useRecoilState(offersNearUserLocationFlagState);
         const [reloadNearbyDueToPermissionsChange, setReloadNearbyDueToPermissionsChange] = useRecoilState(reloadNearbyDueToPermissionsChangeState);
@@ -135,6 +144,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [nearbyOffersListForFullScreenMap, setNearbyOffersListForFullScreenMap] = useRecoilState(nearbyOffersListForFullScreenMapState);
         const [nearbyOfferList, setNearbyOfferList] = useRecoilState(nearbyOffersListState);
         const [onlineOfferList, setOnlineOfferList] = useRecoilState(onlineOffersListState);
+        const [clickOnlyOnlineOfferList, setClickOnlyOnlineOfferList] = useRecoilState(clickOnlyOnlineOffersListState);
         const [mainRootNavigation, setMainRootNavigation] = useRecoilState(mainRootNavigationState);
         const [isLoadingAppOverviewNeeded,] = useRecoilState(isLoadingAppOverviewNeededState);
         const [, setIsReady] = useRecoilState(isReadyRegistrationState);
@@ -268,10 +278,64 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         }, [
             userIsAuthenticated, reloadNearbyDueToPermissionsChange,
             noNearbyOffersToLoad, nearbyOfferList, onlineOfferList,
-            marketplaceCache, loadingOnlineInProgress, noOnlineOffersToLoad,
-            appUpgradeChecked, authScreen, latestReferringParamsChecked,
-            branchInitialized
+            clickOnlyOnlineOfferList, loadingClickOnlyOnlineInProgress,
+            noClickOnlyOnlineOffersToLoad, marketplaceCache, loadingOnlineInProgress,
+            noOnlineOffersToLoad, appUpgradeChecked, authScreen,
+            latestReferringParamsChecked, branchInitialized
         ]);
+
+        /**
+         * Function used to load the click-only online data
+         */
+        const loadClickOnlyOnlineData = async (): Promise<void> => {
+            setTimeout(async () => {
+                setIsLoadingClickOnlyOnlineInProgress(true);
+
+                const additionalClickOnlyOnlineOffers = await retrieveClickOnlyOnlineOffersList(numberOfClickOnlyOnlineOffers, setNumberOfClickOnlyOnlineOffers,
+                    clickOnlyOnlineOffersPageNumber, setClickOnlyOnlineOffersPageNumber);
+                if (additionalClickOnlyOnlineOffers.length === 0) {
+                    // setNoOnlineOffersToLoad(true);
+                    setClickOnlyOnlineOfferList(oldClickOnlyOnlineOfferList => {
+                        return [...oldClickOnlyOnlineOfferList, ...additionalClickOnlyOnlineOffers]
+                    });
+                } else {
+                    setNoClickOnlyOnlineOffersToLoad(false);
+                    setClickOnlyOnlineOfferList(oldClickOnlyOnlineOfferList => {
+                        return [...oldClickOnlyOnlineOfferList, ...additionalClickOnlyOnlineOffers]
+                    });
+                }
+
+                setIsLoadingClickOnlyOnlineInProgress(false);
+            }, 10);
+        }
+
+        /**
+         * Function used to load the premier click-only online data
+         */
+        const loadPremierClickOnlyOnlineData = async (): Promise<void> => {
+            setTimeout(async () => {
+                setIsLoadingClickOnlyOnlineInProgress(true);
+
+                const premierClickOnlyOnlineOffers = await retrievePremierClickOnlyOnlineOffersList(premierClickOnlyOnlineOffersPageNumber, setPremierClickOnlyOnlineOffersPageNumber);
+                if (premierClickOnlyOnlineOffers.length !== 0) {
+                    // update the number of available total click-only offers
+                    setNumberOfClickOnlyOnlineOffers(oldNumberOfPremierClickOnlyOnlineOffers => {
+                       return oldNumberOfPremierClickOnlyOnlineOffers + premierClickOnlyOnlineOffers.length
+                    });
+
+                    setNoPremierClickOnlyOnlineOffersToLoad(false);
+                    setClickOnlyOnlineOfferList(oldClickOnlyOnlineOfferList => {
+                        return [...premierClickOnlyOnlineOffers, ...oldClickOnlyOnlineOfferList]
+                    });
+                } else {
+                    // setNoPremierOnlineOffersToLoad(true);
+                    setClickOnlyOnlineOfferList(oldClickOnlyOnlineOfferList => {
+                        return [...premierClickOnlyOnlineOffers, ...oldClickOnlyOnlineOfferList]
+                    });
+                }
+                setIsLoadingClickOnlyOnlineInProgress(false);
+            }, 10);
+        }
 
         /**
          * Function used to load the online data
@@ -305,8 +369,12 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                 setIsLoadingOnlineInProgress(true);
 
                 const premierOnlineOffers = await retrievePremierOnlineOffersList(premierOnlineOffersPageNumber, setPremierOnlineOffersPageNumber);
-
                 if (premierOnlineOffers.length !== 0) {
+                    // update the number of available total online offers
+                    setNumberOfOnlineOffers(oldNumberOfOnlineOffers => {
+                        return oldNumberOfOnlineOffers + premierOnlineOffers.length
+                    });
+
                     setNoPremierOnlineOffersToLoad(false);
                     setOnlineOfferList(oldOnlineOfferList => {
                         return [...premierOnlineOffers, ...oldOnlineOfferList]
@@ -441,7 +509,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                 }
             }
 
-            // check to see if we have cached Online Offers. If we do, set them appropriately
+            // check to see if we have cached online Offers. If we do, set them appropriately
             const onlineOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`);
             if (marketplaceCache !== null && onlineOffersCached !== null && onlineOffersCached.length !== 0 && !checkedOnlineCache) {
                 console.log('pre-emptively loading - online offers are cached');
@@ -451,6 +519,18 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
 
                 setIsLoadingOnlineInProgress(false);
                 (cachedOnlineOffers === null || cachedOnlineOffers.length < 20) && await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, null);
+            }
+
+            // check to see if we have cached click-only online Offers. If we do, set them appropriately
+            const onlineClickOnlyOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`);
+            if (marketplaceCache !== null && onlineClickOnlyOffersCached !== null && onlineClickOnlyOffersCached.length !== 0 && !checkedClickOnlyOnlineCache) {
+                console.log('pre-emptively loading - click-only online offers are cached');
+                setCheckClickOnlyOnlineCache(true);
+                const cachedClickOnlyOnlineOffers = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`);
+                setClickOnlyOnlineOfferList(cachedClickOnlyOnlineOffers);
+
+                setIsLoadingClickOnlyOnlineInProgress(false);
+                (cachedClickOnlyOnlineOffers === null || cachedClickOnlyOnlineOffers.length < 20) && await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`, null);
             }
 
             // stop caching online offers until we have at least 20 and at most 100 offers loaded, or until we run out of offers to load.
@@ -464,9 +544,21 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                 });
             }
 
+            // stop caching click-only online offers until we have at least 20 and at most 100 offers loaded, or until we run out of offers to load.
+            if ((marketplaceCache && clickOnlyOnlineOfferList.length >= 20 && clickOnlyOnlineOfferList.length < 100) || (marketplaceCache && noClickOnlyOnlineOffersToLoad)) {
+                marketplaceCache!.getItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`).then(clickOnlyOnlineOffersCached => {
+                    // check if there's really a need for caching
+                    if (((clickOnlyOnlineOffersCached !== null && clickOnlyOnlineOffersCached.length < clickOnlyOnlineOffersCached.length) || clickOnlyOnlineOffersCached === null)) {
+                        console.log('Caching additional click-only online offers');
+                        marketplaceCache!.setItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`, clickOnlyOnlineOfferList);
+                    }
+                });
+            }
+
             if (envInfo.envName === Stages.DEV) {
                 if (reloadNearbyDueToPermissionsChange) {
                     setIsLoadingOnlineInProgress(false);
+                    setIsLoadingClickOnlyOnlineInProgress(false);
                     setIsLoadingNearbyOffersInProgress(false);
                     setIsLoadingNearbyOffersForHorizontalMapInProgress(false)
                     setAreOffersForMainHorizontalMapLoaded(false);
@@ -484,41 +576,8 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                  * - nearby regular
                  * - online premier
                  * - online regular offers
-                 * - all categorized offers (online + nearby)
-                 */
-                await Promise.all([
-                    !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && loadPremierNearbyData(),
-                    !loadingNearbyOffersInProgress && !noNearbyOffersToLoad && nearbyOfferList.length < 20 && loadNearbyData()
-                ]);
-                await Promise.all([
-                    !loadingOnlineInProgress && !noPremierOnlineOffersToLoad && onlineOfferList.length < PremierOnlineProdOfferIds.length && loadPremierOnlineData(),
-                    !loadingOnlineInProgress && !noOnlineOffersToLoad && ((PremierOnlineProdOfferIds.length <= onlineOfferList.length) || noPremierOnlineOffersToLoad) && onlineOfferList.length < 50 && loadOnlineData()
-                ]);
-                await Promise.all([
-                    !loadingNearbyOffersForHorizontalMapInProgress && !areOffersForMainHorizontalMapLoaded && nearbyOffersListForMainHorizontalMap.length === 0 && loadNearbyDataForMainHorizontalMap(),
-                    !loadingNearbyOffersForFullScreenMapInProgress && !areOffersForFullScreenMapLoaded && nearbyOffersListForFullScreenMap.length === 0 && loadNearbyDataForFullScreenMap()
-                ]);
-            }
-            if (envInfo.envName === Stages.PROD) {
-                if (reloadNearbyDueToPermissionsChange) {
-                    setIsLoadingOnlineInProgress(false);
-                    setIsLoadingNearbyOffersInProgress(false);
-                    setIsLoadingNearbyOffersForHorizontalMapInProgress(false)
-                    setAreOffersForMainHorizontalMapLoaded(false);
-                    setIsLoadingNearbyOffersForFullScreenMapInProgress(false);
-                    setAreOffersForFullScreenMapLoaded(false);
-                    setNoNearbyOffersToLoad(false);
-                    setNoOnlineOffersToLoad(false);
-                    setReloadNearbyDueToPermissionsChange(false);
-                }
-
-                /**
-                 * pre-emptively load in parallel:
-                 * - nearby offers for main horizontal map
-                 * - nearby premier
-                 * - nearby regular
-                 * - online premier
-                 * - online regular offers
+                 * - click-only online premier
+                 * - click-only online regular offers
                  * - all categorized offers (online + nearby)
                  */
                 nearbyOfferList.length < 6 && !loadingNearbyOffersInProgress && await Promise.all([
@@ -529,11 +588,56 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                     loadPremierOnlineData(),
                     loadOnlineData()
                 ]);
+                clickOnlyOnlineOfferList.length < 29 && !loadingClickOnlyOnlineInProgress && await Promise.all([
+                    loadPremierClickOnlyOnlineData(),
+                    loadClickOnlyOnlineData()
+                ]);
                 await Promise.all([
                     !loadingNearbyOffersForHorizontalMapInProgress && !areOffersForMainHorizontalMapLoaded && nearbyOffersListForMainHorizontalMap.length === 0 && loadNearbyDataForMainHorizontalMap(),
                     !loadingNearbyOffersForFullScreenMapInProgress && !areOffersForFullScreenMapLoaded && nearbyOffersListForFullScreenMap.length === 0 && loadNearbyDataForFullScreenMap()
                 ]);
+            }
+            if (envInfo.envName === Stages.PROD) {
+                if (reloadNearbyDueToPermissionsChange) {
+                    setIsLoadingOnlineInProgress(false);
+                    setIsLoadingClickOnlyOnlineInProgress(false);
+                    setIsLoadingNearbyOffersInProgress(false);
+                    setIsLoadingNearbyOffersForHorizontalMapInProgress(false)
+                    setAreOffersForMainHorizontalMapLoaded(false);
+                    setIsLoadingNearbyOffersForFullScreenMapInProgress(false);
+                    setAreOffersForFullScreenMapLoaded(false);
+                    setNoNearbyOffersToLoad(false);
+                    setNoOnlineOffersToLoad(false);
+                    setReloadNearbyDueToPermissionsChange(false);
+                }
 
+                /**
+                 * pre-emptively load in parallel:
+                 * - nearby offers for main horizontal map
+                 * - nearby premier
+                 * - nearby regular
+                 * - online premier
+                 * - online regular offers
+                 * - click-only online premier
+                 * - click-only online regular offers
+                 * - all categorized offers (online + nearby)
+                 */
+                nearbyOfferList.length < 6 && !loadingNearbyOffersInProgress && await Promise.all([
+                    loadPremierNearbyData(),
+                    loadNearbyData()
+                ]);
+                onlineOfferList.length < 29 && !loadingOnlineInProgress && await Promise.all([
+                    loadPremierOnlineData(),
+                    loadOnlineData()
+                ]);
+                clickOnlyOnlineOfferList.length < 29 && !loadingClickOnlyOnlineInProgress && await Promise.all([
+                    loadPremierClickOnlyOnlineData(),
+                    loadClickOnlyOnlineData()
+                ]);
+                await Promise.all([
+                    !loadingNearbyOffersForHorizontalMapInProgress && !areOffersForMainHorizontalMapLoaded && nearbyOffersListForMainHorizontalMap.length === 0 && loadNearbyDataForMainHorizontalMap(),
+                    !loadingNearbyOffersForFullScreenMapInProgress && !areOffersForFullScreenMapLoaded && nearbyOffersListForFullScreenMap.length === 0 && loadNearbyDataForFullScreenMap()
+                ]);
             }
         }
 
@@ -678,6 +782,8 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                                                      * if everything was successful, then:
                                                                      * - we just cache the list of:
                                                                      *      - Fidelis partners for initial load (for 1 week only)
+                                                                     *     - the list of premier click-only online offers
+                                                                     *      - the list of click-only online offers (first page only) for initial load (for 1 week only)
                                                                      *      - the list of online offers (first page only) for initial load (for 1 week only)
                                                                      *      - the list of offers near user's home address (first page only) for initial load (for 1 week only)
                                                                      *       - the list of categorized online offers
@@ -694,12 +800,60 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                                                     if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`) !== null) {
                                                                         console.log('online offers are cached, needs cleaning up');
                                                                         await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineOffers`);
+
+                                                                        // retrieve the premier online, and regular online offers
+                                                                        const onlineOffers = await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers);
+                                                                        const premierOnlineOffers = await retrievePremierOnlineOffersList();
+
+                                                                        // update the number of available total online offers
+                                                                        setNumberOfOnlineOffers(oldNumberOfOnlineOffers => {
+                                                                            return oldNumberOfOnlineOffers + premierOnlineOffers.length
+                                                                        });
+
                                                                         await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
-                                                                            await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers));
+                                                                            [...premierOnlineOffers, ...onlineOffers]);
                                                                     } else {
                                                                         console.log('online offers are not cached');
+                                                                        // retrieve the premier online, and regular online offers
+                                                                        const onlineOffers = await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers);
+                                                                        const premierOnlineOffers = await retrievePremierOnlineOffersList();
+
+                                                                        // update the number of available total online offers
+                                                                        setNumberOfOnlineOffers(oldNumberOfOnlineOffers => {
+                                                                            return oldNumberOfOnlineOffers + premierOnlineOffers.length
+                                                                        });
+
                                                                         marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
-                                                                            await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers));
+                                                                            [...premierOnlineOffers, ...onlineOffers]);
+                                                                    }
+                                                                    if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`) !== null) {
+                                                                        console.log('click-only online offers are cached, needs cleaning up');
+                                                                        await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`);
+
+                                                                        // retrieve the premier click-only online, and regular click-only online offers
+                                                                        const clickOnlyOnlineOffers = await retrieveClickOnlyOnlineOffersList(numberOfClickOnlyOnlineOffers, setNumberOfClickOnlyOnlineOffers)
+                                                                        const premierClickOnlyOnlineOffers = await retrievePremierClickOnlyOnlineOffersList();
+
+                                                                        // update the number of available total online offers
+                                                                        setNumberOfClickOnlyOnlineOffers(oldNumberOfClickOnlyOnlineOffers => {
+                                                                            return oldNumberOfClickOnlyOnlineOffers + premierClickOnlyOnlineOffers.length
+                                                                        });
+
+                                                                        await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`,
+                                                                            [...premierClickOnlyOnlineOffers, ...clickOnlyOnlineOffers]);
+                                                                    } else {
+                                                                        console.log('online click-only offers are not cached');
+                                                                        // retrieve the premier click-only online, and regular click-only online offers
+                                                                        const clickOnlyOnlineOffers = await retrieveClickOnlyOnlineOffersList(numberOfClickOnlyOnlineOffers, setNumberOfClickOnlyOnlineOffers);
+                                                                        const premierClickOnlyOnlineOffers = await retrievePremierClickOnlyOnlineOffersList();
+
+                                                                        // update the number of available total online offers
+                                                                        setNumberOfClickOnlyOnlineOffers(oldNumberOfClickOnlyOnlineOffers => {
+                                                                            return oldNumberOfClickOnlyOnlineOffers + premierClickOnlyOnlineOffers.length
+                                                                        });
+
+                                                                        marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`,
+                                                                            [...premierClickOnlyOnlineOffers, ...clickOnlyOnlineOffers]);
                                                                     }
                                                                     if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
                                                                         console.log('old profile picture is cached, needs cleaning up');

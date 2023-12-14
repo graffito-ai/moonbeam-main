@@ -123,6 +123,7 @@ import {
 } from "../../recoil/RootAtom";
 import {splashStatusState} from "../../recoil/SplashAtom";
 import {
+    clickOnlyOnlineOffersListState, clickOnlyOnlineOffersPageNumberState,
     currentActiveKitState,
     fidelisPartnerListState,
     filteredByDiscountPressedState,
@@ -159,7 +160,7 @@ import {
     nearbyRetailCategorizedOffersListState,
     nearbyRetailCategorizedOffersPageNumberState,
     nearbyServicesAndSubscriptionsCategorizedOffersListState,
-    nearbyServicesAndSubscriptionsCategorizedOffersPageNumberState,
+    nearbyServicesAndSubscriptionsCategorizedOffersPageNumberState, noClickOnlyOnlineOffersToLoadState,
     noNearbyElectronicsCategorizedOffersToLoadState,
     noNearbyEntertainmentCategorizedOffersToLoadState,
     noNearbyFoodCategorizedOffersToLoadState,
@@ -179,7 +180,7 @@ import {
     noOnlineOfficeAndBusinessCategorizedOffersToLoadState,
     noOnlineRetailCategorizedOffersToLoadState,
     noOnlineServicesAndSubscriptionsCategorizedOffersToLoadState,
-    noOnlineVeteransDayCategorizedOffersToLoadState,
+    noOnlineVeteransDayCategorizedOffersToLoadState, numberOfClickOnlyOnlineOffersState,
     numberOfElectronicsCategorizedOffersWithin25MilesState,
     numberOfElectronicsCategorizedOnlineOffersState,
     numberOfEntertainmentCategorizedOffersWithin25MilesState,
@@ -221,7 +222,7 @@ import {
     onlineServicesAndSubscriptionsCategorizedOfferListState,
     onlineServicesAndSubscriptionsCategorizedOffersPageNumberState,
     onlineVeteransDayCategorizedOfferListState,
-    onlineVeteransDayCategorizedOffersPageNumberState,
+    onlineVeteransDayCategorizedOffersPageNumberState, premierClickOnlyOnlineOffersPageNumberState,
     premierNearbyOffersPageNumberState,
     premierOnlineOffersPageNumberState,
     reloadNearbyDueToPermissionsChangeState,
@@ -494,6 +495,11 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const referralCodeStateReset = useResetRecoilState(referralCodeState);
     const referralCodeMarketingCampaignStateReset = useResetRecoilState(referralCodeMarketingCampaignState);
     const userIsAuthenticatedStateReset = useResetRecoilState(userIsAuthenticatedState);
+    const clickOnlyOnlineOffersListStateReset = useResetRecoilState(clickOnlyOnlineOffersListState);
+    const clickOnlyOnlineOffersPageNumberStateReset = useResetRecoilState(clickOnlyOnlineOffersPageNumberState);
+    const premierClickOnlyOnlineOffersPageNumberStateReset = useResetRecoilState(premierClickOnlyOnlineOffersPageNumberState);
+    const noClickOnlyOnlineOffersToLoadStateReset = useResetRecoilState(noClickOnlyOnlineOffersToLoadState);
+    const numberOfClickOnlyOnlineOffersStateReset = useResetRecoilState(numberOfClickOnlyOnlineOffersState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -744,6 +750,11 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             referralCodeStateReset();
             referralCodeMarketingCampaignStateReset();
             userIsAuthenticatedStateReset();
+            clickOnlyOnlineOffersListStateReset();
+            clickOnlyOnlineOffersPageNumberStateReset();
+            premierClickOnlyOnlineOffersPageNumberStateReset();
+            noClickOnlyOnlineOffersToLoadStateReset();
+            numberOfClickOnlyOnlineOffersStateReset();
             branch !== null && branch.logout();
 
             /**

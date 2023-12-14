@@ -38,11 +38,13 @@ import {NearbySection} from "./storeComponents/NearbySection";
 import {OnlineSection} from "./storeComponents/OnlineSection";
 import {SearchSection} from "./storeComponents/SearchSection";
 import {
+    clickOnlyOnlineOffersListState,
+    clickOnlyOnlineOffersPageNumberState,
     fidelisPartnerListState,
     locationServicesButtonState,
     nearbyOffersListState,
     nearbyOffersPageNumberState,
-    nearbyOffersSpinnerShownState,
+    nearbyOffersSpinnerShownState, noClickOnlyOnlineOffersToLoadState,
     noNearbyOffersToLoadState,
     noOnlineOffersToLoadState,
     offersNearUserLocationFlagState,
@@ -54,6 +56,7 @@ import {
 import {currentUserLocationState} from "../../../../../recoil/RootAtom";
 import {KitsSection} from "./storeComponents/KitsSection";
 import {FullScreenMap} from "./storeComponents/FullScreenMap";
+import {ClickOnlyOnlineSection} from "./storeComponents/ClickOnlyOnlineSection";
 
 /**
  * Store component.
@@ -83,11 +86,14 @@ export const Store = ({navigation}: StoreProps) => {
     const [locationServicesButton, setLocationServicesButton] = useRecoilState(locationServicesButtonState);
     const [nearbyOfferList, setNearbyOfferList] = useRecoilState(nearbyOffersListState);
     const [onlineOfferList, setOnlineOfferList] = useRecoilState(onlineOffersListState);
+    const [clickOnlyOnlineOfferList, setClickOnlyOnlineOfferList] = useRecoilState(clickOnlyOnlineOffersListState);
     const [marketplaceCache,] = useRecoilState(marketplaceAmplifyCacheState);
     const [userInformation,] = useRecoilState(currentUserInformation);
     const [nearbyOffersPageNumber, setNearbyOffersPageNumber] = useRecoilState(nearbyOffersPageNumberState);
     const [onlineOffersPageNumber, setOnlineOffersPageNumber] = useRecoilState(onlineOffersPageNumberState);
     const [, setNoOnlineOffersToLoad] = useRecoilState(noOnlineOffersToLoadState);
+    const [clickOnlyOnlineOffersPageNumber, setClickOnlyOnlineOffersPageNumber] = useRecoilState(clickOnlyOnlineOffersPageNumberState);
+    const [, setNoClickOnlyOnlineOffersToLoad] = useRecoilState(noClickOnlyOnlineOffersToLoadState);
     const [, setNoNearbyOffersToLoad] = useRecoilState(noNearbyOffersToLoadState);
     const [offersNearUserLocationFlag, setOffersNearUserLocationFlag] = useRecoilState(offersNearUserLocationFlagState);
 
@@ -130,6 +136,69 @@ export const Store = ({navigation}: StoreProps) => {
             }
         } catch (error) {
             console.log(`Unexpected error while attempting to retrieve the Fidelis partner offers ${JSON.stringify(error)} ${error}`);
+            // setModalVisible(true);
+        }
+    }
+
+    /**
+     * Function used to retrieve the list of click-only online offers, that we will
+     * display in the third category of the marketplace.
+     *
+     * @returns a {@link Promise} of {@link void} since this function will set the
+     * React state of the click-only online offers.
+     */
+    const retrieveClickOnlyOnlineOffersList = async (): Promise<void> => {
+        try {
+            // call the getOffers API
+            const clickOnlyOnlineOffersResult = await API.graphql(graphqlOperation(getOffers, {
+                getOffersInput: {
+                    availability: OfferAvailability.Global,
+                    countryCode: CountryCode.Us,
+                    filterType: OfferFilter.Online,
+                    offerStates: [OfferState.Active, OfferState.Scheduled],
+                    pageNumber: onlineOffersPageNumber,
+                    pageSize: 15, // load 15 offers
+                    redemptionType: RedemptionType.Click
+                }
+            }));
+
+            // retrieve the data block from the response
+            // @ts-ignore
+            const responseData = clickOnlyOnlineOffersResult ? clickOnlyOnlineOffersResult.data : null;
+
+            // check if there are any errors in the returned response
+            if (responseData && responseData.getOffers.errorMessage === null) {
+                // retrieve the array of click-only online offers from the API call
+                const clickOnlyOnlineOffers: Offer[] = responseData.getOffers.data.offers;
+
+                // ensure that there is at least one click-only online offer in the list
+                if (clickOnlyOnlineOffers.length > 0) {
+                    // increase the page number
+                    setClickOnlyOnlineOffersPageNumber(clickOnlyOnlineOffersPageNumber + 1);
+
+                    // push any old offers into the list to return
+                    setClickOnlyOnlineOfferList(oldClickOnlyOnlineOfferList => {
+                        return [...oldClickOnlyOnlineOfferList, ...clickOnlyOnlineOffers];
+                    });
+                } else {
+                    console.log(`No click-only online offers to display ${JSON.stringify(clickOnlyOnlineOffersResult)}`);
+                    /**
+                     * if there are no more click-only online offers to load, then this is not an error,
+                     * otherwise display an error.
+                     */
+                    if (clickOnlyOnlineOfferList.length === 0) {
+                        // setModalVisible(true);
+                    } else {
+                        // set the click-only online offers to load flag
+                        setNoClickOnlyOnlineOffersToLoad(true);
+                    }
+                }
+            } else {
+                console.log(`Unexpected error while retrieving click-only online offers ${JSON.stringify(clickOnlyOnlineOffersResult)}`);
+                // setModalVisible(true);
+            }
+        } catch (error) {
+            console.log(`Unexpected error while attempting to retrieve click-only online offers ${JSON.stringify(error)} ${error}`);
             // setModalVisible(true);
         }
     }
@@ -450,8 +519,8 @@ export const Store = ({navigation}: StoreProps) => {
         // load the Fidelis partners if their list is empty
         fidelisPartnerList.length === 0 && loadFidelisData().then(_ => {});
 
-        // make sure to stop loading the store when we have a list of Fidelis partners and at least 7 online offers
-        if (fidelisPartnerList.length !== 0 && onlineOfferList.length !== 0) {
+        // make sure to stop loading the store when we have at least 1 Fidelis partners, online offers and click-only offers
+        if (fidelisPartnerList.length !== 0 && onlineOfferList.length !== 0 && clickOnlyOnlineOfferList.length !== 0) {
             // release the loader on button press
             !isReady && setIsReady(true);
         }
@@ -569,6 +638,10 @@ export const Store = ({navigation}: StoreProps) => {
                                             >
                                                 <>
                                                     <View style={styles.horizontalScrollView}>
+                                                        <ClickOnlyOnlineSection
+                                                            navigation={navigation}
+                                                            retrieveClickOnlineOffersList={retrieveClickOnlyOnlineOffersList}
+                                                        />
                                                         <KitsSection
                                                             navigation={navigation}
                                                         />

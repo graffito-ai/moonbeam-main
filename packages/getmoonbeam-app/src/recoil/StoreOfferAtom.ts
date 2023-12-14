@@ -132,6 +132,15 @@ const onlineOffersPageNumberState = atom<number>({
 });
 
 /**
+ * Atom used to keep track of the page number for the click-only online offers, that we left off at, so
+ * next time we load more offers, we know where to start from.
+ */
+const clickOnlyOnlineOffersPageNumberState = atom<number>({
+    key: "clickOnlyOnlineOffersPageNumberState",
+    default: 1
+});
+
+/**
  * Atom used to keep track of the page number for the online Veterans Day offers, that we left off at, so next time
  * we load more offers, we know where to start from.
  */
@@ -219,6 +228,42 @@ const onlineServicesAndSubscriptionsCategorizedOffersPageNumberState = atom<numb
 const premierOnlineOffersPageNumberState = atom<number>({
     key: "premierOnlineOffersPageNumberState",
     default: 1
+});
+
+/**
+ * Atom used to keep track of the page number for the premier click-only online offers, that we left off at, so
+ * next time we load more nearby offers, we know where to start from.
+ */
+const premierClickOnlyOnlineOffersPageNumberState = atom<number>({
+    key: "premierClickOnlyOnlineOffersPageNumberState",
+    default: 1
+});
+
+/**
+ * Atom used to keep track of the list of click-only online offers to be displayed
+ * to the end user.
+ */
+const clickOnlyOnlineOffersListState = atom<Offer[]>({
+    key: "clickOnlyOnlineOffersListState",
+    default: []
+});
+
+/**
+ * A selector used to make sure that there are no duplicate click-only online offers
+ * returned.
+ */
+const uniqueClickOnlyOnlineOffersListState = selector<Offer[]>({
+    key: 'uniqueClickOnlyOnlineOffersListState',
+    get: ({get}) => {
+        const clickOnlyOnlineOfferList = get(clickOnlyOnlineOffersListState);
+        if (clickOnlyOnlineOfferList === null) {
+            return [];
+        } else {
+            // make sure that all transactions are unique based on their id
+            return [...new Map(clickOnlyOnlineOfferList.map(offer =>
+                [offer.id, offer])).values()];
+        }
+    }
 });
 
 /**
@@ -775,6 +820,15 @@ const noOnlineOffersToLoadState = atom<boolean>({
 });
 
 /**
+ * Atom used to keep track of whether there are any more click-only online offers
+ * to load.
+ */
+const noClickOnlyOnlineOffersToLoadState = atom<boolean>({
+    key: "noClickOnlyOnlineOffersToLoadState",
+    default: false
+});
+
+/**
  * Atom used to keep track of whether there are any more online Veterans Day offers to load.
  */
 const noOnlineVeteransDayCategorizedOffersToLoadState = atom<boolean>({
@@ -972,7 +1026,7 @@ const toggleViewPressedState = atom<'horizontal' | 'vertical' | 'map' | null>({
 /**
  * Atom used to keep track of the vertical view toggle in the store
  */
-const verticalSectionActiveState = atom<'fidelis' | 'online' | 'nearby' | null>({
+const verticalSectionActiveState = atom<'fidelis' | 'online' | 'nearby' | 'click-only-online' | null>({
     key: "verticalSectionActiveState",
     default: 'online'
 });
@@ -1089,6 +1143,14 @@ const numberOfOffersWithin5MilesState = atom<number>({
  */
 const numberOfOnlineOffersState = atom<number>({
     key: "numberOfOnlineOffersState",
+    default: 0
+});
+
+/**
+ * Atom used to keep track of the number of click-only online offers.
+ */
+const numberOfClickOnlyOnlineOffersState = atom<number>({
+    key: "numberOfClickOnlyOnlineOffersState",
     default: 0
 });
 
@@ -1427,5 +1489,11 @@ export {
     onlineOfficeAndBusinessCategorizedOffersPageNumberState,
     onlineServicesAndSubscriptionsCategorizedOffersPageNumberState,
     storeOfferState,
-    storeOfferPhysicalLocationState
+    storeOfferPhysicalLocationState,
+    clickOnlyOnlineOffersListState,
+    uniqueClickOnlyOnlineOffersListState,
+    clickOnlyOnlineOffersPageNumberState,
+    premierClickOnlyOnlineOffersPageNumberState,
+    noClickOnlyOnlineOffersToLoadState,
+    numberOfClickOnlyOnlineOffersState
 };

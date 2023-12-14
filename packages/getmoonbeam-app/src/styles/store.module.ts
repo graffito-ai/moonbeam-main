@@ -173,6 +173,10 @@ export const styles = StyleSheet.create({
         bottom: hp(4.5),
         width: wp(100)
     },
+    clickOnlyOnlineOffersView: {
+        height: hp(30),
+        bottom: hp(2)
+    },
     onlineOffersView: {
         height: hp(30),
         bottom: hp(6)
@@ -259,6 +263,18 @@ export const styles = StyleSheet.create({
         height: hp(12),
         borderBottomRightRadius: 5,
         borderBottomLeftRadius: 5,
+    },
+    clickOnlyOnlineOfferCardCover: {
+        width: wp(20),
+        height: hp(10),
+        borderRadius: 70
+    },
+    clickOnlyOnlineOfferCardCoverBackground: {
+        backgroundColor: '#FFFFFF',
+        width: wp(20),
+        height: hp(10),
+        borderRadius: 70,
+        alignSelf: 'center'
     },
     nearbyOffersView: {
         height: hp(65),

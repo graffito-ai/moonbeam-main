@@ -102,9 +102,9 @@ import CardLinkedSuccessImage from '../../../../../assets/art/card-linked-succes
 import RegistrationBackgroundImage from '../../../../../assets/backgrounds/registration-background.png';
 import {
     createPhysicalDevice,
-    proceedWithDeviceCreation, processUserReferral,
+    proceedWithDeviceCreation, processUserReferral, retrieveClickOnlyOnlineOffersList,
     retrieveFidelisPartnerList,
-    retrieveOnlineOffersList, retrievePremierOnlineOffersList,
+    retrieveOnlineOffersList, retrievePremierClickOnlyOnlineOffersList, retrievePremierOnlineOffersList,
     sendNotification
 } from "../../../../utils/AppSync";
 import {moonbeamUserIdPassState, moonbeamUserIdState} from "../../../../recoil/RootAtom";
@@ -116,7 +116,7 @@ import MoonbeamPreferencesAndroid from "../../../../../assets/art/moonbeam-prefe
 import {Button} from "@rneui/base";
 import * as Notifications from "expo-notifications";
 import * as ImagePicker from 'expo-image-picker';
-import {numberOfOnlineOffersState} from "../../../../recoil/StoreOfferAtom";
+import {numberOfClickOnlyOnlineOffersState, numberOfOnlineOffersState} from "../../../../recoil/StoreOfferAtom";
 import {referralCodeMarketingCampaignState, referralCodeState} from "../../../../recoil/BranchAtom";
 import Constants from 'expo-constants';
 import {AppOwnership} from "expo-constants/src/Constants.types";
@@ -137,6 +137,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [referralCodeMarketingCampaign, ] = useRecoilState(referralCodeMarketingCampaignState);
     const [referralCode, ] = useRecoilState(referralCodeState);
     const [numberOfOnlineOffers, setNumberOfOnlineOffers] = useRecoilState(numberOfOnlineOffersState);
+    const [numberOfClickOnlyOnlineOffers, setNumberOfClickOnlyOnlineOffers] = useRecoilState(numberOfClickOnlyOnlineOffersState);
     const [mainRootNavigation,] = useRecoilState(mainRootNavigationState);
     const [, setDeferToLogin] = useRecoilState(deferToLoginState);
     const [automaticallyVerifyRegistrationCode, setAutomaticallyVerifyRegistrationCode] = useRecoilState(automaticallyVerifyRegistrationCodeState);
@@ -1207,6 +1208,11 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                                 const onlineOffers = await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers);
                                                                 const premierOnlineOffers = await retrievePremierOnlineOffersList();
 
+                                                                // update the number of available total online offers
+                                                                setNumberOfOnlineOffers(oldNumberOfOnlineOffers => {
+                                                                    return oldNumberOfOnlineOffers + premierOnlineOffers.length
+                                                                });
+
                                                                 await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
                                                                     [...premierOnlineOffers, ...onlineOffers]);
                                                             } else {
@@ -1216,8 +1222,42 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                                 const onlineOffers = await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers);
                                                                 const premierOnlineOffers = await retrievePremierOnlineOffersList();
 
+                                                                // update the number of available total online offers
+                                                                setNumberOfOnlineOffers(oldNumberOfOnlineOffers => {
+                                                                    return oldNumberOfOnlineOffers + premierOnlineOffers.length
+                                                                });
+
                                                                 marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
                                                                     [...premierOnlineOffers, ...onlineOffers]);
+                                                            }
+                                                            if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`) !== null) {
+                                                                console.log('click-only online offers are cached, needs cleaning up');
+                                                                await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`);
+
+                                                                // retrieve the premier click-only online, and regular click-only online offers
+                                                                const clickOnlyOnlineOffers = await retrieveClickOnlyOnlineOffersList(numberOfClickOnlyOnlineOffers, setNumberOfClickOnlyOnlineOffers)
+                                                                const premierClickOnlyOnlineOffers = await retrievePremierClickOnlyOnlineOffersList();
+
+                                                                // update the number of available total online offers
+                                                                setNumberOfClickOnlyOnlineOffers(oldNumberOfClickOnlyOnlineOffers => {
+                                                                    return oldNumberOfClickOnlyOnlineOffers + premierClickOnlyOnlineOffers.length
+                                                                });
+
+                                                                await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`,
+                                                                    [...premierClickOnlyOnlineOffers, ...clickOnlyOnlineOffers]);
+                                                            } else {
+                                                                console.log('online click-only offers are not cached');
+                                                                // retrieve the premier click-only online, and regular click-only online offers
+                                                                const clickOnlyOnlineOffers = await retrieveClickOnlyOnlineOffersList(numberOfClickOnlyOnlineOffers, setNumberOfClickOnlyOnlineOffers);
+                                                                const premierClickOnlyOnlineOffers = await retrievePremierClickOnlyOnlineOffersList();
+
+                                                                // update the number of available total online offers
+                                                                setNumberOfClickOnlyOnlineOffers(oldNumberOfClickOnlyOnlineOffers => {
+                                                                    return oldNumberOfClickOnlyOnlineOffers + premierClickOnlyOnlineOffers.length
+                                                                });
+
+                                                                marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`,
+                                                                    [...premierClickOnlyOnlineOffers, ...clickOnlyOnlineOffers]);
                                                             }
                                                             if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
                                                                 console.log('old profile picture is cached, needs cleaning up');
