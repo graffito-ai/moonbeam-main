@@ -437,6 +437,9 @@ export const createPhysicalDevice = async (userId: string, tokenId: string): Pro
  * Function used to retrieve the list of premier click-only online offers that we will
  * use for caching purposes.
  *
+ * @param numberOfFailedCalls parameter specifying the existing number of failed calls.
+ * @param setNumberOfFailedCalls setter or updater used to update the failed number of calls,
+ * in case this call fails.
  * @param pageNumber optional parameter specifying a page number that we will get the
  * premier click-only online offer from, in case we are not using this for caching purposes
  * @param setPageNumber setter or updater used to update the page number, if passed in.
@@ -444,7 +447,8 @@ export const createPhysicalDevice = async (userId: string, tokenId: string): Pro
  * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function will
  * be used to cache the list of premier click-only online offers.
  */
-export const retrievePremierClickOnlyOnlineOffersList = async (pageNumber?: number, setPageNumber?: SetterOrUpdater<number>): Promise<Offer[]> => {
+export const retrievePremierClickOnlyOnlineOffersList = async (numberOfFailedCalls: number, setNumberOfFailedCalls: SetterOrUpdater<number>,
+                                                               pageNumber?: number, setPageNumber?: SetterOrUpdater<number>): Promise<Offer[]> => {
     // result to return
     let premierClickOnlyOnlineOffers: Offer[] = [];
 
@@ -484,10 +488,12 @@ export const retrievePremierClickOnlyOnlineOffersList = async (pageNumber?: numb
             }
         } else {
             console.log(`Unexpected error while retrieving premier click-only online offers ${JSON.stringify(premierClickOnlyOnlineOffersResult)}`);
+            setNumberOfFailedCalls(numberOfFailedCalls + 1);
             return premierClickOnlyOnlineOffers;
         }
     } catch (error) {
         console.log(`Unexpected error while attempting to retrieve premier click-only online offers ${JSON.stringify(error)} ${error}`);
+        setNumberOfFailedCalls(numberOfFailedCalls + 1);
         return premierClickOnlyOnlineOffers;
     }
 }
@@ -496,6 +502,9 @@ export const retrievePremierClickOnlyOnlineOffersList = async (pageNumber?: numb
  * Function used to retrieve the list of premier online offers that we will
  * use for caching purposes.
  *
+ * @param numberOfFailedCalls parameter specifying the existing number of failed calls.
+ * @param setNumberOfFailedCalls setter or updater used to update the failed number of calls,
+ * in case this call fails
  * @param pageNumber optional parameter specifying a page number that we will get the
  * premier online offer from, in case we are not using this for caching purposes
  * @param setPageNumber setter or updater used to update the page number, if passed in.
@@ -503,7 +512,8 @@ export const retrievePremierClickOnlyOnlineOffersList = async (pageNumber?: numb
  * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function will
  * be used to cache the list of premier online offers.
  */
-export const retrievePremierOnlineOffersList = async (pageNumber?: number, setPageNumber?: SetterOrUpdater<number>): Promise<Offer[]> => {
+export const retrievePremierOnlineOffersList = async (numberOfFailedCalls: number, setNumberOfFailedCalls: SetterOrUpdater<number>,
+                                                      pageNumber?: number, setPageNumber?: SetterOrUpdater<number>): Promise<Offer[]> => {
     // result to return
     let premierOnlineOffers: Offer[] = [];
 
@@ -543,10 +553,12 @@ export const retrievePremierOnlineOffersList = async (pageNumber?: number, setPa
             }
         } else {
             console.log(`Unexpected error while retrieving premier online offers ${JSON.stringify(premierOnlineOffersResult)}`);
+            setNumberOfFailedCalls(numberOfFailedCalls + 1);
             return premierOnlineOffers;
         }
     } catch (error) {
         console.log(`Unexpected error while attempting to retrieve premier online offers ${JSON.stringify(error)} ${error}`);
+        setNumberOfFailedCalls(numberOfFailedCalls + 1);
         return premierOnlineOffers;
     }
 }
@@ -641,6 +653,9 @@ export const retrieveCategorizedOnlineOffersList = async (totalNumberOfOffersAva
  * Function used to retrieve the list of click-only online offers that we will
  * use for caching purposes.
  *
+ * @param numberOfFailedCalls parameter specifying the existing number of failed calls.
+ * @param setNumberOfFailedCalls setter or updater used to update the failed number of calls,
+ * in case this call fails
  * @param pageNumber optional parameter specifying a page number that we will get the
  * click-only online from, in case we are not using this for caching purposes
  * @param setPageNumber optional setter or updater used to update the page number.
@@ -651,8 +666,9 @@ export const retrieveCategorizedOnlineOffersList = async (totalNumberOfOffersAva
  * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function will
  * be used to cache the list of click-only online offers.
  */
-export const retrieveClickOnlyOnlineOffersList = async (totalNumberOfOffersAvailable: number, setTotalNumberOfOffersAvailable: SetterOrUpdater<number>,
-                                               pageNumber?: number, setPageNumber?: SetterOrUpdater<number>): Promise<Offer[]> => {
+export const retrieveClickOnlyOnlineOffersList = async (numberOfFailedCalls: number, setNumberOfFailedCalls: SetterOrUpdater<number>,
+                                                        totalNumberOfOffersAvailable: number, setTotalNumberOfOffersAvailable: SetterOrUpdater<number>,
+                                                        pageNumber?: number, setPageNumber?: SetterOrUpdater<number>): Promise<Offer[]> => {
     // result to return
     let clickOnlyOnlineOffers: Offer[] = [];
 
@@ -696,10 +712,12 @@ export const retrieveClickOnlyOnlineOffersList = async (totalNumberOfOffersAvail
             }
         } else {
             console.log(`Unexpected error while retrieving click-only online offers ${JSON.stringify(clickOnlyOnlineOffersResult)}`);
+            setNumberOfFailedCalls(numberOfFailedCalls + 1);
             return clickOnlyOnlineOffers;
         }
     } catch (error) {
         console.log(`Unexpected error while attempting to retrieve click-only online offers ${JSON.stringify(error)} ${error}`);
+        setNumberOfFailedCalls(numberOfFailedCalls + 1);
         return clickOnlyOnlineOffers;
     }
 }
@@ -708,6 +726,9 @@ export const retrieveClickOnlyOnlineOffersList = async (totalNumberOfOffersAvail
  * Function used to retrieve the list of online offers that we will
  * use for caching purposes.
  *
+ * @param numberOfFailedCalls parameter specifying the existing number of failed calls.
+ * @param setNumberOfFailedCalls setter or updater used to update the failed number of calls,
+ * in case this call fails
  * @param pageNumber optional parameter specifying a page number that we will get the online
  * from, in case we are not using this for caching purposes
  * @param setPageNumber optional setter or updater used to update the page number.
@@ -718,7 +739,8 @@ export const retrieveClickOnlyOnlineOffersList = async (totalNumberOfOffersAvail
  * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function will
  * be used to cache the list of online offers.
  */
-export const retrieveOnlineOffersList = async (totalNumberOfOffersAvailable: number, setTotalNumberOfOffersAvailable: SetterOrUpdater<number>,
+export const retrieveOnlineOffersList = async (numberOfFailedCalls: number, setNumberOfFailedCalls: SetterOrUpdater<number>,
+                                               totalNumberOfOffersAvailable: number, setTotalNumberOfOffersAvailable: SetterOrUpdater<number>,
                                                pageNumber?: number, setPageNumber?: SetterOrUpdater<number>): Promise<Offer[]> => {
     // result to return
     let onlineOffers: Offer[] = [];
@@ -763,10 +785,12 @@ export const retrieveOnlineOffersList = async (totalNumberOfOffersAvailable: num
             }
         } else {
             console.log(`Unexpected error while retrieving online offers ${JSON.stringify(onlineOffersResult)}`);
+            setNumberOfFailedCalls(numberOfFailedCalls + 1);
             return onlineOffers;
         }
     } catch (error) {
         console.log(`Unexpected error while attempting to retrieve online offers ${JSON.stringify(error)} ${error}`);
+        setNumberOfFailedCalls(numberOfFailedCalls + 1);
         return onlineOffers;
     }
 }
@@ -816,6 +840,9 @@ export const retrieveFidelisPartnerList = async (): Promise<FidelisPartner[]> =>
  * Function used to retrieve the list of premier offers nearby, that we will use
  * for background loading purposes.
  *
+ * @param numberOfFailedCalls parameter specifying the existing number of failed calls.
+ * @param setNumberOfFailedCalls setter or updater used to update the failed number of calls,
+ * in case this call fails
  * @param pageNumber parameter specifying a page number that we will get the nearby locations
  * from
  * @param setPageNumber setter or updater used to update the page number.
@@ -825,7 +852,8 @@ export const retrieveFidelisPartnerList = async (): Promise<FidelisPartner[]> =>
  * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function
  * will be used to get the list of offers nearby.
  */
-export const retrievePremierOffersNearby = async (pageNumber: number, setPageNumber: SetterOrUpdater<number>, currentUserLocation: LocationObject | null,
+export const retrievePremierOffersNearby = async (numberOfFailedCalls: number, setNumberOfFailedCalls: SetterOrUpdater<number>,
+                                                  pageNumber: number, setPageNumber: SetterOrUpdater<number>, currentUserLocation: LocationObject | null,
                                                   setCurrentUserLocation: SetterOrUpdater<LocationObject | null>): Promise<Offer[] | null> => {
     // result to return
     let nearbyOffers: Offer[] = [];
@@ -883,15 +911,18 @@ export const retrievePremierOffersNearby = async (pageNumber: number, setPageNum
                     }
                 } else {
                     console.log(`Unexpected error while retrieving premier nearby offers ${JSON.stringify(premierNearbyOffersResult)}`);
+                    setNumberOfFailedCalls(numberOfFailedCalls + 1);
                     return null;
                 }
             } else {
                 console.log(`Unable to retrieve the current user's location coordinates!`);
+                setNumberOfFailedCalls(numberOfFailedCalls + 1);
                 return null;
             }
         }
     } catch (error) {
         console.log(`Unexpected error while attempting to retrieve premier nearby offers ${JSON.stringify(error)} ${error}`);
+        setNumberOfFailedCalls(numberOfFailedCalls + 1);
         return null;
     }
 }
@@ -901,6 +932,9 @@ export const retrievePremierOffersNearby = async (pageNumber: number, setPageNum
  * for background loading purposes to be displayed in the offers nearby
  * main horizontal or full screen maps.
  *
+ * @param numberOfFailedCalls parameter specifying the existing number of failed calls.
+ * @param setNumberOfFailedCalls setter or updater used to update the failed number of calls,
+ * in case this call fails
  * @param userInformation user information to be passed in, in case we need to fall back the
  * offers near a user's home location.
  * @param currentUserLocation the current location object of the user
@@ -916,7 +950,8 @@ export const retrievePremierOffersNearby = async (pageNumber: number, setPageNum
  * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function
  * will be used to get the list of offers nearby use for the main horizontal or full screen maps.
  */
-export const retrieveOffersNearbyForMap = async (userInformation: any, currentUserLocation: LocationObject | null,
+export const retrieveOffersNearbyForMap = async (numberOfFailedCalls: number, setNumberOfFailedCalls: SetterOrUpdater<number>,
+                                                 userInformation: any, currentUserLocation: LocationObject | null,
                                                  setCurrentUserLocation: SetterOrUpdater<LocationObject | null>, totalNumberOfOffersAvailable?: number,
                                                  setTotalNumberOfOffersAvailable?: SetterOrUpdater<number>, fullScreenMap?: boolean,
                                                  fullScreenLatitude?: number, fullScreenLongitude?: number): Promise<Offer[] | null> => {
@@ -982,15 +1017,18 @@ export const retrieveOffersNearbyForMap = async (userInformation: any, currentUs
                     }
                 } else {
                     console.log(`Unexpected error while retrieving nearby offers for main horizontal map ${JSON.stringify(nearbyOffersResult)}`);
+                    setNumberOfFailedCalls(numberOfFailedCalls + 1);
                     return nearbyOffers;
                 }
             } else {
                 console.log(`Unable to retrieve the current user's location coordinates!`);
+                setNumberOfFailedCalls(numberOfFailedCalls + 1);
                 return nearbyOffers;
             }
         }
     } catch (error) {
         console.log(`Unexpected error while attempting to retrieve nearby offers for main horizontal map ${JSON.stringify(error)} ${error}`);
+        setNumberOfFailedCalls(numberOfFailedCalls + 1);
 
         // @ts-ignore
         if (!error.code && (error.code !== 'ERR_LOCATION_INFO_PLIST' || error.code !== 'E_LOCATION_UNAVAILABLE')) {
@@ -1091,6 +1129,9 @@ const retrieveOffersNearLocationForMap = async (address: string, totalNumberOfOf
  * Function used to retrieve the list of offers nearby, that we will use
  * for background loading purposes.
  *
+ * @param numberOfFailedCalls parameter specifying the existing number of failed calls.
+ * @param setNumberOfFailedCalls setter or updater used to update the failed number of calls,
+ * in case this call fails
  * @param pageNumber parameter specifying a page number that we will get the nearby locations
  * from
  * @param setPageNumber setter or updater used to update the page number.
@@ -1112,7 +1153,8 @@ const retrieveOffersNearLocationForMap = async (address: string, totalNumberOfOf
  * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function
  * will be used to get the list of offers nearby.
  */
-export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: SetterOrUpdater<number>,
+export const retrieveOffersNearby = async (numberOfFailedCalls: number, setNumberOfFailedCalls: SetterOrUpdater<number>,
+                                           pageNumber: number, setPageNumber: SetterOrUpdater<number>,
                                            premierPageNumber: number, setPremierPageNumber: SetterOrUpdater<number>,
                                            userInformation: any, setOffersNearUserLocationFlag: SetterOrUpdater<boolean>,
                                            marketplaceCache: typeof Cache | null,
@@ -1186,15 +1228,18 @@ export const retrieveOffersNearby = async (pageNumber: number, setPageNumber: Se
                     }
                 } else {
                     console.log(`Unexpected error while retrieving nearby offers ${JSON.stringify(nearbyOffersResult)}`);
+                    setNumberOfFailedCalls(numberOfFailedCalls + 1);
                     return nearbyOffers;
                 }
             } else {
                 console.log(`Unable to retrieve the current user's location coordinates!`);
+                setNumberOfFailedCalls(numberOfFailedCalls + 1);
                 return nearbyOffers;
             }
         }
     } catch (error) {
         console.log(`Unexpected error while attempting to retrieve nearby offers ${JSON.stringify(error)} ${error}`);
+        setNumberOfFailedCalls(numberOfFailedCalls + 1);
 
         // @ts-ignore
         if (!error.code && (error.code !== 'ERR_LOCATION_INFO_PLIST' || error.code !== 'E_LOCATION_UNAVAILABLE')) {

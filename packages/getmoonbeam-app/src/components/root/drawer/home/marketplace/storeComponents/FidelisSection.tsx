@@ -29,7 +29,7 @@ export const FidelisSection = (props: {
     const [dataProvider, setDataProvider] = useState<DataProvider | null>(null);
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
     // constants used to keep track of shared states
-    const [fidelisPartnerList, ] = useRecoilState(fidelisPartnerListState);
+    const [fidelisPartnerList,] = useRecoilState(fidelisPartnerListState);
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
 
     /**
@@ -95,17 +95,19 @@ export const FidelisSection = (props: {
                                             justifyContent: 'space-between',
                                             left: wp(2)
                                         }}>
-                                            <Image
-                                                style={styles.featuredPartnerCardCover}
-                                                source={{
-                                                    uri: data.offers[0]!.brandLogoSm!
-                                                }}
-                                                placeholder={MoonbeamPlaceholderImage}
-                                                placeholderContentFit={'contain'}
-                                                contentFit={'contain'}
-                                                transition={1000}
-                                                cachePolicy={'memory-disk'}
-                                            />
+                                            <View style={styles.featuredPartnerCardCoverBackground}>
+                                                <Image
+                                                    style={styles.featuredPartnerCardCover}
+                                                    source={{
+                                                        uri: data.offers[0]!.brandLogoSm!
+                                                    }}
+                                                    placeholder={MoonbeamPlaceholderImage}
+                                                    placeholderContentFit={'contain'}
+                                                    contentFit={'contain'}
+                                                    transition={1000}
+                                                    cachePolicy={'memory-disk'}
+                                                />
+                                            </View>
                                             <TouchableOpacity
                                                 style={styles.viewOfferButton}
                                                 onPress={() => {
@@ -191,7 +193,7 @@ export const FidelisSection = (props: {
                         forceNonDeterministicRendering={true}
                         scrollViewProps={{
                             decelerationRate: "fast",
-                            snapToInterval: wp(70) + wp(20),
+                            snapToInterval: wp(90),
                             snapToAlignment: "center",
                             persistentScrollbar: false,
                             showsHorizontalScrollIndicator: false

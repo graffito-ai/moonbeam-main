@@ -183,11 +183,40 @@ export const SearchSection = (props: {
                     <View
                         style={[styles.filterChipView]}>
                         <Chip mode={'flat'}
-                              style={[styles.verticalSectionActiveChip, whichVerticalSectionActive === 'fidelis' ? {backgroundColor: '#F2FF5D'} : {backgroundColor: '#5B5A5A'}]}
-                              textStyle={[styles.verticalSectionActiveChipText, whichVerticalSectionActive === 'fidelis' ? {color: '#5B5A5A'} : {color: '#F2FF5D'}]}
+                              style={[styles.verticalSectionActiveChip, whichVerticalSectionActive === 'click-only-online' ? {backgroundColor: '#F2FF5D'} : {backgroundColor: '#5B5A5A'}]}
+                              textStyle={[styles.verticalSectionActiveChipText, whichVerticalSectionActive === 'click-only-online' ? {color: '#5B5A5A'} : {color: '#F2FF5D'}]}
                               icon={() => (
                                   <Icon name="star"
                                         type={'material-community'}
+                                        size={hp(2)}
+                                        color={whichVerticalSectionActive === 'click-only-online' ? '#5B5A5A' : '#F2FF5D'}/>
+                              )}
+                              onPress={() => {
+                                  // reset the search state
+                                  setResetSearch(true);
+
+                                  // reset the filters
+                                  setFilteredByDiscountPressed(false);
+                                  setAreFiltersActive(false);
+
+                                  if (whichVerticalSectionActive === 'click-only-online') {
+                                      // set the no filtered offers available flag accordingly
+                                      props.setNoFilteredOffersAvailable(false);
+
+                                      setSearchQuery('');
+                                      setWhichVerticalSectionActive(null);
+                                      setToggleViewPressed('horizontal');
+                                  } else {
+                                      setWhichVerticalSectionActive('click-only-online');
+                                      setToggleViewPressed('vertical');
+                                  }
+                              }}>Premier</Chip>
+                        <Chip mode={'flat'}
+                              style={[styles.verticalSectionActiveChip, whichVerticalSectionActive === 'fidelis' ? {backgroundColor: '#F2FF5D'} : {backgroundColor: '#5B5A5A'}]}
+                              textStyle={[styles.verticalSectionActiveChipText, whichVerticalSectionActive === 'fidelis' ? {color: '#5B5A5A'} : {color: '#F2FF5D'}]}
+                              icon={() => (
+                                  <Icon name="military-tech"
+                                        type={'material'}
                                         size={hp(2)}
                                         color={whichVerticalSectionActive === 'fidelis' ? '#5B5A5A' : '#F2FF5D'}/>
                               )}

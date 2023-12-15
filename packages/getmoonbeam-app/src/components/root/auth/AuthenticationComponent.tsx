@@ -58,20 +58,28 @@ import {Stages, UserAuthSessionResponse} from "@moonbeam/moonbeam-models";
 import {currentUserLocationState, firstTimeLoggedInState} from "../../../recoil/RootAtom";
 import * as envInfo from "../../../../local-env-info.json";
 import {
-    clickOnlyOnlineOffersListState, clickOnlyOnlineOffersPageNumberState,
+    clickOnlyOnlineOffersListState,
+    clickOnlyOnlineOffersPageNumberState,
     locationServicesButtonState,
     nearbyOffersListForFullScreenMapState,
     nearbyOffersListForMainHorizontalMapState,
     nearbyOffersListState,
-    nearbyOffersPageNumberState, noClickOnlyOnlineOffersToLoadState,
+    nearbyOffersPageNumberState,
+    noClickOnlyOnlineOffersToLoadState,
     noNearbyOffersToLoadState,
-    noOnlineOffersToLoadState, numberOfClickOnlyOnlineOffersState,
+    noOnlineOffersToLoadState,
+    numberOfClickOnlyOnlineOffersState,
+    numberOfFailedClickOnlyOnlineOfferCallsState,
+    numberOfFailedHorizontalMapOfferCallsState,
+    numberOfFailedNearbyOfferCallsState,
+    numberOfFailedOnlineOfferCallsState,
     numberOfOffersWithin25MilesState,
     numberOfOffersWithin5MilesState,
     numberOfOnlineOffersState,
     offersNearUserLocationFlagState,
     onlineOffersListState,
-    onlineOffersPageNumberState, premierClickOnlyOnlineOffersPageNumberState,
+    onlineOffersPageNumberState,
+    premierClickOnlyOnlineOffersPageNumberState,
     premierNearbyOffersPageNumberState,
     premierOnlineOffersPageNumberState,
     reloadNearbyDueToPermissionsChangeState,
@@ -119,6 +127,10 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [loadingNearbyOffersForFullScreenMapInProgress, setIsLoadingNearbyOffersForFullScreenMapInProgress] = useState<boolean>(false);
         const [areOffersForFullScreenMapLoaded, setAreOffersForFullScreenMapLoaded] = useState<boolean>(false);
         // constants used to keep track of shared states
+        const [numberOfFailedHorizontalMapOfferCalls, setNumberOfFailedHorizontalMapOfferCalls] = useRecoilState(numberOfFailedHorizontalMapOfferCallsState);
+        const [numberOfNearbyFailedCalls, setNumberOfNearbyFailedCalls] = useRecoilState(numberOfFailedNearbyOfferCallsState);
+        const [numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls] = useRecoilState(numberOfFailedOnlineOfferCallsState);
+        const [numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls] = useRecoilState(numberOfFailedClickOnlyOnlineOfferCallsState);
         const [userIsAuthenticated, setIsUserAuthenticated] = useRecoilState(userIsAuthenticatedState);
         const [, setReferralCodeMarketingCampaign] = useRecoilState(referralCodeMarketingCampaignState);
         const [, setReferralCode] = useRecoilState(referralCodeState);
@@ -291,7 +303,9 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             setTimeout(async () => {
                 setIsLoadingClickOnlyOnlineInProgress(true);
 
-                const additionalClickOnlyOnlineOffers = await retrieveClickOnlyOnlineOffersList(numberOfClickOnlyOnlineOffers, setNumberOfClickOnlyOnlineOffers,
+                const additionalClickOnlyOnlineOffers = await retrieveClickOnlyOnlineOffersList(
+                    numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls,
+                    numberOfClickOnlyOnlineOffers, setNumberOfClickOnlyOnlineOffers,
                     clickOnlyOnlineOffersPageNumber, setClickOnlyOnlineOffersPageNumber);
                 if (additionalClickOnlyOnlineOffers.length === 0) {
                     // setNoOnlineOffersToLoad(true);
@@ -316,11 +330,13 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             setTimeout(async () => {
                 setIsLoadingClickOnlyOnlineInProgress(true);
 
-                const premierClickOnlyOnlineOffers = await retrievePremierClickOnlyOnlineOffersList(premierClickOnlyOnlineOffersPageNumber, setPremierClickOnlyOnlineOffersPageNumber);
+                const premierClickOnlyOnlineOffers = await retrievePremierClickOnlyOnlineOffersList(
+                    numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls,
+                    premierClickOnlyOnlineOffersPageNumber, setPremierClickOnlyOnlineOffersPageNumber);
                 if (premierClickOnlyOnlineOffers.length !== 0) {
                     // update the number of available total click-only offers
                     setNumberOfClickOnlyOnlineOffers(oldNumberOfPremierClickOnlyOnlineOffers => {
-                       return oldNumberOfPremierClickOnlyOnlineOffers + premierClickOnlyOnlineOffers.length
+                        return oldNumberOfPremierClickOnlyOnlineOffers + premierClickOnlyOnlineOffers.length
                     });
 
                     setNoPremierClickOnlyOnlineOffersToLoad(false);
@@ -344,7 +360,10 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             setTimeout(async () => {
                 setIsLoadingOnlineInProgress(true);
 
-                const additionalOnlineOffers = await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers, onlineOffersPageNumber, setOnlineOffersPageNumber);
+                const additionalOnlineOffers = await retrieveOnlineOffersList(
+                    numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls,
+                    numberOfOnlineOffers, setNumberOfOnlineOffers,
+                    onlineOffersPageNumber, setOnlineOffersPageNumber);
                 if (additionalOnlineOffers.length === 0) {
                     // setNoOnlineOffersToLoad(true);
                     setOnlineOfferList(oldOnlineOfferList => {
@@ -368,7 +387,9 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             setTimeout(async () => {
                 setIsLoadingOnlineInProgress(true);
 
-                const premierOnlineOffers = await retrievePremierOnlineOffersList(premierOnlineOffersPageNumber, setPremierOnlineOffersPageNumber);
+                const premierOnlineOffers = await retrievePremierOnlineOffersList(
+                    numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls,
+                    premierOnlineOffersPageNumber, setPremierOnlineOffersPageNumber);
                 if (premierOnlineOffers.length !== 0) {
                     // update the number of available total online offers
                     setNumberOfOnlineOffers(oldNumberOfOnlineOffers => {
@@ -396,7 +417,9 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             setTimeout(async () => {
                 setIsLoadingNearbyOffersInProgress(true);
                 const offersNearby = await
-                    retrieveOffersNearby(nearbyOffersPageNumber, setNearbyOffersPageNumber,
+                    retrieveOffersNearby(
+                        numberOfNearbyFailedCalls, setNumberOfNearbyFailedCalls,
+                        nearbyOffersPageNumber, setNearbyOffersPageNumber,
                         premierNearbyOffersPageNumber, setPremierNearbyOffersPageNumber,
                         userInformation, setOffersNearUserLocationFlag, marketplaceCache, currentUserLocation,
                         setCurrentUserLocation, numberOfOffersWithin25Miles, setNumberOfOffersWithin25Miles);
@@ -424,7 +447,9 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             setTimeout(async () => {
                 setIsLoadingNearbyOffersForHorizontalMapInProgress(true);
                 const offersNearby = await
-                    retrieveOffersNearbyForMap(userInformation, currentUserLocation, setCurrentUserLocation,
+                    retrieveOffersNearbyForMap(
+                        numberOfFailedHorizontalMapOfferCalls, setNumberOfFailedHorizontalMapOfferCalls,
+                        userInformation, currentUserLocation, setCurrentUserLocation,
                         numberOfOffersWithin5Miles, setNumberOfOffersWithin5Miles);
                 if (offersNearby === null) {
                     setIsLoadingNearbyOffersForHorizontalMapInProgress(false);
@@ -449,7 +474,9 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             setTimeout(async () => {
                 setIsLoadingNearbyOffersForFullScreenMapInProgress(true);
                 const offersNearby = await
-                    retrieveOffersNearbyForMap(userInformation, currentUserLocation, setCurrentUserLocation,
+                    retrieveOffersNearbyForMap(
+                        numberOfFailedHorizontalMapOfferCalls, setNumberOfFailedHorizontalMapOfferCalls,
+                        userInformation, currentUserLocation, setCurrentUserLocation,
                         undefined, undefined, true);
                 if (offersNearby === null) {
                     setIsLoadingNearbyOffersForFullScreenMapInProgress(false);
@@ -474,7 +501,10 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             setTimeout(async () => {
                 setIsLoadingNearbyOffersInProgress(true);
                 const premierOffersNearby = await
-                    retrievePremierOffersNearby(premierNearbyOffersPageNumber, setPremierNearbyOffersPageNumber, currentUserLocation, setCurrentUserLocation);
+                    retrievePremierOffersNearby(
+                        numberOfNearbyFailedCalls, setNumberOfNearbyFailedCalls,
+                        premierNearbyOffersPageNumber, setPremierNearbyOffersPageNumber,
+                        currentUserLocation, setCurrentUserLocation);
                 if (premierOffersNearby === null) {
                     setIsLoadingNearbyOffersInProgress(false);
                 } else if (premierOffersNearby.length === 0 || nearbyOfferList.length >= 1) {
@@ -580,21 +610,21 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                  * - click-only online regular offers
                  * - all categorized offers (online + nearby)
                  */
-                nearbyOfferList.length < 6 && !loadingNearbyOffersInProgress && await Promise.all([
+                numberOfNearbyFailedCalls < 3 && nearbyOfferList.length < 6 && !loadingNearbyOffersInProgress && await Promise.all([
                     loadPremierNearbyData(),
                     loadNearbyData()
                 ]);
-                onlineOfferList.length < 29 && !loadingOnlineInProgress && await Promise.all([
+                numberOfOnlineFailedCalls < 3 && onlineOfferList.length < 29 && !loadingOnlineInProgress && await Promise.all([
                     loadPremierOnlineData(),
                     loadOnlineData()
                 ]);
-                clickOnlyOnlineOfferList.length < 29 && !loadingClickOnlyOnlineInProgress && await Promise.all([
+                numberOfClickOnlyOnlineFailedCalls < 3 && clickOnlyOnlineOfferList.length < 5 && !loadingClickOnlyOnlineInProgress && await Promise.all([
                     loadPremierClickOnlyOnlineData(),
                     loadClickOnlyOnlineData()
                 ]);
                 await Promise.all([
-                    !loadingNearbyOffersForHorizontalMapInProgress && !areOffersForMainHorizontalMapLoaded && nearbyOffersListForMainHorizontalMap.length === 0 && loadNearbyDataForMainHorizontalMap(),
-                    !loadingNearbyOffersForFullScreenMapInProgress && !areOffersForFullScreenMapLoaded && nearbyOffersListForFullScreenMap.length === 0 && loadNearbyDataForFullScreenMap()
+                    numberOfFailedHorizontalMapOfferCalls < 3 && !loadingNearbyOffersForHorizontalMapInProgress && !areOffersForMainHorizontalMapLoaded && nearbyOffersListForMainHorizontalMap.length === 0 && loadNearbyDataForMainHorizontalMap(),
+                    numberOfFailedHorizontalMapOfferCalls < 3 && !loadingNearbyOffersForFullScreenMapInProgress && !areOffersForFullScreenMapLoaded && nearbyOffersListForFullScreenMap.length === 0 && loadNearbyDataForFullScreenMap()
                 ]);
             }
             if (envInfo.envName === Stages.PROD) {
@@ -622,21 +652,21 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                  * - click-only online regular offers
                  * - all categorized offers (online + nearby)
                  */
-                nearbyOfferList.length < 6 && !loadingNearbyOffersInProgress && await Promise.all([
+                numberOfNearbyFailedCalls < 3 && nearbyOfferList.length < 6 && !loadingNearbyOffersInProgress && await Promise.all([
                     loadPremierNearbyData(),
                     loadNearbyData()
                 ]);
-                onlineOfferList.length < 29 && !loadingOnlineInProgress && await Promise.all([
+                numberOfOnlineFailedCalls < 3 && onlineOfferList.length < 29 && !loadingOnlineInProgress && await Promise.all([
                     loadPremierOnlineData(),
                     loadOnlineData()
                 ]);
-                clickOnlyOnlineOfferList.length < 29 && !loadingClickOnlyOnlineInProgress && await Promise.all([
+                numberOfClickOnlyOnlineFailedCalls < 3 && clickOnlyOnlineOfferList.length < 29 && !loadingClickOnlyOnlineInProgress && await Promise.all([
                     loadPremierClickOnlyOnlineData(),
                     loadClickOnlyOnlineData()
                 ]);
                 await Promise.all([
-                    !loadingNearbyOffersForHorizontalMapInProgress && !areOffersForMainHorizontalMapLoaded && nearbyOffersListForMainHorizontalMap.length === 0 && loadNearbyDataForMainHorizontalMap(),
-                    !loadingNearbyOffersForFullScreenMapInProgress && !areOffersForFullScreenMapLoaded && nearbyOffersListForFullScreenMap.length === 0 && loadNearbyDataForFullScreenMap()
+                    numberOfFailedHorizontalMapOfferCalls < 3 && !loadingNearbyOffersForHorizontalMapInProgress && !areOffersForMainHorizontalMapLoaded && nearbyOffersListForMainHorizontalMap.length === 0 && loadNearbyDataForMainHorizontalMap(),
+                    numberOfFailedHorizontalMapOfferCalls < 3 && !loadingNearbyOffersForFullScreenMapInProgress && !areOffersForFullScreenMapLoaded && nearbyOffersListForFullScreenMap.length === 0 && loadNearbyDataForFullScreenMap()
                 ]);
             }
         }
@@ -802,8 +832,10 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                                                         await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineOffers`);
 
                                                                         // retrieve the premier online, and regular online offers
-                                                                        const onlineOffers = await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers);
-                                                                        const premierOnlineOffers = await retrievePremierOnlineOffersList();
+                                                                        const onlineOffers = await retrieveOnlineOffersList(
+                                                                            numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls,
+                                                                            numberOfOnlineOffers, setNumberOfOnlineOffers);
+                                                                        const premierOnlineOffers = await retrievePremierOnlineOffersList(numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls);
 
                                                                         // update the number of available total online offers
                                                                         setNumberOfOnlineOffers(oldNumberOfOnlineOffers => {
@@ -815,8 +847,10 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                                                     } else {
                                                                         console.log('online offers are not cached');
                                                                         // retrieve the premier online, and regular online offers
-                                                                        const onlineOffers = await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers);
-                                                                        const premierOnlineOffers = await retrievePremierOnlineOffersList();
+                                                                        const onlineOffers = await retrieveOnlineOffersList(
+                                                                            numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls,
+                                                                            numberOfOnlineOffers, setNumberOfOnlineOffers);
+                                                                        const premierOnlineOffers = await retrievePremierOnlineOffersList(numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls);
 
                                                                         // update the number of available total online offers
                                                                         setNumberOfOnlineOffers(oldNumberOfOnlineOffers => {
@@ -831,8 +865,10 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                                                         await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`);
 
                                                                         // retrieve the premier click-only online, and regular click-only online offers
-                                                                        const clickOnlyOnlineOffers = await retrieveClickOnlyOnlineOffersList(numberOfClickOnlyOnlineOffers, setNumberOfClickOnlyOnlineOffers)
-                                                                        const premierClickOnlyOnlineOffers = await retrievePremierClickOnlyOnlineOffersList();
+                                                                        const clickOnlyOnlineOffers = await retrieveClickOnlyOnlineOffersList(
+                                                                            numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls,
+                                                                            numberOfClickOnlyOnlineOffers, setNumberOfClickOnlyOnlineOffers)
+                                                                        const premierClickOnlyOnlineOffers = await retrievePremierClickOnlyOnlineOffersList(numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls);
 
                                                                         // update the number of available total online offers
                                                                         setNumberOfClickOnlyOnlineOffers(oldNumberOfClickOnlyOnlineOffers => {
@@ -844,8 +880,10 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                                                     } else {
                                                                         console.log('online click-only offers are not cached');
                                                                         // retrieve the premier click-only online, and regular click-only online offers
-                                                                        const clickOnlyOnlineOffers = await retrieveClickOnlyOnlineOffersList(numberOfClickOnlyOnlineOffers, setNumberOfClickOnlyOnlineOffers);
-                                                                        const premierClickOnlyOnlineOffers = await retrievePremierClickOnlyOnlineOffersList();
+                                                                        const clickOnlyOnlineOffers = await retrieveClickOnlyOnlineOffersList(
+                                                                            numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls,
+                                                                            numberOfClickOnlyOnlineOffers, setNumberOfClickOnlyOnlineOffers);
+                                                                        const premierClickOnlyOnlineOffers = await retrievePremierClickOnlyOnlineOffersList(numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls);
 
                                                                         // update the number of available total online offers
                                                                         setNumberOfClickOnlyOnlineOffers(oldNumberOfClickOnlyOnlineOffers => {

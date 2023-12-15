@@ -123,7 +123,8 @@ import {
 } from "../../recoil/RootAtom";
 import {splashStatusState} from "../../recoil/SplashAtom";
 import {
-    clickOnlyOnlineOffersListState, clickOnlyOnlineOffersPageNumberState,
+    clickOnlyOnlineOffersListState,
+    clickOnlyOnlineOffersPageNumberState,
     currentActiveKitState,
     fidelisPartnerListState,
     filteredByDiscountPressedState,
@@ -160,7 +161,8 @@ import {
     nearbyRetailCategorizedOffersListState,
     nearbyRetailCategorizedOffersPageNumberState,
     nearbyServicesAndSubscriptionsCategorizedOffersListState,
-    nearbyServicesAndSubscriptionsCategorizedOffersPageNumberState, noClickOnlyOnlineOffersToLoadState,
+    nearbyServicesAndSubscriptionsCategorizedOffersPageNumberState,
+    noClickOnlyOnlineOffersToLoadState,
     noNearbyElectronicsCategorizedOffersToLoadState,
     noNearbyEntertainmentCategorizedOffersToLoadState,
     noNearbyFoodCategorizedOffersToLoadState,
@@ -180,11 +182,16 @@ import {
     noOnlineOfficeAndBusinessCategorizedOffersToLoadState,
     noOnlineRetailCategorizedOffersToLoadState,
     noOnlineServicesAndSubscriptionsCategorizedOffersToLoadState,
-    noOnlineVeteransDayCategorizedOffersToLoadState, numberOfClickOnlyOnlineOffersState,
+    noOnlineVeteransDayCategorizedOffersToLoadState,
+    numberOfClickOnlyOnlineOffersState,
     numberOfElectronicsCategorizedOffersWithin25MilesState,
     numberOfElectronicsCategorizedOnlineOffersState,
     numberOfEntertainmentCategorizedOffersWithin25MilesState,
     numberOfEntertainmentCategorizedOnlineOffersState,
+    numberOfFailedClickOnlyOnlineOfferCallsState,
+    numberOfFailedHorizontalMapOfferCallsState,
+    numberOfFailedNearbyOfferCallsState,
+    numberOfFailedOnlineOfferCallsState,
     numberOfFoodCategorizedOffersWithin25MilesState,
     numberOfFoodCategorizedOnlineOffersState,
     numberOfHealthAndBeautyCategorizedOffersWithin25MilesState,
@@ -222,7 +229,8 @@ import {
     onlineServicesAndSubscriptionsCategorizedOfferListState,
     onlineServicesAndSubscriptionsCategorizedOffersPageNumberState,
     onlineVeteransDayCategorizedOfferListState,
-    onlineVeteransDayCategorizedOffersPageNumberState, premierClickOnlyOnlineOffersPageNumberState,
+    onlineVeteransDayCategorizedOffersPageNumberState,
+    premierClickOnlyOnlineOffersPageNumberState,
     premierNearbyOffersPageNumberState,
     premierOnlineOffersPageNumberState,
     reloadNearbyDueToPermissionsChangeState,
@@ -500,6 +508,10 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const premierClickOnlyOnlineOffersPageNumberStateReset = useResetRecoilState(premierClickOnlyOnlineOffersPageNumberState);
     const noClickOnlyOnlineOffersToLoadStateReset = useResetRecoilState(noClickOnlyOnlineOffersToLoadState);
     const numberOfClickOnlyOnlineOffersStateReset = useResetRecoilState(numberOfClickOnlyOnlineOffersState);
+    const numberOfFailedOnlineOfferCallsStateReset = useResetRecoilState(numberOfFailedOnlineOfferCallsState);
+    const numberOfFailedNearbyOfferCallsStateReset = useResetRecoilState(numberOfFailedNearbyOfferCallsState);
+    const numberOfFailedHorizontalMapOfferCallsStateReset = useResetRecoilState(numberOfFailedHorizontalMapOfferCallsState);
+    const numberOfFailedClickOnlyOnlineOfferCallsStateReset = useResetRecoilState(numberOfFailedClickOnlyOnlineOfferCallsState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -755,6 +767,10 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             premierClickOnlyOnlineOffersPageNumberStateReset();
             noClickOnlyOnlineOffersToLoadStateReset();
             numberOfClickOnlyOnlineOffersStateReset();
+            numberOfFailedOnlineOfferCallsStateReset();
+            numberOfFailedNearbyOfferCallsStateReset();
+            numberOfFailedHorizontalMapOfferCallsStateReset();
+            numberOfFailedClickOnlyOnlineOfferCallsStateReset();
             branch !== null && branch.logout();
 
             /**

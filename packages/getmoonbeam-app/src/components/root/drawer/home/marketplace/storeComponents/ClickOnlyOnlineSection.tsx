@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
-import {Platform, TouchableOpacity, View} from "react-native";
-import {ActivityIndicator, Card, Paragraph, Portal, Text} from "react-native-paper";
+import {Platform, Text, TouchableOpacity, View} from "react-native";
+import {ActivityIndicator, Card, Paragraph, Portal} from "react-native-paper";
 import {styles} from "../../../../../../styles/store.module";
 import {Offer, RewardType} from "@moonbeam/moonbeam-models";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
@@ -10,7 +10,6 @@ import {useRecoilState, useRecoilValue} from "recoil";
 import {
     clickOnlyOnlineOffersListState,
     noClickOnlyOnlineOffersToLoadState,
-    numberOfClickOnlyOnlineOffersState,
     storeOfferState,
     toggleViewPressedState,
     uniqueClickOnlyOnlineOffersListState,
@@ -38,7 +37,6 @@ export const ClickOnlyOnlineSection = (props: {
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
     const [clickOnlyOnlineOffersSpinnerShown, setClickOnlyOnlineOffersSpinnerShown] = useState<boolean>(false);
     // constants used to keep track of shared states
-    const [numberOfClickOnlyOnlineOffers,] = useRecoilState(numberOfClickOnlyOnlineOffersState);
     const [, setToggleViewPressed] = useRecoilState(toggleViewPressedState);
     const [, setWhichVerticalSectionActive] = useRecoilState(verticalSectionActiveState);
     const deDuplicatedClickOnlyOnlineOfferList = useRecoilValue(uniqueClickOnlyOnlineOffersListState);
@@ -59,45 +57,48 @@ export const ClickOnlyOnlineSection = (props: {
     const renderRowData = useMemo(() => (_type: string | number, data: Offer, index: number): JSX.Element | JSX.Element[] => {
         if (clickOnlyOnlineOfferList.length !== 0) {
             return (
-                <TouchableOpacity style={{left: '3%'}}
-                                  onPress={() => {
-                                      // set the clicked offer/partner accordingly
-                                      setStoreOfferClicked(data);
-                                      // @ts-ignore
-                                      props.navigation.navigate('StoreOffer', {});
-                                  }}>
-                    <Card style={styles.onlineOfferCard}>
-                        <Card.Content>
-                            <View style={{flexDirection: 'column'}}>
-                                <View style={styles.clickOnlyOnlineOfferCardCoverBackground}>
-                                    <Image
-                                        style={styles.clickOnlyOnlineOfferCardCover}
-                                        source={{
-                                            uri: data.brandLogoSm!
-                                        }}
-                                        placeholder={MoonbeamPlaceholderImage}
-                                        placeholderContentFit={'contain'}
-                                        contentFit={'contain'}
-                                        transition={1000}
-                                        cachePolicy={'memory-disk'}
-                                    />
+                <>
+                    <TouchableOpacity style={{left: '3%'}}
+                                      onPress={() => {
+                                          // set the clicked offer/partner accordingly
+                                          setStoreOfferClicked(data);
+                                          // @ts-ignore
+                                          props.navigation.navigate('StoreOffer', {});
+                                      }}>
+                        <Card style={styles.onlineOfferCard}>
+                            <Card.Content>
+                                <View style={{flexDirection: 'column'}}>
+                                    <View style={styles.clickOnlyOnlineOfferCardCoverBackground}>
+                                        <Image
+                                            style={styles.clickOnlyOnlineOfferCardCover}
+                                            source={{
+                                                uri: data.brandLogoSm!
+                                            }}
+                                            placeholder={MoonbeamPlaceholderImage}
+                                            placeholderContentFit={'contain'}
+                                            contentFit={'contain'}
+                                            transition={1000}
+                                            cachePolicy={'memory-disk'}
+                                        />
+                                    </View>
+                                    <Paragraph
+                                        numberOfLines={1}
+                                        style={styles.clickOnlyOnlineOfferCardTitle}>{data.brandDba}
+                                    </Paragraph>
+                                    <Paragraph
+                                        numberOfLines={1}
+                                        style={styles.clickOnlyOnlineOfferCardSubtitle}>
+                                        {data.reward!.type! === RewardType.RewardPercent
+                                            ? `${data.reward!.value}% Off`
+                                            : `$${data.reward!.value} Off`}
+                                    </Paragraph>
                                 </View>
-                                <Paragraph
-                                    numberOfLines={3}
-                                    style={styles.onlineOfferCardTitle}>{data.brandDba}
-                                </Paragraph>
-                                <Paragraph
-                                    style={styles.onlineOfferCardSubtitle}>
-                                    {data.reward!.type! === RewardType.RewardPercent
-                                        ? `${data.reward!.value}% Off`
-                                        : `$${data.reward!.value} Off`}
-                                </Paragraph>
-                            </View>
-                        </Card.Content>
-                    </Card>
-                    <View
-                        style={{width: index === clickOnlyOnlineOfferList.length - 1 ? wp(10) : wp(5)}}/>
-                </TouchableOpacity>
+                            </Card.Content>
+                        </Card>
+                        <View
+                            style={{width: index === clickOnlyOnlineOfferList.length - 1 ? wp(10) : wp(5)}}/>
+                    </TouchableOpacity>
+                </>
             );
         } else {
             return (<></>);
@@ -144,18 +145,18 @@ export const ClickOnlyOnlineSection = (props: {
             <View
                 style={styles.clickOnlyOnlineOffersView}>
                 <View style={styles.onlineOffersTitleView}>
-                    <View style={styles.onlineOffersLeftTitleView}>
-                        <Text style={styles.onlineOffersTitleMain}>
-                            <Text style={styles.onlineOffersTitle}>
-                                Premier Brands
-                            </Text>
-                        </Text>
-                    </View>
-                    <View style={{flexDirection: 'column', bottom: hp(3)}}>
-                        <Text
-                            style={[styles.onlineOffersTitleSub, {left: wp(6)}]}>
-                            {`${numberOfClickOnlyOnlineOffers} premier offers available`}
-                        </Text>
+                    {/*<View style={styles.onlineOffersLeftTitleView}>*/}
+                    {/*    <Text style={styles.onlineOffersTitleMain}>*/}
+                    {/*        <Text style={styles.onlineOffersTitle}>*/}
+                    {/*            Premier Brands*/}
+                    {/*        </Text>*/}
+                    {/*    </Text>*/}
+                    {/*</View>*/}
+                    <View style={{flexDirection: 'column', top: hp(1.5)}}>
+                        {/*<Text*/}
+                        {/*    style={[styles.clickOnlyOnlineOffersTitleSub, {left: wp(6)}]}>*/}
+                        {/*    {`In-app shopping from top brands.`}*/}
+                        {/*</Text>*/}
                         <TouchableOpacity onPress={() => {
                             setToggleViewPressed('vertical');
                             // set the active vertical section manually
@@ -174,43 +175,12 @@ export const ClickOnlyOnlineSection = (props: {
                             <RecyclerListView
                                 // @ts-ignore
                                 ref={clickOnlyOnlineListView}
-                                style={styles.onlineOffersScrollView}
+                                style={styles.clickOnlyOnlineOffersScrollView}
                                 layoutProvider={layoutProvider!}
                                 dataProvider={dataProvider!}
                                 rowRenderer={renderRowData}
                                 isHorizontal={true}
                                 forceNonDeterministicRendering={true}
-                                renderFooter={() => {
-                                    return (
-                                        horizontalListLoading || clickOnlyOnlineOffersSpinnerShown ?
-                                            <>
-                                                <View
-                                                    style={{width: wp(20)}}/>
-                                                <Card
-                                                    style={styles.loadCard}>
-                                                    <Card.Content>
-                                                        <View style={{flexDirection: 'column'}}>
-                                                            <View style={{
-                                                                flexDirection: 'row'
-                                                            }}>
-                                                                <View style={{top: hp(3)}}>
-                                                                    <ActivityIndicator
-                                                                        style={{
-                                                                            right: wp(15)
-                                                                        }}
-                                                                        animating={true}
-                                                                        color={'#F2FF5D'}
-                                                                        size={hp(5)}
-                                                                    />
-
-                                                                </View>
-                                                            </View>
-                                                        </View>
-                                                    </Card.Content>
-                                                </Card>
-                                            </> : <></>
-                                    )
-                                }}
                                 {
                                     ...(Platform.OS === 'ios') ?
                                         {onEndReachedThreshold: 0} :
@@ -231,17 +201,48 @@ export const ClickOnlyOnlineSection = (props: {
                                         clickOnlyOnlineListView.current?.scrollToIndex(deDuplicatedClickOnlyOnlineOfferList.length - 2);
                                     } else {
                                         console.log(`Maximum number of click-only online offers reached ${deDuplicatedClickOnlyOnlineOfferList.length}`);
+                                        setClickOnlyOnlineOffersSpinnerShown(false);
+                                        setHorizontalListLoading(false);
                                     }
                                 }}
                                 scrollViewProps={{
                                     pagingEnabled: "true",
                                     decelerationRate: "fast",
-                                    snapToInterval: wp(33) * 3,
+                                    snapToInterval: wp(33),
                                     snapToAlignment: "center",
                                     persistentScrollbar: false,
                                     showsHorizontalScrollIndicator: false
                                 }}
                             />
+                        }
+                        {
+                            horizontalListLoading || clickOnlyOnlineOffersSpinnerShown ?
+                                <>
+                                    <View
+                                        style={{width: wp(90)}}/>
+                                    <Card
+                                        style={styles.clickOnlyOnlineLoadCard}>
+                                        <Card.Content>
+                                            <View style={{flexDirection: 'column'}}>
+                                                <View style={{
+                                                    flexDirection: 'row'
+                                                }}>
+                                                    <View style={{top: hp(3)}}>
+                                                        <ActivityIndicator
+                                                            style={{
+                                                                right: wp(15)
+                                                            }}
+                                                            animating={true}
+                                                            color={'#F2FF5D'}
+                                                            size={hp(5)}
+                                                        />
+
+                                                    </View>
+                                                </View>
+                                            </View>
+                                        </Card.Content>
+                                    </Card>
+                                </> : <></>
                         }
                     </View>
                 </Portal.Host>

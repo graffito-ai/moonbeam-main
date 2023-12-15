@@ -266,17 +266,19 @@ export const OnlineKitSection = (props: {
                                                        icon="chevron-right"
                                                        style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
                                             <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
-                                                <Image
-                                                    style={styles.kitOfferLogo}
-                                                    source={{
-                                                        uri: data.brandLogoSm!,
-                                                    }}
-                                                    placeholder={MoonbeamPlaceholderImage}
-                                                    placeholderContentFit={'fill'}
-                                                    contentFit={'fill'}
-                                                    transition={1000}
-                                                    cachePolicy={'none'}
-                                                />
+                                                <View style={styles.kitOfferLogoBackground}>
+                                                    <Image
+                                                        style={styles.kitOfferLogo}
+                                                        source={{
+                                                            uri: data.brandLogoSm!,
+                                                        }}
+                                                        placeholder={MoonbeamPlaceholderImage}
+                                                        placeholderContentFit={'fill'}
+                                                        contentFit={'fill'}
+                                                        transition={1000}
+                                                        cachePolicy={'none'}
+                                                    />
+                                                </View>
                                                 <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
                                                     <Text numberOfLines={2}
                                                           style={styles.kitOfferName}>{data.brandDba}</Text>
@@ -316,17 +318,19 @@ export const OnlineKitSection = (props: {
                                                icon="chevron-right"
                                                style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
                                     <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
-                                        <Image
-                                            style={styles.kitOfferLogo}
-                                            source={{
-                                                uri: data.brandLogoSm!,
-                                            }}
-                                            placeholder={MoonbeamPlaceholderImage}
-                                            placeholderContentFit={'fill'}
-                                            contentFit={'fill'}
-                                            transition={1000}
-                                            cachePolicy={'none'}
-                                        />
+                                        <View style={styles.kitOfferLogoBackground}>
+                                            <Image
+                                                style={styles.kitOfferLogo}
+                                                source={{
+                                                    uri: data.brandLogoSm!,
+                                                }}
+                                                placeholder={MoonbeamPlaceholderImage}
+                                                placeholderContentFit={'fill'}
+                                                contentFit={'fill'}
+                                                transition={1000}
+                                                cachePolicy={'none'}
+                                            />
+                                        </View>
                                         <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
                                             <Text numberOfLines={2}
                                                   style={styles.kitOfferName}>{data.brandDba}</Text>

@@ -429,22 +429,24 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                     storeOfferClicked!.numberOfOffers !== undefined
                         ?
                         <>
-                            <Image
-                                style={styles.brandLogo}
-                                // @ts-ignore
-                                source={{uri: storeOfferClicked!.offers[0].brandLogoSm!}}
-                                placeholder={MoonbeamPlaceholderImage}
-                                placeholderContentFit={'contain'}
-                                contentFit={'contain'}
-                                transition={1000}
-                                cachePolicy={'memory-disk'}
-                            />
+                            <View style={styles.brandLogoBackground}>
+                                <Image
+                                    style={styles.brandLogo}
+                                    // @ts-ignore
+                                    source={{uri: storeOfferClicked!.offers[0].brandLogoSm!}}
+                                    placeholder={MoonbeamPlaceholderImage}
+                                    placeholderContentFit={'contain'}
+                                    contentFit={'contain'}
+                                    transition={1000}
+                                    cachePolicy={'memory-disk'}
+                                />
+                            </View>
                             {
                                 !hasOnlineStore
                                     ?
                                     <>
                                         <Text
-                                            numberOfLines={2}
+                                            numberOfLines={1}
                                             style={styles.brandTitle}>{
                                             // @ts-ignore
                                             `${storeOfferClicked!.offers[0].brandDba!}`
@@ -474,22 +476,24 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                         </>
                         :
                         <>
-                            <Image
-                                style={styles.brandLogo}
-                                // @ts-ignore
-                                source={{uri: storeOfferClicked!.brandLogoSm!}}
-                                placeholder={MoonbeamPlaceholderImage}
-                                placeholderContentFit={'contain'}
-                                contentFit={'contain'}
-                                transition={1000}
-                                cachePolicy={'memory-disk'}
-                            />
+                            <View style={styles.brandLogoBackground}>
+                                <Image
+                                    style={styles.brandLogo}
+                                    // @ts-ignore
+                                    source={{uri: storeOfferClicked!.brandLogoSm!}}
+                                    placeholder={MoonbeamPlaceholderImage}
+                                    placeholderContentFit={'contain'}
+                                    contentFit={'contain'}
+                                    transition={1000}
+                                    cachePolicy={'memory-disk'}
+                                />
+                            </View>
                             {
                                 !hasOnlineStore
                                     ?
                                     <>
                                         <Text
-                                            numberOfLines={2}
+                                            numberOfLines={1}
                                             style={styles.brandTitle}>{
                                             // @ts-ignore
                                             `${storeOfferClicked!.brandDba!}`

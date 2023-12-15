@@ -184,17 +184,19 @@ export const NearbySection = (props: {
                                                 justifyContent: 'space-between',
                                                 left: wp(2)
                                             }}>
-                                                <ExpoImage
-                                                    style={styles.nearbyOfferCardCover}
-                                                    source={{
-                                                        uri: data.brandLogoSm!
-                                                    }}
-                                                    placeholder={MoonbeamPlaceholderImage}
-                                                    placeholderContentFit={'contain'}
-                                                    contentFit={'contain'}
-                                                    transition={1000}
-                                                    cachePolicy={'memory-disk'}
-                                                />
+                                                <View style={styles.nearbyOfferCardCoverBackground}>
+                                                    <ExpoImage
+                                                        style={styles.nearbyOfferCardCover}
+                                                        source={{
+                                                            uri: data.brandLogoSm!
+                                                        }}
+                                                        placeholder={MoonbeamPlaceholderImage}
+                                                        placeholderContentFit={'fill'}
+                                                        contentFit={'fill'}
+                                                        transition={1000}
+                                                        cachePolicy={'memory-disk'}
+                                                    />
+                                                </View>
                                                 <TouchableOpacity
                                                     style={styles.viewOfferButton}
                                                     onPress={() => {
@@ -451,37 +453,6 @@ export const NearbySection = (props: {
                                     rowRenderer={renderRowData}
                                     isHorizontal={true}
                                     forceNonDeterministicRendering={true}
-                                    renderFooter={() => {
-                                        return (
-                                            horizontalListLoading || nearbyOffersSpinnerShown ?
-                                                <>
-                                                    <View
-                                                        style={{width: wp(20)}}/>
-                                                    <Card
-                                                        style={[styles.loadCard, {marginTop: hp(4)}]}>
-                                                        <Card.Content>
-                                                            <View style={{flexDirection: 'column'}}>
-                                                                <View style={{
-                                                                    flexDirection: 'row'
-                                                                }}>
-                                                                    <View style={{top: hp(3)}}>
-                                                                        <ActivityIndicator
-                                                                            style={{
-                                                                                right: wp(15)
-                                                                            }}
-                                                                            animating={true}
-                                                                            color={'#F2FF5D'}
-                                                                            size={hp(5)}
-                                                                        />
-
-                                                                    </View>
-                                                                </View>
-                                                            </View>
-                                                        </Card.Content>
-                                                    </Card>
-                                                </> : <></>
-                                        )
-                                    }}
                                     {
                                         ...(Platform.OS === 'ios') ?
                                             {onEndReachedThreshold: 0} :
@@ -508,18 +479,40 @@ export const NearbySection = (props: {
                                     }}
                                     scrollViewProps={{
                                         decelerationRate: "fast",
-                                        snapToInterval: wp(70) + wp(20),
+                                        snapToInterval: wp(90),
                                         snapToAlignment: "center",
                                         persistentScrollbar: false,
                                         showsHorizontalScrollIndicator: false
                                     }}
                                 />
                             }
+                            {
+                                horizontalListLoading || nearbyOffersSpinnerShown ?
+                                    <>
+                                        <Card
+                                            style={[styles.nearbyLoadCard, {marginTop: hp(4)}]}>
+                                            <Card.Content>
+                                                <View style={{flexDirection: 'column'}}>
+                                                    <View style={{
+                                                        flexDirection: 'row'
+                                                    }}>
+                                                        <View style={{top: hp(3)}}>
+                                                            <ActivityIndicator
+                                                                style={{
+                                                                    right: wp(15)
+                                                                }}
+                                                                animating={true}
+                                                                color={'#F2FF5D'}
+                                                                size={hp(5)}
+                                                            />
 
-                            {/*<View style={{height: hp(40), width: wp(100), bottom: hp(2)}}>*/}
-
-
-                            {/*</View>*/}
+                                                        </View>
+                                                    </View>
+                                                </View>
+                                            </Card.Content>
+                                        </Card>
+                                    </> : <></>
+                            }
                         </Portal.Host>
                     </View>
                 </>

@@ -17,7 +17,7 @@ import {
     currentActiveKitState,
     locationServicesButtonState,
     nearbyOffersListForFullScreenMapState,
-    nearbyOffersSpinnerShownState,
+    nearbyOffersSpinnerShownState, numberOfFailedHorizontalMapOfferCallsState,
     reloadNearbyDueToPermissionsChangeState,
     storeNavigationState,
     storeOfferPhysicalLocationState,
@@ -75,6 +75,7 @@ export const FullScreenMapKitSection = (props: {
     const [regionChangedInitially, setRegionChangedInitially] = useState<boolean>(false);
     const [canSearchForAdditionalOffers, setCanSearchForAdditionalOffers] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [numberOfFailedHorizontalMapOfferCalls, setNumberOfFailedHorizontalMapOfferCalls] = useRecoilState(numberOfFailedHorizontalMapOfferCallsState);
     const [storeNavigation,] = useRecoilState(storeNavigationState);
     const [, setCurrentActiveKit] = useRecoilState(currentActiveKitState);
     const [, setReloadNearbyDueToPermissionsChange] = useRecoilState(reloadNearbyDueToPermissionsChangeState);
@@ -492,7 +493,9 @@ export const FullScreenMapKitSection = (props: {
                                                 setLoadingSpinnerShown(true);
                                                 setCanSearchForAdditionalOffers(false);
                                                 // retrieves additional offers to display and draw additional map markers in the map
-                                                retrieveOffersNearbyForMap(userInformation, currentUserLocation,
+                                                retrieveOffersNearbyForMap(
+                                                    numberOfFailedHorizontalMapOfferCalls, setNumberOfFailedHorizontalMapOfferCalls,
+                                                    userInformation, currentUserLocation,
                                                     setCurrentUserLocation, undefined, undefined,
                                                     true, currentMapRegion.latitude, currentMapRegion.longitude).then(additionalOffers => {
                                                     if (additionalOffers !== null && additionalOffers.length > 0) {

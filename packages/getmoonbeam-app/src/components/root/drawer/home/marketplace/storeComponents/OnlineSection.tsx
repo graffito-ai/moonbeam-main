@@ -71,17 +71,19 @@ export const OnlineSection = (props: {
                     <Card style={styles.onlineOfferCard}>
                         <Card.Content>
                             <View style={{flexDirection: 'column'}}>
-                                <Image
-                                    style={styles.onlineOfferCardCover}
-                                    source={{
-                                        uri: data.brandLogoSm!
-                                    }}
-                                    placeholder={MoonbeamPlaceholderImage}
-                                    placeholderContentFit={'fill'}
-                                    contentFit={'fill'}
-                                    transition={1000}
-                                    cachePolicy={'memory-disk'}
-                                />
+                                <View style={styles.onlineOfferCardCoverBackground}>
+                                    <Image
+                                        style={styles.onlineOfferCardCover}
+                                        source={{
+                                            uri: data.brandLogoSm!
+                                        }}
+                                        placeholder={MoonbeamPlaceholderImage}
+                                        placeholderContentFit={'fill'}
+                                        contentFit={'fill'}
+                                        transition={1000}
+                                        cachePolicy={'memory-disk'}
+                                    />
+                                </View>
                                 <Paragraph
                                     numberOfLines={3}
                                     style={styles.onlineOfferCardTitle}>{data.brandDba}
@@ -192,37 +194,6 @@ export const OnlineSection = (props: {
                                 rowRenderer={renderRowData}
                                 isHorizontal={true}
                                 forceNonDeterministicRendering={true}
-                                renderFooter={() => {
-                                    return (
-                                        horizontalListLoading || onlineOffersSpinnerShown ?
-                                            <>
-                                                <View
-                                                    style={{width: wp(20)}}/>
-                                                <Card
-                                                    style={styles.loadCard}>
-                                                    <Card.Content>
-                                                        <View style={{flexDirection: 'column'}}>
-                                                            <View style={{
-                                                                flexDirection: 'row'
-                                                            }}>
-                                                                <View style={{top: hp(3)}}>
-                                                                    <ActivityIndicator
-                                                                        style={{
-                                                                            right: wp(15)
-                                                                        }}
-                                                                        animating={true}
-                                                                        color={'#F2FF5D'}
-                                                                        size={hp(5)}
-                                                                    />
-
-                                                                </View>
-                                                            </View>
-                                                        </View>
-                                                    </Card.Content>
-                                                </Card>
-                                            </> : <></>
-                                    )
-                                }}
                                 {
                                     ...(Platform.OS === 'ios') ?
                                         {onEndReachedThreshold: 0} :
@@ -248,12 +219,41 @@ export const OnlineSection = (props: {
                                 scrollViewProps={{
                                     pagingEnabled: "true",
                                     decelerationRate: "fast",
-                                    snapToInterval: wp(33) * 3,
+                                    snapToInterval: wp(33),
                                     snapToAlignment: "center",
                                     persistentScrollbar: false,
                                     showsHorizontalScrollIndicator: false
                                 }}
                             />
+                        }
+                        {
+                            horizontalListLoading || onlineOffersSpinnerShown ?
+                                <>
+                                    <View
+                                        style={{width: wp(100)}}/>
+                                    <Card
+                                        style={styles.onlineLoadCard}>
+                                        <Card.Content>
+                                            <View style={{flexDirection: 'column'}}>
+                                                <View style={{
+                                                    flexDirection: 'row'
+                                                }}>
+                                                    <View style={{top: hp(3)}}>
+                                                        <ActivityIndicator
+                                                            style={{
+                                                                right: wp(15)
+                                                            }}
+                                                            animating={true}
+                                                            color={'#F2FF5D'}
+                                                            size={hp(5)}
+                                                        />
+
+                                                    </View>
+                                                </View>
+                                            </View>
+                                        </Card.Content>
+                                    </Card>
+                                </> : <></>
                         }
                     </View>
                 </Portal.Host>

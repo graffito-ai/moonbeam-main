@@ -19,11 +19,19 @@ export const styles = StyleSheet.create({
         height: hp(50),
         flexDirection: 'column'
     },
-    brandLogo: {
+    brandLogoBackground: {
         top: hp(2),
+        backgroundColor: '#FFFFFF',
+        width: wp(26),
+        height: wp(26),
         alignSelf: 'center',
-        height: hp(13),
-        width: hp(13)
+        borderColor: 'transparent',
+        borderWidth: hp(0.2)
+    },
+    brandLogo: {
+        alignSelf: 'center',
+        width: wp(25),
+        height: wp(25)
     },
     brandTitle: {
         top: hp(3),

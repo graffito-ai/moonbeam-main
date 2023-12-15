@@ -1355,11 +1355,51 @@ const isServicesAndSubscriptionsKitLoadedState = atom<boolean>({
     default: false
 });
 
+/**
+ * Atom used to keep track of the number of failed calls for the online
+ * offers.
+ */
+const numberOfFailedOnlineOfferCallsState = atom<number>({
+    key: "numberOfFailedOnlineOfferCallsState",
+    default: 0
+});
+
+/**
+ * Atom used to keep track of the number of failed calls for the nearby
+ * offers.
+ */
+const numberOfFailedNearbyOfferCallsState = atom<number>({
+    key: "numberOfFailedNearbyOfferCallsState",
+    default: 0
+});
+
+/**
+ * Atom used to keep track of the number of failed calls for the horizontal
+ * map offers.
+ */
+const numberOfFailedHorizontalMapOfferCallsState = atom<number>({
+    key: "numberOfFailedHorizontalMapOfferCallsState",
+    default: 0
+});
+
+/**
+ * Atom used to keep track of the number of failed calls for the click-only
+ * online offers.
+ */
+const numberOfFailedClickOnlyOnlineOfferCallsState = atom<number>({
+    key: "numberOfFailedClickOnlyOnlineOfferCallsState",
+    default: 0
+});
+
 
 /**
  * Export all atoms and/or selectors
  */
 export {
+    numberOfFailedOnlineOfferCallsState,
+    numberOfFailedNearbyOfferCallsState,
+    numberOfFailedHorizontalMapOfferCallsState,
+    numberOfFailedClickOnlyOnlineOfferCallsState,
     isVeteransDayKitLoadedState,
     isFoodKitLoadedState,
     isRetailKitLoadedState,

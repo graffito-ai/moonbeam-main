@@ -54,16 +54,23 @@ export const styles = StyleSheet.create({
         shadowRadius: 2,
         elevation: 15
     },
-    kitOfferLogo: {
+    kitOfferLogoBackground: {
         bottom: hp(1.5),
-        alignSelf: 'flex-start',
-        marginRight: wp(4),
+        backgroundColor: '#FFFFFF',
         height: hp(7),
         width: hp(7),
-        borderWidth: wp(0.05),
-        borderColor: '#F2FF5D',
-        borderRadius: 10
+        alignSelf: 'center',
+        borderColor: 'transparent',
+        borderWidth: hp(0.2),
+        marginRight: wp(4)
     },
+    kitOfferLogo: {
+        alignSelf: 'center',
+        height: hp(6.5),
+        width: hp(6.5)
+    },
+
+
     kitOfferName: {
         fontFamily: 'Raleway-SemiBold',
         color: '#FFFFFF',

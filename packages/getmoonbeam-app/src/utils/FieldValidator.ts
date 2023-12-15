@@ -398,8 +398,7 @@ export class FieldValidator {
                 }
                 break;
             default:
-                console.log(fieldName);
-                console.log('Unexpected field name!');
+                console.log(`Unexpected field name! ${fieldName}`);
         }
     };
 }

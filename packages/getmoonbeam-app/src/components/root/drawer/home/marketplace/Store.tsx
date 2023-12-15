@@ -679,6 +679,7 @@ export const Store = ({navigation}: StoreProps) => {
                                                         filteredOffersSpinnerShown={filteredOffersSpinnerShown}
                                                         setFilteredOffersSpinnerShown={setFilteredOffersSpinnerShown}
                                                         retrieveOnlineOffersList={retrieveOnlineOffersList}
+                                                        retrieveClickOnlineOffersList={retrieveClickOnlyOnlineOffersList}
                                                         offersNearUserLocationFlag={offersNearUserLocationFlag}
                                                         retrieveNearbyOffersList={retrieveNearbyOffersList}
                                                         retrieveOffersNearLocation={retrieveOffersNearLocation}

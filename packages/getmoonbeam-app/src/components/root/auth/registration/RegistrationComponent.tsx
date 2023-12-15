@@ -116,7 +116,11 @@ import MoonbeamPreferencesAndroid from "../../../../../assets/art/moonbeam-prefe
 import {Button} from "@rneui/base";
 import * as Notifications from "expo-notifications";
 import * as ImagePicker from 'expo-image-picker';
-import {numberOfClickOnlyOnlineOffersState, numberOfOnlineOffersState} from "../../../../recoil/StoreOfferAtom";
+import {
+    numberOfClickOnlyOnlineOffersState,
+    numberOfFailedClickOnlyOnlineOfferCallsState, numberOfFailedOnlineOfferCallsState,
+    numberOfOnlineOffersState
+} from "../../../../recoil/StoreOfferAtom";
 import {referralCodeMarketingCampaignState, referralCodeState} from "../../../../recoil/BranchAtom";
 import Constants from 'expo-constants';
 import {AppOwnership} from "expo-constants/src/Constants.types";
@@ -133,6 +137,8 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     const [existentAccountVisible, setExistentAccountVisible] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls] = useRecoilState(numberOfFailedOnlineOfferCallsState);
+    const [numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls] = useRecoilState(numberOfFailedClickOnlyOnlineOfferCallsState);
     const [, setIsUserAuthenticated] = useRecoilState(userIsAuthenticatedState);
     const [referralCodeMarketingCampaign, ] = useRecoilState(referralCodeMarketingCampaignState);
     const [referralCode, ] = useRecoilState(referralCodeState);
@@ -1205,8 +1211,10 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                                 await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineOffers`);
 
                                                                 // retrieve the premier online, and regular online offers
-                                                                const onlineOffers = await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers);
-                                                                const premierOnlineOffers = await retrievePremierOnlineOffersList();
+                                                                const onlineOffers = await retrieveOnlineOffersList(
+                                                                    numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls,
+                                                                    numberOfOnlineOffers, setNumberOfOnlineOffers);
+                                                                const premierOnlineOffers = await retrievePremierOnlineOffersList(numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls);
 
                                                                 // update the number of available total online offers
                                                                 setNumberOfOnlineOffers(oldNumberOfOnlineOffers => {
@@ -1219,8 +1227,10 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                                 console.log('online offers are not cached');
 
                                                                 // retrieve the premier online, and regular online offers
-                                                                const onlineOffers = await retrieveOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers);
-                                                                const premierOnlineOffers = await retrievePremierOnlineOffersList();
+                                                                const onlineOffers = await retrieveOnlineOffersList(
+                                                                    numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls,
+                                                                    numberOfOnlineOffers, setNumberOfOnlineOffers);
+                                                                const premierOnlineOffers = await retrievePremierOnlineOffersList(numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls);
 
                                                                 // update the number of available total online offers
                                                                 setNumberOfOnlineOffers(oldNumberOfOnlineOffers => {
@@ -1235,8 +1245,10 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                                 await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`);
 
                                                                 // retrieve the premier click-only online, and regular click-only online offers
-                                                                const clickOnlyOnlineOffers = await retrieveClickOnlyOnlineOffersList(numberOfClickOnlyOnlineOffers, setNumberOfClickOnlyOnlineOffers)
-                                                                const premierClickOnlyOnlineOffers = await retrievePremierClickOnlyOnlineOffersList();
+                                                                const clickOnlyOnlineOffers = await retrieveClickOnlyOnlineOffersList(
+                                                                    numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls,
+                                                                    numberOfClickOnlyOnlineOffers, setNumberOfClickOnlyOnlineOffers)
+                                                                const premierClickOnlyOnlineOffers = await retrievePremierClickOnlyOnlineOffersList(numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls);
 
                                                                 // update the number of available total online offers
                                                                 setNumberOfClickOnlyOnlineOffers(oldNumberOfClickOnlyOnlineOffers => {
@@ -1248,8 +1260,10 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                             } else {
                                                                 console.log('online click-only offers are not cached');
                                                                 // retrieve the premier click-only online, and regular click-only online offers
-                                                                const clickOnlyOnlineOffers = await retrieveClickOnlyOnlineOffersList(numberOfClickOnlyOnlineOffers, setNumberOfClickOnlyOnlineOffers);
-                                                                const premierClickOnlyOnlineOffers = await retrievePremierClickOnlyOnlineOffersList();
+                                                                const clickOnlyOnlineOffers = await retrieveClickOnlyOnlineOffersList(
+                                                                    numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls,
+                                                                    numberOfClickOnlyOnlineOffers, setNumberOfClickOnlyOnlineOffers);
+                                                                const premierClickOnlyOnlineOffers = await retrievePremierClickOnlyOnlineOffersList(numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls);
 
                                                                 // update the number of available total online offers
                                                                 setNumberOfClickOnlyOnlineOffers(oldNumberOfClickOnlyOnlineOffers => {
