@@ -3,7 +3,11 @@ import {StoreOfferDetailsProps} from "../../../../../../models/props/StoreOfferP
 import {ImageBackground, Linking, Platform, ScrollView, Text, TouchableOpacity, View} from "react-native";
 import {styles} from '../../../../../../styles/storeOfferDetails.module';
 import {useRecoilState} from "recoil";
-import {storeOfferPhysicalLocationState, storeOfferState} from "../../../../../../recoil/StoreOfferAtom";
+import {
+    showClickOnlyBottomSheetState,
+    storeOfferPhysicalLocationState,
+    storeOfferState
+} from "../../../../../../recoil/StoreOfferAtom";
 import {List} from 'react-native-paper';
 import {FidelisPartner, Offer, RewardType} from "@moonbeam/moonbeam-models";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -17,6 +21,7 @@ import {Image} from 'expo-image';
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 // @ts-ignore
 import MoonbeamPinImage from "../../../../../../../assets/pin-shape.png";
+import {bottomTabShownState} from "../../../../../../recoil/HomeAtom";
 
 /**
  * StoreOfferDetails component.
@@ -31,6 +36,8 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
     // constants used to keep track of shared states
     const [storeOfferClicked,] = useRecoilState(storeOfferState);
     const [storeOfferPhysicalLocation,] = useRecoilState(storeOfferPhysicalLocationState);
+    const [bottomTabShown, setBottomTabShown] = useRecoilState(bottomTabShownState);
+    const [showClickOnlyBottomSheet,] = useRecoilState(showClickOnlyBottomSheetState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -40,6 +47,9 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
      * included in here.
      */
     useEffect(() => {
+        // hide the bottom bar if shown
+        bottomTabShown && setBottomTabShown(false);
+
         // filter by the type of object clicked/passed in
         // @ts-ignore
         if (storeOfferClicked!.numberOfOffers !== undefined) {
@@ -61,7 +71,7 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                 }
             });
         }
-    }, [hasOnlineStore, storeOfferPhysicalLocation]);
+    }, [hasOnlineStore, storeOfferPhysicalLocation, bottomTabShown]);
 
     /**
      * Function used to populate the online offers.
@@ -566,10 +576,9 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                                 </TouchableOpacity>
                             }
                             <Text style={styles.footerTitle}>Moonbeam Exclusive</Text>
-                            <Text style={styles.footerDescription}>Offers and/or loyalty programs may
-                                change, and are subject to using your Linked Card at checkout (online
-                                and/or
-                                at physical merchant locations).</Text>
+                            <Text style={styles.footerDescription}>Offers and loyalty programs may
+                                change, and are subject to using your Linked Card at checkout (online or
+                                in-person).</Text>
                         </View>
                     </ImageBackground>
                     :
@@ -612,9 +621,11 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                                     </TouchableOpacity>
                                 }
                                 <Text style={styles.footerTitle}>Moonbeam Exclusive</Text>
-                                <Text style={styles.footerDescription}>Offers and loyalty programs may
-                                    change, and are subject to using your Linked Card at checkout (online or
-                                    in-person).</Text>
+                                <Text style={styles.footerDescription}>{
+                                    showClickOnlyBottomSheet
+                                        ? 'Offers and loyalty programs may change, and are subject to shopping using the button above and checking out with your Linked Card.'
+                                        : 'Offers and loyalty programs may change, and are subject to using your Linked Card at checkout (online or in-person).'
+                                }</Text>
                             </View>
                         </ImageBackground>
                     </>

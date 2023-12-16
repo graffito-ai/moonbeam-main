@@ -217,10 +217,18 @@ export const styles = StyleSheet.create({
         alignItems: 'flex-end',
         justifyContent: 'center'
     },
-    leftItemIcon: {
+    leftItemIconBackground: {
         left: wp(3),
-        height: hp(8),
-        width: wp(10),
+        backgroundColor: '#FFFFFF',
+        height: hp(6.5),
+        width: hp(6.5),
+        alignSelf: 'center',
+        borderColor: 'transparent'
+    },
+    leftItemIcon: {
+        alignSelf: 'center',
+        height: hp(5.5),
+        width: hp(5.5),
     },
     mainDivider: {
         height: hp(0.2),
@@ -234,7 +242,7 @@ export const styles = StyleSheet.create({
         backgroundColor: '#5B5A5A'
     },
     bottomSheet: {
-        backgroundColor: '#313030',
+        backgroundColor: '#5B5A5A'
     },
     transactionParentView: {
         flex: 1,
@@ -244,7 +252,7 @@ export const styles = StyleSheet.create({
         alignContent: 'center',
         alignSelf: 'center',
         alignItems: 'center',
-        backgroundColor: '#313030',
+        backgroundColor: '#5B5A5A',
     },
     locationServicesEnableView: {
         height: hp(30),
@@ -334,11 +342,17 @@ export const styles = StyleSheet.create({
         left: wp(5),
         top: hp(1)
     },
+    transactionBrandImageBackground: {
+        backgroundColor: '#FFFFFF',
+        height: hp(8),
+        width: hp(8),
+        alignSelf: 'center',
+        borderColor: 'transparent'
+    },
     transactionBrandImage: {
-        alignSelf: 'flex-start',
-        borderRadius: 10,
-        height: hp(10),
-        width: wp(15)
+        alignSelf: 'center',
+        height: hp(7),
+        width: hp(7)
     },
     transactionAmountsView: {
         flexDirection: 'column',

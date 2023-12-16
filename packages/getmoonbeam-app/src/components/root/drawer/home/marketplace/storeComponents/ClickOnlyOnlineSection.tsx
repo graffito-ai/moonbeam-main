@@ -4,12 +4,11 @@ import {ActivityIndicator, Card, Paragraph, Portal} from "react-native-paper";
 import {styles} from "../../../../../../styles/store.module";
 import {Offer, RewardType} from "@moonbeam/moonbeam-models";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
-import {NativeStackNavigationProp} from "@react-navigation/native-stack";
-import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
     clickOnlyOnlineOffersListState,
     noClickOnlyOnlineOffersToLoadState,
+    showClickOnlyBottomSheetState,
     storeOfferState,
     toggleViewPressedState,
     uniqueClickOnlyOnlineOffersListState,
@@ -27,7 +26,6 @@ import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
  * @constructor constructor for the component.
  */
 export const ClickOnlyOnlineSection = (props: {
-    navigation: NativeStackNavigationProp<MarketplaceStackParamList, 'Store'>,
     retrieveClickOnlineOffersList: () => Promise<void>
 }) => {
     // constants used to keep track of local component state
@@ -43,6 +41,7 @@ export const ClickOnlyOnlineSection = (props: {
     const [clickOnlyOnlineOfferList,] = useRecoilState(clickOnlyOnlineOffersListState);
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
     const [noClickOnlyOnlineOffersToLoad,] = useRecoilState(noClickOnlyOnlineOffersToLoadState);
+    const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
 
     /**
      * Function used to populate the rows containing the click-only online offers data.
@@ -62,8 +61,8 @@ export const ClickOnlyOnlineSection = (props: {
                                       onPress={() => {
                                           // set the clicked offer/partner accordingly
                                           setStoreOfferClicked(data);
-                                          // @ts-ignore
-                                          props.navigation.navigate('StoreOffer', {});
+                                          // show the click only bottom sheet
+                                          setShowClickOnlyBottomSheet(true);
                                       }}>
                         <Card style={styles.onlineOfferCard}>
                             <Card.Content>

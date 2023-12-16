@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Image, ImageBackground, SafeAreaView, ScrollView, View} from "react-native";
+import {Image, ImageBackground, SafeAreaView, ScrollView, TouchableOpacity, View} from "react-native";
 import {Dialog, List, Portal, SegmentedButtons, Text} from "react-native-paper";
 import {styles} from "../../../../../styles/dashboard.module";
 import {useRecoilState, useRecoilValue} from "recoil";
@@ -7,7 +7,7 @@ import {currentUserInformation} from "../../../../../recoil/AuthAtom";
 import {Spinner} from "../../../../common/Spinner";
 // @ts-ignore
 import DashboardBackgroundImage from "../../../../../../assets/backgrounds/dashboard-background.png";
-import {profilePictureURIState} from "../../../../../recoil/AppDrawerAtom";
+import {drawerSwipeState, profilePictureURIState} from "../../../../../recoil/AppDrawerAtom";
 import {Avatar, Button, Divider, Icon} from "@rneui/base";
 import {commonStyles} from "../../../../../styles/common.module";
 import {CustomBanner} from "../../../../common/CustomBanner";
@@ -26,6 +26,7 @@ import {BiometricsPopUp} from "./biometrics/Biometrics";
 import {Image as ExpoImage} from 'expo-image';
 // @ts-ignore
 import MoonbeamProfilePlaceholder from "../../../../../../assets/art/moonbeam-profile-placeholder.png";
+import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -54,6 +55,8 @@ export const Dashboard = ({}) => {
     const lifetimeSavings = useRecoilValue(lifetimeSavingsState);
     const currentBalance = useRecoilValue(currentBalanceState);
     const [showTransactionsBottomSheet, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
+    const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
+    const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -76,8 +79,20 @@ export const Dashboard = ({}) => {
 
                 // @ts-ignore
                 bottomSheetRef.current?.close?.();
+
+                // show the bottom tab
+                setBottomTabShown(true);
+
+                // enable drawer swipe
+                setDrawerSwipeEnabled(true);
             }
             if (showTransactionsBottomSheet && bottomSheetRef) {
+                // hide the bottom tab
+                setBottomTabShown(false);
+
+                // disable the drawer swipe
+                setDrawerSwipeEnabled(false);
+
                 // @ts-ignore
                 bottomSheetRef.current?.expand?.();
             }
@@ -177,12 +192,14 @@ export const Dashboard = ({}) => {
                             descriptionNumberOfLines={2}
                             title={transaction.transactionBrandName}
                             description={`${transactionPurchaseLocation}\n${convertMSToTimeframe(Date.parse(new Date().toISOString()) - transaction.timestamp)}`}
-                            left={() => <Image source={{
-                                uri: transaction.transactionBrandLogoUrl
-                            }}
-                                               resizeMethod={"scale"}
-                                               resizeMode={"contain"}
-                                               style={styles.leftItemIcon}/>}
+                            left={() =>
+                                <View style={styles.leftItemIconBackground}>
+                                    <Image source={{uri: transaction.transactionBrandLogoUrl}}
+                                           resizeMethod={"scale"}
+                                           resizeMode={"contain"}
+                                           style={styles.leftItemIcon}/>
+                                </View>
+                            }
                             right={() =>
                                 <View style={styles.itemRightView}>
                                     <View style={styles.itemRightDetailsView}>
@@ -298,201 +315,217 @@ export const Dashboard = ({}) => {
                             </Dialog>
                         </Portal>
                         <SafeAreaView style={styles.mainDashboardView}>
-                            <View style={styles.topDashboardView}>
-                                <ImageBackground
-                                    style={styles.imageCover}
-                                    imageStyle={{
-                                        height: hp(40),
-                                        width: wp(30),
-                                        resizeMode: 'stretch'
+                            <TouchableOpacity
+                                activeOpacity={1}
+                                disabled={!showTransactionsBottomSheet}
+                                onPress={() => setShowTransactionsBottomSheet(false)}
+                            >
+                                <View
+                                    {...showTransactionsBottomSheet && {pointerEvents: "none"}}
+                                    {...showTransactionsBottomSheet && {
+                                        style: {backgroundColor: 'transparent', opacity: 0.3}
                                     }}
-                                    resizeMethod={"scale"}
-                                    source={DashboardBackgroundImage}>
-                                    <View style={styles.tppGreetingView}>
-                                        <Text
-                                            style={styles.greetingText}>Hello,</Text>
-                                        <Text
-                                            style={styles.greetingNameText}>{currentUserName}</Text>
+                                >
+                                    <View style={styles.topDashboardView}>
+                                        <ImageBackground
+                                            style={styles.imageCover}
+                                            imageStyle={{
+                                                height: hp(40),
+                                                width: wp(30),
+                                                resizeMode: 'stretch'
+                                            }}
+                                            resizeMethod={"scale"}
+                                            source={DashboardBackgroundImage}>
+                                            <View style={styles.tppGreetingView}>
+                                                <Text
+                                                    style={styles.greetingText}>Hello,</Text>
+                                                <Text
+                                                    style={styles.greetingNameText}>{currentUserName}</Text>
+                                            </View>
+                                            {
+                                                (!profilePictureURI || profilePictureURI === "") ?
+                                                    <Avatar
+                                                        {...profilePictureURI && profilePictureURI !== "" && {
+                                                            source: {
+                                                                uri: profilePictureURI,
+                                                                cache: 'reload'
+                                                            }
+                                                        }}
+                                                        avatarStyle={{
+                                                            resizeMode: 'cover',
+                                                            borderColor: '#F2FF5D',
+                                                            borderWidth: 3
+                                                        }}
+                                                        size={hp(15)}
+                                                        rounded
+                                                        title={(!profilePictureURI || profilePictureURI === "") ? currentUserTitle : undefined}
+                                                        {...(!profilePictureURI || profilePictureURI === "") && {
+                                                            titleStyle: [
+                                                                styles.titleStyle
+                                                            ]
+                                                        }}
+                                                        containerStyle={styles.avatarStyle}
+                                                        onPress={async () => {
+                                                        }}
+                                                    />
+                                                    :
+                                                    <ExpoImage
+                                                        style={styles.profileImage}
+                                                        source={{
+                                                            uri: profilePictureURI
+                                                        }}
+                                                        placeholder={MoonbeamProfilePlaceholder}
+                                                        placeholderContentFit={'cover'}
+                                                        contentFit={'cover'}
+                                                        transition={1000}
+                                                        cachePolicy={'memory-disk'}
+                                                    />
+                                            }
+                                            <View style={styles.statisticsView}>
+                                                <View style={styles.statLeftView}>
+                                                    <View style={styles.statInfoViewLeft}>
+                                                        <Text
+                                                            style={styles.statNumberCenterLeft}>$ {lifetimeSavings.toFixed(2)}</Text>
+                                                        <Text style={styles.statTitleLeft}>
+                                                            Lifetime <Text style={styles.statTitleRegular}>Savings</Text>
+                                                        </Text>
+                                                        <Icon name={'info'}
+                                                              size={hp(3)}
+                                                              color={'#F2FF5D'}
+                                                              onPress={() => {
+                                                                  setIsLifetimeSavingsDialog(true);
+                                                                  setStatsDialogVisible(true);
+                                                              }}/>
+                                                    </View>
+                                                </View>
+                                                <View style={styles.verticalLine}/>
+                                                <View style={styles.statRightView}>
+                                                    <View style={styles.statInfoViewRight}>
+                                                        <Text
+                                                            style={styles.statNumberCenterRight}>$ {currentBalance.toFixed(2)}</Text>
+                                                        <Text style={styles.statTitleRight}>
+                                                            Current <Text style={styles.statTitleRegular}>Balance</Text>
+                                                        </Text>
+                                                        <Icon name={'info'}
+                                                              size={hp(3)}
+                                                              color={'#F2FF5D'}
+                                                              onPress={() => {
+                                                                  setIsLifetimeSavingsDialog(false);
+                                                                  setStatsDialogVisible(true);
+                                                              }}/>
+                                                    </View>
+                                                </View>
+                                            </View>
+                                        </ImageBackground>
+                                        <CustomBanner bannerVisibilityState={bannerState.bannerVisibilityState}
+                                                      bannerMessage={bannerState.bannerMessage}
+                                                      bannerButtonLabel={bannerState.bannerButtonLabel}
+                                                      bannerButtonLabelActionSource={bannerState.bannerButtonLabelActionSource}
+                                                      bannerArtSource={bannerState.bannerArtSource}
+                                                      dismissing={bannerState.dismissing}
+                                        />
                                     </View>
                                     {
-                                        (!profilePictureURI || profilePictureURI === "") ?
-                                            <Avatar
-                                                {...profilePictureURI && profilePictureURI !== "" && {
-                                                    source: {
-                                                        uri: profilePictureURI,
-                                                        cache: 'reload'
+                                        bannerVisible &&
+                                        <View style={styles.bottomView}>
+                                            <SegmentedButtons
+                                                density={'small'}
+                                                style={[styles.segmentedButtons]}
+                                                value={segmentedValue}
+                                                onValueChange={(value) => {
+                                                    setSegmentedValue(value);
+                                                }}
+                                                buttons={[
+                                                    {
+                                                        value: 'cashback',
+                                                        label: 'Cashback',
+                                                        checkedColor: 'black',
+                                                        uncheckedColor: 'white',
+                                                        style: {
+                                                            backgroundColor: segmentedValue === 'cashback' ? '#F2FF5D' : '#5B5A5A',
+                                                            borderColor: segmentedValue === 'cashback' ? '#F2FF5D' : '#5B5A5A',
+                                                        },
+                                                    },
+                                                    {
+                                                        value: 'payouts',
+                                                        label: 'Payouts',
+                                                        checkedColor: 'black',
+                                                        uncheckedColor: 'white',
+                                                        style: {
+                                                            backgroundColor: segmentedValue === 'payouts' ? '#F2FF5D' : '#5B5A5A',
+                                                            borderColor: segmentedValue === 'payouts' ? '#F2FF5D' : '#5B5A5A'
+                                                        }
                                                     }
-                                                }}
-                                                avatarStyle={{
-                                                    resizeMode: 'cover',
-                                                    borderColor: '#F2FF5D',
-                                                    borderWidth: 3
-                                                }}
-                                                size={hp(15)}
-                                                rounded
-                                                title={(!profilePictureURI || profilePictureURI === "") ? currentUserTitle : undefined}
-                                                {...(!profilePictureURI || profilePictureURI === "") && {
-                                                    titleStyle: [
-                                                        styles.titleStyle
-                                                    ]
-                                                }}
-                                                containerStyle={styles.avatarStyle}
-                                                onPress={async () => {
-                                                }}
+                                                ]}
                                             />
-                                            :
-                                            <ExpoImage
-                                                style={styles.profileImage}
-                                                source={{
-                                                    uri: profilePictureURI
-                                                }}
-                                                placeholder={MoonbeamProfilePlaceholder}
-                                                placeholderContentFit={'cover'}
-                                                contentFit={'cover'}
-                                                transition={1000}
-                                                cachePolicy={'memory-disk'}
-                                            />
+                                            <View style={{
+                                                height: hp(0.5),
+                                                backgroundColor: '#313030'
+                                            }}/>
+                                            <ScrollView
+                                                scrollEnabled={true}
+                                                persistentScrollbar={false}
+                                                showsVerticalScrollIndicator={false}
+                                                keyboardShouldPersistTaps={'handled'}
+                                                contentContainerStyle={styles.individualTransactionContainer}
+                                            >
+                                                {segmentedValue === 'cashback' ?
+                                                    <List.Section>
+                                                        <List.Subheader style={styles.subHeaderTitle}>
+                                                            Recent Cashback
+                                                        </List.Subheader>
+                                                        <Divider style={[styles.mainDivider, {backgroundColor: '#FFFFFF'}]}/>
+                                                        {filterTransactions()}
+                                                    </List.Section>
+                                                    : <List.Section>
+                                                        <List.Subheader style={styles.subHeaderTitle}>
+                                                            Recent Payouts
+                                                        </List.Subheader>
+                                                        <Divider style={styles.mainDivider}/>
+                                                        <List.Item
+                                                            titleStyle={styles.emptyPayoutListItemTitle}
+                                                            descriptionStyle={styles.listItemDescription}
+                                                            titleNumberOfLines={1}
+                                                            title={"No payouts available"}
+                                                        />
+                                                    </List.Section>}
+                                            </ScrollView>
+                                        </View>
                                     }
-                                    <View style={styles.statisticsView}>
-                                        <View style={styles.statLeftView}>
-                                            <View style={styles.statInfoViewLeft}>
-                                                <Text
-                                                    style={styles.statNumberCenterLeft}>$ {lifetimeSavings.toFixed(2)}</Text>
-                                                <Text style={styles.statTitleLeft}>
-                                                    Lifetime <Text style={styles.statTitleRegular}>Savings</Text>
-                                                </Text>
-                                                <Icon name={'info'}
-                                                      size={hp(3)}
-                                                      color={'#F2FF5D'}
-                                                      onPress={() => {
-                                                          setIsLifetimeSavingsDialog(true);
-                                                          setStatsDialogVisible(true);
-                                                      }}/>
-                                            </View>
-                                        </View>
-                                        <View style={styles.verticalLine}/>
-                                        <View style={styles.statRightView}>
-                                            <View style={styles.statInfoViewRight}>
-                                                <Text
-                                                    style={styles.statNumberCenterRight}>$ {currentBalance.toFixed(2)}</Text>
-                                                <Text style={styles.statTitleRight}>
-                                                    Current <Text style={styles.statTitleRegular}>Balance</Text>
-                                                </Text>
-                                                <Icon name={'info'}
-                                                      size={hp(3)}
-                                                      color={'#F2FF5D'}
-                                                      onPress={() => {
-                                                          setIsLifetimeSavingsDialog(false);
-                                                          setStatsDialogVisible(true);
-                                                      }}/>
-                                            </View>
-                                        </View>
-                                    </View>
-                                </ImageBackground>
-                                <CustomBanner bannerVisibilityState={bannerState.bannerVisibilityState}
-                                              bannerMessage={bannerState.bannerMessage}
-                                              bannerButtonLabel={bannerState.bannerButtonLabel}
-                                              bannerButtonLabelActionSource={bannerState.bannerButtonLabelActionSource}
-                                              bannerArtSource={bannerState.bannerArtSource}
-                                              dismissing={bannerState.dismissing}
-                                />
-                            </View>
-                            {
-                                bannerVisible &&
-                                <View style={styles.bottomView}>
-                                    <SegmentedButtons
-                                        density={'small'}
-                                        style={[styles.segmentedButtons]}
-                                        value={segmentedValue}
-                                        onValueChange={(value) => {
-                                            setSegmentedValue(value);
-                                        }}
-                                        buttons={[
-                                            {
-                                                value: 'cashback',
-                                                label: 'Cashback',
-                                                checkedColor: 'black',
-                                                uncheckedColor: 'white',
-                                                style: {
-                                                    backgroundColor: segmentedValue === 'cashback' ? '#F2FF5D' : '#5B5A5A',
-                                                    borderColor: segmentedValue === 'cashback' ? '#F2FF5D' : '#5B5A5A',
-                                                },
-                                            },
-                                            {
-                                                value: 'payouts',
-                                                label: 'Payouts',
-                                                checkedColor: 'black',
-                                                uncheckedColor: 'white',
-                                                style: {
-                                                    backgroundColor: segmentedValue === 'payouts' ? '#F2FF5D' : '#5B5A5A',
-                                                    borderColor: segmentedValue === 'payouts' ? '#F2FF5D' : '#5B5A5A'
-                                                }
-                                            }
-                                        ]}
-                                    />
-                                    <View style={{
-                                        height: hp(0.5),
-                                        backgroundColor: '#313030'
-                                    }}/>
-                                    <ScrollView
-                                        scrollEnabled={true}
-                                        persistentScrollbar={false}
-                                        showsVerticalScrollIndicator={false}
-                                        keyboardShouldPersistTaps={'handled'}
-                                        contentContainerStyle={styles.individualTransactionContainer}
-                                    >
-                                        {segmentedValue === 'cashback' ?
-                                            <List.Section>
-                                                <List.Subheader style={styles.subHeaderTitle}>
-                                                    Recent Cashback
-                                                </List.Subheader>
-                                                <Divider style={[styles.mainDivider, {backgroundColor: '#FFFFFF'}]}/>
-                                                {filterTransactions()}
-                                            </List.Section>
-                                            : <List.Section>
-                                                <List.Subheader style={styles.subHeaderTitle}>
-                                                    Recent Payouts
-                                                </List.Subheader>
-                                                <Divider style={styles.mainDivider}/>
-                                                <List.Item
-                                                    titleStyle={styles.emptyPayoutListItemTitle}
-                                                    descriptionStyle={styles.listItemDescription}
-                                                    titleNumberOfLines={1}
-                                                    title={"No payouts available"}
-                                                />
-                                            </List.Section>}
-                                    </ScrollView>
                                 </View>
+                            </TouchableOpacity>
+                            {
+                                showTransactionsBottomSheet &&
+                                <BottomSheet
+                                    handleIndicatorStyle={{backgroundColor: '#F2FF5D'}}
+                                    ref={bottomSheetRef}
+                                    backgroundStyle={[styles.bottomSheet, selectedTransaction && selectedTransaction.transactionIsOnline && {backgroundColor: '#5B5A5A'}]}
+                                    enablePanDownToClose={true}
+                                    index={showTransactionsBottomSheet ? 0 : -1}
+                                    snapPoints={selectedTransaction && !selectedTransaction.transactionIsOnline ? [hp(55), hp(55)] : [hp(22), hp(22)]}
+                                    onChange={(index) => {
+                                        setShowTransactionsBottomSheet(index !== -1);
+                                    }}
+                                >
+                                    {
+                                        selectedTransaction &&
+                                        <TransactionsBottomSheet
+                                            brandName={selectedTransaction.transactionBrandName}
+                                            brandImage={selectedTransaction.transactionBrandLogoUrl}
+                                            {...selectedTransaction.transactionIsOnline && {
+                                                transactionOnlineAddress: selectedTransaction.transactionBrandURLAddress
+                                            }}
+                                            {...!selectedTransaction.transactionIsOnline && {
+                                                transactionStoreAddress: selectedTransaction.transactionBrandAddress
+                                            }}
+                                            transactionAmount={selectedTransaction.totalAmount.toFixed(2).toString()}
+                                            transactionDiscountAmount={selectedTransaction.rewardAmount.toFixed(2).toString()}
+                                            transactionTimestamp={selectedTransaction.timestamp.toString()}
+                                            transactionStatus={selectedTransaction.transactionStatus.toString()}
+                                        />
+                                    }
+                                </BottomSheet>
                             }
-                            <BottomSheet
-                                handleIndicatorStyle={{backgroundColor: '#F2FF5D'}}
-                                ref={bottomSheetRef}
-                                backgroundStyle={[styles.bottomSheet, selectedTransaction && selectedTransaction.transactionIsOnline && {backgroundColor: '#5B5A5A'}]}
-                                enablePanDownToClose={true}
-                                index={showTransactionsBottomSheet ? 0 : -1}
-                                snapPoints={selectedTransaction && !selectedTransaction.transactionIsOnline ? [hp(55), hp(55)] : [hp(22), hp(22)]}
-                                onChange={(index) => {
-                                    setShowTransactionsBottomSheet(index !== -1);
-                                }}
-                            >
-                                {
-                                    selectedTransaction &&
-                                    <TransactionsBottomSheet
-                                        brandName={selectedTransaction.transactionBrandName}
-                                        brandImage={selectedTransaction.transactionBrandLogoUrl}
-                                        {...selectedTransaction.transactionIsOnline && {
-                                            transactionOnlineAddress: selectedTransaction.transactionBrandURLAddress
-                                        }}
-                                        {...!selectedTransaction.transactionIsOnline && {
-                                            transactionStoreAddress: selectedTransaction.transactionBrandAddress
-                                        }}
-                                        transactionAmount={selectedTransaction.totalAmount.toFixed(2).toString()}
-                                        transactionDiscountAmount={selectedTransaction.rewardAmount.toFixed(2).toString()}
-                                        transactionTimestamp={selectedTransaction.timestamp.toString()}
-                                        transactionStatus={selectedTransaction.transactionStatus.toString()}
-                                    />
-                                }
-                            </BottomSheet>
                         </SafeAreaView>
                     </>
             }

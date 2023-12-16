@@ -3,7 +3,7 @@ import {createDrawerNavigator} from "@react-navigation/drawer";
 import {AppDrawerProps} from "../../../models/props/AuthenticationProps";
 import {AppDrawerStackParamList} from "../../../models/props/AppDrawerProps";
 import {CustomDrawer} from "../../common/CustomDrawer";
-import {Animated, Platform, Text, View} from "react-native";
+import {Animated, Platform, Text, TouchableOpacity, View} from "react-native";
 import {useRecoilState} from "recoil";
 import {
     appDrawerHeaderShownState,
@@ -53,10 +53,11 @@ import {DocumentsViewer} from "../../common/DocumentsViewer";
 import {Support} from "./support/Support";
 import {createPhysicalDevice, proceedWithDeviceCreation} from "../../../utils/AppSync";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
-import Image = Animated.Image;
 import {Referral} from "./home/referrals/Referral";
 import Constants from 'expo-constants';
 import {AppOwnership} from "expo-constants/src/Constants.types";
+import {showClickOnlyBottomSheetState} from "../../../recoil/StoreOfferAtom";
+import Image = Animated.Image;
 
 /**
  * AppDrawer component.
@@ -92,8 +93,9 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         const [, setBannerState] = useRecoilState(customBannerState);
         const [, setBannerShown] = useRecoilState(customBannerShown);
         const [drawerInDashboard,] = useRecoilState(drawerDashboardState);
-        const [, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
+        const [showTransactionsBottomSheet, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
         const [, setShowWalletBottomSheet] = useRecoilState(showWalletBottomSheetState);
+        const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
 
         /**
          * create a drawer navigator, to be used for our sidebar navigation, which is the main driving
@@ -746,66 +748,234 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                     </Dialog.Content>
                                 </Dialog>
                             </Portal>
-                            <View style={{flex: 1, backgroundColor: '#313030'}}>
-                                <ApplicationDrawer.Navigator
-                                    drawerContent={(props) => {
-                                        return (<CustomDrawer {...props} />);
+                            <ApplicationDrawer.Navigator
+                                drawerContent={(props) => {
+                                    return (<CustomDrawer {...props} />);
+                                }}
+                                initialRouteName={!userVerified ? "AppWall" : "Home"}
+                                screenOptions={({navigation}) => ({
+                                    ...(showTransactionsBottomSheet && {
+                                        header: () =>
+                                            <>
+                                                <TouchableOpacity
+                                                    activeOpacity={1}
+                                                    disabled={!showTransactionsBottomSheet}
+                                                    onPress={() => setShowTransactionsBottomSheet(false)}
+                                                >
+                                                    <View
+                                                        {...showTransactionsBottomSheet && {pointerEvents: "none"}}
+                                                        {...showTransactionsBottomSheet && {
+                                                            style: {backgroundColor: 'transparent', opacity: 0.3}
+                                                        }}
+                                                        style={drawerInDashboard ? {
+                                                            height: hp(11),
+                                                            width: wp(100),
+                                                            backgroundColor: 'black',
+                                                            shadowColor: 'transparent', // this covers iOS
+                                                            elevation: 0, // this covers Android
+                                                            opacity: 0.75,
+                                                            flexDirection: 'column'
+                                                        } : {
+                                                            backgroundColor: '#313030'
+                                                        }}
+                                                    >
+                                                        <View style={{
+                                                            height: hp(11),
+                                                            width: wp(100),
+                                                            flexDirection: 'column'
+                                                        }}>
+                                                            <IconButton
+                                                                style={{
+                                                                    alignSelf: 'flex-start',
+                                                                    marginTop: hp(5.75),
+                                                                    opacity: 0.3
+                                                                }}
+                                                                icon={'menu'} iconColor={'#FFFFFF'}
+                                                                size={hp(4)}
+                                                                onPress={() => {
+                                                                    setShowTransactionsBottomSheet(false);
+                                                                    setShowWalletBottomSheet(false);
+                                                                    setShowClickOnlyBottomSheet(false);
+                                                                    navigation.openDrawer();
+                                                                }}/>
+                                                            <Image resizeMode={"contain"}
+                                                                   style={{
+                                                                       bottom: hp(8.5),
+                                                                       opacity: 0.3,
+                                                                       height: hp(10),
+                                                                       width: wp(10),
+                                                                       alignSelf: 'center',
+                                                                       ...(Platform.OS === 'android' && {
+                                                                           alignSelf: 'center'
+                                                                       })
+                                                                   }}
+                                                                   source={MoonbeamNavigationLogo}
+                                                            />
+                                                            <IconButton
+                                                                style={{
+                                                                    alignSelf: 'flex-end',
+                                                                    opacity: 0.3,
+                                                                    bottom: hp(16.8)
+                                                                }}
+                                                                icon={'gift'} iconColor={'#FFFFFF'}
+                                                                size={hp(3.5)}
+                                                                onPress={() => {
+                                                                    navigation.navigate('Referral', {});
+                                                                }}/>
+
+                                                        </View>
+                                                    </View>
+                                                </TouchableOpacity>
+                                            </>
+                                    }),
+                                    headerLeft: () => <IconButton icon={'menu'} iconColor={'#FFFFFF'}
+                                                                  size={hp(4)}
+                                                                  onPress={() => {
+                                                                      setShowTransactionsBottomSheet(false);
+                                                                      setShowWalletBottomSheet(false);
+                                                                      setShowClickOnlyBottomSheet(false);
+                                                                      navigation.openDrawer();
+                                                                  }}/>,
+                                    headerRight: () => <IconButton icon={'gift'} iconColor={'#FFFFFF'}
+                                                                   size={hp(3.5)}
+                                                                   onPress={() => {
+                                                                       navigation.navigate('Referral', {});
+                                                                   }}/>,
+                                    headerTitle: () =>
+                                        <Image resizeMode={"contain"}
+                                               style={{
+                                                   height: hp(10),
+                                                   width: wp(10),
+                                                   alignSelf: 'center',
+                                                   ...(Platform.OS === 'android' && {
+                                                       alignSelf: 'center'
+                                                   })
+                                               }}
+                                               source={MoonbeamNavigationLogo}
+                                        />,
+                                    headerStyle: drawerInDashboard ? {
+                                        width: wp(100),
+                                        backgroundColor: '#5B5A5A',
+                                        shadowColor: 'transparent', // this covers iOS
+                                        elevation: 0, // this covers Android
+                                    } : {
+                                        backgroundColor: '#313030'
+                                    },
+                                    drawerLabelStyle: {
+                                        fontFamily: 'Raleway-Medium',
+                                        fontSize: hp(2),
+                                        color: '#FFFFFF'
+                                    },
+                                    headerTitleAlign: 'center',
+                                    drawerActiveBackgroundColor: 'transparent',
+                                    drawerActiveTintColor: '#F2FF5D',
+                                    drawerInactiveTintColor: 'white',
+                                    swipeEnabled: false,
+                                    drawerStyle: {
+                                        width: wp(70),
+                                        backgroundColor: '#5B5A5A'
+                                    },
+                                })}
+                            >
+                                <ApplicationDrawer.Screen
+                                    name={"Home"}
+                                    component={Home}
+                                    options={{
+                                        swipeEnabled: drawerSwipeEnabled,
+                                        drawerItemStyle: {
+                                            right: wp(2),
+                                            marginBottom: 0
+                                        },
+                                        drawerIcon: () => (
+                                            <Icon
+                                                size={hp(3)}
+                                                name={'home-variant-outline'} color={'#F2FF5D'}/>
+                                        ),
+                                        headerShown: drawerHeaderShown
                                     }}
-                                    initialRouteName={!userVerified ? "AppWall" : "Home"}
-                                    screenOptions={({navigation}) => ({
-                                        headerLeft: () => <IconButton icon={'menu'} iconColor={'#FFFFFF'}
-                                                                      size={hp(4)}
-                                                                      onPress={() => {
-                                                                          setShowTransactionsBottomSheet(false);
-                                                                          setShowWalletBottomSheet(false);
-                                                                          navigation.openDrawer();
-                                                                      }}/>,
-                                        headerRight: () => <IconButton icon={'gift'} iconColor={'#FFFFFF'}
-                                                                      size={hp(3.5)}
-                                                                      onPress={() => {
-                                                                          navigation.navigate('Referral', {});
-                                                                      }}/>,
-                                        headerTitle: () =>
-                                            <Image resizeMode={"contain"}
-                                                   style={{
-                                                       height: hp(10),
-                                                       width: wp(10),
-                                                       alignSelf: 'center',
-                                                       ...(Platform.OS === 'android' && {
-                                                           alignSelf: 'center'
-                                                       })
-                                                   }}
-                                                   source={MoonbeamNavigationLogo}
-                                            />,
-                                        headerStyle: drawerInDashboard ? {
-                                            width: wp(100),
-                                            backgroundColor: '#5B5A5A',
-                                            shadowColor: 'transparent', // this covers iOS
-                                            elevation: 0, // this covers Android
-                                        } : {
-                                            backgroundColor: '#313030'
+                                    initialParams={{}}
+                                />
+                                <ApplicationDrawer.Screen
+                                    name={"Documents"}
+                                    component={Documents}
+                                    initialParams={{}}
+                                    options={{
+                                        swipeEnabled: drawerSwipeEnabled,
+                                        drawerItemStyle: {
+                                            right: wp(2),
+                                            marginBottom: 0
                                         },
-                                        drawerLabelStyle: {
-                                            fontFamily: 'Raleway-Medium',
-                                            fontSize: hp(2),
-                                            color: '#FFFFFF'
+                                        drawerIcon: () => (
+                                            <Icon
+                                                size={hp(3)}
+                                                name={'file-document-multiple-outline'} color={'#F2FF5D'}/>
+                                        ),
+                                        headerShown: drawerHeaderShown
+                                    }}
+                                />
+                                <ApplicationDrawer.Screen
+                                    name={"Settings"}
+                                    component={Settings}
+                                    options={{
+                                        swipeEnabled: drawerSwipeEnabled,
+                                        drawerItemStyle: {
+                                            right: wp(2),
+                                            marginBottom: 0
                                         },
-                                        headerTitleAlign: 'center',
-                                        drawerActiveBackgroundColor: 'transparent',
-                                        drawerActiveTintColor: '#F2FF5D',
-                                        drawerInactiveTintColor: 'white',
-                                        swipeEnabled: false,
-                                        drawerStyle: {
-                                            width: wp(70),
-                                            backgroundColor: '#5B5A5A'
+                                        drawerIcon: () => (
+                                            <Ionicons
+                                                size={hp(3)}
+                                                name={'settings-outline'} color={'#F2FF5D'}/>
+                                        ),
+                                        headerShown: drawerHeaderShown
+                                    }}
+                                    initialParams={{}}
+                                />
+                                <ApplicationDrawer.Screen
+                                    name={"Support"}
+                                    component={Support}
+                                    initialParams={{}}
+                                    options={{
+                                        swipeEnabled: true,
+                                        drawerItemStyle: {
+                                            right: wp(2),
+                                            marginBottom: 0
                                         },
-                                    })}
-                                >
+                                        drawerIcon: () => (
+                                            <Icon
+                                                size={hp(3)}
+                                                name={'help-circle-outline'} color={'#F2FF5D'}/>
+                                        ),
+                                        headerShown: drawerHeaderShown
+                                    }}
+                                />
+                                <ApplicationDrawer.Screen
+                                    name={"Referral"}
+                                    component={Referral}
+                                    initialParams={{}}
+                                    options={{
+                                        swipeEnabled: drawerSwipeEnabled,
+                                        drawerItemStyle: {
+                                            display: 'none',
+                                            right: wp(2),
+                                            marginBottom: 0
+                                        },
+                                        drawerIcon: () => (
+                                            <Icon
+                                                size={hp(3)}
+                                                name={'gift'} color={'#F2FF5D'}/>
+                                        ),
+                                        headerShown: drawerHeaderShown
+                                    }}
+                                />
+                                {
+                                    !userVerified &&
                                     <ApplicationDrawer.Screen
-                                        name={"Home"}
-                                        component={Home}
+                                        name={"AppWall"}
+                                        component={AppWall}
+                                        initialParams={{}}
                                         options={{
-                                            swipeEnabled: drawerSwipeEnabled,
+                                            swipeEnabled: false,
                                             drawerItemStyle: {
                                                 right: wp(2),
                                                 marginBottom: 0
@@ -813,18 +983,24 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                             drawerIcon: () => (
                                                 <Icon
                                                     size={hp(3)}
-                                                    name={'home-variant-outline'} color={'#F2FF5D'}/>
+                                                    name={'wall'} color={'#F2FF5D'}/>
                                             ),
-                                            headerShown: drawerHeaderShown
+                                            header: () => {
+                                                return (<></>)
+                                            },
+                                            headerShown: false
                                         }}
-                                        initialParams={{}}
                                     />
+                                }
+                                {
+                                    !userVerified &&
                                     <ApplicationDrawer.Screen
-                                        name={"Documents"}
-                                        component={Documents}
+                                        name={"DocumentsViewer"}
+                                        component={DocumentsViewer}
                                         initialParams={{}}
                                         options={{
-                                            swipeEnabled: drawerSwipeEnabled,
+                                            unmountOnBlur: true,
+                                            swipeEnabled: false,
                                             drawerItemStyle: {
                                                 right: wp(2),
                                                 marginBottom: 0
@@ -832,118 +1008,16 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                             drawerIcon: () => (
                                                 <Icon
                                                     size={hp(3)}
-                                                    name={'file-document-multiple-outline'} color={'#F2FF5D'}/>
+                                                    name={'file'} color={'#F2FF5D'}/>
                                             ),
-                                            headerShown: drawerHeaderShown
-                                        }}
-                                    />
-                                    <ApplicationDrawer.Screen
-                                        name={"Settings"}
-                                        component={Settings}
-                                        options={{
-                                            swipeEnabled: drawerSwipeEnabled,
-                                            drawerItemStyle: {
-                                                right: wp(2),
-                                                marginBottom: 0
+                                            header: () => {
+                                                return (<></>)
                                             },
-                                            drawerIcon: () => (
-                                                <Ionicons
-                                                    size={hp(3)}
-                                                    name={'settings-outline'} color={'#F2FF5D'}/>
-                                            ),
-                                            headerShown: drawerHeaderShown
-                                        }}
-                                        initialParams={{}}
-                                    />
-                                    <ApplicationDrawer.Screen
-                                        name={"Support"}
-                                        component={Support}
-                                        initialParams={{}}
-                                        options={{
-                                            swipeEnabled: true,
-                                            drawerItemStyle: {
-                                                right: wp(2),
-                                                marginBottom: 0
-                                            },
-                                            drawerIcon: () => (
-                                                <Icon
-                                                    size={hp(3)}
-                                                    name={'help-circle-outline'} color={'#F2FF5D'}/>
-                                            ),
-                                            headerShown: drawerHeaderShown
+                                            headerShown: false
                                         }}
                                     />
-                                    <ApplicationDrawer.Screen
-                                        name={"Referral"}
-                                        component={Referral}
-                                        initialParams={{}}
-                                        options={{
-                                            swipeEnabled: drawerSwipeEnabled,
-                                            drawerItemStyle: {
-                                                display: 'none',
-                                                right: wp(2),
-                                                marginBottom: 0
-                                            },
-                                            drawerIcon: () => (
-                                                <Icon
-                                                    size={hp(3)}
-                                                    name={'gift'} color={'#F2FF5D'}/>
-                                            ),
-                                            headerShown: drawerHeaderShown
-                                        }}
-                                    />
-                                    {
-                                        !userVerified &&
-                                        <ApplicationDrawer.Screen
-                                            name={"AppWall"}
-                                            component={AppWall}
-                                            initialParams={{}}
-                                            options={{
-                                                swipeEnabled: false,
-                                                drawerItemStyle: {
-                                                    right: wp(2),
-                                                    marginBottom: 0
-                                                },
-                                                drawerIcon: () => (
-                                                    <Icon
-                                                        size={hp(3)}
-                                                        name={'wall'} color={'#F2FF5D'}/>
-                                                ),
-                                                header: () => {
-                                                    return (<></>)
-                                                },
-                                                headerShown: false
-                                            }}
-                                        />
-                                    }
-                                    {
-                                        !userVerified &&
-                                        <ApplicationDrawer.Screen
-                                            name={"DocumentsViewer"}
-                                            component={DocumentsViewer}
-                                            initialParams={{}}
-                                            options={{
-                                                unmountOnBlur: true,
-                                                swipeEnabled: false,
-                                                drawerItemStyle: {
-                                                    right: wp(2),
-                                                    marginBottom: 0
-                                                },
-                                                drawerIcon: () => (
-                                                    <Icon
-                                                        size={hp(3)}
-                                                        name={'file'} color={'#F2FF5D'}/>
-                                                ),
-                                                header: () => {
-                                                    return (<></>)
-                                                },
-                                                headerShown: false
-                                            }}
-                                        />
-                                    }
-                                </ApplicationDrawer.Navigator>
-                            </View>
-                            {/*@ts-ignore*/}
+                                }
+                            </ApplicationDrawer.Navigator>
                         </>
                 }
             </>

@@ -8,6 +8,7 @@ import {Dashboard} from "./Dashboard";
 import {showTransactionBottomSheetState, showWalletBottomSheetState} from "../../../../../recoil/DashboardAtom";
 import {bottomBarNavigationState} from "../../../../../recoil/HomeAtom";
 import {View} from "react-native";
+import {showClickOnlyBottomSheetState} from "../../../../../recoil/StoreOfferAtom";
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -24,6 +25,7 @@ export const DashboardController = ({navigation}: DashboardProps) => {
         const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
         const [, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
         const [, setShowWalletBottomSheet] = useRecoilState(showWalletBottomSheetState);
+        const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
 
         // create a native stack navigator, to be used for our Dashboard Controller application navigation
         const DashboardStack = createNativeStackNavigator<DashboardControllerStackParamList>();
@@ -44,6 +46,7 @@ export const DashboardController = ({navigation}: DashboardProps) => {
                 setBannerShown(true);
                 setDrawerSwipeEnabled(true);
                 setShowTransactionsBottomSheet(false);
+                setShowClickOnlyBottomSheet(false);
                 setShowWalletBottomSheet(false);
             }
         }, [navigation.getState()]);

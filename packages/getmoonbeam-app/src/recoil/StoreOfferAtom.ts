@@ -1391,11 +1391,19 @@ const numberOfFailedClickOnlyOnlineOfferCallsState = atom<number>({
     default: 0
 });
 
+/**
+ * Atom used to keep track of the state of the click-only bottom sheet.
+ */
+const showClickOnlyBottomSheetState = atom<boolean>({
+    key: 'showClickOnlyBottomSheetState',
+    default: false
+});
 
 /**
  * Export all atoms and/or selectors
  */
 export {
+    showClickOnlyBottomSheetState,
     numberOfFailedOnlineOfferCallsState,
     numberOfFailedNearbyOfferCallsState,
     numberOfFailedHorizontalMapOfferCallsState,

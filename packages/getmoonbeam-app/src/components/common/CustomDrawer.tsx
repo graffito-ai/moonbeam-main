@@ -235,7 +235,7 @@ import {
     premierOnlineOffersPageNumberState,
     reloadNearbyDueToPermissionsChangeState,
     resetSearchState,
-    searchQueryState,
+    searchQueryState, showClickOnlyBottomSheetState,
     storeNavigationState,
     storeOfferPhysicalLocationState,
     storeOfferState,
@@ -512,6 +512,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const numberOfFailedNearbyOfferCallsStateReset = useResetRecoilState(numberOfFailedNearbyOfferCallsState);
     const numberOfFailedHorizontalMapOfferCallsStateReset = useResetRecoilState(numberOfFailedHorizontalMapOfferCallsState);
     const numberOfFailedClickOnlyOnlineOfferCallsStateReset = useResetRecoilState(numberOfFailedClickOnlyOnlineOfferCallsState);
+    const showClickOnlyBottomSheetStateReset = useResetRecoilState(showClickOnlyBottomSheetState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -771,6 +772,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             numberOfFailedNearbyOfferCallsStateReset();
             numberOfFailedHorizontalMapOfferCallsStateReset();
             numberOfFailedClickOnlyOnlineOfferCallsStateReset();
+            showClickOnlyBottomSheetStateReset();
             branch !== null && branch.logout();
 
             /**

@@ -175,7 +175,7 @@ export const styles = StyleSheet.create({
         width: wp(100)
     },
     clickOnlyOnlineOffersView: {
-        height: hp(20),
+        height: hp(20)
     },
     onlineOffersView: {
         height: hp(30),

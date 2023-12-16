@@ -214,6 +214,8 @@ export const OnlineSection = (props: {
                                         onlineListView.current?.scrollToIndex(deDuplicatedOnlineOfferList.length - 2);
                                     } else {
                                         console.log(`Maximum number of online offers reached ${deDuplicatedOnlineOfferList.length}`);
+                                        setOnlineOffersSpinnerShown(false);
+                                        setHorizontalListLoading(false);
                                     }
                                 }}
                                 scrollViewProps={{

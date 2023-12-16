@@ -475,6 +475,8 @@ export const NearbySection = (props: {
                                             nearbyListView.current?.scrollToIndex(deDuplicatedNearbyOfferList.length - 2);
                                         } else {
                                             console.log(`Maximum number of nearby offers reached ${deDuplicatedNearbyOfferList.length}`);
+                                            setHorizontalListLoading(false);
+                                            setNearbyOffersSpinnerShown(false);
                                         }
                                     }}
                                     scrollViewProps={{

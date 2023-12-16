@@ -10,7 +10,7 @@ import {
     noNearbyOffersToLoadState,
     noOnlineOffersToLoadState,
     resetSearchState,
-    searchQueryState,
+    searchQueryState, showClickOnlyBottomSheetState,
     storeOfferPhysicalLocationState,
     storeOfferState,
     toggleViewPressedState, uniqueClickOnlyOnlineOffersListState,
@@ -66,7 +66,6 @@ export const VerticalOffers = (props: {
     const [onlineLayoutProvider, setOnlineLayoutProvider] = useState<LayoutProvider | null>(null);
     const [clickOnlyOnlineDataProvider, setClickOnlyOnlineDataProvider] = useState<DataProvider | null>(null);
     const [clickOnlyOnlineLayoutProvider, setClickOnlyOnlineLayoutProvider] = useState<LayoutProvider | null>(null);
-
     // constants used to keep track of shared states
     const [currentUserLocation,] = useRecoilState(currentUserLocationState);
     const [filteredByDiscountPressed, setFilteredByDiscountPressed] = useRecoilState(filteredByDiscountPressedState);
@@ -84,6 +83,7 @@ export const VerticalOffers = (props: {
     const deDuplicatedNearbyOfferList = useRecoilValue(uniqueNearbyOffersListState);
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
     const [userInformation,] = useRecoilState(currentUserInformation);
+    const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -417,8 +417,8 @@ export const VerticalOffers = (props: {
 
                                               // set the clicked offer/partner accordingly
                                               setStoreOfferClicked(data);
-                                              // @ts-ignore
-                                              props.navigation.navigate('StoreOffer', {});
+                                              // show the click only bottom sheet
+                                              setShowClickOnlyBottomSheet(true);
                                           }}>
                                         <Card.Content>
                                             <List.Icon color={'#F2FF5D'}
@@ -465,8 +465,8 @@ export const VerticalOffers = (props: {
 
                                       // set the clicked offer/partner accordingly
                                       setStoreOfferClicked(data);
-                                      // @ts-ignore
-                                      props.navigation.navigate('StoreOffer', {});
+                                      // show the click only bottom sheet
+                                      setShowClickOnlyBottomSheet(true);
                                   }}>
                                 <Card.Content>
                                     <List.Icon color={'#F2FF5D'}
@@ -902,6 +902,7 @@ export const VerticalOffers = (props: {
             clickOnlyOnlineListView.current?.scrollToIndex(deDuplicatedClickOnlyOnlineOfferList.length - 2);
         } else {
             console.log(`Maximum number of click-only online offers reached ${deDuplicatedClickOnlyOnlineOfferList.length}`);
+            setVerticalListLoading(false);
         }
     }
 
@@ -920,6 +921,7 @@ export const VerticalOffers = (props: {
             onlineListView.current?.scrollToIndex(deDuplicatedOnlineOfferList.length - 2);
         } else {
             console.log(`Maximum number of online offers reached ${deDuplicatedOnlineOfferList.length}`);
+            setVerticalListLoading(false);
         }
     }
 
@@ -940,6 +942,7 @@ export const VerticalOffers = (props: {
             nearbyListView.current?.scrollToIndex(deDuplicatedNearbyOfferList.length - 2);
         } else {
             console.log(`Maximum number of nearby offers reached ${deDuplicatedNearbyOfferList.length}`);
+            setVerticalListLoading(false);
         }
     }
 

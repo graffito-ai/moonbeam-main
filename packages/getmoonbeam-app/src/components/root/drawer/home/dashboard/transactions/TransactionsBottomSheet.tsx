@@ -169,17 +169,19 @@ export const TransactionsBottomSheet = (props: {
                         {props.brandName}
                     </Text>
                     <View style={styles.transactionDetailsView}>
-                        <Image
-                            style={styles.transactionBrandImage}
-                            source={{
-                                uri: props.brandImage,
-                            }}
-                            placeholder={MoonbeamPlaceholderImage}
-                            placeholderContentFit={'contain'}
-                            contentFit={'contain'}
-                            transition={1000}
-                            cachePolicy={'memory-disk'}
-                        />
+                        <View style={styles.transactionBrandImageBackground}>
+                            <Image
+                                style={styles.transactionBrandImage}
+                                source={{
+                                    uri: props.brandImage,
+                                }}
+                                placeholder={MoonbeamPlaceholderImage}
+                                placeholderContentFit={'contain'}
+                                contentFit={'contain'}
+                                transition={1000}
+                                cachePolicy={'memory-disk'}
+                            />
+                        </View>
                         <View style={styles.brandDetailsView}>
                             <Text style={styles.transactionDiscountAmount}>
                                 {`$ ${props.transactionDiscountAmount}`}
@@ -188,7 +190,7 @@ export const TransactionsBottomSheet = (props: {
                             <Text style={styles.transactionAddress}>
                                 {
                                     props.transactionStoreAddress
-                                        ? `In Person Purchase`
+                                        ? `In-Person Purchase`
                                         : `Online Purchase`
                                 }
                             </Text>
