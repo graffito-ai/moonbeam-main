@@ -304,12 +304,23 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         alignSelf: 'center'
     },
-    toolTipImageDetail: {
-        alignSelf: 'flex-start',
+    toolTipImageDetailBackground: {
+        backgroundColor: '#FFFFFF',
         height: hp(2.8),
-        bottom: hp(0.7),
-        right: wp(0.35),
-        width: wp(12)
+        width: hp(2.8),
+        alignSelf: 'flex-start',
+        borderColor: 'transparent',
+        bottom: hp(0.70),
+        marginRight: wp(5),
+        left: wp(1.55),
+        borderTopLeftRadius: 3,
+        borderBottomLeftRadius: 3,
+    },
+    toolTipImageDetail: {
+        height: hp(2.3),
+        width: hp(2.3),
+        borderTopLeftRadius: 3,
+        borderBottomLeftRadius: 3
     },
     toolTipImagePrice: {
         right: wp(0.7),

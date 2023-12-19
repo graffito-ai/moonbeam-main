@@ -281,17 +281,19 @@ export const FullScreenMapKitSection = (props: {
                                 cachePolicy={'memory-disk'}
                             >
                                 <View style={{flexDirection: 'row', width: wp(25)}}>
-                                    <Image
-                                        style={styles.toolTipImageDetail}
-                                        source={{
-                                            uri: uniqueNearbyOffersListForFullScreenMap[i].brandLogoSm!
-                                        }}
-                                        placeholder={MoonbeamPlaceholderImage}
-                                        placeholderContentFit={'contain'}
-                                        contentFit={'contain'}
-                                        transition={1000}
-                                        cachePolicy={'memory-disk'}
-                                    />
+                                    <View style={styles.toolTipImageDetailBackground}>
+                                        <Image
+                                            style={styles.toolTipImageDetail}
+                                            source={{
+                                                uri: uniqueNearbyOffersListForFullScreenMap[i].brandLogoSm!
+                                            }}
+                                            placeholder={MoonbeamPlaceholderImage}
+                                            placeholderContentFit={'contain'}
+                                            contentFit={'contain'}
+                                            transition={1000}
+                                            cachePolicy={'memory-disk'}
+                                        />
+                                    </View>
                                     <Text style={styles.toolTipImagePrice}>
                                         {uniqueNearbyOffersListForFullScreenMap[i]!.reward!.type! === RewardType.RewardPercent
                                             ? `${uniqueNearbyOffersListForFullScreenMap[i]!.reward!.value}%`

@@ -132,7 +132,7 @@ export const styles = StyleSheet.create({
     },
     cardRemovalDetails: {
         fontFamily: 'Saira-Medium',
-        fontSize: hp(3),
+        fontSize: hp(2.5),
         bottom: hp(1.5),
         color: '#F2FF5D'
     },

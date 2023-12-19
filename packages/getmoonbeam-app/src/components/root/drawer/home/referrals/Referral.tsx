@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {ReferralProps} from "../../../../../models/props/AppDrawerProps";
 import {useRecoilState} from "recoil";
-import {appDrawerHeaderShownState, drawerSwipeState} from "../../../../../recoil/AppDrawerAtom";
+import {appDrawerHeaderShownState, drawerDashboardState, drawerSwipeState} from "../../../../../recoil/AppDrawerAtom";
 import {Platform, Share, Text, TouchableOpacity, View} from "react-native";
 import {Icon} from "@rneui/base";
 import {heightPercentageToDP as hp} from "react-native-responsive-screen";
@@ -28,8 +28,8 @@ export const Referral = ({navigation}: ReferralProps) => {
     const [userReferralLink, setUserReferralLink] = useState<string>("");
     const [nextDrawingDate, setNextDrawingDate] = useState<string>("");
     const [userReferralCode, setUserReferralCode] = useState<string>("");
-
     // constants used to keep track of shared states
+    const [,setDrawerInDashboard] = useRecoilState(drawerDashboardState);
     const [userInformation,] = useRecoilState(currentUserInformation);
     const [appDrawerHeaderShown, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
     const [drawerSwipeEnabled, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
@@ -160,6 +160,7 @@ export const Referral = ({navigation}: ReferralProps) => {
                     onPress={async () => {
                         setAppDrawerHeaderShown(true);
                         setDrawerSwipeEnabled(true);
+                        setDrawerInDashboard(true);
                         navigation.goBack();
                     }}
                 />

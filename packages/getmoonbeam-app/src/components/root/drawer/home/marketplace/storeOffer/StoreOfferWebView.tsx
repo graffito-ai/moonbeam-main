@@ -35,6 +35,7 @@ export const StoreOfferWebView = ({navigation}: StoreOfferWebViewProps) => {
      * included in here.
      */
     useEffect(() => {
+        console.log(JSON.stringify(storeOfferClicked));
         // set the current offer's website accordingly (for now defaulting to a Google search)
         // @ts-ignore
         storeOfferClicked!.numberOfOffers === undefined

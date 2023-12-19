@@ -104,12 +104,23 @@ export const Wallet = ({navigation}: CardsProps) => {
         if (!showBottomSheet && bottomSheetRef) {
             // @ts-ignore
             bottomSheetRef.current?.close?.();
+
+            // show the bottom tab
+            setBottomTabShown(true);
         }
         if (showBottomSheet && bottomSheetRef) {
+            // hide the bottom tab
+            setBottomTabShown(false);
+
             // @ts-ignore
             bottomSheetRef.current?.expand?.();
         }
-    }, [navigation.getState(), showBottomSheet, bottomSheetRef, userInformation, cardLinkingBottomSheet]);
+        if (splashShown) {
+            setBottomTabShown(false);
+            setCardLinkingBottomSheet(false);
+            setShowBottomSheet(false);
+        }
+    }, [navigation.getState(), showBottomSheet, bottomSheetRef, userInformation, cardLinkingBottomSheet, splashShown]);
 
     /**
      * Function used to handle the delete card action, from the bottom sheet
@@ -378,148 +389,165 @@ export const Wallet = ({navigation}: CardsProps) => {
                 <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                 :
                 <SafeAreaView style={styles.walletView}>
-                    {
-                        splashShown ?
-                            <SplashScreen splashTitle={splashState.splashTitle}
-                                          splashDescription={splashState.splashDescription}
-                                          splashButtonText={splashState.splashButtonText}
-                                          splashArtSource={splashState.splashArtSource}
-                            />
-                            :
-                            <>
-                                <View style={styles.walletTextView}>
-                                    <View style={styles.walletTopTitleView}>
-                                        <Text
-                                            style={styles.walletTitle}>
-                                            Wallet
-                                        </Text>
-                                        <IconButton
-                                            icon={userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0 ? 'trash-can' : 'plus'}
-                                            iconColor={'#F2FF5D'}
-                                            style={{
-                                                alignSelf: 'flex-end',
-                                                bottom: hp(6.5)
-                                            }}
-                                            size={hp(3.5)}
-                                            onPress={
-                                                async () => {
-                                                    // if there is no error and/or success to show, then this button will open up the bottom sheet
-                                                    if (!splashShown) {
-                                                        /**
-                                                         * open up the bottom sheet, where the linking action will take place. Any linked cards and/or errors will be
-                                                         * handled by the CardLinkingBottomSheet component
-                                                         */
-                                                        setShowBottomSheet(true);
-                                                    } else {
-                                                        // reset the success linking flag, in case it is true, as well as hide the custom banner accordingly
-                                                        if (cardLinkingBottomSheet) {
-                                                            setCardLinkingBottomSheet(false);
-
-                                                            // change the card linking status
-                                                            setCardLinkingStatus(true);
-
-                                                            // set the custom banner state for future screens accordingly
-                                                            setBannerState({
-                                                                bannerVisibilityState: cardLinkingStatusState,
-                                                                bannerMessage: "",
-                                                                bannerButtonLabel: "",
-                                                                bannerButtonLabelActionSource: "",
-                                                                bannerArtSource: CardLinkingImage,
-                                                                dismissing: false
-                                                            });
-                                                        }
-
-                                                        // close the previously opened bottom sheet, and reset the splash shown flag, to return to the default wallet view
-                                                        setShowBottomSheet(false);
-                                                        setBottomTabShown(true);
-                                                        setSplashShown(false);
-                                                    }
-                                                }
-                                            }
-                                        />
-                                    </View>
-                                    <Divider
-                                        style={[commonStyles.divider, {width: wp(100)}]}/>
-                                </View>
-                                <LinearGradient
-                                    colors={['transparent', '#5b5b5b']}
-                                    style={styles.mainCardView}>
-                                    <List.Section style={styles.listSectionView}>
-                                        {
-                                            filterCards()
-                                        }
-                                    </List.Section>
-                                </LinearGradient>
-                            </>
-                    }
-                    <View style={styles.disclaimerTextView}>
-                        <TouchableOpacity
-                            disabled={!splashShown && (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0)}
-                            style={
-                                splashShown
-                                    ? styles.splashButton
-                                    : styles.linkingButtonDisabled
-                            }
-                            onPress={
-                                async () => {
-                                    // if there is no error and/or success to show, then this button will open up the bottom sheet
-                                    if (!splashShown) {
-                                        /**
-                                         * open up the bottom sheet, where the linking action will take place. Any linked cards and/or errors will be
-                                         * handled by the CardLinkingBottomSheet component
-                                         */
-                                        setShowBottomSheet(true);
-                                    } else {
-                                        // reset the success linking flag, in case it is true, as well as hide the custom banner accordingly
-                                        if (cardLinkingBottomSheet) {
-                                            setCardLinkingBottomSheet(false);
-
-                                            // change the card linking status
-                                            setCardLinkingStatus(true);
-
-                                            // set the custom banner state for future screens accordingly
-                                            setBannerState({
-                                                bannerVisibilityState: cardLinkingStatusState,
-                                                bannerMessage: "",
-                                                bannerButtonLabel: "",
-                                                bannerButtonLabelActionSource: "",
-                                                bannerArtSource: CardLinkingImage,
-                                                dismissing: false
-                                            });
-                                        }
-
-                                        // close the previously opened bottom sheet, and reset the splash shown flag, to return to the default wallet view
-                                        setShowBottomSheet(false);
-                                        setBottomTabShown(true);
-                                        setSplashShown(false);
-                                    }
-                                }
-                            }
+                    <TouchableOpacity
+                        activeOpacity={1}
+                        disabled={!showBottomSheet}
+                        onPress={() => {
+                            // @ts-ignore
+                            bottomSheetRef.current?.close?.();
+                            setShowBottomSheet(true);
+                        }}
+                    >
+                        <View
+                            {...showBottomSheet && {pointerEvents: "none"}}
+                            {...showBottomSheet && {
+                                style: {backgroundColor: 'transparent', opacity: 0.3}
+                            }}
                         >
-                            <Text style={styles.buttonText}>{splashState.splashButtonText}</Text>
-                        </TouchableOpacity>
-                        {
-                            !splashShown &&
-                            userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length === 0
-                                ? <Text
-                                    style={styles.disclaimerText}>
-                                    Connect your <Text
-                                    style={styles.highlightedText}>Visa</Text> or <Text
-                                    style={styles.highlightedText}>MasterCard</Text> debit or credit card.
-                                </Text>
-                                :
-                                splashShown
-                                    ?
-                                    <></>
+                            {
+                                splashShown ?
+                                    <SplashScreen splashTitle={splashState.splashTitle}
+                                                  splashDescription={splashState.splashDescription}
+                                                  splashButtonText={splashState.splashButtonText}
+                                                  splashArtSource={splashState.splashArtSource}
+                                    />
                                     :
-                                    <Text
-                                        style={styles.disclaimerText}>
-                                        Earn discounts on <Text style={styles.highlightedText}>every
-                                        transaction</Text> at <Text
-                                        style={styles.highlightedText}>qualifying</Text> merchant locations.
-                                    </Text>
-                        }
-                    </View>
+                                    <>
+                                        <View style={styles.walletTextView}>
+                                            <View style={styles.walletTopTitleView}>
+                                                <Text
+                                                    style={styles.walletTitle}>
+                                                    Wallet
+                                                </Text>
+                                                <IconButton
+                                                    icon={userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0 ? 'trash-can' : 'plus'}
+                                                    iconColor={'#F2FF5D'}
+                                                    style={{
+                                                        alignSelf: 'flex-end',
+                                                        bottom: hp(6.5)
+                                                    }}
+                                                    size={hp(3.5)}
+                                                    onPress={
+                                                        async () => {
+                                                            // if there is no error and/or success to show, then this button will open up the bottom sheet
+                                                            if (!splashShown) {
+                                                                /**
+                                                                 * open up the bottom sheet, where the linking action will take place. Any linked cards and/or errors will be
+                                                                 * handled by the CardLinkingBottomSheet component
+                                                                 */
+                                                                setShowBottomSheet(true);
+                                                            } else {
+                                                                // reset the success linking flag, in case it is true, as well as hide the custom banner accordingly
+                                                                if (cardLinkingBottomSheet) {
+                                                                    setCardLinkingBottomSheet(false);
+
+                                                                    // change the card linking status
+                                                                    setCardLinkingStatus(true);
+
+                                                                    // set the custom banner state for future screens accordingly
+                                                                    setBannerState({
+                                                                        bannerVisibilityState: cardLinkingStatusState,
+                                                                        bannerMessage: "",
+                                                                        bannerButtonLabel: "",
+                                                                        bannerButtonLabelActionSource: "",
+                                                                        bannerArtSource: CardLinkingImage,
+                                                                        dismissing: false
+                                                                    });
+                                                                }
+
+                                                                // close the previously opened bottom sheet, and reset the splash shown flag, to return to the default wallet view
+                                                                setShowBottomSheet(false);
+                                                                setBottomTabShown(true);
+                                                                setSplashShown(false);
+                                                            }
+                                                        }
+                                                    }
+                                                />
+                                            </View>
+                                            <Divider
+                                                style={[commonStyles.divider, {width: wp(100)}]}/>
+                                        </View>
+                                        <LinearGradient
+                                            colors={['transparent', '#5b5b5b']}
+                                            style={styles.mainCardView}>
+                                            <List.Section style={styles.listSectionView}>
+                                                {
+                                                    filterCards()
+                                                }
+                                            </List.Section>
+                                        </LinearGradient>
+                                    </>
+                            }
+                            <View style={styles.disclaimerTextView}>
+                                <TouchableOpacity
+                                    disabled={!splashShown && (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0)}
+                                    style={
+                                        splashShown
+                                            ? styles.splashButton
+                                            : styles.linkingButtonDisabled
+                                    }
+                                    onPress={
+                                        async () => {
+                                            // if there is no error and/or success to show, then this button will open up the bottom sheet
+                                            if (!splashShown) {
+                                                /**
+                                                 * open up the bottom sheet, where the linking action will take place. Any linked cards and/or errors will be
+                                                 * handled by the CardLinkingBottomSheet component
+                                                 */
+                                                setShowBottomSheet(true);
+                                            } else {
+                                                // reset the success linking flag, in case it is true, as well as hide the custom banner accordingly
+                                                if (cardLinkingBottomSheet) {
+                                                    setCardLinkingBottomSheet(false);
+
+                                                    // change the card linking status
+                                                    setCardLinkingStatus(true);
+
+                                                    // set the custom banner state for future screens accordingly
+                                                    setBannerState({
+                                                        bannerVisibilityState: cardLinkingStatusState,
+                                                        bannerMessage: "",
+                                                        bannerButtonLabel: "",
+                                                        bannerButtonLabelActionSource: "",
+                                                        bannerArtSource: CardLinkingImage,
+                                                        dismissing: false
+                                                    });
+                                                }
+
+                                                // close the previously opened bottom sheet, and reset the splash shown flag, to return to the default wallet view
+                                                setShowBottomSheet(false);
+                                                setBottomTabShown(true);
+                                                setSplashShown(false);
+                                            }
+                                        }
+                                    }
+                                >
+                                    <Text style={styles.buttonText}>{splashState.splashButtonText}</Text>
+                                </TouchableOpacity>
+                                {
+                                    !splashShown &&
+                                    userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length === 0
+                                        ? <Text
+                                            style={styles.disclaimerText}>
+                                            Connect your <Text
+                                            style={styles.highlightedText}>Visa</Text> or <Text
+                                            style={styles.highlightedText}>MasterCard</Text> debit or credit card.
+                                        </Text>
+                                        :
+                                        splashShown
+                                            ?
+                                            <></>
+                                            :
+                                            <Text
+                                                style={styles.disclaimerText}>
+                                                Earn discounts on <Text style={styles.highlightedText}>every
+                                                transaction</Text> at <Text
+                                                style={styles.highlightedText}>qualifying</Text> merchant locations.
+                                            </Text>
+                                }
+                            </View>
+                        </View>
+                    </TouchableOpacity>
                     {
                         !cardLinkingBottomSheet && !appDrawerHeaderShown &&
                         <BottomSheet

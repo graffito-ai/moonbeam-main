@@ -106,13 +106,29 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         alignSelf: 'center'
     },
-    toolTipImageDetail: {
+
+    toolTipImageDetailBackground: {
+        backgroundColor: '#FFFFFF',
+        height: hp(3.75),
+        width: hp(3.95),
         alignSelf: 'flex-start',
-        height: hp(2.8),
-        bottom: hp(0.7),
-        right: wp(0.35),
-        width: wp(12)
+        borderColor: 'transparent',
+        bottom: hp(0.75),
+        marginRight: wp(5),
+        left: wp(1.55),
+        borderTopLeftRadius: 3,
+        borderBottomLeftRadius: 3,
     },
+    toolTipImageDetail: {
+        marginRight: wp(3),
+        bottom: hp(0.70),
+        left: wp(1.575),
+        height: hp(2.8),
+        width: hp(3.75),
+        borderTopLeftRadius: 3,
+        borderBottomLeftRadius: 3,
+    },
+
     toolTipImagePrice: {
         right: wp(0.7),
         alignSelf: 'flex-end',

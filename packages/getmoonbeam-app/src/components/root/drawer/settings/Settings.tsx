@@ -10,8 +10,9 @@ import {appDrawerHeaderShownState, drawerDashboardState, drawerSwipeState} from 
 import {styles} from "../../../../styles/settingsList.module";
 import {ResetPassword} from "./password/ResetPassword";
 import {goToProfileSettingsState} from "../../../../recoil/Settings";
-import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
-import {View} from "react-native";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
+import {TouchableOpacity, View} from "react-native";
+import {codeVerificationSheetShown} from "../../../../recoil/CodeVerificationAtom";
 
 /**
  * Settings component
@@ -25,7 +26,7 @@ export const Settings = ({navigation}: SettingsProps) => {
     const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
     const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
     const [, setIsDrawerInDashboard] = useRecoilState(drawerDashboardState);
-
+    const [showCodeVerificationBottomSheet, setShowCodeVerificationBottomSheet] = useRecoilState(codeVerificationSheetShown);
     // create a native stack navigator, to be used for our Settings navigation
     const Stack = createNativeStackNavigator<SettingsStackParamList>();
 
@@ -50,26 +51,76 @@ export const Settings = ({navigation}: SettingsProps) => {
                 initialRouteName={"SettingsList"}
                 screenOptions={({navigation}) => {
                     return ({
+                        ...(showCodeVerificationBottomSheet && {
+                            header: () =>
+                                <>
+                                    <TouchableOpacity
+                                        activeOpacity={1}
+                                        disabled={showCodeVerificationBottomSheet}
+                                        onPress={() => {
+                                            // @ts-ignore
+                                            bottomSheetRef.current?.close?.();
+                                            setShowCodeVerificationBottomSheet(true);
+                                        }}
+                                    >
+                                        <View
+                                            {...showCodeVerificationBottomSheet && {pointerEvents: "none"}}
+                                            {...showCodeVerificationBottomSheet && {
+                                                style: {backgroundColor: 'transparent', opacity: 0.3}
+                                            }}
+                                            style={{backgroundColor: 'grey', opacity: 0.7}}
+                                        >
+                                            <View style={{
+                                                height: hp(11),
+                                                width: wp(100),
+                                                flexDirection: 'column'
+                                            }}>
+                                                <IconButton
+                                                    icon="chevron-left"
+                                                    iconColor={"#F2FF5D"}
+                                                    size={hp(4.5)}
+                                                    style={[styles.backButton, {top: hp(4.5), right: wp(1)}]}
+                                                    onPress={() => {
+                                                        // enable swipes for the App Drawer
+                                                        setDrawerSwipeEnabled(true);
+
+                                                        // set the visibility of the App Header
+                                                        setAppDrawerHeaderShown(true);
+
+                                                        // reset any navigation flags
+                                                        setGoToProfileSettings(false);
+
+                                                        // navigate back to the SettingsList component
+                                                        navigation.navigate('SettingsList', {});
+                                                    }}
+                                                />
+                                            </View>
+                                        </View>
+                                    </TouchableOpacity>
+                                </>
+                        }),
                         headerLeft: () => {
-                            return (<IconButton
-                                icon="chevron-left"
-                                iconColor={"#F2FF5D"}
-                                size={hp(4.5)}
-                                style={styles.backButton}
-                                onPress={() => {
-                                    // enable swipes for the App Drawer
-                                    setDrawerSwipeEnabled(true);
+                            return (
+                                <IconButton
+                                    icon="chevron-left"
+                                    iconColor={"#F2FF5D"}
+                                    size={hp(4.5)}
+                                    style={styles.backButton}
+                                    onPress={() => {
+                                        // enable swipes for the App Drawer
+                                        setDrawerSwipeEnabled(true);
 
-                                    // set the visibility of the App Header
-                                    setAppDrawerHeaderShown(true);
+                                        // set the visibility of the App Header
+                                        setAppDrawerHeaderShown(true);
 
-                                    // reset any navigation flags
-                                    setGoToProfileSettings(false);
+                                        // reset any navigation flags
+                                        setGoToProfileSettings(false);
 
-                                    // navigate back to the SettingsList component
-                                    navigation.navigate('SettingsList', {});
-                                }}
-                            />)
+                                        // navigate back to the SettingsList component
+                                        navigation.navigate('SettingsList', {});
+                                    }}
+                                />
+                            )
                         },
                         headerTitle: '',
                         headerTransparent: false,

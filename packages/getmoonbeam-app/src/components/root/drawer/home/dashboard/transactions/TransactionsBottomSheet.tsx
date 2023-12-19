@@ -261,14 +261,15 @@ export const TransactionsBottomSheet = (props: {
                                         <TouchableOpacity onPress={async () => {
                                             await retrieveStoreGeolocation();
                                         }}>
-                                                <ImageBackground
-                                                    style={styles.toolTipMain}
-                                                    source={MoonbeamPinImage}
-                                                    contentFit={'contain'}
-                                                    transition={1000}
-                                                    cachePolicy={'memory-disk'}
-                                                >
-                                                    <View style={{flexDirection: 'row', width: wp(25)}}>
+                                            <ImageBackground
+                                                style={styles.toolTipMain}
+                                                source={MoonbeamPinImage}
+                                                contentFit={'contain'}
+                                                transition={1000}
+                                                cachePolicy={'memory-disk'}
+                                            >
+                                                <View style={{flexDirection: 'row', width: wp(25)}}>
+                                                    <View style={styles.toolTipImageDetailBackground}>
                                                         <Image
                                                             style={styles.toolTipImageDetail}
                                                             source={{
@@ -280,11 +281,12 @@ export const TransactionsBottomSheet = (props: {
                                                             transition={1000}
                                                             cachePolicy={'memory-disk'}
                                                         />
-                                                        <Text style={styles.toolTipImagePrice}>
-                                                            {`${discountPercentage} Off `}
-                                                        </Text>
                                                     </View>
-                                                </ImageBackground>
+                                                    <Text style={styles.toolTipImagePrice}>
+                                                        {`${discountPercentage} Off `}
+                                                    </Text>
+                                                </View>
+                                            </ImageBackground>
                                         </TouchableOpacity>
                                     </Marker>
                                 }
