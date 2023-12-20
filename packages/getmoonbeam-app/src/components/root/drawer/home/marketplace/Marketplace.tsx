@@ -16,7 +16,7 @@ import {
     currentActiveKitState,
     fullScreenKitMapActiveState,
     nearbyKitListIsExpandedState,
-    onlineKitListIsExpandedState,
+    onlineKitListIsExpandedState, showClickOnlyBottomSheetState,
     storeNavigationState
 } from "../../../../../recoil/StoreOfferAtom";
 import {moonbeamKits} from "./storeComponents/KitsSection";
@@ -34,6 +34,7 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
     const [kitImage, setKitImage] = useState<any>(null);
     const [kitTitle, setKitTitle] = useState<string>("Kit");
     // constants used to keep track of shared states
+    const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
     const [fullScreenKitMapActive, setFullScreenKitMapActive] = useRecoilState(fullScreenKitMapActiveState);
     const [, setOnlineKitListExpanded] = useRecoilState(onlineKitListIsExpandedState);
     const [, setNearbyKitListExpanded] = useRecoilState(nearbyKitListIsExpandedState);
@@ -123,6 +124,7 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
                                             setOnlineKitListExpanded(false);
                                             setNearbyKitListExpanded(false);
                                             setBottomTabShown(true);
+                                            setShowClickOnlyBottomSheet(false);
                                             storeNavigation && storeNavigation.navigate('Store', {});
                                         }}
                                     />

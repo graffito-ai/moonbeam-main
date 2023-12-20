@@ -306,8 +306,8 @@ export const NearbyKitSection = (props: {
                                                             uri: data.brandLogoSm!,
                                                         }}
                                                         placeholder={MoonbeamPlaceholderImage}
-                                                        placeholderContentFit={'fill'}
-                                                        contentFit={'fill'}
+                                                        placeholderContentFit={'contain'}
+                                                        contentFit={'contain'}
                                                         transition={1000}
                                                         cachePolicy={'none'}
                                                     />
@@ -360,8 +360,8 @@ export const NearbyKitSection = (props: {
                                                     uri: data.brandLogoSm!,
                                                 }}
                                                 placeholder={MoonbeamPlaceholderImage}
-                                                placeholderContentFit={'fill'}
-                                                contentFit={'fill'}
+                                                placeholderContentFit={'contain'}
+                                                contentFit={'contain'}
                                                 transition={1000}
                                                 cachePolicy={'none'}
                                             />

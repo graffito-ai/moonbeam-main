@@ -102,7 +102,6 @@ import {AppOwnership} from "expo-constants/src/Constants.types";
  * Expo Go), for easier testing purposes.
  */
 const isRunningInExpoGo = Constants.appOwnership === AppOwnership.Expo;
-const branch = !isRunningInExpoGo ? require('react-native-branch') : null;
 
 /**
  * Authentication component.
@@ -201,21 +200,24 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
          * included in here.
          */
         useEffect(() => {
-            // handle incoming deep-links through the latest referring params of the Branch SDK
-            branch !== null && !latestReferringParamsChecked && branch.getLatestReferringParams(false).then(params => {
-                setLatestReferringParamsChecked(true);
-                if (params) {
-                    if (params['~tags'] && params['~tags'].length === 2) {
-                        // set the referral code to be used during registration
-                        setReferralCode(params['~tags'][0].toString());
+            // import branch accordingly
+            !isRunningInExpoGo && import('react-native-branch').then((branch) => {
+                // handle incoming deep-links through the latest referring params of the Branch SDK
+                branch !== null && branch.default !== null && !latestReferringParamsChecked && branch.default.getLatestReferringParams(false).then(params => {
+                    setLatestReferringParamsChecked(true);
+                    if (params) {
+                        if (params['~tags'] && params['~tags'].length === 2) {
+                            // set the referral code to be used during registration
+                            setReferralCode(params['~tags'][0].toString());
 
-                        // set the marketing campaign code used for the referral
-                        setReferralCodeMarketingCampaign(params['~tags'][1].toString());
+                            // set the marketing campaign code used for the referral
+                            setReferralCodeMarketingCampaign(params['~tags'][1].toString());
 
-                        // re-direct to the registration screen
-                        setAuthScreen('Registration');
+                            // re-direct to the registration screen
+                            setAuthScreen('Registration');
+                        }
                     }
-                }
+                });
             });
 
             // set the main root navigation of the app accordingly

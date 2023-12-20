@@ -1,12 +1,13 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {styles} from "../../../../../../styles/store.module";
-import {StyleSheet, View} from "react-native";
+import {Platform, StyleSheet, View} from "react-native";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
 import {Marker, PROVIDER_GOOGLE, Region} from "react-native-maps";
 import * as Location from "expo-location";
 import {LocationObject} from "expo-location";
 import {
+    showClickOnlyBottomSheetState,
     toggleViewPressedState,
     uniqueNearbyOffersListForMainHorizontalMapState
 } from "../../../../../../recoil/StoreOfferAtom";
@@ -19,7 +20,7 @@ import {RewardType} from "@moonbeam/moonbeam-models";
 import MoonbeamPinImage from "../../../../../../../assets/pin-shape.png";
 import MapView from "react-native-map-clustering";
 import {Spinner} from "../../../../../common/Spinner";
-import {widthPercentageToDP as wp} from "react-native-responsive-screen";
+import {widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 /**
  * MapHorizontalSection component.
@@ -41,6 +42,7 @@ export const MapHorizontalSection = () => {
     const [, setToggleViewPressed] = useRecoilState(toggleViewPressedState);
     const uniqueNearbyOffersListForMainHorizontalMap = useRecoilValue(uniqueNearbyOffersListForMainHorizontalMapState);
     const [currentUserLocation, setCurrentUserLocation] = useRecoilState(currentUserLocationState);
+    const [showClickOnlyBottomSheet,] = useRecoilState(showClickOnlyBottomSheetState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -204,31 +206,68 @@ export const MapHorizontalSection = () => {
                                          loadingSpinnerShown={loadingSpinnerShown}
                                          setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                             }
-                            <MapView
-                                onPress={() => {
-                                    setToggleViewPressed('map');
-                                }}
-                                initialRegion={currentMapRegion}
-                                clusteringEnabled={true}
-                                clusterColor={'#313030'}
-                                clusterFontFamily={'Raleway-Medium'}
-                                clusterTextColor={'#F2FF5D'}
-                                provider={PROVIDER_GOOGLE}
-                                userInterfaceStyle={'light'}
-                                ref={mapViewRef}
-                                userLocationCalloutEnabled={true}
-                                showsUserLocation={true}
-                                zoomControlEnabled={false}
-                                pitchEnabled={false}
-                                rotateEnabled={false}
-                                scrollEnabled={false}
-                                zoomEnabled={false}
-                                style={[StyleSheet.absoluteFillObject, {borderRadius: 10}]}
-                            >
-                                {
-                                    displayMapMarkersWithinMap()
-                                }
-                            </MapView>
+                            {
+                                !showClickOnlyBottomSheet && Platform.OS === 'android' &&
+                                <View style={{overflow: 'hidden', borderRadius: 10}}>
+                                    <MapView
+                                        onPress={() => {
+                                            setToggleViewPressed('map');
+                                        }}
+                                        initialRegion={currentMapRegion}
+                                        clusteringEnabled={true}
+                                        clusterColor={'#313030'}
+                                        clusterFontFamily={'Raleway-Medium'}
+                                        clusterTextColor={'#F2FF5D'}
+                                        provider={PROVIDER_GOOGLE}
+                                        userInterfaceStyle={'light'}
+                                        ref={mapViewRef}
+                                        userLocationCalloutEnabled={true}
+                                        showsUserLocation={true}
+                                        zoomControlEnabled={false}
+                                        pitchEnabled={false}
+                                        rotateEnabled={false}
+                                        scrollEnabled={false}
+                                        zoomEnabled={false}
+                                        style={[
+                                            {height: '100%', width: '100%'},
+                                            {borderRadius: 10}]}
+                                    >
+                                        {
+                                            displayMapMarkersWithinMap()
+                                        }
+                                    </MapView>
+                                </View>
+                            }
+                            {
+                                !showClickOnlyBottomSheet && Platform.OS !== 'android' &&
+                                <MapView
+                                    onPress={() => {
+                                        setToggleViewPressed('map');
+                                    }}
+                                    initialRegion={currentMapRegion}
+                                    clusteringEnabled={true}
+                                    clusterColor={'#313030'}
+                                    clusterFontFamily={'Raleway-Medium'}
+                                    clusterTextColor={'#F2FF5D'}
+                                    provider={PROVIDER_GOOGLE}
+                                    userInterfaceStyle={'light'}
+                                    ref={mapViewRef}
+                                    userLocationCalloutEnabled={true}
+                                    showsUserLocation={true}
+                                    zoomControlEnabled={false}
+                                    pitchEnabled={false}
+                                    rotateEnabled={false}
+                                    scrollEnabled={false}
+                                    zoomEnabled={false}
+                                    style={[
+                                        StyleSheet.absoluteFillObject,
+                                        {borderRadius: 10}]}
+                                >
+                                    {
+                                        displayMapMarkersWithinMap()
+                                    }
+                                </MapView>
+                            }
                         </Portal.Host>
                     </View>
                 }

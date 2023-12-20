@@ -281,19 +281,17 @@ export const FullScreenMapKitSection = (props: {
                                 cachePolicy={'memory-disk'}
                             >
                                 <View style={{flexDirection: 'row', width: wp(25)}}>
-                                    <View style={styles.toolTipImageDetailBackground}>
-                                        <Image
-                                            style={styles.toolTipImageDetail}
-                                            source={{
-                                                uri: uniqueNearbyOffersListForFullScreenMap[i].brandLogoSm!
-                                            }}
-                                            placeholder={MoonbeamPlaceholderImage}
-                                            placeholderContentFit={'contain'}
-                                            contentFit={'contain'}
-                                            transition={1000}
-                                            cachePolicy={'memory-disk'}
-                                        />
-                                    </View>
+                                    <Image
+                                        style={styles.toolTipImageDetail}
+                                        source={{
+                                            uri: uniqueNearbyOffersListForFullScreenMap[i].brandLogoSm!
+                                        }}
+                                        placeholder={MoonbeamPlaceholderImage}
+                                        placeholderContentFit={'contain'}
+                                        contentFit={'contain'}
+                                        transition={1000}
+                                        cachePolicy={'memory-disk'}
+                                    />
                                     <Text style={styles.toolTipImagePrice}>
                                         {uniqueNearbyOffersListForFullScreenMap[i]!.reward!.type! === RewardType.RewardPercent
                                             ? `${uniqueNearbyOffersListForFullScreenMap[i]!.reward!.value}%`
@@ -477,10 +475,10 @@ export const FullScreenMapKitSection = (props: {
                                                 }
                                             }
                                         })}
-                                        style={[StyleSheet.absoluteFillObject, {
-                                            borderRadius: 0,
-                                            backgroundColor: '#313030'
-                                        }]}
+                                        style={[
+                                            Platform.OS !== 'android' && StyleSheet.absoluteFillObject,
+                                            Platform.OS === 'android' && {height: '100%', width: '100%'},
+                                            {borderRadius: 0, backgroundColor: '#313030'}]}
                                     >
                                         {
                                             displayMapMarkersWithinMap()

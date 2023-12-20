@@ -35,13 +35,11 @@ export const styles = StyleSheet.create({
         justifyContent: 'space-between'
     },
     topTitle: {
-        left: wp(10),
+        left: wp(5),
         color: '#FFFFFF',
         fontFamily: 'Saira-Bold',
-        top: hp(0.5),
         fontSize: hp(2.5),
-        alignSelf: 'flex-end',
-        width: wp(80),
+        width: wp(60),
         textAlign: 'left'
     },
     brandLogoBackground: {
@@ -50,7 +48,7 @@ export const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
         width: wp(18),
         height: wp(18),
-        alignSelf: 'center',
+        alignSelf: 'flex-start',
         borderColor: 'transparent',
         borderWidth: hp(0.2),
         borderRadius: 70

@@ -9,6 +9,7 @@ import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-s
 import {Divider} from "@rneui/base";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
+import {widthPercentageToDP as wp} from "react-native-responsive-screen";
 
 
 /**
@@ -18,7 +19,8 @@ import {MarketplaceStackParamList} from "../../../../../../models/props/Marketpl
  * @constructor constructor for the component.
  */
 export const ClickOnlyOffersBottomSheet = (props: {
-    navigation: NativeStackNavigationProp<MarketplaceStackParamList, 'Store'>,
+    navigation: NativeStackNavigationProp<MarketplaceStackParamList, 'Store'> |
+        NativeStackNavigationProp<MarketplaceStackParamList, 'Kit'>,
 }) => {
     // constants used to keep track of local component state
 
@@ -54,12 +56,14 @@ export const ClickOnlyOffersBottomSheet = (props: {
                                    cachePolicy={'memory-disk'}
                             />
                         </View>
-                        <Text
-                            numberOfLines={2}
-                            style={styles.topTitle}>
-                            {/*@ts-ignore*/}
-                            {`How can I redeem this exclusive offer ?`}
-                        </Text>
+                        <View style={{width: wp(75), alignSelf: 'center'}}>
+                            <Text
+                                numberOfLines={2}
+                                style={styles.topTitle}>
+                                {/*@ts-ignore*/}
+                                {`How can I redeem this exclusive offer ?`}
+                            </Text>
+                        </View>
                     </View>
                     <View style={styles.contentView}>
                         <Text

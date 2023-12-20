@@ -259,7 +259,7 @@ const uniqueClickOnlyOnlineOffersListState = selector<Offer[]>({
         if (clickOnlyOnlineOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(clickOnlyOnlineOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -284,7 +284,7 @@ const uniqueOnlineOffersListState = selector<Offer[]>({
         if (onlineOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(onlineOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -309,7 +309,7 @@ const uniqueOnlineVeteransDayOffersListState = selector<Offer[]>({
         if (onlineOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offer are unique based on their id
             return [...new Map(onlineOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -334,7 +334,7 @@ const uniqueOnlineFoodOffersListState = selector<Offer[]>({
         if (onlineOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(onlineOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -359,7 +359,7 @@ const uniqueOnlineRetailOffersListState = selector<Offer[]>({
         if (onlineOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(onlineOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -384,7 +384,7 @@ const uniqueOnlineEntertainmentOffersListState = selector<Offer[]>({
         if (onlineOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(onlineOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -409,7 +409,7 @@ const uniqueOnlineElectronicsOffersListState = selector<Offer[]>({
         if (onlineOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(onlineOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -434,7 +434,7 @@ const uniqueOnlineHomeOffersListState = selector<Offer[]>({
         if (onlineOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(onlineOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -459,7 +459,7 @@ const uniqueOnlineHealthAndBeautyOffersListState = selector<Offer[]>({
         if (onlineOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(onlineOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -484,7 +484,7 @@ const uniqueOnlineOfficeAndBusinessOffersListState = selector<Offer[]>({
         if (onlineOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(onlineOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -509,7 +509,7 @@ const uniqueOnlineServicesAndSubscriptionsOffersListState = selector<Offer[]>({
         if (onlineOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(onlineOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -534,7 +534,7 @@ const uniqueNearbyOffersListState = selector<Offer[]>({
         if (nearbyOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(nearbyOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -559,7 +559,7 @@ const uniqueNearbyFoodOffersListState = selector<Offer[]>({
         if (nearbyOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(nearbyOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -584,7 +584,7 @@ const uniqueNearbyRetailOffersListState = selector<Offer[]>({
         if (nearbyOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(nearbyOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -609,7 +609,7 @@ const uniqueNearbyEntertainmentOffersListState = selector<Offer[]>({
         if (nearbyOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(nearbyOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -634,7 +634,7 @@ const uniqueNearbyElectronicsOffersListState = selector<Offer[]>({
         if (nearbyOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(nearbyOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -659,7 +659,7 @@ const uniqueNearbyHomeOffersListState = selector<Offer[]>({
         if (nearbyOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(nearbyOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -684,7 +684,7 @@ const uniqueNearbyHealthAndBeautyOffersListState = selector<Offer[]>({
         if (nearbyOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(nearbyOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -709,7 +709,7 @@ const uniqueNearbyOfficeAndBusinessOffersListState = selector<Offer[]>({
         if (nearbyOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(nearbyOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -734,7 +734,7 @@ const uniqueNearbyServicesAndSubscriptionsOffersListState = selector<Offer[]>({
         if (nearbyOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(nearbyOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -770,7 +770,7 @@ const uniqueNearbyOffersListForFullScreenMapState = selector<Offer[]>({
         if (nearbyOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(nearbyOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -788,7 +788,7 @@ const uniqueNearbyOffersListForMainHorizontalMapState = selector<Offer[]>({
         if (nearbyOfferList === null) {
             return [];
         } else {
-            // make sure that all transactions are unique based on their id
+            // make sure that all offers are unique based on their id
             return [...new Map(nearbyOfferList.map(offer =>
                 [offer.id, offer])).values()];
         }
@@ -1398,6 +1398,7 @@ const showClickOnlyBottomSheetState = atom<boolean>({
     key: 'showClickOnlyBottomSheetState',
     default: false
 });
+
 
 /**
  * Export all atoms and/or selectors

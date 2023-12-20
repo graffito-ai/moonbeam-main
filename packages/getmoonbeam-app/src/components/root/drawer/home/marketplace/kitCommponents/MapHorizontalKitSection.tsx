@@ -469,31 +469,65 @@ export const MapHorizontalKitSection = () => {
                                                  loadingSpinnerShown={loadingSpinnerShown}
                                                  setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                                     }
-                                    <MapView
-                                        onPress={() => {
-                                            setFullScreenKitMapActive(true);
-                                        }}
-                                        initialRegion={currentMapRegion}
-                                        clusteringEnabled={true}
-                                        clusterColor={'#313030'}
-                                        clusterFontFamily={'Raleway-Medium'}
-                                        clusterTextColor={'#F2FF5D'}
-                                        provider={PROVIDER_GOOGLE}
-                                        userInterfaceStyle={'light'}
-                                        ref={mapViewRef}
-                                        userLocationCalloutEnabled={true}
-                                        showsUserLocation={true}
-                                        zoomControlEnabled={false}
-                                        pitchEnabled={false}
-                                        rotateEnabled={false}
-                                        scrollEnabled={false}
-                                        zoomEnabled={false}
-                                        style={[StyleSheet.absoluteFillObject, {borderRadius: 10}]}
-                                    >
-                                        {
-                                            displayMapMarkersWithinMap()
-                                        }
-                                    </MapView>
+                                    {
+                                        Platform.OS === 'android' ?
+                                            <View style={{overflow: 'hidden', borderRadius: 10}}>
+                                                <MapView
+                                                    onPress={() => {
+                                                        setFullScreenKitMapActive(true);
+                                                    }}
+                                                    initialRegion={currentMapRegion}
+                                                    clusteringEnabled={true}
+                                                    clusterColor={'#313030'}
+                                                    clusterFontFamily={'Raleway-Medium'}
+                                                    clusterTextColor={'#F2FF5D'}
+                                                    provider={PROVIDER_GOOGLE}
+                                                    userInterfaceStyle={'light'}
+                                                    ref={mapViewRef}
+                                                    userLocationCalloutEnabled={true}
+                                                    showsUserLocation={true}
+                                                    zoomControlEnabled={false}
+                                                    pitchEnabled={false}
+                                                    rotateEnabled={false}
+                                                    scrollEnabled={false}
+                                                    zoomEnabled={false}
+                                                    style={[
+                                                        {height: '100%', width: '100%'},
+                                                        {borderRadius: 10}]}
+                                                >
+                                                    {
+                                                        displayMapMarkersWithinMap()
+                                                    }
+                                                </MapView>
+                                            </View> :
+                                            <MapView
+                                                onPress={() => {
+                                                    setFullScreenKitMapActive(true);
+                                                }}
+                                                initialRegion={currentMapRegion}
+                                                clusteringEnabled={true}
+                                                clusterColor={'#313030'}
+                                                clusterFontFamily={'Raleway-Medium'}
+                                                clusterTextColor={'#F2FF5D'}
+                                                provider={PROVIDER_GOOGLE}
+                                                userInterfaceStyle={'light'}
+                                                ref={mapViewRef}
+                                                userLocationCalloutEnabled={true}
+                                                showsUserLocation={true}
+                                                zoomControlEnabled={false}
+                                                pitchEnabled={false}
+                                                rotateEnabled={false}
+                                                scrollEnabled={false}
+                                                zoomEnabled={false}
+                                                style={[
+                                                    StyleSheet.absoluteFillObject,
+                                                    {borderRadius: 10}]}
+                                            >
+                                                {
+                                                    displayMapMarkersWithinMap()
+                                                }
+                                            </MapView>
+                                    }
                                 </Portal.Host>
                             </View>
                         </View>

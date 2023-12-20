@@ -368,7 +368,7 @@ export const styles = StyleSheet.create({
     transactionAmountsView: {
         flexDirection: 'column',
         justifyContent: 'flex-end',
-        right: wp(15),
+        right: wp(17),
     },
     brandDetailsView: {
         flexDirection: 'column',
@@ -383,31 +383,32 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF'
     },
     transactionStatusLabel: {
-        fontSize: hp(2.3),
+        fontSize: hp(1.8),
         fontFamily: 'Changa-Medium',
-        color: '#F2FF5D'
+        color: '#F2FF5D',
     },
     transactionPrice: {
         alignSelf: 'flex-start',
         fontFamily: 'Raleway-ExtraBold',
-        fontSize: hp(2),
+        fontSize: hp(1.75),
+        bottom: hp(1.5),
         textAlign: 'justify',
-        color: '#F2FF5D'
+        color: '#F2FF5D',
     },
     transactionTimestamp: {
         alignSelf: 'flex-start',
-        fontSize: hp(2),
+        fontSize: hp(1.7),
         fontFamily: 'Changa-Light',
         textAlign: 'justify',
-        lineHeight: hp(2.5),
-        color: '#FFFFFF'
+        color: '#FFFFFF',
+        bottom: hp(1)
     },
     transactionAddress: {
         alignSelf: 'flex-start',
         fontSize: hp(1.8),
         fontFamily: 'Changa-Light',
-        lineHeight: hp(2.5),
-        color: '#FFFFFF'
+        color: '#FFFFFF',
+        bottom: hp(1)
     },
     transactionDiscountAmount: {
         alignSelf: 'flex-start',

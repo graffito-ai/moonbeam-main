@@ -102,7 +102,7 @@ export const VerticalOffers = (props: {
                 setNearbyDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedNearbyOfferList));
                 setVerticalListLoading(false);
             } else if (whichVerticalSectionActive === 'click-only-online') {
-                setNearbyDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedClickOnlyOnlineOfferList));
+                setClickOnlyOnlineDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedClickOnlyOnlineOfferList));
                 setVerticalListLoading(false);
             }
             // setTimeout(() => {

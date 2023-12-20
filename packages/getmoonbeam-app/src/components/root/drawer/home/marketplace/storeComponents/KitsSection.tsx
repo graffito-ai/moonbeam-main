@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo, useState} from "react";
 import {styles} from "../../../../../../styles/store.module";
-import {View} from "react-native";
+import {Platform, View} from "react-native";
 import {Card, Text} from "react-native-paper";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
@@ -199,8 +199,8 @@ export const KitsSection = (props: {
     // return the component for the KitsSection page
     return (
         <>
-            <View style={styles.kitsView}>
-                <Text style={styles.kitsTitleMain}>
+            <View style={[styles.kitsView, Platform.OS === 'android' && {top: hp(5), marginBottom: hp(7)}]}>
+                <Text style={[styles.kitsTitleMain, Platform.OS === 'android' && {marginBottom: hp(2)}]}>
                     <Text style={styles.kitsTitle}>
                         {"Shop by Category"}
                     </Text>️

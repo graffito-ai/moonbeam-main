@@ -8,6 +8,8 @@ export const PremierClickOnlineOfferOrder: string[] = [
     'Nike',
     'Costco',
     'Costco Wholesale',
+    'Walmart',
+    'Target',
     'Kroger',
     'Sam\'s Club',
     'CVS',

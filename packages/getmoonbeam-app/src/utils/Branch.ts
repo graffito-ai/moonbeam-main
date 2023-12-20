@@ -5,7 +5,6 @@ import {AppOwnership} from "expo-constants/src/Constants.types";
  * Expo Go), for easier testing purposes.
  */
 const isRunningInExpoGo = Constants.appOwnership === AppOwnership.Expo;
-const branch = !isRunningInExpoGo ? require('react-native-branch') : null;
 import {Platform} from "react-native";
 
 /**
@@ -20,13 +19,20 @@ import {Platform} from "react-native";
  * @returns {@link Object} representing the new Branch Universal Object
  */
 export const branchInitUniversalObject = async (identifier: string, title: string, description: string, metadata?: Object): Promise<Object> => {
-    return await branch.createBranchUniversalObject(identifier, {
-        title: title,
-        contentDescription: description,
-        ...(metadata !== null && metadata !== undefined && {
-            contentMetadata: metadata
-        })
-    });
+    // if the app is not running in Expo Go
+    if (!isRunningInExpoGo) {
+        // import branch
+        const branch = await import('react-native-branch');
+        return await branch.default.createBranchUniversalObject(identifier, {
+            title: title,
+            contentDescription: description,
+            ...(metadata !== null && metadata !== undefined && {
+                contentMetadata: metadata
+            })
+        });
+    } else {
+        return {};
+    }
 }
 
 /**
@@ -39,12 +45,15 @@ export const branchInitUniversalObject = async (identifier: string, title: strin
  */
 export const initializeBranch = async (userInformation: any): Promise<Object | null> => {
     try {
-        // if app is not running in Expo Go
-        if (branch !== null) {
-            // sets the identity of the logged-in user
-            await branch.setIdentity(`${userInformation['custom:userId']}`);
+        // if the app is not running in Expo Go
+        if (!isRunningInExpoGo) {
+            // import branch
+            const branch = await import('react-native-branch');
 
-            return await branch.createBranchUniversalObject(`moonbeam-root`, {
+            // sets the identity of the logged-in user
+            await branch.default.setIdentity(`${userInformation['custom:userId']}`);
+
+            return await branch.default.createBranchUniversalObject(`moonbeam-root`, {
                 title: `Moonbeam | Military Discounts Platform`,
                 contentDescription: `The first automatic military discounts platform.`
             });

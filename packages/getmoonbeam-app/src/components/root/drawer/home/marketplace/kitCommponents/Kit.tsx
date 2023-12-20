@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {KitProps} from "../../../../../../models/props/MarketplaceProps";
 import {useRecoilState} from "recoil";
 import {bottomTabShownState} from "../../../../../../recoil/HomeAtom";
@@ -86,10 +86,10 @@ import {
     onlineServicesAndSubscriptionsCategorizedOfferListState,
     onlineServicesAndSubscriptionsCategorizedOffersPageNumberState,
     onlineVeteransDayCategorizedOfferListState,
-    onlineVeteransDayCategorizedOffersPageNumberState,
+    onlineVeteransDayCategorizedOffersPageNumberState, showClickOnlyBottomSheetState,
     storeNavigationState
 } from "../../../../../../recoil/StoreOfferAtom";
-import {View} from "react-native";
+import {TouchableOpacity, View} from "react-native";
 import {styles} from '../../../../../../styles/kit.module';
 import {OnlineKitSection} from "./OnlineKitSection";
 import {Portal} from 'react-native-paper';
@@ -101,6 +101,9 @@ import {Spinner} from "../../../../../common/Spinner";
 import {retrieveCategorizedOffersNearby, retrieveCategorizedOnlineOffersList} from "../../../../../../utils/AppSync";
 import {currentUserInformation} from "../../../../../../recoil/AuthAtom";
 import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
+import BottomSheet from "@gorhom/bottom-sheet";
+import {heightPercentageToDP as hp} from "react-native-responsive-screen";
+import {ClickOnlyOffersBottomSheet} from "../storeComponents/ClickOnlyOffersBottomSheet";
 
 /**
  * Kit component.
@@ -112,7 +115,9 @@ export const Kit = ({navigation}: KitProps) => {
     // constants used to keep track of local component state
     const [isReady, setIsReady] = useState<boolean>(false);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
+    const bottomSheetRef = useRef(null);
     // constants used to keep track of shared states
+    const [showClickOnlyBottomSheet, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
     const [currentActiveKit,] = useRecoilState(currentActiveKitState);
     const [onlineKitListExpanded,] = useRecoilState(onlineKitListIsExpandedState);
     const [nearbyKitListExpanded,] = useRecoilState(nearbyKitListIsExpandedState);
@@ -240,6 +245,16 @@ export const Kit = ({navigation}: KitProps) => {
             loadActiveKit().then(() => {
             });
         }
+
+        // manipulate the bottom sheet
+        if (!showClickOnlyBottomSheet && bottomSheetRef) {
+            // @ts-ignore
+            bottomSheetRef.current?.close?.();
+        }
+        if (showClickOnlyBottomSheet && bottomSheetRef) {
+            // @ts-ignore
+            bottomSheetRef.current?.expand?.();
+        }
     }, [
         currentActiveKit,
 
@@ -268,7 +283,9 @@ export const Kit = ({navigation}: KitProps) => {
 
         noOnlineVeteransDayCategorizedOffersToLoad, noOnlineFoodCategorizedOffersToLoad, noOnlineRetailCategorizedOffersToLoad,
         noOnlineEntertainmentCategorizedOffersToLoad, noOnlineElectronicsCategorizedOffersToLoad, noOnlineHealthAndBeautyCategorizedOffersToLoad,
-        noOnlineOfficeAndBusinessCategorizedOffersToLoad, noOnlineServicesAndSubscriptionsCategorizedOffersToLoad
+        noOnlineOfficeAndBusinessCategorizedOffersToLoad, noOnlineServicesAndSubscriptionsCategorizedOffersToLoad,
+
+        showClickOnlyBottomSheet, bottomSheetRef
     ]);
 
     /**
@@ -889,34 +906,71 @@ export const Kit = ({navigation}: KitProps) => {
                              setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                     :
                     <Portal.Host>
-                        {
-                            fullScreenKitMapActive ? <FullScreenMapKitSection navigation={navigation}/>
-                                :
-                                <>
-                                    {
-                                        !nearbyKitListExpanded && onlineKitListExpanded &&
-                                        <OnlineKitSection navigation={navigation}/>
-
-                                    }
-                                    {
-                                        !nearbyKitListExpanded && !onlineKitListExpanded &&
+                        <TouchableOpacity
+                            style={{flex: 1, flexGrow: 1}}
+                            activeOpacity={1}
+                            disabled={!showClickOnlyBottomSheet}
+                            onPress={() => setShowClickOnlyBottomSheet(false)}
+                        >
+                            <View {...showClickOnlyBottomSheet && {pointerEvents: "none"}}
+                                  {...showClickOnlyBottomSheet ? {
+                                      style: {
+                                          backgroundColor: 'transparent',
+                                          opacity: 0.3,
+                                          height: '100%',
+                                          width: '100%'
+                                      }
+                                  } : {style: {flex: 1}}}>
+                                {
+                                    fullScreenKitMapActive ? <FullScreenMapKitSection navigation={navigation}/>
+                                        :
                                         <>
-                                            <OnlineKitSection navigation={navigation}/>
                                             {
-                                                currentActiveKit !== null && currentActiveKit !== OfferCategory.VeteranDay &&
+                                                !nearbyKitListExpanded && onlineKitListExpanded &&
+                                                <OnlineKitSection navigation={navigation}/>
+
+                                            }
+                                            {
+                                                !nearbyKitListExpanded && !onlineKitListExpanded &&
                                                 <>
-                                                    <MapHorizontalKitSection/>
-                                                    <NearbyKitSection navigation={navigation}/>
+                                                    <OnlineKitSection navigation={navigation}/>
+                                                    {
+                                                        currentActiveKit !== null && currentActiveKit !== OfferCategory.VeteranDay &&
+                                                        <>
+                                                            <MapHorizontalKitSection/>
+                                                            <NearbyKitSection navigation={navigation}/>
+                                                        </>
+                                                    }
                                                 </>
+
+                                            }
+                                            {
+                                                !onlineKitListExpanded && nearbyKitListExpanded && currentActiveKit !== null && currentActiveKit !== OfferCategory.VeteranDay &&
+                                                <NearbyKitSection navigation={navigation}/>
                                             }
                                         </>
-
-                                    }
-                                    {
-                                        !onlineKitListExpanded && nearbyKitListExpanded && currentActiveKit !== null && currentActiveKit !== OfferCategory.VeteranDay &&
-                                        <NearbyKitSection navigation={navigation}/>
-                                    }
-                                </>
+                                }
+                            </View>
+                        </TouchableOpacity>
+                        {
+                            showClickOnlyBottomSheet &&
+                            <BottomSheet
+                                handleIndicatorStyle={{backgroundColor: '#F2FF5D'}}
+                                ref={bottomSheetRef}
+                                backgroundStyle={{backgroundColor: '#5B5A5A'}}
+                                enablePanDownToClose={true}
+                                index={showClickOnlyBottomSheet ? 0 : -1}
+                                snapPoints={[hp(55), hp(55)]}
+                                onChange={(index) => {
+                                    setShowClickOnlyBottomSheet(index !== -1);
+                                }}
+                            >
+                                {
+                                    <ClickOnlyOffersBottomSheet
+                                        navigation={navigation}
+                                    />
+                                }
+                            </BottomSheet>
                         }
                     </Portal.Host>
             }

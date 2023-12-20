@@ -37,7 +37,7 @@ import {
     onlineServicesAndSubscriptionsCategorizedOfferListState,
     onlineServicesAndSubscriptionsCategorizedOffersPageNumberState,
     onlineVeteransDayCategorizedOfferListState,
-    onlineVeteransDayCategorizedOffersPageNumberState,
+    onlineVeteransDayCategorizedOffersPageNumberState, showClickOnlyBottomSheetState,
     storeOfferState,
     uniqueOnlineElectronicsOffersListState,
     uniqueOnlineEntertainmentOffersListState,
@@ -51,7 +51,7 @@ import {
 } from "../../../../../../recoil/StoreOfferAtom";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
-import {Offer, OfferCategory, RewardType} from '@moonbeam/moonbeam-models';
+import {Offer, OfferCategory, RedemptionType, RewardType} from '@moonbeam/moonbeam-models';
 import {Image} from "expo-image";
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
@@ -80,8 +80,8 @@ export const OnlineKitSection = (props: {
     const [onlineOffersSpinnerShown, setOnlineOffersSpinnerShown] = useState<boolean>(false);
     const [dataProvider, setDataProvider] = useState<DataProvider | null>(null);
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
-
     // constants used to keep track of shared states
+    const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
     const [onlineKitListExpanded, setIsOnlineKitListExpanded] = useRecoilState(onlineKitListIsExpandedState);
     const [nearbyKitListExpanded, setNearbyKitListExpanded] = useRecoilState(nearbyKitListIsExpandedState);
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
@@ -255,11 +255,19 @@ export const OnlineKitSection = (props: {
                                               // set the clicked offer/partner accordingly
                                               if (currentActiveKit === OfferCategory.VeteranDay) {
                                                   setStoreOfferClicked(fidelisPartnerList.filter(fidelisPartner => fidelisPartner.brandName === data.brandDba)[0]);
+                                                  // @ts-ignore
+                                                  props.navigation.navigate('StoreOffer', {});
                                               } else {
-                                                  setStoreOfferClicked(data);
+                                                  // for click-only offers do not navigate anywhere, just open the bottom sheet
+                                                  if (data.redemptionType === RedemptionType.Click) {
+                                                      setStoreOfferClicked(data);
+                                                      setShowClickOnlyBottomSheet(true);
+                                                  } else {
+                                                      setStoreOfferClicked(data);
+                                                      // @ts-ignore
+                                                      props.navigation.navigate('StoreOffer', {});
+                                                  }
                                               }
-                                              // @ts-ignore
-                                              props.navigation.navigate('StoreOffer', {});
                                           }}>
                                         <Card.Content>
                                             <List.Icon color={'#F2FF5D'}
@@ -273,8 +281,8 @@ export const OnlineKitSection = (props: {
                                                             uri: data.brandLogoSm!,
                                                         }}
                                                         placeholder={MoonbeamPlaceholderImage}
-                                                        placeholderContentFit={'fill'}
-                                                        contentFit={'fill'}
+                                                        placeholderContentFit={'contain'}
+                                                        contentFit={'contain'}
                                                         transition={1000}
                                                         cachePolicy={'none'}
                                                     />
@@ -307,11 +315,19 @@ export const OnlineKitSection = (props: {
                                     // set the clicked offer/partner accordingly
                                     if (currentActiveKit === OfferCategory.VeteranDay) {
                                         setStoreOfferClicked(fidelisPartnerList.filter(fidelisPartner => fidelisPartner.brandName === data.brandDba)[0]);
+                                        // @ts-ignore
+                                        props.navigation.navigate('StoreOffer', {});
                                     } else {
-                                        setStoreOfferClicked(data);
+                                        // for click-only offers do not navigate anywhere, just open the bottom sheet
+                                        if (data.redemptionType === RedemptionType.Click) {
+                                            setStoreOfferClicked(data);
+                                            setShowClickOnlyBottomSheet(true);
+                                        } else {
+                                            setStoreOfferClicked(data);
+                                            // @ts-ignore
+                                            props.navigation.navigate('StoreOffer', {});
+                                        }
                                     }
-                                    // @ts-ignore
-                                    props.navigation.navigate('StoreOffer', {});
                                 }}>
                                 <Card.Content>
                                     <List.Icon color={'#F2FF5D'}
@@ -325,8 +341,8 @@ export const OnlineKitSection = (props: {
                                                     uri: data.brandLogoSm!,
                                                 }}
                                                 placeholder={MoonbeamPlaceholderImage}
-                                                placeholderContentFit={'fill'}
-                                                contentFit={'fill'}
+                                                placeholderContentFit={'contain'}
+                                                contentFit={'contain'}
                                                 transition={1000}
                                                 cachePolicy={'none'}
                                             />

@@ -129,7 +129,7 @@ export const Store = ({navigation}: StoreProps) => {
                 const fidelisPartners: FidelisPartner[] = responseData.getFidelisPartners.data;
 
                 // ensure that there is at least one featured partner in the list
-                if (fidelisPartners.length > 0) {
+                if (fidelisPartners !== undefined && fidelisPartners !== null && fidelisPartners.length > 0) {
                     // const fidelisPartnersSorted = fidelisPartners.sort(dynamicSort("brandName"));
                     setFidelisPartnerList(fidelisPartners);
 
@@ -165,7 +165,7 @@ export const Store = ({navigation}: StoreProps) => {
                     countryCode: CountryCode.Us,
                     filterType: OfferFilter.Online,
                     offerStates: [OfferState.Active, OfferState.Scheduled],
-                    pageNumber: onlineOffersPageNumber,
+                    pageNumber: clickOnlyOnlineOffersPageNumber,
                     pageSize: 15, // load 15 offers
                     redemptionType: RedemptionType.Click
                 }
@@ -358,7 +358,7 @@ export const Store = ({navigation}: StoreProps) => {
                             setNearbyOffersPageNumber(nearbyOffersPageNumber + 1);
 
                             // push any old offers into the list to return
-                            setOnlineOfferList(oldNearbyOfferList => {
+                            setNearbyOfferList(oldNearbyOfferList => {
                                 return [...oldNearbyOfferList, ...nearbyOffers];
                             });
 
@@ -507,9 +507,12 @@ export const Store = ({navigation}: StoreProps) => {
     /**
      * Function used to return the contents of the store (vertical, horizontal), memoized.
      *
+     * @param withoutMapRender in case of Android the map feature for when the bottom sheet shows
+     * up does not load properly, therefore we will not render it.
+     *
      * @returns a {@link JSX.Element[]} representing the store contents to display
      */
-    const retrieveStoreContents = (): JSX.Element[] => {
+    const retrieveStoreContents = (withoutMapRender: boolean): JSX.Element[] => {
         const storeComponents: JSX.Element[] = [];
         storeComponents.push(
             <>
@@ -535,16 +538,19 @@ export const Store = ({navigation}: StoreProps) => {
                                         navigation={navigation}
                                         areNearbyOffersReady={areNearbyOffersReady}
                                     />
-                                    <NearbySection
-                                        navigation={navigation}
-                                        offersNearUserLocationFlag={offersNearUserLocationFlag}
-                                        retrieveNearbyOffersList={retrieveNearbyOffersList}
-                                        retrieveOffersNearLocation={retrieveOffersNearLocation}
-                                        areNearbyOffersReady={areNearbyOffersReady}
-                                        setPermissionsInstructionsCustomMessage={setPermissionsInstructionsCustomMessage}
-                                        setPermissionsModalCustomMessage={setPermissionsModalCustomMessage}
-                                        setPermissionsModalVisible={setPermissionsModalVisible}
-                                    />
+                                    {
+                                        !withoutMapRender &&
+                                        <NearbySection
+                                            navigation={navigation}
+                                            offersNearUserLocationFlag={offersNearUserLocationFlag}
+                                            retrieveNearbyOffersList={retrieveNearbyOffersList}
+                                            retrieveOffersNearLocation={retrieveOffersNearLocation}
+                                            areNearbyOffersReady={areNearbyOffersReady}
+                                            setPermissionsInstructionsCustomMessage={setPermissionsInstructionsCustomMessage}
+                                            setPermissionsModalCustomMessage={setPermissionsModalCustomMessage}
+                                            setPermissionsModalVisible={setPermissionsModalVisible}
+                                        />
+                                    }
                                     <OnlineSection
                                         navigation={navigation}
                                         retrieveOnlineOffersList={retrieveOnlineOffersList}
@@ -574,9 +580,12 @@ export const Store = ({navigation}: StoreProps) => {
                             </Portal.Host>
                             :
                             <Portal.Host>
-                                <FullScreenMap
-                                    navigation={navigation}
-                                />
+                                {
+                                    !withoutMapRender &&
+                                    <FullScreenMap
+                                        navigation={navigation}
+                                    />
+                                }
                             </Portal.Host>
                 }
             </>
@@ -629,7 +638,7 @@ export const Store = ({navigation}: StoreProps) => {
             // release the loader on button press
             !isReady && setIsReady(true);
         }
-    }, [fidelisPartnerList, onlineOfferList, marketplaceCache,
+    }, [fidelisPartnerList, onlineOfferList, clickOnlyOnlineOfferList, marketplaceCache,
         showClickOnlyBottomSheet, bottomSheetRef, navigation.getState()]);
 
     // return the component for the Store page
@@ -755,10 +764,10 @@ export const Store = ({navigation}: StoreProps) => {
                                               {...showClickOnlyBottomSheet ? {
                                                   style: {backgroundColor: 'transparent', opacity: 0.3, height: '100%', width: '100%'}
                                               } : {style: {display: 'none'}}}>
-                                            {retrieveStoreContents()}
+                                            {retrieveStoreContents(true)}
                                         </View>
                                     }
-                                    {retrieveStoreContents()}
+                                    {retrieveStoreContents(false)}
                                 </TouchableOpacity>
                             </View>
                             {

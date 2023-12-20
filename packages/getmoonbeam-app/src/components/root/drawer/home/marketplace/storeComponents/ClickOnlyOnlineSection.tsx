@@ -207,7 +207,7 @@ export const ClickOnlyOnlineSection = (props: {
                                 scrollViewProps={{
                                     pagingEnabled: "true",
                                     decelerationRate: "fast",
-                                    snapToInterval: wp(33),
+                                    snapToInterval: Platform.OS === 'android' ?  wp(33) * 3 : wp(33),
                                     snapToAlignment: "center",
                                     persistentScrollbar: false,
                                     showsHorizontalScrollIndicator: false

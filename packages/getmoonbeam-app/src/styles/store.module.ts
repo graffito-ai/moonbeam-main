@@ -50,7 +50,8 @@ export const styles = StyleSheet.create({
     },
     verticalSectionActiveChip: {
         marginRight: wp(3),
-        borderColor: 'transparent'
+        borderColor: 'transparent',
+        marginTop: hp(1)
     },
     verticalSectionActiveChipText: {
         alignSelf: 'center',
@@ -61,7 +62,7 @@ export const styles = StyleSheet.create({
     filterChipView: {
         left: wp(4),
         alignSelf: 'flex-start',
-        marginTop: hp(1.5),
+        marginTop: hp(0.5),
         width: wp(100),
         flexDirection: 'row',
         flexWrap: 'wrap'
@@ -106,11 +107,10 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         alignSelf: 'center'
     },
-
-    toolTipImageDetailBackground: {
+    toolTipFullScreenImageDetailBackground: {
         backgroundColor: '#FFFFFF',
-        height: hp(3.75),
-        width: hp(3.95),
+        height: hp(3),
+        width: hp(3),
         alignSelf: 'flex-start',
         borderColor: 'transparent',
         bottom: hp(0.75),

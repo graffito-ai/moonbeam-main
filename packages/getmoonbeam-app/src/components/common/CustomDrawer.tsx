@@ -262,7 +262,6 @@ import {AppOwnership} from "expo-constants/src/Constants.types";
  * Expo Go), for easier testing purposes.
  */
 const isRunningInExpoGo = Constants.appOwnership === AppOwnership.Expo;
-const branch = !isRunningInExpoGo ? require('react-native-branch') : null;
 
 /**
  * CustomDrawer component. This component will be used to further tailor our sidebar navigation drawer, mainly
@@ -775,7 +774,13 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             numberOfFailedClickOnlyOnlineOfferCallsStateReset();
             showClickOnlyBottomSheetStateReset();
             cardLinkingIdStateReset();
-            branch !== null && branch.logout();
+            // if this is not running in Expo Go
+            if (!isRunningInExpoGo) {
+                // import branch
+                const branch = await import('react-native-branch');
+                // logout the user in branch
+                branch.default.logout();
+            }
 
             /**
              * ensure that the current user's biometric session is interrupted, and that the already signed in flag is reset

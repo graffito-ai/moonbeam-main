@@ -267,32 +267,32 @@ export const FullScreenMap = (props: {
                         // @ts-ignore
                         props.navigation.navigate('StoreOffer', {});
                     }}>
-                            <ImageBackground
-                                style={styles.toolTipMain}
-                                source={MoonbeamPinImage}
-                                contentFit={'contain'}
-                                cachePolicy={'memory-disk'}
-                            >
-                                <View style={{flexDirection: 'row', width: wp(25)}}>
-                                    <Image
-                                        style={styles.toolTipImageDetail}
-                                        source={{
-                                            uri: uniqueNearbyOffersListForFullScreenMap[i].brandLogoSm!
-                                        }}
-                                        placeholder={MoonbeamPlaceholderImage}
-                                        placeholderContentFit={'contain'}
-                                        contentFit={'contain'}
-                                        transition={1000}
-                                        cachePolicy={'memory-disk'}
-                                    />
-                                    <Text style={styles.toolTipImagePrice}>
-                                        {uniqueNearbyOffersListForFullScreenMap[i]!.reward!.type! === RewardType.RewardPercent
-                                            ? `${uniqueNearbyOffersListForFullScreenMap[i]!.reward!.value}%`
-                                            : `$${uniqueNearbyOffersListForFullScreenMap[i]!.reward!.value}`}
-                                        {" Off "}
-                                    </Text>
-                                </View>
-                            </ImageBackground>
+                        <ImageBackground
+                            style={styles.toolTipMain}
+                            source={MoonbeamPinImage}
+                            contentFit={'contain'}
+                            cachePolicy={'memory-disk'}
+                        >
+                            <View style={{flexDirection: 'row', width: wp(25)}}>
+                                <Image
+                                    style={styles.toolTipImageDetail}
+                                    source={{
+                                        uri: uniqueNearbyOffersListForFullScreenMap[i].brandLogoSm!
+                                    }}
+                                    placeholder={MoonbeamPlaceholderImage}
+                                    placeholderContentFit={'contain'}
+                                    contentFit={'contain'}
+                                    transition={1000}
+                                    cachePolicy={'memory-disk'}
+                                />
+                                <Text style={styles.toolTipImagePrice}>
+                                    {uniqueNearbyOffersListForFullScreenMap[i]!.reward!.type! === RewardType.RewardPercent
+                                        ? `${uniqueNearbyOffersListForFullScreenMap[i]!.reward!.value}%`
+                                        : `$${uniqueNearbyOffersListForFullScreenMap[i]!.reward!.value}`}
+                                    {" Off "}
+                                </Text>
+                            </View>
+                        </ImageBackground>
                     </TouchableOpacity>
                 </Marker>
             );
@@ -410,76 +410,149 @@ export const FullScreenMap = (props: {
                                                  loadingSpinnerShown={loadingSpinnerShown}
                                                  setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                                     }
-                                    <MapView
-                                        initialRegion={currentMapRegion}
-                                        animationEnabled={true}
-                                        clusteringEnabled={true}
-                                        clusterColor={'#313030'}
-                                        clusterFontFamily={'Raleway-Medium'}
-                                        clusterTextColor={'#F2FF5D'}
-                                        ref={mapViewRef}
-                                        provider={PROVIDER_GOOGLE}
-                                        userInterfaceStyle={'light'}
-                                        userLocationCalloutEnabled={true}
-                                        showsUserLocation={true}
-                                        zoomControlEnabled={true}
-                                        pitchEnabled={true}
-                                        zoomTapEnabled={true}
-                                        rotateEnabled={true}
-                                        toolbarEnabled={true}
-                                        showsScale={true}
-                                        showsBuildings={true}
-                                        showsIndoors={true}
-                                        showsMyLocationButton={!canSearchForAdditionalOffers}
-                                        onRegionChangeComplete={(async (region, _) => {
-                                            setCurrentMapRegion(region);
-                                            if (!regionChangedInitially) {
-                                                setRegionChangedInitially(true);
-                                            } else {
-                                                /**
-                                                 *  check to see if we already loaded offers for these coordinates. We load 1,000 offers within 20 km of a particular set of coordinates.
-                                                 *  Therefore, we calculate the distance between the current region's coordinates and the sets of coordinates for which we already loaded
-                                                 *  offers for, and if that distance exceeds that 20 km or 10 miles for all loaded coordinates, then we load new offers accordingly
-                                                 */
-                                                let toLoad = false;
-                                                let calculatedDistance = getDistance({
-                                                    latitude: region.latitude,
-                                                    longitude: region.longitude
-                                                }, {
-                                                    latitude: loadedCoordinates.latitude,
-                                                    longitude: loadedCoordinates.longitude
-                                                }, 1);
-                                                // the accuracy above is in meters, so we are calculating it up to miles where 1 mile = 1609.34 meters
-                                                calculatedDistance = Math.round((calculatedDistance / 1609.34) * 100) / 100;
+                                    {
+                                        Platform.OS === 'android' ?
+                                            <View style={{overflow: 'hidden', borderRadius: 30}}>
+                                                <MapView
+                                                    initialRegion={currentMapRegion}
+                                                    animationEnabled={true}
+                                                    clusteringEnabled={true}
+                                                    clusterColor={'#313030'}
+                                                    clusterFontFamily={'Raleway-Medium'}
+                                                    clusterTextColor={'#F2FF5D'}
+                                                    ref={mapViewRef}
+                                                    provider={PROVIDER_GOOGLE}
+                                                    userInterfaceStyle={'light'}
+                                                    userLocationCalloutEnabled={true}
+                                                    showsUserLocation={true}
+                                                    zoomControlEnabled={true}
+                                                    pitchEnabled={true}
+                                                    zoomTapEnabled={true}
+                                                    rotateEnabled={true}
+                                                    toolbarEnabled={true}
+                                                    showsScale={true}
+                                                    showsBuildings={true}
+                                                    showsIndoors={true}
+                                                    showsMyLocationButton={!canSearchForAdditionalOffers}
+                                                    onRegionChangeComplete={(async (region, _) => {
+                                                        setCurrentMapRegion(region);
+                                                        if (!regionChangedInitially) {
+                                                            setRegionChangedInitially(true);
+                                                        } else {
+                                                            /**
+                                                             *  check to see if we already loaded offers for these coordinates. We load 1,000 offers within 20 km of a particular set of coordinates.
+                                                             *  Therefore, we calculate the distance between the current region's coordinates and the sets of coordinates for which we already loaded
+                                                             *  offers for, and if that distance exceeds that 20 km or 10 miles for all loaded coordinates, then we load new offers accordingly
+                                                             */
+                                                            let toLoad = false;
+                                                            let calculatedDistance = getDistance({
+                                                                latitude: region.latitude,
+                                                                longitude: region.longitude
+                                                            }, {
+                                                                latitude: loadedCoordinates.latitude,
+                                                                longitude: loadedCoordinates.longitude
+                                                            }, 1);
+                                                            // the accuracy above is in meters, so we are calculating it up to miles where 1 mile = 1609.34 meters
+                                                            calculatedDistance = Math.round((calculatedDistance / 1609.34) * 100) / 100;
 
-                                                /**
-                                                 * Olive messes up the distances, so if we go more than 2.5 miles outside a known coordinate pair,
-                                                 * we need to search again (even though we did 20km/10miles before), because we only draw markers for a distance of approximately 10 miles.
-                                                 */
-                                                if (calculatedDistance >= 2.5) {
-                                                    toLoad = true;
-                                                }
-                                                if (calculatedDistance < 2.5) {
-                                                    toLoad = false;
-                                                }
+                                                            /**
+                                                             * Olive messes up the distances, so if we go more than 2.5 miles outside a known coordinate pair,
+                                                             * we need to search again (even though we did 20km/10miles before), because we only draw markers for a distance of approximately 10 miles.
+                                                             */
+                                                            if (calculatedDistance >= 2.5) {
+                                                                toLoad = true;
+                                                            }
+                                                            if (calculatedDistance < 2.5) {
+                                                                toLoad = false;
+                                                            }
 
-                                                // only animate and load more offers based on a user's adjusted position on the map, if this is not already in progress
-                                                if (!adjustedMapLoading && toLoad) {
-                                                    setCanSearchForAdditionalOffers(true);
-                                                } else {
-                                                    setCanSearchForAdditionalOffers(false);
+                                                            // only animate and load more offers based on a user's adjusted position on the map, if this is not already in progress
+                                                            if (!adjustedMapLoading && toLoad) {
+                                                                setCanSearchForAdditionalOffers(true);
+                                                            } else {
+                                                                setCanSearchForAdditionalOffers(false);
+                                                            }
+                                                        }
+                                                    })}
+                                                    style={[
+                                                        {height: '100%', width: '100%'},
+                                                        {borderRadius: 30, backgroundColor: '#313030'}]}
+                                                >
+                                                    {
+                                                        displayMapMarkersWithinMap()
+                                                    }
+                                                </MapView>
+                                            </View> :
+                                            <MapView
+                                                initialRegion={currentMapRegion}
+                                                animationEnabled={true}
+                                                clusteringEnabled={true}
+                                                clusterColor={'#313030'}
+                                                clusterFontFamily={'Raleway-Medium'}
+                                                clusterTextColor={'#F2FF5D'}
+                                                ref={mapViewRef}
+                                                provider={PROVIDER_GOOGLE}
+                                                userInterfaceStyle={'light'}
+                                                userLocationCalloutEnabled={true}
+                                                showsUserLocation={true}
+                                                zoomControlEnabled={true}
+                                                pitchEnabled={true}
+                                                zoomTapEnabled={true}
+                                                rotateEnabled={true}
+                                                toolbarEnabled={true}
+                                                showsScale={true}
+                                                showsBuildings={true}
+                                                showsIndoors={true}
+                                                showsMyLocationButton={!canSearchForAdditionalOffers}
+                                                onRegionChangeComplete={(async (region, _) => {
+                                                    setCurrentMapRegion(region);
+                                                    if (!regionChangedInitially) {
+                                                        setRegionChangedInitially(true);
+                                                    } else {
+                                                        /**
+                                                         *  check to see if we already loaded offers for these coordinates. We load 1,000 offers within 20 km of a particular set of coordinates.
+                                                         *  Therefore, we calculate the distance between the current region's coordinates and the sets of coordinates for which we already loaded
+                                                         *  offers for, and if that distance exceeds that 20 km or 10 miles for all loaded coordinates, then we load new offers accordingly
+                                                         */
+                                                        let toLoad = false;
+                                                        let calculatedDistance = getDistance({
+                                                            latitude: region.latitude,
+                                                            longitude: region.longitude
+                                                        }, {
+                                                            latitude: loadedCoordinates.latitude,
+                                                            longitude: loadedCoordinates.longitude
+                                                        }, 1);
+                                                        // the accuracy above is in meters, so we are calculating it up to miles where 1 mile = 1609.34 meters
+                                                        calculatedDistance = Math.round((calculatedDistance / 1609.34) * 100) / 100;
+
+                                                        /**
+                                                         * Olive messes up the distances, so if we go more than 2.5 miles outside a known coordinate pair,
+                                                         * we need to search again (even though we did 20km/10miles before), because we only draw markers for a distance of approximately 10 miles.
+                                                         */
+                                                        if (calculatedDistance >= 2.5) {
+                                                            toLoad = true;
+                                                        }
+                                                        if (calculatedDistance < 2.5) {
+                                                            toLoad = false;
+                                                        }
+
+                                                        // only animate and load more offers based on a user's adjusted position on the map, if this is not already in progress
+                                                        if (!adjustedMapLoading && toLoad) {
+                                                            setCanSearchForAdditionalOffers(true);
+                                                        } else {
+                                                            setCanSearchForAdditionalOffers(false);
+                                                        }
+                                                    }
+                                                })}
+                                                style={[
+                                                    StyleSheet.absoluteFillObject,
+                                                    {borderRadius: 30, backgroundColor: '#313030'}]}
+                                            >
+                                                {
+                                                    displayMapMarkersWithinMap()
                                                 }
-                                            }
-                                        })}
-                                        style={[StyleSheet.absoluteFillObject, {
-                                            borderRadius: 30,
-                                            backgroundColor: '#313030'
-                                        }]}
-                                    >
-                                        {
-                                            displayMapMarkersWithinMap()
-                                        }
-                                    </MapView>
+                                            </MapView>
+                                    }
                                     {
                                         canSearchForAdditionalOffers &&
                                         <TouchableOpacity

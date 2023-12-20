@@ -107,7 +107,7 @@ export const appUpgradeCheck = async (): Promise<void> => {
             const appInfo = {
                 appId: Platform.OS === 'android' ? 'com.moonbeam.moonbeamfin' : '6450375130', // The App ID from the Play Store or App Store
                 appName: 'Moonbeam Finance', // The App Name
-                appVersion: '0.0.11', // The targeted App Version to be updated
+                appVersion: '0.0.12', // The targeted App Version to be updated
                 platform: Platform.OS === 'android' ? 'android' : 'ios', // The App Platform
                 environment: envInfo.envName === Stages.DEV ? 'development' : 'production', // App Environment, production, development
                 appLanguage: 'en', // App Language ex: en, es, etc.
@@ -504,7 +504,7 @@ export const retrievePremierClickOnlyOnlineOffersList = async (numberOfFailedCal
                 filterType: OfferFilter.PremierOnline,
                 offerStates: [OfferState.Active, OfferState.Scheduled],
                 pageNumber: pageNumber !== undefined ? pageNumber : 1,
-                pageSize: 14, // load all the premier click-only online offers, so we can sort them appropriately
+                pageSize: 20, // load all the premier click-only online offers, so we can sort them appropriately
                 redemptionType: RedemptionType.Click
             }
         }));
@@ -607,8 +607,8 @@ export const retrievePremierOnlineOffersList = async (numberOfFailedCalls: numbe
 }
 
 /**
- * Function used to retrieve the list of categorized online offers that we will
- * use for caching purposes.
+ * Function used to retrieve the list of categorized online offers (including click-offers)
+ * that we will use for caching purposes.
  *
  * @param pageNumber optional parameter specifying a page number that we will get the online
  * from, in case we are not using this for caching purposes
@@ -637,7 +637,7 @@ export const retrieveCategorizedOnlineOffersList = async (totalNumberOfOffersAva
                     offerStates: [OfferState.Active, OfferState.Scheduled],
                     pageNumber: pageNumber !== undefined ? pageNumber : 1, // if no page number is passed in, revert to the first page number
                     pageSize: 15, // load 15 offers
-                    redemptionType: RedemptionType.Cardlinked,
+                    redemptionType: RedemptionType.All,
                     offerCategory: offerCategory
                 }
             }))
@@ -649,7 +649,7 @@ export const retrieveCategorizedOnlineOffersList = async (totalNumberOfOffersAva
                     offerStates: [OfferState.Active, OfferState.Scheduled],
                     pageNumber: pageNumber !== undefined ? pageNumber : 1, // if no page number is passed in, revert to the first page number
                     pageSize: 20, // load 15 offers
-                    redemptionType: RedemptionType.Cardlinked,
+                    redemptionType: RedemptionType.All,
                     offerSeasonalType: OfferSeasonalType.VeteransDay
                 }
             }));
@@ -863,7 +863,7 @@ export const retrieveFidelisPartnerList = async (): Promise<FidelisPartner[]> =>
             fidelisPartners = responseData.getFidelisPartners.data;
 
             // ensure that there is at least one featured partner in the list
-            if (fidelisPartners.length > 0) {
+            if (fidelisPartners !== undefined && fidelisPartners !== null && fidelisPartners.length > 0) {
                 return fidelisPartners.sort(dynamicSort("brandName"));
             } else {
                 console.log(`No Fidelis partners to display ${JSON.stringify(fidelisPartnersResult)}`);
