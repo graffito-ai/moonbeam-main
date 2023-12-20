@@ -1,5 +1,16 @@
 // This is a file used to define the all GraphQL query constants
 
+// Query used to retrieve a user's card linking ID obtained from an internal Moonbeam ID
+export const getUserCardLinkingId = /* GraphQL */ `
+    query GetUserCardLinkingId($getUserCardLinkingIdInput: GetUserCardLinkingIdInput!) {
+        getUserCardLinkingId(getUserCardLinkingIdInput: $getUserCardLinkingIdInput) {
+            errorMessage
+            errorType
+            data
+        }
+    }
+`;
+
 // Query used to retrieve a user's details from a referral code
 export const getUserFromReferral = /* GraphQL */ `
     query GetUserFromReferral($getUserFromRefferalInput: UserFromReferralInput!) {

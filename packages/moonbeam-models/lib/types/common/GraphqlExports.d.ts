@@ -372,6 +372,15 @@ export type GetTransactionInput = {
 export type GetUserAuthSessionInput = {
     id: Scalars['ID'];
 };
+export type GetUserCardLinkingIdInput = {
+    id: Scalars['ID'];
+};
+export type GetUserCardLinkingIdResponse = {
+    __typename?: 'GetUserCardLinkingIdResponse';
+    data?: Maybe<Scalars['ID']>;
+    errorMessage?: Maybe<Scalars['String']>;
+    errorType?: Maybe<CardLinkErrorType>;
+};
 export type IneligibleLinkedUsersResponse = {
     __typename?: 'IneligibleLinkedUsersResponse';
     data?: Maybe<Array<Maybe<RetrieveUserDetailsForNotifications>>>;
@@ -881,6 +890,7 @@ export type Query = {
     getTransaction: MoonbeamTransactionsResponse;
     getTransactionByStatus: MoonbeamTransactionsByStatusResponse;
     getUserAuthSession: UserAuthSessionResponse;
+    getUserCardLinkingId: GetUserCardLinkingIdResponse;
     getUserFromReferral: UserFromReferralResponse;
     getUsersWithNoCards: IneligibleLinkedUsersResponse;
 };
@@ -922,6 +932,9 @@ export type QueryGetTransactionByStatusArgs = {
 };
 export type QueryGetUserAuthSessionArgs = {
     getUserAuthSessionInput: GetUserAuthSessionInput;
+};
+export type QueryGetUserCardLinkingIdArgs = {
+    getUserCardLinkingIdInput: GetUserCardLinkingIdInput;
 };
 export type QueryGetUserFromReferralArgs = {
     userFromReferralInput: UserFromReferralInput;
@@ -1617,6 +1630,18 @@ export type UpdateMilitaryVerificationStatusMutation = {
         errorMessage?: string | null;
         id?: string | null;
         militaryVerificationStatus?: MilitaryVerificationStatusType | null;
+    };
+};
+export type GetUserCardLinkingIdQueryVariables = Exact<{
+    getUserCardLinkingIdInput: GetUserCardLinkingIdInput;
+}>;
+export type GetUserCardLinkingIdQuery = {
+    __typename?: 'Query';
+    getUserCardLinkingId: {
+        __typename?: 'GetUserCardLinkingIdResponse';
+        errorMessage?: string | null;
+        errorType?: CardLinkErrorType | null;
+        data?: string | null;
     };
 };
 export type GetUserFromReferralQueryVariables = Exact<{

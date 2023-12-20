@@ -1,5 +1,14 @@
 # graphql/Queries.graphql
 # Queries Schema File
+query GetUserCardLinkingId($getUserCardLinkingIdInput: GetUserCardLinkingIdInput!) {
+    getUserCardLinkingId(getUserCardLinkingIdInput: $getUserCardLinkingIdInput) {
+        errorMessage
+        errorType
+        data
+    }
+}
+
+
 query GetUserFromReferral($getUserFromRefferalInput: UserFromReferralInput!) {
     getUserFromReferral(userFromReferralInput: $getUserFromRefferalInput) {
         errorMessage

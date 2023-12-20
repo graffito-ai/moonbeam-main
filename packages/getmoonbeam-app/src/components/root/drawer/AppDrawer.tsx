@@ -6,7 +6,7 @@ import {CustomDrawer} from "../../common/CustomDrawer";
 import {Animated, Platform, Text, TouchableOpacity, View} from "react-native";
 import {useRecoilState} from "recoil";
 import {
-    appDrawerHeaderShownState,
+    appDrawerHeaderShownState, cardLinkingIdState,
     cardLinkingStatusState,
     customBannerShown,
     drawerDashboardState,
@@ -51,7 +51,7 @@ import {fetchFile} from "../../../utils/File";
 import {Documents} from './documents/Documents';
 import {DocumentsViewer} from "../../common/DocumentsViewer";
 import {Support} from "./support/Support";
-import {createPhysicalDevice, proceedWithDeviceCreation} from "../../../utils/AppSync";
+import {createPhysicalDevice, proceedWithDeviceCreation, retrieveCardLinkingId} from "../../../utils/AppSync";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {Referral} from "./home/referrals/Referral";
 import Constants from 'expo-constants';
@@ -76,6 +76,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         const [userVerified, setUserVerified] = useState<boolean>(false);
         const [cardLinkRetrieved, setCardLinkRetrieved] = useState<boolean>(false);
         const [profilePictureRetrieved, setProfilePictureRetrieved] = useState<boolean>(false);
+        const [cardLinkingIdRetrieved, setCardLinkingIdRetrieved] = useState<boolean>(false);
         const [militaryStatusRetrieved, setMilitaryStatusRetrieved] = useState<boolean>(false);
         const [transactionsRetrieved, setTransactionsRetrieved] = useState<boolean>(false);
         const [isLoaded, setIsLoaded] = useState<boolean>(false);
@@ -84,6 +85,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         const [expoPushToken,] = useRecoilState(expoPushTokenState);
         const [globalCache,] = useRecoilState(globalAmplifyCacheState);
         const [transactionData, setTransactionData] = useRecoilState(transactionDataState);
+        const [, setCardLinkingId] = useRecoilState(cardLinkingIdState);
         const [, setProfilePictureURI] = useRecoilState(profilePictureURIState);
         const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
         const [drawerHeaderShown,] = useRecoilState(appDrawerHeaderShownState);
@@ -111,25 +113,46 @@ export const AppDrawer = ({}: AppDrawerProps) => {
          * included in here.
          */
         useEffect(() => {
-            const loadProfilePicture = async () => {
-                /**
-                 * retrieve the user profile picture - attempt to retrieve it from cache first
-                 *
-                 * We handle clearing and/or updating the cache in the Profile component
-                 */
-                let profilePictureURI: string | null;
-                if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
-                    console.log('profile picture is cached');
-                    profilePictureURI = await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`);
-                } else {
-                    console.log('profile picture is not cached');
-                    profilePictureURI = await retrieveProfilePicture();
-                    globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, profilePictureURI !== null && profilePictureURI.length !== 0 ? profilePictureURI : "")
+            const loadCardLinkingId = async () => {
+                if (!cardLinkingIdRetrieved) {
+                    /**
+                     * retrieve the user's card linking id - attempt to retrieve it from cache first
+                     */
+                    let cardLinkingId: string;
+                    if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-cardLinkingId`) !== null) {
+                        console.log('card linking id is cached');
+                        cardLinkingId = await globalCache!.getItem(`${userInformation["custom:userId"]}-cardLinkingId`);
+                    } else {
+                        console.log('card linking id is not cached');
+                        cardLinkingId = await retrieveCardLinkingId(userInformation["custom:userId"]);
+                        globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-cardLinkingId`, cardLinkingId);
+                    }
+                    setCardLinkingIdRetrieved(true);
+                    setCardLinkingId(cardLinkingId);
                 }
-                setProfilePictureRetrieved(true);
-                setProfilePictureURI(profilePictureURI !== null && profilePictureURI.length !== 0
-                    ? profilePictureURI
-                    : "");
+            }
+
+            const loadProfilePicture = async () => {
+                if (!profilePictureRetrieved) {
+                    /**
+                     * retrieve the user profile picture - attempt to retrieve it from cache first
+                     *
+                     * We handle clearing and/or updating the cache in the Profile component
+                     */
+                    let profilePictureURI: string | null;
+                    if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
+                        console.log('profile picture is cached');
+                        profilePictureURI = await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`);
+                    } else {
+                        console.log('profile picture is not cached');
+                        profilePictureURI = await retrieveProfilePicture();
+                        globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, profilePictureURI !== null && profilePictureURI.length !== 0 ? profilePictureURI : "")
+                    }
+                    setProfilePictureRetrieved(true);
+                    setProfilePictureURI(profilePictureURI !== null && profilePictureURI.length !== 0
+                        ? profilePictureURI
+                        : "");
+                }
             }
 
             if (userInformation["custom:userId"]) {
@@ -173,6 +196,8 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     setTransactionData(updatedTransactionalData);
                     loadProfilePicture().then(_ => {
                     });
+                    loadCardLinkingId().then(_ => {
+                    });
                 });
 
                 // incoming military status updates
@@ -210,6 +235,8 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     });
                     setTransactionData(updatedTransactionalData);
                     loadProfilePicture().then(_ => {
+                    });
+                    loadCardLinkingId().then(_ => {
                     });
                 });
 
@@ -263,7 +290,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         }, [
             deviceType, userInformation["custom:userId"], isLoaded,
             militaryStatusRetrieved, cardLinkRetrieved, profilePictureRetrieved,
-            transactionsRetrieved, updatedMilitaryStatus
+            transactionsRetrieved, updatedMilitaryStatus, cardLinkingIdRetrieved
         ]);
 
 

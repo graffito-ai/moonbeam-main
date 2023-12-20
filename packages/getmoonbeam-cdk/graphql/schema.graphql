@@ -22,6 +22,7 @@ type Query {
     getAppUpgradeCredentials: AppUpgradeResponse! @aws_cognito_user_pools
     getReferralsByStatus(getReferralsByStatusInput: GetReferralsByStatusInput!): ReferralResponse! @aws_cognito_user_pools @aws_api_key
     getUserFromReferral(userFromReferralInput: UserFromReferralInput!): UserFromReferralResponse! @aws_cognito_user_pools @aws_api_key
+    getUserCardLinkingId(getUserCardLinkingIdInput: GetUserCardLinkingIdInput!): GetUserCardLinkingIdResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Mutation {
@@ -306,6 +307,16 @@ input DeleteCardInput {
     memberId: ID!
     cardId: ID!
     updatedAt: AWSDateTime
+}
+
+input GetUserCardLinkingIdInput {
+    id: ID! # this will be passed on to Olive as the unique user ID (extMemberId), and represents Moonbeam's unique user ID
+}
+
+type GetUserCardLinkingIdResponse @aws_cognito_user_pools @aws_api_key {
+    data: ID # this represents the Olive (or other card linking provider's) member id
+    errorType: CardLinkErrorType
+    errorMessage: String
 }
 
 type CardResponse @aws_cognito_user_pools {

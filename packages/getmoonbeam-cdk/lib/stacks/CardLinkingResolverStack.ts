@@ -78,6 +78,10 @@ export class CardLinkingResolverStack extends Stack {
             typeName: "Query",
             fieldName: `${props.cardLinkingConfig.getEligibleLinkedUsersResolverName}`
         });
+        cardLinkingLambdaDataSource.createResolver(`${props.cardLinkingConfig.getUserCardLinkingIdResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Query",
+            fieldName: `${props.cardLinkingConfig.getUserCardLinkingIdResolverName}`
+        });
 
         // create a new table to be used for the Card Linking purposes
         const cardLinkingTable = new aws_dynamodb.Table(this, `${props.cardLinkingConfig.cardLinkingTableName}-${props.stage}-${props.env!.region}`, {

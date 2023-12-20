@@ -13,7 +13,7 @@ import {
     GetOffersInput,
     GetReferralsByStatusInput,
     GetTransactionByStatusInput,
-    GetTransactionInput,
+    GetTransactionInput, GetUserCardLinkingIdInput, GetUserCardLinkingIdResponse,
     IneligibleLinkedUsersResponse,
     MemberDetailsResponse,
     MemberResponse,
@@ -684,5 +684,19 @@ export abstract class BaseAPIClient {
      *
      * @protected
      */
-    protected getUpdatedTransactionDetails?(updatedTransactionEvent: UpdatedTransactionEvent): Promise<UpdatedTransactionEventResponse>
+    protected getUpdatedTransactionDetails?(updatedTransactionEvent: UpdatedTransactionEvent): Promise<UpdatedTransactionEventResponse>;
+
+    /**
+     * Function used to retrieve a user's card linking ID, given their Moonbeam
+     * internal unique ID.
+     *
+     * @param getUserCardLinkingIdInput the input object containing the unique Moonbeam
+     * internal ID, to be used while retrieving the user's card linking ID.
+     *
+     * @return a {@link Promise} of {@link GetUserCardLinkingIdResponse} representing the response
+     * object, containing the user's card linking id.
+     *
+     * @protected
+     */
+    protected getUserCardLinkingId?(getUserCardLinkingIdInput: GetUserCardLinkingIdInput): Promise<GetUserCardLinkingIdResponse>;
 }

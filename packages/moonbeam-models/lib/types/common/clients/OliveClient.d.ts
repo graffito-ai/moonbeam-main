@@ -1,4 +1,4 @@
-import { Card, CardLinkResponse, GetOffersInput, MemberDetailsResponse, MemberResponse, OfferIdResponse, OfferRedemptionTypeResponse, OffersResponse, RemoveCardResponse, Transaction, TransactionResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse } from "../GraphqlExports";
+import { Card, CardLinkResponse, GetOffersInput, GetUserCardLinkingIdInput, GetUserCardLinkingIdResponse, MemberDetailsResponse, MemberResponse, OfferIdResponse, OfferRedemptionTypeResponse, OffersResponse, RemoveCardResponse, Transaction, TransactionResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse } from "../GraphqlExports";
 import { BaseAPIClient } from "./BaseAPIClient";
 /**
  * Class used as the base/generic client for all Olive card linking related calls.
@@ -143,4 +143,15 @@ export declare class OliveClient extends BaseAPIClient {
      * @returns a {@link OffersResponse} representing the matched offers' information.
      */
     getOffers(getOffersInput: GetOffersInput): Promise<OffersResponse>;
+    /**
+     * Function used to retrieve a user's card linking ID, given their Moonbeam
+     * internal unique ID.
+     *
+     * @param getUserCardLinkingIdInput the input object containing the unique Moonbeam
+     * internal ID, to be used while retrieving the user's card linking ID.
+     *
+     * @return a {@link Promise} of {@link GetUserCardLinkingIdResponse} representing the response
+     * object, containing the user's card linking id.
+     */
+    getUserCardLinkingId(getUserCardLinkingIdInput: GetUserCardLinkingIdInput): Promise<GetUserCardLinkingIdResponse>;
 }

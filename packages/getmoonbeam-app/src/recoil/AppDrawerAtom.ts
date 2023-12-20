@@ -155,9 +155,18 @@ const appWallDocumentsReCapturePhotoState = atom<boolean>({
 });
 
 /**
+ * Atom used to keep track of the card linking id.
+ */
+const cardLinkingIdState = atom<string>({
+    key: 'cardLinkingIdState',
+    default: ""
+});
+
+/**
  * Export all atoms and/or selectors
  */
 export {
+    cardLinkingIdState,
     appWallPermissionsModalVisibleState,
     appWallPermissionsModalCustomMessageState,
     appWallPermissionsInstructionsCustomMessageState,

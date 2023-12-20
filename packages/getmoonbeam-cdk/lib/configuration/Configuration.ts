@@ -51,7 +51,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 deleteCardResolverName: 'deleteCard',
                 addCardResolverName: 'addCard',
                 getEligibleLinkedUsersResolverName: 'getEligibleLinkedUsers',
-                getUsersWithNoCardsResolverName: 'getUsersWithNoCards'
+                getUsersWithNoCardsResolverName: 'getUsersWithNoCards',
+                getUserCardLinkingIdResolverName: 'getUserCardLinkingId'
             },
             apiGatewayServiceConfig: {
                 cardLinkingServiceAPIName: 'cardLinkingServiceAPI',
@@ -246,7 +247,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 deleteCardResolverName: 'deleteCard',
                 addCardResolverName: 'addCard',
                 getEligibleLinkedUsersResolverName: 'getEligibleLinkedUsers',
-                getUsersWithNoCardsResolverName: 'getUsersWithNoCards'
+                getUsersWithNoCardsResolverName: 'getUsersWithNoCards',
+                getUserCardLinkingIdResolverName: 'getUserCardLinkingId'
             },
             apiGatewayServiceConfig: {
                 cardLinkingServiceAPIName: 'cardLinkingServiceAPI',

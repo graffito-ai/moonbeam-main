@@ -1,6 +1,6 @@
 import { SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import { AppUpgradeResponse, Card, CardLinkResponse, CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetOffersInput, GetReferralsByStatusInput, GetTransactionByStatusInput, GetTransactionInput, IneligibleLinkedUsersResponse, MemberDetailsResponse, MemberResponse, MilitaryVerificationNotificationUpdate, MilitaryVerificationStatusType, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationChannelType, NotificationReminderResponse, NotificationResponse, NotificationType, OfferIdResponse, OfferRedemptionTypeResponse, OffersResponse, ReferralResponse, RemoveCardResponse, SendEmailNotificationInput, SendMobilePushNotificationInput, Transaction, TransactionResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse, UpdateNotificationReminderInput, UpdateReferralInput, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse } from "../GraphqlExports";
+import { AppUpgradeResponse, Card, CardLinkResponse, CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetOffersInput, GetReferralsByStatusInput, GetTransactionByStatusInput, GetTransactionInput, GetUserCardLinkingIdInput, GetUserCardLinkingIdResponse, IneligibleLinkedUsersResponse, MemberDetailsResponse, MemberResponse, MilitaryVerificationNotificationUpdate, MilitaryVerificationStatusType, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationChannelType, NotificationReminderResponse, NotificationResponse, NotificationType, OfferIdResponse, OfferRedemptionTypeResponse, OffersResponse, ReferralResponse, RemoveCardResponse, SendEmailNotificationInput, SendMobilePushNotificationInput, Transaction, TransactionResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse, UpdateNotificationReminderInput, UpdateReferralInput, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse } from "../GraphqlExports";
 /**
  * Class used as the base/generic client for all API clients that
  * we will be connecting to.
@@ -426,4 +426,17 @@ export declare abstract class BaseAPIClient {
      * @protected
      */
     protected getUpdatedTransactionDetails?(updatedTransactionEvent: UpdatedTransactionEvent): Promise<UpdatedTransactionEventResponse>;
+    /**
+     * Function used to retrieve a user's card linking ID, given their Moonbeam
+     * internal unique ID.
+     *
+     * @param getUserCardLinkingIdInput the input object containing the unique Moonbeam
+     * internal ID, to be used while retrieving the user's card linking ID.
+     *
+     * @return a {@link Promise} of {@link GetUserCardLinkingIdResponse} representing the response
+     * object, containing the user's card linking id.
+     *
+     * @protected
+     */
+    protected getUserCardLinkingId?(getUserCardLinkingIdInput: GetUserCardLinkingIdInput): Promise<GetUserCardLinkingIdResponse>;
 }

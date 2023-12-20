@@ -22,6 +22,7 @@ type Query {
     getAppUpgradeCredentials: AppUpgradeResponse! @aws_cognito_user_pools
     getReferralsByStatus(getReferralsByStatusInput: GetReferralsByStatusInput!): ReferralResponse! @aws_cognito_user_pools @aws_api_key
     getUserFromReferral(userFromReferralInput: UserFromReferralInput!): UserFromReferralResponse! @aws_cognito_user_pools @aws_api_key
+    getUserCardLinkingId(getUserCardLinkingIdInput: GetUserCardLinkingIdInput!): GetUserCardLinkingIdResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Mutation {

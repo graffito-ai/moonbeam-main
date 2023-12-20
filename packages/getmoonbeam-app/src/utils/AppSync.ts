@@ -11,7 +11,7 @@ import {
     getOffers,
     getPremierOffers,
     getSeasonalOffers,
-    getUserAuthSession, getUserFromReferral, MarketingCampaignCode,
+    getUserAuthSession, getUserCardLinkingId, getUserFromReferral, MarketingCampaignCode, MilitaryVerificationErrorType,
     Offer,
     OfferAvailability,
     OfferCategory,
@@ -37,6 +37,49 @@ import {SetterOrUpdater} from "recoil";
 import {appUpgradeVersionCheck} from 'app-upgrade-react-native-sdk';
 import {Platform} from "react-native";
 import * as envInfo from "../../local-env-info.json";
+
+/**
+ * Function used to retrieve the individual's card linking id, from their Moonbeam internal ID.
+ * This function will also set this id's global state variable.
+ *
+ * @param userId userID generated through previous steps during the sign-up process
+ * @returns a {@link Promise} of {@link string} since we do not need to return anything
+ */
+export const retrieveCardLinkingId = async (userId: string): Promise<string> => {
+    try {
+        // call the getCardLinkingId API
+        const retrievedCardLinkingIdResult = await API.graphql(graphqlOperation(getUserCardLinkingId, {
+            getUserCardLinkingIdInput: {
+                id: userId
+            }
+        }));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const responseData = retrievedCardLinkingIdResult ? retrievedCardLinkingIdResult.data : null;
+
+        // check if there are any errors in the returned response
+        if (responseData && responseData.getUserCardLinkingId.errorMessage === null) {
+            // set the card linking id accordingly
+            return responseData.getUserCardLinkingId.data;
+        } else {
+            /**
+             * if there is no card linking id for the user, then just set it as an empty string
+             */
+            if (responseData.getUserCardLinkingId.errorType === MilitaryVerificationErrorType.NoneOrAbsent) {
+                return '';
+            } else {
+                console.log(`Unexpected error while retrieving transactional data through the API ${JSON.stringify(retrievedCardLinkingIdResult)}`);
+
+                // if there are any errors, just set it as an empty string
+                return '';
+            }
+        }
+    } catch (error) {
+        console.log(`Unexpected error while attempting to retrieve user's card linking id ${JSON.stringify(error)} ${error}`);
+        return '';
+    }
+}
 
 /**
  * Function used to check whether the users have the most updated version of the app or not.

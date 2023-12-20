@@ -92,6 +92,7 @@ export interface CardLinkingConfiguration {
     readonly addCardResolverName: string;
     readonly getEligibleLinkedUsersResolverName: string;
     readonly getUsersWithNoCardsResolverName: string;
+    readonly getUserCardLinkingIdResolverName: string;
 }
 
 /**

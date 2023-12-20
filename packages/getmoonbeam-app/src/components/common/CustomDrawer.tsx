@@ -90,7 +90,7 @@ import {
     appWallDocumentsRePickPhotoState,
     appWallPermissionsInstructionsCustomMessageState,
     appWallPermissionsModalCustomMessageState,
-    appWallPermissionsModalVisibleState,
+    appWallPermissionsModalVisibleState, cardLinkingIdState,
     cardLinkingStatusState,
     customBannerShown,
     drawerDashboardState,
@@ -513,6 +513,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const numberOfFailedHorizontalMapOfferCallsStateReset = useResetRecoilState(numberOfFailedHorizontalMapOfferCallsState);
     const numberOfFailedClickOnlyOnlineOfferCallsStateReset = useResetRecoilState(numberOfFailedClickOnlyOnlineOfferCallsState);
     const showClickOnlyBottomSheetStateReset = useResetRecoilState(showClickOnlyBottomSheetState);
+    const cardLinkingIdStateReset = useResetRecoilState(cardLinkingIdState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -773,6 +774,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             numberOfFailedHorizontalMapOfferCallsStateReset();
             numberOfFailedClickOnlyOnlineOfferCallsStateReset();
             showClickOnlyBottomSheetStateReset();
+            cardLinkingIdStateReset();
             branch !== null && branch.logout();
 
             /**

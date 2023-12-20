@@ -8,6 +8,7 @@ import {View} from "react-native";
 import {IconButton, Text, TextInput} from "react-native-paper";
 import WebView from "react-native-webview";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
+import {cardLinkingIdState} from "../../../../../../recoil/AppDrawerAtom";
 
 /**
  * StoreOfferWebView component.
@@ -17,15 +18,14 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-nativ
  */
 export const StoreOfferWebView = ({navigation}: StoreOfferWebViewProps) => {
     // constants used to keep track of local component state
-    // const [cardDetailsMenuOpen, setCardDetailsMenuOpen] = useState<any>(false);
     const [isBackButtonDisabled, setIsBackButtonDisabled] = useState<boolean>(true);
     const [isForwardButtonDisabled, setIsForwardButtonDisabled] = useState<boolean>(true);
     const [initialOfferWebsite, setInitialOfferWebsite] = useState<string>('https://www.google.com');
+    const [offerWebsiteRetrieved, setOfferWebsiteRetrieved] = useState<boolean>(false);
     const webViewRef = useRef(null);
-
     // constants used to keep track of shared states
+    const [cardLinkingId, ] = useRecoilState(cardLinkingIdState);
     const [storeOfferClicked,] = useRecoilState(storeOfferState);
-    // const [userInformation,] = useRecoilState(currentUserInformation);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -35,15 +35,40 @@ export const StoreOfferWebView = ({navigation}: StoreOfferWebViewProps) => {
      * included in here.
      */
     useEffect(() => {
-        console.log(JSON.stringify(storeOfferClicked));
-        // set the current offer's website accordingly (for now defaulting to a Google search)
-        // @ts-ignore
-        storeOfferClicked!.numberOfOffers === undefined
+        // set the offer website URL accordingly
+        if (!offerWebsiteRetrieved) {
+            // handle the click-based offers separately in terms of how we construct the redemption url
             // @ts-ignore
-            ? (storeOfferClicked!.brandWebsite ? setInitialOfferWebsite(`${storeOfferClicked!.brandWebsite!}`) : setInitialOfferWebsite(`https://www.google.com/search?q=${storeOfferClicked!.brandDba!}`))
-            // @ts-ignore
-            : (storeOfferClicked!.offers![0].brandWebsite ? setInitialOfferWebsite(`${storeOfferClicked!.offers![0].brandWebsite!}`) : setInitialOfferWebsite(`https://www.google.com/search?q=${storeOfferClicked!.offers![0].brandDba!}`))
-    }, [storeOfferClicked]);
+            if (storeOfferClicked!.numberOfOffers === undefined) {
+                setOfferWebsiteRetrieved(true);
+                // @ts-ignore
+                if (storeOfferClicked!.redemptionType === 'click' && storeOfferClicked!.redemptionInstructionUrl !== undefined && storeOfferClicked!.redemptionInstructionUrl !== null) {
+                    // @ts-ignore
+                    setInitialOfferWebsite(`${storeOfferClicked!.redemptionInstructionUrl}${cardLinkingId}`);
+                } else {
+                    // @ts-ignore
+                    if (storeOfferClicked!.brandWebsite) {
+                        // @ts-ignore
+                        setInitialOfferWebsite(`${storeOfferClicked!.brandWebsite!}`)
+                    } else {
+                        // @ts-ignore
+                        setInitialOfferWebsite(`https://www.google.com/search?q=${storeOfferClicked!.brandDba!}`)
+                    }
+                }
+            } else {
+                setOfferWebsiteRetrieved(true);
+                // @ts-ignore
+                if (storeOfferClicked!.offers![0].brandWebsite) {
+                    // @ts-ignore
+                    setInitialOfferWebsite(`${storeOfferClicked!.offers![0].brandWebsite!}`)
+                } else {
+                    // @ts-ignore
+                    setInitialOfferWebsite(`https://www.google.com/search?q=${storeOfferClicked!.offers![0].brandDba!}`)
+                }
+            }
+        }
+        console.log(initialOfferWebsite);
+    }, [storeOfferClicked, cardLinkingId, offerWebsiteRetrieved]);
 
     // return the component for the StoreOfferWebView page
     return (
@@ -141,58 +166,6 @@ export const StoreOfferWebView = ({navigation}: StoreOfferWebViewProps) => {
                         </Text>
                     </Text>
                 </View>
-                {/*<View style={{*/}
-                {/*    alignSelf: 'center',*/}
-                {/*    flexDirection: 'column',*/}
-                {/*    backgroundColor: 'red'*/}
-                {/*}}>*/}
-                {/*    <Portal>*/}
-                {/*        <FAB.Group*/}
-                {/*            visible={true}*/}
-                {/*            label={'Copy'}*/}
-                {/*            style={{*/}
-                {/*                flexDirection: 'row',*/}
-                {/*                backgroundColor: 'transparent',*/}
-                {/*                position: 'absolute',*/}
-                {/*                top: hp(55)*/}
-                {/*            }}*/}
-                {/*            fabStyle={styles.cardDetailsButton}*/}
-                {/*            color={'#F2FF5D'}*/}
-                {/*            open={cardDetailsMenuOpen['open']}*/}
-                {/*            icon={cardDetailsMenuOpen['open'] ? require('../../../../../../../assets/card-details-close.png') : require('../../../../../../../assets/card-details-open.png')}*/}
-                {/*            actions={[*/}
-                {/*                ...userInformation["linkedCard"] && userInformation["linkedCard"].length !== 0 ?*/}
-                {/*                    [{*/}
-                {/*                        labelStyle: styles.cardDetailsSectionLabel,*/}
-                {/*                        color: '#F2FF5D',*/}
-                {/*                        icon: 'credit-card',*/}
-                {/*                        label: 'Linked Card Last 4 Digits',*/}
-                {/*                        onPress: async () => {*/}
-                {/*                            await Clipboard.setStringAsync(`${userInformation["linkedCard"]["cards"][0].last4}`);*/}
-                {/*                        },*/}
-                {/*                    }] : [],*/}
-                {/*                {*/}
-                {/*                    labelStyle: styles.cardDetailsSectionLabel,*/}
-                {/*                    color: '#F2FF5D',*/}
-                {/*                    icon: 'map-marker-multiple',*/}
-                {/*                    label: 'Billing Address',*/}
-                {/*                    onPress: async () => {*/}
-                {/*                        await Clipboard.setStringAsync(`${userInformation["address"]["formatted"]}`);*/}
-                {/*                    },*/}
-                {/*                }*/}
-                {/*            ]}*/}
-                {/*            onStateChange={setCardDetailsMenuOpen}*/}
-                {/*            onPress={() => {*/}
-                {/*                if (cardDetailsMenuOpen['open']) {*/}
-                {/*                    setCardDetailsMenuOpen(false);*/}
-                {/*                }*/}
-                {/*                if (!cardDetailsMenuOpen['open']) {*/}
-                {/*                    setCardDetailsMenuOpen(true);*/}
-                {/*                }*/}
-                {/*            }}*/}
-                {/*        />*/}
-                {/*    </Portal>*/}
-                {/*</View>*/}
             </View>
         </SafeAreaView>
     );
