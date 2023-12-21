@@ -233,6 +233,20 @@ export abstract class BaseAPIClient {
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_REFERRAL_TEMPLATE_LAUNCH_AUTH_TOKEN],
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_REFERRAL_TEMPLATE_LAUNCH_TEMPLATE_ID]];
                                     }
+                                case NotificationType.ReferralTemplate_1Reminder:
+                                    if (channelType !== undefined) {
+                                        return channelType === NotificationChannelType.Email
+                                            ? [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_REFERRAL_TEMPLATE_1_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_REFERRAL_TEMPLATE_1_TEMPLATE_ID]]
+                                            : [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_REFERRAL_TEMPLATE_1_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_REFERRAL_TEMPLATE_1_TEMPLATE_ID]];
+                                    } else {
+                                        return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_REFERRAL_TEMPLATE_1_AUTH_TOKEN],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_REFERRAL_TEMPLATE_1_TEMPLATE_ID]];
+                                    }
                                 default:
                                     console.log(`Unknown notifications type to retrieve secrets in ${verificationClientSecretsName}`);
                                     return [null, null];
