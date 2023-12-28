@@ -81,22 +81,21 @@ export class UserAuthSessionResolverStack extends Stack {
              * policy used to allow full Dynamo DB access for the Lambda, added again on top of the lines above, since they sometimes don't work
              * Note: by "they" meaning "grantFullAccess" above.
              */
-            new PolicyStatement(
-                new PolicyStatement({
-                        effect: Effect.ALLOW,
-                        actions: [
-                            "dynamodb:GetItem",
-                            "dynamodb:PutItem",
-                            "dynamodb:Query",
-                            "dynamodb:UpdateItem",
-                            "dynamodb:DeleteItem"
-                        ],
-                        resources: [
-                            `${userAuthSessionTable.tableArn}`
-                        ]
-                    }
-                )
-            ));
+            new PolicyStatement({
+                    effect: Effect.ALLOW,
+                    actions: [
+                        "dynamodb:GetItem",
+                        "dynamodb:PutItem",
+                        "dynamodb:Query",
+                        "dynamodb:UpdateItem",
+                        "dynamodb:DeleteItem"
+                    ],
+                    resources: [
+                        `${userAuthSessionTable.tableArn}`
+                    ]
+                }
+            )
+        );
 
         // Create an environment variable that we will use in the function code
         userAuthSessionLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);

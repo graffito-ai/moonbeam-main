@@ -329,3 +329,12 @@ export interface AppUpgradeConfiguration {
     readonly appUpgradeFunctionName: string;
     readonly getAppUpgradeCredentialsResolverName: string;
 }
+
+/**
+ * Interface used to define the configuration used for logging purposes.
+ */
+export interface LoggingConfiguration {
+    readonly loggingFunctionName: string;
+    readonly createLogEventResolverName: string;
+    readonly frontEndLogGroupName: string;
+}

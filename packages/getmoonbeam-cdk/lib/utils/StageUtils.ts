@@ -21,6 +21,7 @@ import {NotificationReminderProducerConsumerStack} from "../stacks/NotificationR
 import {AppUpgradeResolverStack} from "../stacks/AppUpgradeResolverStack";
 import {ReferralResolverStack} from "../stacks/ReferralResolverStack";
 import {ReferralProducerConsumerStack} from "../stacks/ReferralProducerConsumerStack";
+import {LoggingResolverStack} from "../stacks/LoggingResolverStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -324,6 +325,20 @@ export class StageUtils {
                     environmentVariables: stageConfiguration.environmentVariables
                 });
                 referralResolverStack.addDependency(appSyncStack);
+
+                // create the Logging resolver stack && add it to the CDK app
+                const loggingResolverStack = new LoggingResolverStack(this.app, `moonbeam-logging-resolver-${stageKey}`,
+                    amplifyStack.authenticatedRole, amplifyStack.unauthenticatedRole, {
+                        stackName: `moonbeam-logging-resolver-${stageKey}`,
+                        description: 'This stack will contain all the AppSync related resources needed by the Lambda Logging resolver',
+                        env: stageEnv,
+                        stage: stageConfiguration.stage,
+                        graphqlApiId: appSyncStack.graphqlApiId,
+                        graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
+                        loggingConfig: stageConfiguration.loggingConfig,
+                        environmentVariables: stageConfiguration.environmentVariables
+                    });
+                loggingResolverStack.addDependency(appSyncStack);
 
                 // create the API Gateway Service API stack && add it to the CDK app
                 const apiGatewayStack = new APIGatewayServiceStack(this.app, `moonbeam-api-gateway-${stageKey}`, {

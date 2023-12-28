@@ -126,22 +126,21 @@ export class TransactionsResolverStack extends Stack {
              * policy used to allow full Dynamo DB access for the Lambda, added again on top of the lines above, since they sometimes don't work
              * Note: by "they" meaning "grantFullAccess" above.
              */
-            new PolicyStatement(
-                new PolicyStatement({
-                        effect: Effect.ALLOW,
-                        actions: [
-                            "dynamodb:GetItem",
-                            "dynamodb:PutItem",
-                            "dynamodb:Query",
-                            "dynamodb:UpdateItem",
-                            "dynamodb:DeleteItem"
-                        ],
-                        resources: [
-                            `${transactionsTable.tableArn}`
-                        ]
-                    }
-                )
-            ));
+            new PolicyStatement({
+                    effect: Effect.ALLOW,
+                    actions: [
+                        "dynamodb:GetItem",
+                        "dynamodb:PutItem",
+                        "dynamodb:Query",
+                        "dynamodb:UpdateItem",
+                        "dynamodb:DeleteItem"
+                    ],
+                    resources: [
+                        `${transactionsTable.tableArn}`
+                    ]
+                }
+            )
+        );
 
         // Create environment variables that we will use in the function code
         transactionsLambda.addEnvironment(`${Constants.MoonbeamConstants.TRANSACTIONS_TABLE}`, transactionsTable.tableName);

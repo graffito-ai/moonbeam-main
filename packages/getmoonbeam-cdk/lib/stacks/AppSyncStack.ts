@@ -46,14 +46,14 @@ export class AppSyncStack extends Stack {
                         )
                     }
                 },
-                /**
-                 * for some specific use-cases, such as the transaction consumer, we will need to allow access via an API Key instead.
-                 *
-                 * ToDo: in the future we will need to make a AWS::SecretsManager::Secret and a AWS::SecretsManager::RotationSchedule.
-                 *       The RotationSchedule will let us use a lambda to automatically rotate the ApiKey and store it in the Secret.
-                 *       For now, we will rotate this key manually.
-                 */
                 additionalAuthorizationModes: [
+                    /**
+                     * for some specific use-cases, such as the transaction consumer, we will need to allow access via an API Key instead.
+                     *
+                     * ToDo: in the future we will need to make a AWS::SecretsManager::Secret and a AWS::SecretsManager::RotationSchedule.
+                     *       The RotationSchedule will let us use a lambda to automatically rotate the ApiKey and store it in the Secret.
+                     *       For now, we will rotate this key manually.
+                     */
                     {
                         authorizationType: AuthorizationType.API_KEY,
                         apiKeyConfig: {
@@ -61,6 +61,14 @@ export class AppSyncStack extends Stack {
                             description: 'API Key to be used internally, in order to access the AppSync endpoints.',
                             expires: Expiration.after(Duration.days(365))
                         }
+                    },
+                    /**
+                     * for some other use-cases such as the frontend logging one, we will need to allow access via the AWS IAM role instead.
+                     *
+                     * This is usually accessible via the Auth and Unauthorized roles in Amplify
+                     */
+                    {
+                        authorizationType: AuthorizationType.IAM
                     }
                 ]
             },

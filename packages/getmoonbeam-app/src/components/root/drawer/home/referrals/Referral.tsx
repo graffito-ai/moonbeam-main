@@ -75,26 +75,25 @@ export const Referral = ({navigation}: ReferralProps) => {
      */
     const getNextDrawingDate = () => {
         const currentDate = new Date();
-        const currentDateFormatted = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDay());
 
         // these are the next dates for the raffle that will determine the next raffle drawing date
         const firstRaffle = new Date('2023-12-22');
-        const secondRaffle = new Date('2024-01-05');
-        const thirdRaffle = new Date('2024-01-19');
-        const fourthRaffle = new Date('2024-02-02');
+        const secondRaffle = new Date('2024-01-10');
+        const thirdRaffle = new Date('2024-01-24');
+        const fourthRaffle = new Date('2024-02-07');
 
         // depending on the current date, determine which raffle drawing date we will show
-        if (currentDateFormatted < firstRaffle) {
+        if (currentDate < firstRaffle) {
             setNextDrawingDate(`12/22/2023`);
             setCampaignMarketingCode(MarketingCampaignCode.Raffleregdec23);
-        } else if (currentDateFormatted < secondRaffle) {
-            setNextDrawingDate(`01/05/2024`);
+        } else if (currentDate < secondRaffle) {
+            setNextDrawingDate(`01/10/2024`);
             setCampaignMarketingCode(MarketingCampaignCode.Raffleregjan24);
-        } else if (currentDateFormatted < thirdRaffle) {
-            setNextDrawingDate(`01/19/2024`);
+        } else if (currentDate < thirdRaffle) {
+            setNextDrawingDate(`01/24/2024`);
             setCampaignMarketingCode(MarketingCampaignCode.Raffleregjan24);
-        } else if (currentDateFormatted < fourthRaffle) {
-            setNextDrawingDate(`02/02/2024`);
+        } else if (currentDate < fourthRaffle) {
+            setNextDrawingDate(`02/07/2024`);
             setCampaignMarketingCode(MarketingCampaignCode.Raffleregfeb24);
         } else {
             setNextDrawingDate(`03/01/2024`);

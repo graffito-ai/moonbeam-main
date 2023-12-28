@@ -1,8 +1,9 @@
 import {
     CountryCode,
-    createDevice,
+    createDevice, createLogEvent,
     createNotification,
-    CreateNotificationInput, createReferral,
+    CreateNotificationInput,
+    createReferral,
     createUserAuthSession,
     FidelisPartner,
     getAppUpgradeCredentials,
@@ -11,7 +12,12 @@ import {
     getOffers,
     getPremierOffers,
     getSeasonalOffers,
-    getUserAuthSession, getUserCardLinkingId, getUserFromReferral, MarketingCampaignCode, MilitaryVerificationErrorType,
+    getUserAuthSession,
+    getUserCardLinkingId,
+    getUserFromReferral,
+    LoggingLevel,
+    MarketingCampaignCode,
+    MilitaryVerificationErrorType,
     Offer,
     OfferAvailability,
     OfferCategory,
@@ -19,7 +25,10 @@ import {
     OfferSeasonalType,
     OfferState,
     PushDevice,
-    RedemptionType, Referral, ReferralErrorType, ReferralResponse,
+    RedemptionType,
+    Referral,
+    ReferralErrorType,
+    ReferralResponse,
     Stages,
     updateDevice,
     updateUserAuthSession,
@@ -39,11 +48,67 @@ import {Platform} from "react-native";
 import * as envInfo from "../../local-env-info.json";
 
 /**
+ * Function used to log a message from the frontend through CloudWatch.
+ *
+ * @param message representing the message to the log event
+ * @param level logging level
+ * @param unauthenticated optional flag to highlight whether the user is unauthenticated
+ * or not
+ * @returns a {@link Promise} of {@link void} since we do not need to return anything
+ */
+export const logEvent = async (message: string, level: LoggingLevel, unauthenticated?: boolean): Promise<void> => {
+    try {
+        // the result obtained from the createLogEvent call
+        let logEventResult;
+
+        //  Execute the createLogEvent call depending on whether the user is unauthenticated or not
+        if (unauthenticated === undefined || !unauthenticated) {
+            // call the createLogEvent API
+            logEventResult = await API.graphql(graphqlOperation(createLogEvent, {
+                createLogEventInput: {
+                    message: message,
+                    logLevel: level
+                }
+            }));
+        } else {
+            logEventResult = await API.graphql({
+                query: createLogEvent,
+                variables: {
+                    createLogEventInput: {
+                        message: message,
+                        logLevel: level
+                    }
+                },
+                authMode: 'AWS_IAM'
+            });
+        }
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const responseData = logEventResult ? logEventResult.data : null;
+
+        // check if there are any errors in the returned response
+        if (responseData && responseData.createLogEvent.errorMessage === null) {
+            // do not log the successful publishing of the log event
+            return;
+        } else {
+            // if there was an error while logging an event, just console.log it accordingly
+            console.log(`Error while logging event ${responseData.createLogEvent.errorMessage}`);
+            return;
+        }
+
+    } catch (error) {
+        console.log(`Unexpected error while logging event ${JSON.stringify(error)} ${error}`);
+        return;
+    }
+}
+
+/**
  * Function used to retrieve the individual's card linking id, from their Moonbeam internal ID.
  * This function will also set this id's global state variable.
  *
  * @param userId userID generated through previous steps during the sign-up process
- * @returns a {@link Promise} of {@link string} since we do not need to return anything
+ * @returns a {@link Promise} of {@link string} representing the card linking id
  */
 export const retrieveCardLinkingId = async (userId: string): Promise<string> => {
     try {

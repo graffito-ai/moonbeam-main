@@ -1,0 +1,31 @@
+# graphql/LoggingSchema.graphql
+# Logging Schema File
+enum LoggingErrorType {
+    DUPLICATE_OBJECT_FOUND
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+    NONE_OR_ABSENT
+}
+
+enum LoggingLevel {
+    INFO
+    DEBUG
+    WARNING
+    ERROR
+}
+
+enum LoggingAcknowledgmentType {
+    SUCCESSFUL
+    ERROR
+}
+
+type LoggingResponse @aws_cognito_user_pools @aws_iam {
+    data: LoggingAcknowledgmentType
+    errorType: LoggingErrorType
+    errorMessage: String
+}
+
+input CreateLogEventInput {
+    message: String!
+    logLevel: LoggingLevel!
+}

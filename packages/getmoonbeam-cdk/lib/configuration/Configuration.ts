@@ -200,6 +200,11 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 createReferralResolverName: 'createReferral',
                 updateReferralResolverName: 'updateReferral'
             },
+            loggingConfig: {
+                loggingFunctionName: 'loggingFunction',
+                createLogEventResolverName: 'createLogEvent',
+                frontEndLogGroupName: 'moonbeam-frontend'
+            },
             environmentVariables: new Map<string, string>([])
         },
         [`${Stages.PROD}-${Regions.PDX}`]: {
@@ -395,6 +400,11 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 getUserFromReferralResolverName: 'getUserFromReferral',
                 createReferralResolverName: 'createReferral',
                 updateReferralResolverName: 'updateReferral'
+            },
+            loggingConfig: {
+                loggingFunctionName: 'loggingFunction',
+                createLogEventResolverName: 'createLogEvent',
+                frontEndLogGroupName: 'moonbeam-frontend'
             },
             environmentVariables: new Map<string, string>([])
         },

@@ -219,7 +219,7 @@ export class AmplifyAuthStack extends NestedStack {
         const userPoolFrontendIdentity = new IdentityPool(this,
             `${props.amplifyAuthConfig.userPoolIdentityFrontendPoolName}-${props.stage}-${props.env!.region}`, {
                 identityPoolName: `${props.amplifyAuthConfig.userPoolIdentityFrontendPoolName}-${props.stage}-${props.env!.region}`,
-                allowUnauthenticatedIdentities: false,
+                allowUnauthenticatedIdentities: true,
                 authenticationProviders: {
                     userPools: [
                         new UserPoolAuthenticationProvider({

@@ -24,7 +24,8 @@ import * as Location from 'expo-location';
 import {LocationObject} from 'expo-location';
 import {Image} from 'expo-image';
 import * as envInfo from "./local-env-info.json";
-import {Stages} from "@moonbeam/moonbeam-models";
+import {LoggingLevel, Stages} from "@moonbeam/moonbeam-models";
+import {logEvent} from "./src/utils/AppSync";
 
 // this handler determines how your app handles notifications that come in while the app is foregrounded.
 Notifications.setNotificationHandler({
@@ -58,7 +59,9 @@ async function registerForPushNotificationsAsync(): Promise<ExpoPushToken> {
             finalStatus = status;
         }
         if (finalStatus !== 'granted') {
-            console.log('Failed to get push token for push notification!');
+            const errorMessage = 'Failed to get push token for push notification!';
+            console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Error, true);
             return token;
         }
         token = (
@@ -66,8 +69,13 @@ async function registerForPushNotificationsAsync(): Promise<ExpoPushToken> {
                 projectId: Constants.expoConfig && Constants.expoConfig.extra ? Constants.expoConfig.extra.eas.projectId : '',
             })
         );
+        const message = 'Device set up for notifications';
+        console.log(message);
+        await logEvent(message, LoggingLevel.Info, true);
     } else {
-        console.log('Must use physical device for Push Notifications');
+        const errorMessage = 'Must use physical device for Push Notifications';
+        console.log(errorMessage);
+        await logEvent(errorMessage, LoggingLevel.Error, true);
     }
     // further configure the push notification for Android only
     if (Platform.OS === 'android') {
@@ -136,7 +144,9 @@ export default function App() {
          */
         if (lastNotificationResponse) {
             // navigate to your desired screen
-            console.log('incoming notification and/or notification response received (last notification handle)');
+            const errorMessage = 'incoming notification and/or notification response received (last notification handle)';
+            console.log(errorMessage);
+            logEvent(errorMessage, LoggingLevel.Info, true).then(() => {});
         }
         const prepare = async () => {
             try {
@@ -174,18 +184,23 @@ export default function App() {
                 });
 
                 // prepare the application for notifications
-                envInfo.envName !== Stages.DEV && setExpoPushToken(await registerForPushNotificationsAsync());
+                // envInfo.envName !== Stages.DEV && setExpoPushToken(await registerForPushNotificationsAsync());
+                setExpoPushToken(await registerForPushNotificationsAsync());
 
                 // This listener is fired whenever a notification is received while the app is foregrounded.
                 notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
                     // Do something with the notification
-                    console.log(`Incoming push notification received ${notification}`);
+                    const message = `Incoming push notification received ${notification}`;
+                    console.log(message);
+                    logEvent(message, LoggingLevel.Info, true).then(() => {});
                 });
 
                 // This listener is fired whenever a user taps on or interacts with a notification (works when an app is foregrounded, backgrounded, or killed).
                 responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
                     // Do something with the notification/response
-                    console.log(`Incoming notification interaction response received ${response}`);
+                    const message = `Incoming notification interaction response received ${response}`;
+                    console.log(message);
+                    logEvent(message, LoggingLevel.Info, true).then(() => {});
                 });
 
                 // configure the Global Cache - @link https://docs.amplify.aws/lib/utilities/cache/q/platform/js/#api-reference
@@ -235,6 +250,7 @@ export default function App() {
                     if (foregroundPermissionStatus.status !== 'granted') {
                         const errorMessage = `Permission to access location was not granted!`;
                         console.log(errorMessage);
+                        logEvent(errorMessage, LoggingLevel.Warning, true).then(() => {});
 
                         setCurrentUserLocation(null);
                     } else {

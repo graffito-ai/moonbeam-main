@@ -42,6 +42,33 @@ export type AppUpgradeResponse = {
   errorType?: Maybe<AppUpgradeErrorType>;
 };
 
+export enum AuthProvider {
+  ApiKey = 'apiKey',
+  Iam = 'iam',
+  Oidc = 'oidc',
+  UserPools = 'userPools'
+}
+
+export type AuthRule = {
+  allow: AuthStrategy;
+  groupClaim?: InputMaybe<Scalars['String']>;
+  groups?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+  groupsField?: InputMaybe<Scalars['String']>;
+  identityClaim?: InputMaybe<Scalars['String']>;
+  mutations?: InputMaybe<Array<InputMaybe<ModelMutation>>>;
+  operations?: InputMaybe<Array<InputMaybe<ModelOperation>>>;
+  ownerField?: InputMaybe<Scalars['String']>;
+  provider?: InputMaybe<AuthProvider>;
+  queries?: InputMaybe<Array<InputMaybe<ModelQuery>>>;
+};
+
+export enum AuthStrategy {
+  Groups = 'groups',
+  Owner = 'owner',
+  Private = 'private',
+  Public = 'public'
+}
+
 export type Card = {
   __typename?: 'Card';
   additionalProgramID?: Maybe<Scalars['String']>;
@@ -137,6 +164,11 @@ export type CreateFaqInput = {
   id?: InputMaybe<Scalars['ID']>;
   title: Scalars['String'];
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
+export type CreateLogEventInput = {
+  logLevel: LoggingLevel;
+  message: Scalars['String'];
 };
 
 export type CreateMilitaryVerificationInput = {
@@ -435,6 +467,32 @@ export type IneligibleLinkedUsersResponse = {
   errorType?: Maybe<CardLinkErrorType>;
 };
 
+export enum LoggingAcknowledgmentType {
+  Error = 'ERROR',
+  Successful = 'SUCCESSFUL'
+}
+
+export enum LoggingErrorType {
+  DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  ValidationError = 'VALIDATION_ERROR'
+}
+
+export enum LoggingLevel {
+  Debug = 'DEBUG',
+  Error = 'ERROR',
+  Info = 'INFO',
+  Warning = 'WARNING'
+}
+
+export type LoggingResponse = {
+  __typename?: 'LoggingResponse';
+  data?: Maybe<LoggingAcknowledgmentType>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<LoggingErrorType>;
+};
+
 export enum MarketingCampaignCode {
   Milbilboard1 = 'MILBILBOARD1',
   Raffleregdec23 = 'RAFFLEREGDEC23',
@@ -542,6 +600,24 @@ export enum MilitaryVerificationStatusType {
   Verified = 'VERIFIED'
 }
 
+export enum ModelMutation {
+  Create = 'create',
+  Delete = 'delete',
+  Update = 'update'
+}
+
+export enum ModelOperation {
+  Create = 'create',
+  Delete = 'delete',
+  Read = 'read',
+  Update = 'update'
+}
+
+export enum ModelQuery {
+  Get = 'get',
+  List = 'list'
+}
+
 export type MoonbeamTransaction = {
   __typename?: 'MoonbeamTransaction';
   brandId: Scalars['ID'];
@@ -625,6 +701,7 @@ export type Mutation = {
   createCardLink: CardLinkResponse;
   createDevice: UserDeviceResponse;
   createFAQ: FaqResponse;
+  createLogEvent: LoggingResponse;
   createMilitaryVerification: CreateMilitaryVerificationResponse;
   createNotification: CreateNotificationResponse;
   createNotificationReminder: NotificationReminderResponse;
@@ -658,6 +735,11 @@ export type MutationCreateDeviceArgs = {
 
 export type MutationCreateFaqArgs = {
   createFAQInput: CreateFaqInput;
+};
+
+
+export type MutationCreateLogEventArgs = {
+  createLogEventInput: CreateLogEventInput;
 };
 
 
@@ -1449,6 +1531,13 @@ export type UserFromReferralResponse = {
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<ReferralErrorType>;
 };
+
+export type CreateLogEventMutationVariables = Exact<{
+  createLogEventInput: CreateLogEventInput;
+}>;
+
+
+export type CreateLogEventMutation = { __typename?: 'Mutation', createLogEvent: { __typename?: 'LoggingResponse', errorMessage?: string | null, errorType?: LoggingErrorType | null, data?: LoggingAcknowledgmentType | null } };
 
 export type CreateReferralMutationVariables = Exact<{
   createReferralInput: CreateReferralInput;

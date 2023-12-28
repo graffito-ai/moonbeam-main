@@ -1,5 +1,16 @@
 // This is a file used to define the all GraphQL query constants
 
+// Mutation used to create a new Log Event.
+export const createLogEvent = /* GraphQL */ `
+    mutation CreateLogEvent($createLogEventInput: CreateLogEventInput!) {
+        createLogEvent(createLogEventInput: $createLogEventInput) {
+            errorMessage
+            errorType
+            data
+        }
+    }
+`;
+
 // Mutation used to create a Referral.
 export const createReferral = /* GraphQL */ `
     mutation CreateReferral($createReferralInput: CreateReferralInput!) {

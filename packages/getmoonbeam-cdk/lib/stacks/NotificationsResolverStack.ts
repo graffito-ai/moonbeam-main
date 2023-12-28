@@ -130,22 +130,21 @@ export class NotificationsResolverStack extends Stack {
              * policy used to allow full Dynamo DB access for the Lambda, added again on top of the lines above, since they sometimes don't work
              * Note: by "they" meaning "grantFullAccess" above.
              */
-            new PolicyStatement(
-                new PolicyStatement({
-                        effect: Effect.ALLOW,
-                        actions: [
-                            "dynamodb:GetItem",
-                            "dynamodb:PutItem",
-                            "dynamodb:Query",
-                            "dynamodb:UpdateItem",
-                            "dynamodb:DeleteItem"
-                        ],
-                        resources: [
-                            `${notificationsTable.tableArn}`
-                        ]
-                    }
-                )
-            ));
+            new PolicyStatement({
+                    effect: Effect.ALLOW,
+                    actions: [
+                        "dynamodb:GetItem",
+                        "dynamodb:PutItem",
+                        "dynamodb:Query",
+                        "dynamodb:UpdateItem",
+                        "dynamodb:DeleteItem"
+                    ],
+                    resources: [
+                        `${notificationsTable.tableArn}`
+                    ]
+                }
+            )
+        );
         // enable the Lambda function the retrieval of the Courier internal API secrets
         notificationsLambda.addToRolePolicy(
             new PolicyStatement({

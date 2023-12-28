@@ -43,6 +43,7 @@ type Mutation {
     updateNotificationReminder(updateNotificationReminderInput: UpdateNotificationReminderInput!): NotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
     createReferral(createReferralInput: CreateReferralInput!): ReferralResponse! @aws_cognito_user_pools @aws_api_key
     updateReferral(updateReferralInput: UpdateReferralInput!): ReferralResponse! @aws_cognito_user_pools @aws_api_key
+    createLogEvent(createLogEventInput: CreateLogEventInput!): LoggingResponse! @aws_cognito_user_pools @aws_iam
 }
 
 type Subscription {

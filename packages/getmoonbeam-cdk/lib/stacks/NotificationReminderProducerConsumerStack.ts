@@ -108,7 +108,7 @@ export class NotificationReminderProducerConsumerStack extends Stack {
                     "appsync:GraphQL"
                 ],
                 resources: [
-                    // this ARN is retrieved post secret creation
+                    // this ARN is retrieved post GraphQL API creation
                     ...props.stage === Stages.DEV ? ["arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Mutation/*"] : [],
                     ...props.stage === Stages.PROD ? ["arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Mutation/*"] : []
                 ]
@@ -121,7 +121,7 @@ export class NotificationReminderProducerConsumerStack extends Stack {
                     "appsync:GraphQL"
                 ],
                 resources: [
-                    // this ARN is retrieved post secret creation
+                    // this ARN is retrieved post GraphQL API creation
                     ...props.stage === Stages.DEV ? [ "arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Query/*"] : [],
                     ...props.stage === Stages.PROD ? ["arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Query/*"] : []
                 ]
@@ -149,7 +149,7 @@ export class NotificationReminderProducerConsumerStack extends Stack {
                     "appsync:GraphQL"
                 ],
                 resources: [
-                    // this ARN is retrieved post secret creation
+                    // this ARN is retrieved post GraphQL API creation
                     ...props.stage === Stages.DEV ? ["arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Mutation/*"] : [],
                     ...props.stage === Stages.PROD ? ["arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Mutation/*"] : []
                 ]
@@ -162,7 +162,7 @@ export class NotificationReminderProducerConsumerStack extends Stack {
                     "appsync:GraphQL"
                 ],
                 resources: [
-                    // this ARN is retrieved post secret creation
+                    // this ARN is retrieved post GraphQL API creation
                     ...props.stage === Stages.DEV ? [ "arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Query/*"] : [],
                     ...props.stage === Stages.PROD ? ["arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Query/*"] : []
                 ]

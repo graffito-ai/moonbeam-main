@@ -4,7 +4,7 @@ import {
     APIGatewayServiceConfiguration,
     AppSyncConfiguration, AppUpgradeConfiguration,
     CardLinkingConfiguration,
-    FAQConfiguration,
+    FAQConfiguration, LoggingConfiguration,
     MilitaryVerificationConfiguration,
     MilitaryVerificationProducerConsumerConfiguration,
     NotificationReminderConfiguration,
@@ -47,5 +47,6 @@ export interface StageConfiguration {
     readonly notificationReminderConfig: NotificationReminderConfiguration;
     readonly appUpgradeConfig: AppUpgradeConfiguration;
     readonly referralConfig: ReferralConfiguration;
+    readonly loggingConfig: LoggingConfiguration;
     readonly environmentVariables: Map<string, string>;
 }

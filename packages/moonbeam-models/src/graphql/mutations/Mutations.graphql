@@ -1,5 +1,12 @@
 # graphql/Mutations.graphql
 # Mutations Schema File
+mutation CreateLogEvent($createLogEventInput: CreateLogEventInput!) {
+    createLogEvent(createLogEventInput: $createLogEventInput) {
+        errorMessage
+        errorType
+        data
+    }
+}
 mutation CreateReferral($createReferralInput: CreateReferralInput!) {
     createReferral(createReferralInput: $createReferralInput) {
         errorMessage
