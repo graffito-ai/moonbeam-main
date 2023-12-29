@@ -12,10 +12,12 @@ import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 import {useRecoilState} from "recoil";
 import {codeVerificationSheetShown, codeVerifiedState} from "../../../../../recoil/CodeVerificationAtom";
 import {Auth} from "aws-amplify";
-import {currentUserInformation} from "../../../../../recoil/AuthAtom";
+import {currentUserInformation, userIsAuthenticatedState} from "../../../../../recoil/AuthAtom";
 import {CognitoUser} from "amazon-cognito-identity-js";
 import {Button} from "@rneui/base";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {logEvent} from "../../../../../utils/AppSync";
+import {LoggingLevel} from "@moonbeam/moonbeam-models";
 
 /**
  * CodVerificationBottomSheet component.
@@ -38,6 +40,7 @@ export const CodeVerificationBottomSheet = (props: {
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [stepNumber, setStepNumber] = useState<number>(0);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [, setShowBottomSheet] = useRecoilState(codeVerificationSheetShown);
     // step 0
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
@@ -147,6 +150,7 @@ export const CodeVerificationBottomSheet = (props: {
                 } else {
                     const errorMessage = `Error while updating profile information!`;
                     console.log(errorMessage);
+                    await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
 
                     setModalCustomMessage(errorMessage);
                     setModalButtonMessage('Try Again!');
@@ -167,6 +171,7 @@ export const CodeVerificationBottomSheet = (props: {
         } catch (error) {
             const errorMessage = `Error updating profile information!`;
             console.log(`${errorMessage} - ${error}`);
+            await logEvent(`${errorMessage} - ${error}`, LoggingLevel.Error, userIsAuthenticated);
 
             setModalCustomMessage(errorMessage);
             setModalButtonMessage('Try Again!');
@@ -217,6 +222,7 @@ export const CodeVerificationBottomSheet = (props: {
 
                     const errorMessage = `Error confirming the verification code!`;
                     console.log(errorMessage);
+                    await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
 
                     setModalCustomMessage(errorMessage);
                     setModalButtonMessage('Try Again!');
@@ -248,6 +254,7 @@ export const CodeVerificationBottomSheet = (props: {
                 errorMessage = 'An account with the given email already exists. Try again with a new email!';
             }
             console.log(`${errorMessage} - ${error}`);
+            await logEvent(`${errorMessage} - ${error}`, LoggingLevel.Error, userIsAuthenticated);
 
             setModalCustomMessage(errorMessage);
             setModalButtonMessage('Try Again!');
@@ -734,7 +741,9 @@ export const CodeVerificationBottomSheet = (props: {
                                                 }
                                                 break;
                                             default:
-                                                console.log(`Unexpected step number ${stepNumber}!`);
+                                                const errorMessage = `Unexpected step number ${stepNumber}!`;
+                                                console.log(errorMessage);
+                                                await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
                                                 break;
                                         }
                                     }

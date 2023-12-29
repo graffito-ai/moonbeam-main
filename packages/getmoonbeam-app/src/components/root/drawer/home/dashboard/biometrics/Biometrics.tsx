@@ -11,6 +11,9 @@ import * as LocalAuthentication from 'expo-local-authentication';
 import {SecurityLevel} from 'expo-local-authentication';
 import {Spinner} from "../../../../../common/Spinner";
 import * as SecureStore from 'expo-secure-store';
+import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
+import {logEvent} from "../../../../../../utils/AppSync";
+import {LoggingLevel} from "@moonbeam/moonbeam-models";
 
 /**
  * BiometricsPopUp component. This component will be used in the dashboard for the application,
@@ -25,6 +28,7 @@ export const BiometricsPopUp = () => {
     const [biometricAvailabilityCheck, setBiometricAvailabilityCheck] = useState<boolean>(false);
     const [enabledBiometric, setEnabledBiometric] = useState<string | null>(null);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [moonbeamUserId,] = useRecoilState(moonbeamUserIdState);
     const [moonbeamUserIdPass,] = useRecoilState(moonbeamUserIdPassState);
     const [firstTimeLoggedIn, setFirstTimeLoggedIn] = useRecoilState(firstTimeLoggedInState);
@@ -63,9 +67,12 @@ export const BiometricsPopUp = () => {
              */
             SecureStore.getItemAsync(`biometrics-enabled`, {
                 requireAuthentication: false // we don't need this to be under authentication, so we can check at login
-            }).then(biometricsEnabledPreference => {
-                if(biometricsEnabledPreference === null || biometricsEnabledPreference.length === 0) {
-                    console.log('Need to re-prompt existing user, previously logged in to set-up biometrics.');
+            }).then(async biometricsEnabledPreference => {
+                if (biometricsEnabledPreference === null || biometricsEnabledPreference.length === 0) {
+                    const errorMessage = 'Need to re-prompt existing user, previously logged in to set-up biometrics.';
+                    console.log(errorMessage);
+                    await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
+
                     // override the existing first time logged in flag in this case, so we can show the biometrics set-up popup
                     setFirstTimeLoggedIn(true);
                     setUpBiometricsPopUp().then(_ => {
@@ -78,7 +85,8 @@ export const BiometricsPopUp = () => {
                         }).then(_ => {
                             SecureStore.setItemAsync(`moonbeam-user-passcode`, moonbeamUserIdPass, {
                                 requireAuthentication: false // we don't need this to be under authentication, so we can check at login
-                            }).then(_ => {});
+                            }).then(_ => {
+                            });
                         });
                     });
                 }
@@ -95,18 +103,21 @@ export const BiometricsPopUp = () => {
     const setUpBiometricsPopUp = async (): Promise<void> => {
         try {
             // check whether any biometric is available on the device
-            LocalAuthentication.hasHardwareAsync().then(available => {
+            LocalAuthentication.hasHardwareAsync().then(async available => {
                 // if the hardware is available, then proceed with additional checks
                 if (available) {
                     // determine whether the device has any saved biometric data available to use for authentication
-                    LocalAuthentication.isEnrolledAsync().then(enrolled => {
+                    LocalAuthentication.isEnrolledAsync().then(async enrolled => {
                         // if the device has enrolled biometric data, then proceed with additional checks
                         if (enrolled) {
                             // determine what kind of authentication is enrolled on the device
                             LocalAuthentication.getEnrolledLevelAsync().then(async enrollmentLevel => {
                                 switch (enrollmentLevel) {
                                     case SecurityLevel.NONE:
-                                        console.log(`No enrollment identified for device ${enrollmentLevel}`);
+                                        const noneMessage = `No enrollment identified for device ${enrollmentLevel}`;
+                                        console.log(noneMessage);
+                                        await logEvent(noneMessage, LoggingLevel.Warning, userIsAuthenticated);
+
                                         // set the biometric availability flag accordingly
                                         setBiometricAvailabilityCheck(true);
                                         // set the readiness to true
@@ -116,7 +127,10 @@ export const BiometricsPopUp = () => {
                                         moonbeamUserIdPassStateReset();
                                         break;
                                     case SecurityLevel.SECRET:
-                                        console.log('Non-biometric authentication identified for device');
+                                        const secretMessage = 'Non-biometric authentication identified for device';
+                                        console.log(secretMessage);
+                                        await logEvent(secretMessage, LoggingLevel.Warning, userIsAuthenticated);
+
                                         // set the biometric enablement flag accordingly
                                         setEnabledBiometric('PIN/Pattern');
                                         // set the biometric store flag type accordingly, so we can retrieve it in Settings List
@@ -129,7 +143,10 @@ export const BiometricsPopUp = () => {
                                         setIsReady(true);
                                         break;
                                     case SecurityLevel.BIOMETRIC:
-                                        console.log('Biometric authentication identified for device');
+                                        const biometricMessage = 'Biometric authentication identified for device';
+                                        console.log(biometricMessage);
+                                        await logEvent(biometricMessage, LoggingLevel.Warning, userIsAuthenticated);
+
                                         // determine what type of biometric authentication is supported for device
                                         LocalAuthentication.supportedAuthenticationTypesAsync().then(async biometricTypes => {
                                             // ensure that the biometric types available, return a valid array
@@ -220,7 +237,10 @@ export const BiometricsPopUp = () => {
                                                     }
                                                 }
                                             } else {
-                                                console.log('Device does not support any type of biometric authentication!');
+                                                const biometricMessage = 'Device does not support any type of biometric authentication!';
+                                                console.log(biometricMessage);
+                                                await logEvent(biometricMessage, LoggingLevel.Warning, userIsAuthenticated);
+
                                                 // set the biometric availability flag accordingly
                                                 setBiometricAvailabilityCheck(true);
                                                 // set the readiness to true
@@ -234,7 +254,10 @@ export const BiometricsPopUp = () => {
                                         });
                                         break;
                                     default:
-                                        console.log(`Unrecognized enrollment level for device ${enrollmentLevel}`);
+                                        const errorMessage = `Unrecognized enrollment level for device ${enrollmentLevel}`;
+                                        console.log(errorMessage);
+                                        await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
+
                                         // set the biometric availability flag accordingly
                                         setBiometricAvailabilityCheck(true);
                                         // set the readiness to true
@@ -246,7 +269,10 @@ export const BiometricsPopUp = () => {
                                 }
                             });
                         } else {
-                            console.log('Device does not have any type of authentication data saved/enrolled!');
+                            const errorMessage = 'Device does not have any type of authentication data saved/enrolled!';
+                            console.log(errorMessage);
+                            await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
+
                             // set the biometric availability flag accordingly
                             setBiometricAvailabilityCheck(true);
                             // set the readiness to true
@@ -259,7 +285,10 @@ export const BiometricsPopUp = () => {
                         }
                     });
                 } else {
-                    console.log('Device does not have any type of authentication hardware available!');
+                    const errorMessage = 'Device does not have any type of authentication hardware available!';
+                    console.log(errorMessage);
+                    await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
+
                     // set the biometric availability flag accordingly
                     setBiometricAvailabilityCheck(true);
                     // set the readiness to true
@@ -272,7 +301,10 @@ export const BiometricsPopUp = () => {
                 }
             });
         } catch (error) {
-            console.log('Unexpected error while setting up biometrics popup!');
+            const errorMessage = 'Unexpected error while setting up biometrics popup!';
+            console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
+
             // set the biometric availability flag accordingly
             setBiometricAvailabilityCheck(true);
             // set the readiness to true

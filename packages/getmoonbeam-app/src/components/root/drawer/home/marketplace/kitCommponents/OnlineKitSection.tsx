@@ -51,14 +51,15 @@ import {
 } from "../../../../../../recoil/StoreOfferAtom";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
-import {Offer, OfferCategory, RedemptionType, RewardType} from '@moonbeam/moonbeam-models';
+import {LoggingLevel, Offer, OfferCategory, RedemptionType, RewardType} from '@moonbeam/moonbeam-models';
 import {Image} from "expo-image";
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {moonbeamKits} from "../storeComponents/KitsSection";
-import {retrieveCategorizedOnlineOffersList} from "../../../../../../utils/AppSync";
+import {logEvent, retrieveCategorizedOnlineOffersList} from "../../../../../../utils/AppSync";
 // @ts-ignore
 import MoonbeamNoOffersKit from "../../../../../../../assets/art/moonbeam-no-offers-kit.png";
+import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 
 /**
  * OnlineKitSection component.
@@ -81,6 +82,7 @@ export const OnlineKitSection = (props: {
     const [dataProvider, setDataProvider] = useState<DataProvider | null>(null);
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
     const [onlineKitListExpanded, setIsOnlineKitListExpanded] = useRecoilState(onlineKitListIsExpandedState);
     const [nearbyKitListExpanded, setNearbyKitListExpanded] = useRecoilState(nearbyKitListIsExpandedState);
@@ -409,7 +411,6 @@ export const OnlineKitSection = (props: {
                                         <TouchableOpacity
                                             style={styles.moreButton}
                                             onPress={() => {
-                                                console.log('button pressed');
                                                 if (!onlineKitListExpanded) {
                                                     // display all offers loaded in the list
                                                     setVerticalListLoading(true);
@@ -531,7 +532,9 @@ export const OnlineKitSection = (props: {
                                                 {onEndReachedThreshold: 1}
                                         }
                                         onEndReached={async () => {
-                                            console.log(`End of list reached. Trying to refresh more items.`);
+                                            const errorMessage = `End of list reached. Trying to refresh more items.`;
+                                            console.log(errorMessage);
+                                            await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
 
                                             // if there are items to load
                                             if (onlineKitListExpanded && !noOnlineOffersToLoad && currentActiveKit !== null) {
@@ -620,7 +623,9 @@ export const OnlineKitSection = (props: {
                                                 onlineListView.current?.scrollToIndex(deDuplicatedOnlineOfferList.length - 2);
                                             } else {
                                                 setVerticalListLoading(true);
-                                                console.log(`Maximum number of categorized online offers reached for category ${currentActiveKit} ${deDuplicatedOnlineOfferList.length}`);
+                                                const errorMessage = `Maximum number of categorized online offers reached for category ${currentActiveKit} ${deDuplicatedOnlineOfferList.length}`;
+                                                console.log(errorMessage);
+                                                await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
                                             }
                                         }}
                                         scrollViewProps={{

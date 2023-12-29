@@ -22,7 +22,7 @@ import {
     createdTransaction,
     getCardLink,
     getMilitaryVerificationStatus,
-    getTransaction,
+    getTransaction, LoggingLevel,
     MilitaryVerificationErrorType,
     MilitaryVerificationStatusType,
     MoonbeamTransaction,
@@ -30,7 +30,12 @@ import {
 } from "@moonbeam/moonbeam-models";
 import {API, Auth, graphqlOperation} from "aws-amplify";
 import {Observable} from "zen-observable-ts";
-import {currentUserInformation, expoPushTokenState, globalAmplifyCacheState} from "../../../recoil/AuthAtom";
+import {
+    currentUserInformation,
+    expoPushTokenState,
+    globalAmplifyCacheState,
+    userIsAuthenticatedState
+} from "../../../recoil/AuthAtom";
 import {Spinner} from "../../common/Spinner";
 import {Dialog, IconButton, Portal} from "react-native-paper";
 import {commonStyles} from "../../../styles/common.module";
@@ -51,7 +56,7 @@ import {fetchFile} from "../../../utils/File";
 import {Documents} from './documents/Documents';
 import {DocumentsViewer} from "../../common/DocumentsViewer";
 import {Support} from "./support/Support";
-import {createPhysicalDevice, proceedWithDeviceCreation, retrieveCardLinkingId} from "../../../utils/AppSync";
+import {createPhysicalDevice, logEvent, proceedWithDeviceCreation, retrieveCardLinkingId} from "../../../utils/AppSync";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {Referral} from "./home/referrals/Referral";
 import Constants from 'expo-constants';
@@ -82,6 +87,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         const [isLoaded, setIsLoaded] = useState<boolean>(false);
         const [updatedMilitaryStatus, setUpdatedMilitaryStatus] = useState<MilitaryVerificationStatusType | null>(null);
         // constants used to keep track of shared states
+        const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
         const [expoPushToken,] = useRecoilState(expoPushTokenState);
         const [globalCache,] = useRecoilState(globalAmplifyCacheState);
         const [transactionData, setTransactionData] = useRecoilState(transactionDataState);
@@ -120,10 +126,16 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                      */
                     let cardLinkingId: string;
                     if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-cardLinkingId`) !== null) {
-                        console.log('card linking id is cached');
+                        const message = 'card linking id is cached';
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                         cardLinkingId = await globalCache!.getItem(`${userInformation["custom:userId"]}-cardLinkingId`);
                     } else {
-                        console.log('card linking id is not cached');
+                        const message = 'card linking id is not cached';
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                         cardLinkingId = await retrieveCardLinkingId(userInformation["custom:userId"]);
                         globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-cardLinkingId`, cardLinkingId);
                     }
@@ -141,10 +153,16 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                      */
                     let profilePictureURI: string | null;
                     if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
-                        console.log('profile picture is cached');
+                        const message = 'profile picture is cached';
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                         profilePictureURI = await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`);
                     } else {
-                        console.log('profile picture is not cached');
+                        const message = 'profile picture is not cached';
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                         profilePictureURI = await retrieveProfilePicture();
                         globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, profilePictureURI !== null && profilePictureURI.length !== 0 ? profilePictureURI : "")
                     }
@@ -181,13 +199,19 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                             // if so, we create the physical device accordingly (and associated to the new user)
                             createPhysicalDevice(userInformation["custom:userId"], expoPushToken.data).then((physicalDeviceCreationFlag) => {
                                 if (physicalDeviceCreationFlag) {
-                                    console.log(`Successfully created a physical device for user!`);
+                                    const message = `Successfully created a physical device for user!`;
+                                    console.log(message);
+                                    logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {});
                                 } else {
-                                    console.log(`Unable to create a physical device for user!`);
+                                    const message = `Unable to create a physical device for user!`;
+                                    console.log(message);
+                                    logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {});
                                 }
                             });
                         } else {
-                            console.log(`Not necessary to create a physical device for user!`);
+                            const message = `Not necessary to create a physical device for user!`;
+                            console.log(message);
+                            logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {});
                         }
                     });
 
@@ -216,13 +240,19 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                             // if so, we create the physical device accordingly (and associated to the new user)
                             createPhysicalDevice(userInformation["custom:userId"], expoPushToken.data).then((physicalDeviceCreationFlag) => {
                                 if (physicalDeviceCreationFlag) {
-                                    console.log(`Successfully created a physical device for user!`);
+                                    const message = `Successfully created a physical device for user!`;
+                                    console.log(message);
+                                    logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {});
                                 } else {
-                                    console.log(`Unable to create a physical device for user!`);
+                                    const message = `Unable to create a physical device for user!`;
+                                    console.log(message);
+                                    logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {});
                                 }
                             });
                         } else {
-                            console.log(`Not necessary to create a physical device for user!`);
+                            const message = `Not necessary to create a physical device for user!`;
+                            console.log(message);
+                            logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {});
                         }
                     });
 
@@ -322,10 +352,16 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                  * not verified we don't cache this.
                  */
                 if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-militaryStatus`) !== null) {
-                    console.log('military status is cached');
+                    const message = 'military status is cached';
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                     militaryStatus = await globalCache!.getItem(`${userInformation["custom:userId"]}-militaryStatus`);
                 } else {
-                    console.log('military status is not cached');
+                    const message = 'military status is not cached';
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                     militaryStatus = await retrieveMilitaryVerification(userInformation["custom:userId"]);
                     militaryStatus === MilitaryVerificationStatusType.Verified && globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, militaryStatus);
                 }
@@ -347,7 +383,10 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                  */
                 let linkedCard: CardLink | null;
                 if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCardFlag`) !== null) {
-                    console.log('card is cached');
+                    const message = 'card is cached';
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                     linkedCard = await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCard`);
                     /**
                      * if there is no linked card object or if there are no linked cards for an existing object,
@@ -386,7 +425,10 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                         setBannerShown(false);
                     }
                 } else {
-                    console.log('card is not cached');
+                    const message = 'card is not cached';
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                     linkedCard = await retrieveLinkedCard(userInformation["custom:userId"]);
                     globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, linkedCard);
                     await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
@@ -426,7 +468,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     // @ts-ignore
                     setTransactionCreatedSubscription(createdTransactionUpdate.subscribe({
                         // function triggering on the next transaction created
-                        next: ({value}) => {
+                        next: async ({value}) => {
                             // check to ensure that there is a value and a valid data block to parse the message from
                             if (value && value.data && value.data.createdTransaction) {
                                 // parse the new transaction data from the subscription message received
@@ -437,19 +479,28 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                     return [...latestTransactionData, messageData];
                                 });
                             } else {
-                                console.log(`Unexpected error while parsing subscription message for transactions created updates ${JSON.stringify(value)}`);
+                                const message = `Unexpected error while parsing subscription message for transactions created updates ${JSON.stringify(value)}`;
+                                console.log(message);
+                                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                                 setModalVisible(true);
                             }
                         },
                         // function triggering in case there are any errors
-                        error: (error) => {
-                            console.log(`Unexpected error while subscribing to transactions created updates ${JSON.stringify(error)} ${error}`);
+                        error: async (error) => {
+                            const message = `Unexpected error while subscribing to transactions created updates ${JSON.stringify(error)} ${error}`;
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                             setModalVisible(true);
                         }
                     }));
                 }
             } catch (error) {
-                console.log(`Unexpected error while building a subscription to observe transactions created updates ${JSON.stringify(error)} ${error}`);
+                const message = `Unexpected error while building a subscription to observe transactions created updates ${JSON.stringify(error)} ${error}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                 setModalVisible(true);
             }
         }
@@ -496,7 +547,10 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                         if (responseData.getTransaction.errorType === MilitaryVerificationErrorType.NoneOrAbsent) {
                             return null;
                         } else {
-                            console.log(`Unexpected error while retrieving transactional data through the API ${JSON.stringify(retrievedTransactionsResult)}`);
+                            const message = `Unexpected error while retrieving transactional data through the API ${JSON.stringify(retrievedTransactionsResult)}`;
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                             setModalVisible(true);
 
                             return null;
@@ -506,7 +560,10 @@ export const AppDrawer = ({}: AppDrawerProps) => {
 
                 return null;
             } catch (error) {
-                console.log(`Unexpected error while attempting to retrieve transactional data ${JSON.stringify(error)} ${error}`);
+                const message = `Unexpected error while attempting to retrieve transactional data ${JSON.stringify(error)} ${error}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                 setModalVisible(true);
 
                 return null;
@@ -598,7 +655,10 @@ export const AppDrawer = ({}: AppDrawerProps) => {
 
                             return null;
                         } else {
-                            console.log(`Unexpected error while retrieving the card linking through the API ${JSON.stringify(retrievedCardLinkingResult)}`);
+                            const message = `Unexpected error while retrieving the card linking through the API ${JSON.stringify(retrievedCardLinkingResult)}`;
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                             setModalVisible(true);
 
                             return null;
@@ -608,7 +668,10 @@ export const AppDrawer = ({}: AppDrawerProps) => {
 
                 return null;
             } catch (error) {
-                console.log(`Unexpected error while attempting to retrieve the card linking object ${JSON.stringify(error)} ${error}`);
+                const message = `Unexpected error while attempting to retrieve the card linking object ${JSON.stringify(error)} ${error}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                 setModalVisible(true);
 
                 return null;
@@ -651,7 +714,10 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                             // returning the military status
                             return 'UNKNOWN';
                         } else {
-                            console.log(`Unexpected error while retrieving the military verification status through the API ${JSON.stringify(retrievedMilitaryVerificationResult)}`);
+                            const message = `Unexpected error while retrieving the military verification status through the API ${JSON.stringify(retrievedMilitaryVerificationResult)}`;
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                             setModalVisible(true);
 
                             return null;
@@ -661,7 +727,10 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                 return null;
 
             } catch (error) {
-                console.log(`Unexpected error while attempting to retrieve the military verification object ${JSON.stringify(error)} ${error}`);
+                const message = `Unexpected error while attempting to retrieve the military verification object ${JSON.stringify(error)} ${error}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                 setModalVisible(true);
 
                 return null;
@@ -692,30 +761,45 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                 // cache the new verification status if it is verified
                                 if (militaryStatus === MilitaryVerificationStatusType.Verified) {
                                     if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-militaryStatus`) !== null) {
-                                        console.log('old military status is cached, needs cleaning up');
+                                        const message = 'old military status is cached, needs cleaning up';
+                                        console.log(message);
+                                        await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                                         await globalCache!.removeItem(`${userInformation["custom:userId"]}-militaryStatus`);
                                         await globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, militaryStatus);
                                     } else {
-                                        console.log('military status is not cached');
+                                        const message = 'military status is not cached';
+                                        console.log(message);
+                                        await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                                         globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, militaryStatus);
                                     }
                                 }
                                 // set the update military status object
                                 setUpdatedMilitaryStatus(militaryStatus);
                             } else {
-                                console.log(`Unexpected error while parsing subscription message for military status update ${JSON.stringify(value)}`);
+                                const message = `Unexpected error while parsing subscription message for military status update ${JSON.stringify(value)}`;
+                                console.log(message);
+                                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                                 setModalVisible(true);
                             }
                         },
                         // function triggering in case there are any errors
-                        error: (error) => {
-                            console.log(`Unexpected error while subscribing to military status updates ${JSON.stringify(error)} ${error}`);
+                        error: async (error) => {
+                            const message = `Unexpected error while subscribing to military status updates ${JSON.stringify(error)} ${error}`;
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                             setModalVisible(true);
                         }
                     }));
                 }
             } catch (error) {
-                console.log(`Unexpected error while building a subscription to observe military status updates ${JSON.stringify(error)} ${error}`);
+                const message = `Unexpected error while building a subscription to observe military status updates ${JSON.stringify(error)} ${error}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                 setModalVisible(true);
             }
         }
@@ -737,7 +821,9 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                         false, false, userCredentials["identityId"]);
                     if (!returnFlag || profilePictureURI === null) {
                         // for any error we just want to print them out, and not set any profile picture, and show the default avatar instead
-                        console.log(`Unable to retrieve new profile picture!`);
+                        const message = `Unable to retrieve new profile picture!`;
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Warning, userIsAuthenticated);
 
                         return null;
                     } else {
@@ -750,6 +836,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                 // for any error we just want to print them out, and not set any profile picture, and show the default avatar instead
                 const errorMessage = `Error while retrieving profile picture!`;
                 console.log(`${errorMessage} - ${error}`);
+                await logEvent(`${errorMessage} - ${error}`, LoggingLevel.Error, userIsAuthenticated);
 
                 return null;
             }

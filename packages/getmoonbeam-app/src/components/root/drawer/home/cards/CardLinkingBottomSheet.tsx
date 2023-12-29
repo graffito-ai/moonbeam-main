@@ -2,18 +2,31 @@ import React, {useEffect, useState} from "react";
 import {Linking, SafeAreaView, StyleSheet} from "react-native";
 import WebView from "react-native-webview";
 import {useRecoilState} from "recoil";
-import {currentUserInformation, globalAmplifyCacheState} from "../../../../../recoil/AuthAtom";
+import {
+    currentUserInformation,
+    globalAmplifyCacheState,
+    userIsAuthenticatedState
+} from "../../../../../recoil/AuthAtom";
 import {Dialog, Portal, Text} from "react-native-paper";
 import {commonStyles} from '../../../../../styles/common.module';
 import {styles} from '../../../../../styles/wallet.module';
 import {Spinner} from "../../../../common/Spinner";
 import {API, graphqlOperation} from "aws-amplify";
-import {addCard, CardLink, CardLinkErrorType, CardType, createCardLink, Stages} from "@moonbeam/moonbeam-models";
+import {
+    addCard,
+    CardLink,
+    CardLinkErrorType,
+    CardType,
+    createCardLink,
+    LoggingLevel,
+    Stages
+} from "@moonbeam/moonbeam-models";
 import {cardLinkingStatusState, customBannerShown} from "../../../../../recoil/AppDrawerAtom";
 import {cardLinkingBottomSheetState} from "../../../../../recoil/WalletAtom";
 import {Button} from "@rneui/base";
 import * as envInfo from "../../../../../../local-env-info.json";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {logEvent} from "../../../../../utils/AppSync";
 
 /**
  * CardLinkingBottomSheet component.
@@ -27,6 +40,7 @@ export const CardLinkingBottomSheet = () => {
     const [modalCustomMessage, setModalCustomMessage] = useState<string>("");
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [globalCache,] = useRecoilState(globalAmplifyCacheState);
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
     const [, setBannerShown] = useRecoilState(customBannerShown);
@@ -70,6 +84,7 @@ export const CardLinkingBottomSheet = () => {
 
             const errorMessage = `Unsupported card linked. Only MasterCard and/or Visa available to link!`;
             console.log(`${errorMessage} ${linkingData.data.card_type}`);
+            await logEvent(`${errorMessage} ${linkingData.data.card_type}`, LoggingLevel.Error, userIsAuthenticated);
 
             setCardLinkingStatus(false);
             // set a custom message for the modal message
@@ -98,7 +113,10 @@ export const CardLinkingBottomSheet = () => {
                 setIsReady(true);
 
                 // if there were errors, then display a modal prompting the user to retry linking their card
-                console.log(`Error with initial token structure ${linkingData.error}`);
+                const errorMessage = `Error with initial token structure ${linkingData.error}`;
+                console.log(errorMessage);
+                await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
+
                 setCardLinkingStatus(false);
                 setModalVisible(true);
             } else {
@@ -125,6 +143,7 @@ export const CardLinkingBottomSheet = () => {
 
                             const errorMessage = `Unsupported card added. Only MasterCard and/or Visa available to be added!`;
                             console.log(`${errorMessage} ${linkingData.data.card_type}`);
+                            await logEvent(`${errorMessage} ${linkingData.data.card_type}`, LoggingLevel.Error, userIsAuthenticated);
 
                             setCardLinkingStatus(false);
                             // set a custom message for the modal message
@@ -135,7 +154,10 @@ export const CardLinkingBottomSheet = () => {
                             setIsReady(true);
 
                             // if there were errors, then display a modal prompting the user to retry adding their card
-                            console.log(`Error while adding new card ${JSON.stringify(errorObject)}`);
+                            const errorMessage = `Error while adding new card ${JSON.stringify(errorObject)}`;
+                            console.log(errorMessage);
+                            await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
+
                             setCardLinkingStatus(false);
                             setModalVisible(true);
                         }
@@ -149,13 +171,19 @@ export const CardLinkingBottomSheet = () => {
 
                         // if the card was successfully linked, then we can cache it accordingly
                         if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCardFlag`) !== null) {
-                            console.log('old card is cached, needs cleaning up');
+                            const message = 'old card is cached, needs cleaning up';
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                             await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCard`);
                             await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCardFlag`);
                             await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, addCardResult);
                             await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
                         } else {
-                            console.log('card is not cached');
+                            const message = 'card is not cached';
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                             globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, addCardResult);
                             globalCache && await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
                         }
@@ -187,6 +215,7 @@ export const CardLinkingBottomSheet = () => {
 
                             const errorMessage = `Unsupported card linked. Only MasterCard and/or Visa available to link!`;
                             console.log(`${errorMessage} ${linkingData.data.card_type}`);
+                            await logEvent(`${errorMessage} ${linkingData.data.card_type}`, LoggingLevel.Error, userIsAuthenticated);
 
                             setCardLinkingStatus(false);
                             // set a custom message for the modal message
@@ -197,7 +226,10 @@ export const CardLinkingBottomSheet = () => {
                             setIsReady(true);
 
                             // if there were errors, then display a modal prompting the user to retry linking their card
-                            console.log(`Error while linking card ${JSON.stringify(errorObject)}`);
+                            const errorMessage = `Error while linking card ${JSON.stringify(errorObject)}`;
+                            console.log(errorMessage);
+                            await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
+
                             setCardLinkingStatus(false);
                             setModalVisible(true);
                         }
@@ -211,13 +243,19 @@ export const CardLinkingBottomSheet = () => {
 
                         // if the card was successfully linked, then we can cache it accordingly
                         if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCardFlag`) !== null) {
-                            console.log('old card is cached, needs cleaning up');
+                            const errorMessage = 'old card is cached, needs cleaning up';
+                            console.log(errorMessage);
+                            await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
                             await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCard`);
                             await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCardFlag`);
                             await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, signupCardLinkedMemberResult);
                             await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
                         } else {
-                            console.log('card is not cached');
+                            const errorMessage = 'card is not cached';
+                            console.log(errorMessage);
+                            await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
                             globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, signupCardLinkedMemberResult);
                             globalCache && await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
                         }
@@ -275,11 +313,17 @@ export const CardLinkingBottomSheet = () => {
             if (responseData && responseData.addCard.errorMessage === null) {
                 return [responseData.addCard.data];
             } else {
-                console.log(`Unexpected error while adding a new card through the add card API ${JSON.stringify(addCardResult)}`);
+                const errorMessage = `Unexpected error while adding a new card through the add card API ${JSON.stringify(addCardResult)}`;
+                console.log(errorMessage);
+                await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
+
                 return [null, [responseData.addCard.errorMessage, responseData.addCard.errorType]];
             }
         } catch (error) {
-            console.log(`Unexpected error while attempting to add a new card through the add card API ${JSON.stringify(error)} ${error}`);
+            const errorMessage = `Unexpected error while attempting to add a new card through the add card API ${JSON.stringify(error)} ${error}`;
+            console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
+
             return [null, [`Unexpected error`, CardLinkErrorType.UnexpectedError]];
         }
     }
@@ -321,11 +365,17 @@ export const CardLinkingBottomSheet = () => {
             if (responseData && responseData.createCardLink.errorMessage === null) {
                 return [responseData.createCardLink.data];
             } else {
-                console.log(`Unexpected error while signing a new member up through the card linking API ${JSON.stringify(cardLinkingResult)}`);
+                const errorMessage = `Unexpected error while signing a new member up through the card linking API ${JSON.stringify(cardLinkingResult)}`;
+                console.log(errorMessage);
+                await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
+
                 return [null, [responseData.createCardLink.errorMessage, responseData.createCardLink.errorType]];
             }
         } catch (error) {
-            console.log(`Unexpected error while attempting to sign a new member up through the card linking API ${JSON.stringify(error)} ${error}`);
+            const errorMessage = `Unexpected error while attempting to sign a new member up through the card linking API ${JSON.stringify(error)} ${error}`;
+            console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
+
             return [null, [`Unexpected error`, CardLinkErrorType.UnexpectedError]];
         }
     }
@@ -351,7 +401,10 @@ export const CardLinkingBottomSheet = () => {
             break;
         // ToDo: add more environments representing our stages in here
         default:
-            console.log(`Invalid environment passed in from Amplify ${envInfo.envName}`);
+            const errorMessage = `Invalid environment passed in from Amplify ${envInfo.envName}`;
+            console.log(errorMessage);
+            logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated).then(() => {});
+
             break;
     }
     const oliveIframeContent =
@@ -439,12 +492,14 @@ export const CardLinkingBottomSheet = () => {
                             onShouldStartLoadWithRequest={(request) => {
                                 // redirect to browser for terms and conditions and privacy policy clicks
                                 if (request.url === 'https://www.moonbeam.vet/terms-and-conditions' || request.url === 'https://www.moonbeam.vet/privacy-policy') {
-                                    Linking.canOpenURL(request.url).then(supported => {
+                                    Linking.canOpenURL(request.url).then(async supported => {
                                         if (supported) {
                                             Linking.openURL(request.url).then(() => {
                                             });
                                         } else {
-                                            console.log(`Don't know how to open URI: ${request.url}`);
+                                            const errorMessage = `Don't know how to open URI: ${request.url}`;
+                                            console.log(errorMessage);
+                                            await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
                                         }
                                     });
                                     return false;

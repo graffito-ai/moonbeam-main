@@ -2,7 +2,7 @@ import React, {useEffect, useMemo, useRef, useState} from "react";
 import {Platform, TouchableOpacity, View} from "react-native";
 import {ActivityIndicator, Card, Paragraph, Portal, Text} from "react-native-paper";
 import {styles} from "../../../../../../styles/store.module";
-import {Offer, RewardType} from "@moonbeam/moonbeam-models";
+import {LoggingLevel, Offer, RewardType} from "@moonbeam/moonbeam-models";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
@@ -18,6 +18,8 @@ import {Image} from 'expo-image';
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
+import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
+import {logEvent} from "../../../../../../utils/AppSync";
 
 /**
  * OnlineSection component.
@@ -38,6 +40,7 @@ export const OnlineSection = (props: {
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
     const [onlineOffersSpinnerShown, setOnlineOffersSpinnerShown] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [numberOfOnlineOffers,] = useRecoilState(numberOfOnlineOffersState);
     const [locationServicesButton,] = useRecoilState(locationServicesButtonState);
     const [nearbyOfferList,] = useRecoilState(nearbyOffersListState);
@@ -200,7 +203,9 @@ export const OnlineSection = (props: {
                                         {onEndReachedThreshold: 1}
                                 }
                                 onEndReached={async () => {
-                                    console.log(`End of list reached. Trying to refresh more items.`);
+                                    const errorMessage = `End of list reached. Trying to refresh more items.`;
+                                    console.log(errorMessage);
+                                    await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
 
                                     // if there are items to load
                                     if (!noOnlineOffersToLoad) {
@@ -213,7 +218,10 @@ export const OnlineSection = (props: {
                                         // @ts-ignore
                                         onlineListView.current?.scrollToIndex(deDuplicatedOnlineOfferList.length - 2);
                                     } else {
-                                        console.log(`Maximum number of online offers reached ${deDuplicatedOnlineOfferList.length}`);
+                                        const errorMessage = `Maximum number of online offers reached ${deDuplicatedOnlineOfferList.length}`;
+                                        console.log(errorMessage);
+                                        await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
                                         setOnlineOffersSpinnerShown(false);
                                         setHorizontalListLoading(false);
                                     }

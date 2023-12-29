@@ -6,7 +6,11 @@ import {styles} from "../../../../../styles/profile.module";
 // @ts-ignore
 import FaceIDIcon from '../../../../../../assets/face-id-icon.png';
 import {useRecoilState} from "recoil";
-import {currentUserInformation, globalAmplifyCacheState} from "../../../../../recoil/AuthAtom";
+import {
+    currentUserInformation,
+    globalAmplifyCacheState,
+    userIsAuthenticatedState
+} from "../../../../../recoil/AuthAtom";
 import {Spinner} from "../../../../common/Spinner";
 import {ProfileProps} from "../../../../../models/props/SettingsProps";
 import {appDrawerHeaderShownState, drawerSwipeState, profilePictureURIState} from "../../../../../recoil/AppDrawerAtom";
@@ -33,6 +37,8 @@ import MoonbeamPreferencesAndroid from "../../../../../../assets/art/moonbeam-pr
 import {Image as ExpoImage} from "expo-image/build/Image"
 // @ts-ignore
 import MoonbeamProfilePlaceholder from "../../../../../../assets/art/moonbeam-profile-placeholder.png";
+import {logEvent} from "../../../../../utils/AppSync";
+import {LoggingLevel} from "@moonbeam/moonbeam-models";
 
 /**
  * Profile component
@@ -81,6 +87,7 @@ export const Profile = ({navigation}: ProfileProps) => {
     const [dutyStatusErrors, setDutyStatusErrors] = useState<string[]>([]);
     const bottomSheetRef = useRef(null);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [globalCache,] = useRecoilState(globalAmplifyCacheState);
     const [showBottomSheet, setShowBottomSheet] = useRecoilState(codeVerificationSheetShown);
     const [codeVerified, setCodeVerified] = useRecoilState(codeVerifiedState);
@@ -131,6 +138,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                 // show a success modal
                 const message = `Profile information successfully updated!`;
                 console.log(message);
+                logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {});
 
                 setModalCustomMessage(message);
                 setModalButtonMessage('Ok');
@@ -149,7 +157,7 @@ export const Profile = ({navigation}: ProfileProps) => {
             // populate the information from the information object
             birthday === "" && email === "" && phoneNumber === "" && addressLine === "" &&
             addressCity === "" && addressState === "" && addressZip === "" && enlistingYear === "" &&
-            dutyStatus === "" && retrieveUserInfo();
+            dutyStatus === "" && retrieveUserInfo().then(() => {});
 
             // manipulate the bottom sheet
             if (!showBottomSheet && bottomSheetRef) {
@@ -226,7 +234,7 @@ export const Profile = ({navigation}: ProfileProps) => {
      * Function used to retrieve the user information from the shared user info
      * object, and format it appropriately.
      */
-    const retrieveUserInfo = (): void => {
+    const retrieveUserInfo = async (): Promise<void> => {
         // set a loader on button press
         setIsReady(false);
 
@@ -270,7 +278,9 @@ export const Profile = ({navigation}: ProfileProps) => {
         } else {
             // release the loader on button press
             setIsReady(true);
-            console.log(`Invalid user information structure retrieved!`);
+            const message = `Invalid user information structure retrieved!`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
 
             setModalCustomMessage(`Unexpected error while loading user information!`);
             setModalButtonMessage(`Try Again!`);
@@ -325,6 +335,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                             if (!uploadFlag || fileName === null) {
                                 const errorMessage = "Error while picking a photo as profile picture!";
                                 console.log(errorMessage);
+                                await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
 
                                 setModalCustomMessage(errorMessage);
                                 setModalButtonMessage('Try Again!');
@@ -337,11 +348,16 @@ export const Profile = ({navigation}: ProfileProps) => {
                             } else {
                                 // release the loader on button press
                                 setIsReady(true);
-                                console.log("Profile picture successfully uploaded!");
+                                const message = "Profile picture successfully uploaded!";
+                                console.log(message);
+                                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
 
                                 // update the Amplify cache accordingly - we will load up the new profile picture at first login load
                                 if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
-                                    console.log('old profile picture is cached, needs cleaning up');
+                                    const message = 'old profile picture is cached, needs cleaning up';
+                                    console.log(message);
+                                    await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                                     await globalCache!.removeItem(`${userInformation["custom:userId"]}-profilePictureURI`);
                                 }
 
@@ -353,6 +369,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                         } else {
                             const errorMessage = "Invalid photo size. Maximum allotted size is 10MB";
                             console.log(errorMessage);
+                            await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
 
                             setModalCustomMessage(errorMessage);
                             setModalButtonMessage('Try Again!');
@@ -366,6 +383,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                     } else {
                         const errorMessage = `Please pick only 1 photo of for your profile picture to continue!`;
                         console.log(`${errorMessage} - ${result.canceled}`);
+                        await logEvent(`${errorMessage} - ${result.canceled}`, LoggingLevel.Error, userIsAuthenticated);
 
                         setModalCustomMessage(errorMessage);
                         setModalButtonMessage('Try Again!');
@@ -379,6 +397,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                 } else {
                     const errorMessage = `No photo picked as your profile picture!`;
                     console.log(`${errorMessage} - ${result.canceled}`);
+                    await logEvent(`${errorMessage} - ${result.canceled}`, LoggingLevel.Error, userIsAuthenticated);
 
                     setModalCustomMessage(errorMessage);
                     setModalButtonMessage('Ok');
@@ -392,6 +411,7 @@ export const Profile = ({navigation}: ProfileProps) => {
             } else {
                 const errorMessage = `Permission to access media library was not granted!`;
                 console.log(errorMessage);
+                await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
 
                 setPermissionsModalCustomMessage(errorMessage);
                 setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
@@ -407,6 +427,7 @@ export const Profile = ({navigation}: ProfileProps) => {
         } catch (error) {
             const errorMessage = `Error while picking photo of document!`;
             console.log(`${errorMessage} - ${error}`);
+            await logEvent(`${errorMessage} - ${error}`, LoggingLevel.Error, userIsAuthenticated);
 
             setModalCustomMessage(errorMessage);
             setModalButtonMessage('Try Again!');
@@ -460,6 +481,7 @@ export const Profile = ({navigation}: ProfileProps) => {
 
                     const message = `Profile information successfully updated!`;
                     console.log(message);
+                    await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
 
                     setModalCustomMessage(message);
                     setModalButtonMessage('Ok');
@@ -470,6 +492,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                 } else {
                     const errorMessage = `Error while updating profile information!`;
                     console.log(errorMessage);
+                    await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
 
                     setModalCustomMessage(errorMessage);
                     setModalButtonMessage('Try Again!');
@@ -487,6 +510,7 @@ export const Profile = ({navigation}: ProfileProps) => {
         } catch (error) {
             const errorMessage = `Error updating profile information!`;
             console.log(`${errorMessage} - ${error}`);
+            await logEvent(`${errorMessage} - ${error}`, LoggingLevel.Error, userIsAuthenticated);
 
             setModalCustomMessage(errorMessage);
             setModalButtonMessage('Try Again!');

@@ -13,7 +13,7 @@ import {
     CountryCode,
     FidelisPartner,
     getFidelisPartners,
-    getOffers,
+    getOffers, LoggingLevel,
     Offer,
     OfferAvailability,
     OfferFilter,
@@ -21,7 +21,11 @@ import {
     RedemptionType
 } from "@moonbeam/moonbeam-models";
 import {API, graphqlOperation} from "aws-amplify";
-import {currentUserInformation, marketplaceAmplifyCacheState} from "../../../../../recoil/AuthAtom";
+import {
+    currentUserInformation,
+    marketplaceAmplifyCacheState,
+    userIsAuthenticatedState
+} from "../../../../../recoil/AuthAtom";
 import {useRecoilState} from "recoil";
 // @ts-ignore
 import MoonbeamOffersLoading from '../../../../../../assets/art/moonbeam-offers-loading.png';
@@ -63,6 +67,7 @@ import {ClickOnlyOnlineSection} from "./storeComponents/ClickOnlyOnlineSection";
 import BottomSheet from "@gorhom/bottom-sheet";
 import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
 import {ClickOnlyOffersBottomSheet} from "./storeComponents/ClickOnlyOffersBottomSheet";
+import {logEvent} from "../../../../../utils/AppSync";
 
 /**
  * Store component.
@@ -83,6 +88,7 @@ export const Store = ({navigation}: StoreProps) => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [shouldCacheImages, setShouldCacheImages] = useState<boolean>(true);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [fidelisPartnerList, setFidelisPartnerList] = useRecoilState(fidelisPartnerListState);
     const [, setStoreNavigationState] = useRecoilState(storeNavigationState);
     const [currentUserLocation, setCurrentUserLocation] = useRecoilState(currentUserLocationState);
@@ -136,15 +142,23 @@ export const Store = ({navigation}: StoreProps) => {
                     // set the cache appropriately
                     marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, fidelisPartners);
                 } else {
-                    console.log(`No Fidelis partners to display ${JSON.stringify(fidelisPartnersResult)}`);
+                    const message = `No Fidelis partners to display ${JSON.stringify(fidelisPartnersResult)}`;
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Warning, userIsAuthenticated);
+
                     // setModalVisible(true);
                 }
             } else {
-                console.log(`Unexpected error while retrieving Fidelis partner offers ${JSON.stringify(fidelisPartnersResult)}`);
+                const message = `Unexpected error while retrieving Fidelis partner offers ${JSON.stringify(fidelisPartnersResult)}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                 // setModalVisible(true);
             }
         } catch (error) {
-            console.log(`Unexpected error while attempting to retrieve the Fidelis partner offers ${JSON.stringify(error)} ${error}`);
+            const message = `Unexpected error while attempting to retrieve the Fidelis partner offers ${JSON.stringify(error)} ${error}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
             // setModalVisible(true);
         }
     }
@@ -190,7 +204,10 @@ export const Store = ({navigation}: StoreProps) => {
                         return [...oldClickOnlyOnlineOfferList, ...clickOnlyOnlineOffers];
                     });
                 } else {
-                    console.log(`No click-only online offers to display ${JSON.stringify(clickOnlyOnlineOffersResult)}`);
+                    const message = `No click-only online offers to display ${JSON.stringify(clickOnlyOnlineOffersResult)}`;
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Warning, userIsAuthenticated);
+
                     /**
                      * if there are no more click-only online offers to load, then this is not an error,
                      * otherwise display an error.
@@ -203,11 +220,15 @@ export const Store = ({navigation}: StoreProps) => {
                     }
                 }
             } else {
-                console.log(`Unexpected error while retrieving click-only online offers ${JSON.stringify(clickOnlyOnlineOffersResult)}`);
+                const message = `Unexpected error while retrieving click-only online offers ${JSON.stringify(clickOnlyOnlineOffersResult)}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Warning, userIsAuthenticated);
                 // setModalVisible(true);
             }
         } catch (error) {
-            console.log(`Unexpected error while attempting to retrieve click-only online offers ${JSON.stringify(error)} ${error}`);
+            const message = `Unexpected error while attempting to retrieve click-only online offers ${JSON.stringify(error)} ${error}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Warning, userIsAuthenticated);
             // setModalVisible(true);
         }
     }
@@ -253,7 +274,9 @@ export const Store = ({navigation}: StoreProps) => {
                         return [...oldOnlineOfferList, ...onlineOffers];
                     });
                 } else {
-                    console.log(`No online offers to display ${JSON.stringify(onlineOffersResult)}`);
+                    const message = `No online offers to display ${JSON.stringify(onlineOffersResult)}`;
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
                     /**
                      * if there are no more online offers to load, then this is not an error,
                      * otherwise display an error.
@@ -266,11 +289,15 @@ export const Store = ({navigation}: StoreProps) => {
                     }
                 }
             } else {
-                console.log(`Unexpected error while retrieving online offers ${JSON.stringify(onlineOffersResult)}`);
+                const message = `Unexpected error while retrieving online offers ${JSON.stringify(onlineOffersResult)}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
                 // setModalVisible(true);
             }
         } catch (error) {
-            console.log(`Unexpected error while attempting to retrieve online offers ${JSON.stringify(error)} ${error}`);
+            const message = `Unexpected error while attempting to retrieve online offers ${JSON.stringify(error)} ${error}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
             // setModalVisible(true);
         }
     }
@@ -287,7 +314,9 @@ export const Store = ({navigation}: StoreProps) => {
         try {
             // check to see if we already have these offers cached, for the first page, if we do retrieve them from cache instead
             if (onlineOffersPageNumber === 1 && marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-offerNearUserHome`) !== null) {
-                console.log('offers near user home are cached');
+                const message = 'offers near user home are cached';
+                console.log(message);
+                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
 
                 setNearbyOfferList(await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-offerNearUserHome`));
                 // we want to increase the page number of offers near user home, since we already have the first page obtained from cache
@@ -303,7 +332,10 @@ export const Store = ({navigation}: StoreProps) => {
                 const geoLocationArray = await Location.geocodeAsync(userInformation["address"]["formatted"]);
                 const geoLocation = geoLocationArray && geoLocationArray.length !== 0 ? geoLocationArray[0] : null;
                 if (!geoLocation) {
-                    console.log(`Unable to retrieve user's home location's geolocation ${address}`);
+                    const message = `Unable to retrieve user's home location's geolocation ${address}`;
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                     setAreNearbyOffersReady(true);
                     setNearbyOffersSpinnerShown(false);
                 } else {
@@ -311,7 +343,10 @@ export const Store = ({navigation}: StoreProps) => {
                     setNearbyOffersSpinnerShown(false);
                 }
             } else {
-                console.log('offers near user home are not cached, or page number is not 1');
+                const message = 'offers near user home are not cached, or page number is not 1';
+                console.log(message);
+                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                 // first retrieve the necessary geolocation information based on the user's home address
                 const geoLocationArray = await Location.geocodeAsync(address);
                 /**
@@ -319,7 +354,10 @@ export const Store = ({navigation}: StoreProps) => {
                  */
                 const geoLocation = geoLocationArray && geoLocationArray.length !== 0 ? geoLocationArray[0] : null;
                 if (!geoLocation) {
-                    console.log(`Unable to retrieve user's home location's geolocation ${address}`);
+                    const message = `Unable to retrieve user's home location's geolocation ${address}`;
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                     setAreNearbyOffersReady(true);
                     setNearbyOffersSpinnerShown(false);
                 } else {
@@ -368,7 +406,10 @@ export const Store = ({navigation}: StoreProps) => {
                             setAreNearbyOffersReady(true);
                             setNearbyOffersSpinnerShown(false);
                         } else {
-                            console.log(`No offers near user's home location to display ${JSON.stringify(nearbyOffersResult)}`);
+                            const message = `No offers near user's home location to display ${JSON.stringify(nearbyOffersResult)}`;
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                             setAreNearbyOffersReady(true);
                             setNearbyOffersSpinnerShown(false);
                             /**
@@ -384,7 +425,10 @@ export const Store = ({navigation}: StoreProps) => {
                             }
                         }
                     } else {
-                        console.log(`Unexpected error while retrieving offers near user's home location ${JSON.stringify(nearbyOffersResult)}`);
+                        const message = `Unexpected error while retrieving offers near user's home location ${JSON.stringify(nearbyOffersResult)}`;
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                         // setModalVisible(true);
                         setAreNearbyOffersReady(true);
                         setNearbyOffersSpinnerShown(false);
@@ -393,7 +437,10 @@ export const Store = ({navigation}: StoreProps) => {
             }
 
         } catch (error) {
-            console.log(`Unexpected error while attempting to retrieve offers near user's home location ${JSON.stringify(error)} ${error}`);
+            const message = `Unexpected error while attempting to retrieve offers near user's home location ${JSON.stringify(error)} ${error}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
             // setModalVisible(true);
             setAreNearbyOffersReady(true);
             setNearbyOffersSpinnerShown(false);
@@ -417,6 +464,7 @@ export const Store = ({navigation}: StoreProps) => {
             if (foregroundPermissionStatus.status !== 'granted') {
                 const errorMessage = `Permission to access location was not granted!`;
                 console.log(errorMessage);
+                await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
                 setLocationServicesButton(true);
             } else {
                 if (currentUserLocation === null) {
@@ -463,7 +511,9 @@ export const Store = ({navigation}: StoreProps) => {
                             setAreNearbyOffersReady(true);
                             setNearbyOffersSpinnerShown(false);
                         } else {
-                            console.log(`No nearby offers to display ${JSON.stringify(nearbyOffersResult)}`);
+                            const errorMessage = `No nearby offers to display ${JSON.stringify(nearbyOffersResult)}`;
+                            console.log(errorMessage);
+                            await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
                             /**
                              * if there are no more nearby offers to load, then do not fall back
                              * otherwise fall back to the offers near users' home address.
@@ -477,20 +527,28 @@ export const Store = ({navigation}: StoreProps) => {
                             }
                         }
                     } else {
-                        console.log(`Unexpected error while retrieving nearby offers ${JSON.stringify(nearbyOffersResult)}`);
+                        const errorMessage = `Unexpected error while retrieving nearby offers ${JSON.stringify(nearbyOffersResult)}`;
+                        console.log(errorMessage);
+                        await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
+
                         // setModalVisible(true);
                         setAreNearbyOffersReady(true);
                         setNearbyOffersSpinnerShown(false);
                     }
                 } else {
-                    console.log(`Unable to retrieve the current user's location coordinates!`);
+                    const errorMessage = `Unable to retrieve the current user's location coordinates!`;
+                    console.log(errorMessage);
+                    await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
+
                     // setModalVisible(true);
                     setAreNearbyOffersReady(true);
                     setNearbyOffersSpinnerShown(false);
                 }
             }
         } catch (error) {
-            console.log(`Unexpected error while attempting to retrieve nearby offers ${JSON.stringify(error)} ${error}`);
+            const errorMessage = `Unexpected error while attempting to retrieve nearby offers ${JSON.stringify(error)} ${error}`;
+            console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
 
             // @ts-ignore
             if (!error.code && (error.code !== 'ERR_LOCATION_INFO_PLIST' || error.code !== 'E_LOCATION_UNAVAILABLE')) {
@@ -621,10 +679,15 @@ export const Store = ({navigation}: StoreProps) => {
         const loadFidelisData = async (): Promise<void> => {
             // check to see if we have cached Fidelis Partners. If we do, we don't need to retrieve them again for a week.
             if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-fidelisPartners`) !== null) {
-                console.log('Fidelis Partners are cached');
+                const errorMessage = 'Fidelis Partners are cached';
+                console.log(errorMessage);
+                await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
                 setFidelisPartnerList(await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-fidelisPartners`));
             } else {
-                console.log('Fidelis Partners are not cached');
+                const errorMessage = 'Fidelis Partners are not cached';
+                console.log(errorMessage);
+                await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
                 await retrieveFidelisPartnerList();
             }
         }

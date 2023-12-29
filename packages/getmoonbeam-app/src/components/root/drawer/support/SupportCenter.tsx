@@ -17,6 +17,9 @@ import {fetchFile} from "../../../../utils/File";
 import MoonbeamPreferencesIOS from "../../../../../assets/art/moonbeam-preferences-ios.jpg";
 // @ts-ignore
 import MoonbeamPreferencesAndroid from "../../../../../assets/art/moonbeam-preferences-android.jpg";
+import {userIsAuthenticatedState} from "../../../../recoil/AuthAtom";
+import {logEvent} from "../../../../utils/AppSync";
+import {LoggingLevel} from "@moonbeam/moonbeam-models";
 
 /**
  * SupportCenter component.
@@ -35,6 +38,7 @@ export const SupportCenter = ({navigation}: SupportCenterProps) => {
     const [supportModalMessage, setSupportModalMessage] = useState<string>('');
     const [supportModalButtonMessage, setSupportModalButtonMessage] = useState<string>('');
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
 
     /**
@@ -67,7 +71,10 @@ export const SupportCenter = ({navigation}: SupportCenterProps) => {
             // retrieving the document link from either local cache, or from storage
             const [returnFlag, shareURI] = await fetchFile('contact-icon.png', false, false, true);
             if (!returnFlag || shareURI === null) {
-                console.log(`Unable to download contact icon file!`);
+                const message = `Unable to download contact icon file!`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Warning, userIsAuthenticated);
+
                 return false;
             } else {
                 // create a new contact for Moonbeam Support chat
@@ -114,6 +121,7 @@ export const SupportCenter = ({navigation}: SupportCenterProps) => {
         } else {
             const errorMessage = `Permission to access contacts was not granted!`;
             console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
 
             setPermissionsModalCustomMessage(errorMessage);
             setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
@@ -145,7 +153,10 @@ export const SupportCenter = ({navigation}: SupportCenterProps) => {
                     // release the loader on button press
                     setIsReady(true);
 
-                    console.log('Message sent!');
+                    const message = 'Message sent!';
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                     setSupportModalMessage('Thank you for your inquiry! One of our team members will get back to you shortly!');
                     setSupportModalButtonMessage('Dismiss');
                     setSupportModalVisible(true);
@@ -154,7 +165,10 @@ export const SupportCenter = ({navigation}: SupportCenterProps) => {
                     // release the loader on button press
                     setIsReady(true);
 
-                    console.log('Unknown error has occurred while attempting to send a message!');
+                    const errorMessage = 'Unknown error has occurred while attempting to send a message!';
+                    console.log(errorMessage);
+                    await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
+
                     setSupportModalMessage('An unexpected error occurred while attempting to contact our team');
                     setSupportModalButtonMessage('Retry');
                     setSupportModalVisible(true);
@@ -163,7 +177,10 @@ export const SupportCenter = ({navigation}: SupportCenterProps) => {
                     // release the loader on button press
                     setIsReady(true);
 
-                    console.log('Message was cancelled!');
+                    const cancelledMessage = 'Message was cancelled!';
+                    console.log(cancelledMessage);
+                    await logEvent(cancelledMessage, LoggingLevel.Warning, userIsAuthenticated);
+
                     setSupportModalMessage('It looks like you cancelled your inquiry to our team! If you do need help, please ensure that you send your message beforehand!');
                     setSupportModalButtonMessage('Ok');
                     setSupportModalVisible(true);
@@ -174,7 +191,10 @@ export const SupportCenter = ({navigation}: SupportCenterProps) => {
             setIsReady(true);
 
             // there's no SMS available on this device
-            console.log('no SMS available');
+            const message = 'no SMS available';
+            console.log(message);
+            await logEvent(message, LoggingLevel.Warning, userIsAuthenticated);
+
             setSupportModalMessage('Messaging not available on this platform!');
             setSupportModalButtonMessage('Retry');
             setSupportModalVisible(true);

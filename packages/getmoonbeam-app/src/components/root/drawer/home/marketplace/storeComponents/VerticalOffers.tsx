@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
-import {FidelisPartner, Offer, RewardType} from "@moonbeam/moonbeam-models";
+import {FidelisPartner, LoggingLevel, Offer, RewardType} from "@moonbeam/moonbeam-models";
 import {ActivityIndicator, Card, FAB, List, Portal, Text} from "react-native-paper";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import {styles} from "../../../../../../styles/store.module";
@@ -20,7 +20,7 @@ import {
 } from "../../../../../../recoil/StoreOfferAtom";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
-import {currentUserInformation} from "../../../../../../recoil/AuthAtom";
+import {currentUserInformation, userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 import {Image} from 'expo-image';
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
@@ -28,6 +28,7 @@ import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
 import {Platform, View} from "react-native";
 import {getDistance} from "geolib";
 import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
+import {logEvent} from "../../../../../../utils/AppSync";
 
 /**
  * VerticalOffers component.
@@ -67,6 +68,7 @@ export const VerticalOffers = (props: {
     const [clickOnlyOnlineDataProvider, setClickOnlyOnlineDataProvider] = useState<DataProvider | null>(null);
     const [clickOnlyOnlineLayoutProvider, setClickOnlyOnlineLayoutProvider] = useState<LayoutProvider | null>(null);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [currentUserLocation,] = useRecoilState(currentUserLocationState);
     const [filteredByDiscountPressed, setFilteredByDiscountPressed] = useRecoilState(filteredByDiscountPressedState);
     const [filtersActive, setAreFiltersActive] = useRecoilState(filtersActiveState);
@@ -891,7 +893,10 @@ export const VerticalOffers = (props: {
      * Function used to retrieve/load more click-only online offers.
      */
     const loadMoreClickOnlyOnlineOffers = async (): Promise<void> => {
-        console.log('Loading more click-only online offers for vertical view.');
+        const errorMessage = 'Loading more click-only online offers for vertical view.';
+        console.log(errorMessage);
+        await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
         // if there are items to load
         if (!noClickOnlyOnlineOffersToLoad) {
             // retrieving more click-only online offers
@@ -901,7 +906,10 @@ export const VerticalOffers = (props: {
             // @ts-ignore
             clickOnlyOnlineListView.current?.scrollToIndex(deDuplicatedClickOnlyOnlineOfferList.length - 2);
         } else {
-            console.log(`Maximum number of click-only online offers reached ${deDuplicatedClickOnlyOnlineOfferList.length}`);
+            const errorMessage = `Maximum number of click-only online offers reached ${deDuplicatedClickOnlyOnlineOfferList.length}`;
+            console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
             setVerticalListLoading(false);
         }
     }
@@ -910,7 +918,10 @@ export const VerticalOffers = (props: {
      * Function used to retrieve/load more online offers.
      */
     const loadMoreOnlineOffers = async (): Promise<void> => {
-        console.log('Loading more online offers for vertical view.');
+        const errorMessage = 'Loading more online offers for vertical view.';
+        console.log(errorMessage);
+        await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
         // if there are items to load
         if (!noOnlineOffersToLoad) {
             // retrieving more online offers
@@ -920,7 +931,10 @@ export const VerticalOffers = (props: {
             // @ts-ignore
             onlineListView.current?.scrollToIndex(deDuplicatedOnlineOfferList.length - 2);
         } else {
-            console.log(`Maximum number of online offers reached ${deDuplicatedOnlineOfferList.length}`);
+            const errorMessage = `Maximum number of online offers reached ${deDuplicatedOnlineOfferList.length}`;
+            console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
             setVerticalListLoading(false);
         }
     }
@@ -929,7 +943,10 @@ export const VerticalOffers = (props: {
      * Function used to retrieve/load more nearby offers.
      */
     const loadMoreNearbyOffers = async (): Promise<void> => {
-        console.log('Loading more nearby offers for vertical view.');
+        const errorMessage = 'Loading more nearby offers for vertical view.';
+        console.log(errorMessage);
+        await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
         // if there are items to load
         if (!noNearbyOffersToLoad) {
             // retrieving more offers (nearby or near user's location)
@@ -941,7 +958,10 @@ export const VerticalOffers = (props: {
             // @ts-ignore
             nearbyListView.current?.scrollToIndex(deDuplicatedNearbyOfferList.length - 2);
         } else {
-            console.log(`Maximum number of nearby offers reached ${deDuplicatedNearbyOfferList.length}`);
+            const errorMessage = `Maximum number of nearby offers reached ${deDuplicatedNearbyOfferList.length}`;
+            console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
             setVerticalListLoading(false);
         }
     }
@@ -1140,7 +1160,9 @@ export const VerticalOffers = (props: {
                                                                 {onEndReachedThreshold: 1}
                                                         }
                                                         onEndReached={async () => {
-                                                            console.log(`End of list reached. Trying to refresh more items.`);
+                                                            const errorMessage = `End of list reached. Trying to refresh more items.`;
+                                                            console.log(errorMessage);
+                                                            await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
 
                                                             // if there are items to load
                                                             if (!noClickOnlyOnlineOffersToLoad) {
@@ -1148,7 +1170,10 @@ export const VerticalOffers = (props: {
                                                                 setClickOnlyOnlineLoadingOffers(true);
                                                                 await loadMoreClickOnlyOnlineOffers();
                                                             } else {
-                                                                console.log(`Maximum number of click-only online offers reached ${deDuplicatedClickOnlyOnlineOfferList.length}`);
+                                                                const errorMessage = `Maximum number of click-only online offers reached ${deDuplicatedClickOnlyOnlineOfferList.length}`;
+                                                                console.log(errorMessage);
+                                                                await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
                                                                 setClickOnlyOnlineLoadingOffers(false);
                                                             }
                                                         }}
@@ -1223,7 +1248,9 @@ export const VerticalOffers = (props: {
                                                                 {onEndReachedThreshold: 1}
                                                         }
                                                         onEndReached={async () => {
-                                                            console.log(`End of list reached. Trying to refresh more items.`);
+                                                            const errorMessage = `End of list reached. Trying to refresh more items.`;
+                                                            console.log(errorMessage);
+                                                            await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
 
                                                             // if there are items to load
                                                             if (!noOnlineOffersToLoad) {
@@ -1231,7 +1258,10 @@ export const VerticalOffers = (props: {
                                                                 setOnlineLoadingOffers(true);
                                                                 await loadMoreOnlineOffers();
                                                             } else {
-                                                                console.log(`Maximum number of online offers reached ${deDuplicatedOnlineOfferList.length}`);
+                                                                const errorMessage = `Maximum number of online offers reached ${deDuplicatedOnlineOfferList.length}`;
+                                                                console.log(errorMessage);
+                                                                await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
                                                                 setOnlineLoadingOffers(false);
                                                             }
                                                         }}
@@ -1305,7 +1335,9 @@ export const VerticalOffers = (props: {
                                                             {onEndReachedThreshold: 1}
                                                     }
                                                     onEndReached={async () => {
-                                                        console.log(`End of list reached. Trying to refresh more items.`);
+                                                        const errorMessage = `End of list reached. Trying to refresh more items.`;
+                                                        console.log(errorMessage);
+                                                        await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
 
                                                         // if there are items to load
                                                         if (!noNearbyOffersToLoad) {
@@ -1313,7 +1345,10 @@ export const VerticalOffers = (props: {
                                                             setNearbyLoadingOffers(true);
                                                             await loadMoreNearbyOffers();
                                                         } else {
-                                                            console.log(`Maximum number of nearby offers reached ${deDuplicatedNearbyOfferList.length}`);
+                                                            const errorMessage = `Maximum number of nearby offers reached ${deDuplicatedNearbyOfferList.length}`;
+                                                            console.log(errorMessage);
+                                                            await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
                                                             setNearbyLoadingOffers(false);
                                                         }
                                                     }}

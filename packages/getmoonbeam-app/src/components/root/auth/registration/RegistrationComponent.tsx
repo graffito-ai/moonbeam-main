@@ -78,7 +78,7 @@ import {SecurityStep} from "./SecurityStep";
 import {AdditionalRegistrationStep} from "./AdditionalRegistrationStep";
 import {API, Auth, graphqlOperation} from "aws-amplify";
 import {
-    createMilitaryVerification,
+    createMilitaryVerification, LoggingLevel,
     MilitaryAffiliation,
     MilitaryVerificationStatusType,
     NotificationChannelType,
@@ -101,7 +101,7 @@ import CardLinkedSuccessImage from '../../../../../assets/art/card-linked-succes
 // @ts-ignore
 import RegistrationBackgroundImage from '../../../../../assets/backgrounds/registration-background.png';
 import {
-    createPhysicalDevice,
+    createPhysicalDevice, logEvent,
     proceedWithDeviceCreation, processUserReferral, retrieveClickOnlyOnlineOffersList,
     retrieveFidelisPartnerList,
     retrieveOnlineOffersList, retrievePremierClickOnlyOnlineOffersList, retrievePremierOnlineOffersList,
@@ -137,6 +137,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     const [existentAccountVisible, setExistentAccountVisible] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls] = useRecoilState(numberOfFailedOnlineOfferCallsState);
     const [numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls] = useRecoilState(numberOfFailedClickOnlyOnlineOfferCallsState);
     const [, setIsUserAuthenticated] = useRecoilState(userIsAuthenticatedState);
@@ -356,14 +357,20 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                 // release the loader on button press
                 setIsReady(true);
 
-                console.log(`Unexpected error while retrieving the eligibility status ${JSON.stringify(eligibilityResult)}`);
+                const message = `Unexpected error while retrieving the eligibility status ${JSON.stringify(eligibilityResult)}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                 return [false, MilitaryVerificationStatusType.Pending];
             }
         } catch (error) {
             // release the loader on button press
             setIsReady(true);
 
-            console.log(`Unexpected error while retrieving the eligibility status ${JSON.stringify(error)} ${error}`);
+            const message = `Unexpected error while retrieving the eligibility status ${JSON.stringify(error)} ${error}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
             return [false, MilitaryVerificationStatusType.Pending];
         }
     }
@@ -439,9 +446,12 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                 // @ts-ignore
                 setAmplifySignUpErrors(["Unexpected error while Signing Up. Try again!"]);
             }
-            console.log(errorMessage
+
+            const message = errorMessage
                 ? `Unexpected error while Signing Up: ${JSON.stringify(errorMessage)}`
-                : `Unexpected error while Signing Up: ${JSON.stringify(error)} ${error}`);
+                : `Unexpected error while Signing Up: ${JSON.stringify(error)} ${error}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
 
             // release the loader on button press
             setIsReady(true);
@@ -516,7 +526,9 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                      * our user's experience due to this failure.
                      */
                     if (createNotificationFlag) {
-                        console.log(`User registration notification successfully sent!`);
+                        const message = `User registration notification successfully sent!`;
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
                     }
 
                     /**
@@ -529,12 +541,18 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                             // if so, we create the physical device accordingly (and associated to the new user)
                             const physicalDeviceCreationFlag = await createPhysicalDevice(userInformation["userId"], expoPushToken.data);
                             if (physicalDeviceCreationFlag) {
-                                console.log(`Successfully created a physical device for user!`);
+                                const message = `Successfully created a physical device for user!`;
+                                console.log(message);
+                                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
                             } else {
-                                console.log(`Unable to create a physical device for user!`);
+                                const message = `Unable to create a physical device for user!`;
+                                console.log(message);
+                                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
                             }
                         } else {
-                            console.log(`Not necessary to create a physical device for user!`);
+                            const message = `Not necessary to create a physical device for user!`;
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Warning, userIsAuthenticated);
                         }
                     }
 
@@ -549,9 +567,13 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                      * referral through the registration process has been successful or not
                      */
                     if (referralResponse.data !== null && referralResponse.data !== undefined) {
-                        console.log(`Referral through registration successfully processed for user ${userInformation["userId"]}`);
+                        const message = `Referral through registration successfully processed for user ${userInformation["userId"]}`;
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
                     } else {
-                        console.log(`Referral through registration was not successfully processed for user ${userInformation["userId"]}`);
+                        const message = `Referral through registration was not successfully processed for user ${userInformation["userId"]}`;
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Warning, userIsAuthenticated);
                     }
 
                     // release the loader on button press
@@ -562,7 +584,10 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
 
                     return true;
                 } else {
-                    console.log(`Unexpected error while signing in upon verifying account: ${JSON.stringify(user)}`);
+                    const message = `Unexpected error while signing in upon verifying account: ${JSON.stringify(user)}`;
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                     // @ts-ignore
                     setVerificationCodeErrors(["Unexpected error while confirming sign up code. Try again!"]);
 
@@ -572,7 +597,10 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                     return false;
                 }
             } else {
-                console.log(`Unexpected error while confirming sign up code: ${JSON.stringify(signUp)}`);
+                const message = `Unexpected error while confirming sign up code: ${JSON.stringify(signUp)}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                 // @ts-ignore
                 setVerificationCodeErrors(["Unexpected error while re-sending verification code. Try again!"]);
 
@@ -601,9 +629,12 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                 // @ts-ignore
                 setAmplifySignUpErrors(["Unexpected error while re-sending verification code. Try again!"]);
             }
-            console.log(errorMessage
+
+            const message = errorMessage
                 ? `Unexpected error while confirming sign up code: ${JSON.stringify(errorMessage)}`
-                : `Unexpected error while confirming sign up code: ${JSON.stringify(error)} ${error}`);
+                : `Unexpected error while confirming sign up code: ${JSON.stringify(error)} ${error}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
 
             // release the loader on button press
             setIsReady(true);
@@ -626,7 +657,9 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
             // retrieving the document link from either local cache, or from storage
             const [returnFlag, shareURI] = await fetchFile('contact-icon.png', false, false, true);
             if (!returnFlag || shareURI === null) {
-                console.log(`Unable to download contact icon file!`);
+                const message = `Unable to download contact icon file!`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Warning, userIsAuthenticated);
             } else {
                 // create a new contact for Moonbeam Support chat
                 const contact = {
@@ -671,6 +704,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
         } else {
             const errorMessage = `Permission to access contacts was not granted!`;
             console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
 
             setPermissionsModalCustomMessage(errorMessage);
             setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
@@ -689,6 +723,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
         if (status !== 'granted') {
             const errorMessage = `Permission to access notifications was not granted!`;
             console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
 
             setPermissionsModalCustomMessage(errorMessage);
             setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
@@ -1112,13 +1147,23 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                                 // make an exception for Android/Expo Go for Contacts
                                                                 // @ts-ignore
                                                                 if (Platform.OS === 'android' && err.code && err.code === 'E_MISSING_PERMISSION') {
-                                                                    console.log(`Unexpected error while adding permissions, overriding: ${err}`);
-                                                                    console.log(`Unexpected error while adding permissions, overriding: ${JSON.stringify(err)}`);
+                                                                    const errorMessage1 = `Unexpected error while adding permissions, overriding: ${err}`;
+                                                                    console.log(errorMessage1);
+                                                                    await logEvent(errorMessage1, LoggingLevel.Error, userIsAuthenticated);
+
+                                                                    const errorMessage2 = `Unexpected error while adding permissions, overriding: ${JSON.stringify(err)}`;
+                                                                    console.log(errorMessage2);
+                                                                    await logEvent(errorMessage2, LoggingLevel.Error, userIsAuthenticated);
 
                                                                     setIsReady(true);
                                                                 } else {
-                                                                    console.log(`Unexpected error while adding permissions: ${err}`);
-                                                                    console.log(`Unexpected error while adding permissions: ${JSON.stringify(err)}`);
+                                                                    const errorMessage1 = `Unexpected error while adding permissions: ${err}`;
+                                                                    console.log(errorMessage1);
+                                                                    await logEvent(errorMessage1, LoggingLevel.Error, userIsAuthenticated);
+
+                                                                    const errorMessage2 = `Unexpected error while adding permissions: ${JSON.stringify(err)}`;
+                                                                    console.log(errorMessage2);
+                                                                    await logEvent(errorMessage2, LoggingLevel.Error, userIsAuthenticated);
 
                                                                     setRegistrationMainError(true);
                                                                     checksPassed = false;
@@ -1141,11 +1186,17 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                                     // if the verification status is verified, then we can cache it accordingly
                                                                     if (verificationStatus === MilitaryVerificationStatusType.Verified) {
                                                                         if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-militaryStatus`) !== null) {
-                                                                            console.log('old military status is cached, needs cleaning up');
+                                                                            const message = 'old military status is cached, needs cleaning up';
+                                                                            console.log(message);
+                                                                            await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                                                                             await globalCache!.removeItem(`${userInformation["custom:userId"]}-militaryStatus`);
                                                                             await globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, MilitaryVerificationStatusType.Verified);
                                                                         } else {
-                                                                            console.log('military status is not cached');
+                                                                            const message = 'military status is not cached';
+                                                                            console.log(message);
+                                                                            await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                                                                             globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, MilitaryVerificationStatusType.Verified);
                                                                         }
                                                                     }
@@ -1199,15 +1250,21 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                              * - we just cache an empty profile photo for the user for initial load
                                                              */
                                                             if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-fidelisPartners`) !== null) {
-                                                                console.log('old Fidelis Partners are cached, needs cleaning up');
+                                                                const message = 'old Fidelis Partners are cached, needs cleaning up';
+                                                                console.log(message);
+                                                                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
                                                                 await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-fidelisPartners`);
                                                                 await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, await retrieveFidelisPartnerList());
                                                             } else {
-                                                                console.log('Fidelis Partners are not cached');
+                                                                const message = 'Fidelis Partners are not cached';
+                                                                console.log(message);
+                                                                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
                                                                 marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, await retrieveFidelisPartnerList());
                                                             }
                                                             if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`) !== null) {
-                                                                console.log('online offers are cached, needs cleaning up');
+                                                                const message = 'online offers are cached, needs cleaning up';
+                                                                console.log(message);
+                                                                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
                                                                 await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineOffers`);
 
                                                                 // retrieve the premier online, and regular online offers
@@ -1224,7 +1281,9 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                                 await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
                                                                     [...premierOnlineOffers, ...onlineOffers]);
                                                             } else {
-                                                                console.log('online offers are not cached');
+                                                                const message = 'online offers are not cached';
+                                                                console.log(message);
+                                                                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
 
                                                                 // retrieve the premier online, and regular online offers
                                                                 const onlineOffers = await retrieveOnlineOffersList(
@@ -1241,7 +1300,10 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                                     [...premierOnlineOffers, ...onlineOffers]);
                                                             }
                                                             if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`) !== null) {
-                                                                console.log('click-only online offers are cached, needs cleaning up');
+                                                                const message = 'click-only online offers are cached, needs cleaning up';
+                                                                console.log(message);
+                                                                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                                                                 await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`);
 
                                                                 // retrieve the premier click-only online, and regular click-only online offers
@@ -1258,7 +1320,10 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                                 await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`,
                                                                     [...premierClickOnlyOnlineOffers, ...clickOnlyOnlineOffers]);
                                                             } else {
-                                                                console.log('online click-only offers are not cached');
+                                                                const message = 'online click-only offers are not cached';
+                                                                console.log(message);
+                                                                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                                                                 // retrieve the premier click-only online, and regular click-only online offers
                                                                 const clickOnlyOnlineOffers = await retrieveClickOnlyOnlineOffersList(
                                                                     numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls,
@@ -1274,11 +1339,17 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                                     [...premierClickOnlyOnlineOffers, ...clickOnlyOnlineOffers]);
                                                             }
                                                             if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
-                                                                console.log('old profile picture is cached, needs cleaning up');
+                                                                const message = 'old profile picture is cached, needs cleaning up';
+                                                                console.log(message);
+                                                                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                                                                 await globalCache!.removeItem(`${userInformation["custom:userId"]}-profilePictureURI`);
                                                                 await globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, "");
                                                             } else {
-                                                                console.log('profile picture is not cached');
+                                                                const message = 'profile picture is not cached';
+                                                                console.log(message);
+                                                                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                                                                 globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, "");
                                                             }
                                                             setIsReady(true);

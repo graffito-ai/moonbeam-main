@@ -16,6 +16,9 @@ import {LinearGradient} from "expo-linear-gradient";
 import {FieldValidator} from "../../../../../utils/FieldValidator";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
+import {userIsAuthenticatedState} from "../../../../../recoil/AuthAtom";
+import {logEvent} from "../../../../../utils/AppSync";
+import {LoggingLevel} from "@moonbeam/moonbeam-models";
 
 /**
  * ResetPassword component
@@ -44,6 +47,7 @@ export const ResetPassword = ({}: ResetPasswordProps) => {
     const [confirmPasswordFocus, setIsConfirmPasswordFocus] = useState<boolean>(false);
     const [isConfirmPasswordShown, setIsConfirmPasswordShown] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
     const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
 
@@ -134,16 +138,19 @@ export const ResetPassword = ({}: ResetPasswordProps) => {
 
                 // check if the update was successful or not
                 if (changePasswordResult) {
-                    console.log(JSON.stringify(changePasswordResult));
+                    const message = JSON.stringify(changePasswordResult);
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
 
                     // release the loader on button press
                     setIsReady(true);
                     return true;
                 } else {
-                    const errorMessage = `Error while resetting password!`;
-                    console.log(errorMessage);
+                    const message = `Error while resetting password!`;
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
 
-                    setModalCustomMessage(errorMessage);
+                    setModalCustomMessage(message);
                     setModalButtonMessage('Try Again!');
                     setModalVisible(true);
 
@@ -162,6 +169,7 @@ export const ResetPassword = ({}: ResetPasswordProps) => {
         } catch (error) {
             let errorMessage = `Error resetting password!`;
             console.log(`${errorMessage} - ${error}`);
+            await logEvent(`${errorMessage} - ${error}`, LoggingLevel.Error, userIsAuthenticated);
 
             // Filter the error based on the message received, in order to properly narrow down the reason for the failure
             // @ts-ignore

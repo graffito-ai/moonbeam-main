@@ -9,6 +9,9 @@ import {IconButton, Text, TextInput} from "react-native-paper";
 import WebView from "react-native-webview";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {cardLinkingIdState} from "../../../../../../recoil/AppDrawerAtom";
+import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
+import {logEvent} from "../../../../../../utils/AppSync";
+import {LoggingLevel} from "@moonbeam/moonbeam-models";
 
 /**
  * StoreOfferWebView component.
@@ -24,6 +27,7 @@ export const StoreOfferWebView = ({navigation}: StoreOfferWebViewProps) => {
     const [offerWebsiteRetrieved, setOfferWebsiteRetrieved] = useState<boolean>(false);
     const webViewRef = useRef(null);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [cardLinkingId, ] = useRecoilState(cardLinkingIdState);
     const [storeOfferClicked,] = useRecoilState(storeOfferState);
 
@@ -68,6 +72,7 @@ export const StoreOfferWebView = ({navigation}: StoreOfferWebViewProps) => {
             }
         }
         console.log(initialOfferWebsite);
+        logEvent(initialOfferWebsite, LoggingLevel.Info, userIsAuthenticated).then(() => {});
     }, [storeOfferClicked, cardLinkingId, offerWebsiteRetrieved]);
 
     // return the component for the StoreOfferWebView page

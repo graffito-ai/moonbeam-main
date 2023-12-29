@@ -37,7 +37,7 @@ import {Image, ImageBackground} from "expo-image";
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {Card, Dialog, Portal, Text} from "react-native-paper";
-import {Offer, OfferCategory, RewardType} from "@moonbeam/moonbeam-models";
+import {LoggingLevel, Offer, OfferCategory, RewardType} from "@moonbeam/moonbeam-models";
 // @ts-ignore
 import MoonbeamPinImage from "../../../../../../../assets/pin-shape.png";
 import MapView from "react-native-map-clustering";
@@ -55,6 +55,8 @@ import MoonbeamPreferencesIOS from "../../../../../../../assets/art/moonbeam-pre
 import MoonbeamPreferencesAndroid from "../../../../../../../assets/art/moonbeam-preferences-android.jpg";
 import {Button as ModalButton} from "@rneui/base/dist/Button/Button";
 import {bottomTabShownState} from "../../../../../../recoil/HomeAtom";
+import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
+import {logEvent} from "../../../../../../utils/AppSync";
 
 /**
  * MapHorizontalSection component.
@@ -79,6 +81,7 @@ export const MapHorizontalKitSection = () => {
         latitudeDelta: 0
     });
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [, setFullScreenKitMapActive] = useRecoilState(fullScreenKitMapActiveState);
     const [, setNearbyOffersSpinnerShown] = useRecoilState(nearbyOffersSpinnerShownState);
     const [, setReloadNearbyDueToPermissionsChange] = useRecoilState(reloadNearbyDueToPermissionsChangeState);
@@ -205,6 +208,8 @@ export const MapHorizontalKitSection = () => {
         if (foregroundPermissionStatus.status !== 'granted') {
             const errorMessage = `Permission to access location was not granted!`;
             console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
+
             return {
                 latitude: 0,
                 longitude: 0,
@@ -415,6 +420,7 @@ export const MapHorizontalKitSection = () => {
                                         async () => {
                                             const errorMessage = `Permission to access location was not granted!`;
                                             console.log(errorMessage);
+                                            await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
 
                                             setPermissionsModalCustomMessage(errorMessage);
                                             setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'

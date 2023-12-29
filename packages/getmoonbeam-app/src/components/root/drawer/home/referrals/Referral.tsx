@@ -9,12 +9,13 @@ import {styles} from "../../../../../styles/referral.module";
 import {Image} from 'expo-image';
 // @ts-ignore
 import MoonbeamContentReferral from "../../../../../../assets/art/moonbeam-referral-gifts.png";
-import {currentUserInformation} from "../../../../../recoil/AuthAtom";
+import {currentUserInformation, userIsAuthenticatedState} from "../../../../../recoil/AuthAtom";
 import * as crc32 from 'crc-32';
 import {branchRootUniversalObjectState} from "../../../../../recoil/BranchAtom";
 import * as envInfo from "./../../../../../../local-env-info.json";
-import {MarketingCampaignCode} from "@moonbeam/moonbeam-models";
+import {LoggingLevel, MarketingCampaignCode} from "@moonbeam/moonbeam-models";
 import * as Clipboard from 'expo-clipboard';
+import {logEvent} from "../../../../../utils/AppSync";
 
 /**
  * Referral component.
@@ -29,6 +30,7 @@ export const Referral = ({navigation}: ReferralProps) => {
     const [nextDrawingDate, setNextDrawingDate] = useState<string>("");
     const [userReferralCode, setUserReferralCode] = useState<string>("");
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [,setDrawerInDashboard] = useRecoilState(drawerDashboardState);
     const [userInformation,] = useRecoilState(currentUserInformation);
     const [appDrawerHeaderShown, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
@@ -141,7 +143,10 @@ export const Referral = ({navigation}: ReferralProps) => {
             if (error.message !== null && error.message !== undefined && (error.message.includes('A resource with this identifier already exists.') || (error.message !== null && error.message !== undefined && error.code.includes('DuplicateResourceError')))) {
                 return `https://app.moonbeam.vet/${referralCode}`;
             } else {
-                console.log(`Error while generating a referral code for the user`);
+                const message = `Error while generating a referral code for the user`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                 return `Error while generating referral code`;
             }
         }

@@ -1,6 +1,7 @@
 import * as envInfo from "./local-env-info.json";
-import {Constants, Stages} from "@moonbeam/moonbeam-models";
+import {Constants, LoggingLevel, Stages} from "@moonbeam/moonbeam-models";
 import {Amplify} from "aws-amplify";
+import {logEvent} from "./src/utils/AppSync";
 
 /**
  * Retrieves the CDK exports file from which we will configure Amplify, depending
@@ -27,6 +28,9 @@ export const initialize = () => {
             break;
         // ToDo: add more environments representing our stages in here
         default:
+            const errorMessage = `Invalid environment passed in from Amplify ${envInfo.envName}`;
+            console.log(errorMessage);
+            logEvent(errorMessage, LoggingLevel.Error, true).then(() => {});
             throw new Error(`Invalid environment passed in from Amplify ${envInfo.envName}`);
     }
 

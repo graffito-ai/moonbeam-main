@@ -46,15 +46,15 @@ import {
 } from "../../../../../../recoil/StoreOfferAtom";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
-import {Offer, OfferCategory, RewardType} from '@moonbeam/moonbeam-models';
+import {LoggingLevel, Offer, OfferCategory, RewardType} from '@moonbeam/moonbeam-models';
 import {Image} from "expo-image";
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {moonbeamKits} from "../storeComponents/KitsSection";
-import {retrieveCategorizedOffersNearby} from "../../../../../../utils/AppSync";
+import {logEvent, retrieveCategorizedOffersNearby} from "../../../../../../utils/AppSync";
 // @ts-ignore
 import MoonbeamNoOffersKit from "../../../../../../../assets/art/moonbeam-no-offers-kit.png";
-import {currentUserInformation} from "../../../../../../recoil/AuthAtom";
+import {currentUserInformation, userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
 import {getDistance} from "geolib";
 
@@ -78,8 +78,8 @@ export const NearbyKitSection = (props: {
     const [nearbyOffersSpinnerShown, setNearbyOffersSpinnerShown] = useState<boolean>(false);
     const [dataProvider, setDataProvider] = useState<DataProvider | null>(null);
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
-
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [onlineKitListExpanded, setIsOnlineKitListExpanded] = useRecoilState(onlineKitListIsExpandedState);
     const [nearbyKitListExpanded, setIsNearbyKitListExpanded] = useRecoilState(nearbyKitListIsExpandedState);
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
@@ -426,8 +426,7 @@ export const NearbyKitSection = (props: {
                                 }
                                 <TouchableOpacity
                                     style={styles.moreButton}
-                                    onPress={() => {
-                                        console.log('button pressed');
+                                    onPress={async () => {
                                         if (!nearbyKitListExpanded) {
                                             // display all nearby loaded in the list
                                             setVerticalListLoading(true);
@@ -515,7 +514,9 @@ export const NearbyKitSection = (props: {
                                             {onEndReachedThreshold: 1}
                                     }
                                     onEndReached={async () => {
-                                        console.log(`End of list reached. Trying to refresh more items.`);
+                                        const errorMessage = `End of list reached. Trying to refresh more items.`;
+                                        console.log(errorMessage);
+                                        await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
 
                                         // if there are items to load
                                         if (nearbyKitListExpanded && !noNearbyOffersToLoad && currentActiveKit !== null) {
@@ -604,7 +605,9 @@ export const NearbyKitSection = (props: {
                                             nearbyListView.current?.scrollToIndex(deDuplicatedNearbyOfferList.length - 2);
                                         } else {
                                             setVerticalListLoading(true);
-                                            console.log(`Maximum number of categorized nearby offers reached for category ${currentActiveKit} ${deDuplicatedNearbyOfferList.length}`);
+                                            const errorMessage = `Maximum number of categorized nearby offers reached for category ${currentActiveKit} ${deDuplicatedNearbyOfferList.length}`;
+                                            console.log(errorMessage);
+                                            await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
                                         }
                                     }}
                                     scrollViewProps={{

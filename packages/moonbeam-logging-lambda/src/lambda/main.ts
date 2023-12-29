@@ -28,7 +28,13 @@ exports.handler = async (event: AppSyncEvent): Promise<LoggingResponse> => {
     console.log(`Received new log event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
         case "createLogEvent":
-            return await createLogEvent(event.info.fieldName, event.arguments.createLogEventInput);
+            return await createLogEvent(
+                event.identity && event.identity.sub
+                    ? event.identity.sub
+                    : 'unauthenticated',
+                event.info.fieldName,
+                event.arguments.createLogEventInput
+            );
         default:
             const errorMessage = `Unexpected field name: ${event.info.fieldName}`;
             console.log(errorMessage);

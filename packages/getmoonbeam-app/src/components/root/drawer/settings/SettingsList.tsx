@@ -7,10 +7,10 @@ import {styles} from "../../../../styles/settingsList.module";
 // @ts-ignore
 import FaceIDIcon from '../../../../../assets/face-id-icon.png';
 import {useRecoilState} from "recoil";
-import {currentUserInformation, globalAmplifyCacheState} from "../../../../recoil/AuthAtom";
+import {currentUserInformation, globalAmplifyCacheState, userIsAuthenticatedState} from "../../../../recoil/AuthAtom";
 import {Spinner} from "../../../common/Spinner";
 import {API, graphqlOperation} from "aws-amplify";
-import {deleteCard} from "@moonbeam/moonbeam-models";
+import {deleteCard, LoggingLevel} from "@moonbeam/moonbeam-models";
 import {cardLinkingStatusState, drawerSwipeState} from "../../../../recoil/AppDrawerAtom";
 // @ts-ignore
 import CardLinkingImage from "../../../../../assets/art/moonbeam-card-linking.png";
@@ -23,6 +23,7 @@ import {goToProfileSettingsState} from "../../../../recoil/Settings";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import * as SecureStore from "expo-secure-store";
 import * as LocalAuthentication from "expo-local-authentication";
+import {logEvent} from "../../../../utils/AppSync";
 
 /**
  * SettingsList component
@@ -43,6 +44,7 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
     const [modalCustomMessage, setModalCustomMessage] = useState<string>("");
     const [modalButtonMessage, setModalButtonMessage] = useState<string>("");
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [goToProfileSettings,] = useRecoilState(goToProfileSettingsState);
     const [globalCache,] = useRecoilState(globalAmplifyCacheState);
     const [drawerNavigation,] = useRecoilState(drawerNavigationState);
@@ -82,7 +84,10 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
         SecureStore.getItemAsync(`biometrics-type`, {
             requireAuthentication: false // we don't need this to be under authentication, so we can check at login
         }).then(biometricsType => {
-            console.log(`Type of authentication enabled on device ${biometricsType}`);
+            const message = `Type of authentication enabled on device ${biometricsType}`;
+            console.log(message);
+            logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {});
+
             setBiometricsType('Enhanced Security');
             // check to see if biometrics are enabled or not
             SecureStore.getItemAsync(`biometrics-enabled`, {
@@ -143,13 +148,19 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                     cards: []
                 }
                 if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCardFlag`) !== null) {
-                    console.log('old card is cached, needs cleaning up');
+                    const message = 'old card is cached, needs cleaning up';
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                     await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCard`);
                     await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCardFlag`);
                     await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, newCardLink);
                     await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
                 } else {
-                    console.log('card is not cached');
+                    const message = 'card is not cached';
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                     globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, newCardLink);
                     globalCache && await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
                 }
@@ -174,7 +185,9 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
             } else {
                 // release the loader on button press
                 setIsReady(true);
-                console.log(`Unexpected error while opting member out of the program through the delete card API ${JSON.stringify(deleteCardResult)}`);
+                const message = `Unexpected error while opting member out of the program through the delete card API ${JSON.stringify(deleteCardResult)}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
 
                 // show modal error
                 setModalCustomMessage("Unexpected error while opting out!");
@@ -184,7 +197,9 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
         } catch (error) {
             // release the loader on button press
             setIsReady(true);
-            console.log(`Unexpected error while attempting to opt a member out of the programs through the delete card API ${JSON.stringify(error)} ${error}`);
+            const message = `Unexpected error while attempting to opt a member out of the programs through the delete card API ${JSON.stringify(error)} ${error}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
 
             // show modal error
             setModalCustomMessage("Unexpected error while opting out!");
@@ -289,12 +304,14 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                         onPress={() => {
                                             // go to Account Deletion Typeform
                                             const accountDeletionUrl = 'https://moonbeam-vet.typeform.com/to/sl9nxMru?typeform-source=www.moonbeam.vet'
-                                            Linking.canOpenURL(accountDeletionUrl).then(supported => {
+                                            Linking.canOpenURL(accountDeletionUrl).then(async supported => {
                                                 if (supported) {
                                                     Linking.openURL(accountDeletionUrl).then(() => {
                                                     });
                                                 } else {
-                                                    console.log(`Don't know how to open URI: ${accountDeletionUrl}`);
+                                                    const message = `Don't know how to open URI: ${accountDeletionUrl}`;
+                                                    console.log(message);
+                                                    await logEvent(message, LoggingLevel.Warning, userIsAuthenticated);
                                                 }
                                             });
                                         }}
@@ -375,14 +392,19 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                                         });
                                                         // check if the authentication was successful or not
                                                         if (localAuthenticationResult.success) {
-                                                            console.log('successfully opted in to set up biometrics');
+                                                            const message = 'successfully opted in to set up biometrics';
+                                                            console.log(message);
+                                                            await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                                                             // we will store the user's biometrics preferences.
                                                             await SecureStore.setItemAsync(`biometrics-enabled`, '1', {
                                                                 requireAuthentication: false // we don't need this to be under authentication, so we can check at login
                                                             });
                                                             setBiometricsEnabled(value);
                                                         } else {
-                                                            console.log('failed to opt in to set up biometrics');
+                                                            const message = 'failed to opt in to set up biometrics';
+                                                            console.log(message);
+                                                            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
                                                         }
                                                     } else {
                                                         // disable the biometrics authentication set up

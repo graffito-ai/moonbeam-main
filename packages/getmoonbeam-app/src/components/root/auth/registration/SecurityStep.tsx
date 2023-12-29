@@ -10,12 +10,14 @@ import {
     registrationConfirmationPasswordState,
     registrationMainErrorState,
     registrationPasswordErrorsState,
-    registrationPasswordState
+    registrationPasswordState, userIsAuthenticatedState
 } from "../../../../recoil/AuthAtom";
 import {useRecoilState} from "recoil";
 import {Checkbox} from "expo-checkbox";
 import {FieldValidator} from "../../../../utils/FieldValidator";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
+import {logEvent} from "../../../../utils/AppSync";
+import {LoggingLevel} from "@moonbeam/moonbeam-models";
 
 /**
  * SecurityStep component.
@@ -29,6 +31,7 @@ export const SecurityStep = () => {
     const [isPasswordShown, setIsPasswordShown] = useState<boolean>(false);
     const [isConfirmPasswordShown, setIsConfirmPasswordShown] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [amplifySignUpErrors, setAmplifySignUpErrors] = useRecoilState(amplifySignUpProcessErrorsState);
     const [password, setPassword] = useRecoilState(registrationPasswordState);
     const [confirmPassword, setConfirmPassword] = useRecoilState(registrationConfirmationPasswordState);
@@ -182,7 +185,9 @@ export const SecurityStep = () => {
                                           Linking.openURL(privacyPolicyUrl).then(() => {
                                           });
                                       } else {
-                                          console.log(`Don't know how to open URI: ${privacyPolicyUrl}`);
+                                          const message = `Don't know how to open URI: ${privacyPolicyUrl}`;
+                                          console.log(message);
+                                          logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {});
                                       }
                                   });
                               }}>Privacy Policy</Text>{' and'}
@@ -195,7 +200,9 @@ export const SecurityStep = () => {
                                           Linking.openURL(termsAndConditionsUrl).then(() => {
                                           });
                                       } else {
-                                          console.log(`Don't know how to open URI: ${termsAndConditionsUrl}`);
+                                          const message = `Don't know how to open URI: ${termsAndConditionsUrl}`;
+                                          console.log(message);
+                                          logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {});
                                       }
                                   });
                               }}> Terms & Conditions.</Text>

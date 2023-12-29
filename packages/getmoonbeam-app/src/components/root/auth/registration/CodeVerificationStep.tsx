@@ -13,11 +13,13 @@ import {
     registrationVerificationDigit3,
     registrationVerificationDigit4,
     registrationVerificationDigit5,
-    registrationVerificationDigit6,
+    registrationVerificationDigit6, userIsAuthenticatedState,
     verificationCodeErrorsState
 } from "../../../../recoil/AuthAtom";
 import {FieldValidator} from "../../../../utils/FieldValidator";
 import {Auth} from "aws-amplify";
+import {logEvent} from "../../../../utils/AppSync";
+import {LoggingLevel} from "@moonbeam/moonbeam-models";
 
 /**
  * CodeVerificationStep component.
@@ -35,6 +37,7 @@ export const CodeVerificationStep = () => {
     const [verificationCodeDigit5Focus, setIsVerificationCodeDigit5Focus] = useState<boolean>(false);
     const [verificationCodeDigit6Focus, setIsVerificationCodeDigit6Focus] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [, setAutomaticallyVerifyRegistrationCode] = useRecoilState(automaticallyVerifyRegistrationCodeState);
     const [email,] = useRecoilState(emailState);
     const [countdownValue, setCountDownValue] = useRecoilState(registrationCodeTimerValue);
@@ -107,9 +110,11 @@ export const CodeVerificationStep = () => {
                 // @ts-ignore
                 setVerificationCodeErrors(["Unexpected error while re-sending verification code. Try again!"]);
             }
-            console.log(errorMessage
+            const message = errorMessage
                 ? `Unexpected error while resending verification code: ${JSON.stringify(errorMessage)}`
-                : `Unexpected error while resending verification code: ${JSON.stringify(error)} ${error}`);
+                : `Unexpected error while resending verification code: ${JSON.stringify(error)} ${error}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
         }
     };
 

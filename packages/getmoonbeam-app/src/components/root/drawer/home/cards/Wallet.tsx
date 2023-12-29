@@ -14,8 +14,12 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
 import {CardLinkingBottomSheet} from "./CardLinkingBottomSheet";
 import {Spinner} from "../../../../common/Spinner";
-import {currentUserInformation, globalAmplifyCacheState} from "../../../../../recoil/AuthAtom";
-import {Card, CardType, deleteCard} from "@moonbeam/moonbeam-models";
+import {
+    currentUserInformation,
+    globalAmplifyCacheState,
+    userIsAuthenticatedState
+} from "../../../../../recoil/AuthAtom";
+import {Card, CardType, deleteCard, LoggingLevel} from "@moonbeam/moonbeam-models";
 import {API, graphqlOperation} from "aws-amplify";
 import {SplashScreen} from "../../../../common/Splash";
 import {splashStatusState} from "../../../../../recoil/SplashAtom";
@@ -44,6 +48,7 @@ import {LinearGradient} from "expo-linear-gradient";
 import {Divider} from '@rneui/base';
 import {commonStyles} from "../../../../../styles/common.module";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
+import {logEvent} from "../../../../../utils/AppSync";
 
 /**
  * Wallet component. This component will be used as a place where users can manager their
@@ -60,6 +65,7 @@ export const Wallet = ({navigation}: CardsProps) => {
     const [splashShown, setSplashShown] = useState<boolean>(false);
     const bottomSheetRef = useRef(null);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [globalCache,] = useRecoilState(globalAmplifyCacheState);
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
     const [, setBannerState] = useRecoilState(customBannerState);
@@ -166,13 +172,19 @@ export const Wallet = ({navigation}: CardsProps) => {
                 cards: []
             }
             if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCardFlag`) !== null) {
-                console.log('old card is cached, needs cleaning up');
+                const message = 'old card is cached, needs cleaning up';
+                console.log(message);
+                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                 await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCard`);
                 await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCardFlag`);
                 await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, newCardLink);
                 await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
             } else {
-                console.log('card is not cached');
+                const message = 'card is not cached';
+                console.log(message);
+                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                 globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, newCardLink);
                 globalCache && await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
             }
@@ -235,14 +247,20 @@ export const Wallet = ({navigation}: CardsProps) => {
                 // release the loader on button press
                 setIsReady(true);
 
-                console.log(`Unexpected error while deleting a card through the delete card API ${JSON.stringify(deleteCardResult)}`);
+                const message = `Unexpected error while deleting a card through the delete card API ${JSON.stringify(deleteCardResult)}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                 return false;
             }
         } catch (error) {
             // release the loader on button press
             setIsReady(true);
 
-            console.log(`Unexpected error while attempting to delete a card through the delete card API ${JSON.stringify(error)} ${error}`);
+            const message = `Unexpected error while attempting to delete a card through the delete card API ${JSON.stringify(error)} ${error}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
             return false;
         }
     }

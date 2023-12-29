@@ -27,17 +27,17 @@ import {
 // @ts-ignore
 import MoonbeamLocationServices from "../../../../../../../assets/art/moonbeam-location-services-1.png";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
-import {currentUserInformation} from "../../../../../../recoil/AuthAtom";
+import {currentUserInformation, userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 import {Image, ImageBackground} from "expo-image";
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 // @ts-ignore
 import MoonbeamPinImage from "../../../../../../../assets/pin-shape.png"
 import MapView from "react-native-map-clustering";
-import {RewardType} from "@moonbeam/moonbeam-models";
+import {LoggingLevel, RewardType} from "@moonbeam/moonbeam-models";
 import {getDistance} from "geolib";
 import {Spinner} from "../../../../../common/Spinner";
-import {retrieveOffersNearbyForMap} from "../../../../../../utils/AppSync";
+import {logEvent, retrieveOffersNearbyForMap} from "../../../../../../utils/AppSync";
 import {bottomTabShownState} from "../../../../../../recoil/HomeAtom";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
@@ -75,6 +75,7 @@ export const FullScreenMapKitSection = (props: {
     const [regionChangedInitially, setRegionChangedInitially] = useState<boolean>(false);
     const [canSearchForAdditionalOffers, setCanSearchForAdditionalOffers] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [numberOfFailedHorizontalMapOfferCalls, setNumberOfFailedHorizontalMapOfferCalls] = useRecoilState(numberOfFailedHorizontalMapOfferCallsState);
     const [storeNavigation,] = useRecoilState(storeNavigationState);
     const [, setCurrentActiveKit] = useRecoilState(currentActiveKitState);
@@ -136,6 +137,8 @@ export const FullScreenMapKitSection = (props: {
         if (foregroundPermissionStatus.status !== 'granted') {
             const errorMessage = `Permission to access location was not granted!`;
             console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
+
             return {
                 latitude: 0,
                 longitude: 0,
@@ -382,6 +385,7 @@ export const FullScreenMapKitSection = (props: {
                                         async () => {
                                             const errorMessage = `Permission to access location was not granted!`;
                                             console.log(errorMessage);
+                                            await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
 
                                             setPermissionsModalCustomMessage(errorMessage);
                                             setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'

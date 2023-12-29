@@ -2,7 +2,7 @@ import React, {useEffect, useMemo, useRef, useState} from "react";
 import {Platform, Text, TouchableOpacity, View} from "react-native";
 import {ActivityIndicator, Card, Paragraph, Portal} from "react-native-paper";
 import {styles} from "../../../../../../styles/store.module";
-import {Offer, RewardType} from "@moonbeam/moonbeam-models";
+import {LoggingLevel, Offer, RewardType} from "@moonbeam/moonbeam-models";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
@@ -18,6 +18,8 @@ import {Image} from 'expo-image';
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
+import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
+import {logEvent} from "../../../../../../utils/AppSync";
 
 /**
  * ClickOnlineSection component.
@@ -35,6 +37,7 @@ export const ClickOnlyOnlineSection = (props: {
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
     const [clickOnlyOnlineOffersSpinnerShown, setClickOnlyOnlineOffersSpinnerShown] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [, setToggleViewPressed] = useRecoilState(toggleViewPressedState);
     const [, setWhichVerticalSectionActive] = useRecoilState(verticalSectionActiveState);
     const deDuplicatedClickOnlyOnlineOfferList = useRecoilValue(uniqueClickOnlyOnlineOffersListState);
@@ -186,7 +189,9 @@ export const ClickOnlyOnlineSection = (props: {
                                         {onEndReachedThreshold: undefined}
                                 }
                                 onEndReached={async () => {
-                                    console.log(`End of list reached. Trying to refresh more items.`);
+                                    const message = `End of list reached. Trying to refresh more items.`;
+                                    console.log(message);
+                                    await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
 
                                     // if there are items to load
                                     if (!noClickOnlyOnlineOffersToLoad) {
@@ -199,7 +204,10 @@ export const ClickOnlyOnlineSection = (props: {
                                         // @ts-ignore
                                         clickOnlyOnlineListView.current?.scrollToIndex(deDuplicatedClickOnlyOnlineOfferList.length - 2);
                                     } else {
-                                        console.log(`Maximum number of click-only online offers reached ${deDuplicatedClickOnlyOnlineOfferList.length}`);
+                                        const message = `Maximum number of click-only online offers reached ${deDuplicatedClickOnlyOnlineOfferList.length}`;
+                                        console.log(message);
+                                        await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                                         setClickOnlyOnlineOffersSpinnerShown(false);
                                         setHorizontalListLoading(false);
                                     }

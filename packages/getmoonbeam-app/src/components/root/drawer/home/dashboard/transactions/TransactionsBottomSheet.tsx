@@ -20,6 +20,9 @@ import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-s
 import MoonbeamPinImage from "../../../../../../../assets/pin-shape.png";
 import {Image, ImageBackground} from "expo-image";
 import {widthPercentageToDP as wp} from "react-native-responsive-screen";
+import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
+import {logEvent} from "../../../../../../utils/AppSync";
+import {LoggingLevel} from "@moonbeam/moonbeam-models";
 
 /**
  * Interface to be used for determining the location of transaction
@@ -57,6 +60,7 @@ export const TransactionsBottomSheet = (props: {
     const mapViewRef = useRef(null);
     const discountPercentage = `${Math.round((Number(props.transactionDiscountAmount) / Number(props.transactionAmount)) * 100)}%`;
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [, setShowTransactionBottomSheet] = useRecoilState(showTransactionBottomSheetState);
 
     /**
@@ -77,6 +81,8 @@ export const TransactionsBottomSheet = (props: {
         if (foregroundPermissionStatus.status !== 'granted') {
             const errorMessage = `Permission to access location was not granted!`;
             console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
+
             setLocationServicesButton(true);
         } else {
             const geoLocationArray = await Location.geocodeAsync(props.transactionStoreAddress!, {
@@ -220,6 +226,7 @@ export const TransactionsBottomSheet = (props: {
                                         async () => {
                                             const errorMessage = `Permission to access location was not granted!`;
                                             console.log(errorMessage);
+                                            await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
 
                                             setPermissionsModalCustomMessage(errorMessage);
                                             setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'

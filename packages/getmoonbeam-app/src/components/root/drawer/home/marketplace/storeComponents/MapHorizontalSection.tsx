@@ -15,12 +15,14 @@ import {Image, ImageBackground} from "expo-image";
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {Portal, Text} from "react-native-paper";
-import {RewardType} from "@moonbeam/moonbeam-models";
+import {LoggingLevel, RewardType} from "@moonbeam/moonbeam-models";
 // @ts-ignore
 import MoonbeamPinImage from "../../../../../../../assets/pin-shape.png";
 import MapView from "react-native-map-clustering";
 import {Spinner} from "../../../../../common/Spinner";
 import {widthPercentageToDP as wp} from 'react-native-responsive-screen';
+import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
+import {logEvent} from "../../../../../../utils/AppSync";
 
 /**
  * MapHorizontalSection component.
@@ -39,6 +41,7 @@ export const MapHorizontalSection = () => {
         latitudeDelta: 0
     });
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [, setToggleViewPressed] = useRecoilState(toggleViewPressedState);
     const uniqueNearbyOffersListForMainHorizontalMap = useRecoilValue(uniqueNearbyOffersListForMainHorizontalMapState);
     const [currentUserLocation, setCurrentUserLocation] = useRecoilState(currentUserLocationState);
@@ -83,6 +86,8 @@ export const MapHorizontalSection = () => {
         if (foregroundPermissionStatus.status !== 'granted') {
             const errorMessage = `Permission to access location was not granted!`;
             console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
+
             return {
                 latitude: 0,
                 longitude: 0,

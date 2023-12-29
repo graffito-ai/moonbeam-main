@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import {stateItems} from "../models/Constants";
-import {MilitaryBranch, MilitaryDutyStatus, VerificationDocument} from "@moonbeam/moonbeam-models";
+import {LoggingLevel, MilitaryBranch, MilitaryDutyStatus, VerificationDocument} from "@moonbeam/moonbeam-models";
+import {logEvent} from "./AppSync";
 
 /**
  * File used as a utility class, for validating field values for forms
@@ -398,7 +399,9 @@ export class FieldValidator {
                 }
                 break;
             default:
-                console.log(`Unexpected field name! ${fieldName}`);
+                const errorMessage = `Unexpected field name! ${fieldName}`;
+                console.log(errorMessage);
+                logEvent(errorMessage, LoggingLevel.Error, true).then(() => {});
         }
     };
 }

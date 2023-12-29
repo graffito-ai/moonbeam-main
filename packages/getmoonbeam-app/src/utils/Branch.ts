@@ -6,6 +6,8 @@ import {AppOwnership} from "expo-constants/src/Constants.types";
  */
 const isRunningInExpoGo = Constants.appOwnership === AppOwnership.Expo;
 import {Platform} from "react-native";
+import {LoggingLevel} from "@moonbeam/moonbeam-models";
+import {logEvent} from "./AppSync";
 
 /**
  * Function used to initialize a new Branch Universal Object, in order to start using
@@ -63,6 +65,7 @@ export const initializeBranch = async (userInformation: any): Promise<Object | n
     } catch (error) {
         const errorMessage = `Unexpected error while initializing the Branch.IO Universal Object, for OS ${Platform.OS} ${error} ${JSON.stringify(error)}`;
         console.log(errorMessage);
+        await logEvent(errorMessage, LoggingLevel.Error, true);
 
         return null;
     }

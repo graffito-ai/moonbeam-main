@@ -2,7 +2,7 @@ import React, {useEffect, useMemo, useRef, useState} from "react";
 import {ActivityIndicator, Card, Paragraph, Portal, Text} from "react-native-paper";
 import {styles} from "../../../../../../styles/store.module";
 import {Image, Platform, ScrollView, TouchableOpacity, View} from "react-native";
-import {Offer, RewardType} from "@moonbeam/moonbeam-models";
+import {LoggingLevel, Offer, RewardType} from "@moonbeam/moonbeam-models";
 import {Avatar} from "@rneui/base";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
@@ -20,7 +20,7 @@ import {
     uniqueNearbyOffersListState,
     verticalSectionActiveState
 } from "../../../../../../recoil/StoreOfferAtom";
-import {currentUserInformation} from "../../../../../../recoil/AuthAtom";
+import {currentUserInformation, userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 import {Image as ExpoImage} from 'expo-image';
 // @ts-ignore
 import MoonbeamLocationServices from "../../../../../../../assets/art/moonbeam-location-services-1.png";
@@ -32,6 +32,7 @@ import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
 import {MapHorizontalSection} from "./MapHorizontalSection";
 import {getDistance} from "geolib";
 import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
+import {logEvent} from "../../../../../../utils/AppSync";
 
 /**
  * NearbySection component.
@@ -55,6 +56,7 @@ export const NearbySection = (props: {
     const [dataProvider, setDataProvider] = useState<DataProvider | null>(null);
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [numberOfOffersWithin5Miles,] = useRecoilState(numberOfOffersWithin5MilesState);
     const [numberOfOffersWithin25Miles,] = useRecoilState(numberOfOffersWithin25MilesState);
     const [currentUserLocation,] = useRecoilState(currentUserLocationState);
@@ -313,6 +315,7 @@ export const NearbySection = (props: {
                                                             async () => {
                                                                 const errorMessage = `Permission to access location was not granted!`;
                                                                 console.log(errorMessage);
+                                                                await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
 
                                                                 props.setPermissionsModalCustomMessage(errorMessage);
                                                                 props.setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
@@ -459,7 +462,9 @@ export const NearbySection = (props: {
                                             {onEndReachedThreshold: 1}
                                     }
                                     onEndReached={async () => {
-                                        console.log(`End of list reached. Trying to refresh more items.`);
+                                        const errorMessage = `End of list reached. Trying to refresh more items.`;
+                                        console.log(errorMessage);
+                                        await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
 
                                         // if there are items to load
                                         if (!noNearbyOffersToLoad) {
@@ -474,7 +479,10 @@ export const NearbySection = (props: {
                                             // @ts-ignore
                                             nearbyListView.current?.scrollToIndex(deDuplicatedNearbyOfferList.length - 2);
                                         } else {
-                                            console.log(`Maximum number of nearby offers reached ${deDuplicatedNearbyOfferList.length}`);
+                                            const errorMessage = `Maximum number of nearby offers reached ${deDuplicatedNearbyOfferList.length}`;
+                                            console.log(errorMessage);
+                                            await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
                                             setHorizontalListLoading(false);
                                             setNearbyOffersSpinnerShown(false);
                                         }

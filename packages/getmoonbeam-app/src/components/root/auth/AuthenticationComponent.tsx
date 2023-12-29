@@ -44,17 +44,20 @@ import {DocumentsViewer} from "../../common/DocumentsViewer";
 import * as SMS from "expo-sms";
 import {styles} from "../../../styles/registration.module";
 import {
-    appUpgradeCheck, retrieveClickOnlyOnlineOffersList,
+    appUpgradeCheck,
+    logEvent,
+    retrieveClickOnlyOnlineOffersList,
     retrieveFidelisPartnerList,
     retrieveOffersNearby,
     retrieveOffersNearbyForMap,
-    retrieveOnlineOffersList, retrievePremierClickOnlyOnlineOffersList,
+    retrieveOnlineOffersList,
+    retrievePremierClickOnlyOnlineOffersList,
     retrievePremierOffersNearby,
     retrievePremierOnlineOffersList,
     updateUserAuthStat
 } from "../../../utils/AppSync";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
-import {Stages, UserAuthSessionResponse} from "@moonbeam/moonbeam-models";
+import {LoggingLevel, Stages, UserAuthSessionResponse} from "@moonbeam/moonbeam-models";
 import {currentUserLocationState, firstTimeLoggedInState} from "../../../recoil/RootAtom";
 import * as envInfo from "../../../../local-env-info.json";
 import {
@@ -253,24 +256,38 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             registerListener('auth', 'amplify_auth_listener', async (data) => {
                 switch (data.payload.event) {
                     case 'signIn':
-                        console.log(`user signed in`);
+                        const signInMessage = `user signed in`;
+                        console.log(signInMessage);
+                        await logEvent(signInMessage, LoggingLevel.Info, userIsAuthenticated);
+
                         setIsUserAuthenticated(true);
                         // update the user auth session statistics
                         const userAuthSessionResponse: UserAuthSessionResponse = await updateUserAuthStat(data.payload.data.attributes["custom:userId"]);
                         // check if the user auth stat has successfully been updated
                         if (userAuthSessionResponse.data !== null && userAuthSessionResponse.data !== undefined) {
-                            console.log('Successfully updated user auth stat during sign in!');
+                            const message = 'Successfully updated user auth stat during sign in!';
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                             // check if this sign in session, is the first time that the user logged in
                             if (userAuthSessionResponse.data.numberOfSessions === 1 &&
                                 userAuthSessionResponse.data.createdAt === userAuthSessionResponse.data.updatedAt) {
-                                console.log(`User ${userAuthSessionResponse.data.id} logged in for the first time!`);
+                                const message = `User ${userAuthSessionResponse.data.id} logged in for the first time!`;
+                                console.log(message);
+                                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                                 setFirstTimeLoggedIn(true);
                             } else {
-                                console.log(`User ${userAuthSessionResponse.data.id} not logged in for the first time!`);
+                                const message = `User ${userAuthSessionResponse.data.id} not logged in for the first time!`;
+                                console.log(message);
+                                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                                 setFirstTimeLoggedIn(false);
                             }
                         } else {
-                            console.log('Unsuccessfully updated user auth stat during sign in!');
+                            const message = 'Unsuccessfully updated user auth stat during sign in!';
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
                         }
                         break;
                     case 'signOut':
@@ -280,12 +297,18 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                          * here. What we do then is intercept that event, and since the user Sign-Out has already happened, we will perform the cleanup that
                          * we usually do in our Sign-Out functionality, without actually signing the user out.
                          */
-                        console.log(`user signed out`);
+                        const signOutMessage = `user signed out`;
+                        console.log(signOutMessage);
+                        await logEvent(signOutMessage, LoggingLevel.Info, userIsAuthenticated);
+
                         // remove listener on sign out action
                         removeListener('auth', 'amplify_auth_listener');
                         break;
                     case 'configured':
-                        console.log('the Auth module is successfully configured!');
+                        const configuredMessage = 'the Auth module is successfully configured!';
+                        console.log(configuredMessage);
+                        await logEvent(configuredMessage, LoggingLevel.Info, userIsAuthenticated);
+
                         break;
                 }
             });
@@ -531,8 +554,9 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             if (currentUserLocation === null) {
                 const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
                 if (foregroundPermissionStatus.status !== 'granted') {
-                    const errorMessage = `Permission to access location was not granted!`;
-                    console.log(errorMessage);
+                    const message = `Permission to access location was not granted!`;
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Warning, userIsAuthenticated);
 
                     setCurrentUserLocation(null);
                 } else {
@@ -544,7 +568,10 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             // check to see if we have cached online Offers. If we do, set them appropriately
             const onlineOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`);
             if (marketplaceCache !== null && onlineOffersCached !== null && onlineOffersCached.length !== 0 && !checkedOnlineCache) {
-                console.log('pre-emptively loading - online offers are cached');
+                const message = 'pre-emptively loading - online offers are cached';
+                console.log(message);
+                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                 setCheckOnlineCache(true);
                 const cachedOnlineOffers = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`);
                 setOnlineOfferList(cachedOnlineOffers);
@@ -556,7 +583,10 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             // check to see if we have cached click-only online Offers. If we do, set them appropriately
             const onlineClickOnlyOffersCached = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`);
             if (marketplaceCache !== null && onlineClickOnlyOffersCached !== null && onlineClickOnlyOffersCached.length !== 0 && !checkedClickOnlyOnlineCache) {
-                console.log('pre-emptively loading - click-only online offers are cached');
+                const message = 'pre-emptively loading - click-only online offers are cached';
+                console.log(message);
+                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                 setCheckClickOnlyOnlineCache(true);
                 const cachedClickOnlyOnlineOffers = await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`);
                 setClickOnlyOnlineOfferList(cachedClickOnlyOnlineOffers);
@@ -567,10 +597,13 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
 
             // stop caching online offers until we have at least 20 and at most 100 offers loaded, or until we run out of offers to load.
             if ((marketplaceCache && onlineOfferList.length >= 20 && onlineOfferList.length < 100) || (marketplaceCache && noOnlineOffersToLoad)) {
-                marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`).then(onlineOffersCached => {
+                marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`).then(async onlineOffersCached => {
                     // check if there's really a need for caching
                     if (((onlineOffersCached !== null && onlineOffersCached.length < onlineOfferList.length) || onlineOffersCached === null)) {
-                        console.log('Caching additional online offers');
+                        const message = 'Caching additional online offers';
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                         marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`, onlineOfferList);
                     }
                 });
@@ -578,10 +611,13 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
 
             // stop caching click-only online offers until we have at least 20 and at most 100 offers loaded, or until we run out of offers to load.
             if ((marketplaceCache && clickOnlyOnlineOfferList.length >= 20 && clickOnlyOnlineOfferList.length < 100) || (marketplaceCache && noClickOnlyOnlineOffersToLoad)) {
-                marketplaceCache!.getItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`).then(clickOnlyOnlineOffersCached => {
+                marketplaceCache!.getItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`).then(async clickOnlyOnlineOffersCached => {
                     // check if there's really a need for caching
                     if (((clickOnlyOnlineOffersCached !== null && clickOnlyOnlineOffersCached.length < clickOnlyOnlineOffersCached.length) || clickOnlyOnlineOffersCached === null)) {
-                        console.log('Caching additional click-only online offers');
+                        const message = 'Caching additional click-only online offers';
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                         marketplaceCache!.setItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`, clickOnlyOnlineOfferList);
                     }
                 });
@@ -688,18 +724,26 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                 // switch based on the result received from the async SMS action
                 switch (result.result) {
                     case 'sent':
-                        console.log('Message sent!');
+                        const messageSent = 'Message sent!';
+                        console.log(messageSent);
+                        await logEvent(messageSent, LoggingLevel.Info, userIsAuthenticated);
                         break;
                     case 'unknown':
-                        console.log('Unknown error has occurred while attempting to send a message!');
+                        const messageUnknown = 'Unknown error has occurred while attempting to send a message!';
+                        console.log(messageUnknown);
+                        await logEvent(messageUnknown, LoggingLevel.Info, userIsAuthenticated);
                         break;
                     case 'cancelled':
-                        console.log('Message was cancelled!');
+                        const messageWasCancelled = 'Message was cancelled!';
+                        console.log(messageWasCancelled);
+                        await logEvent(messageWasCancelled, LoggingLevel.Info, userIsAuthenticated);
                         break;
                 }
             } else {
                 // there's no SMS available on this device
-                console.log('no SMS available');
+                const messageWasCancelled = 'no SMS available';
+                console.log(messageWasCancelled);
+                await logEvent(messageWasCancelled, LoggingLevel.Warning, userIsAuthenticated);
             }
         }
 
@@ -822,15 +866,24 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                                                      * - we just cache an empty profile photo for the user for initial load
                                                                      */
                                                                     if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-fidelisPartners`) !== null) {
-                                                                        console.log('old Fidelis Partners are cached, needs cleaning up');
+                                                                        const message = 'old Fidelis Partners are cached, needs cleaning up';
+                                                                        console.log(message);
+                                                                        await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                                                                         await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-fidelisPartners`);
                                                                         await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, await retrieveFidelisPartnerList());
                                                                     } else {
-                                                                        console.log('Fidelis Partners are not cached');
+                                                                        const message = 'Fidelis Partners are not cached';
+                                                                        console.log(message);
+                                                                        await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                                                                         marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, await retrieveFidelisPartnerList());
                                                                     }
                                                                     if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`) !== null) {
-                                                                        console.log('online offers are cached, needs cleaning up');
+                                                                        const message = 'online offers are cached, needs cleaning up';
+                                                                        console.log(message);
+                                                                        await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                                                                         await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineOffers`);
 
                                                                         // retrieve the premier online, and regular online offers
@@ -847,7 +900,10 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                                                         await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
                                                                             [...premierOnlineOffers, ...onlineOffers]);
                                                                     } else {
-                                                                        console.log('online offers are not cached');
+                                                                        const message = 'online offers are not cached';
+                                                                        console.log(message);
+                                                                        await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                                                                         // retrieve the premier online, and regular online offers
                                                                         const onlineOffers = await retrieveOnlineOffersList(
                                                                             numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls,
@@ -863,7 +919,10 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                                                             [...premierOnlineOffers, ...onlineOffers]);
                                                                     }
                                                                     if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`) !== null) {
-                                                                        console.log('click-only online offers are cached, needs cleaning up');
+                                                                        const message = 'click-only online offers are cached, needs cleaning up';
+                                                                        console.log(message);
+                                                                        await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                                                                         await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`);
 
                                                                         // retrieve the premier click-only online, and regular click-only online offers
@@ -880,7 +939,9 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                                                         await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`,
                                                                             [...premierClickOnlyOnlineOffers, ...clickOnlyOnlineOffers]);
                                                                     } else {
-                                                                        console.log('online click-only offers are not cached');
+                                                                        const message = 'online click-only offers are not cached';
+                                                                        console.log(message);
+                                                                        await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
                                                                         // retrieve the premier click-only online, and regular click-only online offers
                                                                         const clickOnlyOnlineOffers = await retrieveClickOnlyOnlineOffersList(
                                                                             numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls,
@@ -896,11 +957,15 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                                                             [...premierClickOnlyOnlineOffers, ...clickOnlyOnlineOffers]);
                                                                     }
                                                                     if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
-                                                                        console.log('old profile picture is cached, needs cleaning up');
+                                                                        const message = 'old profile picture is cached, needs cleaning up';
+                                                                        console.log(message);
+                                                                        await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
                                                                         await globalCache!.removeItem(`${userInformation["custom:userId"]}-profilePictureURI`);
                                                                         await globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, "");
                                                                     } else {
-                                                                        console.log('profile picture is not cached');
+                                                                        const message = 'profile picture is not cached';
+                                                                        console.log(message);
+                                                                        await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
                                                                         globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, "");
                                                                     }
                                                                     setIsReady(true);

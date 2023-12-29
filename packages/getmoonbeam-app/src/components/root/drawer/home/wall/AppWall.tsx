@@ -6,10 +6,14 @@ import {styles} from '../../../../../styles/appWall.module';
 import {Dialog, IconButton, Portal, Text} from "react-native-paper";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 import {useRecoilState} from "recoil";
-import {currentUserInformation, globalAmplifyCacheState} from '../../../../../recoil/AuthAtom';
+import {
+    currentUserInformation,
+    globalAmplifyCacheState,
+    userIsAuthenticatedState
+} from '../../../../../recoil/AuthAtom';
 import {applicationWallSteps} from "../../../../../models/Constants";
 import {
-    createMilitaryVerification,
+    createMilitaryVerification, LoggingLevel,
     MilitaryAffiliation,
     MilitaryVerificationStatusType,
     updateMilitaryVerificationStatus
@@ -52,6 +56,7 @@ import MoonbeamPreferencesIOS from "../../../../../../assets/art/moonbeam-prefer
 // @ts-ignore
 import MoonbeamPreferencesAndroid from "../../../../../../assets/art/moonbeam-preferences-android.jpg";
 import * as ImagePicker from "expo-image-picker";
+import {logEvent} from "../../../../../utils/AppSync";
 
 /**
  * AppWall Component.
@@ -68,6 +73,7 @@ export const AppWall = ({navigation}: AppWallProps) => {
     const [supportModalButtonMessage, setSupportModalButtonMessage] = useState<string>('');
     const [appWallError, setAppWallError] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [, setDocumentsRePickPhoto] = useRecoilState(appWallDocumentsRePickPhotoState);
     const [, setDocumentsReCapturePhoto] = useRecoilState(appWallDocumentsReCapturePhotoState);
     const [permissionsModalVisible, setPermissionsModalVisible] = useRecoilState(appWallPermissionsModalVisibleState);
@@ -163,11 +169,15 @@ export const AppWall = ({navigation}: AppWallProps) => {
             if (responseData && responseData.updateMilitaryVerificationStatus.errorMessage === null) {
                 return true;
             } else {
-                console.log(`Unexpected error while updating the eligibility status through update ${JSON.stringify(modifyEligibilityResult)}`);
+                const message = `Unexpected error while updating the eligibility status through update ${JSON.stringify(modifyEligibilityResult)}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
                 return false;
             }
         } catch (error) {
-            console.log(`Unexpected error while updating the eligibility status through update ${JSON.stringify(error)} ${error}`);
+            const message = `Unexpected error while updating the eligibility status through update ${JSON.stringify(error)} ${error}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
             return false;
         }
     }
@@ -239,11 +249,17 @@ export const AppWall = ({navigation}: AppWallProps) => {
                     case MilitaryVerificationStatusType.Verified:
                         // if the verification status is verified, then we can cache it accordingly
                         if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-militaryStatus`) !== null) {
-                            console.log('old military status is cached, needs cleaning up');
+                            const message = 'old military status is cached, needs cleaning up';
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                             await globalCache!.removeItem(`${userInformation["custom:userId"]}-militaryStatus`);
                             await globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, MilitaryVerificationStatusType.Verified);
                         } else {
-                            console.log('military status is not cached');
+                            const message = 'military status is not cached';
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                             globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, MilitaryVerificationStatusType.Verified);
                         }
 
@@ -268,14 +284,20 @@ export const AppWall = ({navigation}: AppWallProps) => {
                 // release the loader on button press
                 setIsReady(true);
 
-                console.log(`Unexpected error while updating the eligibility status through creation ${JSON.stringify(updateEligibilityResult)}`);
+                const message = `Unexpected error while updating the eligibility status through creation ${JSON.stringify(updateEligibilityResult)}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
                 return false;
             }
         } catch (error) {
             // release the loader on button press
             setIsReady(true);
 
-            console.log(`Unexpected error while updating the eligibility status through creation ${JSON.stringify(error)} ${error}`);
+            const message = `Unexpected error while updating the eligibility status through creation ${JSON.stringify(error)} ${error}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
             return false;
         }
     }
@@ -295,19 +317,28 @@ export const AppWall = ({navigation}: AppWallProps) => {
             // switch based on the result received from the async SMS action
             switch (result.result) {
                 case 'sent':
-                    console.log('Message sent!');
+                    const messageSent = 'Message sent!';
+                    console.log(messageSent);
+                    await logEvent(messageSent, LoggingLevel.Info, userIsAuthenticated);
+
                     setSupportModalMessage('Thank you for your inquiry! One of our team members will get back to you shortly!');
                     setSupportModalButtonMessage('Dismiss');
                     setSupportModalVisible(true);
                     break;
                 case 'unknown':
-                    console.log('Unknown error has occurred while attempting to send a message!');
+                    const messageUnknown = 'Unknown error has occurred while attempting to send a message!';
+                    console.log(messageUnknown);
+                    await logEvent(messageUnknown, LoggingLevel.Info, userIsAuthenticated);
+
                     setSupportModalMessage('An unexpected error occurred while attempting to contact our team');
                     setSupportModalButtonMessage('Retry');
                     setSupportModalVisible(true);
                     break;
                 case 'cancelled':
-                    console.log('Message was cancelled!');
+                    const messageCancelled = 'Message was cancelled!';
+                    console.log(messageCancelled);
+                    await logEvent(messageCancelled, LoggingLevel.Info, userIsAuthenticated);
+
                     setSupportModalMessage('It looks like you cancelled your inquiry to our team! If you do need help, please ensure that you send your message beforehand!');
                     setSupportModalButtonMessage('Ok');
                     setSupportModalVisible(true);
@@ -315,7 +346,10 @@ export const AppWall = ({navigation}: AppWallProps) => {
             }
         } else {
             // there's no SMS available on this device
-            console.log('no SMS available');
+            const messageCancelled = 'no SMS available';
+            console.log(messageCancelled);
+            await logEvent(messageCancelled, LoggingLevel.Info, userIsAuthenticated);
+
             setSupportModalMessage('Messaging not available on this platform!');
             setSupportModalButtonMessage('Retry');
             setSupportModalVisible(true);

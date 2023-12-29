@@ -13,6 +13,10 @@ import {Spinner} from "../../common/Spinner";
 // @ts-ignore
 import AuthenticationGradientPicture from '../../../../assets/backgrounds/authentication-gradient.png'
 import {Button} from "@rneui/base";
+import {useRecoilState} from "recoil";
+import {userIsAuthenticatedState} from "../../../recoil/AuthAtom";
+import {logEvent} from "../../../utils/AppSync";
+import {LoggingLevel} from "@moonbeam/moonbeam-models";
 
 /**
  * AccountRecoveryComponent component.
@@ -21,6 +25,8 @@ import {Button} from "@rneui/base";
  * @constructor constructor for the component.
  */
 export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => {
+    // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     // constants used to keep track of local component state
     const [isReady, setIsReady] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
@@ -162,11 +168,12 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                 // release the loader
                 setIsReady(true);
 
-                const errorMessage = 'Unexpected error while confirming identity for resetting password';
-                console.log(`${errorMessage} - Invalid response received from the forgotPassword call!`);
+                const message = 'Unexpected error while confirming identity for resetting password';
+                console.log(`${message} - Invalid response received from the forgotPassword call!`);
+                await logEvent(`${message} - Invalid response received from the forgotPassword call!`, LoggingLevel.Error, userIsAuthenticated);
 
-                setVerificationCodeErrors([errorMessage]);
-                return [false, errorMessage];
+                setVerificationCodeErrors([message]);
+                return [false, message];
             }
         } catch (error) {
             // release the loader
@@ -177,20 +184,28 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
             // @ts-ignore
             const errorCode = error && error.code ? error.code : null;
             console.log(errorCode);
+            await logEvent(errorCode, LoggingLevel.Info, userIsAuthenticated);
+
             // based on the error code, return the appropriate error to the user
             if (errorCode === 'UserNotFoundException') {
                 errorMessage = 'User not found!';
                 console.log(`${errorMessage} ${error}`);
+                await logEvent(`${errorMessage} ${error}`, LoggingLevel.Error, userIsAuthenticated);
+
                 setEmailErrors([errorMessage]);
                 return [false, errorMessage];
             }
             else if (errorCode === 'LimitExceededException') {
                 errorMessage = 'Password reset limit exceeded! Please try again later!';
                 console.log(`${errorMessage} ${error}`);
+                await logEvent(`${errorMessage} ${error}`, LoggingLevel.Error, userIsAuthenticated);
+
                 setEmailErrors([errorMessage]);
                 return [false, errorMessage];
             } else {
                 console.log(`${errorMessage} ${error}`);
+                await logEvent(`${errorMessage} ${error}`, LoggingLevel.Error, userIsAuthenticated);
+
                 setEmailErrors([errorMessage]);
                 return [false, errorMessage];
             }
@@ -220,6 +235,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
 
                 const errorMessage = 'Unexpected error while resetting password';
                 console.log(`${errorMessage} - Invalid response received from the forgotPasswordSubmit call!`);
+                await logEvent(`${errorMessage} - Invalid response received from the forgotPasswordSubmit call!`, LoggingLevel.Error, userIsAuthenticated);
 
                 setVerificationCodeErrors([errorMessage]);
                 return false;
@@ -237,6 +253,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                 errorMessage = 'Invalid verification code provided. Try again!';
             }
             console.log(`${errorMessage} ${error}`);
+            await logEvent(`${errorMessage} ${error}`, LoggingLevel.Error, userIsAuthenticated);
 
             setVerificationCodeErrors([errorMessage]);
             return false;
@@ -851,7 +868,10 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                         }
                                                         break;
                                                     default:
-                                                        console.log(`Unexpected step number ${stepNumber}!`);
+                                                        const errorMessage = `Unexpected step number ${stepNumber}!`;
+                                                        console.log(errorMessage);
+                                                        await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
+
                                                         break;
                                                 }
                                             }

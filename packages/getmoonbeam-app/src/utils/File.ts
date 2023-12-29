@@ -1,6 +1,7 @@
 import * as FileSystem from "expo-file-system";
 import {API, graphqlOperation, Storage} from "aws-amplify";
-import {FileAccessLevel, FileType, getStorage} from "@moonbeam/moonbeam-models";
+import {FileAccessLevel, FileType, getStorage, LoggingLevel} from "@moonbeam/moonbeam-models";
+import {logEvent} from "./AppSync";
 
 /**
  * Function used to upload a file to storage, given its URI, and privacy level, and
@@ -34,20 +35,31 @@ export const uploadFile = async (uri: string, privacyFlag: boolean, optionalFile
 
             // check to see if the upload was successful
             if (result && result.key) {
-                console.log(`File ${fileName} uploaded successfully!`);
+                const message = `File ${fileName} uploaded successfully!`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Info, true);
 
                 // delete the file from local storage given its URI, before returning
                 notCached !== undefined && notCached && await FileSystem.deleteAsync(fileInfo.uri);
 
                 return [true, fileName];
             }
-            console.log(`File ${fileName} did not upload successfully!`);
+            const message = `File ${fileName} did not upload successfully!`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, true);
+
             return [false, fileName];
         }
-        console.log(`File ${fileName} to upload does not exist!`);
+        const message = `File ${fileName} to upload does not exist!`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, true);
+
         return [false, fileName];
     } catch (error) {
-        console.log(`Unexpected error while uploading file: ${error}`);
+        const message = `Unexpected error while uploading file: ${error}`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, true);
+
         return [false, null];
     }
 }
@@ -79,7 +91,9 @@ export const fetchFile = async (name: string, privacyFlag: boolean, expires: boo
 
         // remove the file from local storage depending on the cached flag
         if (!cached && fileInfo.exists) {
-            console.log('Removing pre-existing file from storage, given caching flag!');
+            const message = 'Removing pre-existing file from storage, given caching flag!';
+            console.log(message);
+            await logEvent(message, LoggingLevel.Info, true);
 
             await FileSystem.deleteAsync(fileUri);
         }
@@ -87,7 +101,10 @@ export const fetchFile = async (name: string, privacyFlag: boolean, expires: boo
         // if the file already exists in local file system cache
         // ToDo: re-download the file after a certain time
         if (!cached || !fileInfo.exists) {
-            console.log(`${name} isn't cached locally. Downloading...`);
+            const message = `${name} isn't cached locally. Downloading...`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Info, true);
+
             // perform the query to fetch a file
             const fetchFileResult = await API.graphql(graphqlOperation(getStorage, {
                 getStorageInput: {
@@ -110,17 +127,24 @@ export const fetchFile = async (name: string, privacyFlag: boolean, expires: boo
                 // file did not exist or was force not cached, downloaded the file and return the appropriate URI
                 return [true, cached ? fileDownloadResult.uri : retrievedURI];
             } else {
-                console.log(`Unexpected error while fetching file ${name} ${JSON.stringify(fetchFileResult)}`);
+                const message = `Unexpected error while fetching file ${name} ${JSON.stringify(fetchFileResult)}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, true);
+
                 return [false, null];
             }
         } else {
-            console.log(`${name} is cached locally.`);
+            const message = `${name} is cached locally.`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Info, true);
 
             // file exists, just return the locally cached URI
             return [true, fileUri];
         }
     } catch (error) {
-        console.log(`Unexpected error while fetching file: ${error}`);
+        const message = `Unexpected error while fetching file: ${error}`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, true);
 
         return [false, null];
     }

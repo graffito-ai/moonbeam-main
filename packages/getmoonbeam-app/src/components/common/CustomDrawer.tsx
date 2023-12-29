@@ -257,6 +257,8 @@ import {
 } from "../../recoil/BranchAtom";
 import Constants from 'expo-constants';
 import {AppOwnership} from "expo-constants/src/Constants.types";
+import {logEvent} from "../../utils/AppSync";
+import {LoggingLevel} from "@moonbeam/moonbeam-models";
 /**
  * import branch only if the app is not running in Expo Go (so we can actually run the application without Branch for
  * Expo Go), for easier testing purposes.
@@ -501,7 +503,6 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const branchRootUniversalObjectReset = useResetRecoilState(branchRootUniversalObjectState);
     const referralCodeStateReset = useResetRecoilState(referralCodeState);
     const referralCodeMarketingCampaignStateReset = useResetRecoilState(referralCodeMarketingCampaignState);
-    const userIsAuthenticatedStateReset = useResetRecoilState(userIsAuthenticatedState);
     const clickOnlyOnlineOffersListStateReset = useResetRecoilState(clickOnlyOnlineOffersListState);
     const clickOnlyOnlineOffersPageNumberStateReset = useResetRecoilState(clickOnlyOnlineOffersPageNumberState);
     const premierClickOnlyOnlineOffersPageNumberStateReset = useResetRecoilState(premierClickOnlyOnlineOffersPageNumberState);
@@ -513,6 +514,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const numberOfFailedClickOnlyOnlineOfferCallsStateReset = useResetRecoilState(numberOfFailedClickOnlyOnlineOfferCallsState);
     const showClickOnlyBottomSheetStateReset = useResetRecoilState(showClickOnlyBottomSheetState);
     const cardLinkingIdStateReset = useResetRecoilState(cardLinkingIdState);
+    const userIsAuthenticatedStateReset = useResetRecoilState(userIsAuthenticatedState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -809,7 +811,9 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             // performing the Sign-Out action through Amplify
             await Auth.signOut();
         } catch (error) {
-            console.log('error while signing out: ', error);
+            const message = `error while signing out: , ${error}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, true);
         }
     }
 

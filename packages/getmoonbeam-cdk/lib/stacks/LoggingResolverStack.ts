@@ -82,8 +82,8 @@ export class LoggingResolverStack extends Stack {
                 ],
                 resources: [
                     // this ARN is retrieved post GraphQL API creation
-                    ...props.stage === Stages.DEV ? [`arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Mutation/${props.loggingConfig.createLogEventResolverName}`] : [],
-                    ...props.stage === Stages.PROD ? [`arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Mutation/${props.loggingConfig.createLogEventResolverName}`] : []
+                    ...props.stage === Stages.DEV ? [`arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Mutation/fields/${props.loggingConfig.createLogEventResolverName}`] : [],
+                    ...props.stage === Stages.PROD ? [`arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Mutation/fields/${props.loggingConfig.createLogEventResolverName}`] : []
                 ]
             })
         );
@@ -95,8 +95,8 @@ export class LoggingResolverStack extends Stack {
                 ],
                 resources: [
                     // this ARN is retrieved post GraphQL API creation
-                    ...props.stage === Stages.DEV ? [`arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Mutation/${props.loggingConfig.createLogEventResolverName}`] : [],
-                    ...props.stage === Stages.PROD ? [`arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Mutation/${props.loggingConfig.createLogEventResolverName}`] : []
+                    ...props.stage === Stages.DEV ? [`arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Mutation/fields/${props.loggingConfig.createLogEventResolverName}`] : [],
+                    ...props.stage === Stages.PROD ? [`arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Mutation/fields/${props.loggingConfig.createLogEventResolverName}`] : []
                 ]
             })
         );

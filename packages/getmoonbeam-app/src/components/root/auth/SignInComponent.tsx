@@ -25,6 +25,8 @@ import {moonbeamUserIdPassState, moonbeamUserIdState} from "../../../recoil/Root
 import * as SecureStore from "expo-secure-store";
 import * as LocalAuthentication from 'expo-local-authentication';
 import {referralCodeMarketingCampaignState, referralCodeState} from "../../../recoil/BranchAtom";
+import {logEvent} from "../../../utils/AppSync";
+import {LoggingLevel} from "@moonbeam/moonbeam-models";
 
 /**
  * Sign In component.
@@ -48,7 +50,7 @@ export const SignInComponent = ({navigation}: SignInProps) => {
     const [passwordShown, setIsPasswordShown] = useState<boolean>(false);
     const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     // constants used to keep track of shared states
-    const [, setIsUserAuthenticated] = useRecoilState(userIsAuthenticatedState);
+    const [userIsAuthenticated, setIsUserAuthenticated] = useRecoilState(userIsAuthenticatedState);
     const [referralCodeMarketingCampaign, ] = useRecoilState(referralCodeMarketingCampaignState);
     const [referralCode,] = useRecoilState(referralCodeState);
     const [, setMoonbeamUserId] = useRecoilState(moonbeamUserIdState);
@@ -137,14 +139,20 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                 requireAuthentication: false // we don't need this to be under authentication, so we can check at login
             });
             if (biometricsEnabled !== null && biometricsEnabled.length !== 0 && biometricsEnabled === '1') {
-                console.log('Biometric sign-in enabled for device! Attempting to sign-in.');
+                const message = 'Biometric sign-in enabled for device! Attempting to sign-in.';
+                console.log(message);
+                await logEvent(message, LoggingLevel.Info, true);
+
                 // attempt biometric authentication in order to retrieve necessary data
                 const localAuthenticationResult: LocalAuthentication.LocalAuthenticationResult = await LocalAuthentication.authenticateAsync({
                     promptMessage: 'Use your biometrics or FingerPrint/TouchID to authenticate with Moonbeam!',
                 });
                 // check if the authentication was successful or not
                 if (localAuthenticationResult.success) {
-                    console.log('Biometric login successful. Logging user in.');
+                    const message = 'Biometric login successful. Logging user in.';
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Info, true);
+
                     const moonbeamUserId = await SecureStore.getItemAsync(`moonbeam-user-id`, {
                         requireAuthentication: false // we don't need this to be under authentication, so we can check at login
                     });
@@ -194,31 +202,46 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                         } else {
                             // release the loader on button press
                             setIsReady(true);
-                            console.log(`No user object available: ${JSON.stringify(user)}`);
+                            const message = `No user object available: ${JSON.stringify(user)}`;
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Warning, true);
+
                             return true;
                         }
                     } else {
                         // release the loader on button press
                         setIsReady(true);
-                        console.log(`Unable to retrieve appropriate SecureStore data for biometrics.`);
+                        const message = `Unable to retrieve appropriate SecureStore data for biometrics.`;
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Error, true);
+
                         return true;
                     }
                 } else {
                     // release the loader on button press
                     setIsReady(true);
-                    console.log('Biometric login not successful. Falling back to regular login.');
+                    const message = 'Biometric login not successful. Falling back to regular login.';
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Warning, true);
+
                     return true;
                 }
             } else {
                 // release the loader on button press
                 setIsReady(true);
-                console.log('Biometric data not available/Biometric sign-in not enabled for device');
+                const message = 'Biometric data not available/Biometric sign-in not enabled for device';
+                console.log(message);
+                await logEvent(message, LoggingLevel.Warning, true);
+
                 return true;
             }
         } catch (error) {
             // release the loader on button press
             setIsReady(true);
-            console.log(`Unexpected error while attempting to biometrically sign in - ${error} ${JSON.stringify(error)}`);
+            const message = `Unexpected error while attempting to biometrically sign in - ${error} ${JSON.stringify(error)}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, true);
+
             return true;
         }
     }
@@ -250,7 +273,10 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                     requireAuthentication: false // we don't need this to be under authentication, so we can check at login
                 });
                 if (moonbeamUserId !== null && moonbeamUserId.length !== 0 && moonbeamUserId.trim() !== email.trim()) {
-                    console.log('Inheriting biometrics from old user. Resetting.');
+                    const message = 'Inheriting biometrics from old user. Resetting.';
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                     await SecureStore.deleteItemAsync(`biometrics-enabled`, {
                         requireAuthentication: false // we don't need this to be under authentication, so we can check at login
                     });
@@ -300,7 +326,10 @@ export const SignInComponent = ({navigation}: SignInProps) => {
             } else {
                 // release the loader on button press
                 setIsReady(true);
-                console.log(`${authenticationErrorMessage} - user object: ${JSON.stringify(user)}`);
+                const message = `${authenticationErrorMessage} - user object: ${JSON.stringify(user)}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
                 /**
                  * here we just chose to populate one of the error arrays for the fields, instead of having to create a separate
                  * error array for authentication purposes.
@@ -323,7 +352,10 @@ export const SignInComponent = ({navigation}: SignInProps) => {
 
             // release the loader on button press
             setIsReady(true);
-            console.log(`${authenticationErrorMessage} ${error}`);
+            const message = `${authenticationErrorMessage} ${error}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
             /**
              * here we just chose to populate one of the error arrays for the fields, instead of having to create a separate
              * error array for authentication purposes.

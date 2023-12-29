@@ -34,7 +34,9 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-nativ
 import MoonbeamPreferencesIOS from "../../../../../../assets/art/moonbeam-preferences-ios.jpg";
 // @ts-ignore
 import MoonbeamPreferencesAndroid from "../../../../../../assets/art/moonbeam-preferences-android.jpg";
-import {currentUserInformation} from "../../../../../recoil/AuthAtom";
+import {currentUserInformation, userIsAuthenticatedState} from "../../../../../recoil/AuthAtom";
+import {logEvent} from "../../../../../utils/AppSync";
+import {LoggingLevel} from "@moonbeam/moonbeam-models";
 
 /**
  * WallDocumentCaptureStep component.
@@ -53,6 +55,7 @@ export const WallDocumentCaptureStep = () => {
     const [uploadButtonState, setUploadButtonState] = useState<boolean>(false);
     const [documentItems, setDocumentItems] = useState(documentSelectionItems);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [documentsRePickPhoto, setDocumentsRePickPhoto] = useRecoilState(appWallDocumentsRePickPhotoState);
     const [documentsReCapturePhoto, setDocumentsReCapturePhoto] = useRecoilState(appWallDocumentsReCapturePhotoState);
     const [, setPermissionsModalVisible] = useRecoilState(appWallPermissionsModalVisibleState);
@@ -166,6 +169,7 @@ export const WallDocumentCaptureStep = () => {
                             if (!uploadFlag || fileName === null) {
                                 const errorMessage = "Error while picking a photo to upload!";
                                 console.log(errorMessage);
+                                await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
 
                                 // set the documentation errors accordingly
                                 // @ts-ignore
@@ -187,6 +191,7 @@ export const WallDocumentCaptureStep = () => {
                         } else {
                             const errorMessage = "Invalid photo size. Maximum allotted size is 10MB";
                             console.log(errorMessage);
+                            await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
 
                             // set the documentation errors accordingly
                             // @ts-ignore
@@ -201,6 +206,7 @@ export const WallDocumentCaptureStep = () => {
                     } else {
                         const errorMessage = `Please pick only 1 photo of your document to continue!`;
                         console.log(`${errorMessage} - ${result.canceled}`);
+                        await logEvent(`${errorMessage} - ${result.canceled}`, LoggingLevel.Warning, userIsAuthenticated);
 
                         // set the documentation errors accordingly
                         // @ts-ignore
@@ -215,6 +221,7 @@ export const WallDocumentCaptureStep = () => {
                 } else {
                     const errorMessage = `Please pick a photo of your document to continue!`;
                     console.log(`${errorMessage} - ${result.canceled}`);
+                    await logEvent(`${errorMessage} - ${result.canceled}`, LoggingLevel.Warning, userIsAuthenticated);
 
                     // set the documentation errors accordingly
                     // @ts-ignore
@@ -229,6 +236,7 @@ export const WallDocumentCaptureStep = () => {
             } else {
                 const errorMessage = `Enable permissions to access your verification document pictures, and re-login to upload them!`;
                 console.log(errorMessage);
+                await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
 
                 setPermissionsModalCustomMessage(errorMessage);
                 setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
@@ -243,6 +251,7 @@ export const WallDocumentCaptureStep = () => {
         } catch (error) {
             const errorMessage = `Error while picking photo of document!`;
             console.log(`${errorMessage} - ${error}`);
+            await logEvent(`${errorMessage} - ${error}`, LoggingLevel.Error, userIsAuthenticated);
 
             // set the documentation errors accordingly
             // @ts-ignore
@@ -308,6 +317,7 @@ export const WallDocumentCaptureStep = () => {
                             if (!uploadFlag || fileName === null) {
                                 const errorMessage = "Error while uploading photo!";
                                 console.log(errorMessage);
+                                await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
 
                                 // set the documentation errors accordingly
                                 // @ts-ignore
@@ -329,6 +339,7 @@ export const WallDocumentCaptureStep = () => {
                         } else {
                             const errorMessage = "Invalid photo size. Maximum allotted size is 10MB";
                             console.log(errorMessage);
+                            await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
 
                             // set the documentation errors accordingly
                             // @ts-ignore
@@ -342,7 +353,8 @@ export const WallDocumentCaptureStep = () => {
                         }
                     } else {
                         const errorMessage = `Please capture 1 photo of your document to continue!`;
-                        console.log(`${errorMessage} - ${result.canceled}`);
+                        console.log(`${errorMessage} - ${result.canceled}`)
+                        await logEvent(`${errorMessage} - ${result.canceled}`, LoggingLevel.Warning, userIsAuthenticated);
 
                         // set the documentation errors accordingly
                         // @ts-ignore
@@ -357,6 +369,7 @@ export const WallDocumentCaptureStep = () => {
                 } else {
                     const errorMessage = `Please capture your document to continue!`;
                     console.log(`${errorMessage} - ${result.canceled}`);
+                    await logEvent(`${errorMessage} - ${result.canceled}`, LoggingLevel.Warning, userIsAuthenticated);
 
                     // set the documentation errors accordingly
                     // @ts-ignore
@@ -371,6 +384,7 @@ export const WallDocumentCaptureStep = () => {
             } else {
                 const errorMessage = `Enable permissions to capture your verification documents, and re-login to upload them!`;
                 console.log(errorMessage);
+                await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
 
                 setPermissionsModalCustomMessage(errorMessage);
                 setPermissionsInstructionsCustomMessage(Platform.OS === 'ios'
@@ -385,6 +399,7 @@ export const WallDocumentCaptureStep = () => {
         } catch (error) {
             const errorMessage = `Error while capturing document!`;
             console.log(`${errorMessage} - ${error}`);
+            await logEvent(`${errorMessage} - ${error}`, LoggingLevel.Error, userIsAuthenticated);
 
             // set the documentation errors accordingly
             // @ts-ignore
@@ -449,6 +464,7 @@ export const WallDocumentCaptureStep = () => {
                     if (!uploadFlag || fileName === null) {
                         const errorMessage = "Error while uploading file!";
                         console.log(errorMessage);
+                        await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
 
                         // set the documentation errors accordingly
                         // @ts-ignore
@@ -470,6 +486,7 @@ export const WallDocumentCaptureStep = () => {
                 } else {
                     const errorMessage = "Invalid file size. Maximum allotted size is 10MB";
                     console.log(errorMessage);
+                    await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
 
                     // set the documentation errors accordingly
                     // @ts-ignore
@@ -484,6 +501,7 @@ export const WallDocumentCaptureStep = () => {
             } else {
                 const errorMessage = `Please upload a file to continue!`;
                 console.log(`${errorMessage} - ${result.type}`);
+                await logEvent(`${errorMessage} - ${result.type}`, LoggingLevel.Warning, userIsAuthenticated);
 
                 // set the documentation errors accordingly
                 // @ts-ignore
@@ -498,6 +516,7 @@ export const WallDocumentCaptureStep = () => {
         } catch (error) {
             const errorMessage = `Error while uploading file!`;
             console.log(`${errorMessage} - ${error}`);
+            await logEvent(`${errorMessage} - ${error}`, LoggingLevel.Error, userIsAuthenticated);
 
             // set the documentation errors accordingly
             // @ts-ignore

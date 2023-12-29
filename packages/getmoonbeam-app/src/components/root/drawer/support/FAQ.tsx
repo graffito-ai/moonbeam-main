@@ -8,7 +8,7 @@ import {commonStyles} from "../../../../styles/common.module";
 import {Button, Icon} from "@rneui/base";
 import {Spinner} from '../../../common/Spinner';
 import {View} from 'react-native';
-import {FactType, Faq, FaqErrorType, getFAQs} from "@moonbeam/moonbeam-models";
+import {FactType, Faq, FaqErrorType, getFAQs, LoggingLevel} from "@moonbeam/moonbeam-models";
 import {API, graphqlOperation} from "aws-amplify";
 import {styles} from "../../../../styles/faq.module";
 import {ScrollView} from "react-native-gesture-handler";
@@ -17,6 +17,8 @@ import {faqListState} from "../../../../recoil/FaqAtom";
 import {bottomBarNavigationState, drawerNavigationState} from "../../../../recoil/HomeAtom";
 import {goToProfileSettingsState} from "../../../../recoil/Settings";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {userIsAuthenticatedState} from "../../../../recoil/AuthAtom";
+import {logEvent} from "../../../../utils/AppSync";
 
 /**
  * FAQ component.
@@ -31,6 +33,7 @@ export const FAQ = ({navigation}: FAQProps) => {
     const [faqErrorModalVisible, setFAQErrorModalVisible] = useState<boolean>(false);
     const [faqIDExpanded, setFAQIdExpanded] = useState<string | null>(null);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [, setGoToProfileSettings] = useRecoilState(goToProfileSettingsState);
     const [bottomBarNavigation, ] = useRecoilState(bottomBarNavigationState);
     const [drawerNavigation, ] = useRecoilState(drawerNavigationState);
@@ -80,12 +83,16 @@ export const FAQ = ({navigation}: FAQProps) => {
                 } else {
                     // filter the error accordingly
                     if (responseData.getFAQs.errorType === FaqErrorType.NoneOrAbsent) {
-                        console.log(`No FAQs found! ${JSON.stringify(faqsResult)}`);
+                        const message = `No FAQs found! ${JSON.stringify(faqsResult)}`;
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
 
                         // do not return an error, since we will display an empty FAQs message, in the lis of FAQs
                         setFAQList([]);
                     } else {
-                        console.log(`Unexpected error while retrieving FAQs ${JSON.stringify(faqsResult)}`);
+                        const message = `Unexpected error while retrieving FAQs ${JSON.stringify(faqsResult)}`;
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
 
                         // release the loader
                         setIsReady(true);
@@ -94,7 +101,9 @@ export const FAQ = ({navigation}: FAQProps) => {
                 }
             }
         } catch (error) {
-            console.log(`Unexpected error while attempting to retrieve FAQs ${JSON.stringify(error)} ${error}`);
+            const message = `Unexpected error while attempting to retrieve FAQs ${JSON.stringify(error)} ${error}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
 
             // release the loader
             setIsReady(true);
@@ -190,7 +199,9 @@ export const FAQ = ({navigation}: FAQProps) => {
                                                             drawerNavigation && drawerNavigation!.navigate('Settings', {});
                                                             break;
                                                         default:
-                                                            console.log('Unknown location from FAQ');
+                                                            const message = 'Unknown location from FAQ';
+                                                            console.log(message);
+                                                            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
                                                             break
                                                     }
                                                 }}
