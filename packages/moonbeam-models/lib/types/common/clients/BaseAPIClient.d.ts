@@ -1,6 +1,6 @@
 import { SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import { AppUpgradeResponse, Card, CardLinkResponse, CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetOffersInput, GetReferralsByStatusInput, GetTransactionByStatusInput, GetTransactionInput, GetUserCardLinkingIdInput, GetUserCardLinkingIdResponse, IneligibleLinkedUsersResponse, MemberDetailsResponse, MemberResponse, MilitaryVerificationNotificationUpdate, MilitaryVerificationStatusType, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationChannelType, NotificationReminderResponse, NotificationResponse, NotificationType, OfferIdResponse, OfferRedemptionTypeResponse, OffersResponse, ReferralResponse, RemoveCardResponse, SendEmailNotificationInput, SendMobilePushNotificationInput, Transaction, TransactionResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse, UpdateNotificationReminderInput, UpdateReferralInput, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse } from "../GraphqlExports";
+import { AppUpgradeResponse, Card, CardLinkResponse, CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetOffersInput, GetReferralsByStatusInput, GetTransactionByStatusInput, GetTransactionInput, GetUserCardLinkingIdInput, GetUserCardLinkingIdResponse, IneligibleLinkedUsersResponse, MemberDetailsResponse, MemberResponse, MilitaryVerificationNotificationUpdate, MilitaryVerificationReportingInformation, MilitaryVerificationStatusType, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationChannelType, NotificationReminderResponse, NotificationResponse, NotificationType, OfferIdResponse, OfferRedemptionTypeResponse, OffersResponse, ReferralResponse, RemoveCardResponse, SendEmailNotificationInput, SendMobilePushNotificationInput, Transaction, TransactionResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse, UpdateNotificationReminderInput, UpdateReferralInput, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse, MilitaryVerificationReportingInformationResponse } from "../GraphqlExports";
 /**
  * Class used as the base/generic client for all API clients that
  * we will be connecting to.
@@ -108,6 +108,19 @@ export declare abstract class BaseAPIClient {
      * @protected
      */
     protected updateNotificationReminder?(updateNotificationReminderInput: UpdateNotificationReminderInput): Promise<NotificationReminderResponse>;
+    /**
+     * Function used to get a user's contact information, based on certain
+     * filters.
+     *
+     * @param contactInformationInput contact information input passed in, containing the
+     * filters used to retrieve the user's contact information.
+     *
+     * @returns a {@link MilitaryVerificationReportingInformationResponse}, representing the user's filtered
+     * contact information.
+     *
+     * @protected
+     */
+    protected retrieveContactInformationForUser?(contactInformationInput: MilitaryVerificationReportingInformation): Promise<MilitaryVerificationReportingInformationResponse>;
     /**
      * Function used to get all the users used to delivered
      * notification reminders to.

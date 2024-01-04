@@ -40,7 +40,17 @@ export class StorageResolverStack extends Stack {
         super(scope, id, props);
 
         /**
-         * add a deployment bucket, to be used for storing various/miscellaneous, public readable files (like Olive related ones).
+         * add a military verification reporting bucket, to be used for storing
+         * various military verification daily reports.
+         */
+        const militaryVerificationReportingBucket = new Bucket(this, `${props.storageConfig!.militaryVerificationReportingBucketName}-${props.stage}-${props.env!.region}`, {
+            bucketName: `${props.storageConfig!.militaryVerificationReportingBucketName}-${props.stage}-${props.env!.region}`,
+            versioned: false,
+            accessControl: BucketAccessControl.PRIVATE,
+            blockPublicAccess: BlockPublicAccess.BLOCK_ALL
+        });
+        /**
+         * add a public files bucket, to be used for storing various/miscellaneous, public readable files (like Olive related ones).
          */
         const publicFilesBucketName = `${props.storageConfig!.publicFilesBucketName}-${props.stage}-${props.env!.region}`;
         new Bucket(this, `${publicFilesBucketName}`, {
@@ -172,6 +182,32 @@ export class StorageResolverStack extends Stack {
         /**
          * Add the appropriate s3 permissions to the Lambda function
          */
+        // military verification reporting files bucket
+        storageLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "s3:ListBucket"
+                ],
+                resources: [
+                    `arn:aws:s3:::${militaryVerificationReportingBucket.bucketName}/*`
+                ]
+            })
+        );
+        storageLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "s3:GetObject",
+                    "s3:PutObject",
+                    "s3:DeleteObject"
+                ],
+                resources: [
+                    `arn:aws:s3:::${militaryVerificationReportingBucket.bucketName}/*`
+                ]
+            })
+        );
+        // main files bucket
         storageLambda.addToRolePolicy(
             new PolicyStatement({
                 effect: Effect.ALLOW,

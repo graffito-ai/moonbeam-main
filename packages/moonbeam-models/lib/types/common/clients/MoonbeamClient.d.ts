@@ -1,5 +1,5 @@
 import { BaseAPIClient } from "./BaseAPIClient";
-import { CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetReferralsByStatusInput, GetTransactionByStatusInput, GetTransactionInput, IneligibleLinkedUsersResponse, MilitaryVerificationNotificationUpdate, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationReminderResponse, ReferralResponse, UpdatedTransactionEvent, UpdateNotificationReminderInput, UpdateReferralInput, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse } from "../GraphqlExports";
+import { CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetReferralsByStatusInput, GetTransactionByStatusInput, GetTransactionInput, IneligibleLinkedUsersResponse, MilitaryVerificationNotificationUpdate, MilitaryVerificationReportingInformation, MilitaryVerificationReportingInformationResponse, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationReminderResponse, ReferralResponse, UpdatedTransactionEvent, UpdateNotificationReminderInput, UpdateReferralInput, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse } from "../GraphqlExports";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 /**
  * Class used as the base/generic client for all Moonbeam internal AppSync
@@ -36,6 +36,17 @@ export declare class MoonbeamClient extends BaseAPIClient {
      * @protected
      */
     getReferralByStatus(getReferralsByStatusInput: GetReferralsByStatusInput): Promise<ReferralResponse>;
+    /**
+     * Function used to get a user's contact information, based on certain
+     * filters.
+     *
+     * @param contactInformationInput contact information input passed in, containing the
+     * filters used to retrieve the user's contact information.
+     *
+     * @returns a {@link MilitaryVerificationReportingInformationResponse}, representing the user's filtered
+     * contact information.
+     */
+    retrieveContactInformationForUser(contactInformationInput: MilitaryVerificationReportingInformation): Promise<MilitaryVerificationReportingInformationResponse>;
     /**
      * Function used to get all the users used to delivered
      * notification reminders to.

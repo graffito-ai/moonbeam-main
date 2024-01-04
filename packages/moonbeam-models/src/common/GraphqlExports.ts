@@ -588,6 +588,41 @@ export type MilitaryVerificationNotificationUpdate = {
   zipCode: Scalars['String'];
 };
 
+export enum MilitaryVerificationReportingErrorType {
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  Unprocessable = 'UNPROCESSABLE',
+  ValidationError = 'VALIDATION_ERROR'
+}
+
+export type MilitaryVerificationReportingInformation = {
+  __typename?: 'MilitaryVerificationReportingInformation';
+  addressLine: Scalars['String'];
+  city: Scalars['String'];
+  createdAt: Scalars['AWSDateTime'];
+  dateOfBirth: Scalars['String'];
+  emailAddress?: Maybe<Scalars['String']>;
+  enlistmentYear: Scalars['String'];
+  firstName: Scalars['String'];
+  id: Scalars['ID'];
+  lastName: Scalars['String'];
+  militaryAffiliation: MilitaryAffiliation;
+  militaryBranch: MilitaryBranch;
+  militaryDutyStatus: MilitaryDutyStatus;
+  militaryVerificationStatus: MilitaryVerificationStatusType;
+  phoneNumber?: Maybe<Scalars['String']>;
+  state: Scalars['String'];
+  updatedAt: Scalars['AWSDateTime'];
+  zipCode: Scalars['String'];
+};
+
+export type MilitaryVerificationReportingInformationResponse = {
+  __typename?: 'MilitaryVerificationReportingInformationResponse';
+  data?: Maybe<MilitaryVerificationReportingInformation>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<MilitaryVerificationReportingErrorType>;
+};
+
 export type MilitaryVerificationStatus = {
   __typename?: 'MilitaryVerificationStatus';
   id: Scalars['ID'];

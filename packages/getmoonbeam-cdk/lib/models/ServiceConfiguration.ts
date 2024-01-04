@@ -43,6 +43,7 @@ export interface AppSyncConfiguration {
 export interface StorageConfiguration {
     readonly publicFilesBucketName: string;
     readonly mainFilesBucketName: string;
+    readonly militaryVerificationReportingBucketName: string;
     readonly mainFilesCloudFrontDistributionName: string;
     readonly mainFilesCloudFrontTrustedPublicKeyName: string;
     readonly mainFilesCloudFrontTrustedKeyGroupName: string;

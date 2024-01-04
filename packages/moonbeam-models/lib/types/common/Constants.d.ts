@@ -34,6 +34,7 @@ export declare namespace Constants {
         const MOONBEAM_MAIN_FILES_KEY_PAIR_ID: string;
         const MOONBEAM_MAIN_FILES_CLOUDFRONT_DISTRIBUTION: string;
         const MOONBEAM_PUBLIC_FILES_BUCKET_NAME: string;
+        const MOONBEAM_MILITARY_VERIFICATION_REPORTING_BUCKET_NAME: string;
         const MOONBEAM_MAIN_FILES_BUCKET_NAME: string;
         const AWS_S3_BUCKET_REGION: string;
         const AWS_S3_BUCKET: string;

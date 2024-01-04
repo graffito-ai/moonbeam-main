@@ -17,7 +17,7 @@ import {
     IneligibleLinkedUsersResponse,
     MemberDetailsResponse,
     MemberResponse,
-    MilitaryVerificationNotificationUpdate,
+    MilitaryVerificationNotificationUpdate, MilitaryVerificationReportingInformation,
     MilitaryVerificationStatusType,
     MoonbeamTransaction,
     MoonbeamTransactionResponse,
@@ -41,7 +41,8 @@ import {
     UpdateReferralInput,
     UpdateTransactionInput,
     UserDevicesResponse,
-    UserForNotificationReminderResponse
+    UserForNotificationReminderResponse,
+    MilitaryVerificationReportingInformationResponse
 } from "../GraphqlExports";
 
 /**
@@ -355,6 +356,20 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected updateNotificationReminder?(updateNotificationReminderInput: UpdateNotificationReminderInput): Promise<NotificationReminderResponse>;
+
+    /**
+     * Function used to get a user's contact information, based on certain
+     * filters.
+     *
+     * @param contactInformationInput contact information input passed in, containing the
+     * filters used to retrieve the user's contact information.
+     *
+     * @returns a {@link MilitaryVerificationReportingInformationResponse}, representing the user's filtered
+     * contact information.
+     *
+     * @protected
+     */
+    protected retrieveContactInformationForUser?(contactInformationInput: MilitaryVerificationReportingInformation): Promise<MilitaryVerificationReportingInformationResponse>;
 
     /**
      * Function used to get all the users used to delivered

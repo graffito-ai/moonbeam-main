@@ -8,11 +8,15 @@ import {
     EligibleLinkedUser,
     EligibleLinkedUsersResponse,
     EmailFromCognitoResponse,
-    GetDevicesForUserInput, GetReferralsByStatusInput,
+    GetDevicesForUserInput,
+    GetReferralsByStatusInput,
     GetTransactionByStatusInput,
-    GetTransactionInput, IneligibleLinkedUsersResponse,
+    GetTransactionInput,
+    IneligibleLinkedUsersResponse,
     MilitaryVerificationErrorType,
-    MilitaryVerificationNotificationUpdate,
+    MilitaryVerificationNotificationUpdate, MilitaryVerificationReportingErrorType,
+    MilitaryVerificationReportingInformation,
+    MilitaryVerificationReportingInformationResponse,
     MoonbeamTransaction,
     MoonbeamTransactionByStatus,
     MoonbeamTransactionResponse,
@@ -20,12 +24,20 @@ import {
     MoonbeamTransactionsResponse,
     MoonbeamUpdatedTransaction,
     MoonbeamUpdatedTransactionResponse,
-    Notification, NotificationReminder,
-    NotificationReminderErrorType, NotificationReminderResponse,
+    Notification,
+    NotificationReminder,
+    NotificationReminderErrorType,
+    NotificationReminderResponse,
     NotificationsErrorType,
-    PushDevice, Referral, ReferralErrorType, ReferralResponse, RetrieveUserDetailsForNotifications,
+    PushDevice,
+    Referral,
+    ReferralErrorType,
+    ReferralResponse,
+    RetrieveUserDetailsForNotifications,
     TransactionsErrorType,
-    UpdatedTransactionEvent, UpdateNotificationReminderInput, UpdateReferralInput,
+    UpdatedTransactionEvent,
+    UpdateNotificationReminderInput,
+    UpdateReferralInput,
     UpdateTransactionInput,
     UserDeviceErrorType,
     UserDevicesResponse,
@@ -319,6 +331,134 @@ export class MoonbeamClient extends BaseAPIClient {
             return {
                 errorMessage: errorMessage,
                 errorType: ReferralErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
+     * Function used to get a user's contact information, based on certain
+     * filters.
+     *
+     * @param contactInformationInput contact information input passed in, containing the
+     * filters used to retrieve the user's contact information.
+     *
+     * @returns a {@link MilitaryVerificationReportingInformationResponse}, representing the user's filtered
+     * contact information.
+     */
+    async retrieveContactInformationForUser(contactInformationInput: MilitaryVerificationReportingInformation): Promise<MilitaryVerificationReportingInformationResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = '/listUsers for retrieveContactInformationForUser Cognito SDK call';
+
+        try {
+            // retrieve the Cognito access key, secret key and user pool id, needed in order to retrieve the filtered users, through the Cognito Identity provider client
+            const [cognitoAccessKeyId, cognitoSecretKey, cognitoUserPoolId] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME,
+                undefined,
+                undefined,
+                undefined,
+                true);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (cognitoAccessKeyId === null || cognitoAccessKeyId.length === 0 ||
+                cognitoSecretKey === null || cognitoSecretKey.length === 0 ||
+                cognitoUserPoolId === null || (cognitoUserPoolId && cognitoUserPoolId.length === 0)) {
+                const errorMessage = "Invalid Secrets obtained for Cognito SDK call call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: MilitaryVerificationReportingErrorType.UnexpectedError
+                };
+            }
+
+            // initialize the Cognito Identity Provider client using the credentials obtained above
+            const cognitoIdentityProviderClient = new CognitoIdentityProviderClient({
+                region: this.region,
+                credentials: {
+                    accessKeyId: cognitoAccessKeyId,
+                    secretAccessKey: cognitoSecretKey
+                }
+            });
+
+            /**
+             * execute the List Users command, using filters, in order to retrieve a user's contact information
+             * (email and phone number) from their attributes.
+             *
+             * Retrieve the user by their family_name. If there are is more than 1 match returned, then we will match
+             * the user based on their unique id, from the custom:userId attribute
+             */
+            const listUsersResponse: ListUsersCommandOutput = await cognitoIdentityProviderClient.send(new ListUsersCommand({
+                UserPoolId: cognitoUserPoolId,
+                AttributesToGet: ['email', 'phone_number', 'custom:userId'],
+                Filter: `family_name= "${`${contactInformationInput.lastName}`.replaceAll("\"", "\\\"")}"`
+            }));
+            // check for a valid response from the Cognito List Users Command call
+            if (listUsersResponse !== null && listUsersResponse.$metadata !== null && listUsersResponse.$metadata.httpStatusCode !== null &&
+                listUsersResponse.$metadata.httpStatusCode !== undefined && listUsersResponse.$metadata.httpStatusCode === 200 &&
+                listUsersResponse.Users !== null && listUsersResponse.Users !== undefined && listUsersResponse.Users!.length !== 0) {
+                // If there are is more than 1 match returned, then we will match the user based on their unique id, from the custom:userId attribute
+                let invalidAttributesFlag = false;
+                listUsersResponse.Users.forEach(cognitoUser => {
+                    if (cognitoUser.Attributes === null || cognitoUser.Attributes === undefined || cognitoUser.Attributes.length !== 2) {
+                        invalidAttributesFlag = true;
+                    }
+                });
+                // check for valid user attributes
+                if (!invalidAttributesFlag) {
+                    let matchedEmail: string | null = null;
+                    let matchedPhoneNumber: string | null = null;
+
+                    let noOfMatches = 0;
+                    listUsersResponse.Users.forEach(cognitoUser => {
+                        if (cognitoUser.Attributes![2].Value!.trim() === contactInformationInput.id.trim()) {
+                            matchedEmail = cognitoUser.Attributes![0].Value!;
+                            matchedPhoneNumber = cognitoUser.Attributes![1].Value!;
+                            noOfMatches += 1;
+                        }
+                    });
+                    if (noOfMatches === 1 && matchedEmail !== null && matchedPhoneNumber !== null) {
+                        contactInformationInput.phoneNumber = matchedPhoneNumber;
+                        contactInformationInput.emailAddress = matchedEmail;
+                        return {
+                            data: contactInformationInput
+                        }
+                    } else {
+                        const errorMessage = `Couldn't find user in Cognito for ${contactInformationInput.id}`;
+                        console.log(`${errorMessage}`);
+
+                        return {
+                            data: null,
+                            errorType: MilitaryVerificationReportingErrorType.ValidationError,
+                            errorMessage: errorMessage
+                        };
+                    }
+                } else {
+                    const errorMessage = `Invalid user attributes obtained`;
+                    console.log(`${errorMessage}`);
+
+                    return {
+                        data: null,
+                        errorType: MilitaryVerificationReportingErrorType.ValidationError,
+                        errorMessage: errorMessage
+                    };
+                }
+            } else {
+                const errorMessage = `Invalid structure obtained while calling the get List Users Cognito command`;
+                console.log(`${errorMessage}`);
+
+                return {
+                    data: null,
+                    errorType: MilitaryVerificationReportingErrorType.ValidationError,
+                    errorMessage: errorMessage
+                };
+            }
+        } catch (err) {
+            const errorMessage = `Unexpected error while retrieving the contact information for user ${contactInformationInput.id}, from Cognito through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                data: null,
+                errorType: MilitaryVerificationReportingErrorType.UnexpectedError,
+                errorMessage: errorMessage
             };
         }
     }
