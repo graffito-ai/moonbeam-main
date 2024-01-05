@@ -522,6 +522,12 @@ export type MilitaryVerificationNotificationUpdate = {
     state: Scalars['String'];
     zipCode: Scalars['String'];
 };
+export type MilitaryVerificationReportResponse = {
+    __typename?: 'MilitaryVerificationReportResponse';
+    data?: Maybe<Scalars['String']>;
+    errorMessage?: Maybe<Scalars['String']>;
+    errorType?: Maybe<StorageErrorType>;
+};
 export declare enum MilitaryVerificationReportingErrorType {
     NoneOrAbsent = "NONE_OR_ABSENT",
     UnexpectedError = "UNEXPECTED_ERROR",
@@ -663,6 +669,7 @@ export type Mutation = {
     createTransaction: MoonbeamTransactionResponse;
     createUserAuthSession: UserAuthSessionResponse;
     deleteCard: CardResponse;
+    putMilitaryVerificationReport: MilitaryVerificationReportResponse;
     updateDevice: UserDeviceResponse;
     updateMilitaryVerificationStatus: UpdateMilitaryVerificationResponse;
     updateNotificationReminder: NotificationReminderResponse;
@@ -705,6 +712,9 @@ export type MutationCreateUserAuthSessionArgs = {
 };
 export type MutationDeleteCardArgs = {
     deleteCardInput: DeleteCardInput;
+};
+export type MutationPutMilitaryVerificationReportArgs = {
+    putMilitaryVerificationReportInput: PutMilitaryVerificationReportInput;
 };
 export type MutationUpdateDeviceArgs = {
     updateDeviceInput: UpdateDeviceInput;
@@ -969,6 +979,27 @@ export type PushDevice = {
     id: Scalars['ID'];
     lastLoginDate: Scalars['AWSDateTime'];
     tokenId: Scalars['ID'];
+};
+export type PutMilitaryVerificationReportInput = {
+    addressLine: Scalars['String'];
+    city: Scalars['String'];
+    createdAt: Scalars['AWSDateTime'];
+    date: Scalars['AWSDate'];
+    dateOfBirth: Scalars['String'];
+    emailAddress: Scalars['String'];
+    enlistmentYear: Scalars['String'];
+    firstName: Scalars['String'];
+    id: Scalars['ID'];
+    lastName: Scalars['String'];
+    militaryAffiliation: MilitaryAffiliation;
+    militaryBranch: MilitaryBranch;
+    militaryDutyStatus: MilitaryDutyStatus;
+    militaryVerificationStatus: MilitaryVerificationStatusType;
+    phoneNumber: Scalars['String'];
+    reportNumber: Scalars['Int'];
+    state: Scalars['String'];
+    updatedAt: Scalars['AWSDateTime'];
+    zipCode: Scalars['String'];
 };
 export type Query = {
     __typename?: 'Query';
@@ -1342,6 +1373,18 @@ export type UserFromReferralResponse = {
     data?: Maybe<Scalars['ID']>;
     errorMessage?: Maybe<Scalars['String']>;
     errorType?: Maybe<ReferralErrorType>;
+};
+export type PutMilitaryVerificationReportMutationVariables = Exact<{
+    putMilitaryVerificationReportInput: PutMilitaryVerificationReportInput;
+}>;
+export type PutMilitaryVerificationReportMutation = {
+    __typename?: 'Mutation';
+    putMilitaryVerificationReport: {
+        __typename?: 'MilitaryVerificationReportResponse';
+        errorMessage?: string | null;
+        errorType?: StorageErrorType | null;
+        data?: string | null;
+    };
 };
 export type CreateLogEventMutationVariables = Exact<{
     createLogEventInput: CreateLogEventInput;

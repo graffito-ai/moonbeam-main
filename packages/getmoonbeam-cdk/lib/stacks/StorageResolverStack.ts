@@ -190,7 +190,7 @@ export class StorageResolverStack extends Stack {
                     "s3:ListBucket"
                 ],
                 resources: [
-                    `arn:aws:s3:::${militaryVerificationReportingBucket.bucketName}/*`
+                    `arn:aws:s3:::${militaryVerificationReportingBucket.bucketName}`
                 ]
             })
         );
@@ -205,6 +205,28 @@ export class StorageResolverStack extends Stack {
                 resources: [
                     `arn:aws:s3:::${militaryVerificationReportingBucket.bucketName}/*`
                 ]
+            })
+        );
+        storageLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "s3:PutObject"
+                ],
+                resources: [
+                    `arn:aws:s3:::${militaryVerificationReportingBucket.bucketName}/*`
+                ],
+            })
+        );
+        storageLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "s3:GetObject"
+                ],
+                resources: [
+                    `arn:aws:s3:::${militaryVerificationReportingBucket.bucketName}/*`
+                ],
             })
         );
         // main files bucket
@@ -401,6 +423,10 @@ export class StorageResolverStack extends Stack {
         storageLambdaDataSource.createResolver(`${props.storageConfig.getResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Query",
             fieldName: `${props.storageConfig.getResolverName}`
+        });
+        storageLambdaDataSource.createResolver(`${props.storageConfig.putMilitaryVerificationReportResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Mutation",
+            fieldName: `${props.storageConfig.putMilitaryVerificationReportResolverName}`
         });
 
         // Create an environment variable that we will use in the function code

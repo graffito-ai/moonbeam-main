@@ -1,5 +1,16 @@
 // This is a file used to define the all GraphQL query constants
 
+// Mutation used to create and/or update a new and/or existing military verification report
+export const putMilitaryVerificationReport = /* GraphQL */ `
+    mutation PutMilitaryVerificationReport($putMilitaryVerificationReportInput: PutMilitaryVerificationReportInput!) {
+        putMilitaryVerificationReport(putMilitaryVerificationReportInput: $putMilitaryVerificationReportInput) {
+            errorMessage
+            errorType
+            data
+        }
+    }
+`;
+
 // Mutation used to create a new Log Event.
 export const createLogEvent = /* GraphQL */ `
     mutation CreateLogEvent($createLogEventInput: CreateLogEventInput!) {

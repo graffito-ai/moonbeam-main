@@ -51,6 +51,7 @@ export interface StorageConfiguration {
     readonly mainFilesCloudFrontCachePolicyName: string;
     readonly storageFunctionName: string;
     readonly getResolverName: string;
+    readonly putMilitaryVerificationReportResolverName: string;
 }
 
 /**

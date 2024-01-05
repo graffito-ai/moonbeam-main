@@ -61,7 +61,7 @@ export const getStorage = async (fieldName: string, getStorageInput: GetStorageI
                     })));
 
                     // if there's an existent object, with valid metadata
-                    if (metadata.Metadata) {
+                    if (metadata.Metadata && metadata.$metadata.httpStatusCode !== undefined && metadata.$metadata.httpStatusCode === 200) {
                         // retrieve the CloudFront distribution secrets for the main file types, depending on the current region and environment
                         const cloudFrontMainFilesPair = await secretsClient
                             .send(new GetSecretValueCommand(({SecretId: `${Constants.AWSPairConstants.MAIN_FILES_CLOUDFRONT_DISTRIBUTION_SECRET_NAME}-${process.env.ENV_NAME!}-${region}`})));

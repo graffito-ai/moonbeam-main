@@ -44,6 +44,7 @@ type Mutation {
     createReferral(createReferralInput: CreateReferralInput!): ReferralResponse! @aws_cognito_user_pools @aws_api_key
     updateReferral(updateReferralInput: UpdateReferralInput!): ReferralResponse! @aws_cognito_user_pools @aws_api_key
     createLogEvent(createLogEventInput: CreateLogEventInput!): LoggingResponse! @aws_cognito_user_pools @aws_iam
+    putMilitaryVerificationReport(putMilitaryVerificationReportInput: PutMilitaryVerificationReportInput!): MilitaryVerificationReportResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Subscription {

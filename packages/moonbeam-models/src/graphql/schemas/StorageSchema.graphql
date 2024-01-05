@@ -38,10 +38,38 @@ type StorageResponse @aws_cognito_user_pools {
     errorMessage: String
 }
 
+type MilitaryVerificationReportResponse @aws_api_key @aws_cognito_user_pools {
+    data: String # representing the S3 location of the file to append to
+    errorType: StorageErrorType
+    errorMessage: String
+}
+
 input GetStorageInput {
     id: String,
     level: FileAccessLevel!,
     type: FileType!,
     name: String!,
     expires: Boolean
+}
+
+input PutMilitaryVerificationReportInput {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    dateOfBirth: String!
+    enlistmentYear: String!
+    addressLine: String!
+    city: String!
+    state: String!
+    zipCode: String!
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+    militaryDutyStatus: MilitaryDutyStatus!
+    militaryBranch: MilitaryBranch!
+    militaryAffiliation: MilitaryAffiliation!
+    militaryVerificationStatus: MilitaryVerificationStatusType!
+    phoneNumber: String!
+    emailAddress: String!
+    date: AWSDate!
+    reportNumber: Int!
 }

@@ -34,7 +34,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 mainFilesCloudFrontAccessIdentityName: `cloudfront-access-identity-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
                 mainFilesCloudFrontCachePolicyName: `cloudfront-cache-policy-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
                 storageFunctionName: 'storageLambdaFunction',
-                getResolverName: 'getStorage'
+                getResolverName: 'getStorage',
+                putMilitaryVerificationReportResolverName: 'putMilitaryVerificationReport'
             },
             militaryVerificationConfig: {
                 militaryVerificationFunctionName: 'militaryVerificationLambdaFunction',
@@ -236,7 +237,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 mainFilesCloudFrontAccessIdentityName: `cloudfront-access-identity-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
                 mainFilesCloudFrontCachePolicyName: `cloudfront-cache-policy-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
                 storageFunctionName: 'storageLambdaFunction',
-                getResolverName: 'getStorage'
+                getResolverName: 'getStorage',
+                putMilitaryVerificationReportResolverName: 'putMilitaryVerificationReport'
             },
             militaryVerificationConfig: {
                 militaryVerificationFunctionName: 'militaryVerificationLambdaFunction',
