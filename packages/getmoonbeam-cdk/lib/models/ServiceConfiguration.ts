@@ -78,6 +78,8 @@ export interface MilitaryVerificationConfiguration {
     readonly getMilitaryVerificationStatusResolverName: string;
     readonly updateMilitaryVerificationStatusResolverName: string;
     readonly createMilitaryVerificationResolverName: string;
+    readonly getMilitaryVerificationInformationResolverName: string;
+    readonly militaryVerificationStatusGlobalIndex: string;
 }
 
 /**

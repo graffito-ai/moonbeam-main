@@ -23,6 +23,7 @@ type Query {
     getReferralsByStatus(getReferralsByStatusInput: GetReferralsByStatusInput!): ReferralResponse! @aws_cognito_user_pools @aws_api_key
     getUserFromReferral(userFromReferralInput: UserFromReferralInput!): UserFromReferralResponse! @aws_cognito_user_pools @aws_api_key
     getUserCardLinkingId(getUserCardLinkingIdInput: GetUserCardLinkingIdInput!): GetUserCardLinkingIdResponse! @aws_cognito_user_pools @aws_api_key
+    getMilitaryVerificationInformation(getMilitaryVerificationInformationInput: GetMilitaryVerificationInformationInput!): MilitaryVerificationReportingInformationResponse! @aws_cognito_user_pools @aws_api_key
 }
 
 type Mutation {
@@ -246,6 +247,12 @@ input CreateMilitaryVerificationInput {
     militaryDutyStatus: MilitaryDutyStatus!
     militaryBranch: MilitaryBranch!
     militaryAffiliation: MilitaryAffiliation!
+}
+
+input GetMilitaryVerificationInformationInput {
+    id: ID # representing the Moonbeam custom user id
+    startDate: AWSDateTime # representing the start date bound
+    endDate: AWSDateTime # representing the end date bound
 }
 # graphql/CardLinkingSchema.graphql
 # Card Linking Schema File
@@ -1353,7 +1360,7 @@ type MilitaryVerificationReportingInformation @aws_cognito_user_pools @aws_api_k
 }
 
 type MilitaryVerificationReportingInformationResponse @aws_cognito_user_pools @aws_api_key {
-    data: MilitaryVerificationReportingInformation
+    data: [MilitaryVerificationReportingInformation]
     errorType: MilitaryVerificationReportingErrorType
     errorMessage: String
 }

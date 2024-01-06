@@ -1,5 +1,28 @@
 # graphql/Queries.graphql
 # Queries Schema File
+query GetMilitaryVerificationInformation($getMilitaryVerificationInformationInput: GetMilitaryVerificationInformationInput!) {
+    getMilitaryVerificationInformation(getMilitaryVerificationInformationInput: $getMilitaryVerificationInformationInput) {
+        errorMessage
+        errorType
+        data {
+            id,
+            firstName,
+            lastName,
+            dateOfBirth,
+            enlistmentYear,
+            addressLine,
+            city,
+            state,
+            zipCode,
+            createdAt,
+            updatedAt,
+            militaryDutyStatus,
+            militaryBranch,
+            militaryAffiliation,
+            militaryVerificationStatus
+        }
+    }
+}
 query GetUserCardLinkingId($getUserCardLinkingIdInput: GetUserCardLinkingIdInput!) {
     getUserCardLinkingId(getUserCardLinkingIdInput: $getUserCardLinkingIdInput) {
         errorMessage
@@ -7,8 +30,6 @@ query GetUserCardLinkingId($getUserCardLinkingIdInput: GetUserCardLinkingIdInput
         data
     }
 }
-
-
 query GetUserFromReferral($getUserFromRefferalInput: UserFromReferralInput!) {
     getUserFromReferral(userFromReferralInput: $getUserFromRefferalInput) {
         errorMessage
@@ -16,7 +37,6 @@ query GetUserFromReferral($getUserFromRefferalInput: UserFromReferralInput!) {
         data
     }
 }
-
 query GetReferralsByStatus($getReferralsByStatusInput: GetReferralsByStatusInput!) {
     getReferralsByStatus(getReferralsByStatusInput: $getReferralsByStatusInput) {
         errorMessage
@@ -32,7 +52,6 @@ query GetReferralsByStatus($getReferralsByStatusInput: GetReferralsByStatusInput
         }
     }
 }
-
 query GetAppUpgradeCredentials {
     getAppUpgradeCredentials {
         errorMessage

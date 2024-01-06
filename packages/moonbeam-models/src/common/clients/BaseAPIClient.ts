@@ -13,11 +13,14 @@ import {
     GetOffersInput,
     GetReferralsByStatusInput,
     GetTransactionByStatusInput,
-    GetTransactionInput, GetUserCardLinkingIdInput, GetUserCardLinkingIdResponse,
+    GetTransactionInput,
+    GetUserCardLinkingIdInput,
+    GetUserCardLinkingIdResponse,
     IneligibleLinkedUsersResponse,
     MemberDetailsResponse,
     MemberResponse,
-    MilitaryVerificationNotificationUpdate, MilitaryVerificationReportingInformation,
+    MilitaryVerificationNotificationUpdate,
+    MilitaryVerificationReportingInformation,
     MilitaryVerificationStatusType,
     MoonbeamTransaction,
     MoonbeamTransactionResponse,
@@ -27,7 +30,9 @@ import {
     NotificationChannelType,
     NotificationReminderResponse,
     NotificationResponse,
-    NotificationType, OfferIdResponse, OfferRedemptionTypeResponse,
+    NotificationType,
+    OfferIdResponse,
+    OfferRedemptionTypeResponse,
     OffersResponse,
     ReferralResponse,
     RemoveCardResponse,
@@ -42,7 +47,9 @@ import {
     UpdateTransactionInput,
     UserDevicesResponse,
     UserForNotificationReminderResponse,
-    MilitaryVerificationReportingInformationResponse
+    MilitaryVerificationReportingInformationResponse,
+    GetMilitaryVerificationInformationInput,
+    PutMilitaryVerificationReportInput, MilitaryVerificationReportResponse
 } from "../GraphqlExports";
 
 /**
@@ -289,6 +296,34 @@ export abstract class BaseAPIClient {
             throw new Error(errorMessage);
         }
     }
+
+    /**
+     * Function used to get the military verification information of one
+     * or multiple users, depending on the filters passed in.
+     *
+     * @param getMilitaryVerificationInformationInput the input containing the military
+     * verification relevant filtering.
+     *
+     * @returns a {@link MilitaryVerificationReportingInformationResponse}, representing the filtered
+     * military verification information records.
+     *
+     * @protected
+     */
+    protected getMilitaryVerificationInformation?(getMilitaryVerificationInformationInput: GetMilitaryVerificationInformationInput): Promise<MilitaryVerificationReportingInformationResponse>;
+
+    /**
+     * Function used to update and/or create an existing/new military verification report
+     * file.
+     *
+     * @param putMilitaryVerificationReportInput the input containing the information that needs to be
+     * transferred into the military verification report file.
+     *
+     * @returns a {@link MilitaryVerificationReportResponse}, representing a flag highlighting whether
+     * the file was successfully updated or not.
+     *
+     * @protected
+     */
+    protected putMilitaryVerificationReport?(putMilitaryVerificationReportInput: PutMilitaryVerificationReportInput): Promise<MilitaryVerificationReportResponse>;
 
     /**
      * Function used to update a referral's particular information.

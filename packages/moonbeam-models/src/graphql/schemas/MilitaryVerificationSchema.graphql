@@ -119,3 +119,9 @@ input CreateMilitaryVerificationInput {
     militaryBranch: MilitaryBranch!
     militaryAffiliation: MilitaryAffiliation!
 }
+
+input GetMilitaryVerificationInformationInput {
+    id: ID # representing the Moonbeam custom user id
+    startDate: AWSDateTime # representing the start date bound
+    endDate: AWSDateTime # representing the end date bound
+}

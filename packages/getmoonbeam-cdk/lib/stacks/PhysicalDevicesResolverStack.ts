@@ -138,7 +138,9 @@ export class PhysicalDevicesResolverStack extends Stack {
                         "dynamodb:DeleteItem"
                     ],
                     resources: [
-                        `${physicalDevicesTable.tableArn}`
+                        `${physicalDevicesTable.tableArn}`,
+                        `${physicalDevicesTable.tableArn}/index/${props.physicalDevicesConfig.deviceTokenIdGlobalIndex}-${props.stage}-${props.env!.region}`,
+                        `${physicalDevicesTable.tableArn}/index/${props.physicalDevicesConfig.devicesIdGlobalIndex}-${props.stage}-${props.env!.region}`
                     ]
                 }
             )

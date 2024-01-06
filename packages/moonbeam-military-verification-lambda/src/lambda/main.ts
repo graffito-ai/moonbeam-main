@@ -1,13 +1,14 @@
 import {
     CreateMilitaryVerificationInput,
-    CreateMilitaryVerificationResponse,
+    CreateMilitaryVerificationResponse, GetMilitaryVerificationInformationInput,
     GetMilitaryVerificationInput,
     GetMilitaryVerificationResponse,
-    MilitaryVerificationErrorType,
+    MilitaryVerificationErrorType, MilitaryVerificationReportingInformationResponse,
     UpdateMilitaryVerificationInput,
     UpdateMilitaryVerificationResponse
 } from "@moonbeam/moonbeam-models";
 import {createMilitaryVerification} from "./resolvers/CreateMilitaryVerificationResolver";
+import {getMilitaryVerificationInformation } from "./resolvers/GetMilitaryVerificationInformationResolver";
 import {getMilitaryVerificationStatus} from "./resolvers/GetMilitaryVerificationStatusResolver";
 import {updateMilitaryVerificationStatus} from "./resolvers/UpdateMilitaryVerificationStatusResolver";
 
@@ -19,6 +20,7 @@ type AppSyncEvent = {
         fieldName: string
     },
     arguments: {
+        getMilitaryVerificationInformationInput: GetMilitaryVerificationInformationInput,
         getMilitaryVerificationInput: GetMilitaryVerificationInput,
         updateMilitaryVerificationInput: UpdateMilitaryVerificationInput
         createMilitaryVerificationInput: CreateMilitaryVerificationInput
@@ -34,11 +36,15 @@ type AppSyncEvent = {
  * depending on the AppSync field name.
  *
  * @param event AppSync event to be passed in the handler
- * @returns a {@link Promise} containing a {@link CreateMilitaryVerificationResponse} or {@link GetMilitaryVerificationResponse} or {@link UpdateMilitaryVerificationResponse}
+ *
+ * @returns a {@link Promise} containing a {@link CreateMilitaryVerificationResponse}, or {@link GetMilitaryVerificationResponse},
+ * or {@link UpdateMilitaryVerificationResponse}, or {@link MilitaryVerificationReportingInformationResponse}
  */
-exports.handler = async (event: AppSyncEvent): Promise<CreateMilitaryVerificationResponse | GetMilitaryVerificationResponse | UpdateMilitaryVerificationResponse> => {
+exports.handler = async (event: AppSyncEvent): Promise<CreateMilitaryVerificationResponse | GetMilitaryVerificationResponse | UpdateMilitaryVerificationResponse | MilitaryVerificationReportingInformationResponse> => {
     console.log(`Received new storage event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
+        case "getMilitaryVerificationInformation":
+            return await getMilitaryVerificationInformation(event.info.fieldName, event.arguments.getMilitaryVerificationInformationInput);
         case "getMilitaryVerificationStatus":
             return await getMilitaryVerificationStatus(event.info.fieldName, event.arguments.getMilitaryVerificationInput);
         case "updateMilitaryVerificationStatus":

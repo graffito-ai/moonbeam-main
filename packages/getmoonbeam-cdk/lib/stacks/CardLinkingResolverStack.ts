@@ -122,7 +122,8 @@ export class CardLinkingResolverStack extends Stack {
                         "dynamodb:DeleteItem"
                     ],
                     resources: [
-                        `${cardLinkingTable.tableArn}`
+                        `${cardLinkingTable.tableArn}`,
+                        `${cardLinkingTable.tableArn}/index/${props.cardLinkingConfig.cardLinkingStatusGlobalIndex}-${props.stage}-${props.env!.region}`
                     ]
                 }
             )

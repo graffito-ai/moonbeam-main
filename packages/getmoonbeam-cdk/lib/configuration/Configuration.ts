@@ -42,7 +42,9 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 militaryVerificationTableName: 'militaryVerificationTable',
                 getMilitaryVerificationStatusResolverName: 'getMilitaryVerificationStatus',
                 updateMilitaryVerificationStatusResolverName: 'updateMilitaryVerificationStatus',
-                createMilitaryVerificationResolverName: 'createMilitaryVerification'
+                createMilitaryVerificationResolverName: 'createMilitaryVerification',
+                getMilitaryVerificationInformationResolverName: 'getMilitaryVerificationInformation',
+                militaryVerificationStatusGlobalIndex: 'militaryVerificationStatusGlobalIndex'
             },
             cardLinkingConfig: {
                 cardLinkingFunctionName: 'cardLinkingLambdaFunction',
@@ -245,7 +247,9 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 militaryVerificationTableName: 'militaryVerificationTable',
                 getMilitaryVerificationStatusResolverName: 'getMilitaryVerificationStatus',
                 updateMilitaryVerificationStatusResolverName: 'updateMilitaryVerificationStatus',
-                createMilitaryVerificationResolverName: 'createMilitaryVerification'
+                createMilitaryVerificationResolverName: 'createMilitaryVerification',
+                getMilitaryVerificationInformationResolverName: 'getMilitaryVerificationInformation',
+                militaryVerificationStatusGlobalIndex: 'militaryVerificationStatusGlobalIndex'
             },
             cardLinkingConfig: {
                 cardLinkingFunctionName: 'cardLinkingLambdaFunction',

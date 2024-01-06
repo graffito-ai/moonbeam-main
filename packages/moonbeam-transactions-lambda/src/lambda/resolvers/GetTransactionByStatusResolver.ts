@@ -36,9 +36,8 @@ export const getTransactionByStatus = async (fieldName: string, getTransactionBy
             /**
              * retrieve all the transactions with a specific status, given the global secondary index
              *
-             * Limit of 1 MB per paginated response data (in our case 3,800 items). An average size for an Item is about 205 bytes, which means that we won't
-             * need to do pagination here, since we actually retrieve all users in a looped format, and we account for
-             * paginated responses.
+             * Limit of 1 MB per paginated response data (in our case 3,800 items). An average size for an Item is about 111 bytes, which means that we won't
+             * need to do pagination here, since we actually retrieve all transactions in a looped format, and we account for paginated responses.
              *
              * @link {https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.Pagination.html}
              * @link {https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.html}

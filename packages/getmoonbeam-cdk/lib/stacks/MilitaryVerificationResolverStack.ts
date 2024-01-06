@@ -58,6 +58,10 @@ export class MilitaryVerificationResolverStack extends Stack {
             typeName: "Query",
             fieldName: `${props.militaryVerificationConfig.getMilitaryVerificationStatusResolverName}`
         });
+        militaryVerificationLambdaDataSource.createResolver(`${props.militaryVerificationConfig.getMilitaryVerificationInformationResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Query",
+            fieldName: `${props.militaryVerificationConfig.getMilitaryVerificationInformationResolverName}`
+        });
         militaryVerificationLambdaDataSource.createResolver(`${props.militaryVerificationConfig.updateMilitaryVerificationStatusResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Mutation",
             fieldName: `${props.militaryVerificationConfig.updateMilitaryVerificationStatusResolverName}`
@@ -74,7 +78,26 @@ export class MilitaryVerificationResolverStack extends Stack {
             partitionKey: {
                 name: 'id',
                 type: aws_dynamodb.AttributeType.STRING,
+            }
+        });
+
+        /**
+         * creates a global secondary index for the table, so we can retrieve PENDING/REJECTED/VERIFIED military verification records,
+         * sorted by their creationDate.
+         * {@link https://www.dynamodbguide.com/key-concepts/}
+         * {@link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html}
+         */
+        militaryVerificationTable.addGlobalSecondaryIndex({
+            indexName: `${props.militaryVerificationConfig.militaryVerificationStatusGlobalIndex}-${props.stage}-${props.env!.region}`,
+            partitionKey: {
+                name: 'militaryVerificationStatus',
+                type: aws_dynamodb.AttributeType.STRING
             },
+            // in this case, the SORT KEY as an attribute type of STRING will work given the format of our date
+            sortKey: {
+                name: 'createdAt',
+                type: aws_dynamodb.AttributeType.STRING
+            }
         });
 
         // enable the Lambda function to access the DynamoDB table (using IAM)
@@ -89,7 +112,8 @@ export class MilitaryVerificationResolverStack extends Stack {
                     "dynamodb:DeleteItem"
                 ],
                 resources: [
-                    `${militaryVerificationTable.tableArn}`
+                    `${militaryVerificationTable.tableArn}`,
+                    `${militaryVerificationTable.tableArn}/index/${props.militaryVerificationConfig.militaryVerificationStatusGlobalIndex}-${props.stage}-${props.env!.region}`
                 ]
             })
         );
@@ -138,6 +162,7 @@ export class MilitaryVerificationResolverStack extends Stack {
 
         // Create environment variables that we will use in the function code
         militaryVerificationLambda.addEnvironment(`${Constants.MoonbeamConstants.MILITARY_VERIFICATION_TABLE}`, militaryVerificationTable.tableName);
+        militaryVerificationLambda.addEnvironment(`${Constants.MoonbeamConstants.MILITARY_VERIFICATION_STATUS_GLOBAL_INDEX}`, props.militaryVerificationConfig.militaryVerificationStatusGlobalIndex);
         militaryVerificationLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
     }
 }

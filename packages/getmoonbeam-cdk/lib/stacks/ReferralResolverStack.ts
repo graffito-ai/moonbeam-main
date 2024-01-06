@@ -114,7 +114,8 @@ export class ReferralResolverStack extends Stack {
                         "dynamodb:DeleteItem"
                     ],
                     resources: [
-                        `${referralTable.tableArn}`
+                        `${referralTable.tableArn}`,
+                        `${referralTable.tableArn}/index/${props.referralConfig.referralStatusGlobalIndex}-${props.stage}-${props.env!.region}`
                     ]
                 }
             )

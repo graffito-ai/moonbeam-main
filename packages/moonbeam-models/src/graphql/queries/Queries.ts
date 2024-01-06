@@ -1,5 +1,33 @@
 // This is a file used to define the all GraphQL query constants
 
+// Query used to retrieve a user's military verification information, based on their ID
+// or based on a particular date-based filter
+export const getMilitaryVerificationInformation = /* GraphQL */ `
+    query GetMilitaryVerificationInformation($getMilitaryVerificationInformationInput: GetMilitaryVerificationInformationInput!) {
+        getMilitaryVerificationInformation(getMilitaryVerificationInformationInput: $getMilitaryVerificationInformationInput) {
+            errorMessage
+            errorType
+            data {
+                id,
+                firstName,
+                lastName,
+                dateOfBirth,
+                enlistmentYear,
+                addressLine,
+                city,
+                state,
+                zipCode,
+                createdAt,
+                updatedAt,
+                militaryDutyStatus,
+                militaryBranch,
+                militaryAffiliation,
+                militaryVerificationStatus
+            }
+        }
+    }
+`;
+
 // Query used to retrieve a user's card linking ID obtained from an internal Moonbeam ID
 export const getUserCardLinkingId = /* GraphQL */ `
     query GetUserCardLinkingId($getUserCardLinkingIdInput: GetUserCardLinkingIdInput!) {

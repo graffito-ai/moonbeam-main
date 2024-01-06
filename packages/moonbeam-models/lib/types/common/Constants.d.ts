@@ -72,6 +72,7 @@ export declare namespace Constants {
         const MILITARY_VERIFICATION_NOTIFICATION_PROCESSING_TOPIC_ARN: string;
         const TRANSACTIONS_ID_GLOBAL_INDEX: string;
         const TRANSACTIONS_STATUS_LOCAL_INDEX: string;
+        const MILITARY_VERIFICATION_STATUS_GLOBAL_INDEX: string;
         const ENV_NAME: string;
         const ACCOUNT_LINKS: string;
         const AWS_REGION: string;

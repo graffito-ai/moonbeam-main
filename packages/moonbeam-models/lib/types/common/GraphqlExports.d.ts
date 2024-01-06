@@ -353,6 +353,11 @@ export type GetDeviceInput = {
 export type GetDevicesForUserInput = {
     id: Scalars['ID'];
 };
+export type GetMilitaryVerificationInformationInput = {
+    endDate?: InputMaybe<Scalars['AWSDateTime']>;
+    id?: InputMaybe<Scalars['ID']>;
+    startDate?: InputMaybe<Scalars['AWSDateTime']>;
+};
 export type GetMilitaryVerificationInput = {
     id: Scalars['ID'];
 };
@@ -556,7 +561,7 @@ export type MilitaryVerificationReportingInformation = {
 };
 export type MilitaryVerificationReportingInformationResponse = {
     __typename?: 'MilitaryVerificationReportingInformationResponse';
-    data?: Maybe<MilitaryVerificationReportingInformation>;
+    data?: Maybe<Array<Maybe<MilitaryVerificationReportingInformation>>>;
     errorMessage?: Maybe<Scalars['String']>;
     errorType?: Maybe<MilitaryVerificationReportingErrorType>;
 };
@@ -1012,6 +1017,7 @@ export type Query = {
     getEligibleLinkedUsers: EligibleLinkedUsersResponse;
     getFAQs: FaqResponse;
     getFidelisPartners: FidelisPartnerResponse;
+    getMilitaryVerificationInformation: MilitaryVerificationReportingInformationResponse;
     getMilitaryVerificationStatus: GetMilitaryVerificationResponse;
     getNotificationReminders: NotificationReminderResponse;
     getOffers: OffersResponse;
@@ -1037,6 +1043,9 @@ export type QueryGetDeviceByTokenArgs = {
 };
 export type QueryGetDevicesForUserArgs = {
     getDevicesForUserInput: GetDevicesForUserInput;
+};
+export type QueryGetMilitaryVerificationInformationArgs = {
+    getMilitaryVerificationInformationInput: GetMilitaryVerificationInformationInput;
 };
 export type QueryGetMilitaryVerificationStatusArgs = {
     getMilitaryVerificationInput: GetMilitaryVerificationInput;
@@ -1786,6 +1795,35 @@ export type UpdateMilitaryVerificationStatusMutation = {
         errorMessage?: string | null;
         id?: string | null;
         militaryVerificationStatus?: MilitaryVerificationStatusType | null;
+    };
+};
+export type GetMilitaryVerificationInformationQueryVariables = Exact<{
+    getMilitaryVerificationInformationInput: GetMilitaryVerificationInformationInput;
+}>;
+export type GetMilitaryVerificationInformationQuery = {
+    __typename?: 'Query';
+    getMilitaryVerificationInformation: {
+        __typename?: 'MilitaryVerificationReportingInformationResponse';
+        errorMessage?: string | null;
+        errorType?: MilitaryVerificationReportingErrorType | null;
+        data?: Array<{
+            __typename?: 'MilitaryVerificationReportingInformation';
+            id: string;
+            firstName: string;
+            lastName: string;
+            dateOfBirth: string;
+            enlistmentYear: string;
+            addressLine: string;
+            city: string;
+            state: string;
+            zipCode: string;
+            createdAt: string;
+            updatedAt: string;
+            militaryDutyStatus: MilitaryDutyStatus;
+            militaryBranch: MilitaryBranch;
+            militaryAffiliation: MilitaryAffiliation;
+            militaryVerificationStatus: MilitaryVerificationStatusType;
+        } | null> | null;
     };
 };
 export type GetUserCardLinkingIdQueryVariables = Exact<{

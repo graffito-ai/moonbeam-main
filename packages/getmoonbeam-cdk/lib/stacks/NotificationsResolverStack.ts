@@ -140,7 +140,10 @@ export class NotificationsResolverStack extends Stack {
                         "dynamodb:DeleteItem"
                     ],
                     resources: [
-                        `${notificationsTable.tableArn}`
+                        `${notificationsTable.tableArn}`,
+                        `${notificationsTable.tableArn}/index/${props.notificationsConfig.notificationsChannelTypeLocalIndex}-${props.stage}-${props.env!.region}`,
+                        `${notificationsTable.tableArn}/index/${props.notificationsConfig.notificationsStatusLocalIndex}-${props.stage}-${props.env!.region}`,
+                        `${notificationsTable.tableArn}/index/${props.notificationsConfig.notificationsTypeLocalIndex}-${props.stage}-${props.env!.region}`
                     ]
                 }
             )

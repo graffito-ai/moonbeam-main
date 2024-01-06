@@ -1,6 +1,7 @@
 import {
     Constants,
     MilitaryVerificationReportResponse,
+    MilitaryVerificationStatusType,
     PutMilitaryVerificationReportInput,
     StorageErrorType
 } from "@moonbeam/moonbeam-models";
@@ -48,11 +49,11 @@ export const putMilitaryVerificationReport = async (fieldName: string, putMilita
             })));
             // make sure that the GetObjectCommand was successfully executed
             if (getObjectCommandResponse.$metadata.httpStatusCode !== undefined && getObjectCommandResponse.$metadata.httpStatusCode === 200 && getObjectCommandResponse.Body !== undefined) {
-                const oldData = getObjectCommandResponse.Body.transformToString.toString();
+                const oldData = await getObjectCommandResponse.Body.transformToString();
 
                 // execute the PutObjectCommand, to update the file old with the new data
-                const newData = `${oldData}\nMARIUS ACSINTE - +14804906190 THANKS FOR SIGNING UP`;
-                const putObjectCommandFlag = await putObjectCommandExecution(s3Client, bucketName, objectKey, newData);
+                const updatedData = `${oldData}\n${putMilitaryVerificationReportInput.firstName} ${putMilitaryVerificationReportInput.lastName} - ${putMilitaryVerificationReportInput.phoneNumber} ${putMilitaryVerificationReportInput.militaryVerificationStatus === MilitaryVerificationStatusType.Verified ? 'THANKS FOR SIGNING UP' : putMilitaryVerificationReportInput.militaryVerificationStatus === MilitaryVerificationStatusType.Rejected ? 'REJECTED' : 'PENDING'}`;
+                const putObjectCommandFlag = await putObjectCommandExecution(s3Client, bucketName, objectKey, updatedData);
                 if (putObjectCommandFlag) {
                     return {
                         data: `${militaryVerificationReportName}.txt report updated`
@@ -78,7 +79,7 @@ export const putMilitaryVerificationReport = async (fieldName: string, putMilita
              */
             if (metadata.$metadata.httpStatusCode !== undefined && metadata.$metadata.httpStatusCode === 404) {
                 // execute the PutObjectCommand
-                const data = `MARIUS ACSINTE - +14804906190 THANKS FOR SIGNING UP`;
+                const data = `MOONBEAM MILITARY VERIFICATION REPORT - ${militaryVerificationReportName}\n${putMilitaryVerificationReportInput.firstName} ${putMilitaryVerificationReportInput.lastName} - ${putMilitaryVerificationReportInput.phoneNumber} ${putMilitaryVerificationReportInput.militaryVerificationStatus === MilitaryVerificationStatusType.Verified ? 'THANKS FOR SIGNING UP' : putMilitaryVerificationReportInput.militaryVerificationStatus === MilitaryVerificationStatusType.Rejected ? 'REJECTED' : 'PENDING'}`;
                 const putObjectCommandFlag = await putObjectCommandExecution(s3Client, bucketName, `${militaryVerificationReportName}.txt`, data);
                 if (putObjectCommandFlag) {
                     return {
@@ -119,7 +120,7 @@ export const putMilitaryVerificationReport = async (fieldName: string, putMilita
                 const bucketName = `${Constants.StorageConstants.MOONBEAM_MILITARY_VERIFICATION_REPORTING_BUCKET_NAME}-${process.env.ENV_NAME!}-${region}`;
 
                 // execute the PutObjectCommand
-                const data = `MARIUS ACSINTE - +14804906190 THANKS FOR SIGNING UP`;
+                const data = `MOONBEAM MILITARY VERIFICATION REPORT - ${militaryVerificationReportName}\n${putMilitaryVerificationReportInput.firstName} ${putMilitaryVerificationReportInput.lastName} - ${putMilitaryVerificationReportInput.phoneNumber} ${putMilitaryVerificationReportInput.militaryVerificationStatus === MilitaryVerificationStatusType.Verified ? 'THANKS FOR SIGNING UP' : putMilitaryVerificationReportInput.militaryVerificationStatus === MilitaryVerificationStatusType.Rejected ? 'REJECTED' : 'PENDING'}`;
                 const putObjectCommandFlag = await putObjectCommandExecution(s3Client, bucketName, `${militaryVerificationReportName}.txt`, data);
                 if (putObjectCommandFlag) {
                     return {

@@ -9,14 +9,16 @@ import {
     EligibleLinkedUsersResponse,
     EmailFromCognitoResponse,
     GetDevicesForUserInput,
+    GetMilitaryVerificationInformationInput,
     GetReferralsByStatusInput,
     GetTransactionByStatusInput,
     GetTransactionInput,
     IneligibleLinkedUsersResponse,
     MilitaryVerificationErrorType,
-    MilitaryVerificationNotificationUpdate, MilitaryVerificationReportingErrorType,
+    MilitaryVerificationNotificationUpdate,
+    MilitaryVerificationReportingErrorType,
     MilitaryVerificationReportingInformation,
-    MilitaryVerificationReportingInformationResponse,
+    MilitaryVerificationReportingInformationResponse, MilitaryVerificationReportResponse,
     MoonbeamTransaction,
     MoonbeamTransactionByStatus,
     MoonbeamTransactionResponse,
@@ -29,11 +31,11 @@ import {
     NotificationReminderErrorType,
     NotificationReminderResponse,
     NotificationsErrorType,
-    PushDevice,
+    PushDevice, PutMilitaryVerificationReportInput,
     Referral,
     ReferralErrorType,
     ReferralResponse,
-    RetrieveUserDetailsForNotifications,
+    RetrieveUserDetailsForNotifications, StorageErrorType,
     TransactionsErrorType,
     UpdatedTransactionEvent,
     UpdateNotificationReminderInput,
@@ -47,17 +49,20 @@ import axios from "axios";
 import {
     createNotification,
     createTransaction,
-    updateTransaction,
     updateNotificationReminder,
-    updateReferral
+    updateReferral,
+    updateTransaction,
+    putMilitaryVerificationReport
 } from "../../graphql/mutations/Mutations";
 import {
-    getUsersWithNoCards,
     getDevicesForUser,
     getEligibleLinkedUsers,
+    getMilitaryVerificationInformation,
     getNotificationReminders,
+    getReferralsByStatus,
     getTransaction,
-    getTransactionByStatus, getReferralsByStatus
+    getTransactionByStatus,
+    getUsersWithNoCards
 } from "../../graphql/queries/Queries";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {
@@ -82,6 +87,260 @@ export class MoonbeamClient extends BaseAPIClient {
      */
     constructor(environment: string, region: string) {
         super(region, environment);
+    }
+
+    /**
+     * Function used to update and/or create an existing/new military verification report
+     * file.
+     *
+     * @param putMilitaryVerificationReportInput the input containing the information that needs to be
+     * transferred into the military verification report file.
+     *
+     * @returns a {@link MilitaryVerificationReportResponse}, representing a flag highlighting whether
+     * the file was successfully updated or not.
+     */
+    async putMilitaryVerificationReport(putMilitaryVerificationReportInput: PutMilitaryVerificationReportInput): Promise<MilitaryVerificationReportResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'putMilitaryVerificationReport Query Moonbeam GraphQL API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the referral updated call through the client
+            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
+                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: StorageErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * putMilitaryVerificationReport Query
+             *
+             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
+             * with the appropriate information.
+             *
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.post(`${moonbeamBaseURL}`, {
+                query: putMilitaryVerificationReport,
+                variables: {
+                    putMilitaryVerificationReportInput: putMilitaryVerificationReportInput
+                }
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": moonbeamPrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
+            }).then(putMilitaryVerificationReportResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(putMilitaryVerificationReportResponse.data)}`);
+
+                // retrieve the data block from the response
+                const responseData = (putMilitaryVerificationReportResponse && putMilitaryVerificationReportResponse.data)
+                    ? putMilitaryVerificationReportResponse.data.data
+                    : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.putMilitaryVerificationReport.errorMessage === null) {
+                    // returned the successfully retrieved referrals
+                    return {
+                        data: responseData.putMilitaryVerificationReport.data as string
+                    }
+                } else {
+                    return responseData ?
+                        // return the error message and type, from the original AppSync call
+                        {
+                            errorMessage: responseData.updateReferral.errorMessage,
+                            errorType: responseData.updateReferral.errorType
+                        } :
+                        // return the error response indicating an invalid structure returned
+                        {
+                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                            errorType: StorageErrorType.ValidationError
+                        }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: StorageErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: StorageErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: StorageErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while updating referral through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: StorageErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
+     * Function used to get the military verification information of one
+     * or multiple users, depending on the filters passed in.
+     *
+     * @param getMilitaryVerificationInformationInput the input containing the military
+     * verification relevant filtering.
+     *
+     * @returns a {@link MilitaryVerificationReportingInformationResponse}, representing the filtered
+     * military verification information records.
+     */
+    async getMilitaryVerificationInformation(getMilitaryVerificationInformationInput: GetMilitaryVerificationInformationInput): Promise<MilitaryVerificationReportingInformationResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'getMilitaryVerificationInformation Query Moonbeam GraphQL API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the referral updated call through the client
+            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
+                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: MilitaryVerificationReportingErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * getMilitaryVerificationInformation Query
+             *
+             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
+             * with the appropriate information.
+             *
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.post(`${moonbeamBaseURL}`, {
+                query: getMilitaryVerificationInformation,
+                variables: {
+                    getMilitaryVerificationInformationInput: getMilitaryVerificationInformationInput
+                }
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": moonbeamPrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
+            }).then(getMilitaryVerificationInformationInputResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(getMilitaryVerificationInformationInputResponse.data)}`);
+
+                // retrieve the data block from the response
+                const responseData = (getMilitaryVerificationInformationInputResponse && getMilitaryVerificationInformationInputResponse.data)
+                    ? getMilitaryVerificationInformationInputResponse.data.data
+                    : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.getMilitaryVerificationInformation.errorMessage === null) {
+                    // returned the successfully retrieved referrals
+                    return {
+                        data: responseData.getMilitaryVerificationInformation.data as MilitaryVerificationReportingInformation[]
+                    }
+                } else {
+                    return responseData ?
+                        // return the error message and type, from the original AppSync call
+                        {
+                            errorMessage: responseData.updateReferral.errorMessage,
+                            errorType: responseData.updateReferral.errorType
+                        } :
+                        // return the error response indicating an invalid structure returned
+                        {
+                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                            errorType: MilitaryVerificationReportingErrorType.ValidationError
+                        }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: MilitaryVerificationReportingErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: MilitaryVerificationReportingErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: MilitaryVerificationReportingErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while updating referral through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: MilitaryVerificationReportingErrorType.UnexpectedError
+            };
+        }
     }
 
     /**
@@ -419,7 +678,7 @@ export class MoonbeamClient extends BaseAPIClient {
                         contactInformationInput.phoneNumber = matchedPhoneNumber;
                         contactInformationInput.emailAddress = matchedEmail;
                         return {
-                            data: contactInformationInput
+                            data: [contactInformationInput]
                         }
                     } else {
                         const errorMessage = `Couldn't find user in Cognito for ${contactInformationInput.id}`;

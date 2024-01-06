@@ -136,7 +136,9 @@ export class TransactionsResolverStack extends Stack {
                         "dynamodb:DeleteItem"
                     ],
                     resources: [
-                        `${transactionsTable.tableArn}`
+                        `${transactionsTable.tableArn}`,
+                        `${transactionsTable.tableArn}/index/${props.transactionsConfig.transactionsStatusLocalIndex}-${props.stage}-${props.env!.region}`,
+                        `${transactionsTable.tableArn}/index/${props.transactionsConfig.transactionsIdGlobalIndex}-${props.stage}-${props.env!.region}`
                     ]
                 }
             )

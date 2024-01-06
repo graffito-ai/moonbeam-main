@@ -28,7 +28,7 @@ type MilitaryVerificationReportingInformation @aws_cognito_user_pools @aws_api_k
 }
 
 type MilitaryVerificationReportingInformationResponse @aws_cognito_user_pools @aws_api_key {
-    data: MilitaryVerificationReportingInformation
+    data: [MilitaryVerificationReportingInformation]
     errorType: MilitaryVerificationReportingErrorType
     errorMessage: String
 }
