@@ -6,7 +6,7 @@ import {
     CardLinkingConfiguration,
     FAQConfiguration, LoggingConfiguration,
     MilitaryVerificationConfiguration,
-    MilitaryVerificationProducerConsumerConfiguration,
+    MilitaryVerificationProducerConsumerConfiguration, MilitaryVerificationReportingProducerConsumerConfiguration,
     NotificationReminderConfiguration,
     NotificationReminderProducerConsumerConfiguration,
     NotificationsConfiguration,
@@ -37,6 +37,7 @@ export interface StageConfiguration {
     readonly referralProducerConsumerConfig: ReferralProducerConsumerConfiguration;
     readonly transactionsProducerConsumerConfig: TransactionsProducerConsumerConfiguration;
     readonly militaryVerificationProducerConsumerConfig: MilitaryVerificationProducerConsumerConfiguration;
+    readonly militaryVerificationReportingProducerConsumerConfig: MilitaryVerificationReportingProducerConsumerConfiguration;
     readonly updatedTransactionsProducerConsumerConfig: UpdatedTransactionsProducerConsumerConfiguration;
     readonly transactionsConfig: TransactionsConfiguration;
     readonly offersConfig: OffersConfiguration;

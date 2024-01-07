@@ -213,7 +213,7 @@ export interface UpdatedTransactionsProducerConsumerConfiguration {
 
 /**
  * Interface used to define the configuration for the military verifications-related fan-out pattern, composed
- * of an event-based process, driven by SNS and SQS.
+ * of an event-based process, driven by SNS and SQS, used for verification notifications.
  */
 export interface MilitaryVerificationNotificationFanOutConfiguration {
     readonly militaryVerificationNotificationProcessingTopicName: string;
@@ -225,12 +225,34 @@ export interface MilitaryVerificationNotificationFanOutConfiguration {
 
 /**
  * Interface used to define all the resources for the producer and consumers, taking advantage
- * of the async military verification notifications data.
+ * of the async military verification notifications data, used for verification notifications.
  */
 export interface MilitaryVerificationProducerConsumerConfiguration {
     readonly militaryVerificationNotificationProducerFunctionName: string;
     readonly militaryVerificationNotificationConsumerFunctionName: string;
     readonly militaryVerificationNotificationFanOutConfig: MilitaryVerificationNotificationFanOutConfiguration;
+}
+
+/**
+ * Interface used to define the configuration for the military verifications-related fan-out pattern, composed
+ * of an event-based process, driven by SNS and SQS, used for military verification reporting.
+ */
+export interface MilitaryVerificationReportingFanOutConfiguration {
+    readonly militaryVerificationReportingProcessingTopicName: string;
+    readonly militaryVerificationReportingProcessingQueueName: string;
+    readonly militaryVerificationReportingProcessingDLQName: string;
+    readonly militaryVerificationReportingProcessingTopicDLQName: string;
+    readonly militaryVerificationReportingProcessingEventSourceMapping: string;
+}
+
+/**
+ * Interface used to define all the resources for the producer and consumers, taking advantage
+ * of the async military verification notifications data, used for military verification reporting.
+ */
+export interface MilitaryVerificationReportingProducerConsumerConfiguration {
+    readonly militaryVerificationReportingProducerFunctionName: string;
+    readonly militaryVerificationReportingConsumerFunctionName: string;
+    readonly militaryVerificationReportingFanOutConfig: MilitaryVerificationReportingFanOutConfiguration;
 }
 
 /**

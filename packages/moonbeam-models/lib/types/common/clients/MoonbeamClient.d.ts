@@ -1,5 +1,5 @@
 import { BaseAPIClient } from "./BaseAPIClient";
-import { CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetReferralsByStatusInput, GetTransactionByStatusInput, GetTransactionInput, IneligibleLinkedUsersResponse, MilitaryVerificationNotificationUpdate, MilitaryVerificationReportingInformation, MilitaryVerificationReportingInformationResponse, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationReminderResponse, ReferralResponse, UpdatedTransactionEvent, UpdateNotificationReminderInput, UpdateReferralInput, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse } from "../GraphqlExports";
+import { CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetMilitaryVerificationInformationInput, GetReferralsByStatusInput, GetTransactionByStatusInput, GetTransactionInput, IneligibleLinkedUsersResponse, MilitaryVerificationNotificationUpdate, MilitaryVerificationReportingInformation, MilitaryVerificationReportingInformationResponse, MilitaryVerificationReportResponse, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationReminderResponse, PutMilitaryVerificationReportInput, ReferralResponse, UpdatedTransactionEvent, UpdateNotificationReminderInput, UpdateReferralInput, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse } from "../GraphqlExports";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
 /**
  * Class used as the base/generic client for all Moonbeam internal AppSync
@@ -13,6 +13,28 @@ export declare class MoonbeamClient extends BaseAPIClient {
      * @param region the AWS region passed in from the Lambda resolver.
      */
     constructor(environment: string, region: string);
+    /**
+     * Function used to update and/or create an existing/new military verification report
+     * file.
+     *
+     * @param putMilitaryVerificationReportInput the input containing the information that needs to be
+     * transferred into the military verification report file.
+     *
+     * @returns a {@link MilitaryVerificationReportResponse}, representing a flag highlighting whether
+     * the file was successfully updated or not.
+     */
+    putMilitaryVerificationReport(putMilitaryVerificationReportInput: PutMilitaryVerificationReportInput): Promise<MilitaryVerificationReportResponse>;
+    /**
+     * Function used to get the military verification information of one
+     * or multiple users, depending on the filters passed in.
+     *
+     * @param getMilitaryVerificationInformationInput the input containing the military
+     * verification relevant filtering.
+     *
+     * @returns a {@link MilitaryVerificationReportingInformationResponse}, representing the filtered
+     * military verification information records.
+     */
+    getMilitaryVerificationInformation(getMilitaryVerificationInformationInput: GetMilitaryVerificationInformationInput): Promise<MilitaryVerificationReportingInformationResponse>;
     /**
      * Function used to update a referral's particular information.
      *

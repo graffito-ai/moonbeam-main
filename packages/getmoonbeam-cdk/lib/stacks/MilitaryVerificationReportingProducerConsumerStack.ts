@@ -6,49 +6,48 @@ import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
 import {Constants, Stages} from "@moonbeam/moonbeam-models";
 import {SqsSubscription} from "aws-cdk-lib/aws-sns-subscriptions";
 import {EventSourceMapping} from "aws-cdk-lib/aws-lambda";
-import {Rule, Schedule} from "aws-cdk-lib/aws-events";
-import {LambdaFunction} from "aws-cdk-lib/aws-events-targets";
 
 /**
- * File used to define the NotificationReminderProducerConsumer stack, used to create all the necessary resources
- * involved around handling incoming notification reminders in an async fashion (Lambdas, etc.), as well as
- * around the notification reminder related fan-out pattern, composed of an event-based process, driven by SNS and SQS.
- * This will help build the infrastructure for the acknowledgment service, or producer, as well as any of its consumers.
+ * File used to define the MilitaryVerificationReportingProducerConsumerStack stack, used to create all the necessary resources
+ * involved around handling incoming military verification data in an async fashion (Lambdas, etc.), as well as
+ * around the military verification-related fan-out pattern, composed of an event-based process, driven by SNS and SQS.
+ * This will help build the infrastructure for the acknowledgment service, or producer, as well as any of its consumers,
+ * used for military verification reporting purposes.
  */
-export class NotificationReminderProducerConsumerStack extends Stack {
+export class MilitaryVerificationReportingProducerConsumerStack extends Stack {
 
     /**
-     * the notification reminder producer Lambda Function, acting as the
-     * notification reminder producer, to be used in kick-starting the whole notification
-     * reminder process, by dropping messages in the appropriate topic and queue.
+     * the military verification reporting producer Lambda Function, acting as the military
+     * verification reporting producer, to be used in kick-starting the whole military
+     * reporting verification process, by dropping messages in the appropriate topic and queue.
      */
-    readonly notificationReminderProducerLambda: aws_lambda_nodejs.NodejsFunction;
+    readonly militaryVerificationReportingProducerLambda: aws_lambda_nodejs.NodejsFunction;
 
     /**
-     * the notification reminder consumer Lambda Function, acting as the notification
-     * reminder consumer, to be used during the whole notification reminder
-     * process, by consuming dropped messages from the appropriate topic and queue.
+     * the military verification reporting consumer Lambda Function, acting as the military
+     * verification reporting consumer, to be used during the whole military reporting
+     * verification process, by consuming dropped messages from the appropriate topic and queue.
      */
-    readonly notificationReminderConsumerLambda: aws_lambda_nodejs.NodejsFunction;
+    readonly militaryVerificationReportingConsumerLambda: aws_lambda_nodejs.NodejsFunction;
 
     /**
-     * Constructor for the NotificationReminderProducerConsumerStack stack.
+     * Constructor for the MilitaryVerificationReportingProducerConsumerStack stack.
      *
      * @param scope scope to be passed in (usually a CDK App Construct)
      * @param id stack id to be passed in
      * @param props stack properties to be passed in
      */
-    constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'notificationReminderProducerConsumerConfig'>) {
+    constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'militaryVerificationReportingProducerConsumerConfig'>) {
         super(scope, id, props);
 
-        // create a new Lambda function to be used for notification reminder purposes, acting as the acknowledgment service or producer
-        this.notificationReminderProducerLambda = new aws_lambda_nodejs.NodejsFunction(this, `${props.notificationReminderProducerConsumerConfig.notificationReminderProducerFunctionName}-${props.stage}-${props.env!.region}`, {
-            functionName: `${props.notificationReminderProducerConsumerConfig.notificationReminderProducerFunctionName}-${props.stage}-${props.env!.region}`,
-            entry: path.resolve(path.join(__dirname, '../../../moonbeam-notification-reminder-producer-lambda/src/lambda/main.ts')),
+        // create a new Lambda function to be used with the Card Linking Webhook service for military reporting purposes, acting as the acknowledgment service or producer
+        this.militaryVerificationReportingProducerLambda = new aws_lambda_nodejs.NodejsFunction(this, `${props.militaryVerificationReportingProducerConsumerConfig.militaryVerificationReportingProducerFunctionName}-${props.stage}-${props.env!.region}`, {
+            functionName: `${props.militaryVerificationReportingProducerConsumerConfig.militaryVerificationReportingProducerFunctionName}-${props.stage}-${props.env!.region}`,
+            entry: path.resolve(path.join(__dirname, '../../../moonbeam-military-verification-reporting-producer-lambda/src/lambda/main.ts')),
             handler: 'handler',
             runtime: aws_lambda.Runtime.NODEJS_18_X,
             // we add a timeout here different from the default of 3 seconds, since we expect these API calls to take longer
-            timeout: Duration.seconds(900),
+            timeout: Duration.seconds(30),
             bundling: {
                 minify: true, // minify code, defaults to false
                 sourceMap: true, // include source map, defaults to false
@@ -56,28 +55,16 @@ export class NotificationReminderProducerConsumerStack extends Stack {
                 sourcesContent: false, // do not include original source into source map, defaults to true
                 target: 'esnext', // target environment for the generated JavaScript code
             }
-        });
-        // create a CRON expression trigger that will enable running the notification reminder producer lambda to run on a schedule
-        new Rule(this, `${props.notificationReminderProducerConsumerConfig.notificationReminderCronRuleName}-${props.stage}-${props.env!.region}`, {
-            ruleName: `${props.notificationReminderProducerConsumerConfig.notificationReminderCronRuleName}-${props.stage}-${props.env!.region}`,
-            description: "Schedule the Notification Reminder Trigger Lambda which initiates the notification reminder Lambda/process daily, at 6:30PM UTC",
-            // set the CRON timezone to the UTC time to match 6:30 PM UTC, 11:30 AM MST
-            schedule: Schedule.cron({
-                day: '*',
-                minute: '30',
-                hour: '18'
-            }),
-            targets: [new LambdaFunction(this.notificationReminderProducerLambda)],
         });
 
-        // create a new Lambda function to be used as a consumer for notification reminder purposes, acting as the consuming service or consumer
-        this.notificationReminderConsumerLambda = new aws_lambda_nodejs.NodejsFunction(this, `${props.notificationReminderProducerConsumerConfig.notificationReminderConsumerFunctionName}-${props.stage}-${props.env!.region}`, {
-            functionName: `${props.notificationReminderProducerConsumerConfig.notificationReminderConsumerFunctionName}-${props.stage}-${props.env!.region}`,
-            entry: path.resolve(path.join(__dirname, '../../../moonbeam-notification-reminder-consumer-lambda/src/lambda/main.ts')),
+        // create a new Lambda function to be used as a consumer for military verification reporting data, acting as the military verification updates/reporting processor for military verification reporting updates.
+        this.militaryVerificationReportingConsumerLambda = new aws_lambda_nodejs.NodejsFunction(this, `${props.militaryVerificationReportingProducerConsumerConfig.militaryVerificationReportingConsumerFunctionName}-${props.stage}-${props.env!.region}`, {
+            functionName: `${props.militaryVerificationReportingProducerConsumerConfig.militaryVerificationReportingConsumerFunctionName}-${props.stage}-${props.env!.region}`,
+            entry: path.resolve(path.join(__dirname, '../../../moonbeam-military-verification-reporting-consumer-lambda/src/lambda/main.ts')),
             handler: 'handler',
             runtime: aws_lambda.Runtime.NODEJS_18_X,
             // we add a timeout here different from the default of 3 seconds, since we expect these API calls to take longer
-            timeout: Duration.seconds(900),
+            timeout: Duration.seconds(50),
             bundling: {
                 minify: true, // minify code, defaults to false
                 sourceMap: true, // include source map, defaults to false
@@ -86,8 +73,9 @@ export class NotificationReminderProducerConsumerStack extends Stack {
                 target: 'esnext', // target environment for the generated JavaScript code
             }
         });
+
         // enable the Lambda function the retrieval of the Moonbeam internal API secrets
-        this.notificationReminderProducerLambda.addToRolePolicy(
+        this.militaryVerificationReportingProducerLambda.addToRolePolicy(
             new PolicyStatement({
                 effect: Effect.ALLOW,
                 actions: [
@@ -101,7 +89,7 @@ export class NotificationReminderProducerConsumerStack extends Stack {
             })
         );
         // enable the Lambda function to access the AppSync mutations and queries
-        this.notificationReminderProducerLambda.addToRolePolicy(
+        this.militaryVerificationReportingProducerLambda.addToRolePolicy(
             new PolicyStatement({
                 effect: Effect.ALLOW,
                 actions: [
@@ -114,7 +102,7 @@ export class NotificationReminderProducerConsumerStack extends Stack {
                 ]
             })
         );
-        this.notificationReminderProducerLambda.addToRolePolicy(
+        this.militaryVerificationReportingProducerLambda.addToRolePolicy(
             new PolicyStatement({
                 effect: Effect.ALLOW,
                 actions: [
@@ -128,7 +116,7 @@ export class NotificationReminderProducerConsumerStack extends Stack {
             })
         );
         // enable the Lambda function the retrieval of the Moonbeam internal API secrets
-        this.notificationReminderConsumerLambda.addToRolePolicy(
+        this.militaryVerificationReportingConsumerLambda.addToRolePolicy(
             new PolicyStatement({
                 effect: Effect.ALLOW,
                 actions: [
@@ -142,7 +130,7 @@ export class NotificationReminderProducerConsumerStack extends Stack {
             })
         );
         // enable the Lambda function to access the AppSync mutations and queries
-        this.notificationReminderConsumerLambda.addToRolePolicy(
+        this.militaryVerificationReportingConsumerLambda.addToRolePolicy(
             new PolicyStatement({
                 effect: Effect.ALLOW,
                 actions: [
@@ -155,7 +143,7 @@ export class NotificationReminderProducerConsumerStack extends Stack {
                 ]
             })
         );
-        this.notificationReminderConsumerLambda.addToRolePolicy(
+        this.militaryVerificationReportingConsumerLambda.addToRolePolicy(
             new PolicyStatement({
                 effect: Effect.ALLOW,
                 actions: [
@@ -170,32 +158,32 @@ export class NotificationReminderProducerConsumerStack extends Stack {
         );
 
         // Create environment variables that we will use in the consumers function code
-        this.notificationReminderConsumerLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
+        this.militaryVerificationReportingConsumerLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
 
-        // create a new FIFO SNS topic, with deduplication enabled based on the message contents, used for notification reminder message processing
-        const notificationReminderProcessingTopic = new aws_sns.Topic(this, `${props.notificationReminderProducerConsumerConfig.notificationReminderFanOutConfig.notificationReminderProcessingTopicName}-${props.stage}-${props.env!.region}`, {
-            displayName: `${props.notificationReminderProducerConsumerConfig.notificationReminderFanOutConfig.notificationReminderProcessingTopicName}`,
-            topicName: `${props.notificationReminderProducerConsumerConfig.notificationReminderFanOutConfig.notificationReminderProcessingTopicName}-${props.stage}-${props.env!.region}`,
+        // create a new FIFO SNS topic, with deduplication enabled based on the message contents, used for military verification reporting message processing
+        const militaryVerificationReportingProcessingTopic = new aws_sns.Topic(this, `${props.militaryVerificationReportingProducerConsumerConfig.militaryVerificationReportingFanOutConfig.militaryVerificationReportingProcessingTopicName}-${props.stage}-${props.env!.region}`, {
+            displayName: `${props.militaryVerificationReportingProducerConsumerConfig.militaryVerificationReportingFanOutConfig.militaryVerificationReportingProcessingTopicName}`,
+            topicName: `${props.militaryVerificationReportingProducerConsumerConfig.militaryVerificationReportingFanOutConfig.militaryVerificationReportingProcessingTopicName}-${props.stage}-${props.env!.region}`,
             fifo: true,
             // we are guaranteed that for messages with a same content, to be dropped in the topic, that the deduplication id will be based on the content
             contentBasedDeduplication: true
         });
 
-        // give the notification reminder producer Lambda, permissions to publish messages in the notification reminder processing SNS topic
-        notificationReminderProcessingTopic.grantPublish(this.notificationReminderProducerLambda);
+        // give the webhook military verification reporting Lambda, acting as the acknowledgment service or producer, permissions to publish messages in the military verification reporting processing SNS topic
+        militaryVerificationReportingProcessingTopic.grantPublish(this.militaryVerificationReportingProducerLambda);
 
         // Create environment variables that we will use in the producer function code
-        this.notificationReminderProducerLambda.addEnvironment(`${Constants.MoonbeamConstants.NOTIFICATION_REMINDER_PROCESSING_TOPIC_ARN}`, notificationReminderProcessingTopic.topicArn);
-        this.notificationReminderProducerLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
+        this.militaryVerificationReportingProducerLambda.addEnvironment(`${Constants.MoonbeamConstants.MILITARY_VERIFICATION_REPORTING_PROCESSING_TOPIC_ARN}`, militaryVerificationReportingProcessingTopic.topicArn);
+        this.militaryVerificationReportingProducerLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
 
         /**
          * create a new FIFO SQS queue, with deduplication enabled based on the message contents,
-         * that will be subscribed to the SNS topic above, used for notification reminder processing.
+         * that will be subscribed to the SNS topic above, used for military verification reporting processing.
          *
-         * This will be used for processing incoming notification reminders.
+         * This will be used for processing incoming military verification updates.
          */
-        const notificationReminderProcessingQueue = new aws_sqs.Queue(this, `${props.notificationReminderProducerConsumerConfig.notificationReminderFanOutConfig.notificationReminderProcessingQueueName}-${props.stage}-${props.env!.region}.fifo`, {
-            queueName: `${props.notificationReminderProducerConsumerConfig.notificationReminderFanOutConfig.notificationReminderProcessingQueueName}-${props.stage}-${props.env!.region}.fifo`,
+        const militaryVerificationReportingProcessingQueue = new aws_sqs.Queue(this, `${props.militaryVerificationReportingProducerConsumerConfig.militaryVerificationReportingFanOutConfig.militaryVerificationReportingProcessingQueueName}-${props.stage}-${props.env!.region}.fifo`, {
+            queueName: `${props.militaryVerificationReportingProducerConsumerConfig.militaryVerificationReportingFanOutConfig.militaryVerificationReportingProcessingQueueName}-${props.stage}-${props.env!.region}.fifo`,
             // long-polling enabled here, waits to receive a message for 10 seconds
             receiveMessageWaitTime: Duration.seconds(10),
             /**
@@ -206,15 +194,15 @@ export class NotificationReminderProducerConsumerStack extends Stack {
             fifo: true,
             // we are guaranteed that for messages with a same content, to be dropped in the queue, that the deduplication id will be based on the content
             contentBasedDeduplication: true,
-            // creates a dead-letter-queue (DLQ) here, in order to handle any failed messages, that cannot be processed by the consumers of the notification reminders queue
+            // creates a dead-letter-queue (DLQ) here, in order to handle any failed messages, that cannot be processed by the consumers of the military verification reporting updates queue
             deadLetterQueue: {
-                queue: new aws_sqs.Queue(this, `${props.notificationReminderProducerConsumerConfig.notificationReminderFanOutConfig.notificationReminderProcessingDLQName}-${props.stage}-${props.env!.region}.fifo`, {
-                    queueName: `${props.notificationReminderProducerConsumerConfig.notificationReminderFanOutConfig.notificationReminderProcessingDLQName}-${props.stage}-${props.env!.region}.fifo`,
+                queue: new aws_sqs.Queue(this, `${props.militaryVerificationReportingProducerConsumerConfig.militaryVerificationReportingFanOutConfig.militaryVerificationReportingProcessingDLQName}-${props.stage}-${props.env!.region}.fifo`, {
+                    queueName: `${props.militaryVerificationReportingProducerConsumerConfig.militaryVerificationReportingFanOutConfig.militaryVerificationReportingProcessingDLQName}-${props.stage}-${props.env!.region}.fifo`,
                     fifo: true,
                     contentBasedDeduplication: true,
                     /**
                      * we want to add the maximum retention period for messages in the dead-letter queue which is 1209600 seconds or 14 days,
-                     * just to ensure that we have enough time to re-process any failures. For the notification reminders queue, this will be set to
+                     * just to ensure that we have enough time to re-process any failures. For the military verification reporting queue, this will be set to
                      * the default of 4 days.
                      */
                     retentionPeriod: Duration.seconds(1209600)
@@ -224,18 +212,18 @@ export class NotificationReminderProducerConsumerStack extends Stack {
             }
         });
 
-        // create a subscription for the notification reminder processing SQS queue, to the SNS notification reminder processing topic
-        notificationReminderProcessingTopic.addSubscription(new SqsSubscription(notificationReminderProcessingQueue, {
+        // create a subscription for the military verification updates/reporting processing SQS queue, to the SNS military verification reporting processing topic
+        militaryVerificationReportingProcessingTopic.addSubscription(new SqsSubscription(militaryVerificationReportingProcessingQueue, {
             // the message to the queue is the same as it was sent to the topic
             rawMessageDelivery: true,
             // creates a dead-letter-queue (DLQ) here, in order to handle any failed messages, that cannot be sent from SNS to SQS
-            deadLetterQueue: new aws_sqs.Queue(this, `${props.notificationReminderProducerConsumerConfig.notificationReminderFanOutConfig.notificationReminderProcessingTopicDLQName}-${props.stage}-${props.env!.region}.fifo`, {
-                queueName: `${props.notificationReminderProducerConsumerConfig.notificationReminderFanOutConfig.notificationReminderProcessingTopicDLQName}-${props.stage}-${props.env!.region}.fifo`,
+            deadLetterQueue: new aws_sqs.Queue(this, `${props.militaryVerificationReportingProducerConsumerConfig.militaryVerificationReportingFanOutConfig.militaryVerificationReportingProcessingTopicDLQName}-${props.stage}-${props.env!.region}.fifo`, {
+                queueName: `${props.militaryVerificationReportingProducerConsumerConfig.militaryVerificationReportingFanOutConfig.militaryVerificationReportingProcessingTopicDLQName}-${props.stage}-${props.env!.region}.fifo`,
                 fifo: true,
                 contentBasedDeduplication: true,
                 /**
                  * we want to add the maximum retention period for messages in the dead-letter queue which is 1209600 seconds or 14 days,
-                 * just to ensure that we have enough time to re-process any failures. For the notification reminder queue, this will be set to
+                 * just to ensure that we have enough time to re-process any failures. For the military verification reporting queue, this will be set to
                  * the default of 4 days.
                  */
                 retentionPeriod: Duration.seconds(1209600)
@@ -243,20 +231,20 @@ export class NotificationReminderProducerConsumerStack extends Stack {
         }));
 
         /**
-         * give the notification reminder consumer Lambda, permissions to consume messages from the SQS
-         * notification reminder queue.
+         * give the military verification reporting consumer Lambda, acting as the processing service or one of the consumers,
+         * permissions to consume messages from the SQS military verification reporting queue.
          */
-        notificationReminderProcessingQueue.grantConsumeMessages(this.notificationReminderConsumerLambda);
+        militaryVerificationReportingProcessingQueue.grantConsumeMessages(this.militaryVerificationReportingConsumerLambda);
 
         /**
-         * create the event source mapping/trigger for the notification reminder consumer Lambda, which will trigger this Lambda,
-         * every time one and/or multiple new SQS event representing notification reminders are added in the queue, ready to be processed.
+         * create the event source mapping/trigger for the military verification reporting consumer Lambda, which will trigger this Lambda,
+         * every time one and/or multiple new SQS event representing military verification reporting updates are added in the queue, ready to be processed.
          */
-        new EventSourceMapping(this, `${props.notificationReminderProducerConsumerConfig.notificationReminderFanOutConfig.notificationReminderProcessingEventSourceMapping}-${props.stage}-${props.env!.region}`, {
-            target: this.notificationReminderConsumerLambda,
-            eventSourceArn: notificationReminderProcessingQueue.queueArn,
+        new EventSourceMapping(this, `${props.militaryVerificationReportingProducerConsumerConfig.militaryVerificationReportingFanOutConfig.militaryVerificationReportingProcessingEventSourceMapping}-${props.stage}-${props.env!.region}`, {
+            target: this.militaryVerificationReportingConsumerLambda,
+            eventSourceArn: militaryVerificationReportingProcessingQueue.queueArn,
             /**
-             * we do not want the lambda to batch more than 1 records at a time from the queue, we want it to process 1 notification reminder at a time instead.
+             * we do not want the lambda to batch more than 1 records at a time from the queue, we want it to process 1 military verification reporting update at a time instead.
              * for future purposes, we might want to save cost by increasing this number somewhere between 1-10 (10 max for FIFO queues), in order to process
              * more messages at the same time
              */

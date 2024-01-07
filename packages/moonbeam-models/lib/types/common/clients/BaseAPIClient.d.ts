@@ -1,6 +1,6 @@
 import { SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
 import { APIGatewayProxyResult } from "aws-lambda/trigger/api-gateway-proxy";
-import { AppUpgradeResponse, Card, CardLinkResponse, CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetOffersInput, GetReferralsByStatusInput, GetTransactionByStatusInput, GetTransactionInput, GetUserCardLinkingIdInput, GetUserCardLinkingIdResponse, IneligibleLinkedUsersResponse, MemberDetailsResponse, MemberResponse, MilitaryVerificationNotificationUpdate, MilitaryVerificationReportingInformation, MilitaryVerificationStatusType, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationChannelType, NotificationReminderResponse, NotificationResponse, NotificationType, OfferIdResponse, OfferRedemptionTypeResponse, OffersResponse, ReferralResponse, RemoveCardResponse, SendEmailNotificationInput, SendMobilePushNotificationInput, Transaction, TransactionResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse, UpdateNotificationReminderInput, UpdateReferralInput, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse, MilitaryVerificationReportingInformationResponse } from "../GraphqlExports";
+import { AppUpgradeResponse, Card, CardLinkResponse, CreateNotificationInput, CreateNotificationResponse, EligibleLinkedUsersResponse, EmailFromCognitoResponse, GetDevicesForUserInput, GetOffersInput, GetReferralsByStatusInput, GetTransactionByStatusInput, GetTransactionInput, GetUserCardLinkingIdInput, GetUserCardLinkingIdResponse, IneligibleLinkedUsersResponse, MemberDetailsResponse, MemberResponse, MilitaryVerificationNotificationUpdate, MilitaryVerificationReportingInformation, MilitaryVerificationStatusType, MoonbeamTransaction, MoonbeamTransactionResponse, MoonbeamTransactionsByStatusResponse, MoonbeamTransactionsResponse, MoonbeamUpdatedTransactionResponse, NotificationChannelType, NotificationReminderResponse, NotificationResponse, NotificationType, OfferIdResponse, OfferRedemptionTypeResponse, OffersResponse, ReferralResponse, RemoveCardResponse, SendEmailNotificationInput, SendMobilePushNotificationInput, Transaction, TransactionResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse, UpdateNotificationReminderInput, UpdateReferralInput, UpdateTransactionInput, UserDevicesResponse, UserForNotificationReminderResponse, MilitaryVerificationReportingInformationResponse, GetMilitaryVerificationInformationInput, PutMilitaryVerificationReportInput, MilitaryVerificationReportResponse } from "../GraphqlExports";
 /**
  * Class used as the base/generic client for all API clients that
  * we will be connecting to.
@@ -47,6 +47,32 @@ export declare abstract class BaseAPIClient {
         (string | null)?,
         (string | null)?
     ]>;
+    /**
+     * Function used to get the military verification information of one
+     * or multiple users, depending on the filters passed in.
+     *
+     * @param getMilitaryVerificationInformationInput the input containing the military
+     * verification relevant filtering.
+     *
+     * @returns a {@link MilitaryVerificationReportingInformationResponse}, representing the filtered
+     * military verification information records.
+     *
+     * @protected
+     */
+    protected getMilitaryVerificationInformation?(getMilitaryVerificationInformationInput: GetMilitaryVerificationInformationInput): Promise<MilitaryVerificationReportingInformationResponse>;
+    /**
+     * Function used to update and/or create an existing/new military verification report
+     * file.
+     *
+     * @param putMilitaryVerificationReportInput the input containing the information that needs to be
+     * transferred into the military verification report file.
+     *
+     * @returns a {@link MilitaryVerificationReportResponse}, representing a flag highlighting whether
+     * the file was successfully updated or not.
+     *
+     * @protected
+     */
+    protected putMilitaryVerificationReport?(putMilitaryVerificationReportInput: PutMilitaryVerificationReportInput): Promise<MilitaryVerificationReportResponse>;
     /**
      * Function used to update a referral's particular information.
      *

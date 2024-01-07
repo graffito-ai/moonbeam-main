@@ -176,6 +176,17 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     militaryVerificationNotificationProcessingEventSourceMapping: 'militaryVerificationNotificationProcessingEventSourceMapping'
                 }
             },
+            militaryVerificationReportingProducerConsumerConfig: {
+                militaryVerificationReportingProducerFunctionName: 'militaryVerificationReportingProducerFunction',
+                militaryVerificationReportingConsumerFunctionName: 'militaryVerificationReportingConsumerFunction',
+                militaryVerificationReportingFanOutConfig: {
+                    militaryVerificationReportingProcessingTopicName: 'militaryVerificationReportingProcessingTopic',
+                    militaryVerificationReportingProcessingQueueName: 'militaryVerificationReportingProcessingQueue',
+                    militaryVerificationReportingProcessingDLQName: 'militaryVerificationReportingProcessingQueueDLQ',
+                    militaryVerificationReportingProcessingTopicDLQName: 'militaryVerificationReportingProcessingTopicDLQ',
+                    militaryVerificationReportingProcessingEventSourceMapping: 'militaryVerificationReportingProcessingEventSourceMapping'
+                }
+            },
             userAuthSessionConfig: {
                 userAuthSessionFunctionName: 'userAuthSessionFunction',
                 userAuthSessionTableName: 'userAuthSessionTable',
@@ -379,6 +390,17 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     militaryVerificationNotificationProcessingDLQName: 'militaryVerificationNotificationProcessingQueueDLQ',
                     militaryVerificationNotificationProcessingTopicDLQName: 'militaryVerificationNotificationProcessingTopicDLQ',
                     militaryVerificationNotificationProcessingEventSourceMapping: 'militaryVerificationNotificationProcessingEventSourceMapping'
+                }
+            },
+            militaryVerificationReportingProducerConsumerConfig: {
+                militaryVerificationReportingProducerFunctionName: 'militaryVerificationReportingProducerFunction',
+                militaryVerificationReportingConsumerFunctionName: 'militaryVerificationReportingConsumerFunction',
+                militaryVerificationReportingFanOutConfig: {
+                    militaryVerificationReportingProcessingTopicName: 'militaryVerificationReportingProcessingTopic',
+                    militaryVerificationReportingProcessingQueueName: 'militaryVerificationReportingProcessingQueue',
+                    militaryVerificationReportingProcessingDLQName: 'militaryVerificationReportingProcessingQueueDLQ',
+                    militaryVerificationReportingProcessingTopicDLQName: 'militaryVerificationReportingProcessingTopicDLQ',
+                    militaryVerificationReportingProcessingEventSourceMapping: 'militaryVerificationReportingProcessingEventSourceMapping'
                 }
             },
             userAuthSessionConfig: {
