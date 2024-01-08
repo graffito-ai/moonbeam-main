@@ -56,19 +56,51 @@ export class OffersResolverStack extends Stack {
         // add resolvers for which Query or Mutation type from the GraphQL schema listed above
         offersLambdaSource.createResolver(`${props.offersConfig.getOffersResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Query",
-            fieldName: `${props.offersConfig.getOffersResolverName}`
+            fieldName: `${props.offersConfig.getOffersResolverName}`,
+            /**
+             * Per-resolver caching enabled here
+             *
+             * https://docs.aws.amazon.com/appsync/latest/devguide/enabling-caching.html
+             */
+            cachingConfig: {
+                ttl: Duration.seconds(3600) // 1 hour caching enabled
+            }
         });
         offersLambdaSource.createResolver(`${props.offersConfig.getFidelisPartnersResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Query",
-            fieldName: `${props.offersConfig.getFidelisPartnersResolverName}`
+            fieldName: `${props.offersConfig.getFidelisPartnersResolverName}`,
+            /**
+             * Per-resolver caching enabled here
+             *
+             * https://docs.aws.amazon.com/appsync/latest/devguide/enabling-caching.html
+             */
+            cachingConfig: {
+                ttl: Duration.seconds(3600) // 1 hour caching enabled
+            }
         });
         offersLambdaSource.createResolver(`${props.offersConfig.getPremierOffersResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Query",
-            fieldName: `${props.offersConfig.getPremierOffersResolverName}`
+            fieldName: `${props.offersConfig.getPremierOffersResolverName}`,
+            /**
+             * Per-resolver caching enabled here
+             *
+             * https://docs.aws.amazon.com/appsync/latest/devguide/enabling-caching.html
+             */
+            cachingConfig: {
+                ttl: Duration.seconds(3600) // 1 hour caching enabled
+            }
         });
         offersLambdaSource.createResolver(`${props.offersConfig.getSeasonalOffersResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Query",
-            fieldName: `${props.offersConfig.getSeasonalOffersResolverName}`
+            fieldName: `${props.offersConfig.getSeasonalOffersResolverName}`,
+            /**
+             * Per-resolver caching enabled here
+             *
+             * https://docs.aws.amazon.com/appsync/latest/devguide/enabling-caching.html
+             */
+            cachingConfig: {
+                ttl: Duration.seconds(3600) // 1 hour caching enabled
+            }
         });
 
         // enable the Lambda function the retrieval of the Olive API secrets

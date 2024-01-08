@@ -1,4 +1,4 @@
-import {aws_appsync, aws_dynamodb, aws_lambda, aws_lambda_nodejs, Stack, StackProps} from "aws-cdk-lib";
+import {aws_appsync, aws_dynamodb, aws_lambda, aws_lambda_nodejs, Duration, Stack, StackProps} from "aws-cdk-lib";
 import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
 import path from "path";
@@ -53,7 +53,15 @@ export class FAQResolverStack extends Stack {
         // add resolvers for which Query or Mutation type from the GraphQL schema listed above
         faqLambdaDataSource.createResolver(`${props.faqConfig.getFAQsResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Query",
-            fieldName: `${props.faqConfig.getFAQsResolverName}`
+            fieldName: `${props.faqConfig.getFAQsResolverName}`,
+            /**
+             * Per-resolver caching enabled here
+             *
+             * https://docs.aws.amazon.com/appsync/latest/devguide/enabling-caching.html
+             */
+            cachingConfig: {
+                ttl: Duration.seconds(3600) // 1 hour caching enabled
+            }
         });
         faqLambdaDataSource.createResolver(`${props.faqConfig.createFAQResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Mutation",

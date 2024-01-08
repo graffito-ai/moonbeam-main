@@ -1,11 +1,12 @@
-import {CfnOutput, Duration, Expiration, Stack, StackProps} from "aws-cdk-lib";
+import {aws_appsync as appsync, CfnOutput, Duration, Expiration, Stack, StackProps} from "aws-cdk-lib";
 import {Construct} from "constructs";
 import {StageConfiguration} from "../models/StageConfiguration";
 import path from "path";
-import {AuthorizationType, GraphqlApi, SchemaFile} from "aws-cdk-lib/aws-appsync";
+import {AuthorizationType, FieldLogLevel, GraphqlApi, SchemaFile} from "aws-cdk-lib/aws-appsync";
 import {UserPool} from "aws-cdk-lib/aws-cognito";
 import {AmplifyAuthConfig} from "../models/ServiceConfiguration";
 import {Constants} from "@moonbeam/moonbeam-models";
+import {RetentionDays} from "aws-cdk-lib/aws-logs";
 
 /**
  * File used to define the stack responsible for creating the resources
@@ -35,6 +36,11 @@ export class AppSyncStack extends Stack {
         const appSyncApi = new GraphqlApi(this, `${props.appSyncConfig.graphqlApiName}-${props.stage}-${props.env!.region}`, {
             name: `${props.appSyncConfig.graphqlApiName}-${props.stage}-${props.env!.region}`,
             schema: SchemaFile.fromAsset(path.join(__dirname, '../../graphql/schema.graphql')),
+            logConfig: {
+                retention: RetentionDays.SIX_MONTHS,
+                excludeVerboseContent: false,
+                fieldLogLevel: FieldLogLevel.ALL
+            },
             authorizationConfig: {
                 defaultAuthorization: {
                     authorizationType: AuthorizationType.USER_POOL,
@@ -71,9 +77,39 @@ export class AppSyncStack extends Stack {
                         authorizationType: AuthorizationType.IAM
                     }
                 ]
-            },
+            }
         });
 
+        /**
+         * create caching for this AppSync API, to be configured for each resolver, with a default TTL
+         * of 3600 seconds or 1 hour, which is the max
+         */
+        new appsync.CfnApiCache(this, `${props.appSyncConfig.graphqlApiName}-${props.stage}-${props.env!.region}-caching`, {
+            /**
+             * @link http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-appsync-apicache.html#cfn-appsync-apicache-apicachingbehavior
+             */
+            apiCachingBehavior: 'PER_RESOLVER_CACHING',
+            apiId: appSyncApi.apiId,
+            ttl: Duration.seconds(3600).toSeconds(),
+            /**
+             * @link http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-appsync-apicache.html#cfn-appsync-apicache-type
+             */
+            type: 'R4_LARGE',
+            /**
+             * Enabling or disabling these encryption options can only be done at the creation of the cache. For our purposes, we chose to disable this for now,
+             * since it will affect the performance of the cache, and we do not have any sensitive data that will get cached anyway (on top of us having all of
+             * our endpoints protected).
+             *
+             * We will re-evaluate this choice as needed, and destroy and/or re-create the cache as applicable if these options need changing/adjusting.
+             *
+             * @link http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-appsync-apicache.html#cfn-appsync-apicache-atrestencryptionenabled
+             * @link http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-appsync-apicache.html#cfn-appsync-apicache-transitencryptionenabled
+             */
+            atRestEncryptionEnabled: false,
+            transitEncryptionEnabled: false,
+        });
+
+        // setting the global variable values, so we can re-use them in subsequent stacks.
         this.graphqlApiId = appSyncApi.apiId;
         this.graphqlApiEndpoint = appSyncApi.graphqlUrl;
 
