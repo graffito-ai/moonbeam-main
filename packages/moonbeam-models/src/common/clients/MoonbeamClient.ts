@@ -657,7 +657,7 @@ export class MoonbeamClient extends BaseAPIClient {
                 // If there are is more than 1 match returned, then we will match the user based on their unique id, from the custom:userId attribute
                 let invalidAttributesFlag = false;
                 listUsersResponse.Users.forEach(cognitoUser => {
-                    if (cognitoUser.Attributes === null || cognitoUser.Attributes === undefined || cognitoUser.Attributes.length !== 2) {
+                    if (cognitoUser.Attributes === null || cognitoUser.Attributes === undefined || cognitoUser.Attributes.length !== 3) {
                         invalidAttributesFlag = true;
                     }
                 });

@@ -22,6 +22,9 @@ import {AppUpgradeResolverStack} from "../stacks/AppUpgradeResolverStack";
 import {ReferralResolverStack} from "../stacks/ReferralResolverStack";
 import {ReferralProducerConsumerStack} from "../stacks/ReferralProducerConsumerStack";
 import {LoggingResolverStack} from "../stacks/LoggingResolverStack";
+import {
+    MilitaryVerificationReportingProducerConsumerStack
+} from "../stacks/MilitaryVerificationReportingProducerConsumerStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -264,6 +267,17 @@ export class StageUtils {
                     environmentVariables: stageConfiguration.environmentVariables
                 });
                 militaryVerificationUpdatesProducerConsumerStack.addDependency(appSyncStack);
+
+                // create the Military Verification Reporting/Updates Producer Consumer stack && add it to the CDK app
+                const militaryVerificationReportingProducerConsumerStack = new MilitaryVerificationReportingProducerConsumerStack(this.app, `moonbeam-military-verification-reporting-producer-consumer-${stageKey}`, {
+                    stackName: `moonbeam-military-verification-reporting-producer-consumer-${stageKey}`,
+                    description: 'This stack will contain all the resources needed for the military verification reporting-related consumers, as well as producers',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    militaryVerificationReportingProducerConsumerConfig: stageConfiguration.militaryVerificationReportingProducerConsumerConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                militaryVerificationReportingProducerConsumerStack.addDependency(appSyncStack);
 
                 // create the Notification Reminder Producer Consumer stack && add it to the CDK app
                 const notificationReminderProducerConsumerStack = new NotificationReminderProducerConsumerStack(this.app, `moonbeam-notification-reminder-producer-consumer-${stageKey}`, {

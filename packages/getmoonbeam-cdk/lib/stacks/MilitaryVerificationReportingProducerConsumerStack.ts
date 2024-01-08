@@ -6,6 +6,8 @@ import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
 import {Constants, Stages} from "@moonbeam/moonbeam-models";
 import {SqsSubscription} from "aws-cdk-lib/aws-sns-subscriptions";
 import {EventSourceMapping} from "aws-cdk-lib/aws-lambda";
+import {Rule, Schedule} from "aws-cdk-lib/aws-events";
+import {LambdaFunction} from "aws-cdk-lib/aws-events-targets";
 
 /**
  * File used to define the MilitaryVerificationReportingProducerConsumerStack stack, used to create all the necessary resources
@@ -55,6 +57,28 @@ export class MilitaryVerificationReportingProducerConsumerStack extends Stack {
                 sourcesContent: false, // do not include original source into source map, defaults to true
                 target: 'esnext', // target environment for the generated JavaScript code
             }
+        });
+        // create a CRON expression trigger that will enable running the military verification reporting producer lambda to run on a schedule
+        new Rule(this, `${props.militaryVerificationReportingProducerConsumerConfig.militaryVerificationReportingCronRuleName}-${props.stage}-${props.env!.region}`, {
+            ruleName: `${props.militaryVerificationReportingProducerConsumerConfig.militaryVerificationReportingCronRuleName}-${props.stage}-${props.env!.region}`,
+            description: "Schedule the Military Verification Reporting Trigger Lambda which initiates the military verification reporting Lambda/process 8 times a day.",
+            /**
+             * set the CRON timezone to the UTC time to match running the job 8 times a day, at:
+             * - 5:00 PM MST | 12:00 AM UTC
+             * - 8:00 PM MST | 3:00 AM UTC
+             * - 11:00 PM MST | 6:00 AM UTC
+             * - 2:00 AM MST | 9:00 AM UTC
+             * - 5:00 AM MST | 12:00 PM UTC
+             * - 8:00 PM MST | 3:00 PM UTC
+             * - 11:00 AM MST | 6:00 PM UTC
+             * - 2:00 PM MST | 9:00 PM UTC
+             */
+            schedule: Schedule.cron({
+                day: '*',
+                minute: '00',
+                hour: '*/3'
+            }),
+            targets: [new LambdaFunction(this.militaryVerificationReportingProducerLambda)],
         });
 
         // create a new Lambda function to be used as a consumer for military verification reporting data, acting as the military verification updates/reporting processor for military verification reporting updates.

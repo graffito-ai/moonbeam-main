@@ -122,8 +122,8 @@ export const getMilitaryVerificationInformation = async (fieldName: string, getM
                      * only retrieve upt ot that amount of records in a run, for a particular status.
                      *
                      * Example:
-                     * Assume we execute 6 runs a day (every 4 hours), that means that we can only process up to:
-                     * 2,150 * 6 = 12,900 verification records in a day, for each status,
+                     * Assume we execute 8 runs a day (every 3 hours), that means that we can only process up to:
+                     * 2,150 * 8 = 17,200 verification records in a day, for each status,
                      * (12,900 for PENDING, 12,900 for VERIFIED, 12,900 for REJECTED)
                      *
                      * If we want to increase this limit, we will need to increase the number of runs that will trigger

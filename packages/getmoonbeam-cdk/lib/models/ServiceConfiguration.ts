@@ -252,6 +252,7 @@ export interface MilitaryVerificationReportingFanOutConfiguration {
 export interface MilitaryVerificationReportingProducerConsumerConfiguration {
     readonly militaryVerificationReportingProducerFunctionName: string;
     readonly militaryVerificationReportingConsumerFunctionName: string;
+    readonly militaryVerificationReportingCronRuleName: string;
     readonly militaryVerificationReportingFanOutConfig: MilitaryVerificationReportingFanOutConfiguration;
 }
 

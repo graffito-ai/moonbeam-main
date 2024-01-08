@@ -125,7 +125,7 @@ input PutMilitaryVerificationReportInput {
     phoneNumber: String!
     emailAddress: String!
     date: AWSDate!
-    reportNumber: Int!
+    reportNumber: AWSTimestamp!
 }
 # graphql/MilitaryVerificationSchema.graphql
 # Military Verification Schema File

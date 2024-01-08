@@ -1001,7 +1001,7 @@ export type PutMilitaryVerificationReportInput = {
     militaryDutyStatus: MilitaryDutyStatus;
     militaryVerificationStatus: MilitaryVerificationStatusType;
     phoneNumber: Scalars['String'];
-    reportNumber: Scalars['Int'];
+    reportNumber: Scalars['AWSTimestamp'];
     state: Scalars['String'];
     updatedAt: Scalars['AWSDateTime'];
     zipCode: Scalars['String'];

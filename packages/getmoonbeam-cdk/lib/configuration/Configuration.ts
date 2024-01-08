@@ -179,6 +179,7 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             militaryVerificationReportingProducerConsumerConfig: {
                 militaryVerificationReportingProducerFunctionName: 'militaryVerificationReportingProducerFunction',
                 militaryVerificationReportingConsumerFunctionName: 'militaryVerificationReportingConsumerFunction',
+                militaryVerificationReportingCronRuleName: 'militaryVerificationReportingCronRule',
                 militaryVerificationReportingFanOutConfig: {
                     militaryVerificationReportingProcessingTopicName: 'militaryVerificationReportingProcessingTopic',
                     militaryVerificationReportingProcessingQueueName: 'militaryVerificationReportingProcessingQueue',
@@ -395,6 +396,7 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             militaryVerificationReportingProducerConsumerConfig: {
                 militaryVerificationReportingProducerFunctionName: 'militaryVerificationReportingProducerFunction',
                 militaryVerificationReportingConsumerFunctionName: 'militaryVerificationReportingConsumerFunction',
+                militaryVerificationReportingCronRuleName: 'militaryVerificationReportingCronRule',
                 militaryVerificationReportingFanOutConfig: {
                     militaryVerificationReportingProcessingTopicName: 'militaryVerificationReportingProcessingTopic',
                     militaryVerificationReportingProcessingQueueName: 'militaryVerificationReportingProcessingQueue',
