@@ -70,7 +70,7 @@ export const Wallet = ({navigation}: CardsProps) => {
     const [bottomSheetType, setBottomSheetType] = useState<"unlink" | "link">("link");
     const [selectedCard, setSelectedCard] = useState<SelectedCard | null>(null);
     // constants used to keep track of shared states
-    const [selectedCardIndex,setSelectedCardIndex] = useRecoilState(selectedCardIndexState);
+    const [selectedCardIndex, setSelectedCardIndex] = useRecoilState(selectedCardIndexState);
     const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
     const [, setBannerState] = useRecoilState(customBannerState);
@@ -92,7 +92,7 @@ export const Wallet = ({navigation}: CardsProps) => {
      */
     useEffect(() => {
         // only display a banner if the number of cards left is 0
-        if (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"] && userInformation["linkedCard"]["cards"].length === 0)  {
+        if (!userInformation["linkedCard"] || (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"] && userInformation["linkedCard"]["cards"].length === 0)) {
             // change the card linking status
             setCardLinkingStatus(false);
 
@@ -263,7 +263,11 @@ export const Wallet = ({navigation}: CardsProps) => {
             results.push(
                 <>
                     <Image
-                        style={styles.noCardImage}
+                        style={[styles.noCardImage,
+                            showBottomSheet && {
+                                backgroundColor: 'transparent', opacity: 0.3
+                            }
+                        ]}
                         resizeMethod={'scale'}
                         resizeMode={'contain'}
                         source={NoCardImage}
@@ -271,10 +275,15 @@ export const Wallet = ({navigation}: CardsProps) => {
                     <IconButton
                         icon={'plus-circle-outline'}
                         iconColor={'#F2FF5D'}
-                        style={{
-                            alignSelf: 'center',
-                            bottom: hp(11)
-                        }}
+                        style={[
+                            {
+                                alignSelf: 'center',
+                                bottom: hp(11)
+                            },
+                            showBottomSheet && {
+                                backgroundColor: 'transparent', opacity: 0.3
+                            }
+                        ]}
                         size={hp(5.5)}
                         onPress={
                             async () => {
@@ -318,9 +327,18 @@ export const Wallet = ({navigation}: CardsProps) => {
                 </>
             );
         } else {
-            // different background colors available
-            const cardBackgroundColors: string[] = ['#394fa6', '#F2FF5D', '#252629'];
-            const cardContentColor: string[] = ['#FFFFFF', '#313030', '#FFFFFF', '#FFFFFF'];
+            // different background and content colors available
+            let cardBackgroundColors: string[] = ['#394fa6', '#F2FF5D', '#252629'];
+            let cardContentColor: string[] = ['#FFFFFF', '#313030', '#F2FF5D', '#FFFFFF'];
+
+            // different background and content colors available for dimming purposes
+            const cardBackgroundColorsDimmed: string[] = ['#172042', '#808b00', '#0f0f10'];
+            const cardContentColorDimmed: string[] = ['#666666', '#141313', '#808b00', '#666666'];
+
+            if (showBottomSheet) {
+                cardBackgroundColors = cardBackgroundColorsDimmed;
+                cardContentColor = cardContentColorDimmed;
+            }
 
             // card data to populate the dynamic animated wallet with
             const cardData: any[] = []
@@ -338,81 +356,94 @@ export const Wallet = ({navigation}: CardsProps) => {
                     <View style={{flex: 1}}>
                         <List.Item
                             style={[styles.cardItemStyle, {backgroundColor: cardBackgroundColors[cardCount]}]}
-                            titleStyle={[styles.cardItemTitle, {color: cardContentColor[cardCount]}]}
-                            descriptionStyle={[styles.cardItemDetails, {color: cardContentColor[cardCount]}]}
-                            titleNumberOfLines={1}
-                            descriptionNumberOfLines={1}
-                            title={`••••${card["last4"]}`}
-                            description={`${card["name"]}`}
+                            title={''}
                             right={() =>
                                 <View style={styles.cardView}>
-                                    <IconButton
-                                        icon='trash-can-outline'
-                                        iconColor={contentColor}
-                                        rippleColor={'transparent'}
-                                        style={{bottom: hp(0.8), left: wp(4)}}
-                                        size={hp(4)}
-                                        onPress={async () => {
-                                            // set the selected card accordingly to be used when showing the bottom sheet
-                                            setSelectedCard({
-                                                type: card["type"] as CardType,
-                                                last4: card["last4"]
-                                            });
+                                    <View style={{flexDirection: 'column', right: wp(12), bottom: hp(1.5)}}>
+                                        <IconButton
+                                            icon='trash-can-outline'
+                                            iconColor={contentColor}
+                                            rippleColor={'transparent'}
+                                            style={{bottom: hp(1), left: wp(4)}}
+                                            size={hp(4)}
+                                            onPress={async () => {
+                                                // set the selected card accordingly to be used when showing the bottom sheet
+                                                setSelectedCard({
+                                                    type: card["type"] as CardType,
+                                                    last4: card["last4"]
+                                                });
 
-                                            // set the selected card index accordingly to be used when interacting with Olive
-                                            let count = 0;
-                                            for (let observedCard of userInformation["linkedCard"]["cards"]) {
-                                                observedCard = observedCard as Card;
-                                                if (card["last4"] === observedCard.last4 && card["name"] === observedCard.name &&
-                                                    card["type"] === observedCard.type) {
-                                                    setSelectedCardIndex(count);
+                                                // set the selected card index accordingly to be used when interacting with Olive
+                                                let count = 0;
+                                                for (let observedCard of userInformation["linkedCard"]["cards"]) {
+                                                    observedCard = observedCard as Card;
+                                                    if (card["last4"] === observedCard.last4 && card["name"] === observedCard.name &&
+                                                        card["type"] === observedCard.type) {
+                                                        setSelectedCardIndex(count);
+                                                    }
+                                                    count++;
                                                 }
-                                                count++;
-                                            }
 
-                                            // set the type of bottom sheet to show
-                                            setBottomSheetType("unlink");
+                                                // set the type of bottom sheet to show
+                                                setBottomSheetType("unlink");
 
-                                            // show the bottom sheet which will handle the card deletion
-                                            setShowBottomSheet(true);
-                                        }}
-                                    />
-                                    <IconButton
-                                        style={{top: hp(9), left: wp(4)}}
-                                        icon={MoonbeamCardChip}
-                                        iconColor={contentColor}
-                                        rippleColor={'transparent'}
-                                        size={hp(4)}
-                                        onPress={async () => {
-                                            // do nothing, we chose an icon button for styling purposes here
-                                        }}
-                                    />
+                                                // show the bottom sheet which will handle the card deletion
+                                                setShowBottomSheet(true);
+                                            }}
+                                        />
+                                        <IconButton
+                                            style={{top: hp(8.2), left: wp(4)}}
+                                            icon={MoonbeamCardChip}
+                                            iconColor={contentColor}
+                                            rippleColor={'transparent'}
+                                            size={hp(4)}
+                                            onPress={async () => {
+                                                // do nothing, we chose an icon button for styling purposes here
+                                            }}
+                                        />
+                                    </View>
                                 </View>
                             }
                             left={() =>
                                 <View style={styles.cardView}>
-                                    <IconButton
-                                        icon={card["type"] === CardType.Visa
-                                            ? MoonbeamVisaImage
-                                            : MoonbeamMasterCardImage
-                                        }
-                                        iconColor={contentColor}
-                                        rippleColor={'transparent'}
-                                        style={{bottom: hp(1)}}
-                                        size={hp(6)}
-                                        onPress={async () => {
-                                            // do nothing, we chose an icon button for styling purposes here
-                                        }}
-                                    />
-                                    <IconButton
-                                        icon={MoonbeamLogo}
-                                        iconColor={contentColor}
-                                        style={{top: hp(8)}}
-                                        size={hp(4)}
-                                        onPress={async () => {
-                                            // do nothing, we chose an icon button for styling purposes here
-                                        }}
-                                    />
+                                    <View style={{flexDirection: 'column'}}>
+                                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                            <IconButton
+                                                icon={card["type"] === CardType.Visa
+                                                    ? MoonbeamVisaImage
+                                                    : MoonbeamMasterCardImage
+                                                }
+                                                iconColor={contentColor}
+                                                rippleColor={'transparent'}
+                                                style={{bottom: hp(1)}}
+                                                size={hp(6)}
+                                                onPress={async () => {
+                                                    // do nothing, we chose an icon button for styling purposes here
+                                                }}
+                                            />
+                                            <Text
+                                                numberOfLines={1}
+                                                style={[styles.cardItemTitle, {color: contentColor, top: hp(1.7)}]}>
+                                                {`••••${card["last4"]}`}
+                                            </Text>
+                                        </View>
+                                        <View>
+                                            <Text
+                                                numberOfLines={1}
+                                                style={[styles.cardItemDetails, {color: contentColor}]}>
+                                                {`${card["name"]}`}
+                                            </Text>
+                                            <IconButton
+                                                icon={MoonbeamLogo}
+                                                iconColor={contentColor}
+                                                style={{top: hp(4)}}
+                                                size={hp(4)}
+                                                onPress={async () => {
+                                                    // do nothing, we chose an icon button for styling purposes here
+                                                }}
+                                            />
+                                        </View>
+                                    </View>
                                 </View>
                             }
                         />
@@ -423,82 +454,89 @@ export const Wallet = ({navigation}: CardsProps) => {
 
             // return another information card for the wallet if there's less than 3 cards available
             if (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length < 3) {
+                const contentColor = cardBackgroundColors[1];
+
                 cardData.push(
                     <View style={{flex: 1}}>
                         <List.Item
                             style={[styles.cardItemStyle, {backgroundColor: cardBackgroundColors[2]}]}
-                            titleStyle={[styles.cardItemTitle, {
-                                left: wp(2),
-                                color: cardContentColor[3],
-                                bottom: hp(0),
-                                top: hp(0)
-                            }]}
-                            descriptionStyle={[styles.cardItemDetails, {
-                                top: hp(2),
-                                color: cardContentColor[3],
-                                width: wp(90),
-                                marginLeft: wp(2)
-                            }]}
-                            titleNumberOfLines={1}
-                            descriptionNumberOfLines={3}
-                            title={`Earn more!`}
-                            description={`You can now link up to 3 favorite cards in your wallet!`}
+                            title={''}
+                            right={() =>
+                                <TouchableOpacity
+                                    style={styles.infoCardButton}
+                                    onPress={async () => {
+                                        // set the type of bottom sheet to show
+                                        setBottomSheetType("link");
+
+                                        // if there is no error and/or success to show, then this button will open up the bottom sheet
+                                        if (!splashShown) {
+                                            /**
+                                             * open up the bottom sheet, where the linking action will take place. Any linked cards and/or errors will be
+                                             * handled by the CardLinkingBottomSheet component
+                                             */
+                                            setShowBottomSheet(true);
+                                        } else {
+                                            // reset the success linking flag, in case it is true, as well as hide the custom banner accordingly
+                                            if (cardLinkingBottomSheet) {
+                                                setCardLinkingBottomSheet(false);
+
+                                                // change the card linking status
+                                                setCardLinkingStatus(true);
+
+                                                // set the custom banner state for future screens accordingly
+                                                setBannerState({
+                                                    bannerVisibilityState: cardLinkingStatusState,
+                                                    bannerMessage: "",
+                                                    bannerButtonLabel: "",
+                                                    bannerButtonLabelActionSource: "",
+                                                    bannerArtSource: CardLinkingImage,
+                                                    dismissing: false
+                                                });
+                                            }
+
+                                            // close the previously opened bottom sheet, and reset the splash shown flag, to return to the default wallet view
+                                            setShowBottomSheet(false);
+                                            setBottomTabShown(true);
+                                            setSplashShown(false);
+                                        }
+                                    }}
+                                >
+                                    <Text style={[styles.infoCardButtonContentStyle, {color: contentColor}]}>Link
+                                        card</Text>
+                                </TouchableOpacity>
+                            }
                             left={() =>
                                 <View style={styles.cardView}>
-                                    <IconButton
-                                        icon={MoonbeamLogo}
-                                        iconColor={'#F2FF5D'}
-                                        rippleColor={'transparent'}
-                                        style={{
-                                            left: wp(1.25),
-                                            bottom: hp(3)
-                                        }}
-                                        size={hp(5)}
-                                        onPress={async () => {
-                                            // do nothing, we chose an icon button for styling purposes here
-                                        }}
-                                    />
-                                    <TouchableOpacity
-                                        style={styles.infoCardButton}
-                                        onPress={async () => {
-                                            // set the type of bottom sheet to show
-                                            setBottomSheetType("link");
-
-                                            // if there is no error and/or success to show, then this button will open up the bottom sheet
-                                            if (!splashShown) {
-                                                /**
-                                                 * open up the bottom sheet, where the linking action will take place. Any linked cards and/or errors will be
-                                                 * handled by the CardLinkingBottomSheet component
-                                                 */
-                                                setShowBottomSheet(true);
-                                            } else {
-                                                // reset the success linking flag, in case it is true, as well as hide the custom banner accordingly
-                                                if (cardLinkingBottomSheet) {
-                                                    setCardLinkingBottomSheet(false);
-
-                                                    // change the card linking status
-                                                    setCardLinkingStatus(true);
-
-                                                    // set the custom banner state for future screens accordingly
-                                                    setBannerState({
-                                                        bannerVisibilityState: cardLinkingStatusState,
-                                                        bannerMessage: "",
-                                                        bannerButtonLabel: "",
-                                                        bannerButtonLabelActionSource: "",
-                                                        bannerArtSource: CardLinkingImage,
-                                                        dismissing: false
-                                                    });
-                                                }
-
-                                                // close the previously opened bottom sheet, and reset the splash shown flag, to return to the default wallet view
-                                                setShowBottomSheet(false);
-                                                setBottomTabShown(true);
-                                                setSplashShown(false);
-                                            }
-                                        }}
-                                    >
-                                        <Text style={styles.infoCardButtonContentStyle}>Link card</Text>
-                                    </TouchableOpacity>
+                                    <View style={{flexDirection: 'column'}}>
+                                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                            <IconButton
+                                                icon={MoonbeamLogo}
+                                                iconColor={contentColor}
+                                                rippleColor={'transparent'}
+                                                style={{bottom: hp(1), left: wp(1)}}
+                                                size={hp(5)}
+                                                onPress={async () => {
+                                                    // do nothing, we chose an icon button for styling purposes here
+                                                }}
+                                            />
+                                            <Text numberOfLines={1}
+                                                  style={[styles.cardItemTitle, {
+                                                      color: cardContentColor[3],
+                                                      top: hp(1)
+                                                  }]}>
+                                                {`Earn more!`}
+                                            </Text>
+                                        </View>
+                                        <Text
+                                            numberOfLines={2}
+                                            style={[styles.cardItemDetails, {
+                                                top: hp(1),
+                                                color: cardContentColor[3],
+                                                width: wp(85)
+                                            }]}>
+                                            {`You can now link up to 3 favorite cards in your wallet!`}
+                                        </Text>
+                                    </View>
                                 </View>
                             }
                         />
@@ -540,9 +578,6 @@ export const Wallet = ({navigation}: CardsProps) => {
                     >
                         <View
                             {...showBottomSheet && {pointerEvents: "none"}}
-                            {...showBottomSheet && {
-                                style: {backgroundColor: 'transparent', opacity: 0.3}
-                            }}
                         >
                             {
                                 splashShown ?
@@ -553,14 +588,18 @@ export const Wallet = ({navigation}: CardsProps) => {
                                     />
                                     :
                                     <>
-                                        <View style={styles.walletTextView}>
+                                        <View style={[styles.walletTextView,
+                                            showBottomSheet && {
+                                                backgroundColor: 'transparent', opacity: 0.3
+                                            }
+                                        ]}>
                                             <View style={styles.walletTopTitleView}>
                                                 <Text
                                                     style={styles.walletTitle}>
                                                     Wallet
                                                 </Text>
                                                 {
-                                                    userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 3 &&
+                                                    ((userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 3) || !userInformation["linkedCard"]) &&
                                                     <IconButton
                                                         icon={'plus'}
                                                         iconColor={'#F2FF5D'}
@@ -623,7 +662,11 @@ export const Wallet = ({navigation}: CardsProps) => {
                                         </LinearGradient>
                                     </>
                             }
-                            <View style={styles.disclaimerTextView}>
+                            <View style={[styles.disclaimerTextView,
+                                showBottomSheet && {
+                                    backgroundColor: 'transparent', opacity: 0.3
+                                }
+                            ]}>
                                 <TouchableOpacity
                                     disabled={!splashShown && (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0)}
                                     style={
@@ -671,13 +714,13 @@ export const Wallet = ({navigation}: CardsProps) => {
                                 </TouchableOpacity>
                                 {
                                     !splashShown &&
-                                    userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length === 0
-                                        && <Text
-                                            style={styles.disclaimerText}>
-                                            Connect your <Text
-                                            style={styles.highlightedText}>Visa</Text> or <Text
-                                            style={styles.highlightedText}>MasterCard</Text> debit or credit card.
-                                        </Text>
+                                    ((userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length === 0) || !userInformation["linkedCard"])
+                                    && <Text
+                                        style={styles.disclaimerText}>
+                                        Connect your <Text
+                                        style={styles.highlightedText}>Visa</Text> or <Text
+                                        style={styles.highlightedText}>MasterCard</Text> debit or credit card.
+                                    </Text>
                                 }
                             </View>
                         </View>
@@ -745,4 +788,3 @@ export const Wallet = ({navigation}: CardsProps) => {
         </>
     );
 };
-// userInformation["linkedCard"]["cards"][0]

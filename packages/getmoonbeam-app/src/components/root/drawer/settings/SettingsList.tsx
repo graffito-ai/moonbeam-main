@@ -10,7 +10,7 @@ import {useRecoilState} from "recoil";
 import {currentUserInformation, userIsAuthenticatedState} from "../../../../recoil/AuthAtom";
 import {Spinner} from "../../../common/Spinner";
 import {API, graphqlOperation} from "aws-amplify";
-import {deleteCard, LoggingLevel} from "@moonbeam/moonbeam-models";
+import {Card, deleteCard, LoggingLevel} from "@moonbeam/moonbeam-models";
 import {cardLinkingStatusState, drawerSwipeState} from "../../../../recoil/AppDrawerAtom";
 // @ts-ignore
 import CardLinkingImage from "../../../../../assets/art/moonbeam-card-linking.png";
@@ -105,31 +105,54 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
     /**
      * Function used to handle the opt-out action, from the settings list
      * option press.
-     *
-     * @param userId uniquely generated user identifier.
-     * @param memberId member id obtained from Olive during the signup process.
-     * @param cardId card id obtained from Olive during the signup and/or card addition process.
      */
-    const optOut = async (userId: string, memberId: string, cardId: string): Promise<void> => {
+    const optOut = async (): Promise<void> => {
         try {
+            const userId = userInformation["custom:userId"];
+            const memberId = userInformation["linkedCard"]["memberId"];
+
             // set a loader on button press
             setIsReady(false);
 
-            // call the internal delete card API
-            const deleteCardResult = await API.graphql(graphqlOperation(deleteCard, {
-                deleteCardInput: {
-                    id: userId,
-                    memberId: memberId,
-                    cardId: cardId
+            // call the internal delete card API for each one of the cards that the user has
+            let successfulCardUnlinked = 0;
+            for (let card of userInformation["linkedCard"]["cards"]) {
+                card = card as Card;
+
+                const deleteCardResult = await API.graphql(graphqlOperation(deleteCard, {
+                    deleteCardInput: {
+                        id: userId,
+                        memberId: memberId,
+                        cardId: card.id
+                    }
+                }));
+
+                // retrieve the data block from the response
+                // @ts-ignore
+                const responseData = deleteCardResult ? deleteCardResult.data : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.deleteCard.errorMessage === null) {
+                    successfulCardUnlinked++;
+                } else {
+                    // release the loader on button press
+                    setIsReady(true);
+                    const message = `Unexpected error while opting member out of the program through the delete card API ${JSON.stringify(deleteCardResult)}, for card ${card.id}`;
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
+                    // show modal error
+                    setModalCustomMessage("Unexpected error while opting out!");
+                    setModalButtonMessage("Try Again");
+                    setModalVisible(true);
                 }
-            }));
-
-            // retrieve the data block from the response
-            // @ts-ignore
-            const responseData = deleteCardResult ? deleteCardResult.data : null;
-
-            // check if there are any errors in the returned response
-            if (responseData && responseData.deleteCard.errorMessage === null) {
+            }
+            /**
+             * once all the cards have been deactivated successfully, then proceed by showing a successful message accordingly
+             *
+             * first release the loader on button press
+             */
+            if (successfulCardUnlinked === userInformation["linkedCard"]["cards"].length) {
                 // release the loader on button press
                 setIsReady(true);
 
@@ -158,17 +181,6 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                 // show modal confirmation
                 setModalCustomMessage("You have successfully been opted out!");
                 setModalButtonMessage("Ok");
-                setModalVisible(true);
-            } else {
-                // release the loader on button press
-                setIsReady(true);
-                const message = `Unexpected error while opting member out of the program through the delete card API ${JSON.stringify(deleteCardResult)}`;
-                console.log(message);
-                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
-
-                // show modal error
-                setModalCustomMessage("Unexpected error while opting out!");
-                setModalButtonMessage("Try Again");
                 setModalVisible(true);
             }
         } catch (error) {
@@ -315,12 +327,8 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                         onPress={async () => {
                                             // check if a member has already been deactivated or never completed the linked card process
                                             if (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"].length !== 0) {
-                                                // there's a need to deactivate
-                                                await optOut(
-                                                    userInformation["custom:userId"],
-                                                    userInformation["linkedCard"]["memberId"],
-                                                    userInformation["linkedCard"]["cards"][0]["id"]
-                                                );
+                                                // there's a need to deactivate, and if so, do it for all the cards that the user has
+                                                await optOut();
                                             } else {
                                                 // there's no need for deactivation, so go to the Card linking screen
                                                 bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});

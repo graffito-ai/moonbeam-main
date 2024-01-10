@@ -29,7 +29,7 @@ export const deleteCard = async (fieldName: string, deleteCardInput: DeleteCardI
         deleteCardInput.updatedAt = deleteCardInput.updatedAt ? deleteCardInput.updatedAt : new Date().toISOString();
 
         // retrieve the card linking object, given the delete card input object
-        const retrievedData =  await dynamoDbClient.send(new GetItemCommand({
+        const retrievedData = await dynamoDbClient.send(new GetItemCommand({
             TableName: process.env.CARD_LINKING_TABLE!,
             Key: {
                 id: {
@@ -64,50 +64,103 @@ export const deleteCard = async (fieldName: string, deleteCardInput: DeleteCardI
                     // initialize the Olive Client API here, in order to call the appropriate endpoints for this resolver
                     const oliveClient = new OliveClient(process.env.ENV_NAME!, region);
 
-                    // first execute the member update call, to deactivate the member
-                    const updateMemberResponse: MemberResponse = await oliveClient.updateMemberStatus(deleteCardInput.id, deleteCardInput.memberId, false, deleteCardInput.updatedAt!);
+                    // first execute the remove card call, to remove/deactivate a card from the member
+                    const removeCardResponse: RemoveCardResponse = await oliveClient.removeCard(deleteCardInput.cardId);
 
-                    // check to see if the update member status call was executed successfully
-                    if (updateMemberResponse && !updateMemberResponse.errorMessage && !updateMemberResponse.errorType
-                        && updateMemberResponse.data && updateMemberResponse.data.isActive === false
-                        && updateMemberResponse.data.id === deleteCardInput.id && updateMemberResponse.data.memberId === deleteCardInput.memberId) {
-                        // then execute the remove card call, to remove/deactivate a card to the member
-                        const removeCardResponse: RemoveCardResponse = await oliveClient.removeCard(deleteCardInput.cardId);
-
-                        // check to see if the remove card call was executed successfully
-                        if (removeCardResponse && !removeCardResponse.errorMessage && !removeCardResponse.errorType && removeCardResponse.data) {
-                            // construct the list of cards to be updated, containing all pre-existing cards but the one that was removed
-                            for (const preExistingCard of responseCardList) {
-                                if (preExistingCard.id !== deleteCardInput.cardId) {
-                                    updatedCardList.push({
-                                        "M": {
-                                            "id": {
-                                                "S": preExistingCard.id
-                                            },
+                    // check to see if the remove card call was executed successfully
+                    if (removeCardResponse && !removeCardResponse.errorMessage && !removeCardResponse.errorType && removeCardResponse.data) {
+                        // construct the list of cards to be updated, containing all pre-existing cards but the one that was removed
+                        for (const preExistingCard of responseCardList) {
+                            if (preExistingCard.id !== deleteCardInput.cardId) {
+                                updatedCardList.push({
+                                    "M": {
+                                        "id": {
+                                            "S": preExistingCard.id
+                                        },
+                                        "applicationID": {
+                                            "S": preExistingCard.applicationID
+                                        },
+                                        ...(preExistingCard.additionalProgramID && {
                                             "applicationID": {
-                                                "S": preExistingCard.applicationID
+                                                "S": preExistingCard.additionalProgramID
                                             },
-                                            ...(preExistingCard.additionalProgramID && {
-                                                "applicationID": {
-                                                    "S": preExistingCard.additionalProgramID
-                                                },
-                                            }),
-                                            "last4": {
-                                                "S": preExistingCard.last4
-                                            },
-                                            "name": {
-                                                "S": preExistingCard.name
-                                            },
-                                            "token": {
-                                                "S": preExistingCard.token
-                                            },
-                                            "type": {
-                                                "S": preExistingCard.type
-                                            }
+                                        }),
+                                        "last4": {
+                                            "S": preExistingCard.last4
+                                        },
+                                        "name": {
+                                            "S": preExistingCard.name
+                                        },
+                                        "token": {
+                                            "S": preExistingCard.token
+                                        },
+                                        "type": {
+                                            "S": preExistingCard.type
                                         }
-                                    })
+                                    }
+                                })
+                            }
+                        }
+
+                        // check depending on how many cards we have left in the list of cards, whether we also need to deactivate the member or not
+                        if (updatedCardList.length === 0) {
+                            console.log(`Member ${deleteCardInput.memberId} for user ${deleteCardInput.id} needs to be deactivated!`);
+
+                            // execute the member update call, to deactivate the member
+                            const updateMemberResponse: MemberResponse = await oliveClient.updateMemberStatus(deleteCardInput.id, deleteCardInput.memberId, false, deleteCardInput.updatedAt!);
+
+                            // check to see if the update member status call was executed successfully
+                            if (updateMemberResponse && !updateMemberResponse.errorMessage && !updateMemberResponse.errorType
+                                && updateMemberResponse.data && updateMemberResponse.data.isActive === false
+                                && updateMemberResponse.data.id === deleteCardInput.id && updateMemberResponse.data.memberId === deleteCardInput.memberId) {
+                                // finally, update the card linked object, by removing the unlinked card from it
+                                await dynamoDbClient.send(new UpdateItemCommand({
+                                    TableName: process.env.CARD_LINKING_TABLE!,
+                                    Key: {
+                                        id: {
+                                            S: deleteCardInput.id
+                                        }
+                                    },
+                                    ExpressionAttributeNames: {
+                                        "#CA": "cards",
+                                        "#UA": "updatedAt",
+                                        "#ST": "status"
+                                    },
+                                    ExpressionAttributeValues: {
+                                        ":list": {
+                                            L: updatedCardList
+                                        },
+                                        ":ua": {
+                                            S: deleteCardInput.updatedAt!
+                                        },
+                                        ":st": {
+                                            S: CardLinkingStatus.NotLinked
+                                        }
+                                    },
+                                    UpdateExpression: "SET #CA = :list, #UA = :ua, #ST = :st",
+                                    ReturnValues: "UPDATED_NEW"
+                                }));
+
+                                // return the card response object
+                                return {
+                                    data: {
+                                        id: deleteCardInput.id,
+                                        cardId: deleteCardInput.cardId,
+                                        updatedAt: deleteCardInput.updatedAt!
+                                    }
+                                }
+                            } else {
+                                console.log(`Unexpected response structure returned from the update member status call!`);
+
+                                // if there are errors associated with the update member status call, just return the error message and error type from the upstream client
+                                return {
+                                    errorMessage: updateMemberResponse.errorMessage,
+                                    errorType: updateMemberResponse.errorType
                                 }
                             }
+                        } else {
+                            console.log(`Member ${deleteCardInput.memberId} for user ${deleteCardInput.id} does not need to be deactivated!`);
+
                             // finally, update the card linked object, by removing the unlinked card from it
                             await dynamoDbClient.send(new UpdateItemCommand({
                                 TableName: process.env.CARD_LINKING_TABLE!,
@@ -144,22 +197,14 @@ export const deleteCard = async (fieldName: string, deleteCardInput: DeleteCardI
                                     updatedAt: deleteCardInput.updatedAt!
                                 }
                             }
-                        } else {
-                            console.log(`Unexpected response structure returned from the remove card call!`);
-
-                            // if there are errors associated with the remove card call, just return the error message and error type from the upstream client
-                            return {
-                                errorMessage: removeCardResponse.errorMessage,
-                                errorType: removeCardResponse.errorType
-                            }
                         }
                     } else {
-                        console.log(`Unexpected response structure returned from the update member status call!`);
+                        console.log(`Unexpected response structure returned from the remove card call!`);
 
-                        // if there are errors associated with the update member status call, just return the error message and error type from the upstream client
+                        // if there are errors associated with the remove card call, just return the error message and error type from the upstream client
                         return {
-                            errorMessage: updateMemberResponse.errorMessage,
-                            errorType: updateMemberResponse.errorType
+                            errorMessage: removeCardResponse.errorMessage,
+                            errorType: removeCardResponse.errorType
                         }
                     }
                 } else {

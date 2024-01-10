@@ -80,12 +80,13 @@ export const styles = StyleSheet.create({
         fontFamily: 'Saira-Bold',
         fontSize: hp(2.5),
         width: wp(40),
-        bottom: hp(2.8)
+        bottom: hp(2.8),
+        right: wp(20)
     },
     cardItemDetails: {
         fontFamily: 'Saira-Medium',
         fontSize: hp(2),
-        right: wp(20),
+        left: wp(3.5),
         width: wp(85)
     },
     cardLinkingParentView: {
@@ -159,9 +160,8 @@ export const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     infoCardButton: {
-        position: 'absolute',
-        paddingLeft: wp(10),
-        top: hp(15),
+        right: wp(30),
+        top: hp(18),
         backgroundColor: 'transparent',
         width: wp(50),
         height: hp(5),
