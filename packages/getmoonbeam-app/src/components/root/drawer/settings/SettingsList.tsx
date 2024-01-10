@@ -7,7 +7,7 @@ import {styles} from "../../../../styles/settingsList.module";
 // @ts-ignore
 import FaceIDIcon from '../../../../../assets/face-id-icon.png';
 import {useRecoilState} from "recoil";
-import {currentUserInformation, globalAmplifyCacheState, userIsAuthenticatedState} from "../../../../recoil/AuthAtom";
+import {currentUserInformation, userIsAuthenticatedState} from "../../../../recoil/AuthAtom";
 import {Spinner} from "../../../common/Spinner";
 import {API, graphqlOperation} from "aws-amplify";
 import {deleteCard, LoggingLevel} from "@moonbeam/moonbeam-models";
@@ -44,9 +44,8 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
     const [modalCustomMessage, setModalCustomMessage] = useState<string>("");
     const [modalButtonMessage, setModalButtonMessage] = useState<string>("");
     // constants used to keep track of shared states
-    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [goToProfileSettings,] = useRecoilState(goToProfileSettingsState);
-    const [globalCache,] = useRecoilState(globalAmplifyCacheState);
     const [drawerNavigation,] = useRecoilState(drawerNavigationState);
     const [bottomBarNavigation,] = useRecoilState(bottomBarNavigationState);
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
@@ -86,7 +85,8 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
         }).then(biometricsType => {
             const message = `Type of authentication enabled on device ${biometricsType}`;
             console.log(message);
-            logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {});
+            logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {
+            });
 
             setBiometricsType('Enhanced Security');
             // check to see if biometrics are enabled or not
@@ -141,29 +141,6 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                         cards: []
                     }
                 });
-
-                // if the card was successfully removed, then we can cache it accordingly
-                const newCardLink = {
-                    ...userInformation["linkedCard"],
-                    cards: []
-                }
-                if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCardFlag`) !== null) {
-                    const message = 'old card is cached, needs cleaning up';
-                    console.log(message);
-                    await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
-
-                    await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCard`);
-                    await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCardFlag`);
-                    await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, newCardLink);
-                    await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
-                } else {
-                    const message = 'card is not cached';
-                    console.log(message);
-                    await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
-
-                    globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, newCardLink);
-                    globalCache && await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
-                }
 
                 // change the card linking status
                 setCardLinkingStatus(false);
@@ -378,9 +355,9 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                                             />}
                                         right={() =>
                                             <Switch
-                                                thumbColor={biometricsEnabled ? '#313030': '#F2FF5D'}
+                                                thumbColor={biometricsEnabled ? '#313030' : '#F2FF5D'}
                                                 trackColor={{true: '#F2FF5D', false: '#313030'}}
-                                                ios_backgroundColor={biometricsEnabled ? '#F2FF5D': '#313030'}
+                                                ios_backgroundColor={biometricsEnabled ? '#F2FF5D' : '#313030'}
                                                 style={styles.biometricsToggleSwitch}
                                                 value={biometricsEnabled}
                                                 onValueChange={async (value) => {

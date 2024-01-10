@@ -22,7 +22,7 @@ enum CardLinkingStatus {
 type EligibleLinkedUser @aws_cognito_user_pools @aws_api_key {
     id: ID!
     memberId: ID!
-    cardId: ID!
+    cardIds: [ID]!
 }
 
 type Card @aws_cognito_user_pools {

@@ -262,7 +262,7 @@ export type DeleteCardInput = {
 };
 export type EligibleLinkedUser = {
     __typename?: 'EligibleLinkedUser';
-    cardId: Scalars['ID'];
+    cardIds: Array<Maybe<Scalars['ID']>>;
     id: Scalars['ID'];
     memberId: Scalars['ID'];
 };
@@ -2444,7 +2444,7 @@ export type GetEligibleLinkedUsersQuery = {
         data?: Array<{
             __typename?: 'EligibleLinkedUser';
             id: string;
-            cardId: string;
+            cardIds: Array<string | null>;
             memberId: string;
         } | null> | null;
     };

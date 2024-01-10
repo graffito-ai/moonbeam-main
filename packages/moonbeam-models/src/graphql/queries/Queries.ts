@@ -589,7 +589,7 @@ export const getEligibleLinkedUsers = /* GraphQL */ `
             errorType
             data {
                 id
-                cardId
+                cardIds
                 memberId
             }
         }

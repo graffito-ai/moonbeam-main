@@ -5,7 +5,8 @@ import {useRecoilState} from "recoil";
 import {
     cardLinkingRegistrationStatusState,
     currentUserInformation,
-    globalAmplifyCacheState, isReadyRegistrationState, userIsAuthenticatedState
+    isReadyRegistrationState,
+    userIsAuthenticatedState
 } from "../../../../recoil/AuthAtom";
 import {Dialog, Portal, Text} from "react-native-paper";
 import {commonStyles} from '../../../../styles/common.module';
@@ -29,9 +30,8 @@ export const CardLinkingStep = () => {
     const [modalCustomMessage, setModalCustomMessage] = useState<string>("");
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
-    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [isReady, setIsReady] = useRecoilState(isReadyRegistrationState);
-    const [globalCache,] = useRecoilState(globalAmplifyCacheState);
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingRegistrationStatusState);
     const [userInformation,] = useRecoilState(currentUserInformation);
 
@@ -188,24 +188,6 @@ export const CardLinkingStep = () => {
 
             // check if there are any errors in the returned response
             if (responseData && responseData.createCardLink.errorMessage === null) {
-                // if the card was successfully linked, then we can cache it accordingly
-                if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCardFlag`) !== null) {
-                    const message = 'old card is cached, needs cleaning up';
-                    console.log(message);
-                    await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
-
-                    await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCard`);
-                    await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCardFlag`);
-                    await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, responseData.createCardLink.data);
-                    await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
-                } else {
-                    const message = 'card is not cached';
-                    console.log(message);
-                    await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
-
-                    globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, responseData.createCardLink.data);
-                    globalCache && await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
-                }
                 return [true];
             } else {
                 const message = `Unexpected error while signing a new member up through the card linking API ${JSON.stringify(cardLinkingResult)}`;
@@ -246,7 +228,8 @@ export const CardLinkingStep = () => {
         default:
             const message = `Invalid environment passed in from Amplify ${envInfo.envName}`;
             console.log(message);
-            logEvent(message, LoggingLevel.Error, userIsAuthenticated).then(() => {});
+            logEvent(message, LoggingLevel.Error, userIsAuthenticated).then(() => {
+            });
             break;
     }
     const oliveIframeContent =
@@ -334,11 +317,13 @@ export const CardLinkingStep = () => {
                                 if (request.url === 'https://www.moonbeam.vet/terms-and-conditions' || request.url === 'https://www.moonbeam.vet/privacy-policy') {
                                     Linking.canOpenURL(request.url).then(supported => {
                                         if (supported) {
-                                            Linking.openURL(request.url).then(() => {});
+                                            Linking.openURL(request.url).then(() => {
+                                            });
                                         } else {
                                             const message = `Don't know how to open URI: ${request.url}`;
                                             console.log(message);
-                                            logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {});
+                                            logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {
+                                            });
                                         }
                                     });
                                     return false;

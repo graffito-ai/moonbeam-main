@@ -285,7 +285,7 @@ export type DeleteCardInput = {
 
 export type EligibleLinkedUser = {
   __typename?: 'EligibleLinkedUser';
-  cardId: Scalars['ID'];
+  cardIds: Array<Maybe<Scalars['ID']>>;
   id: Scalars['ID'];
   memberId: Scalars['ID'];
 };
@@ -1878,7 +1878,7 @@ export type GetUsersWithNoCardsQuery = { __typename?: 'Query', getUsersWithNoCar
 export type GetEligibleLinkedUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetEligibleLinkedUsersQuery = { __typename?: 'Query', getEligibleLinkedUsers: { __typename?: 'EligibleLinkedUsersResponse', errorMessage?: string | null, errorType?: CardLinkErrorType | null, data?: Array<{ __typename?: 'EligibleLinkedUser', id: string, cardId: string, memberId: string } | null> | null } };
+export type GetEligibleLinkedUsersQuery = { __typename?: 'Query', getEligibleLinkedUsers: { __typename?: 'EligibleLinkedUsersResponse', errorMessage?: string | null, errorType?: CardLinkErrorType | null, data?: Array<{ __typename?: 'EligibleLinkedUser', id: string, cardIds: Array<string | null>, memberId: string } | null> | null } };
 
 export type GetStorageQueryVariables = Exact<{
   getStorageInput: GetStorageInput;

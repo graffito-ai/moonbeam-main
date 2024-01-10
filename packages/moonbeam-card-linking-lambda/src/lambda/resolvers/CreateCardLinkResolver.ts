@@ -44,7 +44,7 @@ export const createCardLink = async (fieldName: string, createCardLinkInput: Cre
 
         /**
          * check to see if the user already has a card enrolled in. If they do, then return an error, since we only don't want to create a brand-new customer
-         * with a new card, for an existing customer whom already has a linked card. In order to change a card for a customer, we will require them to first call
+         * with a new card, for an existing customer whom already has a linked card. In order to change/add a card for a customer, we will require them to first call
          * our deleteCard API, followed by addCard API.
          */
         const preExistingCardForLink =  await dynamoDbClient.send(new GetItemCommand({

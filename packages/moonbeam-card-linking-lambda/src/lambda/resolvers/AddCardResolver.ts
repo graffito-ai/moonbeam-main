@@ -3,8 +3,9 @@ import {
     Card,
     CardLink,
     CardLinkErrorType,
+    CardLinkingStatus,
     CardLinkResponse,
-    CardResponse,
+    CardResponse, CardType,
     MemberResponse,
     OliveClient
 } from "@moonbeam/moonbeam-models";
@@ -52,11 +53,11 @@ export const addCard = async (fieldName: string, addCardInput: AddCardInput): Pr
         }));
 
         /**
-         * if there is an item retrieved, and it contains a card in it, then we cannot add another card to it,
-         * since our limit is one card per customer
+         * if there is an item retrieved, and it contains threes cards in it, then we cannot add another card to it,
+         * since our limit is three cards per customer
          */
-        if (retrievedData && retrievedData.Item && retrievedData.Item.cards.L!.length !== 0) {
-            const errorMessage = `Pre-existing card already existent. Delete it before adding a new one!`;
+        if (retrievedData && retrievedData.Item && retrievedData.Item.cards.L!.length === 3) {
+            const errorMessage = `Maximum number of cards exceeded (3). Delete one before adding a new one!`;
             console.log(errorMessage);
 
             return {
@@ -78,96 +79,135 @@ export const addCard = async (fieldName: string, addCardInput: AddCardInput): Pr
                 && updateMemberResponse.data && updateMemberResponse.data.isActive === true
                 && updateMemberResponse.data.id === addCardInput.id && updateMemberResponse.data.memberId === addCardInput.memberId) {
 
-                // then execute the add card call, to add a card to the member
-                const addCardResponse: CardLinkResponse = await oliveClient.addCard(addCardInput.id, addCardInput.memberId, addCardInput.updatedAt!, addCardInput.updatedAt!, addCardInput.card as Card);
+                // check to see if there are any previously added cards that we need to append the newly added card to
+                const updatedCardList: any[] = [];
+                const responseCardList: Card[] = [];
+                if (retrievedData && retrievedData.Item && retrievedData.Item.cards.L!.length > 0) {
+                    for (const preExistingCard of retrievedData.Item.cards.L!) {
+                        updatedCardList.push(preExistingCard);
+                        responseCardList.push({
+                            id: preExistingCard.M!.id.S!,
+                            applicationID: preExistingCard.M!.applicationID.S!,
+                            ...(preExistingCard.M!.additionalProgramID && preExistingCard.M!.additionalProgramID.S! && {
+                                additionalProgramID: preExistingCard.M!.additionalProgramID.S!,
+                            }),
+                            last4: preExistingCard.M!.last4.S!,
+                            name: preExistingCard.M!.name.S!,
+                            token: preExistingCard.M!.token.S!,
+                            type: preExistingCard.M!.type.S! as CardType,
+                        })
+                    }
+                }
 
-                // check to see if the add card call was executed successfully
-                if (addCardResponse && !addCardResponse.errorMessage && !addCardResponse.errorType && addCardResponse.data) {
-                    // convert the incoming linked data into a CardLink object
-                    const cardLinkedResponse = addCardResponse.data as CardLink;
+                // add the new card into the list of pre-existing cards, if and only if it does not have the same token
+                const duplicateCard = responseCardList.filter(responseCard => responseCard.token === addCardInput.card.token);
+                if (duplicateCard.length === 0) {
+                    // then execute the add card call, to add a card to the member
+                    const addCardResponse: CardLinkResponse = await oliveClient.addCard(addCardInput.id, addCardInput.memberId, addCardInput.updatedAt!, addCardInput.updatedAt!, addCardInput.card as Card);
 
-                    // finally, update the card linked object, by adding/linking a new card to it
-                    await dynamoDbClient.send(new UpdateItemCommand({
-                        TableName: process.env.CARD_LINKING_TABLE!,
-                        Key: {
-                            id: {
-                                S: addCardInput.id
-                            }
-                        },
-                        ExpressionAttributeNames: {
-                            "#CA": "cards",
-                            "#UA": "updatedAt",
-                            "#ST": "status"
-                        },
-                        ExpressionAttributeValues: {
-                            ":list": {
-                                L: [
-                                    {
-                                        M: {
-                                            id: {
-                                                S: cardLinkedResponse.cards[0]!.id
-                                            },
-                                            applicationID: {
-                                                S: cardLinkedResponse.cards[0]!.applicationID
-                                            },
-                                            ...(cardLinkedResponse.cards[0]!.additionalProgramID && {
-                                                additionalProgramID: {
-                                                    S: cardLinkedResponse.cards[0]!.additionalProgramID!
-                                                }
-                                            }),
-                                            last4: {
-                                                S: cardLinkedResponse.cards[0]!.last4
-                                            },
-                                            name: {
-                                                S: cardLinkedResponse.cards[0]!.name
-                                            },
-                                            token: {
-                                                S: cardLinkedResponse.cards[0]!.token
-                                            },
-                                            type: {
-                                                S: cardLinkedResponse.cards[0]!.type
-                                            }
-                                        }
+                    // check to see if the add card call was executed successfully
+                    if (addCardResponse && !addCardResponse.errorMessage && !addCardResponse.errorType && addCardResponse.data) {
+                        // convert the incoming linked data into a CardLink object
+                        const cardLinkedResponse = addCardResponse.data as CardLink;
+
+                        responseCardList.push(cardLinkedResponse.cards[0]!);
+                        updatedCardList.push({
+                            M: {
+                                id: {
+                                    S: cardLinkedResponse.cards[0]!.id
+                                },
+                                applicationID: {
+                                    S: cardLinkedResponse.cards[0]!.applicationID
+                                },
+                                ...(addCardInput.card.additionalProgramID && {
+                                    additionalProgramID: {
+                                        S: addCardInput.card.additionalProgramID!
                                     }
-                                ]
-                            },
-                            ":ua": {
-                                S: addCardInput.updatedAt!
-                            },
-                            ":st": {
-                                S: cardLinkedResponse.status
+                                }),
+                                last4: {
+                                    S: addCardInput.card.last4
+                                },
+                                name: {
+                                    S: addCardInput.card.name
+                                },
+                                token: {
+                                    S: addCardInput.card.token
+                                },
+                                type: {
+                                    S: addCardInput.card.type
+                                }
                             }
-                        },
-                        UpdateExpression: "SET #CA = :list, #UA = :ua, #ST = :st",
-                        ReturnValues: "UPDATED_NEW"
-                    }));
+                        });
 
-                    // return the card response object
+                        // finally, update the card linked object, by adding/linking a new card to it
+                        await dynamoDbClient.send(new UpdateItemCommand({
+                            TableName: process.env.CARD_LINKING_TABLE!,
+                            Key: {
+                                id: {
+                                    S: addCardInput.id
+                                }
+                            },
+                            ExpressionAttributeNames: {
+                                "#CA": "cards",
+                                "#UA": "updatedAt",
+                                "#ST": "status"
+                            },
+                            ExpressionAttributeValues: {
+                                ":list": {
+                                    L: updatedCardList
+                                },
+                                ":ua": {
+                                    S: addCardInput.updatedAt!
+                                },
+                                ":st": {
+                                    S: cardLinkedResponse.status
+                                }
+                            },
+                            UpdateExpression: "SET #CA = :list, #UA = :ua, #ST = :st",
+                            ReturnValues: "UPDATED_NEW"
+                        }));
+
+                        // return the card response object
+                        return {
+                            data: {
+                                id: cardLinkedResponse.id,
+                                memberId: cardLinkedResponse.memberId,
+                                /**
+                                 * this is not the actual creation date, because we're not interested in returning the accurate one
+                                 * (since we don't modify it, and thus we don't retrieve it from the database), but rather the update date.
+                                 */
+                                createdAt: cardLinkedResponse.createdAt,
+                                updatedAt: cardLinkedResponse.updatedAt,
+                                cards: responseCardList,
+                                status: cardLinkedResponse.status
+                            }
+                        }
+
+                    } else {
+                        console.log(`Unexpected response structure returned from the add card call!`);
+
+                        // if there are errors associated with add card call, just return the error message and error type from the upstream client
+                        return {
+                            errorMessage: addCardResponse.errorMessage,
+                            errorType: addCardResponse.errorType
+                        };
+                    }
+                } else {
+                    // this card is already existent, there's no need to add it anywhere else, just return it in the list of cards available
                     return {
                         data: {
-                            id: cardLinkedResponse.id,
-                            memberId: cardLinkedResponse.memberId,
+                            id: addCardInput.id,
+                            memberId: addCardInput.memberId,
                             /**
                              * this is not the actual creation date, because we're not interested in returning the accurate one
                              * (since we don't modify it, and thus we don't retrieve it from the database), but rather the update date.
                              */
-                            createdAt: cardLinkedResponse.createdAt,
-                            updatedAt: cardLinkedResponse.updatedAt,
-                            cards: [
-                                cardLinkedResponse.cards[0]
-                            ],
-                            status: cardLinkedResponse.status
+                            createdAt: addCardInput.updatedAt,
+                            updatedAt: addCardInput.updatedAt,
+                            cards: responseCardList,
+                            status: CardLinkingStatus.Linked // we know that if we got here, there is at least one linked card in the object
                         }
                     }
-
-                } else {
-                    console.log(`Unexpected response structure returned from the add card call!`);
-
-                    // if there are errors associated with add card call, just return the error message and error type from the upstream client
-                    return {
-                        errorMessage: addCardResponse.errorMessage,
-                        errorType: addCardResponse.errorType
-                    };
                 }
             } else {
                 console.log(`Unexpected response structure returned from the update member status call!`);
@@ -179,7 +219,6 @@ export const addCard = async (fieldName: string, addCardInput: AddCardInput): Pr
                 }
             }
         }
-
     } catch (err) {
         const errorMessage = `Unexpected error while executing ${fieldName} mutation ${err}`;
         console.log(errorMessage);

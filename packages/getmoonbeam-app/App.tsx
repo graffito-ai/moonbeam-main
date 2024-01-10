@@ -209,7 +209,7 @@ export default function App() {
                     keyPrefix: 'global-amplify-cache',
                     capacityInBytes: 5000000, // 5 MB max cache size
                     itemMaxSize: 500000, // 500 KB max per item
-                    defaultTTL: 32000000000, // in milliseconds, about 8000 something hours, which is roughly 1 year (365 days)
+                    defaultTTL: 172800000, // in milliseconds, about 48 hours (we also have request/response caching every hour)
                     warningThreshold: 0.8, // when to get warned that the cache is full, at 80% capacity
                     storage: AsyncStorage
                 }));
@@ -220,7 +220,7 @@ export default function App() {
                     keyPrefix: 'marketplace-amplify-cache',
                     capacityInBytes: 5000000, // 5 MB max cache size
                     itemMaxSize: 2500000, // 2.5 MB max per item
-                    defaultTTL: 600000000, // in milliseconds, about 7 days
+                    defaultTTL: 86400000, // in milliseconds, about 24 hours (we also have request/response caching every hour)
                     warningThreshold: 0.8, // when to get warned that the cache is full, at 80% capacity
                     storage: AsyncStorage
                 }));

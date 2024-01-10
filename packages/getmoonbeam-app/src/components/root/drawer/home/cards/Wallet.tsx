@@ -14,11 +14,7 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
 import {CardLinkingBottomSheet} from "./CardLinkingBottomSheet";
 import {Spinner} from "../../../../common/Spinner";
-import {
-    currentUserInformation,
-    globalAmplifyCacheState,
-    userIsAuthenticatedState
-} from "../../../../../recoil/AuthAtom";
+import {currentUserInformation, userIsAuthenticatedState} from "../../../../../recoil/AuthAtom";
 import {Card, CardType, deleteCard, LoggingLevel} from "@moonbeam/moonbeam-models";
 import {API, graphqlOperation} from "aws-amplify";
 import {SplashScreen} from "../../../../common/Splash";
@@ -65,8 +61,7 @@ export const Wallet = ({navigation}: CardsProps) => {
     const [splashShown, setSplashShown] = useState<boolean>(false);
     const bottomSheetRef = useRef(null);
     // constants used to keep track of shared states
-    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
-    const [globalCache,] = useRecoilState(globalAmplifyCacheState);
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
     const [, setBannerState] = useRecoilState(customBannerState);
     const [, setBannerShown] = useRecoilState(customBannerShown);
@@ -165,29 +160,6 @@ export const Wallet = ({navigation}: CardsProps) => {
                 bannerArtSource: CardLinkingImage,
                 dismissing: false
             });
-
-            // if the card was successfully removed, then we can cache it accordingly
-            const newCardLink = {
-                ...userInformation["linkedCard"],
-                cards: []
-            }
-            if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCardFlag`) !== null) {
-                const message = 'old card is cached, needs cleaning up';
-                console.log(message);
-                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
-
-                await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCard`);
-                await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCardFlag`);
-                await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, newCardLink);
-                await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
-            } else {
-                const message = 'card is not cached';
-                console.log(message);
-                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
-
-                globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, newCardLink);
-                globalCache && await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
-            }
         } else {
             // hide the bottom sheet for deletion, to show splash message
             setShowBottomSheet(false);

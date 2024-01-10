@@ -506,7 +506,7 @@ query GetEligibleLinkedUsers {
         errorType
         data {
             id
-            cardId
+            cardIds
             memberId
         }
     }

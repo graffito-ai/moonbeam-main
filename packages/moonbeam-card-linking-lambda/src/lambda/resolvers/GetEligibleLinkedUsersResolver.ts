@@ -32,7 +32,7 @@ export const getEligibleLinkedUsers = async (fieldName: string): Promise<Eligibl
             /**
              * retrieve all the eligible linked users, given the global secondary index, as well as the LINKED status to be queried by
              *
-             * Limit of 1 MB per paginated response data (in our case 5,700 items). An average size for an Item is about 133 bytes, which means that we won't
+             * Limit of 1 MB per paginated response data (in our case 1,200 items). An average size for an Item is about 645 bytes, which means that we won't
              * need to do pagination here, since we actually retrieve all users in a looped format, and we account for
              * paginated responses.
              *
@@ -43,17 +43,17 @@ export const getEligibleLinkedUsers = async (fieldName: string): Promise<Eligibl
                 TableName: process.env.CARD_LINKING_TABLE!,
                 IndexName: `${process.env.CARD_LINKING_STATUS_GLOBAL_INDEX!}-${process.env.ENV_NAME!}-${region}`,
                 ...(exclusiveStartKey && {ExclusiveStartKey: exclusiveStartKey}),
-                Limit: 5700, // 5,700 * 133 bytes = 758,100 bytes = 0.7581 MB (leave a margin of error here up to 1 MB)
+                Limit: 1200, // 1,200 * 645 bytes = 774,000 bytes = 0.774 MB (leave a margin of error here up to 1 MB)
                 /**
                  * we're not interested in getting all the data for this call, just the minimum for us to return the necessary information
                  *
                  * @link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ReservedWords.html
                  * @link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.ExpressionAttributeNames.html
                  */
-                ProjectionExpression: '#idf, #mid, #card' + '[0].id',
+                ProjectionExpression: '#idf, #mid, #cards',
                 ExpressionAttributeNames: {
                     '#idf': 'id',
-                    '#card': 'cards',
+                    '#cards': 'cards',
                     '#mid': 'memberId',
                     '#st': 'status'
                 },
@@ -76,10 +76,16 @@ export const getEligibleLinkedUsers = async (fieldName: string): Promise<Eligibl
             // convert the Dynamo DB data from Dynamo DB JSON format to a Moonbeam eligible users data format
             const eligibleUsersData: EligibleLinkedUser[] = [];
             result.forEach(eligibleUserResult => {
+                // get all card ids for the eligible user
+                const cardIDs: string[] = [];
+                for (const linkedCard of eligibleUserResult.cards.L!) {
+                    cardIDs.push(linkedCard.M!.id.S!);
+                }
+                // construct an eligible user to return in the list of users
                 const eligibleUser: EligibleLinkedUser = {
                     id: eligibleUserResult.id.S!,
                     memberId: eligibleUserResult.memberId.S!,
-                    cardId: eligibleUserResult.cards.L![0].M!.id.S!
+                    cardIds: cardIDs
                 };
                 eligibleUsersData.push(eligibleUser);
             });

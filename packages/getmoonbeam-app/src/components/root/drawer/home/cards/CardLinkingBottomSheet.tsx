@@ -2,11 +2,7 @@ import React, {useEffect, useState} from "react";
 import {Linking, SafeAreaView, StyleSheet} from "react-native";
 import WebView from "react-native-webview";
 import {useRecoilState} from "recoil";
-import {
-    currentUserInformation,
-    globalAmplifyCacheState,
-    userIsAuthenticatedState
-} from "../../../../../recoil/AuthAtom";
+import {currentUserInformation, userIsAuthenticatedState} from "../../../../../recoil/AuthAtom";
 import {Dialog, Portal, Text} from "react-native-paper";
 import {commonStyles} from '../../../../../styles/common.module';
 import {styles} from '../../../../../styles/wallet.module';
@@ -40,8 +36,7 @@ export const CardLinkingBottomSheet = () => {
     const [modalCustomMessage, setModalCustomMessage] = useState<string>("");
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
-    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
-    const [globalCache,] = useRecoilState(globalAmplifyCacheState);
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
     const [, setBannerShown] = useRecoilState(customBannerShown);
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
@@ -169,25 +164,6 @@ export const CardLinkingBottomSheet = () => {
                         setCardLinkingStatus(true);
                         setBannerShown(false);
 
-                        // if the card was successfully linked, then we can cache it accordingly
-                        if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCardFlag`) !== null) {
-                            const message = 'old card is cached, needs cleaning up';
-                            console.log(message);
-                            await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
-
-                            await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCard`);
-                            await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCardFlag`);
-                            await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, addCardResult);
-                            await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
-                        } else {
-                            const message = 'card is not cached';
-                            console.log(message);
-                            await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
-
-                            globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, addCardResult);
-                            globalCache && await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
-                        }
-
                         // update the user information object accordingly
                         setUserInformation({
                             ...userInformation,
@@ -240,25 +216,6 @@ export const CardLinkingBottomSheet = () => {
                         // set the banner and card linking status accordingly
                         setCardLinkingStatus(true);
                         setBannerShown(false);
-
-                        // if the card was successfully linked, then we can cache it accordingly
-                        if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCardFlag`) !== null) {
-                            const errorMessage = 'old card is cached, needs cleaning up';
-                            console.log(errorMessage);
-                            await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
-
-                            await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCard`);
-                            await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCardFlag`);
-                            await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, signupCardLinkedMemberResult);
-                            await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
-                        } else {
-                            const errorMessage = 'card is not cached';
-                            console.log(errorMessage);
-                            await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
-
-                            globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, signupCardLinkedMemberResult);
-                            globalCache && await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
-                        }
 
                         // update the user information object accordingly
                         setUserInformation({
@@ -403,7 +360,8 @@ export const CardLinkingBottomSheet = () => {
         default:
             const errorMessage = `Invalid environment passed in from Amplify ${envInfo.envName}`;
             console.log(errorMessage);
-            logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated).then(() => {});
+            logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated).then(() => {
+            });
 
             break;
     }

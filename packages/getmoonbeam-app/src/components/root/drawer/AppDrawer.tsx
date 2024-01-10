@@ -336,6 +336,13 @@ export const AppDrawer = ({}: AppDrawerProps) => {
          * user's profile picture URI if applicable, to be used when updating the current user information.
          */
         const loadAppData = async (militaryStatusAlreadyVerified: boolean): Promise<[Object, MoonbeamTransaction[]]> => {
+            /**
+             * remove any card linking caching previous users had,
+             * since it causes issues with linking cards across multiple devices, and we added request/response caching.
+             */
+            await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCard`);
+            await globalCache!.removeItem(`${userInformation["custom:userId"]}-linkedCardFlag`);
+
             setIsReady(false);
             setIsLoaded(true);
 
@@ -377,62 +384,46 @@ export const AppDrawer = ({}: AppDrawerProps) => {
             // get the military status, and set the user verified flag accordingly
             if (militaryStatus === MilitaryVerificationStatusType.Verified || militaryStatusAlreadyVerified) {
                 /**
-                 * retrieve linked card information for the user - attempt to retrieve it from cache first
-                 *
-                 * We handle clearing and/or updating the cache in the Wallet component
+                 * retrieve linked card information for the user
                  */
-                let linkedCard: CardLink | null;
-                if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCardFlag`) !== null) {
-                    const message = 'card is cached';
-                    console.log(message);
-                    await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+                const linkedCard = await retrieveLinkedCard(userInformation["custom:userId"]);
+                /**
+                 * if there is no linked card object or if there are no linked cards for an existing object,
+                 * then display the banner accordingly.
+                 *
+                 * Whenever a new card is linked successfully, then the status of the card linking will be changed,
+                 * and thus, the banner will be hidden.
+                 */
+                if (linkedCard === null || (linkedCard && linkedCard!.cards.length === 0)) {
+                    // adding the card linking status accordingly
+                    setCardLinkingStatus(false);
 
-                    linkedCard = await globalCache!.getItem(`${userInformation["custom:userId"]}-linkedCard`);
-                    /**
-                     * if there is no linked card object or if there are no linked cards for an existing object,
-                     * then display the banner accordingly.
-                     *
-                     * Whenever a new card is linked successfully, then the status of the card linking will be changed,
-                     * and thus, the banner will be hidden.
-                     */
-                    if (linkedCard === null || (linkedCard && linkedCard!.cards.length === 0)) {
-                        // adding the card linking status accordingly
-                        setCardLinkingStatus(false);
-
-                        // set the banner state accordingly
-                        setBannerState({
-                            bannerVisibilityState: cardLinkingStatusState,
-                            bannerMessage: "You do not have a linked card. You will need to have a card in your wallet to see more details.",
-                            bannerButtonLabel: "Link Now",
-                            bannerButtonLabelActionSource: "home/wallet",
-                            bannerArtSource: CardLinkingImage,
-                            dismissing: false
-                        });
-                        setBannerShown(true);
-                    } else {
-                        // adding the card linking status accordingly
-                        setCardLinkingStatus(true);
-
-                        // set the banner state accordingly
-                        setBannerState({
-                            bannerVisibilityState: cardLinkingStatusState,
-                            bannerMessage: "",
-                            bannerButtonLabel: "",
-                            bannerButtonLabelActionSource: "",
-                            bannerArtSource: CardLinkingImage,
-                            dismissing: false
-                        });
-                        setBannerShown(false);
-                    }
+                    // set the banner state accordingly
+                    setBannerState({
+                        bannerVisibilityState: cardLinkingStatusState,
+                        bannerMessage: "You do not have a linked card. You will need to have a card in your wallet to see more details.",
+                        bannerButtonLabel: "Link Now",
+                        bannerButtonLabelActionSource: "home/wallet",
+                        bannerArtSource: CardLinkingImage,
+                        dismissing: false
+                    });
+                    setBannerShown(true);
                 } else {
-                    const message = 'card is not cached';
-                    console.log(message);
-                    await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+                    // adding the card linking status accordingly
+                    setCardLinkingStatus(true);
 
-                    linkedCard = await retrieveLinkedCard(userInformation["custom:userId"]);
-                    globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCard`, linkedCard);
-                    await globalCache!.setItem(`${userInformation["custom:userId"]}-linkedCardFlag`, true);
+                    // set the banner state accordingly
+                    setBannerState({
+                        bannerVisibilityState: cardLinkingStatusState,
+                        bannerMessage: "",
+                        bannerButtonLabel: "",
+                        bannerButtonLabelActionSource: "",
+                        bannerArtSource: CardLinkingImage,
+                        dismissing: false
+                    });
+                    setBannerShown(false);
                 }
+
                 setCardLinkRetrieved(true);
 
                 // set the user's card linked object accordingly
