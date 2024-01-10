@@ -242,7 +242,7 @@ import {
     toggleViewPressedState,
     verticalSectionActiveState
 } from "../../recoil/StoreOfferAtom";
-import {cardLinkingBottomSheetState} from "../../recoil/WalletAtom";
+import {cardLinkingBottomSheetState, selectedCardIndexState} from "../../recoil/WalletAtom";
 import * as SecureStore from 'expo-secure-store';
 // @ts-ignore
 import MoonbeamProfilePlaceholder from "../../../assets/art/moonbeam-profile-placeholder.png";
@@ -515,6 +515,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const showClickOnlyBottomSheetStateReset = useResetRecoilState(showClickOnlyBottomSheetState);
     const cardLinkingIdStateReset = useResetRecoilState(cardLinkingIdState);
     const userIsAuthenticatedStateReset = useResetRecoilState(userIsAuthenticatedState);
+    const selectedCardIndexStateReset = useResetRecoilState(selectedCardIndexState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -776,6 +777,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             numberOfFailedClickOnlyOnlineOfferCallsStateReset();
             showClickOnlyBottomSheetStateReset();
             cardLinkingIdStateReset();
+            selectedCardIndexStateReset();
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {
                 // import branch

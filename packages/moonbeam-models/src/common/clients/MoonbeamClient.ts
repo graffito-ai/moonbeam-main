@@ -1628,8 +1628,7 @@ export class MoonbeamClient extends BaseAPIClient {
 
 
     /**
-     * Function used to retrieve the list of eligible linked users, to be user during the reimbursements
-     * process.
+     * Function used to retrieve the list of eligible linked users.
      *
      * @return a {link Promise} of {@link EligibleLinkedUsersResponse} representing the list of eligible
      * users

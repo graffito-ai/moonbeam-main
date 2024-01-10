@@ -11,8 +11,17 @@ const cardLinkingBottomSheetState = atom({
 });
 
 /**
+ * Atom used to keep track of the index of the selected card, as it appears in the list of cards.
+ */
+const selectedCardIndexState = atom<number>({
+    key: "selectedCardIndexState",
+    default: 0
+});
+
+/**
  * Export all atoms and/or selectors
  */
 export {
-    cardLinkingBottomSheetState
+    cardLinkingBottomSheetState,
+    selectedCardIndexState
 };

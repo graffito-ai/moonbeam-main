@@ -248,6 +248,10 @@ export const CardLinkingBottomSheet = () => {
     const addCardToMember = async (userId: string, memberId: string, cardNickname: string, cardType: CardType,
                                    last4Digits: string, cardToken: string): Promise<[CardLink | null, [string, CardLinkErrorType]?]> => {
         try {
+            const errorMessage = `Adding a new card to an existing member!`;
+            console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
             // call the internal add card API
             const addCardResult = await API.graphql(graphqlOperation(addCard, {
                 addCardInput: {
@@ -301,6 +305,10 @@ export const CardLinkingBottomSheet = () => {
     const signupCardLinkedMember = async (userId: string, cardNickname: string, cardType: CardType,
                                           last4Digits: string, cardToken: string): Promise<[CardLink | null, [string, CardLinkErrorType]?]> => {
         try {
+            const errorMessage = `Creating new card link as member does not exist!`;
+            console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
             // call the internal card linking API
             const cardLinkingResult = await API.graphql(graphqlOperation(createCardLink, {
                 createCardLinkInput: {

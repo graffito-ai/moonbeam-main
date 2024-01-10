@@ -11,7 +11,8 @@ export const styles = StyleSheet.create({
     },
     mainCardView: {
         flex: 1,
-        width: wp(100)
+        width: wp(100),
+        paddingTop: hp(3)
     },
     noCardImage: {
         height: hp(55),
@@ -72,22 +73,20 @@ export const styles = StyleSheet.create({
         borderRadius: 10
     },
     cardItemStyle: {
-        backgroundColor: '#F2FF5D',
-        height: hp(25),
-        width: wp(90),
+        flex: 1,
         borderRadius: 20
     },
     cardItemTitle: {
-        color: '#313030',
         fontFamily: 'Saira-Bold',
-        fontSize: hp(2.3),
+        fontSize: hp(2.5),
         width: wp(40),
-        bottom: hp(2)
+        bottom: hp(2.8)
     },
     cardItemDetails: {
-        color: '#313030',
-        fontFamily: 'Saira-Regular',
-        fontSize: hp(2)
+        fontFamily: 'Saira-Medium',
+        fontSize: hp(2),
+        right: wp(20),
+        width: wp(85)
     },
     cardLinkingParentView: {
         backgroundColor: '#5B5A5A',
@@ -149,5 +148,23 @@ export const styles = StyleSheet.create({
     },
     highlightedText: {
         color: '#F2FF5D'
+    },
+    infoCardButtonContentStyle: {
+        color: '#F2FF5D',
+        fontFamily: 'Saira-Bold',
+        textDecorationLine: 'underline',
+        fontSize: hp(2.20),
+        marginTop: hp(0.5),
+        alignItems: 'center',
+        alignSelf: 'center'
+    },
+    infoCardButton: {
+        position: 'absolute',
+        paddingLeft: wp(10),
+        top: hp(15),
+        backgroundColor: 'transparent',
+        width: wp(50),
+        height: hp(5),
+        borderRadius: 0
     }
 });
