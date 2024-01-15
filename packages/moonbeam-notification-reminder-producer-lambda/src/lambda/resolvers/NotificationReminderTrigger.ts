@@ -79,9 +79,16 @@ export const triggerNotificationReminder = async (): Promise<void> => {
                                     usersWithNoCards.data.length !== 0) {
                                     // 3) For each applicable user from step 2) drop a message into the appropriate SNS topic.
                                     let successfulUserMessagesSent = 0;
+
+                                    // initializing the SNS Client
+                                    const snsClient = new SNSClient({region: region});
+
                                     for (const ineligibleUser of usersWithNoCards.data) {
-                                        // initializing the SNS Client
-                                        const snsClient = new SNSClient({region: region});
+                                        /**
+                                         * batch out the notifications in groups of 14, so we don't exceed the maximum SNS send limits per second quota
+                                         * currently we can send 14 emails per second.
+                                         */
+                                        successfulUserMessagesSent % 14 === 0 && await sleep(5000); // sleep for 5 seconds for every 14 messages
 
                                         /**
                                          * drop the ineligible user input as a message to the notification reminder processing topic
@@ -174,9 +181,16 @@ export const triggerNotificationReminder = async (): Promise<void> => {
 
                                     // 3) For each applicable user from step 2) drop a message into the appropriate SNS topic.
                                     let successfulUserMessagesSent = 0;
+
+                                    // initializing the SNS Client
+                                    const snsClient = new SNSClient({region: region});
+
                                     for (const user of allUsersForNotificationReminderVeteransDay1.data) {
-                                        // initializing the SNS Client
-                                        const snsClient = new SNSClient({region: region});
+                                        /**
+                                         * batch out the notifications in groups of 14, so we don't exceed the maximum SNS send limits per second quota
+                                         * currently we can send 14 emails per second.
+                                         */
+                                        successfulUserMessagesSent % 14 === 0 && await sleep(5000); // sleep for 5 seconds for every 14 messages
 
                                         /**
                                          * drop the ineligible user input as a message to the notification reminder processing topic
@@ -269,9 +283,16 @@ export const triggerNotificationReminder = async (): Promise<void> => {
 
                                     // 3) For each applicable user from step 2) drop a message into the appropriate SNS topic.
                                     let successfulUserMessagesSent = 0;
+
+                                    // initializing the SNS Client
+                                    const snsClient = new SNSClient({region: region});
+
                                     for (const user of allUsersForNotificationReminderVeteransDay2.data) {
-                                        // initializing the SNS Client
-                                        const snsClient = new SNSClient({region: region});
+                                        /**
+                                         * batch out the notifications in groups of 14, so we don't exceed the maximum SNS send limits per second quota
+                                         * currently we can send 14 emails per second.
+                                         */
+                                        successfulUserMessagesSent % 14 === 0 && await sleep(5000); // sleep for 5 seconds for every 14 messages
 
                                         /**
                                          * drop the ineligible user input as a message to the notification reminder processing topic
@@ -364,9 +385,16 @@ export const triggerNotificationReminder = async (): Promise<void> => {
 
                                     // 3) For each applicable user from step 2) drop a message into the appropriate SNS topic.
                                     let successfulUserMessagesSent = 0;
+
+                                    // initializing the SNS Client
+                                    const snsClient = new SNSClient({region: region});
+
                                     for (const user of allUsersForNotificationReminderVeteransDay3.data) {
-                                        // initializing the SNS Client
-                                        const snsClient = new SNSClient({region: region});
+                                        /**
+                                         * batch out the notifications in groups of 14, so we don't exceed the maximum SNS send limits per second quota
+                                         * currently we can send 14 emails per second.
+                                         */
+                                        successfulUserMessagesSent % 14 === 0 && await sleep(5000); // sleep for 5 seconds for every 14 messages
 
                                         /**
                                          * drop the ineligible user input as a message to the notification reminder processing topic
@@ -459,9 +487,16 @@ export const triggerNotificationReminder = async (): Promise<void> => {
 
                                     // 3) For each applicable user from step 2) drop a message into the appropriate SNS topic.
                                     let successfulUserMessagesSent = 0;
+
+                                    // initializing the SNS Client
+                                    const snsClient = new SNSClient({region: region});
+
                                     for (const user of allUsersForNewMapFeatureReminder.data) {
-                                        // initializing the SNS Client
-                                        const snsClient = new SNSClient({region: region});
+                                        /**
+                                         * batch out the notifications in groups of 14, so we don't exceed the maximum SNS send limits per second quota
+                                         * currently we can send 14 emails per second.
+                                         */
+                                        successfulUserMessagesSent % 14 === 0 && await sleep(5000); // sleep for 5 seconds for every 14 messages
 
                                         /**
                                          * drop the ineligible user input as a message to the notification reminder processing topic
@@ -554,9 +589,16 @@ export const triggerNotificationReminder = async (): Promise<void> => {
 
                                     // 3) For each applicable user from step 2) drop a message into the appropriate SNS topic.
                                     let successfulUserMessagesSent = 0;
+
+                                    // initializing the SNS Client
+                                    const snsClient = new SNSClient({region: region});
+
                                     for (const user of allUsersForReferralLaunchReminder.data) {
-                                        // initializing the SNS Client
-                                        const snsClient = new SNSClient({region: region});
+                                        /**
+                                         * batch out the notifications in groups of 14, so we don't exceed the maximum SNS send limits per second quota
+                                         * currently we can send 14 emails per second.
+                                         */
+                                        successfulUserMessagesSent % 14 === 0 && await sleep(5000); // sleep for 5 seconds for every 14 messages
 
                                         /**
                                          * drop the ineligible user input as a message to the notification reminder processing topic
@@ -649,9 +691,16 @@ export const triggerNotificationReminder = async (): Promise<void> => {
 
                                     // 3) For each applicable user from step 2) drop a message into the appropriate SNS topic.
                                     let successfulUserMessagesSent = 0;
+
+                                    // initializing the SNS Client
+                                    const snsClient = new SNSClient({region: region});
+
                                     for (const user of allUsersForReferralTemplate1Reminder.data) {
-                                        // initializing the SNS Client
-                                        const snsClient = new SNSClient({region: region});
+                                        /**
+                                         * batch out the notifications in groups of 14, so we don't exceed the maximum SNS send limits per second quota
+                                         * currently we can send 14 emails per second.
+                                         */
+                                        successfulUserMessagesSent % 14 === 0 && await sleep(5000); // sleep for 5 seconds for every 14 messages
 
                                         /**
                                          * drop the ineligible user input as a message to the notification reminder processing topic
@@ -730,6 +779,108 @@ export const triggerNotificationReminder = async (): Promise<void> => {
                                     console.log(`Users for notification reminders retrieval through GET all users for notification reminders call failed`);
                                 }
                                 break;
+                            case NotificationReminderType.MultipleCardFeatureReminder:
+                                console.log(`__________________________________________________________________________________________________________________________________`);
+                                console.log(`Found new ACTIVE notification reminder ${reminder!.id} of type ${NotificationReminderType.MultipleCardFeatureReminder}`);
+
+                                // 2) For any ACTIVE reminders of type MULTIPLE_CARD_FEATURE_REMINDER, call the getAllUsersForNotificationReminders Moonbeam AppSync Query API endpoint.
+                                const multipleCardsForReferralReminder: UserForNotificationReminderResponse = await moonbeamClient.getAllUsersForNotificationReminders();
+
+                                // check if the get all users for notification reminders call was successful or not.
+                                if (multipleCardsForReferralReminder !== null && multipleCardsForReferralReminder !== undefined && !multipleCardsForReferralReminder.errorMessage &&
+                                    !multipleCardsForReferralReminder.errorType && multipleCardsForReferralReminder.data !== null && multipleCardsForReferralReminder.data !== undefined &&
+                                    multipleCardsForReferralReminder.data.length !== 0) {
+
+                                    // 3) For each applicable user from step 2) drop a message into the appropriate SNS topic.
+                                    let successfulUserMessagesSent = 0;
+
+                                    // initializing the SNS Client
+                                    const snsClient = new SNSClient({region: region});
+
+                                    for (const user of multipleCardsForReferralReminder.data) {
+                                        /**
+                                         * batch out the notifications in groups of 14, so we don't exceed the maximum SNS send limits per second quota
+                                         * currently we can send 14 emails per second.
+                                         */
+                                        successfulUserMessagesSent % 14 === 0 && await sleep(5000); // sleep for 5 seconds for every 14 messages
+
+                                        /**
+                                         * drop the ineligible user input as a message to the notification reminder processing topic
+                                         */
+                                        const userDetailsForNotifications: UserDetailsForNotifications = {
+                                            id: user!.id,
+                                            email: user!.email,
+                                            firstName: user!.firstName,
+                                            lastName: user!.lastName,
+                                            notificationChannelType: reminder!.notificationChannelType,
+                                            notificationType: NotificationType.MultipleCardFeatureReminder
+                                        }
+                                        const notificationReminderReceipt = await snsClient.send(new PublishCommand({
+                                            TopicArn: process.env.NOTIFICATION_REMINDER_PROCESSING_TOPIC_ARN!,
+                                            Message: JSON.stringify(userDetailsForNotifications),
+                                            /**
+                                             * the message group id, will be represented by the Moonbeam internal user id, so that we can group the notification reminder update messages for a particular
+                                             * user id, and sort them in the FIFO processing topic accordingly.
+                                             */
+                                            MessageGroupId: user!.id
+                                        }));
+
+                                        // ensure that the notification reminder message was properly sent to the appropriate processing topic
+                                        if (notificationReminderReceipt !== null && notificationReminderReceipt !== undefined && notificationReminderReceipt.MessageId &&
+                                            notificationReminderReceipt.MessageId.length !== 0 && notificationReminderReceipt.SequenceNumber && notificationReminderReceipt.SequenceNumber.length !== 0) {
+                                            // the notification reminder message has been successfully dropped into the topic, and will be picked up by the notification reminder consumer
+                                            console.log(`Notification reminder successfully sent to topic for processing with receipt information: ${notificationReminderReceipt.MessageId} ${notificationReminderReceipt.SequenceNumber}`);
+                                            // increase the number of messages sent to the topic
+                                            successfulUserMessagesSent += 1;
+                                        } else {
+                                            /**
+                                             * no need for further actions, since this error will be logged and nothing will execute further.
+                                             * in the future we might need some alerts and metrics emitting here
+                                             */
+                                            console.log(`Unexpected error while sending the notification reminder for user ${user!.id}`);
+                                        }
+                                    }
+                                    // check if all applicable users have had successful messages dropped in the notification reminder topic
+                                    if (successfulUserMessagesSent === multipleCardsForReferralReminder.data.length) {
+                                        console.log(`__________________________________________________________________________________________________________________________________`);
+                                        console.log(`Notification reminder successfully sent for users:\n${JSON.stringify(multipleCardsForReferralReminder.data)}`);
+                                        /**
+                                         * 4) Once all users have been notified, then update the card linking reminder accordingly,
+                                         * by calling the updateNotificationReminder AppSync Mutation API.
+                                         */
+                                        const updateNotificationReminderResponse: NotificationReminderResponse = await moonbeamClient.updateNotificationReminder({
+                                            id: reminder!.id,
+                                            notificationReminderStatus: NotificationReminderStatus.Active
+                                        });
+
+                                        // check if the update notification reminder call was successful or not.
+                                        if (updateNotificationReminderResponse !== null && updateNotificationReminderResponse !== undefined &&
+                                            !updateNotificationReminderResponse.errorMessage && !updateNotificationReminderResponse.errorType &&
+                                            updateNotificationReminderResponse.data !== undefined && updateNotificationReminderResponse.data !== null &&
+                                            updateNotificationReminderResponse.data.length !== 0) {
+                                            console.log(`Notification reminder ${reminder!.id} successfully updated`);
+                                        } else {
+                                            /**
+                                             * no need for further actions, since this error will be logged and nothing will execute further.
+                                             * in the future we might need some alerts and metrics emitting here
+                                             */
+                                            console.log(`Update notification reminder through UPDATE notification reminder call failed`);
+                                        }
+                                    } else {
+                                        /**
+                                         * no need for further actions, since this error will be logged and nothing will execute further.
+                                         * in the future we might need some alerts and metrics emitting here
+                                         */
+                                        console.log(`Not all applicable users have had notification events dropped in the appropriate topic. Re-process these failed messages accordingly.`);
+                                    }
+                                } else {
+                                    /**
+                                     * no need for further actions, since this error will be logged and nothing will execute further.
+                                     * in the future we might need some alerts and metrics emitting here
+                                     */
+                                    console.log(`Users for notification reminders retrieval through GET all users for notification reminders call failed`);
+                                }
+                                break;
                             default:
                                 console.log(`Unknown notification reminder type passed in for ACTIVE reminder ${reminder!.notificationReminderType}`);
                         }
@@ -754,3 +905,10 @@ export const triggerNotificationReminder = async (): Promise<void> => {
         console.log(`Unexpected error while processing the notification reminder cron event ${error}`);
     }
 }
+
+/**
+ * Function used to timeout/sleep for a particular number of milliseconds
+ *
+ * @param ms number of milliseconds to timeout for.
+ */
+export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

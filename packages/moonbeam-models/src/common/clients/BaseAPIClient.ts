@@ -255,6 +255,20 @@ export abstract class BaseAPIClient {
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_REFERRAL_TEMPLATE_1_AUTH_TOKEN],
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_REFERRAL_TEMPLATE_1_TEMPLATE_ID]];
                                     }
+                                case NotificationType.MultipleCardFeatureReminder:
+                                    if (channelType !== undefined) {
+                                        return channelType === NotificationChannelType.Email
+                                            ? [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_MULTIPLE_CARDS_FEATURE_REMINDER_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_MULTIPLE_CARDS_FEATURE_REMINDER_TEMPLATE_ID]]
+                                            : [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_MULTIPLE_CARDS_FEATURE_REMINDER_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_MULTIPLE_CARDS_FEATURE_REMINDER_TEMPLATE_ID]];
+                                    } else {
+                                        return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_MULTIPLE_CARDS_FEATURE_REMINDER_AUTH_TOKEN],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_MULTIPLE_CARDS_FEATURE_REMINDER_TEMPLATE_ID]];
+                                    }
                                 default:
                                     console.log(`Unknown notifications type to retrieve secrets in ${verificationClientSecretsName}`);
                                     return [null, null];

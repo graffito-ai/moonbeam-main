@@ -113,6 +113,9 @@ export const createNotification = async (fieldName: string, createNotificationIn
                 case NotificationType.ReferralTemplate_1Reminder:
                     return standardEmailAndPushNotification(createNotificationInput, courierClient, dynamoDbClient,
                         NotificationType.ReferralTemplate_1Reminder);
+                case NotificationType.MultipleCardFeatureReminder:
+                    return standardEmailAndPushNotification(createNotificationInput, courierClient, dynamoDbClient,
+                        NotificationType.MultipleCardFeatureReminder);
                 default:
                     const errorMessage = `Unexpected notification type ${createNotificationInput.type}`;
                     console.log(errorMessage);

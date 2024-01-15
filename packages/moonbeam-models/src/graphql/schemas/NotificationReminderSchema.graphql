@@ -17,6 +17,7 @@ enum NotificationReminderType {
     REFERRAL_TEMPLATE_1_REMINDER
     REFERRAL_TEMPLATE_2_REMINDER
     REFERRAL_TEMPLATE_3_REMINDER
+    MULTIPLE_CARD_FEATURE_REMINDER
 }
 
 enum NotificationReminderStatus {

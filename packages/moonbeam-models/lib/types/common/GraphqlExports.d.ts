@@ -799,6 +799,7 @@ export declare enum NotificationReminderStatus {
 }
 export declare enum NotificationReminderType {
     CardLinkingReminder = "CARD_LINKING_REMINDER",
+    MultipleCardFeatureReminder = "MULTIPLE_CARD_FEATURE_REMINDER",
     NewMapFeatureReminder = "NEW_MAP_FEATURE_REMINDER",
     ReferralTemplate_1Reminder = "REFERRAL_TEMPLATE_1_REMINDER",
     ReferralTemplate_2Reminder = "REFERRAL_TEMPLATE_2_REMINDER",
@@ -826,6 +827,7 @@ export declare enum NotificationType {
     MarketingRelated = "MARKETING_RELATED",
     MilitaryStatusChangedPendingToRejected = "MILITARY_STATUS_CHANGED_PENDING_TO_REJECTED",
     MilitaryStatusChangedPendingToVerified = "MILITARY_STATUS_CHANGED_PENDING_TO_VERIFIED",
+    MultipleCardFeatureReminder = "MULTIPLE_CARD_FEATURE_REMINDER",
     NewMapFeatureReminder = "NEW_MAP_FEATURE_REMINDER",
     NewQualifyingOfferAvailable = "NEW_QUALIFYING_OFFER_AVAILABLE",
     NewUserSignup = "NEW_USER_SIGNUP",
