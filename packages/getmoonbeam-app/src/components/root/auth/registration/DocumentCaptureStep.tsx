@@ -21,7 +21,7 @@ import {MediaTypeOptions, UIImagePickerPresentationStyle} from 'expo-image-picke
 import * as FileSystem from "expo-file-system";
 import {isValidSize, uploadFile} from "../../../../utils/File";
 import DropDownPicker from "react-native-dropdown-picker";
-import {documentSelectionItems} from "../../../../models/Constants";
+import {serviceMembersDocumentSelectionItems} from "../../../../models/Constants";
 import {FieldValidator} from "../../../../utils/FieldValidator";
 import {Spinner} from "../../../common/Spinner";
 // @ts-ignore
@@ -48,7 +48,7 @@ export const DocumentCaptureStep = () => {
     const [photoSelectionButtonState, setPhotoSelectionButtonState] = useState<boolean>(false);
     const [captureButtonState, setCaptureButtonState] = useState<boolean>(false);
     const [uploadButtonState, setUploadButtonState] = useState<boolean>(false);
-    const [documentItems, setDocumentItems] = useState(documentSelectionItems);
+    const [documentItems, setDocumentItems] = useState(serviceMembersDocumentSelectionItems);
     // constants used to keep track of shared states
     const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [documentsRePickPhoto, setDocumentsRePickPhoto] = useRecoilState(documentsRePickPhotoState);

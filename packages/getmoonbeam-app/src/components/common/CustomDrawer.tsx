@@ -28,7 +28,7 @@ import {
     automaticallyVerifyRegistrationCodeState,
     birthdayErrorState,
     birthdayState,
-    cardLinkingRegistrationStatusState,
+    cardLinkingRegistrationStatusState, currentMemberAffiliationState,
     currentUserInformation,
     deferToLoginState,
     documentsReCapturePhotoState,
@@ -516,6 +516,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const cardLinkingIdStateReset = useResetRecoilState(cardLinkingIdState);
     const userIsAuthenticatedStateReset = useResetRecoilState(userIsAuthenticatedState);
     const selectedCardIndexStateReset = useResetRecoilState(selectedCardIndexState);
+    const currentMemberAffiliationStateReset = useResetRecoilState(currentMemberAffiliationState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -778,6 +779,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             showClickOnlyBottomSheetStateReset();
             cardLinkingIdStateReset();
             selectedCardIndexStateReset();
+            currentMemberAffiliationStateReset();
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {
                 // import branch

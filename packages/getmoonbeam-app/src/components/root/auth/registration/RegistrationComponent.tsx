@@ -70,7 +70,7 @@ import {
     registrationVerificationDigit6, userIsAuthenticatedState,
     verificationCodeErrorsState
 } from '../../../../recoil/AuthAtom';
-import {registrationSteps} from "../../../../models/Constants";
+import {militaryAffiliationRegistrationStep, registrationSteps} from "../../../../models/Constants";
 import {ProfileRegistrationStep} from "./ProfileRegistrationStep";
 import {CodeVerificationStep} from "./CodeVerificationStep";
 import {DocumentCaptureStep} from "./DocumentCaptureStep";
@@ -124,6 +124,7 @@ import {
 import {referralCodeMarketingCampaignState, referralCodeState} from "../../../../recoil/BranchAtom";
 import Constants from 'expo-constants';
 import {AppOwnership} from "expo-constants/src/Constants.types";
+import {MilitaryAffiliationStep} from "./MilitaryAffiliationStep";
 
 /**
  * RegistrationComponent component.
@@ -137,12 +138,12 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [isKeyboardShown, setIsKeyboardShown] = useState<boolean>(false);
     const [existentAccountVisible, setExistentAccountVisible] = useState<boolean>(false);
     // constants used to keep track of shared states
-    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls] = useRecoilState(numberOfFailedOnlineOfferCallsState);
     const [numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls] = useRecoilState(numberOfFailedClickOnlyOnlineOfferCallsState);
     const [, setIsUserAuthenticated] = useRecoilState(userIsAuthenticatedState);
-    const [referralCodeMarketingCampaign, ] = useRecoilState(referralCodeMarketingCampaignState);
-    const [referralCode, ] = useRecoilState(referralCodeState);
+    const [referralCodeMarketingCampaign,] = useRecoilState(referralCodeMarketingCampaignState);
+    const [referralCode,] = useRecoilState(referralCodeState);
     const [numberOfOnlineOffers, setNumberOfOnlineOffers] = useRecoilState(numberOfOnlineOffersState);
     const [numberOfClickOnlyOnlineOffers, setNumberOfClickOnlyOnlineOffers] = useRecoilState(numberOfClickOnlyOnlineOffersState);
     const [mainRootNavigation,] = useRecoilState(mainRootNavigationState);
@@ -764,7 +765,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                 setDeferToLogin(true);
                                                 mainRootNavigation && mainRootNavigation!.navigate('AppOverview', {});
 
-                                                // reset all registration fields as needed, for steps 0,1 and 2
+                                                // reset all registration fields as needed, for steps 0, 1 and 2
                                                 setStepNumber(0);
                                                 setIsBackButtonShown(true);
                                                 setRegistrationMainError(false);
@@ -915,11 +916,15 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                     {stepNumber !== 8 && stepNumber !== 7 &&
                                         <View
                                             style={[styles.titleView, {marginTop: hp(18)},
+                                                (stepNumber === -1) && {top: -hp(7)},
                                                 (stepNumber === 1 || stepNumber === 2) && {bottom: hp(3.5)},
                                                 (stepNumber === 4 || (stepNumber === 5 && militaryStatus !== MilitaryVerificationStatusType.Rejected)) && {marginTop: hp(25)}]}>
                                             <View style={[styles.titleViewDescription]}>
                                                 <Text style={styles.stepTitle}>
-                                                    {registrationSteps[stepNumber].stepTitle}
+                                                    {stepNumber === -1
+                                                        ? militaryAffiliationRegistrationStep[0].stepTitle
+                                                        : registrationSteps[stepNumber].stepTitle
+                                                    }
                                                 </Text>
                                                 <IconButton
                                                     icon={"triangle"}
@@ -939,32 +944,37 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                     inboxes.</Text>
                                                 </Text>
                                                 : <Text style={[styles.stepDescription,
-                                                    (stepNumber === 1 || stepNumber === 2) && {bottom: hp(3.5)},]}>{
-                                                    registrationSteps[stepNumber].stepDescription
+                                                    (stepNumber === -1) && {top: -hp(7)},
+                                                    (stepNumber === 1 || stepNumber === 2) && {bottom: hp(3.5)}]}>{
+                                                    stepNumber === -1
+                                                        ? militaryAffiliationRegistrationStep[0].stepDescription
+                                                        : registrationSteps[stepNumber].stepDescription
                                                 }</Text>
                                         )
                                     }
                                     {/*switch views based on the step number*/}
                                     {
-                                        stepNumber === 0
-                                            ? <ProfileRegistrationStep/>
-                                            : stepNumber === 1
-                                                ? <AdditionalRegistrationStep/>
-                                                : stepNumber === 2
-                                                    ? <SecurityStep/>
-                                                    : stepNumber === 3
-                                                        ? <CodeVerificationStep/>
-                                                        : stepNumber === 4
-                                                            ? <UserPermissionsStep/>
-                                                            : stepNumber === 5
-                                                                ? <MilitaryStatusSplashStep/>
-                                                                : stepNumber === 6
-                                                                    ? <DocumentCaptureStep/>
-                                                                    : stepNumber === 7
-                                                                        ? <CardLinkingStep/>
-                                                                        : stepNumber === 8
-                                                                            ? <CardLinkingStatusSplashStep/>
-                                                                            : <></>
+                                        stepNumber === -1
+                                            ? <MilitaryAffiliationStep/>
+                                            : stepNumber === 0
+                                                ? <ProfileRegistrationStep/>
+                                                : stepNumber === 1
+                                                    ? <AdditionalRegistrationStep/>
+                                                    : stepNumber === 2
+                                                        ? <SecurityStep/>
+                                                        : stepNumber === 3
+                                                            ? <CodeVerificationStep/>
+                                                            : stepNumber === 4
+                                                                ? <UserPermissionsStep/>
+                                                                : stepNumber === 5
+                                                                    ? <MilitaryStatusSplashStep/>
+                                                                    : stepNumber === 6
+                                                                        ? <DocumentCaptureStep/>
+                                                                        : stepNumber === 7
+                                                                            ? <CardLinkingStep/>
+                                                                            : stepNumber === 8
+                                                                                ? <CardLinkingStatusSplashStep/>
+                                                                                : <></>
                                     }
                                     <View style={[
                                         styles.bottomContainerButtons,
@@ -1012,7 +1022,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                             >
                                                 <Text style={styles.buttonText}>Previous</Text>
                                             </TouchableOpacity>}
-                                        {stepNumber !== 7 && <TouchableOpacity
+                                        {stepNumber !== 7 && stepNumber !== -1 && <TouchableOpacity
                                             disabled={
                                                 (!militaryVerificationDisclaimer && stepNumber === 5)
                                                 || (!accountRegistrationDisclaimer && stepNumber === 2)

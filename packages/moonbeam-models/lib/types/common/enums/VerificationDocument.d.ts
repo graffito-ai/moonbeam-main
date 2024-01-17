@@ -11,5 +11,6 @@ export declare enum VerificationDocument {
     NGB_22 = "NGB Form 22",
     VHIC = "Veteran Health Identification Card (VHIC)",
     VIC = "Veteran ID Card (VIC)",
-    VA_DISABILITY_LETTER = "VA Disability Rating Letter"
+    VA_DISABILITY_LETTER = "VA Disability Rating Letter",
+    MARRIAGE_LICENSE_OR_CERTIFICATE = "Marriage License or Certificate"
 }

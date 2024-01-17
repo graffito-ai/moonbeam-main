@@ -311,14 +311,30 @@ export declare abstract class BaseAPIClient {
      */
     protected getEligibleLinkedUsers?(): Promise<EligibleLinkedUsersResponse>;
     /**
-     * Function used to verify an individuals military service status.
+     * Function used to verify an individual's military service status.
+     *
+     * @param numberOfCalls optional param, used for use cases when we recursively call
+     *                      this function in order to make additional calls to Quandis
+     *                      for users who list an incorrect enlistment year at first
+     *                      (not applicable for the VA)
+     * @param newEnlistmentYear optional param, representing new enlistment year for the
+     *                          recursive call (not applicable for the VA).
      *
      * @return a {@link Promise} of {@link MilitaryVerificationStatusType} representing the
      * military verification status obtained from the client verification call
      *
      * @protected
      */
-    protected verify?(): Promise<MilitaryVerificationStatusType>;
+    protected verifyServiceMember?(numberOfCalls?: number, newEnlistmentYear?: number): Promise<MilitaryVerificationStatusType>;
+    /**
+     * Function used to verify an individual's spouse's military service status.
+     *
+     * @return a {@link Promise} of {@link MilitaryVerificationStatusType} representing the
+     * military verification status obtained from the client verification call
+     *
+     * @protected
+     */
+    protected verifyMemberSpouse?(): Promise<MilitaryVerificationStatusType>;
     /**
      * Function used to complete the linking of an individual's card on the platform.
      *

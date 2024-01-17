@@ -799,6 +799,8 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                                         style={[commonStyles.backButton, !isRegistrationReady && {display: 'none'}]}
                                                         onPress={() => {
                                                             // clear the registration values
+                                                            // step -1
+                                                            // ToDo
                                                             // step 1
                                                             setFirstName("");
                                                             setLastName("");
@@ -820,9 +822,9 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                                             setAmplifySignUpErrors([]);
                                                             // do not need to clear next steps because back button won't be shown for subsequent ones
 
-                                                            // main
+                                                            // main registration error reset
                                                             setRegistrationMainError(false);
-                                                            setStepNumber(0);
+                                                            setStepNumber(-1);
 
                                                             // navigate to the AppOverviewComponent page - in case we have not already been to the SignIn
                                                             if (isLoadingAppOverviewNeeded) {

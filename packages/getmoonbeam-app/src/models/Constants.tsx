@@ -52,6 +52,13 @@ export const accountRecoverySteps = [
         stepButtonText: "Confirm"
     },
 ]
+// constants used to keep track of the military affiliation page step/s for the registration
+export const militaryAffiliationRegistrationStep = [
+    {
+        stepTitle: "Military Affiliation",
+        stepDescription: "Tell us more about how you are affiliated to the military."
+    }
+];
 // constants used to keep track of the registration steps content
 export const registrationSteps = [
     {
@@ -179,8 +186,8 @@ export const militaryBranchItems = [
         value: MilitaryBranch.SpaceForce
     }
 ];
-// constants used to keep track of the document selection dropdown value
-export const documentSelectionItems = [
+// constants used to keep track of the document selection dropdown value for service members
+export const serviceMembersDocumentSelectionItems = [
     {
         label: VerificationDocument.DD214,
         value: VerificationDocument.DD214
@@ -220,6 +227,13 @@ export const documentSelectionItems = [
     {
         label: VerificationDocument.VA_DISABILITY_LETTER,
         value: VerificationDocument.VA_DISABILITY_LETTER
+    }
+];
+// constant used to keep track of the document selection dropdown value for military spouses
+const militarySpousesDocumentSelectionItems = [
+    {
+        label: VerificationDocument.MARRIAGE_LICENSE_OR_CERTIFICATE,
+        value: VerificationDocument.MARRIAGE_LICENSE_OR_CERTIFICATE
     }
 ];
 // constants used to keep track of the issuing country selection dropdown value

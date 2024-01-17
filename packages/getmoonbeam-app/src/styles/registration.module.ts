@@ -503,5 +503,69 @@ export const styles = StyleSheet.create({
         width: wp(130),
         right: wp(15),
         flexGrow: 1
-    }
+    },
+    militaryAffiliationView: {
+        bottom: hp(5)
+    },
+    topMilitaryAffiliationTile: {
+        left: wp(6),
+        alignSelf: 'flex-start',
+        height: hp(33),
+        width: wp(85)
+    },
+    militaryAffiliationTile: {
+        top: hp(5),
+        left: wp(6),
+        alignSelf: 'flex-start',
+        height: hp(33),
+        width: wp(85)
+    },
+    militaryAffiliationTileView: {
+        flexDirection: 'column',
+        alignContent: 'center',
+        alignSelf: 'flex-start',
+        height: hp(33),
+        width: wp(85),
+        backgroundColor: '#5B5A5A'
+    },
+    militaryAffiliationImage: {
+        alignSelf: 'center',
+        height: hp(18),
+        width: hp(18),
+        top: hp(1)
+    },
+    militaryAffiliationTopView: {
+        height: hp(13),
+        width: wp(85),
+        backgroundColor: '#1e1e21',
+        flexDirection: 'column'
+    },
+    militaryAffiliationDescription: {
+        left: wp(3),
+        fontFamily: 'Raleway-SemiBold',
+        top: hp(5.5),
+        alignSelf: 'flex-start',
+        fontSize: hp(1.6),
+        width: wp(80),
+        color: '#FFFFFF',
+        lineHeight: hp(2),
+        textAlign: 'center'
+    },
+    militaryAffiliationButton: {
+        top: hp(9),
+        backgroundColor: '#F2FF5D',
+        width: wp(24),
+        height: hp(4),
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignSelf: 'center',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    militaryAffiliationButtonText: {
+        color: '#313030',
+        fontFamily: 'Saira-Medium',
+        fontSize: hp(2),
+        marginTop: hp(0.5)
+    },
 });

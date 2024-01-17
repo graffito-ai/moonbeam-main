@@ -147,6 +147,7 @@ enum MilitaryDutyStatus {
     NATIONAL_GUARD
     RESERVIST
     VETERAN
+    NOT_APPLICABLE
 }
 
 enum MilitaryBranch {
@@ -156,6 +157,7 @@ enum MilitaryBranch {
     MARINE_CORPS
     NAVY
     SPACE_FORCE
+    NOT_APPLICABLE
 }
 
 enum MilitaryAffiliation {
@@ -247,6 +249,7 @@ input CreateMilitaryVerificationInput {
     militaryDutyStatus: MilitaryDutyStatus!
     militaryBranch: MilitaryBranch!
     militaryAffiliation: MilitaryAffiliation!
+    personalIdentifier: String # this is going to be applicable only for family members
 }
 
 input GetMilitaryVerificationInformationInput {

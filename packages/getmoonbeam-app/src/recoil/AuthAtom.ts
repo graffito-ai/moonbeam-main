@@ -1,5 +1,5 @@
 import {atom} from "recoil";
-import {MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
+import {MilitaryAffiliation, MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
 import {ExpoPushToken} from "expo-notifications";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {AuthenticationStackParamList} from "../models/props/AuthenticationProps";
@@ -248,7 +248,7 @@ const phoneNumberState = atom({
  */
 const registrationStepNumber = atom({
     key: "registrationStepNumber",
-    default: 0
+    default: -1
 });
 
 /**
@@ -567,11 +567,20 @@ const userIsAuthenticatedState = atom<boolean>({
     default: false
 });
 
+/**
+ * Atom used to keep track of the current military affiliation of a member,
+ * if applicable, otherwise defaulting as null.
+ */
+const currentMemberAffiliationState = atom<null | MilitaryAffiliation>({
+    key: "currentMemberAffiliationState",
+    default: null
+});
 
 /**
  * Export all atoms and/or selectors
  */
 export {
+    currentMemberAffiliationState,
     userIsAuthenticatedState,
     deferToLoginState,
     automaticallyVerifyRegistrationCodeState,

@@ -170,6 +170,7 @@ export type CreateMilitaryVerificationInput = {
     militaryAffiliation: MilitaryAffiliation;
     militaryBranch: MilitaryBranch;
     militaryDutyStatus: MilitaryDutyStatus;
+    personalIdentifier?: InputMaybe<Scalars['String']>;
     state: Scalars['String'];
     updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
     zipCode: Scalars['String'];
@@ -481,11 +482,13 @@ export declare enum MilitaryBranch {
     CoastGuard = "COAST_GUARD",
     MarineCorps = "MARINE_CORPS",
     Navy = "NAVY",
+    NotApplicable = "NOT_APPLICABLE",
     SpaceForce = "SPACE_FORCE"
 }
 export declare enum MilitaryDutyStatus {
     ActiveDuty = "ACTIVE_DUTY",
     NationalGuard = "NATIONAL_GUARD",
+    NotApplicable = "NOT_APPLICABLE",
     Reservist = "RESERVIST",
     Veteran = "VETERAN"
 }
