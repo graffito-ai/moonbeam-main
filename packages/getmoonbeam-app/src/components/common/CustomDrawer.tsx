@@ -76,7 +76,7 @@ import {
     registrationVerificationDigit3,
     registrationVerificationDigit4,
     registrationVerificationDigit5,
-    registrationVerificationDigit6, userIsAuthenticatedState,
+    registrationVerificationDigit6, ssnErrorsState, ssnState, userIsAuthenticatedState,
     verificationCodeErrorsState,
     verificationDocumentState
 } from '../../recoil/AuthAtom';
@@ -517,6 +517,8 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const userIsAuthenticatedStateReset = useResetRecoilState(userIsAuthenticatedState);
     const selectedCardIndexStateReset = useResetRecoilState(selectedCardIndexState);
     const currentMemberAffiliationStateReset = useResetRecoilState(currentMemberAffiliationState);
+    const ssnStateReset = useResetRecoilState(ssnState);
+    const ssnErrorsStateReset = useResetRecoilState(ssnErrorsState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -780,6 +782,8 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             cardLinkingIdStateReset();
             selectedCardIndexStateReset();
             currentMemberAffiliationStateReset();
+            ssnStateReset();
+            ssnErrorsStateReset();
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {
                 // import branch

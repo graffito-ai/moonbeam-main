@@ -10,7 +10,7 @@ import {
     addressStateErrorsState,
     addressStateState,
     addressZipErrorsState,
-    addressZipState,
+    addressZipState, currentMemberAffiliationState,
     militaryBranchErrorsState,
     militaryBranchState,
     militaryBranchValueState,
@@ -23,6 +23,7 @@ import {FieldValidator} from "../../../../utils/FieldValidator";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {GooglePlacesAutocomplete} from "react-native-google-places-autocomplete";
 import DropDownPicker from "react-native-dropdown-picker";
+import {MilitaryAffiliation} from "@moonbeam/moonbeam-models";
 
 /**
  * AdditionalRegistrationStep component.
@@ -38,6 +39,7 @@ export const AdditionalRegistrationStep = () => {
     const [addressStateFocus, setIsAddressStateFocus] = useState<boolean>(false);
     const [addressZipFocus, setIsAddressZipFocus] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [currentMemberAffiliation,] = useRecoilState(currentMemberAffiliationState);
     const [addressLine, setAddressLine] = useRecoilState(addressLineState);
     const [addressCity, setAddressCity] = useRecoilState(addressCityState);
     const [addressState, setAddressState] = useRecoilState(addressStateState);
@@ -95,19 +97,33 @@ export const AdditionalRegistrationStep = () => {
     // return the component for the AdditionalRegistrationStep, part of the Registration page
     return (
         <>
-            {registrationMainError
-                ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>Please fill out the information below!</Text>
-                : (addressLineErrors.length !== 0 && !registrationMainError)
-                    ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressLineErrors[0]}</Text>
-                    : (addressCityErrors.length !== 0 && !registrationMainError)
-                        ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressCityErrors[0]}</Text>
-                        : (addressStateErrors.length !== 0 && !registrationMainError)
-                            ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressStateErrors[0]}</Text>
-                            : (addressZipErrors.length !== 0 && !registrationMainError)
-                                ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressZipErrors[0]}</Text>
-                                : (militaryBranchErrors.length !== 0 && !registrationMainError)
-                                    ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{militaryBranchErrors[0]}</Text>
-                                    : <></>
+            {currentMemberAffiliation === MilitaryAffiliation.ServiceMember
+                ? (registrationMainError
+                    ?
+                    <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>Please fill out the information below!</Text>
+                    : (addressLineErrors.length !== 0 && !registrationMainError)
+                        ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressLineErrors[0]}</Text>
+                        : (addressCityErrors.length !== 0 && !registrationMainError)
+                            ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressCityErrors[0]}</Text>
+                            : (addressStateErrors.length !== 0 && !registrationMainError)
+                                ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressStateErrors[0]}</Text>
+                                : (addressZipErrors.length !== 0 && !registrationMainError)
+                                    ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressZipErrors[0]}</Text>
+                                    : (militaryBranchErrors.length !== 0 && !registrationMainError)
+                                        ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{militaryBranchErrors[0]}</Text>
+                                        : <></>)
+                : (registrationMainError
+                    ?
+                    <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>Please fill out the information below!</Text>
+                    : (addressLineErrors.length !== 0 && !registrationMainError)
+                        ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressLineErrors[0]}</Text>
+                        : (addressCityErrors.length !== 0 && !registrationMainError)
+                            ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressCityErrors[0]}</Text>
+                            : (addressStateErrors.length !== 0 && !registrationMainError)
+                                ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressStateErrors[0]}</Text>
+                                : (addressZipErrors.length !== 0 && !registrationMainError)
+                                    ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressZipErrors[0]}</Text>
+                                    : <></>)
             }
             <GooglePlacesAutocomplete
                 ref={ref => {
@@ -171,9 +187,9 @@ export const AdditionalRegistrationStep = () => {
                     container: {
                         ...(addressLineErrors.length !== 0 || registrationMainError ||
                         addressCityErrors.length !== 0 || addressStateErrors.length !== 0 || addressZipErrors.length !== 0 ? {
-                            bottom: hp(1.75),
+                            bottom: hp(1.2),
                         } : {
-                            top: hp(1.4),
+                            top: hp(2),
                         }),
                         left: wp(5),
                         ...(addressLineFocus && addressLine.length !== 0) && {
@@ -245,8 +261,11 @@ export const AdditionalRegistrationStep = () => {
                     clearButtonMode: 'never'
                 }}
             />
-            <View style={[styles.additionalRegistrationView, addressLineFocus && addressLine.length !== 0 && {display: 'none'}]}>
-                <View style={styles.additionalRegistrationBottomInputsView}>
+            <View
+                style={[styles.additionalRegistrationView, addressLineFocus && addressLine.length !== 0 && {display: 'none'}]}>
+                <View style={[styles.additionalRegistrationBottomInputsView,
+                    currentMemberAffiliation !== MilitaryAffiliation.ServiceMember && {bottom: hp(5.5)}
+                ]}>
                     <TextInput
                         autoCapitalize={"sentences"}
                         autoCorrect={false}
@@ -366,64 +385,67 @@ export const AdditionalRegistrationStep = () => {
                             }
                         />
                     </View>
-                    <View style={styles.pickerView}>
-                        <DropDownPicker
-                            zIndex={5000}
-                            placeholder={"Military Branch"}
-                            // containerStyle={dropdownBranchState && Platform.OS === 'android' && {height: hp(25)}}
-                            dropDownContainerStyle={[styles.dropdownContainer, Platform.OS === 'android' ? {height: hp(35)} : {height: hp(35)}]}
-                            style={styles.dropdownPicker}
-                            dropDownDirection={"BOTTOM"}
-                            open={dropdownBranchState}
-                            onOpen={() => {
-                                setRegistrationMainError(false);
-                                setIsBackButtonShown(false);
-                            }}
-                            onClose={() => {
-                                setDropdownBranchState(false);
-                                setIsBackButtonShown(true);
-                            }}
-                            value={militaryBranch === "" ? null : militaryBranch}
-                            items={branchItems}
-                            setOpen={setDropdownBranchState}
-                            setValue={setMilitaryBranch}
-                            setItems={setBranchItems}
-                            onSelectItem={(item) => {
-                                setMilitaryBranch(item.value!);
+                    {
+                        currentMemberAffiliation === MilitaryAffiliation.ServiceMember &&
+                        <View style={styles.pickerView}>
+                            <DropDownPicker
+                                zIndex={5000}
+                                placeholder={"Military Branch"}
+                                // containerStyle={dropdownBranchState && Platform.OS === 'android' && {height: hp(25)}}
+                                dropDownContainerStyle={[styles.dropdownContainer, Platform.OS === 'android' ? {height: hp(35)} : {height: hp(35)}]}
+                                style={styles.dropdownPicker}
+                                dropDownDirection={"BOTTOM"}
+                                open={dropdownBranchState}
+                                onOpen={() => {
+                                    setRegistrationMainError(false);
+                                    setIsBackButtonShown(false);
+                                }}
+                                onClose={() => {
+                                    setDropdownBranchState(false);
+                                    setIsBackButtonShown(true);
+                                }}
+                                value={militaryBranch === "" ? null : militaryBranch}
+                                items={branchItems}
+                                setOpen={setDropdownBranchState}
+                                setValue={setMilitaryBranch}
+                                setItems={setBranchItems}
+                                onSelectItem={(item) => {
+                                    setMilitaryBranch(item.value!);
 
-                                // validate value
-                                fieldValidator.validateField(item.value!, "militaryBranch", setMilitaryBranchErrors);
-                            }}
-                            theme="DARK"
-                            multiple={false}
-                            listMode="MODAL"
-                            modalAnimationType="slide"
-                            modalContentContainerStyle={{
-                                backgroundColor: '#313030'
-                            }}
-                            modalTitleStyle={{
-                                fontSize: hp(2.3),
-                                fontFamily: 'Raleway-Regular',
-                                color: '#F2FF5D'
-                            }}
-                            listItemContainerStyle={{
-                                top: hp(1.5)
-                            }}
-                            listItemLabelStyle={styles.dropdownTextInputContentStyle}
-                            modalTitle={"Select your Military Branch"}
-                            // @ts-ignore
-                            arrowIconStyle={{tintColor: '#FFFFFF'}}
-                            // @ts-ignore
-                            closeIconStyle={{tintColor: '#FFFFFF'}}
-                            placeholderStyle={styles.dropdownTextInputContentStyle}
-                            // @ts-ignore
-                            tickIconStyle={{tintColor: '#313030'}}
-                            selectedItemLabelStyle={[styles.dropdownTextInputContentStyle, {color: '#313030'}]}
-                            selectedItemContainerStyle={{backgroundColor: '#D9D9D9'}}
-                            itemSeparator={false}
-                            labelStyle={styles.dropdownTextInputContentStyle}
-                        />
-                    </View>
+                                    // validate value
+                                    fieldValidator.validateField(item.value!, "militaryBranch", setMilitaryBranchErrors);
+                                }}
+                                theme="DARK"
+                                multiple={false}
+                                listMode="MODAL"
+                                modalAnimationType="slide"
+                                modalContentContainerStyle={{
+                                    backgroundColor: '#313030'
+                                }}
+                                modalTitleStyle={{
+                                    fontSize: hp(2.3),
+                                    fontFamily: 'Raleway-Regular',
+                                    color: '#F2FF5D'
+                                }}
+                                listItemContainerStyle={{
+                                    top: hp(1.5)
+                                }}
+                                listItemLabelStyle={styles.dropdownTextInputContentStyle}
+                                modalTitle={"Select your Military Branch"}
+                                // @ts-ignore
+                                arrowIconStyle={{tintColor: '#FFFFFF'}}
+                                // @ts-ignore
+                                closeIconStyle={{tintColor: '#FFFFFF'}}
+                                placeholderStyle={styles.dropdownTextInputContentStyle}
+                                // @ts-ignore
+                                tickIconStyle={{tintColor: '#313030'}}
+                                selectedItemLabelStyle={[styles.dropdownTextInputContentStyle, {color: '#313030'}]}
+                                selectedItemContainerStyle={{backgroundColor: '#D9D9D9'}}
+                                itemSeparator={false}
+                                labelStyle={styles.dropdownTextInputContentStyle}
+                            />
+                        </View>
+                    }
                 </View>
             </View>
         </>

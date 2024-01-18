@@ -3,7 +3,7 @@ import 'react-native-get-random-values';
 import {Image, ImageBackground, Linking, Platform, TouchableOpacity, View} from "react-native";
 import {commonStyles} from '../../../../../styles/common.module';
 import {styles} from '../../../../../styles/appWall.module';
-import {Dialog, IconButton, Portal, Text} from "react-native-paper";
+import {Dialog, HelperText, IconButton, Portal, Text, TextInput} from "react-native-paper";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
 import {useRecoilState} from "recoil";
 import {
@@ -13,8 +13,11 @@ import {
 } from '../../../../../recoil/AuthAtom';
 import {applicationWallSteps} from "../../../../../models/Constants";
 import {
-    createMilitaryVerification, LoggingLevel,
+    createMilitaryVerification,
+    LoggingLevel,
     MilitaryAffiliation,
+    MilitaryBranch,
+    MilitaryDutyStatus,
     MilitaryVerificationStatusType,
     updateMilitaryVerificationStatus
 } from "@moonbeam/moonbeam-models";
@@ -57,6 +60,7 @@ import MoonbeamPreferencesIOS from "../../../../../../assets/art/moonbeam-prefer
 import MoonbeamPreferencesAndroid from "../../../../../../assets/art/moonbeam-preferences-android.jpg";
 import * as ImagePicker from "expo-image-picker";
 import {logEvent} from "../../../../../utils/AppSync";
+import {FieldValidator} from "../../../../../utils/FieldValidator";
 
 /**
  * AppWall Component.
@@ -66,14 +70,18 @@ import {logEvent} from "../../../../../utils/AppSync";
  */
 export const AppWall = ({navigation}: AppWallProps) => {
     // constants used to keep track of local component state
+    const [ssnValue, setSSNValue] = useState<string>("");
+    const [ssnFocus, setIsSSNFocus] = useState<boolean>(false);
+    const [ssnErrors, setSSNErrors] = useState<string[]>([]);
     const [dismissButtonVisible, setIsDismissButtonVisible] = useState<boolean>(false);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [supportModalVisible, setSupportModalVisible] = useState<boolean>(false);
     const [supportModalMessage, setSupportModalMessage] = useState<string>('');
     const [supportModalButtonMessage, setSupportModalButtonMessage] = useState<string>('');
+    const [ssnMainError, setSSNMainError] = useState<boolean>(false);
     const [appWallError, setAppWallError] = useState<boolean>(false);
     // constants used to keep track of shared states
-    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [, setDocumentsRePickPhoto] = useRecoilState(appWallDocumentsRePickPhotoState);
     const [, setDocumentsReCapturePhoto] = useRecoilState(appWallDocumentsReCapturePhotoState);
     const [permissionsModalVisible, setPermissionsModalVisible] = useRecoilState(appWallPermissionsModalVisibleState);
@@ -90,6 +98,9 @@ export const AppWall = ({navigation}: AppWallProps) => {
     // step 3
     const [additionalDocumentsNeeded, setAdditionalDocumentsNeeded] = useRecoilState(additionalAppWallDocumentationNeeded);
     const [, setDocumentationErrors] = useRecoilState(additionalAppWallDocumentationErrors);
+
+    // initializing the field validator, to be used for validating form field values
+    const fieldValidator = new FieldValidator();
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -125,7 +136,7 @@ export const AppWall = ({navigation}: AppWallProps) => {
                     break;
                 case "UNKNOWN":
                     splashTitle = `Resume your registration!`;
-                    splashDescription = `It looks like you haven't finished our military verification process.`;
+                    splashDescription = `It looks like you have not finished our military affiliation verification process.`;
                     splashArtSource = StatusUnknownImage;
                     splashButtonText = `Get Started`;
                     break;
@@ -141,7 +152,14 @@ export const AppWall = ({navigation}: AppWallProps) => {
                 splashArtSource: splashArtSource
             });
         }
-    }, [stepNumber, userInformation["militaryStatus"]]);
+
+        // validate the SSN
+        if (ssnFocus && ssnValue !== "") {
+            fieldValidator.validateField(ssnValue, "ssn", setSSNErrors);
+        }
+        ssnValue === "" && setSSNErrors([]);
+
+    }, [stepNumber, userInformation["militaryStatus"], ssnValue, ssnFocus]);
 
 
     /**
@@ -191,6 +209,7 @@ export const AppWall = ({navigation}: AppWallProps) => {
      */
     const updateEligibility = async (): Promise<boolean> => {
         try {
+            console.log(`verifying updated eligibility : ${ssnValue.trimStart().trimEnd().trim().replaceAll(' ', '')}`);
             // set a loader on button press
             setIsReady(false);
 
@@ -211,14 +230,29 @@ export const AppWall = ({navigation}: AppWallProps) => {
                     firstName: userInformation["given_name"],
                     lastName: userInformation["family_name"],
                     dateOfBirth: birthday,
-                    enlistmentYear: userInformation["custom:enlistmentYear"],
+                    // default to current year for military spouses
+                    enlistmentYear:
+                        userInformation["custom:militaryAffiliation"] && userInformation["custom:militaryAffiliation"] === MilitaryAffiliation.FamilySpouse
+                            ? new Date().getFullYear()
+                            : userInformation["custom:enlistmentYear"],
                     addressLine: addressComponents[0],
                     city: addressComponents[1],
                     state: addressComponents[2],
                     zipCode: addressComponents[3],
-                    militaryAffiliation: MilitaryAffiliation.ServiceMember, // ToDo: in the future when we add family members, we need a mechanism for that
-                    militaryBranch: userInformation["custom:branch"],
-                    militaryDutyStatus: userInformation["custom:duty_status"]
+                    militaryAffiliation: userInformation["custom:militaryAffiliation"] && userInformation["custom:militaryAffiliation"] === MilitaryAffiliation.FamilySpouse
+                        ? MilitaryAffiliation.FamilySpouse
+                        : MilitaryAffiliation.ServiceMember,
+                    militaryBranch:
+                        userInformation["custom:militaryAffiliation"] && userInformation["custom:militaryAffiliation"] === MilitaryAffiliation.FamilySpouse
+                            ? MilitaryBranch.NotApplicable
+                            : userInformation["custom:branch"],
+                    militaryDutyStatus:
+                        userInformation["custom:militaryAffiliation"] && userInformation["custom:militaryAffiliation"] === MilitaryAffiliation.FamilySpouse
+                            ? MilitaryDutyStatus.NotApplicable
+                            : userInformation["custom:duty_status"],
+                    ...(userInformation["custom:militaryAffiliation"] && userInformation["custom:militaryAffiliation"] === MilitaryAffiliation.FamilySpouse && {
+                        personalIdentifier: ssnValue.trimStart().trimEnd().trim().replaceAll(' ', '')
+                    })
                 }
             }));
 
@@ -471,8 +505,13 @@ export const AppWall = ({navigation}: AppWallProps) => {
                                             />
                                         </View>
                                     </View>
-                                    <Text
-                                        style={styles.stepDescription}>{applicationWallSteps[stepNumber].stepDescription}</Text>
+                                    <Text style={styles.stepDescription}>
+                                        {
+                                            userInformation["custom:militaryAffiliation"] && userInformation["custom:militaryAffiliation"] === MilitaryAffiliation.FamilySpouse
+                                                ? "Allow us to verify your military affiliation status by providing the following additional information."
+                                                : applicationWallSteps[stepNumber].stepDescription
+                                        }
+                                    </Text>
                                 </>
                             }
                             {/*switch views based on the step number*/}
@@ -486,7 +525,7 @@ export const AppWall = ({navigation}: AppWallProps) => {
                                         {
                                             ...dismissButtonVisible &&
                                             {
-                                                splashDismissButton:true
+                                                splashDismissButton: true
                                             }
                                         }
                                     />
@@ -498,12 +537,81 @@ export const AppWall = ({navigation}: AppWallProps) => {
                                                 <Text style={styles.errorMessage}>Unexpected error while verifying
                                                     military
                                                     status. Try again!</Text>
-                                                : <></>
+                                                :
+                                                <>
+                                                    {userInformation["custom:militaryAffiliation"] && userInformation["custom:militaryAffiliation"] === MilitaryAffiliation.FamilySpouse
+                                                        && (ssnMainError
+                                                            ? <Text style={styles.errorMessageSSN}>Please fill out the information below!</Text>
+                                                            : (ssnErrors.length !== 0 && !ssnMainError)
+                                                                ? <Text style={styles.errorMessageSSN}>{ssnErrors[0]}</Text>
+                                                                : <></>)
+                                                    }
+                                                    <TextInput
+                                                        autoCorrect={false}
+                                                        autoComplete={"off"}
+                                                        keyboardType={"number-pad"}
+                                                        placeholderTextColor={'#D9D9D9'}
+                                                        activeUnderlineColor={'#F2FF5D'}
+                                                        underlineColor={'#D9D9D9'}
+                                                        outlineColor={'#D9D9D9'}
+                                                        activeOutlineColor={'#F2FF5D'}
+                                                        selectionColor={'#F2FF5D'}
+                                                        mode={'outlined'}
+                                                        onChangeText={(value: React.SetStateAction<string>) => {
+                                                            setIsSSNFocus(true);
+
+                                                            setAppWallError(false);
+                                                            setSSNMainError(false);
+
+                                                            // format value
+                                                            value = fieldValidator.formatSSNValue(ssnValue, value.toString());
+
+                                                            setSSNValue(value);
+                                                        }}
+                                                        onBlur={() => {
+                                                            setIsSSNFocus(false);
+                                                        }}
+                                                        value={ssnValue}
+                                                        contentStyle={styles.textInputContentStyle}
+                                                        style={[ssnFocus ? styles.textInputFocus : styles.textInput, ssnValue.length === 0 && {height: hp(6)}]}
+                                                        onFocus={() => {
+                                                            setIsSSNFocus(true);
+                                                        }}
+                                                        placeholder={'Required'}
+                                                        label="Social Security Number"
+                                                        textColor={"#FFFFFF"}
+                                                        left={
+                                                            <TextInput.Icon icon="bank" size={hp(2.8)}
+                                                                            style={{marginTop: hp(2.2)}}
+                                                                            iconColor="#FFFFFF"/>
+                                                        }
+                                                    />
+                                                    <HelperText style={{
+                                                        top: hp(4.5),
+                                                        alignSelf: 'center',
+                                                        width: wp(92),
+                                                        color: '#F2FF5D'
+                                                    }} type="info" visible={ssnFocus}>
+                                                        We will not store this information! It will only be used for
+                                                        military affiliation
+                                                        verification purposes.
+                                                    </HelperText>
+                                                </>
                                             }
-                                            <Image
-                                                style={styles.militaryVerificationImage}
-                                                source={MilitaryVerificationImage}/>
-                                            <View style={styles.disclaimerView}>
+                                            {
+                                                userInformation["custom:militaryAffiliation"] && userInformation["custom:militaryAffiliation"] === MilitaryAffiliation.FamilySpouse
+                                                    ? <></>
+                                                    : <Image
+                                                        style={[styles.militaryVerificationImage, {
+                                                            bottom: hp(5),
+                                                            alignSelf: 'center'
+                                                        }]}
+                                                        source={MilitaryVerificationImage}/>
+                                            }
+                                            <View style={[styles.disclaimerView,
+                                                userInformation["custom:militaryAffiliation"] && userInformation["custom:militaryAffiliation"] === MilitaryAffiliation.FamilySpouse &&
+                                                {top: hp(6)}
+                                            ]}>
                                                 <Checkbox
                                                     style={styles.disclaimerCheckbox}
                                                     color={militaryStatusDisclaimer ? 'blue' : '#F2FF5D'}
@@ -513,12 +621,13 @@ export const AppWall = ({navigation}: AppWallProps) => {
 
                                                         // clear any errors (if any)
                                                         setAppWallError(false);
+                                                        setSSNMainError(false);
                                                     }}
                                                 />
                                                 <Text
-                                                    style={styles.disclaimerText}>{'By checking this box, you are confirming your status as a military service member, thereby granting Moonbeam the authority to document and review ' +
+                                                    style={styles.disclaimerText}>{'By checking this box, you are confirming your status as a service member, veteran, or dependent, thereby granting Moonbeam the authority to document and review ' +
                                                     'this claim, as well as pursue legal action in accordance with U.S. federal statutes and penal codes, if the claim is proven to be fraudulent.\nIn addition, this represents your consent ' +
-                                                    'to Moonbeam storing any documentation or media that you have and/or will provide during this process.\n' +
+                                                    'to Moonbeam storing any documentation or media that you provide during this process (except for your SSN in case you are a dependent).\n' +
                                                     'You also acknowledge that you read and agree to our '}
                                                     <Text style={styles.disclaimerTextHighlighted}
                                                           onPress={async () => {
@@ -553,7 +662,10 @@ export const AppWall = ({navigation}: AppWallProps) => {
                             <View
                                 style={[stepNumber === 0 ? styles.bottomContainerSplashView : styles.bottomContainerButtonView]}>
                                 <TouchableOpacity
-                                    disabled={(!militaryStatusDisclaimer && stepNumber === 1) || (additionalDocumentsNeeded && stepNumber === 2)}
+                                    disabled={
+                                        (!militaryStatusDisclaimer && stepNumber === 1) ||
+                                        (additionalDocumentsNeeded && stepNumber === 2)
+                                }
                                     style={[(!militaryStatusDisclaimer && stepNumber === 1) || (additionalDocumentsNeeded && stepNumber === 2) ? styles.bottomButtonDisabled : stepNumber == 0 ? styles.bottomButtonStep1 : styles.bottomButton,
                                         (stepNumber === 0) && {
                                             left: wp(0.25)
@@ -566,6 +678,9 @@ export const AppWall = ({navigation}: AppWallProps) => {
                                         && {
                                             marginBottom: hp(30),
                                             marginLeft: wp(10)
+                                        },
+                                        (stepNumber === 1 && userInformation["custom:militaryAffiliation"] && userInformation["custom:militaryAffiliation"] === MilitaryAffiliation.FamilySpouse) && {
+                                            marginTop: -hp(5)
                                         }
                                     ]}
                                     onPress={
@@ -593,15 +708,38 @@ export const AppWall = ({navigation}: AppWallProps) => {
                                                     }
                                                     break;
                                                 case 1:
-                                                    // execute the update call through creation
-                                                    const updateEligibilityFlag = await updateEligibility();
-                                                    // check the update eligibility flag, in order to determine whether the checks have passed or not
-                                                    if (updateEligibilityFlag) {
-                                                        checksPassed = true;
-                                                        setAppWallError(false);
+                                                    if (userInformation["custom:militaryAffiliation"] && userInformation["custom:militaryAffiliation"] === MilitaryAffiliation.FamilySpouse) {
+                                                        if (ssnValue === "" || ssnErrors.length !== 0) {
+                                                            // only populate main error if there are no other errors showing
+                                                            if (ssnErrors.length === 0) {
+                                                                setSSNMainError(true);
+                                                            }
+                                                        } else {
+                                                            setSSNMainError(false);
+
+                                                            // execute the update call through creation
+                                                            const updateEligibilityFlag = await updateEligibility();
+                                                            // check the update eligibility flag, in order to determine whether the checks have passed or not
+                                                            if (updateEligibilityFlag) {
+                                                                checksPassed = true;
+                                                                setAppWallError(false);
+                                                            } else {
+                                                                checksPassed = false;
+                                                                setAppWallError(true);
+                                                            }
+                                                        }
+
                                                     } else {
-                                                        checksPassed = false;
-                                                        setAppWallError(true);
+                                                        // execute the update call through creation
+                                                        const updateEligibilityFlag = await updateEligibility();
+                                                        // check the update eligibility flag, in order to determine whether the checks have passed or not
+                                                        if (updateEligibilityFlag) {
+                                                            checksPassed = true;
+                                                            setAppWallError(false);
+                                                        } else {
+                                                            checksPassed = false;
+                                                            setAppWallError(true);
+                                                        }
                                                     }
                                                     break;
                                                 case 2:

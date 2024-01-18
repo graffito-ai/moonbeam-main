@@ -8,6 +8,9 @@ import MoonbeamServiceMemberImage from '../../../../../assets/art/moonbeam-servi
 // @ts-ignore
 import MoonbeamMilitarySpouseImage from '../../../../../assets/art/moonbeam-military-spouse.png';
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {useRecoilState} from "recoil";
+import {currentMemberAffiliationState, registrationStepNumber} from "../../../../recoil/AuthAtom";
+import {MilitaryAffiliation} from "@moonbeam/moonbeam-models";
 
 /**
  * MilitaryAffiliationStep component.
@@ -15,9 +18,9 @@ import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
  * @constructor constructor for the component.
  */
 export const MilitaryAffiliationStep = () => {
-    // constants used to keep track of local component state
-
     // constants used to keep track of shared states
+    const [, setStepNumber] = useRecoilState(registrationStepNumber);
+    const [, setCurrentMemberAffiliation] = useRecoilState(currentMemberAffiliationState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -35,10 +38,9 @@ export const MilitaryAffiliationStep = () => {
         <>
             <View style={styles.militaryAffiliationView}>
                 <TouchableRipple
+                    // we handle the click with the button below, so we avoid miss-clicking
+                    disabled={true}
                     style={styles.topMilitaryAffiliationTile}
-                    onPress={() => {
-                        // set the military affiliation for the user
-                    }}
                     rippleColor="rgba(0, 0, 0, .32)"
                 >
                     <Surface
@@ -58,18 +60,21 @@ export const MilitaryAffiliationStep = () => {
                         </Text>
                         <TouchableOpacity
                             style={styles.militaryAffiliationButton}
-                            // we handle any pressed in the touchable ripple above
-                            disabled={true}
+                            onPress={() => {
+                                // set the military affiliation for the user
+                                setCurrentMemberAffiliation(MilitaryAffiliation.ServiceMember);
+                                // move on to the next step in the registration process
+                                setStepNumber(0);
+                            }}
                         >
                             <Text style={styles.militaryAffiliationButtonText}>Select</Text>
                         </TouchableOpacity>
                     </Surface>
                 </TouchableRipple>
                 <TouchableRipple
+                    // we handle the click with the button below, so we avoid miss-clicking
+                    disabled={true}
                     style={styles.militaryAffiliationTile}
-                    onPress={() => {
-                        // set the military affiliation for the user
-                    }}
                     rippleColor="rgba(0, 0, 0, .32)"
                 >
                     <Surface
@@ -79,7 +84,7 @@ export const MilitaryAffiliationStep = () => {
                         <View style={styles.militaryAffiliationTopView}>
                             <Image
                                 style={[styles.militaryAffiliationImage, {
-                                    top: hp(0.5),
+                                    top: hp(1),
                                 }]}
                                 source={MoonbeamMilitarySpouseImage}
                                 contentFit={'contain'}
@@ -91,8 +96,12 @@ export const MilitaryAffiliationStep = () => {
                         </Text>
                         <TouchableOpacity
                             style={styles.militaryAffiliationButton}
-                            // we handle any pressed in the touchable ripple above
-                            disabled={true}
+                            onPress={() => {
+                                // set the military affiliation for the user
+                                setCurrentMemberAffiliation(MilitaryAffiliation.FamilySpouse);
+                                // move on to the next step in the registration process
+                                setStepNumber(0);
+                            }}
                         >
                             <Text style={styles.militaryAffiliationButtonText}>Select</Text>
                         </TouchableOpacity>

@@ -7,7 +7,7 @@ import {styles} from '../../../../styles/registration.module';
 import {RegistrationProps} from "../../../../models/props/AuthenticationProps";
 import {Dialog, IconButton, Portal, Text} from "react-native-paper";
 import {KeyboardAwareScrollView} from "react-native-keyboard-aware-scroll-view";
-import {useRecoilState} from "recoil";
+import {useRecoilState, useResetRecoilState} from "recoil";
 import {
     accountCreationDisclaimerCheckState,
     additionalDocumentationErrors,
@@ -26,6 +26,7 @@ import {
     birthdayErrorState,
     birthdayState,
     cardLinkingRegistrationStatusState,
+    currentMemberAffiliationState,
     currentUserInformation,
     deferToLoginState,
     documentsReCapturePhotoState,
@@ -67,7 +68,10 @@ import {
     registrationVerificationDigit3,
     registrationVerificationDigit4,
     registrationVerificationDigit5,
-    registrationVerificationDigit6, userIsAuthenticatedState,
+    registrationVerificationDigit6,
+    ssnErrorsState,
+    ssnState,
+    userIsAuthenticatedState,
     verificationCodeErrorsState
 } from '../../../../recoil/AuthAtom';
 import {militaryAffiliationRegistrationStep, registrationSteps} from "../../../../models/Constants";
@@ -78,12 +82,16 @@ import {SecurityStep} from "./SecurityStep";
 import {AdditionalRegistrationStep} from "./AdditionalRegistrationStep";
 import {API, Auth, graphqlOperation} from "aws-amplify";
 import {
-    createMilitaryVerification, LoggingLevel,
+    createMilitaryVerification,
+    LoggingLevel,
     MilitaryAffiliation,
+    MilitaryBranch,
+    MilitaryDutyStatus,
     MilitaryVerificationStatusType,
     NotificationChannelType,
     NotificationStatus,
-    NotificationType, ReferralResponse
+    NotificationType,
+    ReferralResponse
 } from "@moonbeam/moonbeam-models";
 import {v4 as uuidv4} from 'uuid';
 import {MilitaryStatusSplashStep} from "./MilitaryStatusSplashStep";
@@ -101,10 +109,15 @@ import CardLinkedSuccessImage from '../../../../../assets/art/card-linked-succes
 // @ts-ignore
 import RegistrationBackgroundImage from '../../../../../assets/backgrounds/registration-background.png';
 import {
-    createPhysicalDevice, logEvent,
-    proceedWithDeviceCreation, processUserReferral, retrieveClickOnlyOnlineOffersList,
+    createPhysicalDevice,
+    logEvent,
+    proceedWithDeviceCreation,
+    processUserReferral,
+    retrieveClickOnlyOnlineOffersList,
     retrieveFidelisPartnerList,
-    retrieveOnlineOffersList, retrievePremierClickOnlyOnlineOffersList, retrievePremierOnlineOffersList,
+    retrieveOnlineOffersList,
+    retrievePremierClickOnlyOnlineOffersList,
+    retrievePremierOnlineOffersList,
     sendNotification
 } from "../../../../utils/AppSync";
 import {moonbeamUserIdPassState, moonbeamUserIdState} from "../../../../recoil/RootAtom";
@@ -118,7 +131,8 @@ import * as Notifications from "expo-notifications";
 import * as ImagePicker from 'expo-image-picker';
 import {
     numberOfClickOnlyOnlineOffersState,
-    numberOfFailedClickOnlyOnlineOfferCallsState, numberOfFailedOnlineOfferCallsState,
+    numberOfFailedClickOnlyOnlineOfferCallsState,
+    numberOfFailedOnlineOfferCallsState,
     numberOfOnlineOffersState
 } from "../../../../recoil/StoreOfferAtom";
 import {referralCodeMarketingCampaignState, referralCodeState} from "../../../../recoil/BranchAtom";
@@ -166,6 +180,8 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [stepNumber, setStepNumber] = useRecoilState(registrationStepNumber);
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
     const [expoPushToken,] = useRecoilState(expoPushTokenState);
+    // step 0
+    const [currentMemberAffiliation, setCurrentMemberAffiliation] = useRecoilState(currentMemberAffiliationState);
     // step 1
     const [firstName, setFirstName] = useRecoilState(firstNameState);
     const [firstNameErrors, setFirstNameErrors] = useRecoilState(firstNameErrorsState);
@@ -181,6 +197,9 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [dutyStatusErrors, setDutyStatusErrors] = useRecoilState(dutyStatusErrorsState);
     const [enlistingYear, setEnlistingYear] = useRecoilState(enlistingYearState);
     const [enlistingYearErrors, setEnlistingYearErrors] = useRecoilState(enlistingYearErrorsState);
+    const ssnValueReset = useResetRecoilState(ssnState);
+    const [ssnValue, setSSNValue] = useRecoilState(ssnState);
+    const [ssnErrors, setSSNErrors] = useRecoilState(ssnErrorsState);
     // step 2
     const [addressLine, setAddressLine] = useRecoilState(addressLineState);
     const [addressLineErrors, setAddressLineErrors] = useRecoilState(addressLineErrorsState);
@@ -193,7 +212,9 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [militaryBranch, setMilitaryBranch] = useRecoilState(militaryBranchValueState);
     const [militaryBranchErrors, setMilitaryBranchErrors] = useRecoilState(militaryBranchErrorsState);
     // step 3
+    const passwordStateReset = useResetRecoilState(registrationPasswordState);
     const [password, setPassword] = useRecoilState(registrationPasswordState);
+    const confirmPasswordStateReset = useResetRecoilState(registrationConfirmationPasswordState);
     const [confirmPassword, setConfirmPassword] = useRecoilState(registrationConfirmationPasswordState);
     const [passwordErrors, setPasswordErrors] = useRecoilState(registrationPasswordErrorsState);
     const [confirmPasswordErrors, setConfirmPasswordErrors] = useRecoilState(registrationConfirmationPasswordErrorsState);
@@ -333,14 +354,27 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                     firstName: firstName.trimStart().trimEnd(),
                     lastName: lastName.trimStart().trimEnd(),
                     dateOfBirth: birthday,
-                    enlistmentYear: enlistingYear.trimStart().trimEnd(),
+                    // default to current year for military spouses
+                    enlistmentYear:
+                        currentMemberAffiliation && currentMemberAffiliation === MilitaryAffiliation.FamilySpouse
+                            ? new Date().getFullYear()
+                            : enlistingYear.trimStart().trimEnd(),
                     addressLine: addressLine.trimStart().trimEnd(),
                     city: addressCity.trimStart().trimEnd(),
                     state: addressState.trimStart().trimEnd(),
                     zipCode: addressZip.trimStart().trimEnd(),
-                    militaryAffiliation: MilitaryAffiliation.ServiceMember, // ToDo: in the future when we add family members, we need a mechanism for that
-                    militaryBranch: militaryBranch.trimStart().trimEnd(),
-                    militaryDutyStatus: dutyStatus.trimStart().trimEnd()
+                    militaryAffiliation: currentMemberAffiliation,
+                    militaryBranch:
+                        currentMemberAffiliation && currentMemberAffiliation === MilitaryAffiliation.FamilySpouse
+                            ? MilitaryBranch.NotApplicable
+                            : militaryBranch.trimStart().trimEnd(),
+                    militaryDutyStatus:
+                        currentMemberAffiliation && currentMemberAffiliation === MilitaryAffiliation.FamilySpouse
+                            ? MilitaryDutyStatus.NotApplicable
+                            : dutyStatus.trimStart().trimEnd(),
+                    ...(currentMemberAffiliation && currentMemberAffiliation === MilitaryAffiliation.FamilySpouse && {
+                        personalIdentifier: ssnValue.trimStart().trimEnd().trim().replaceAll(' ', '')
+                    })
                 }
             }));
 
@@ -352,6 +386,10 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
             if (responseData && responseData.createMilitaryVerification.errorMessage === null) {
                 // release the loader on button press
                 setIsReady(true);
+
+                // we destroy any personal identifier info here since we don't need it anymore
+                ssnValueReset();
+                setSSNValue("");
 
                 return [true, responseData.createMilitaryVerification.data.militaryVerificationStatus];
             } else {
@@ -423,7 +461,11 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                     'custom:userId': userId,
                     // we sign up the user with a single expo push token, representing the token of the physical device that they signed up from
                     'custom:expoPushToken': expoPushToken.data,
-                    'custom:enlistmentYear': enlistingYear.trimStart().trimEnd()
+                    'custom:enlistmentYear': enlistingYear.trimStart().trimEnd(),
+                    // only populate the military affiliation parameter as part of the Cognito object, if the member is not a service member
+                    ...(currentMemberAffiliation && currentMemberAffiliation === MilitaryAffiliation.FamilySpouse && {
+                        'custom:militaryAffiliation': currentMemberAffiliation
+                    })
                 }
             });
 
@@ -492,7 +534,9 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                      */
                     setMoonbeamUserId(email);
                     setMoonbeamUserIdPass(password);
+                    passwordStateReset();
                     setPassword("");
+                    confirmPasswordStateReset();
                     setConfirmPassword("");
 
                     /**
@@ -745,7 +789,9 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                         <Portal>
                             <Dialog style={[commonStyles.dialogStyle, {height: hp(60)}]}
                                     visible={existentAccountVisible}
-                                    onDismiss={() => setExistentAccountVisible(false)}>
+                                    onDismiss={() => setExistentAccountVisible(false)}
+                                    dismissable={false}
+                            >
                                 <Dialog.Title
                                     style={commonStyles.dialogTitle}>{'Duplicate email!'}</Dialog.Title>
                                 <Dialog.Content>
@@ -766,9 +812,11 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                 mainRootNavigation && mainRootNavigation!.navigate('AppOverview', {});
 
                                                 // reset all registration fields as needed, for steps 0, 1 and 2
-                                                setStepNumber(0);
+                                                setStepNumber(-1);
                                                 setIsBackButtonShown(true);
                                                 setRegistrationMainError(false);
+                                                // reset step -1
+                                                setCurrentMemberAffiliation(null);
                                                 // reset step 0
                                                 setFirstNameErrors([]);
                                                 setLastNameErrors([]);
@@ -784,6 +832,8 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                 setPhoneNumber("");
                                                 setEnlistingYear("");
                                                 setDutyStatus("");
+                                                setSSNValue("");
+                                                setSSNErrors([]);
                                                 // reset step 1
                                                 setAddressLineErrors([]);
                                                 setAddressCityErrors([]);
@@ -980,7 +1030,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                         styles.bottomContainerButtons,
                                         (stepNumber === 1 || stepNumber === 2) && {bottom: hp(10)}
                                     ]}>
-                                        {(stepNumber === 1 || stepNumber === 2) &&
+                                        {(stepNumber === 0 || stepNumber === 1 || stepNumber === 2) &&
                                             <TouchableOpacity
                                                 style={styles.buttonLeft}
                                                 onPress={
@@ -990,12 +1040,6 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
 
                                                         // clean the registration error on previous step
                                                         setRegistrationMainError(false);
-
-                                                        // decrease the step number
-                                                        if (stepNumber > 0) {
-                                                            let newStepValue = stepNumber - 1;
-                                                            setStepNumber(newStepValue);
-                                                        }
 
                                                         // reset all the text fields according to the step number
                                                         if (stepNumber === 2) {
@@ -1017,6 +1061,30 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                             setAddressZip("");
                                                             setMilitaryBranch("");
                                                         }
+                                                        if (stepNumber === 0) {
+                                                            setFirstNameErrors([]);
+                                                            setFirstName("");
+                                                            setLastNameErrors([]);
+                                                            setLastName("");
+                                                            setEmailErrors([]);
+                                                            setEmail("");
+                                                            setBirthday("");
+                                                            setBirthdayErrors([]);
+                                                            setPhoneNumber("");
+                                                            setPhoneNumberErrors([]);
+                                                            setEnlistingYear("");
+                                                            setEnlistingYearErrors([]);
+                                                            setDutyStatus("");
+                                                            setDutyStatusErrors([]);
+                                                            setSSNErrors([]);
+                                                            setSSNValue("");
+                                                        }
+
+                                                        // decrease the step number
+                                                        if (stepNumber >= 0) {
+                                                            let newStepValue = stepNumber - 1;
+                                                            setStepNumber(newStepValue);
+                                                        }
                                                     }
                                                 }
                                             >
@@ -1036,8 +1104,8 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                 )
                                                     ? styles.buttonRightDisabled
                                                     : styles.buttonRight,
-                                                (stepNumber === 0 || stepNumber === 3 || stepNumber === 6) && {alignSelf: 'center'},
-                                                (stepNumber === 1 || stepNumber === 2) && {marginLeft: wp(25)},
+                                                (stepNumber === 3 || stepNumber === 6) && {alignSelf: 'center'},
+                                                (stepNumber === 0 || stepNumber === 1 || stepNumber === 2) && {marginLeft: wp(25)},
                                                 (stepNumber === 4)
                                                 && {
                                                     alignSelf: 'center',
@@ -1062,37 +1130,71 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                     let checksPassed = true;
                                                     switch (stepNumber) {
                                                         case 0:
-                                                            if (dutyStatus === "" || enlistingYear === "" || firstName === "" || lastName === "" || email === "" || birthday === "" || phoneNumber === ""
-                                                                || firstNameErrors.length !== 0 || lastNameErrors.length !== 0 ||
-                                                                enlistingYearErrors.length !== 0 || dutyStatusErrors.length !== 0 ||
-                                                                emailErrors.length !== 0 || birthdayErrors.length !== 0 || phoneNumberErrors.length !== 0) {
-                                                                checksPassed = false;
+                                                            if (currentMemberAffiliation === MilitaryAffiliation.ServiceMember) {
+                                                                if (dutyStatus === "" || enlistingYear === "" || firstName === "" || lastName === "" || email === "" || birthday === "" || phoneNumber === ""
+                                                                    || firstNameErrors.length !== 0 || lastNameErrors.length !== 0 ||
+                                                                    enlistingYearErrors.length !== 0 || dutyStatusErrors.length !== 0 ||
+                                                                    emailErrors.length !== 0 || birthdayErrors.length !== 0 || phoneNumberErrors.length !== 0) {
+                                                                    checksPassed = false;
 
-                                                                // only populate main error if there are no other errors showing
-                                                                if (firstNameErrors.length === 0 && lastNameErrors.length === 0 &&
-                                                                    emailErrors.length === 0 && birthdayErrors.length === 0 && phoneNumberErrors.length === 0 &&
-                                                                    enlistingYearErrors.length === 0 && dutyStatusErrors.length === 0) {
-                                                                    setRegistrationMainError(true);
+                                                                    // only populate main error if there are no other errors showing
+                                                                    if (firstNameErrors.length === 0 && lastNameErrors.length === 0 &&
+                                                                        emailErrors.length === 0 && birthdayErrors.length === 0 && phoneNumberErrors.length === 0 &&
+                                                                        enlistingYearErrors.length === 0 && dutyStatusErrors.length === 0) {
+                                                                        setRegistrationMainError(true);
+                                                                    }
+                                                                } else {
+                                                                    setRegistrationMainError(false);
+                                                                    checksPassed = true;
                                                                 }
-                                                            } else {
-                                                                setRegistrationMainError(false);
-                                                                checksPassed = true;
+                                                            } else if (currentMemberAffiliation === MilitaryAffiliation.FamilySpouse) {
+                                                                if (ssnValue === "" || firstName === "" || lastName === "" || email === "" || birthday === "" || phoneNumber === "" ||
+                                                                    firstNameErrors.length !== 0 || lastNameErrors.length !== 0 || ssnErrors.length !== 0 || emailErrors.length !== 0 || birthdayErrors.length !== 0 || phoneNumberErrors.length !== 0) {
+                                                                    checksPassed = false;
+
+                                                                    // only populate main error if there are no other errors showing
+                                                                    if (firstNameErrors.length === 0 && lastNameErrors.length === 0 &&
+                                                                        emailErrors.length === 0 && birthdayErrors.length === 0 && phoneNumberErrors.length === 0 &&
+                                                                        ssnErrors.length === 0) {
+                                                                        setRegistrationMainError(true);
+                                                                    }
+                                                                } else {
+                                                                    setRegistrationMainError(false);
+                                                                    checksPassed = true;
+                                                                }
                                                             }
                                                             break;
                                                         case 1:
-                                                            if (addressLine === "" || addressCity === "" || addressState === "" || addressZip === "" || militaryBranch === ""
-                                                                || addressLineErrors.length !== 0 || addressCityErrors.length !== 0 ||
-                                                                addressStateErrors.length !== 0 || addressZipErrors.length !== 0 || militaryBranchErrors.length !== 0) {
-                                                                checksPassed = false;
+                                                            if (currentMemberAffiliation === MilitaryAffiliation.ServiceMember) {
+                                                                if (addressLine === "" || addressCity === "" || addressState === "" || addressZip === "" || militaryBranch === ""
+                                                                    || addressLineErrors.length !== 0 || addressCityErrors.length !== 0 ||
+                                                                    addressStateErrors.length !== 0 || addressZipErrors.length !== 0 || militaryBranchErrors.length !== 0) {
+                                                                    checksPassed = false;
 
-                                                                // only populate main error if there are no other errors showing
-                                                                if (addressLineErrors.length === 0 && addressCityErrors.length === 0 &&
-                                                                    addressStateErrors.length === 0 && addressZipErrors.length === 0 && militaryBranchErrors.length === 0) {
-                                                                    setRegistrationMainError(true);
+                                                                    // only populate main error if there are no other errors showing
+                                                                    if (addressLineErrors.length === 0 && addressCityErrors.length === 0 &&
+                                                                        addressStateErrors.length === 0 && addressZipErrors.length === 0 && militaryBranchErrors.length === 0) {
+                                                                        setRegistrationMainError(true);
+                                                                    }
+                                                                } else {
+                                                                    setRegistrationMainError(false);
+                                                                    checksPassed = true;
                                                                 }
-                                                            } else {
-                                                                setRegistrationMainError(false);
-                                                                checksPassed = true;
+                                                            } else if (currentMemberAffiliation === MilitaryAffiliation.FamilySpouse) {
+                                                                if (addressLine === "" || addressCity === "" || addressState === "" || addressZip === "" ||
+                                                                    addressLineErrors.length !== 0 || addressCityErrors.length !== 0 || addressStateErrors.length !== 0 ||
+                                                                    addressZipErrors.length !== 0) {
+                                                                    checksPassed = false;
+
+                                                                    // only populate main error if there are no other errors showing
+                                                                    if (addressLineErrors.length === 0 && addressCityErrors.length === 0 &&
+                                                                        addressStateErrors.length === 0 && addressZipErrors.length === 0) {
+                                                                        setRegistrationMainError(true);
+                                                                    }
+                                                                } else {
+                                                                    setRegistrationMainError(false);
+                                                                    checksPassed = true;
+                                                                }
                                                             }
                                                             break;
                                                         case 2:

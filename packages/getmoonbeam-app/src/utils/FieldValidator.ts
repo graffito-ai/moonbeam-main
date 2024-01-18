@@ -208,13 +208,47 @@ export class FieldValidator {
     }
 
     /**
+     * Function used to format SSN for text input field
+     *
+     * @param ssnValue original ssn value passed in
+     * @param value new SSN value obtained while typing
+     */
+    public formatSSNValue = (ssnValue: string, value: string): string => {
+        // for formatting the SSN value to XXX-XX-XXXX
+        try {
+            // detect deletion
+            let deletion: boolean = false;
+            if (ssnValue.length > value.length) {
+                deletion = true;
+            }
+
+            if (!deletion) {
+                let cleaned = ("" + value).replace(/\D/g, "");
+                const match = cleaned.match(/^(\d{0,3})?(\d{0,2})?(\d{0,4})?$/);
+
+                return match
+                    ? [
+                        match[1]! ? (match[1].length == 3 ? `${match[1]} - ` : `${match[1]}`) : "",
+                        match[2]! ? (match[2].length == 2 ? `${match[2]} - ` : match[2]) : "",
+                        match[3]! ? match[3] : ""
+                    ].join("")
+                    : "";
+            } else {
+                return value;
+            }
+        } catch (err) {
+            return "";
+        }
+    }
+
+    /**
      * Function used to format phone number value for text input field
      *
      * @param phoneNumber original phone number value
-     * @param value new birthday value obtained while typing
+     * @param value new phone number value obtained while typing
      */
     public formatPhoneNumber = (phoneNumber: string, value: string): string => {
-        // for formatting the date to +1 (XXX)-XXX-XXXX
+        // for formatting the phone number to +1 (XXX)-XXX-XXXX
         try {
             // detect deletion
             let deletion: boolean = false;
@@ -298,6 +332,13 @@ export class FieldValidator {
                     setErrorsArray([]);
                 }
                 break;
+            case 'ssn':
+                if (!/^(\d{3})(\s)(-)(\s)(\d{2})(\s)(-)(\s)(\d{4})$/.test(fieldValue)) {
+                    setErrorsArray(["Invalid SSN Value."]);
+                } else {
+                    setErrorsArray([]);
+                }
+                break;
             case 'enlistingYear':
                 // get current year value
                 const currentYear = new Date().getFullYear();
@@ -362,7 +403,8 @@ export class FieldValidator {
                     fieldValue !== VerificationDocument.VETERAN_ID && fieldValue !== VerificationDocument.VA_ELIGIBILITY_LETTER &&
                     fieldValue !== VerificationDocument.ERB_ORB && fieldValue !== VerificationDocument.LES &&
                     fieldValue !== VerificationDocument.NGB_22 && fieldValue !== VerificationDocument.VHIC &&
-                    fieldValue !== VerificationDocument.VIC && fieldValue !== VerificationDocument.VA_DISABILITY_LETTER) {
+                    fieldValue !== VerificationDocument.VIC && fieldValue !== VerificationDocument.VA_DISABILITY_LETTER &&
+                    fieldValue !== VerificationDocument.MARRIAGE_LICENSE_OR_CERTIFICATE) {
                     setErrorsArray(["Invalid Verification Document."]);
                 } else {
                     setErrorsArray([]);

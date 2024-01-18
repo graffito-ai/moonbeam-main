@@ -63,11 +63,11 @@ export const militaryAffiliationRegistrationStep = [
 export const registrationSteps = [
     {
         stepTitle: "Personal Info",
-        stepDescription: "Enter your full name, email, birthday, phone number, enlisting year and duty status to continue.",
+        stepDescription: "Enter your personal information details in order to continue.",
     },
     {
         stepTitle: "Additional Info",
-        stepDescription: "Enter your address and military branch to help us verify your eligibility.",
+        stepDescription: "Enter additional information to help us verify your military eligibility.",
     },
     {
         stepTitle: "Account Security",
@@ -83,11 +83,11 @@ export const registrationSteps = [
     },
     {
         stepTitle: "Military Status",
-        stepDescription: "Continue by allowing us to verify your military service status based on the information that you provided.",
+        stepDescription: "Continue by allowing us to verify your military affiliation status based on the information that you provided.",
     },
     {
         stepTitle: "Documentation",
-        stepDescription: "We need additional information to verify your military identity. Upload or capture supporting documentation to help with your eligibility.",
+        stepDescription: "We need additional information to verify your military affiliation or identity. Upload or capture supporting documentation to help with your eligibility.",
     },
     {
         stepTitle: "Card Linking",
@@ -106,11 +106,11 @@ export const applicationWallSteps = [
     },
     {
         stepTitle: "Military Status",
-        stepDescription: "Allow us to verify your military service status based on the information that you provided during signup.",
+        stepDescription: "Allow us to verify your military affiliation status based on the information that you provided during signup.",
     },
     {
         stepTitle: "Documentation",
-        stepDescription: "We need additional information to verify your military identity. Upload or capture supporting documentation, to help with your eligibility."
+        stepDescription: "We need additional information to verify your military affiliation or identity. Upload or capture supporting documentation, to help with your eligibility."
     },
     {
         stepTitle: "",
@@ -230,7 +230,7 @@ export const serviceMembersDocumentSelectionItems = [
     }
 ];
 // constant used to keep track of the document selection dropdown value for military spouses
-const militarySpousesDocumentSelectionItems = [
+export const militarySpousesDocumentSelectionItems = [
     {
         label: VerificationDocument.MARRIAGE_LICENSE_OR_CERTIFICATE,
         value: VerificationDocument.MARRIAGE_LICENSE_OR_CERTIFICATE

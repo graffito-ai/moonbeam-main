@@ -271,5 +271,37 @@ export const styles = StyleSheet.create({
         bottom: wp(2),
         width: wp(50),
         right: wp(6),
-    }
+    },
+    textInput: {
+        position: 'absolute',
+        backgroundColor: '#313030',
+        marginTop: hp(1),
+        bottom: hp(47),
+        alignSelf: 'center',
+        width: wp(87)
+    },
+    textInputFocus: {
+        position: 'absolute',
+        backgroundColor: '#313030',
+        marginTop: hp(1),
+        bottom: hp(47),
+        alignSelf: 'center',
+        width: wp(87)
+    },
+    textInputContentStyle: {
+        width: wp(60),
+        fontSize: hp(2),
+        fontFamily: 'Saira-Regular',
+        color: '#FFFFFF',
+    },
+    errorMessageSSN: {
+        width: wp(85),
+        bottom: hp(5),
+        marginTop: -hp(3.5),
+        marginLeft: wp(5),
+        alignSelf: 'flex-start',
+        fontFamily: 'Saira-Medium',
+        fontSize: hp(2),
+        color: '#F2FF5D'
+    },
 });

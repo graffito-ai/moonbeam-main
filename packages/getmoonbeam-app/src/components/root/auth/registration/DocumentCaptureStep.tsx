@@ -1,17 +1,21 @@
 import React, {useEffect, useState} from "react";
 import {Image, Platform, Text, TouchableOpacity, View} from "react-native";
 import {Divider, TextInput} from "react-native-paper";
-import {useRecoilState} from "recoil";
+import {useRecoilState, useRecoilValue} from "recoil";
 import {
     additionalDocumentationErrors,
     additionalDocumentationNeeded,
-    currentUserInformation, documentsReCapturePhotoState, documentsRePickPhotoState,
+    currentMemberAffiliationState,
+    currentUserInformation,
+    documentsReCapturePhotoState,
+    documentsRePickPhotoState,
     isDocumentUploadedState,
     isPhotoUploadedState,
     isReadyRegistrationState,
     permissionsInstructionsCustomMessageState,
     permissionsModalCustomMessageState,
-    permissionsModalVisibleState, userIsAuthenticatedState,
+    permissionsModalVisibleState,
+    userIsAuthenticatedState,
     verificationDocumentState
 } from "../../../../recoil/AuthAtom";
 import {styles} from "../../../../styles/registration.module";
@@ -21,7 +25,10 @@ import {MediaTypeOptions, UIImagePickerPresentationStyle} from 'expo-image-picke
 import * as FileSystem from "expo-file-system";
 import {isValidSize, uploadFile} from "../../../../utils/File";
 import DropDownPicker from "react-native-dropdown-picker";
-import {serviceMembersDocumentSelectionItems} from "../../../../models/Constants";
+import {
+    militarySpousesDocumentSelectionItems,
+    serviceMembersDocumentSelectionItems
+} from "../../../../models/Constants";
 import {FieldValidator} from "../../../../utils/FieldValidator";
 import {Spinner} from "../../../common/Spinner";
 // @ts-ignore
@@ -34,7 +41,7 @@ import MoonbeamPreferencesIOS from "../../../../../assets/art/moonbeam-preferenc
 // @ts-ignore
 import MoonbeamPreferencesAndroid from "../../../../../assets/art/moonbeam-preferences-android.jpg";
 import {logEvent} from "../../../../utils/AppSync";
-import {LoggingLevel} from "@moonbeam/moonbeam-models";
+import {LoggingLevel, MilitaryAffiliation} from "@moonbeam/moonbeam-models";
 
 /**
  * DocumentCaptureStep component.
@@ -48,7 +55,10 @@ export const DocumentCaptureStep = () => {
     const [photoSelectionButtonState, setPhotoSelectionButtonState] = useState<boolean>(false);
     const [captureButtonState, setCaptureButtonState] = useState<boolean>(false);
     const [uploadButtonState, setUploadButtonState] = useState<boolean>(false);
-    const [documentItems, setDocumentItems] = useState(serviceMembersDocumentSelectionItems);
+    const [documentItems, setDocumentItems] = useState(
+        useRecoilValue(currentMemberAffiliationState) === MilitaryAffiliation.ServiceMember
+            ? serviceMembersDocumentSelectionItems
+            : militarySpousesDocumentSelectionItems);
     // constants used to keep track of shared states
     const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [documentsRePickPhoto, setDocumentsRePickPhoto] = useRecoilState(documentsRePickPhotoState);

@@ -13,7 +13,7 @@ import {
     addressStateState,
     addressZipState,
     amplifySignUpProcessErrorsState,
-    birthdayState,
+    birthdayState, currentMemberAffiliationState,
     currentUserInformation,
     dutyStatusValueState,
     emailState,
@@ -129,6 +129,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [loadingNearbyOffersForFullScreenMapInProgress, setIsLoadingNearbyOffersForFullScreenMapInProgress] = useState<boolean>(false);
         const [areOffersForFullScreenMapLoaded, setAreOffersForFullScreenMapLoaded] = useState<boolean>(false);
         // constants used to keep track of shared states
+        const [, setCurrentMemberAffiliation] = useRecoilState(currentMemberAffiliationState);
         const [numberOfFailedHorizontalMapOfferCalls, setNumberOfFailedHorizontalMapOfferCalls] = useRecoilState(numberOfFailedHorizontalMapOfferCallsState);
         const [numberOfNearbyFailedCalls, setNumberOfNearbyFailedCalls] = useRecoilState(numberOfFailedNearbyOfferCallsState);
         const [numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls] = useRecoilState(numberOfFailedOnlineOfferCallsState);
@@ -800,8 +801,8 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                                         onPress={() => {
                                                             // clear the registration values
                                                             // step -1
-                                                            // ToDo
-                                                            // step 1
+                                                            setCurrentMemberAffiliation(null);
+                                                            // step 0
                                                             setFirstName("");
                                                             setLastName("");
                                                             setEmail("");
@@ -809,13 +810,13 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                                                             setPhoneNumber("");
                                                             setDutyStatus("");
                                                             setEnlistingYear("");
-                                                            // step 2
+                                                            // step 1
                                                             setAddressLine("");
                                                             setAddressCity("");
                                                             setAddressZip("");
                                                             setAddressState("");
                                                             setMilitaryBranch("");
-                                                            // step 3
+                                                            // step 2
                                                             setPassword("");
                                                             setConfirmationPassword("");
                                                             setAccountRegistrationDisclaimer(false);

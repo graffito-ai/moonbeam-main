@@ -84,6 +84,15 @@ const enlistingYearErrorsState = atom({
 });
 
 /**
+ * Atom used to keep track of the registration ssn errors
+ * for military spouses.
+ */
+const ssnErrorsState = atom({
+    key: "ssnErrorsState",
+    default: []
+});
+
+/**
  * Atom used to keep track of the registration address line errors
  */
 const addressLineErrorsState = atom({
@@ -168,6 +177,14 @@ const registrationBackButtonShown = atom({
  */
 const enlistingYearState = atom({
     key: "enlistingYearState",
+    default: ""
+});
+
+/**
+ * Atom used to keep track of the registration ssn value for spouses.
+ */
+const ssnState = atom({
+    key: "ssnState",
     default: ""
 });
 
@@ -580,6 +597,8 @@ const currentMemberAffiliationState = atom<null | MilitaryAffiliation>({
  * Export all atoms and/or selectors
  */
 export {
+    ssnErrorsState,
+    ssnState,
     currentMemberAffiliationState,
     userIsAuthenticatedState,
     deferToLoginState,

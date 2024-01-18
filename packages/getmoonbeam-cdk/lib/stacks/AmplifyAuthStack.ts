@@ -130,6 +130,11 @@ export class AmplifyAuthStack extends NestedStack {
                     minLen: 4,
                     maxLen: 4,
                     mutable: true
+                }),
+                militaryAffiliation: new StringAttribute({
+                    minLen: 12,
+                    maxLen: 15,
+                    mutable: true
                 })
             },
             passwordPolicy: {

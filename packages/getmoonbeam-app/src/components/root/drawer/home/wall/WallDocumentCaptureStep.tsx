@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Image, Platform, Text, TouchableOpacity, View} from "react-native";
 import {Divider, TextInput} from "react-native-paper";
-import {useRecoilState} from "recoil";
+import {useRecoilState, useRecoilValue} from "recoil";
 import {styles} from "../../../../../styles/appWall.module";
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
@@ -9,7 +9,10 @@ import {MediaTypeOptions, UIImagePickerPresentationStyle} from 'expo-image-picke
 import * as FileSystem from "expo-file-system";
 import {isValidSize, uploadFile} from "../../../../../utils/File";
 import DropDownPicker from "react-native-dropdown-picker";
-import {serviceMembersDocumentSelectionItems} from "../../../../../models/Constants";
+import {
+    militarySpousesDocumentSelectionItems,
+    serviceMembersDocumentSelectionItems
+} from "../../../../../models/Constants";
 import {FieldValidator} from "../../../../../utils/FieldValidator";
 import {Spinner} from "../../../../common/Spinner";
 import {
@@ -34,9 +37,13 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-nativ
 import MoonbeamPreferencesIOS from "../../../../../../assets/art/moonbeam-preferences-ios.jpg";
 // @ts-ignore
 import MoonbeamPreferencesAndroid from "../../../../../../assets/art/moonbeam-preferences-android.jpg";
-import {currentUserInformation, userIsAuthenticatedState} from "../../../../../recoil/AuthAtom";
+import {
+    currentMemberAffiliationState,
+    currentUserInformation,
+    userIsAuthenticatedState
+} from "../../../../../recoil/AuthAtom";
 import {logEvent} from "../../../../../utils/AppSync";
-import {LoggingLevel} from "@moonbeam/moonbeam-models";
+import {LoggingLevel, MilitaryAffiliation} from "@moonbeam/moonbeam-models";
 
 /**
  * WallDocumentCaptureStep component.
@@ -53,7 +60,10 @@ export const WallDocumentCaptureStep = () => {
     const [photoSelectionButtonState, setPhotoSelectionButtonState] = useState<boolean>(false);
     const [captureButtonState, setCaptureButtonState] = useState<boolean>(false);
     const [uploadButtonState, setUploadButtonState] = useState<boolean>(false);
-    const [documentItems, setDocumentItems] = useState(serviceMembersDocumentSelectionItems);
+    const [documentItems, setDocumentItems] = useState(
+        useRecoilValue(currentMemberAffiliationState) === MilitaryAffiliation.ServiceMember
+            ? serviceMembersDocumentSelectionItems
+            : militarySpousesDocumentSelectionItems);
     // constants used to keep track of shared states
     const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [documentsRePickPhoto, setDocumentsRePickPhoto] = useRecoilState(appWallDocumentsRePickPhotoState);
