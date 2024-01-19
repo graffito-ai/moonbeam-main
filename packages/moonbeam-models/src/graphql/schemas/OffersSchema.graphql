@@ -40,6 +40,8 @@ enum RedemptionTrigger {
 }
 
 enum RewardType {
+    fixed
+    percentage
     reward_amount
     reward_percent
 }

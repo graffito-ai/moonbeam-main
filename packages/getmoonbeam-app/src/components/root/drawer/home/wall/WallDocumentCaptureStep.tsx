@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Image, Platform, Text, TouchableOpacity, View} from "react-native";
 import {Divider, TextInput} from "react-native-paper";
-import {useRecoilState, useRecoilValue} from "recoil";
+import {useRecoilState} from "recoil";
 import {styles} from "../../../../../styles/appWall.module";
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
@@ -60,12 +60,9 @@ export const WallDocumentCaptureStep = () => {
     const [photoSelectionButtonState, setPhotoSelectionButtonState] = useState<boolean>(false);
     const [captureButtonState, setCaptureButtonState] = useState<boolean>(false);
     const [uploadButtonState, setUploadButtonState] = useState<boolean>(false);
-    const [documentItems, setDocumentItems] = useState(
-        useRecoilValue(currentMemberAffiliationState) === MilitaryAffiliation.ServiceMember
-            ? serviceMembersDocumentSelectionItems
-            : militarySpousesDocumentSelectionItems);
+    const [documentItems, setDocumentItems] = useState<any | []>([]);
     // constants used to keep track of shared states
-    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [documentsRePickPhoto, setDocumentsRePickPhoto] = useRecoilState(appWallDocumentsRePickPhotoState);
     const [documentsReCapturePhoto, setDocumentsReCapturePhoto] = useRecoilState(appWallDocumentsReCapturePhotoState);
     const [, setPermissionsModalVisible] = useRecoilState(appWallPermissionsModalVisibleState);
@@ -78,6 +75,7 @@ export const WallDocumentCaptureStep = () => {
     const [uploadedFileName, setUploadedFileName] = useRecoilState(isDocumentUploadAppWallState);
     const [, setAdditionalDocumentsNeeded] = useRecoilState(additionalAppWallDocumentationNeeded);
     const [documentationErrors, setDocumentationErrors] = useRecoilState(additionalAppWallDocumentationErrors);
+    const [currentMemberAffiliation,] = useRecoilState(currentMemberAffiliationState);
 
     // initializing the field validator, to be used for validating form field values
     const fieldValidator = new FieldValidator();
@@ -90,6 +88,13 @@ export const WallDocumentCaptureStep = () => {
      * included in here.
      */
     useEffect(() => {
+        // set the appropriate document items depending on the type of member affiliation
+        if (documentItems.length === 0) {
+            setDocumentItems((currentMemberAffiliation === MilitaryAffiliation.ServiceMember || currentMemberAffiliation === null)
+                ? serviceMembersDocumentSelectionItems
+                : militarySpousesDocumentSelectionItems)
+        }
+
         // re-pick or re-capture accordingly, in case of reset permissions
         if (documentsRePickPhoto) {
             setDocumentsRePickPhoto(false);
@@ -126,7 +131,8 @@ export const WallDocumentCaptureStep = () => {
             setUploadButtonState(false);
             setPhotoSelectionButtonState(false);
         }
-    }, [captureButtonState, uploadButtonState, photoSelectionButtonState, documentationErrors, capturedFileName, uploadedFileName]);
+    }, [captureButtonState, uploadButtonState, photoSelectionButtonState, documentationErrors, capturedFileName, uploadedFileName,
+        currentMemberAffiliation, documentItems]);
 
     /**
      * Function used to pick a verification picture, based on the photo library storage,

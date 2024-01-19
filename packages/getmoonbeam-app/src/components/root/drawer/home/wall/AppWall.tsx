@@ -135,6 +135,7 @@ export const AppWall = ({navigation}: AppWallProps) => {
                     setIsDismissButtonVisible(true);
                     break;
                 case "UNKNOWN":
+                case "NEEDS_DOCUMENT_UPLOAD":
                     splashTitle = `Resume your registration!`;
                     splashDescription = `It looks like you have not finished our military affiliation verification process.`;
                     splashArtSource = StatusUnknownImage;
@@ -209,7 +210,6 @@ export const AppWall = ({navigation}: AppWallProps) => {
      */
     const updateEligibility = async (): Promise<boolean> => {
         try {
-            console.log(`verifying updated eligibility : ${ssnValue.trimStart().trimEnd().trim().replaceAll(' ', '')}`);
             // set a loader on button press
             setIsReady(false);
 
@@ -541,61 +541,66 @@ export const AppWall = ({navigation}: AppWallProps) => {
                                                 <>
                                                     {userInformation["custom:militaryAffiliation"] && userInformation["custom:militaryAffiliation"] === MilitaryAffiliation.FamilySpouse
                                                         && (ssnMainError
-                                                            ? <Text style={styles.errorMessageSSN}>Please fill out the information below!</Text>
+                                                            ? <Text style={styles.errorMessageSSN}>Please fill out the
+                                                                information below!</Text>
                                                             : (ssnErrors.length !== 0 && !ssnMainError)
                                                                 ? <Text style={styles.errorMessageSSN}>{ssnErrors[0]}</Text>
                                                                 : <></>)
                                                     }
-                                                    <TextInput
-                                                        autoCorrect={false}
-                                                        autoComplete={"off"}
-                                                        keyboardType={"number-pad"}
-                                                        placeholderTextColor={'#D9D9D9'}
-                                                        activeUnderlineColor={'#F2FF5D'}
-                                                        underlineColor={'#D9D9D9'}
-                                                        outlineColor={'#D9D9D9'}
-                                                        activeOutlineColor={'#F2FF5D'}
-                                                        selectionColor={'#F2FF5D'}
-                                                        mode={'outlined'}
-                                                        onChangeText={(value: React.SetStateAction<string>) => {
-                                                            setIsSSNFocus(true);
+                                                    {userInformation["custom:militaryAffiliation"] && userInformation["custom:militaryAffiliation"] === MilitaryAffiliation.FamilySpouse &&
+                                                        <>
+                                                            <TextInput
+                                                                autoCorrect={false}
+                                                                autoComplete={"off"}
+                                                                keyboardType={"number-pad"}
+                                                                placeholderTextColor={'#D9D9D9'}
+                                                                activeUnderlineColor={'#F2FF5D'}
+                                                                underlineColor={'#D9D9D9'}
+                                                                outlineColor={'#D9D9D9'}
+                                                                activeOutlineColor={'#F2FF5D'}
+                                                                selectionColor={'#F2FF5D'}
+                                                                mode={'outlined'}
+                                                                onChangeText={(value: React.SetStateAction<string>) => {
+                                                                    setIsSSNFocus(true);
 
-                                                            setAppWallError(false);
-                                                            setSSNMainError(false);
+                                                                    setAppWallError(false);
+                                                                    setSSNMainError(false);
 
-                                                            // format value
-                                                            value = fieldValidator.formatSSNValue(ssnValue, value.toString());
+                                                                    // format value
+                                                                    value = fieldValidator.formatSSNValue(ssnValue, value.toString());
 
-                                                            setSSNValue(value);
-                                                        }}
-                                                        onBlur={() => {
-                                                            setIsSSNFocus(false);
-                                                        }}
-                                                        value={ssnValue}
-                                                        contentStyle={styles.textInputContentStyle}
-                                                        style={[ssnFocus ? styles.textInputFocus : styles.textInput, ssnValue.length === 0 && {height: hp(6)}]}
-                                                        onFocus={() => {
-                                                            setIsSSNFocus(true);
-                                                        }}
-                                                        placeholder={'Required'}
-                                                        label="Social Security Number"
-                                                        textColor={"#FFFFFF"}
-                                                        left={
-                                                            <TextInput.Icon icon="bank" size={hp(2.8)}
-                                                                            style={{marginTop: hp(2.2)}}
-                                                                            iconColor="#FFFFFF"/>
-                                                        }
-                                                    />
-                                                    <HelperText style={{
-                                                        top: hp(4.5),
-                                                        alignSelf: 'center',
-                                                        width: wp(92),
-                                                        color: '#F2FF5D'
-                                                    }} type="info" visible={ssnFocus}>
-                                                        We will not store this information! It will only be used for
-                                                        military affiliation
-                                                        verification purposes.
-                                                    </HelperText>
+                                                                    setSSNValue(value);
+                                                                }}
+                                                                onBlur={() => {
+                                                                    setIsSSNFocus(false);
+                                                                }}
+                                                                value={ssnValue}
+                                                                contentStyle={styles.textInputContentStyle}
+                                                                style={[ssnFocus ? styles.textInputFocus : styles.textInput, ssnValue.length === 0 && {height: hp(6)}]}
+                                                                onFocus={() => {
+                                                                    setIsSSNFocus(true);
+                                                                }}
+                                                                placeholder={'Required'}
+                                                                label="Social Security Number"
+                                                                textColor={"#FFFFFF"}
+                                                                left={
+                                                                    <TextInput.Icon icon="bank" size={hp(2.8)}
+                                                                                    style={{marginTop: hp(2.2)}}
+                                                                                    iconColor="#FFFFFF"/>
+                                                                }
+                                                            />
+                                                            <HelperText style={{
+                                                                top: hp(4.5),
+                                                                alignSelf: 'center',
+                                                                width: wp(92),
+                                                                color: '#F2FF5D'
+                                                            }} type="info" visible={ssnFocus}>
+                                                                We will not store this information! It will only be used for
+                                                                military affiliation
+                                                                verification purposes.
+                                                            </HelperText>
+                                                        </>
+                                                    }
                                                 </>
                                             }
                                             {
@@ -656,67 +661,84 @@ export const AppWall = ({navigation}: AppWallProps) => {
                                                     splashButtonText={splashState.splashButtonText}
                                                     splashTitle={splashState.splashTitle}
                                                     splashDescription={splashState.splashDescription}
+                                                    splashDismissButton={true}
                                                 />
                                                 : <></>
                             }
-                            <View
-                                style={[stepNumber === 0 ? styles.bottomContainerSplashView : styles.bottomContainerButtonView]}>
-                                <TouchableOpacity
-                                    disabled={
-                                        (!militaryStatusDisclaimer && stepNumber === 1) ||
-                                        (additionalDocumentsNeeded && stepNumber === 2)
-                                }
-                                    style={[(!militaryStatusDisclaimer && stepNumber === 1) || (additionalDocumentsNeeded && stepNumber === 2) ? styles.bottomButtonDisabled : stepNumber == 0 ? styles.bottomButtonStep1 : styles.bottomButton,
-                                        (stepNumber === 0) && {
-                                            left: wp(0.25)
-                                        },
-                                        (stepNumber === 1 || stepNumber === 2)
-                                        && {
-                                            marginTop: -hp(25)
-                                        },
-                                        (stepNumber === 3)
-                                        && {
-                                            marginBottom: hp(30),
-                                            marginLeft: wp(10)
-                                        },
-                                        (stepNumber === 1 && userInformation["custom:militaryAffiliation"] && userInformation["custom:militaryAffiliation"] === MilitaryAffiliation.FamilySpouse) && {
-                                            marginTop: -hp(5)
+                            {
+                                stepNumber < 3 &&
+                                <View
+                                    style={[stepNumber === 0 ? styles.bottomContainerSplashView : styles.bottomContainerButtonView]}>
+                                    <TouchableOpacity
+                                        disabled={
+                                            (!militaryStatusDisclaimer && stepNumber === 1) ||
+                                            (additionalDocumentsNeeded && stepNumber === 2)
                                         }
-                                    ]}
-                                    onPress={
-                                        async () => {
-                                            // verify if we can move to the next stage
-                                            let checksPassed = true;
-                                            switch (stepNumber) {
-                                                case 0:
-                                                    // depending on the military status, determine whether there is a next step or not.
-                                                    switch (userInformation["militaryStatus"]) {
-                                                        case MilitaryVerificationStatusType.Pending:
-                                                        case MilitaryVerificationStatusType.Rejected:
-                                                            // initiate the contact support action
-                                                            await contactSupport();
-                                                            checksPassed = false; // to prevent going to the next step
-                                                            break;
-                                                        case "UNKNOWN":
-                                                            // pass through to the next step
-                                                            checksPassed = true;
-                                                            break;
-                                                        default:
-                                                            checksPassed = false; // to prevent going to the next step
-                                                            // any error will be caught in the App Drawer component
-                                                            break;
-                                                    }
-                                                    break;
-                                                case 1:
-                                                    if (userInformation["custom:militaryAffiliation"] && userInformation["custom:militaryAffiliation"] === MilitaryAffiliation.FamilySpouse) {
-                                                        if (ssnValue === "" || ssnErrors.length !== 0) {
-                                                            // only populate main error if there are no other errors showing
-                                                            if (ssnErrors.length === 0) {
-                                                                setSSNMainError(true);
-                                                            }
-                                                        } else {
-                                                            setSSNMainError(false);
+                                        style={[(!militaryStatusDisclaimer && stepNumber === 1) || (additionalDocumentsNeeded && stepNumber === 2) ? styles.bottomButtonDisabled : stepNumber == 0 ? styles.bottomButtonStep1 : styles.bottomButton,
+                                            (stepNumber === 0) && {
+                                                left: wp(0.25)
+                                            },
+                                            (stepNumber === 1 || stepNumber === 2)
+                                            && {
+                                                marginTop: -hp(25)
+                                            },
+                                            (stepNumber === 3)
+                                            && {
+                                                marginBottom: hp(30),
+                                                marginLeft: wp(10)
+                                            },
+                                            (stepNumber === 1 && userInformation["custom:militaryAffiliation"] && userInformation["custom:militaryAffiliation"] === MilitaryAffiliation.FamilySpouse) && {
+                                                marginTop: -hp(5)
+                                            }
+                                        ]}
+                                        onPress={
+                                            async () => {
+                                                // verify if we can move to the next stage
+                                                let checksPassed = true;
+                                                switch (stepNumber) {
+                                                    case 0:
+                                                        // depending on the military status, determine whether there is a next step or not.
+                                                        switch (userInformation["militaryStatus"]) {
+                                                            case MilitaryVerificationStatusType.Pending:
+                                                            case MilitaryVerificationStatusType.Rejected:
+                                                                // initiate the contact support action
+                                                                await contactSupport();
+                                                                checksPassed = false; // to prevent going to the next step
+                                                                break;
+                                                            case "UNKNOWN":
+                                                            case "NEEDS_DOCUMENT_UPLOAD":
+                                                                // pass through to the next step
+                                                                checksPassed = true;
+                                                                break;
+                                                            default:
+                                                                checksPassed = false; // to prevent going to the next step
+                                                                // any error will be caught in the App Drawer component
+                                                                break;
+                                                        }
+                                                        break;
+                                                    case 1:
+                                                        if (userInformation["custom:militaryAffiliation"] && userInformation["custom:militaryAffiliation"] === MilitaryAffiliation.FamilySpouse) {
+                                                            if (ssnValue === "" || ssnErrors.length !== 0) {
+                                                                // only populate main error if there are no other errors showing
+                                                                if (ssnErrors.length === 0) {
+                                                                    setSSNMainError(true);
+                                                                }
+                                                            } else {
+                                                                setSSNMainError(false);
 
+                                                                // execute the update call through creation
+                                                                const updateEligibilityFlag = await updateEligibility();
+                                                                // check the update eligibility flag, in order to determine whether the checks have passed or not
+                                                                if (updateEligibilityFlag) {
+                                                                    checksPassed = true;
+                                                                    setAppWallError(false);
+                                                                } else {
+                                                                    checksPassed = false;
+                                                                    setAppWallError(true);
+                                                                }
+                                                            }
+
+                                                        } else {
                                                             // execute the update call through creation
                                                             const updateEligibilityFlag = await updateEligibility();
                                                             // check the update eligibility flag, in order to determine whether the checks have passed or not
@@ -728,87 +750,82 @@ export const AppWall = ({navigation}: AppWallProps) => {
                                                                 setAppWallError(true);
                                                             }
                                                         }
+                                                        break;
+                                                    case 2:
+                                                        /**
+                                                         * for the 3rd step, the driver of the step is the additional documentation needed flag in the WallDocumentation component
+                                                         * nevertheless, we need to set the splash state accordingly, for the last step, in order to display the appropriate messaging.
+                                                         */
+                                                        // set the splash state of the final step
+                                                        setSplashState({
+                                                            splashTitle: `Account is pending creation!`,
+                                                            splashDescription: `Our team is working on verifying the documentation that you provided!`,
+                                                            splashButtonText: `Finish`,
+                                                            splashArtSource: StatusPendingImage
+                                                        });
+                                                        break;
+                                                    case 3:
+                                                        /**
+                                                         * for the last step, in we need to execute the "updateMilitaryVerificationStatus" API call, in order to trigger an AppWall action,
+                                                         * that would either dismiss it, or take it to the Pending screen.
+                                                         */
+                                                        // set a loader on button press
+                                                        setIsReady(false);
 
-                                                    } else {
-                                                        // execute the update call through creation
-                                                        const updateEligibilityFlag = await updateEligibility();
+                                                        // execute the update call through update
+                                                        const modifyEligibilityCall = await modifyMilitaryVerificationStatus();
                                                         // check the update eligibility flag, in order to determine whether the checks have passed or not
-                                                        if (updateEligibilityFlag) {
+                                                        if (modifyEligibilityCall) {
+                                                            // clean everything
+                                                            setAppWallError(false);
+                                                            setMilitaryStatusDisclaimer(false);
+                                                            setDocumentationErrors([]);
+                                                            setAdditionalDocumentsNeeded(false);
+
                                                             checksPassed = true;
                                                             setAppWallError(false);
+                                                            setStepNumber(0);
+
+                                                            // release the loader on button press
+                                                            setIsReady(true);
                                                         } else {
                                                             checksPassed = false;
                                                             setAppWallError(true);
+
+                                                            // release the loader on button press
+                                                            setIsReady(true);
                                                         }
-                                                    }
-                                                    break;
-                                                case 2:
+                                                        break;
+                                                    default:
+                                                        break;
+                                                }
+                                                // increase the step number
+                                                if ((stepNumber === 0 || stepNumber === 2) && checksPassed) {
+                                                    let newStepValue = stepNumber + 1;
                                                     /**
-                                                     * for the 3rd step, the driver of the step is the additional documentation needed flag in the WallDocumentation component
-                                                     * nevertheless, we need to set the splash state accordingly, for the last step, in order to display the appropriate messaging.
+                                                     * in case we are at the first step, and the verification status is NEEDS_DOCUMENT_UPLOAD, then
+                                                     * go straight to the document upload.
                                                      */
-                                                    // set the splash state of the final step
-                                                    setSplashState({
-                                                        splashTitle: `Account is pending creation!`,
-                                                        splashDescription: `Our team is working on verifying the documentation that you provided!`,
-                                                        splashButtonText: `Finish`,
-                                                        splashArtSource: StatusPendingImage
-                                                    });
-                                                    break;
-                                                case 3:
-                                                    /**
-                                                     * for the last step, in we need to execute the "updateMilitaryVerificationStatus" API call, in order to trigger an AppWall action,
-                                                     * that would either dismiss it, or take it to the Pending screen.
-                                                     */
-                                                    // set a loader on button press
-                                                    setIsReady(false);
-
-                                                    // execute the update call through update
-                                                    const modifyEligibilityCall = await modifyMilitaryVerificationStatus();
-                                                    // check the update eligibility flag, in order to determine whether the checks have passed or not
-                                                    if (modifyEligibilityCall) {
-                                                        // clean everything
-                                                        setAppWallError(false);
-                                                        setMilitaryStatusDisclaimer(false);
-                                                        setDocumentationErrors([]);
-                                                        setAdditionalDocumentsNeeded(false);
-
-                                                        checksPassed = true;
-                                                        setAppWallError(false);
-                                                        setStepNumber(0);
-
-                                                        // release the loader on button press
-                                                        setIsReady(true);
-                                                    } else {
-                                                        checksPassed = false;
-                                                        setAppWallError(true);
-
-                                                        // release the loader on button press
-                                                        setIsReady(true);
+                                                    if (stepNumber === 0 && userInformation["militaryStatus"] && userInformation["militaryStatus"] === "NEEDS_DOCUMENT_UPLOAD") {
+                                                        newStepValue += 1;
                                                     }
-                                                    break;
-                                                default:
-                                                    break;
-                                            }
-                                            // increase the step number
-                                            if ((stepNumber === 0 || stepNumber === 2) && checksPassed) {
-                                                let newStepValue = stepNumber + 1;
-                                                setStepNumber(newStepValue);
+                                                    setStepNumber(newStepValue);
+                                                }
                                             }
                                         }
-                                    }
-                                >
-                                    <Text style={styles.buttonText}>{
-                                        stepNumber === 0
-                                            ? splashState.splashButtonText
-                                            : stepNumber === 1
-                                                ? `Verify`
-                                                : stepNumber === 2
-                                                    ? `Continue`
-                                                    : `Finish`
-                                    }</Text>
-                                </TouchableOpacity>
-                            </View>
+                                    >
+                                        <Text style={styles.buttonText}>{
+                                            stepNumber === 0
+                                                ? splashState.splashButtonText
+                                                : stepNumber === 1
+                                                    ? `Verify`
+                                                    : stepNumber === 2
+                                                        ? `Continue`
+                                                        : `Finish`
+                                        }</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            }
                         </KeyboardAwareScrollView>
                     </ImageBackground>
             }

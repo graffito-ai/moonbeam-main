@@ -1,5 +1,17 @@
 // This is a file used to define the all GraphQL query constants
 
+// Query used to retrieve the files for a particular user from a bucket, if existent,
+// so we can see if a user has uploaded any documentation and/or files.
+export const getFilesForUser = /* GraphQL */ `
+    query GetFilesForUser($getFilesForUserInput: GetFilesForUserInput!) {
+        getFilesForUser(getFilesForUserInput: $getFilesForUserInput) {
+            errorMessage
+            errorType
+            data
+        }
+    }
+`;
+
 // Query used to retrieve a user's military verification information, based on their ID
 // or based on a particular date-based filter
 export const getMilitaryVerificationInformation = /* GraphQL */ `
@@ -150,7 +162,7 @@ export const getFAQs = /* GraphQL */ `
                     linkableKeyword
                     linkLocation
                     type
-                }   
+                }
             }
         }
     }

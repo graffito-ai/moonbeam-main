@@ -57,7 +57,7 @@ import {
     updateUserAuthStat
 } from "../../../utils/AppSync";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
-import {LoggingLevel, Stages, UserAuthSessionResponse} from "@moonbeam/moonbeam-models";
+import {LoggingLevel, MilitaryVerificationStatusType, Stages, UserAuthSessionResponse} from "@moonbeam/moonbeam-models";
 import {currentUserLocationState, firstTimeLoggedInState} from "../../../recoil/RootAtom";
 import * as envInfo from "../../../../local-env-info.json";
 import {
@@ -236,8 +236,8 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             // set the expo push token accordingly, to be used in later stages, as part of the current user information object
             setExpoPushToken(route.params.expoPushToken);
 
-            // load the store data if the cache is null
-            userIsAuthenticated && loadStoreData().then(() => {
+            // load the store data if the user is authenticated and the user's status is VERIFIED
+            userIsAuthenticated && userInformation["militaryStatus"] === MilitaryVerificationStatusType.Verified && loadStoreData().then(() => {
                 // once a user is authenticated, then initialize the Branch.io SDK appropriately
                 !branchInitialized && initializeBranch(userInformation).then(rootBUO => {
                     setBranchRootUniversalObject(rootBUO);
@@ -319,7 +319,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             clickOnlyOnlineOfferList, loadingClickOnlyOnlineInProgress,
             noClickOnlyOnlineOffersToLoad, marketplaceCache, loadingOnlineInProgress,
             noOnlineOffersToLoad, appUpgradeChecked, authScreen,
-            latestReferringParamsChecked, branchInitialized
+            latestReferringParamsChecked, branchInitialized, userInformation["militaryStatus"]
         ]);
 
         /**
@@ -657,7 +657,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                     loadPremierOnlineData(),
                     loadOnlineData()
                 ]);
-                numberOfClickOnlyOnlineFailedCalls < 3 && clickOnlyOnlineOfferList.length < 5 && !loadingClickOnlyOnlineInProgress && await Promise.all([
+                numberOfClickOnlyOnlineFailedCalls < 3 && clickOnlyOnlineOfferList.length < 29 && !loadingClickOnlyOnlineInProgress && await Promise.all([
                     loadPremierClickOnlyOnlineData(),
                     loadClickOnlyOnlineData()
                 ]);

@@ -424,6 +424,10 @@ export class StorageResolverStack extends Stack {
             typeName: "Query",
             fieldName: `${props.storageConfig.getResolverName}`
         });
+        storageLambdaDataSource.createResolver(`${props.storageConfig.getFilesForUserResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Query",
+            fieldName: `${props.storageConfig.getFilesForUserResolverName}`
+        });
         storageLambdaDataSource.createResolver(`${props.storageConfig.putMilitaryVerificationReportResolverName}-${props.stage}-${props.env!.region}`, {
             typeName: "Mutation",
             fieldName: `${props.storageConfig.putMilitaryVerificationReportResolverName}`

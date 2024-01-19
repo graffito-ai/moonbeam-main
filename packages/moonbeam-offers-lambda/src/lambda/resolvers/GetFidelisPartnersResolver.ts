@@ -8,7 +8,7 @@ import {
     OliveClient,
     RedemptionType,
     CountryCode, OfferAvailability, OfferFilter, OfferState, FidelisPartnerOrder,
-    FidelisVeteranOwnedPartners
+    FidelisVeteranOwnedPartners, RewardType
 } from "@moonbeam/moonbeam-models";
 
 /**
@@ -45,6 +45,28 @@ export const getFidelisPartners = async (fieldName: string): Promise<FidelisPart
         // check to see if the first offers call was executed successfully
         if (firstOffersResponse && !firstOffersResponse.errorMessage && !firstOffersResponse.errorType && firstOffersResponse.data &&
             firstOffersResponse.data.totalNumberOfPages && firstOffersResponse.data.totalNumberOfRecords && firstOffersResponse.data.offers) {
+
+            /**
+             * Todo: Remove this once the front-end is changed. Olive changed the type of the reward type for their enum so we're going to patch
+             * this so we match with whatever we had this on the front-end before they made this breaking change.
+             */
+            firstOffersResponse.data.offers.forEach(retrievedOffer => {
+                if (retrievedOffer !== undefined && retrievedOffer !== null &&
+                    retrievedOffer.reward !== undefined && retrievedOffer.reward !== null &&
+                    retrievedOffer.reward!.type !== undefined && retrievedOffer.reward!.type !== null) {
+                    /**
+                     * switch Fixed to RewardAmount and
+                     * switch Percentage to RewardPercentage
+                     */
+                    if (retrievedOffer.reward!.type! === RewardType.Percentage) {
+                        retrievedOffer.reward!.type! = RewardType.RewardPercent;
+                    }
+                    if (retrievedOffer.reward!.type! === RewardType.Fixed) {
+                        retrievedOffer.reward!.type! = RewardType.RewardAmount;
+                    }
+                }
+            });
+            
             // set the Fidelis offers accordingly
             fidelisOffers.push(...firstOffersResponse.data.offers);
 

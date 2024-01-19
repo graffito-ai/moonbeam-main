@@ -13,6 +13,7 @@ type Query {
     getTransactionByStatus(getTransactionByStatusInput: GetTransactionByStatusInput!): MoonbeamTransactionsByStatusResponse! @aws_cognito_user_pools @aws_api_key
     getCardLink(getCardLinkInput: GetCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
     getStorage(getStorageInput: GetStorageInput!): StorageResponse! @aws_cognito_user_pools
+    getFilesForUser(getFilesForUserInput: GetFilesForUserInput!): FilesForUserResponse! @aws_cognito_user_pools
     getMilitaryVerificationStatus(getMilitaryVerificationInput: GetMilitaryVerificationInput!): GetMilitaryVerificationResponse! @aws_cognito_user_pools
     getEligibleLinkedUsers: EligibleLinkedUsersResponse! @aws_cognito_user_pools @aws_api_key
     getUsersWithNoCards: IneligibleLinkedUsersResponse! @aws_cognito_user_pools @aws_api_key
@@ -96,6 +97,18 @@ type MilitaryVerificationReportResponse @aws_api_key @aws_cognito_user_pools {
     data: String # representing the S3 location of the file to append to
     errorType: StorageErrorType
     errorMessage: String
+}
+
+type FilesForUserResponse @aws_cognito_user_pools {
+    data: [String]
+    errorType: StorageErrorType
+    errorMessage: String
+}
+
+input GetFilesForUserInput {
+    id: ID!, # representing the Moonbeam user id
+    level: FileAccessLevel!,
+    type: FileType!
 }
 
 input GetStorageInput {
@@ -874,6 +887,8 @@ enum RedemptionTrigger {
 }
 
 enum RewardType {
+    fixed
+    percentage
     reward_amount
     reward_percent
 }

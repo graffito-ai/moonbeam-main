@@ -428,7 +428,7 @@ const militaryVerificationStatus = atom({
  */
 const additionalDocumentationNeeded = atom({
     key: "additionalDocumentationNeeded",
-    default: false
+    default: true
 });
 
 /**

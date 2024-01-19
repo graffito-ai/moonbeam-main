@@ -378,6 +378,13 @@ export enum FileType {
   Main = 'MAIN'
 }
 
+export type FilesForUserResponse = {
+  __typename?: 'FilesForUserResponse';
+  data?: Maybe<Array<Maybe<Scalars['String']>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<StorageErrorType>;
+};
+
 export type GetCardLinkInput = {
   id: Scalars['ID'];
 };
@@ -393,6 +400,12 @@ export type GetDeviceInput = {
 
 export type GetDevicesForUserInput = {
   id: Scalars['ID'];
+};
+
+export type GetFilesForUserInput = {
+  id: Scalars['ID'];
+  level: FileAccessLevel;
+  type: FileType;
 };
 
 export type GetMilitaryVerificationInformationInput = {
@@ -1172,6 +1185,7 @@ export type Query = {
   getEligibleLinkedUsers: EligibleLinkedUsersResponse;
   getFAQs: FaqResponse;
   getFidelisPartners: FidelisPartnerResponse;
+  getFilesForUser: FilesForUserResponse;
   getMilitaryVerificationInformation: MilitaryVerificationReportingInformationResponse;
   getMilitaryVerificationStatus: GetMilitaryVerificationResponse;
   getNotificationReminders: NotificationReminderResponse;
@@ -1206,6 +1220,11 @@ export type QueryGetDeviceByTokenArgs = {
 
 export type QueryGetDevicesForUserArgs = {
   getDevicesForUserInput: GetDevicesForUserInput;
+};
+
+
+export type QueryGetFilesForUserArgs = {
+  getFilesForUserInput: GetFilesForUserInput;
 };
 
 
@@ -1336,6 +1355,8 @@ export type Reward = {
 };
 
 export enum RewardType {
+  Fixed = 'fixed',
+  Percentage = 'percentage',
   RewardAmount = 'reward_amount',
   RewardPercent = 'reward_percent'
 }
@@ -1751,6 +1772,13 @@ export type UpdateMilitaryVerificationStatusMutationVariables = Exact<{
 
 
 export type UpdateMilitaryVerificationStatusMutation = { __typename?: 'Mutation', updateMilitaryVerificationStatus: { __typename?: 'UpdateMilitaryVerificationResponse', errorType?: MilitaryVerificationErrorType | null, errorMessage?: string | null, id?: string | null, militaryVerificationStatus?: MilitaryVerificationStatusType | null } };
+
+export type GetFilesForUserQueryVariables = Exact<{
+  getFilesForUserInput: GetFilesForUserInput;
+}>;
+
+
+export type GetFilesForUserQuery = { __typename?: 'Query', getFilesForUser: { __typename?: 'FilesForUserResponse', errorMessage?: string | null, errorType?: StorageErrorType | null, data?: Array<string | null> | null } };
 
 export type GetMilitaryVerificationInformationQueryVariables = Exact<{
   getMilitaryVerificationInformationInput: GetMilitaryVerificationInformationInput;

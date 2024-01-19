@@ -1,5 +1,12 @@
 # graphql/Queries.graphql
 # Queries Schema File
+query GetFilesForUser($getFilesForUserInput: GetFilesForUserInput!) {
+    getFilesForUser(getFilesForUserInput: $getFilesForUserInput) {
+        errorMessage
+        errorType
+        data
+    }
+}
 query GetMilitaryVerificationInformation($getMilitaryVerificationInformationInput: GetMilitaryVerificationInformationInput!) {
     getMilitaryVerificationInformation(getMilitaryVerificationInformationInput: $getMilitaryVerificationInformationInput) {
         errorMessage

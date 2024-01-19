@@ -52,6 +52,7 @@ export interface StorageConfiguration {
     readonly storageFunctionName: string;
     readonly getResolverName: string;
     readonly putMilitaryVerificationReportResolverName: string;
+    readonly getFilesForUserResolverName: string;
 }
 
 /**

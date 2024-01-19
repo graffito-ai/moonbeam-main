@@ -44,6 +44,18 @@ type MilitaryVerificationReportResponse @aws_api_key @aws_cognito_user_pools {
     errorMessage: String
 }
 
+type FilesForUserResponse @aws_cognito_user_pools {
+    data: [String]
+    errorType: StorageErrorType
+    errorMessage: String
+}
+
+input GetFilesForUserInput {
+    id: ID!, # representing the Moonbeam user id
+    level: FileAccessLevel!,
+    type: FileType!
+}
+
 input GetStorageInput {
     id: String,
     level: FileAccessLevel!,

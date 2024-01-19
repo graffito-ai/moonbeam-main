@@ -23,7 +23,7 @@ const appWallStepNumber = atom<number>({
  */
 const additionalAppWallDocumentationNeeded = atom<boolean>({
     key: "additionalAppWallDocumentationNeeded",
-    default: false
+    default: true
 });
 
 /**

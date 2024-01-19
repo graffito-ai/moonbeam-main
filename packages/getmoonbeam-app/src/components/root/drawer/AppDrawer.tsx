@@ -19,8 +19,8 @@ import * as Device from "expo-device";
 import {deviceTypeState} from "../../../recoil/RootAtom";
 import {
     CardLink,
-    createdTransaction,
-    getCardLink,
+    createdTransaction, FileAccessLevel, FileType,
+    getCardLink, getFilesForUser,
     getMilitaryVerificationStatus,
     getTransaction, LoggingLevel,
     MilitaryVerificationErrorType,
@@ -348,7 +348,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
 
             let updatedTransactionalData: MoonbeamTransaction[] = [];
             let updatedUserInformation: Object = userInformation;
-            let militaryStatus: MilitaryVerificationStatusType | 'UNKNOWN' | null = null;
+            let militaryStatus: MilitaryVerificationStatusType | 'UNKNOWN' | 'NEEDS_DOCUMENT_UPLOAD' | null = null;
 
             // only subscribe to military status updates and retrieve the status, if needed
             if (!militaryStatusAlreadyVerified) {
@@ -677,7 +677,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
          * @returns a {@link MilitaryVerificationStatusType} representing the military verification status
          * or {@link null}, representing an error
          */
-        const retrieveMilitaryVerification = async (userId: string): Promise<MilitaryVerificationStatusType | 'UNKNOWN' | null> => {
+        const retrieveMilitaryVerification = async (userId: string): Promise<MilitaryVerificationStatusType | 'UNKNOWN' | 'NEEDS_DOCUMENT_UPLOAD' | null> => {
             try {
                 if (!militaryStatusRetrieved) {
                     // call the internal military verification status API
@@ -693,8 +693,49 @@ export const AppDrawer = ({}: AppDrawerProps) => {
 
                     // check if there are any errors in the returned response
                     if (responseData && responseData.getMilitaryVerificationStatus.errorMessage === null) {
-                        // returning the military status
-                        return responseData.getMilitaryVerificationStatus.data.militaryVerificationStatus;
+                        /**
+                         * If there is a military status existent for the user, we need to check if that status is PENDING,
+                         * if they have uploaded a document for us to verify their status. If they have not, then we will
+                         * return a status of 'NEEDS_DOCUMENT_UPLOAD' so we can flag that in the AppWall component, and ask
+                         * them for a document upload.
+                         */
+                        if (responseData.getMilitaryVerificationStatus.data.militaryVerificationStatus === MilitaryVerificationStatusType.Pending) {
+                            // call the getFilesForUser API endpoint to check if the user has uploaded any documentation
+                            const filesForUserResult = await API.graphql(graphqlOperation(getFilesForUser, {
+                                getFilesForUserInput: {
+                                    id: userId,
+                                    level: FileAccessLevel.Public,
+                                    type: FileType.Main
+                                }
+                            }));
+
+                            // retrieve the data block from the response
+                            // @ts-ignore
+                            const filesResponseData = filesForUserResult ? filesForUserResult.data : null;
+
+                            // check if there are any error in the returned response
+                            if (filesResponseData && filesResponseData.getFilesForUser.data && filesResponseData.getFilesForUser.data.length !== 0) {
+                                const message = `User ${userId} has uploaded all the necessary files for verification. Need to verify them!`;
+                                console.log(message);
+                                await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+
+                                return responseData.getMilitaryVerificationStatus.data.militaryVerificationStatus;
+                            } else {
+                                /**
+                                 * if there are no files returned or there is an error (even if that's NONE_OR_ABSENT) that means that
+                                 * either there are no files for the user, or there has been an error. In that case we assume that the user
+                                 * still needs to upload a file
+                                 */
+                                const message = `Unexpected error or no files for user retrieved while attempting to retrieve files for user ${userId} ${JSON.stringify(filesForUserResult)}`;
+                                console.log(message);
+                                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
+                                return 'NEEDS_DOCUMENT_UPLOAD';
+                            }
+                        } else {
+                            // for REJECTED OR VERIFIED statuses, just proceed by returning the military status
+                            return responseData.getMilitaryVerificationStatus.data.militaryVerificationStatus;
+                        }
                     } else {
                         /**
                          * if there is no military object found for the passed in user id, instead of showing the error modal, set the status in
@@ -716,7 +757,6 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     }
                 }
                 return null;
-
             } catch (error) {
                 const message = `Unexpected error while attempting to retrieve the military verification object ${JSON.stringify(error)} ${error}`;
                 console.log(message);

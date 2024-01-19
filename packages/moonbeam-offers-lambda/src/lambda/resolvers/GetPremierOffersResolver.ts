@@ -6,7 +6,7 @@ import {
     OffersResponse,
     OliveClient, PremierClickOnlineOfferOrder,
     PremierOnlineOfferOrder,
-    RedemptionType
+    RedemptionType, RewardType
 } from "@moonbeam/moonbeam-models";
 
 /**
@@ -53,6 +53,27 @@ export const getPremierOffers = async (fieldName: string, getOffersInput: GetOff
                 if (offersResponse && !offersResponse.errorMessage && !offersResponse.errorType && offersResponse.data &&
                     offersResponse.data.totalNumberOfPages !== undefined && offersResponse.data.totalNumberOfRecords !== undefined &&
                     offersResponse.data.offers !== undefined) {
+
+                    /**
+                     * Todo: Remove this once the front-end is changed. Olive changed the type of the reward type for their enum so we're going to patch
+                     * this so we match with whatever we had this on the front-end before they made this breaking change.
+                     */
+                    offersResponse.data.offers.forEach(retrievedOffer => {
+                        if (retrievedOffer !== undefined && retrievedOffer !== null &&
+                            retrievedOffer.reward !== undefined && retrievedOffer.reward !== null &&
+                            retrievedOffer.reward!.type !== undefined && retrievedOffer.reward!.type !== null) {
+                            /**
+                             * switch Fixed to RewardAmount and
+                             * switch Percentage to RewardPercentage
+                             */
+                            if (retrievedOffer.reward!.type! === RewardType.Percentage) {
+                                retrievedOffer.reward!.type! = RewardType.RewardPercent;
+                            }
+                            if (retrievedOffer.reward!.type! === RewardType.Fixed) {
+                                retrievedOffer.reward!.type! = RewardType.RewardAmount;
+                            }
+                        }
+                    });
 
                     // filter the online offers according to how we want them displayed
                     if (getOffersInput.filterType === OfferFilter.PremierOnline) {

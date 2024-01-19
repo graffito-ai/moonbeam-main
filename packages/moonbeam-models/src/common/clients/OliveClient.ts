@@ -1501,7 +1501,9 @@ export class OliveClient extends BaseAPIClient {
                     break;
             }
             requestURL += `?loyaltyProgramId=${loyaltyProgramId}`;
-            requestURL += `&availability=${getOffersInput.availability}&countryCode=${getOffersInput.countryCode}&redemptionType=${getOffersInput.redemptionType}&pageSize=${getOffersInput.pageSize}&pageNumber=${getOffersInput.pageNumber}`;
+            // Olive deprecated the `redemptionType=all` and replaced it with its removal
+            requestURL += getOffersInput.redemptionType !== RedemptionType.All ? `&redemptionType=${getOffersInput.redemptionType}` : ``;
+            requestURL += `&availability=${getOffersInput.availability}&countryCode=${getOffersInput.countryCode}&pageSize=${getOffersInput.pageSize}&pageNumber=${getOffersInput.pageNumber}`;
             getOffersInput.offerStates.forEach(state => {
                 requestURL += `&offerStates=${state}`;
             })
