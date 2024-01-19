@@ -693,11 +693,11 @@ export const Store = ({navigation}: StoreProps) => {
         }
 
         // load the Fidelis partners if their list is empty
-        fidelisPartnerList.length === 0 && loadFidelisData().then(_ => {
+        fidelisPartnerList !== null && fidelisPartnerList.length === 0 && loadFidelisData().then(_ => {
         });
 
         // make sure to stop loading the store when we have at least 1 Fidelis partners, online offers and click-only offers
-        if (fidelisPartnerList.length !== 0 && onlineOfferList.length !== 0 && clickOnlyOnlineOfferList.length !== 0) {
+        if (fidelisPartnerList !== null && fidelisPartnerList.length !== 0 && onlineOfferList !== null && onlineOfferList.length !== 0 && clickOnlyOnlineOfferList !== null && clickOnlyOnlineOfferList.length !== 0) {
             // release the loader on button press
             !isReady && setIsReady(true);
         }

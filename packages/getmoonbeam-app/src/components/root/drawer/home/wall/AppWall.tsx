@@ -661,12 +661,14 @@ export const AppWall = ({navigation}: AppWallProps) => {
                                                     splashButtonText={splashState.splashButtonText}
                                                     splashTitle={splashState.splashTitle}
                                                     splashDescription={splashState.splashDescription}
-                                                    splashDismissButton={true}
+                                                    {...splashState.splashTitle !== 'Great!' && {
+                                                        splashDismissButton: true
+                                                    }}
                                                 />
                                                 : <></>
                             }
                             {
-                                stepNumber < 3 &&
+                                (stepNumber < 3 || (stepNumber === 3 && splashState.splashTitle === 'Great!')) &&
                                 <View
                                     style={[stepNumber === 0 ? styles.bottomContainerSplashView : styles.bottomContainerButtonView]}>
                                     <TouchableOpacity

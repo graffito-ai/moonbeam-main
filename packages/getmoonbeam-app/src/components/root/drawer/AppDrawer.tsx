@@ -225,7 +225,8 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                 });
 
                 // incoming military status updates
-                (!isLoaded && militaryStatusRetrieved && !cardLinkRetrieved && !profilePictureRetrieved && !transactionsRetrieved)
+                (userInformation["militaryStatus"] === MilitaryVerificationStatusType.Verified && !userVerified)
+                // (!isLoaded && militaryStatusRetrieved && !cardLinkRetrieved && !profilePictureRetrieved && !transactionsRetrieved)
                 && loadAppData(true).then(([updatedUserInformation, updatedTransactionalData]) => {
                     setIsReady(true);
                     setUserVerified(true);

@@ -657,7 +657,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                     loadPremierOnlineData(),
                     loadOnlineData()
                 ]);
-                numberOfClickOnlyOnlineFailedCalls < 3 && clickOnlyOnlineOfferList.length < 29 && !loadingClickOnlyOnlineInProgress && await Promise.all([
+                numberOfClickOnlyOnlineFailedCalls < 3 && clickOnlyOnlineOfferList.length < 10 && !loadingClickOnlyOnlineInProgress && await Promise.all([
                     loadPremierClickOnlyOnlineData(),
                     loadClickOnlyOnlineData()
                 ]);
