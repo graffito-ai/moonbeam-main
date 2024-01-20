@@ -90,7 +90,7 @@ export const WallDocumentCaptureStep = () => {
     useEffect(() => {
         // set the appropriate document items depending on the type of member affiliation
         if (documentItems.length === 0) {
-            setDocumentItems((currentMemberAffiliation === MilitaryAffiliation.ServiceMember || currentMemberAffiliation === null)
+            setDocumentItems(((!userInformation["custom:militaryAffiliation"] || userInformation["custom:militaryAffiliation"] === null) || userInformation["custom:militaryAffiliation"] === MilitaryAffiliation.ServiceMember)
                 ? serviceMembersDocumentSelectionItems
                 : militarySpousesDocumentSelectionItems)
         }

@@ -1114,7 +1114,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                 (stepNumber === 5)
                                                 && {
                                                     alignSelf: 'center',
-                                                    marginBottom: hp(5)
+                                                    marginBottom: hp(10)
                                                 },
                                                 stepNumber === 8
                                                 && {
@@ -1304,12 +1304,15 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
 
                                                                             await globalCache!.removeItem(`${userInformation["custom:userId"]}-militaryStatus`);
                                                                             await globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, MilitaryVerificationStatusType.Verified);
+                                                                            userInformation["militaryStatus"] = MilitaryVerificationStatusType.Verified;
+
                                                                         } else {
                                                                             const message = 'military status is not cached';
                                                                             console.log(message);
                                                                             await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
 
                                                                             globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, MilitaryVerificationStatusType.Verified);
+                                                                            userInformation["militaryStatus"] = MilitaryVerificationStatusType.Verified;
                                                                         }
                                                                     }
 
@@ -1318,6 +1321,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                                      * since we want to display the successful status screen
                                                                      */
                                                                     checksPassed = verificationStatus === MilitaryVerificationStatusType.Pending;
+                                                                    userInformation["militaryStatus"] = MilitaryVerificationStatusType.Pending;
 
                                                                     // if the checks passed, and implicitly if the status is VERIFIED, then set the additional documents needed flag
                                                                     if (checksPassed) {

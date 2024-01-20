@@ -8,7 +8,7 @@ import {
     UpdateMilitaryVerificationResponse
 } from "@moonbeam/moonbeam-models";
 import {createMilitaryVerification} from "./resolvers/CreateMilitaryVerificationResolver";
-import {getMilitaryVerificationInformation } from "./resolvers/GetMilitaryVerificationInformationResolver";
+import {getMilitaryVerificationInformation} from "./resolvers/GetMilitaryVerificationInformationResolver";
 import {getMilitaryVerificationStatus} from "./resolvers/GetMilitaryVerificationStatusResolver";
 import {updateMilitaryVerificationStatus} from "./resolvers/UpdateMilitaryVerificationStatusResolver";
 
@@ -26,10 +26,15 @@ type AppSyncEvent = {
         createMilitaryVerificationInput: CreateMilitaryVerificationInput
     },
     identity: {
-        sub : string;
-        username : string;
+        sub: string;
+        username: string;
     }
 }
+
+/**
+ * Omit the personal identifier from the createMilitaryVerificationInput object, for logging purposes
+ */
+type FilteredCreateMilitaryVerificationInput = Omit<CreateMilitaryVerificationInput, 'personalIdentifier'>;
 
 /**
  * Lambda Function handler, handling incoming events,
@@ -50,7 +55,7 @@ exports.handler = async (event: AppSyncEvent): Promise<CreateMilitaryVerificatio
         case "updateMilitaryVerificationStatus":
             return await updateMilitaryVerificationStatus(event.info.fieldName, event.arguments.updateMilitaryVerificationInput);
         case "createMilitaryVerification":
-            return await createMilitaryVerification(event.info.fieldName, event.arguments.createMilitaryVerificationInput);
+            return await createMilitaryVerification(event.info.fieldName, event.arguments.createMilitaryVerificationInput as FilteredCreateMilitaryVerificationInput);
         default:
             const errorMessage = `Unexpected field name: ${event.info.fieldName}`;
             console.log(errorMessage);

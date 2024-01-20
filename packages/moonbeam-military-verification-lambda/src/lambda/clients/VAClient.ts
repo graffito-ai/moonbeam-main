@@ -72,13 +72,13 @@ export class VAClient extends BaseAPIClient {
              * for a better customer experience.
              */
             const requestData = {
-                firstName: firstNameFormatted,
-                lastName: this.verificationInformation.lastName,
-                birthDate: dob,
-                streetAddressLine1: this.verificationInformation.addressLine,
-                city: this.verificationInformation.city,
-                state: this.verificationInformation.state,
-                zipCode: this.verificationInformation.zipCode,
+                firstName: firstNameFormatted.trimStart().trimEnd().trim(),
+                lastName: this.verificationInformation.lastName.trimStart().trimEnd().trim(),
+                birthDate: dob.trimStart().trimEnd().trim(),
+                streetAddressLine1: this.verificationInformation.addressLine.trimStart().trimEnd().trim(),
+                city: this.verificationInformation.city.trimStart().trimEnd().trim(),
+                state: this.verificationInformation.state.trimStart().trimEnd().trim(),
+                zipCode: this.verificationInformation.zipCode.trimStart().trimEnd().trim(),
                 country: "USA"
             };
             console.log(`Calling Lighthouse API for ${this.verificationInformation.militaryAffiliation}, for ${requestData.firstName} ${requestData.lastName}`);

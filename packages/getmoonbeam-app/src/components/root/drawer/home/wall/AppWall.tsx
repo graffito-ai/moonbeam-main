@@ -289,12 +289,14 @@ export const AppWall = ({navigation}: AppWallProps) => {
 
                             await globalCache!.removeItem(`${userInformation["custom:userId"]}-militaryStatus`);
                             await globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, MilitaryVerificationStatusType.Verified);
+                            userInformation["militaryStatus"] = MilitaryVerificationStatusType.Verified;
                         } else {
                             const message = 'military status is not cached';
                             console.log(message);
                             await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
 
                             globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, MilitaryVerificationStatusType.Verified);
+                            userInformation["militaryStatus"] = MilitaryVerificationStatusType.Verified;
                         }
 
                         // set the military status of the user information object accordingly
@@ -695,8 +697,23 @@ export const AppWall = ({navigation}: AppWallProps) => {
                                         ]}
                                         onPress={
                                             async () => {
+                                                // set a loader on button press
+                                                setIsReady(false);
+
                                                 // verify if we can move to the next stage
                                                 let checksPassed = true;
+                                                // increase the step number
+                                                if ((stepNumber === 0 || stepNumber === 2) && checksPassed) {
+                                                    let newStepValue = stepNumber + 1;
+                                                    /**
+                                                     * in case we are at the first step, and the verification status is NEEDS_DOCUMENT_UPLOAD, then
+                                                     * go straight to the document upload.
+                                                     */
+                                                    if (stepNumber === 0 && userInformation["militaryStatus"] && userInformation["militaryStatus"] === "NEEDS_DOCUMENT_UPLOAD") {
+                                                        newStepValue += 1;
+                                                    }
+                                                    setStepNumber(newStepValue);
+                                                }
                                                 switch (stepNumber) {
                                                     case 0:
                                                         // depending on the military status, determine whether there is a next step or not.
@@ -771,9 +788,6 @@ export const AppWall = ({navigation}: AppWallProps) => {
                                                          * for the last step, in we need to execute the "updateMilitaryVerificationStatus" API call, in order to trigger an AppWall action,
                                                          * that would either dismiss it, or take it to the Pending screen.
                                                          */
-                                                        // set a loader on button press
-                                                        setIsReady(false);
-
                                                         // execute the update call through update
                                                         const modifyEligibilityCall = await modifyMilitaryVerificationStatus();
                                                         // check the update eligibility flag, in order to determine whether the checks have passed or not
@@ -787,32 +801,18 @@ export const AppWall = ({navigation}: AppWallProps) => {
                                                             checksPassed = true;
                                                             setAppWallError(false);
                                                             setStepNumber(0);
-
-                                                            // release the loader on button press
-                                                            setIsReady(true);
                                                         } else {
                                                             checksPassed = false;
                                                             setAppWallError(true);
-
-                                                            // release the loader on button press
-                                                            setIsReady(true);
                                                         }
                                                         break;
                                                     default:
                                                         break;
                                                 }
-                                                // increase the step number
-                                                if ((stepNumber === 0 || stepNumber === 2) && checksPassed) {
-                                                    let newStepValue = stepNumber + 1;
-                                                    /**
-                                                     * in case we are at the first step, and the verification status is NEEDS_DOCUMENT_UPLOAD, then
-                                                     * go straight to the document upload.
-                                                     */
-                                                    if (stepNumber === 0 && userInformation["militaryStatus"] && userInformation["militaryStatus"] === "NEEDS_DOCUMENT_UPLOAD") {
-                                                        newStepValue += 1;
-                                                    }
-                                                    setStepNumber(newStepValue);
-                                                }
+                                                // release the loader on button press
+                                                setTimeout(() => {
+                                                    setIsReady(true);
+                                                }, 15);
                                             }
                                         }
                                     >

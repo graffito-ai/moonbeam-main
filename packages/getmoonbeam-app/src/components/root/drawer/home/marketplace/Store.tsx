@@ -195,7 +195,7 @@ export const Store = ({navigation}: StoreProps) => {
                 const clickOnlyOnlineOffers: Offer[] = responseData.getOffers.data.offers;
 
                 // ensure that there is at least one click-only online offer in the list
-                if (clickOnlyOnlineOffers.length > 0) {
+                if (clickOnlyOnlineOffers !== undefined && clickOnlyOnlineOffers !== null && clickOnlyOnlineOffers.length > 0) {
                     // increase the page number
                     setClickOnlyOnlineOffersPageNumber(clickOnlyOnlineOffersPageNumber + 1);
 
@@ -212,7 +212,7 @@ export const Store = ({navigation}: StoreProps) => {
                      * if there are no more click-only online offers to load, then this is not an error,
                      * otherwise display an error.
                      */
-                    if (clickOnlyOnlineOfferList.length === 0) {
+                    if (clickOnlyOnlineOfferList !== undefined && clickOnlyOnlineOfferList !== null && clickOnlyOnlineOfferList.length === 0) {
                         // setModalVisible(true);
                     } else {
                         // set the click-only online offers to load flag
@@ -265,7 +265,7 @@ export const Store = ({navigation}: StoreProps) => {
                 const onlineOffers: Offer[] = responseData.getOffers.data.offers;
 
                 // ensure that there is at least one online offer in the list
-                if (onlineOffers.length > 0) {
+                if (onlineOffers !== undefined && onlineOffers !== null && onlineOffers.length > 0) {
                     // increase the page number
                     setOnlineOffersPageNumber(onlineOffersPageNumber + 1);
 
@@ -281,7 +281,7 @@ export const Store = ({navigation}: StoreProps) => {
                      * if there are no more online offers to load, then this is not an error,
                      * otherwise display an error.
                      */
-                    if (onlineOfferList.length === 0) {
+                    if (onlineOfferList !== undefined && onlineOfferList !== null && onlineOfferList.length === 0) {
                         // setModalVisible(true);
                     } else {
                         // set the online offers to load flag
@@ -388,7 +388,7 @@ export const Store = ({navigation}: StoreProps) => {
                         const nearbyOffers: Offer[] = responseData.getOffers.data.offers;
 
                         // ensure that there is at least one nearby offer in the list
-                        if (nearbyOffers.length > 0) {
+                        if (nearbyOffers !== undefined && nearbyOffers !== null && nearbyOffers.length > 0) {
                             // if the page number is 1, then cache the first page of offers near user home
                             nearbyOffersPageNumber === 1 && marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-offerNearUserHome`, nearbyOffers);
 
@@ -416,7 +416,7 @@ export const Store = ({navigation}: StoreProps) => {
                              * if there are no more nearby offers to load, then this is not an error,
                              * otherwise display an error.
                              */
-                            if (nearbyOfferList.length === 0) {
+                            if (nearbyOfferList !== undefined && nearbyOfferList !== null && nearbyOfferList.length === 0) {
                                 // setModalVisible(true);
                             } else {
                                 setNearbyOffersSpinnerShown(false);
@@ -501,7 +501,7 @@ export const Store = ({navigation}: StoreProps) => {
                         const nearbyOffers: Offer[] = responseData.getOffers.data.offers;
 
                         // ensure that there is at least one nearby offer in the list
-                        if (nearbyOffers.length > 0) {
+                        if (nearbyOffers !== undefined && nearbyOffers !== null && nearbyOffers.length > 0) {
                             // increase page number
                             setNearbyOffersPageNumber(nearbyOffersPageNumber + 1);
 
@@ -518,7 +518,7 @@ export const Store = ({navigation}: StoreProps) => {
                              * if there are no more nearby offers to load, then do not fall back
                              * otherwise fall back to the offers near users' home address.
                              */
-                            if (nearbyOfferList.length === 0 || offersNearUserLocationFlag) {
+                            if ((nearbyOfferList !== undefined && nearbyOfferList !== null && nearbyOfferList.length === 0) || offersNearUserLocationFlag) {
                                 userInformation["address"] && userInformation["address"]["formatted"] && await retrieveOffersNearLocation(userInformation["address"]["formatted"]);
                             } else {
                                 setNearbyOffersSpinnerShown(false);

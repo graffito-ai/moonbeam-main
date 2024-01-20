@@ -365,6 +365,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
 
                     militaryStatus = await globalCache!.getItem(`${userInformation["custom:userId"]}-militaryStatus`);
+                    userInformation["militaryStatus"] = militaryStatus;
                 } else {
                     const message = 'military status is not cached';
                     console.log(message);
@@ -372,6 +373,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
 
                     militaryStatus = await retrieveMilitaryVerification(userInformation["custom:userId"]);
                     militaryStatus === MilitaryVerificationStatusType.Verified && globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, militaryStatus);
+                    userInformation["militaryStatus"] = militaryStatus;
                 }
                 militaryStatus && setMilitaryStatusRetrieved(true);
 
@@ -799,12 +801,14 @@ export const AppDrawer = ({}: AppDrawerProps) => {
 
                                         await globalCache!.removeItem(`${userInformation["custom:userId"]}-militaryStatus`);
                                         await globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, militaryStatus);
+                                        userInformation["militaryStatus"] = militaryStatus;
                                     } else {
                                         const message = 'military status is not cached';
                                         console.log(message);
                                         await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
 
                                         globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-militaryStatus`, militaryStatus);
+                                        userInformation["militaryStatus"] = militaryStatus;
                                     }
                                 }
                                 // set the update military status object
