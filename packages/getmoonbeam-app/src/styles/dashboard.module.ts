@@ -229,6 +229,7 @@ export const styles = StyleSheet.create({
         alignSelf: 'center',
         height: hp(5.5),
         width: hp(5.5),
+        top: hp(0.5)
     },
     mainDivider: {
         height: hp(0.2),
@@ -363,7 +364,8 @@ export const styles = StyleSheet.create({
     transactionBrandImage: {
         alignSelf: 'center',
         height: hp(7),
-        width: hp(7)
+        width: hp(7),
+        top: hp(0.5)
     },
     transactionAmountsView: {
         flexDirection: 'column',

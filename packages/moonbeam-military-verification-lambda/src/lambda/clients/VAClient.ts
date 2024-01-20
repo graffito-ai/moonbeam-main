@@ -63,6 +63,11 @@ export class VAClient extends BaseAPIClient {
                 ? this.verificationInformation.firstName.replace(' ', '-')
                 : this.verificationInformation.firstName;
 
+            // if the user lists more than 1 name for their last name, and it's separated by a space, then replace the spaces with "-"
+            let lastNameFormatted = this.verificationInformation.lastName.includes(' ')
+                ? this.verificationInformation.lastName.replace(' ', '-')
+                : this.verificationInformation.lastName;
+
             /**
              * POST /status
              * @link https://developer.va.gov/explore/verification/docs/veteran_confirmation?version=current
@@ -73,7 +78,7 @@ export class VAClient extends BaseAPIClient {
              */
             const requestData = {
                 firstName: firstNameFormatted.trimStart().trimEnd().trim(),
-                lastName: this.verificationInformation.lastName.trimStart().trimEnd().trim(),
+                lastName: lastNameFormatted.trimStart().trimEnd().trim(),
                 birthDate: dob.trimStart().trimEnd().trim(),
                 streetAddressLine1: this.verificationInformation.addressLine.trimStart().trimEnd().trim(),
                 city: this.verificationInformation.city.trimStart().trimEnd().trim(),

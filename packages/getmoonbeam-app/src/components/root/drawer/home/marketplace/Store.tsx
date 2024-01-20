@@ -121,45 +121,54 @@ export const Store = ({navigation}: StoreProps) => {
      * React state of the preferred partners.
      */
     const retrieveFidelisPartnerList = async (): Promise<void> => {
-        try {
-            // call the getFidelisPartners API
-            const fidelisPartnersResult = await API.graphql(graphqlOperation(getFidelisPartners));
+        // at most call this twice if failing (because this sometimes freezes up the marketplace)
+        let retryCount = 2;
+        while (retryCount > 0) {
+            try {
+                // call the getFidelisPartners API
+                const fidelisPartnersResult = await API.graphql(graphqlOperation(getFidelisPartners));
 
-            // retrieve the data block from the response
-            // @ts-ignore
-            const responseData = fidelisPartnersResult ? fidelisPartnersResult.data : null;
+                // retrieve the data block from the response
+                // @ts-ignore
+                const responseData = fidelisPartnersResult ? fidelisPartnersResult.data : null;
 
-            // check if there are any errors in the returned response
-            if (responseData && responseData.getFidelisPartners.errorMessage === null) {
-                // retrieve the array of Fidelis partners from the API call
-                const fidelisPartners: FidelisPartner[] = responseData.getFidelisPartners.data;
+                // check if there are any errors in the returned response
+                if (responseData !== null && responseData.getFidelisPartners.errorMessage === null) {
+                    // retrieve the array of Fidelis partners from the API call
+                    const fidelisPartners: FidelisPartner[] =
+                        (responseData.getFidelisPartners !== undefined &&
+                            responseData.getFidelisPartners !== null &&
+                            responseData.getFidelisPartners.data !== undefined &&
+                            responseData.getFidelisPartners.data !== null) ?
+                            responseData.getFidelisPartners.data : [];
 
-                // ensure that there is at least one featured partner in the list
-                if (fidelisPartners !== undefined && fidelisPartners !== null && fidelisPartners.length > 0) {
-                    // const fidelisPartnersSorted = fidelisPartners.sort(dynamicSort("brandName"));
-                    setFidelisPartnerList(fidelisPartners);
+                    // ensure that there is at least one featured partner in the list
+                    if (fidelisPartners.length > 0) {
+                        // const fidelisPartnersSorted = fidelisPartners.sort(dynamicSort("brandName"));
+                        setFidelisPartnerList(fidelisPartners);
 
-                    // set the cache appropriately
-                    marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, fidelisPartners);
+                        // set the cache appropriately
+                        marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, fidelisPartners);
+
+                        retryCount = 0;
+                    } else {
+                        retryCount -=1;
+                        const message = `No Fidelis partners to display ${JSON.stringify(fidelisPartnersResult)}`;
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Warning, userIsAuthenticated);
+                    }
                 } else {
-                    const message = `No Fidelis partners to display ${JSON.stringify(fidelisPartnersResult)}`;
+                    retryCount -=1;
+                    const message = `Unexpected error while retrieving Fidelis partner offers ${JSON.stringify(fidelisPartnersResult)}`;
                     console.log(message);
-                    await logEvent(message, LoggingLevel.Warning, userIsAuthenticated);
-
-                    // setModalVisible(true);
+                    await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
                 }
-            } else {
-                const message = `Unexpected error while retrieving Fidelis partner offers ${JSON.stringify(fidelisPartnersResult)}`;
+            } catch (error) {
+                retryCount -=1;
+                const message = `Unexpected error while attempting to retrieve the Fidelis partner offers ${JSON.stringify(error)} ${error}`;
                 console.log(message);
                 await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
-
-                // setModalVisible(true);
             }
-        } catch (error) {
-            const message = `Unexpected error while attempting to retrieve the Fidelis partner offers ${JSON.stringify(error)} ${error}`;
-            console.log(message);
-            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
-            // setModalVisible(true);
         }
     }
 

@@ -123,5 +123,53 @@ export const styles = StyleSheet.create({
         alignSelf: 'center',
         height: hp(6),
         width: wp(20)
-    }
+    },
+    codeInputColumnView: {
+        bottom: -hp(12),
+        alignSelf: 'center',
+        alignItems: 'center',
+        alignContent: 'center',
+        flexDirection: 'row',
+        width: '100%',
+    },
+    textInputCodeContentStyle: {
+        fontSize: hp(4),
+        width: wp(15),
+        marginLeft: wp(1.2),
+        fontFamily: 'Saira-Regular',
+        alignSelf: 'center',
+        textAlign: 'center',
+        color: '#FFFFFF'
+    },
+    textInputCode: {
+        backgroundColor: '#1c1a1f',
+        marginTop: hp(2),
+        bottom: hp(7),
+        alignSelf: 'flex-start',
+        marginRight: wp(1.5),
+        width: wp(14),
+    },
+    textInputCodeFocus: {
+        backgroundColor: '#1c1a1f',
+        marginTop: hp(2),
+        bottom: hp(7),
+        alignSelf: 'flex-start',
+        marginRight: wp(1.5),
+        width: wp(14),
+    },
+    resendCode: {
+        width: wp(85),
+        left: wp(15),
+        fontFamily: 'Changa-Medium',
+        fontSize: hp(2),
+        textDecorationLine: 'underline',
+        color: '#F2FF5D'
+    },
+    codeVerificationErrorMessage: {
+        top: hp(3),
+        width: wp(87),
+        fontFamily: 'Saira-Medium',
+        fontSize: hp(1.85),
+        color: '#F2FF5D'
+    },
 });

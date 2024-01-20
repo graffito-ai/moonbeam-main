@@ -3,7 +3,7 @@
     "name": "Moonbeam Finance",
     "owner": "moonbeamfin",
     "slug": "moonbeam-app",
-    "version": "0.0.14",
+    "version": "0.0.15",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -28,7 +28,7 @@
       "backgroundColor": "#313030"
     },
     "ios": {
-      "buildNumber": "2",
+      "buildNumber": "3",
       "bundleIdentifier": "com.moonbeam.moonbeamfinance",
       "supportsTablet": false,
       "infoPlist": {
@@ -48,7 +48,7 @@
       }
     },
     "android": {
-      "versionCode": 29,
+      "versionCode": 31,
       "package": "com.moonbeam.moonbeamfin",
       "googleServicesFile": "./google-services.json",
       "softwareKeyboardLayoutMode": "pan",

@@ -87,7 +87,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         const [isLoaded, setIsLoaded] = useState<boolean>(false);
         const [updatedMilitaryStatus, setUpdatedMilitaryStatus] = useState<MilitaryVerificationStatusType | null>(null);
         // constants used to keep track of shared states
-        const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
+        const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
         const [expoPushToken,] = useRecoilState(expoPushTokenState);
         const [globalCache,] = useRecoilState(globalAmplifyCacheState);
         const [transactionData, setTransactionData] = useRecoilState(transactionDataState);
@@ -119,6 +119,161 @@ export const AppDrawer = ({}: AppDrawerProps) => {
          * included in here.
          */
         useEffect(() => {
+            // pre AppDrawer Load
+            if (!isLoaded) {
+                setIsLoaded(true);
+
+                // check and set the type of device, to be used throughout the app
+                Device.getDeviceTypeAsync().then(deviceType => {
+                    setDeviceType(deviceType);
+                });
+
+                // if a valid use is logged in/ and we have a valid user id
+                if (userInformation["custom:userId"]) {
+                    // initial app load
+                    (!militaryStatusRetrieved && !cardLinkRetrieved && !profilePictureRetrieved && !transactionsRetrieved)
+                    && loadAppData(false).then(([updatedUserInformation, updatedTransactionalData]) => {
+                        // if the retrieved status is verified, set the user as verified, so we bypass the App Wall screen
+                        if (updatedUserInformation["militaryStatus"] === MilitaryVerificationStatusType.Verified) {
+                            setUserVerified(true);
+                        }
+                        setIsReady(true);
+
+                        // subscribe to receiving military status updates
+                        subscribeToMilitaryStatusUpdates(userInformation["custom:userId"]).then(() => setMilitaryStatusUpdatesSubscribed(true));
+
+                        // subscribe to receiving updates about newly created transactions
+                        subscribeTransactionsCreatedUpdates(userInformation["custom:userId"]).then(() => setTransactionCreatedSubscribed(true));
+
+                        /**
+                         * we then check whether we should proceed with the creation of a new physical device, or not.
+                         * (only if we are not running the app in Expo Go)
+                         */
+                        Constants.appOwnership !== AppOwnership.Expo && expoPushToken.data.length !== 0 &&
+                        proceedWithDeviceCreation(userInformation["custom:userId"], expoPushToken.data).then((proceedWithDeviceCreationFlag) => {
+                            if (proceedWithDeviceCreationFlag) {
+                                // if so, we create the physical device accordingly (and associated to the new user)
+                                createPhysicalDevice(userInformation["custom:userId"], expoPushToken.data).then((physicalDeviceCreationFlag) => {
+                                    if (physicalDeviceCreationFlag) {
+                                        const message = `Successfully created a physical device for user!`;
+                                        console.log(message);
+                                        logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {
+                                        });
+                                    } else {
+                                        const message = `Unable to create a physical device for user!`;
+                                        console.log(message);
+                                        logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {
+                                        });
+                                    }
+                                });
+                            } else {
+                                const message = `Not necessary to create a physical device for user!`;
+                                console.log(message);
+                                logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {
+                                });
+                            }
+                        });
+
+                        // set the user information, transactional data and profile picture URI accordingly, from what we have loaded
+                        setUserInformation(updatedUserInformation);
+                        setTransactionData(updatedTransactionalData);
+                        loadProfilePicture().then(_ => {
+                        });
+                        loadCardLinkingId().then(_ => {
+                        });
+                    });
+                }
+            }
+            // post AppDrawer Load
+            else {
+                // handle incoming military status changes
+                if (updatedMilitaryStatus !== null) {
+                    console.log(updatedMilitaryStatus);
+                    console.log(userInformation["militaryStatus"]);
+                    // load the application data, depending on whether the status was verified or not
+                    if (userInformation["militaryStatus"] !== updatedMilitaryStatus && updatedMilitaryStatus === MilitaryVerificationStatusType.Verified) {
+                        // set the user military status information accordingly
+                        setUserInformation(latestUserInformationValue => {
+                            // @link https://legacy.reactjs.org/docs/hooks-reference.html#functional-updates
+                            return {
+                                ...latestUserInformationValue,
+                                militaryStatus: updatedMilitaryStatus
+                            }
+                        });
+
+                        // handle incoming military status updates, by re-loading data accordingly
+                        loadAppData(true).then(([updatedUserInformation, updatedTransactionalData]) => {
+                            setIsReady(true);
+                            setUserVerified(true);
+
+                            /**
+                             * we then check whether we should proceed with the creation of a new physical device, or not.
+                             * (only if we are not running the app in Expo Go)
+                             */
+                            Constants.appOwnership !== AppOwnership.Expo && expoPushToken.data.length !== 0 &&
+                            proceedWithDeviceCreation(userInformation["custom:userId"], expoPushToken.data).then((proceedWithDeviceCreationFlag) => {
+                                if (proceedWithDeviceCreationFlag) {
+                                    // if so, we create the physical device accordingly (and associated to the new user)
+                                    createPhysicalDevice(userInformation["custom:userId"], expoPushToken.data).then((physicalDeviceCreationFlag) => {
+                                        if (physicalDeviceCreationFlag) {
+                                            const message = `Successfully created a physical device for user!`;
+                                            console.log(message);
+                                            logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {
+                                            });
+                                        } else {
+                                            const message = `Unable to create a physical device for user!`;
+                                            console.log(message);
+                                            logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {
+                                            });
+                                        }
+                                    });
+                                } else {
+                                    const message = `Not necessary to create a physical device for user!`;
+                                    console.log(message);
+                                    logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {
+                                    });
+                                }
+                            });
+
+                            // set the user information, transactional data and profile picture URI accordingly, from what we have loaded
+                            setUserInformation(latestUserInformationValue => {
+                                return {
+                                    ...latestUserInformationValue,
+                                    linkedCard: updatedUserInformation["linkedCard"]
+                                }
+                            });
+                            setTransactionData(updatedTransactionalData);
+                            loadProfilePicture().then(_ => {
+                            });
+                            loadCardLinkingId().then(_ => {
+                            });
+                        });
+
+                        // reset the status for future updates
+                        setUpdatedMilitaryStatus(null);
+                    } else {
+                        // the user is not verified
+                        setUserVerified(false);
+
+                        // set the user military status information accordingly
+                        setUserInformation(latestUserInformationValue => {
+                            // @link https://legacy.reactjs.org/docs/hooks-reference.html#functional-updates
+                            return {
+                                ...latestUserInformationValue,
+                                militaryStatus: updatedMilitaryStatus
+                            }
+                        });
+
+                        // reset the status for future updates
+                        setUpdatedMilitaryStatus(null);
+                    }
+                }
+            }
+
+
+            /**
+             * Function used to load the card linking id for the logged-in user
+             */
             const loadCardLinkingId = async () => {
                 if (!cardLinkingIdRetrieved) {
                     /**
@@ -144,6 +299,9 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                 }
             }
 
+            /**
+             * Function used to load the profile picture for the logged-in user
+             */
             const loadProfilePicture = async () => {
                 if (!profilePictureRetrieved) {
                     /**
@@ -172,158 +330,11 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                         : "");
                 }
             }
-
-            if (userInformation["custom:userId"]) {
-                // initial app load
-                (!isLoaded && !militaryStatusRetrieved && !cardLinkRetrieved && !profilePictureRetrieved && !transactionsRetrieved)
-                && loadAppData(false).then(([updatedUserInformation, updatedTransactionalData]) => {
-                    // if the retrieved status is verified, set the user as verified, so we bypass the App Wall screen
-                    if (updatedUserInformation["militaryStatus"] === MilitaryVerificationStatusType.Verified) {
-                        setUserVerified(true);
-                    }
-                    setIsReady(true);
-
-                    // subscribe to receiving military status updates
-                    subscribeToMilitaryStatusUpdates(userInformation["custom:userId"]).then(() => setMilitaryStatusUpdatesSubscribed(true));
-
-                    // subscribe to receiving updates about newly created transactions
-                    subscribeTransactionsCreatedUpdates(userInformation["custom:userId"]).then(() => setTransactionCreatedSubscribed(true));
-
-                    /**
-                     * we then check whether we should proceed with the creation of a new physical device, or not.
-                     * (only if we are not running the app in Expo Go)
-                     */
-                    Constants.appOwnership !== AppOwnership.Expo &&
-                    proceedWithDeviceCreation(userInformation["custom:userId"], expoPushToken.data).then((proceedWithDeviceCreationFlag) => {
-                        if (proceedWithDeviceCreationFlag) {
-                            // if so, we create the physical device accordingly (and associated to the new user)
-                            createPhysicalDevice(userInformation["custom:userId"], expoPushToken.data).then((physicalDeviceCreationFlag) => {
-                                if (physicalDeviceCreationFlag) {
-                                    const message = `Successfully created a physical device for user!`;
-                                    console.log(message);
-                                    logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {});
-                                } else {
-                                    const message = `Unable to create a physical device for user!`;
-                                    console.log(message);
-                                    logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {});
-                                }
-                            });
-                        } else {
-                            const message = `Not necessary to create a physical device for user!`;
-                            console.log(message);
-                            logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {});
-                        }
-                    });
-
-                    // set the user information, transactional data and profile picture URI accordingly, from what we have loaded
-                    setUserInformation(updatedUserInformation);
-                    setTransactionData(updatedTransactionalData);
-                    loadProfilePicture().then(_ => {
-                    });
-                    loadCardLinkingId().then(_ => {
-                    });
-                });
-
-                // incoming military status updates
-                (userInformation["militaryStatus"] === MilitaryVerificationStatusType.Verified && !userVerified)
-                // (!isLoaded && militaryStatusRetrieved && !cardLinkRetrieved && !profilePictureRetrieved && !transactionsRetrieved)
-                && loadAppData(true).then(([updatedUserInformation, updatedTransactionalData]) => {
-                    setIsReady(true);
-                    setUserVerified(true);
-
-                    /**
-                     * we then check whether we should proceed with the creation of a new physical device, or not.
-                     * (only if we are not running the app in Expo Go)
-                     */
-                    Constants.appOwnership !== AppOwnership.Expo &&
-                    proceedWithDeviceCreation(userInformation["custom:userId"], expoPushToken.data).then((proceedWithDeviceCreationFlag) => {
-                        if (proceedWithDeviceCreationFlag) {
-                            // if so, we create the physical device accordingly (and associated to the new user)
-                            createPhysicalDevice(userInformation["custom:userId"], expoPushToken.data).then((physicalDeviceCreationFlag) => {
-                                if (physicalDeviceCreationFlag) {
-                                    const message = `Successfully created a physical device for user!`;
-                                    console.log(message);
-                                    logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {});
-                                } else {
-                                    const message = `Unable to create a physical device for user!`;
-                                    console.log(message);
-                                    logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {});
-                                }
-                            });
-                        } else {
-                            const message = `Not necessary to create a physical device for user!`;
-                            console.log(message);
-                            logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {});
-                        }
-                    });
-
-                    // set the user information, transactional data and profile picture URI accordingly, from what we have loaded
-                    setUserInformation(latestUserInformationValue => {
-                        return {
-                            ...latestUserInformationValue,
-                            linkedCard: updatedUserInformation["linkedCard"]
-                        }
-                    });
-                    setTransactionData(updatedTransactionalData);
-                    loadProfilePicture().then(_ => {
-                    });
-                    loadCardLinkingId().then(_ => {
-                    });
-                });
-
-                // post app load
-                if (isLoaded) {
-                    // handle incoming military status changes
-                    if (updatedMilitaryStatus !== null) {
-                        // load the application data, depending on whether the status was verified or not
-                        if (userInformation["militaryStatus"] !== updatedMilitaryStatus && updatedMilitaryStatus === MilitaryVerificationStatusType.Verified) {
-                            // set the user military status information accordingly
-                            setUserInformation(latestUserInformationValue => {
-                                // @link https://legacy.reactjs.org/docs/hooks-reference.html#functional-updates
-                                return {
-                                    ...latestUserInformationValue,
-                                    militaryStatus: updatedMilitaryStatus
-                                }
-                            });
-
-                            // reset the flags, so we can reload the information that we need
-                            setIsLoaded(false);
-                            setTransactionsRetrieved(false);
-                            setCardLinkRetrieved(false);
-                            setProfilePictureRetrieved(false);
-
-                            // reset the status for future updates
-                            setUpdatedMilitaryStatus(null);
-                        } else {
-                            // the user is not verified
-                            setUserVerified(false);
-
-                            // set the user military status information accordingly
-                            setUserInformation(latestUserInformationValue => {
-                                // @link https://legacy.reactjs.org/docs/hooks-reference.html#functional-updates
-                                return {
-                                    ...latestUserInformationValue,
-                                    militaryStatus: updatedMilitaryStatus
-                                }
-                            });
-
-                            // reset the status for future updates
-                            setUpdatedMilitaryStatus(null);
-                        }
-                    }
-                }
-
-                // check and set the type of device, to be used throughout the app
-                Device.getDeviceTypeAsync().then(deviceType => {
-                    setDeviceType(deviceType);
-                });
-            }
         }, [
             deviceType, userInformation["custom:userId"], isLoaded,
             militaryStatusRetrieved, cardLinkRetrieved, profilePictureRetrieved,
             transactionsRetrieved, updatedMilitaryStatus, cardLinkingIdRetrieved
         ]);
-
 
         /**
          * Function used to load the initial application data, given a user's details.
@@ -384,10 +395,13 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                 };
             }
 
-            // get the military status, and set the user verified flag accordingly
+            /**
+             * get the military status from passed in subscription through flag, or existing status,
+             * and set the transactions and card-link data accordingly.
+             */
             if (militaryStatus === MilitaryVerificationStatusType.Verified || militaryStatusAlreadyVerified) {
                 /**
-                 * retrieve linked card information for the user
+                 * retrieve linked card information for the user, only if we have not done so already
                  */
                 const linkedCard = await retrieveLinkedCard(userInformation["custom:userId"]);
                 /**
@@ -426,8 +440,6 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     });
                     setBannerShown(false);
                 }
-
-                setCardLinkRetrieved(true);
 
                 // set the user's card linked object accordingly
                 updatedUserInformation = {
@@ -569,10 +581,13 @@ export const AppDrawer = ({}: AppDrawerProps) => {
          *
          * @param userId userID generated through the previous steps during the sign-up process
          * @returns a {@link CardLink} representing the card linked object, or {@link null}, representing an error
+         * or an absent card.
          */
         const retrieveLinkedCard = async (userId: string): Promise<CardLink | null> => {
             try {
                 if (!cardLinkRetrieved) {
+                    setCardLinkRetrieved(true);
+
                     // call the internal card linking status API
                     const retrievedCardLinkingResult = await API.graphql(graphqlOperation(getCardLink, {
                         getCardLinkInput: {
@@ -658,9 +673,9 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                             return null;
                         }
                     }
+                } else {
+                    return null;
                 }
-
-                return null;
             } catch (error) {
                 const message = `Unexpected error while attempting to retrieve the card linking object ${JSON.stringify(error)} ${error}`;
                 console.log(message);
@@ -883,7 +898,8 @@ export const AppDrawer = ({}: AppDrawerProps) => {
             <>
                 {
                     !isReady ?
-                        <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
+                        <Spinner loadingSpinnerShown={loadingSpinnerShown}
+                                 setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                         :
                         <>
                             <Portal>

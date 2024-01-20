@@ -116,6 +116,8 @@ export default function App() {
     theme.colors.onSurfaceVariant = '#FFFFFF';
 
     // constants used to keep track of local component state
+    const [appLoaded, setIsAppLoaded] = useState<boolean>(false);
+    const [deviceSetForNotifications, setDeviceIsSetForNotifications] = useState<boolean>(false);
     const [currentUserLocation, setCurrentUserLocation] = useState<LocationObject | null>(null);
     const [marketplaceCache, setMarketplaceCache] = useState<typeof Cache | null>(null);
     const [cache, setCache] = useState<typeof Cache | null>(null);
@@ -184,8 +186,10 @@ export default function App() {
                 });
 
                 // prepare the application for notifications
-                // envInfo.envName !== Stages.DEV && setExpoPushToken(await registerForPushNotificationsAsync());
-                setExpoPushToken(await registerForPushNotificationsAsync());
+                if (envInfo.envName !== Stages.DEV && !deviceSetForNotifications) {
+                    setDeviceIsSetForNotifications(true);
+                    setExpoPushToken(await registerForPushNotificationsAsync());
+                }
 
                 // This listener is fired whenever a notification is received while the app is foregrounded.
                 notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
@@ -209,7 +213,7 @@ export default function App() {
                     keyPrefix: 'global-amplify-cache',
                     capacityInBytes: 5000000, // 5 MB max cache size
                     itemMaxSize: 500000, // 500 KB max per item
-                    defaultTTL: 172800000, // in milliseconds, about 48 hours (we also have request/response caching every hour)
+                    defaultTTL: 18000000, // in milliseconds, about 48 hours (we also have request/response caching every hour)
                     warningThreshold: 0.8, // when to get warned that the cache is full, at 80% capacity
                     storage: AsyncStorage
                 }));
@@ -220,7 +224,7 @@ export default function App() {
                     keyPrefix: 'marketplace-amplify-cache',
                     capacityInBytes: 5000000, // 5 MB max cache size
                     itemMaxSize: 2500000, // 2.5 MB max per item
-                    defaultTTL: 86400000, // in milliseconds, about 24 hours (we also have request/response caching every hour)
+                    defaultTTL: 18000000, // in milliseconds, about 5 hours (we also have request/response caching every hour)
                     warningThreshold: 0.8, // when to get warned that the cache is full, at 80% capacity
                     storage: AsyncStorage
                 }));
@@ -269,9 +273,11 @@ export default function App() {
             }
         }
         // prepare the app
-        prepare().then(() => {
-        });
-    }, [lastNotificationResponse, currentUserLocation]);
+        if (!appLoaded) {
+            setIsAppLoaded(true);
+            prepare().then(() => {});
+        }
+    }, [lastNotificationResponse, currentUserLocation, deviceSetForNotifications]);
 
     /**
      * Invoked when the application is mounted and the layout changes

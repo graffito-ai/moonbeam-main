@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Image, ImageBackground, SafeAreaView, ScrollView, TouchableOpacity, View} from "react-native";
+import {ImageBackground, SafeAreaView, ScrollView, TouchableOpacity, View} from "react-native";
 import {Dialog, List, Portal, SegmentedButtons, Text} from "react-native-paper";
 import {styles} from "../../../../../styles/dashboard.module";
 import {useRecoilState, useRecoilValue} from "recoil";
@@ -26,6 +26,8 @@ import {BiometricsPopUp} from "./biometrics/Biometrics";
 import {Image as ExpoImage} from 'expo-image';
 // @ts-ignore
 import MoonbeamProfilePlaceholder from "../../../../../../assets/art/moonbeam-profile-placeholder.png";
+// @ts-ignore
+import MoonbeamStorePlaceholder from "../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
 
 /**
@@ -194,10 +196,15 @@ export const Dashboard = ({}) => {
                             description={`${transactionPurchaseLocation}\n${convertMSToTimeframe(Date.parse(new Date().toISOString()) - transaction.timestamp)}`}
                             left={() =>
                                 <View style={styles.leftItemIconBackground}>
-                                    <Image source={{uri: transaction.transactionBrandLogoUrl}}
-                                           resizeMethod={"scale"}
-                                           resizeMode={"contain"}
-                                           style={styles.leftItemIcon}/>
+                                    <ExpoImage
+                                        style={styles.leftItemIcon}
+                                        source={{uri: transaction.transactionBrandLogoUrl}}
+                                        placeholder={MoonbeamStorePlaceholder}
+                                        placeholderContentFit={'contain'}
+                                        contentFit={'contain'}
+                                        transition={1000}
+                                        cachePolicy={'memory-disk'}
+                                    />
                                 </View>
                             }
                             right={() =>
@@ -387,7 +394,8 @@ export const Dashboard = ({}) => {
                                                         <Text
                                                             style={styles.statNumberCenterLeft}>$ {lifetimeSavings.toFixed(2)}</Text>
                                                         <Text style={styles.statTitleLeft}>
-                                                            Lifetime <Text style={styles.statTitleRegular}>Savings</Text>
+                                                            Lifetime <Text
+                                                            style={styles.statTitleRegular}>Savings</Text>
                                                         </Text>
                                                         <Icon name={'info'}
                                                               size={hp(3)}
@@ -474,7 +482,8 @@ export const Dashboard = ({}) => {
                                                         <List.Subheader style={styles.subHeaderTitle}>
                                                             Recent Cashback
                                                         </List.Subheader>
-                                                        <Divider style={[styles.mainDivider, {backgroundColor: '#FFFFFF'}]}/>
+                                                        <Divider
+                                                            style={[styles.mainDivider, {backgroundColor: '#FFFFFF'}]}/>
                                                         {filterTransactions()}
                                                     </List.Section>
                                                     : <List.Section>

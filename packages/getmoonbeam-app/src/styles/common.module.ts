@@ -77,6 +77,23 @@ export const commonStyles = StyleSheet.create({
         width: wp(80),
         alignSelf: 'center'
     },
+    emailVerificationDialogStyle: {
+        bottom: hp(28),
+        backgroundColor: '#5B5A5A',
+        borderRadius: wp(5),
+        height: hp(60),
+        width: wp(100),
+        alignSelf: 'center'
+    },
+    emailVerificationDialogButton: {
+        backgroundColor: '#F2FF5D'
+    },
+    emailVerificationDialogButtonText: {
+        color: '#313030',
+        fontFamily: 'Saira-Medium',
+    },
+
+
     dialogStyle: {
         backgroundColor: '#5B5A5A',
         borderRadius: wp(5)
@@ -95,6 +112,7 @@ export const commonStyles = StyleSheet.create({
         textAlign: 'center'
     },
     dialogTitle: {
+        marginTop: hp(15),
         color: '#F2FF5D',
         fontFamily: 'Raleway-Bold',
         fontSize: hp(2.2)

@@ -29,6 +29,7 @@ const isRunningInExpoGo = Constants.appOwnership === AppOwnership.Expo;
  */
 export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
     // constants used to keep track of shared states
+    const [appTrackingPermissionsDone, setAreAppTrackingPermissionsDone] = useState<boolean>(false);
     const [, setReferralCodeMarketingCampaign] = useRecoilState(referralCodeMarketingCampaignState);
     const [, setReferralCode] = useRecoilState(referralCodeState);
     const [authScreen, setAuthScreen] = useRecoilState(initialAuthenticationScreen);
@@ -75,8 +76,10 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
         });
 
         // necessary for iOS compliance purposes
-        requestAppTrackingTransparencyPermission().then(_ => {
-        });
+        if (!appTrackingPermissionsDone) {
+            setAreAppTrackingPermissionsDone(true);
+            requestAppTrackingTransparencyPermission().then(_ => {});
+        }
 
         // check if we need to skip on the overview screen
         !deepLinkingSourced && SecureStore.getItemAsync(`moonbeam-skip-overview`, {
@@ -112,7 +115,7 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
             });
             setDeferToLogin(false);
         }
-    }, [deferToLogin, authScreen, deepLinkingSourced, latestReferringParamsChecked]);
+    }, [deferToLogin, authScreen, deepLinkingSourced, latestReferringParamsChecked, appTrackingPermissionsDone]);
 
     // return the component for the AppOverview page
     return (
