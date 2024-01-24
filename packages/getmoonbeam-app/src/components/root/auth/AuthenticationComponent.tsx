@@ -83,9 +83,7 @@ import {
     offersNearUserLocationFlagState,
     onlineOffersListState,
     onlineOffersPageNumberState,
-    premierClickOnlyOnlineOffersPageNumberState,
     premierNearbyOffersPageNumberState,
-    premierOnlineOffersPageNumberState,
     reloadNearbyDueToPermissionsChangeState,
 } from "../../../recoil/StoreOfferAtom";
 import {registerListener, removeListener} from "../../../utils/AmplifyHub";
@@ -147,10 +145,10 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [nearbyOffersPageNumber, setNearbyOffersPageNumber] = useRecoilState(nearbyOffersPageNumberState);
         const [premierNearbyOffersPageNumber, setPremierNearbyOffersPageNumber] = useRecoilState(premierNearbyOffersPageNumberState);
         const [onlineOffersPageNumber, setOnlineOffersPageNumber] = useRecoilState(onlineOffersPageNumberState);
-        const [premierOnlineOffersPageNumber, setPremierOnlineOffersPageNumber] = useRecoilState(premierOnlineOffersPageNumberState);
+        // const [premierOnlineOffersPageNumber, setPremierOnlineOffersPageNumber] = useRecoilState(premierOnlineOffersPageNumberState);
         const [noOnlineOffersToLoad, setNoOnlineOffersToLoad] = useRecoilState(noOnlineOffersToLoadState);
         const [clickOnlyOnlineOffersPageNumber, setClickOnlyOnlineOffersPageNumber] = useRecoilState(clickOnlyOnlineOffersPageNumberState);
-        const [premierClickOnlyOnlineOffersPageNumber, setPremierClickOnlyOnlineOffersPageNumber] = useRecoilState(premierClickOnlyOnlineOffersPageNumberState);
+        // const [premierClickOnlyOnlineOffersPageNumber, setPremierClickOnlyOnlineOffersPageNumber] = useRecoilState(premierClickOnlyOnlineOffersPageNumberState);
         const [noClickOnlyOnlineOffersToLoad, setNoClickOnlyOnlineOffersToLoad] = useRecoilState(noClickOnlyOnlineOffersToLoadState);
         const [noNearbyOffersToLoad, setNoNearbyOffersToLoad] = useRecoilState(noNearbyOffersToLoadState);
         const [, setOffersNearUserLocationFlag] = useRecoilState(offersNearUserLocationFlagState);
@@ -280,7 +278,8 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                     }
                 }
                 // once a user is authenticated, load the store data until we get enough offers loaded
-                !initialStoreContentLoaded && loadStoreData().then(() => {});
+                !initialStoreContentLoaded && loadStoreData().then(() => {
+                });
 
                 // once a user is authenticated, then initialize the Branch.io SDK appropriately
                 !branchInitialized && initializeBranch(userInformation).then(rootBUO => {
@@ -403,8 +402,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                 setIsLoadingClickOnlyOnlineInProgress(true);
 
                 const premierClickOnlyOnlineOffers = await retrievePremierClickOnlyOnlineOffersList(
-                    numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls,
-                    premierClickOnlyOnlineOffersPageNumber, setPremierClickOnlyOnlineOffersPageNumber);
+                    numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls);
                 if (premierClickOnlyOnlineOffers !== undefined && premierClickOnlyOnlineOffers !== null &&
                     premierClickOnlyOnlineOffers.length !== 0) {
                     // update the number of available total click-only offers
@@ -463,9 +461,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
             setTimeout(async () => {
                 setIsLoadingOnlineInProgress(true);
 
-                const premierOnlineOffers = await retrievePremierOnlineOffersList(
-                    numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls,
-                    premierOnlineOffersPageNumber, setPremierOnlineOffersPageNumber);
+                const premierOnlineOffers = await retrievePremierOnlineOffersList(numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls);
                 if (premierOnlineOffers !== undefined &&
                     premierOnlineOffers !== null) {
                     // no offers
@@ -582,9 +578,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                 setIsLoadingNearbyOffersInProgress(true);
                 const premierOffersNearby = await
                     retrievePremierOffersNearby(
-                        numberOfNearbyFailedCalls, setNumberOfNearbyFailedCalls,
-                        premierNearbyOffersPageNumber, setPremierNearbyOffersPageNumber,
-                        currentUserLocation, setCurrentUserLocation);
+                        numberOfNearbyFailedCalls, setNumberOfNearbyFailedCalls, currentUserLocation, setCurrentUserLocation);
                 if (premierOffersNearby === null) {
                     setIsLoadingNearbyOffersInProgress(false);
                 } else if ((premierOffersNearby !== undefined && premierOffersNearby !== null && premierOffersNearby.length === 0) || nearbyOfferList.length >= 1) {
@@ -734,11 +728,13 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
 
                 nearbyOffersListForMainHorizontalMap !== undefined && nearbyOffersListForMainHorizontalMap !== null &&
                 numberOfFailedHorizontalMapOfferCalls < 6 && !loadingNearbyOffersForHorizontalMapInProgress && !areOffersForMainHorizontalMapLoaded && nearbyOffersListForMainHorizontalMap.length === 0 &&
-                loadNearbyDataForMainHorizontalMap().then(() => {});
+                loadNearbyDataForMainHorizontalMap().then(() => {
+                });
 
                 nearbyOffersListForFullScreenMap !== undefined && nearbyOffersListForFullScreenMap !== null &&
                 numberOfFailedHorizontalMapOfferCalls < 6 && !loadingNearbyOffersForFullScreenMapInProgress && !areOffersForFullScreenMapLoaded && nearbyOffersListForFullScreenMap.length === 0 &&
-                loadNearbyDataForFullScreenMap().then(() => {});
+                loadNearbyDataForFullScreenMap().then(() => {
+                });
             }
             if (envInfo.envName === Stages.PROD) {
                 // sometimes recoil messes up the state, so we're here to correct it
@@ -800,11 +796,13 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
 
                 nearbyOffersListForMainHorizontalMap !== undefined && nearbyOffersListForMainHorizontalMap !== null &&
                 numberOfFailedHorizontalMapOfferCalls < 6 && !loadingNearbyOffersForHorizontalMapInProgress && !areOffersForMainHorizontalMapLoaded && nearbyOffersListForMainHorizontalMap.length === 0 &&
-                loadNearbyDataForMainHorizontalMap().then(() => {});
+                loadNearbyDataForMainHorizontalMap().then(() => {
+                });
 
                 nearbyOffersListForFullScreenMap !== undefined && nearbyOffersListForFullScreenMap !== null &&
                 numberOfFailedHorizontalMapOfferCalls < 6 && !loadingNearbyOffersForFullScreenMapInProgress && !areOffersForFullScreenMapLoaded && nearbyOffersListForFullScreenMap.length === 0 &&
-                loadNearbyDataForFullScreenMap().then(() => {});
+                loadNearbyDataForFullScreenMap().then(() => {
+                });
             }
         }
 

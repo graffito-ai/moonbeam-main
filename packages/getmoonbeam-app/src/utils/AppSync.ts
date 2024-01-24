@@ -624,15 +624,11 @@ export const createPhysicalDevice = async (userId: string, tokenId: string): Pro
  * @param numberOfFailedCalls parameter specifying the existing number of failed calls.
  * @param setNumberOfFailedCalls setter or updater used to update the failed number of calls,
  * in case this call fails.
- * @param pageNumber optional parameter specifying a page number that we will get the
- * premier click-only online offer from, in case we are not using this for caching purposes
- * @param setPageNumber setter or updater used to update the page number, if passed in.
  *
  * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function will
  * be used to cache the list of premier click-only online offers.
  */
-export const retrievePremierClickOnlyOnlineOffersList = async (numberOfFailedCalls: number, setNumberOfFailedCalls: SetterOrUpdater<number>,
-                                                               pageNumber?: number, setPageNumber?: SetterOrUpdater<number>): Promise<Offer[]> => {
+export const retrievePremierClickOnlyOnlineOffersList = async (numberOfFailedCalls: number, setNumberOfFailedCalls: SetterOrUpdater<number>): Promise<Offer[]> => {
     // result to return
     let premierClickOnlyOnlineOffers: Offer[] = [];
 
@@ -647,8 +643,8 @@ export const retrievePremierClickOnlyOnlineOffersList = async (numberOfFailedCal
                     countryCode: CountryCode.Us,
                     filterType: OfferFilter.PremierOnline,
                     offerStates: [OfferState.Active, OfferState.Scheduled],
-                    pageNumber: pageNumber !== undefined ? pageNumber : 1,
-                    pageSize: 20, // load all the premier click-only online offers, so we can sort them appropriately
+                    pageNumber: 1,
+                    pageSize: 30, // load all the premier click-only online offers, so we can sort them appropriately
                     redemptionType: RedemptionType.Click
                 }
             }));
@@ -664,10 +660,6 @@ export const retrievePremierClickOnlyOnlineOffersList = async (numberOfFailedCal
 
                 // ensure that there is at least one premier click-only online offer in the list
                 if (premierClickOnlyOnlineOffers !== undefined && premierClickOnlyOnlineOffers !== null && premierClickOnlyOnlineOffers.length > 0) {
-                    // increase the page number, if needed
-                    pageNumber !== null && pageNumber !== undefined &&
-                    setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
-
                     retryCount = 0;
                 } else {
                     /**
@@ -718,15 +710,11 @@ export const retrievePremierClickOnlyOnlineOffersList = async (numberOfFailedCal
  * @param numberOfFailedCalls parameter specifying the existing number of failed calls.
  * @param setNumberOfFailedCalls setter or updater used to update the failed number of calls,
  * in case this call fails
- * @param pageNumber optional parameter specifying a page number that we will get the
- * premier online offer from, in case we are not using this for caching purposes
- * @param setPageNumber setter or updater used to update the page number, if passed in.
  *
  * @returns a {@link Promise} of an {@link Array} of {@link Offer}, since this function will
  * be used to cache the list of premier online offers.
  */
-export const retrievePremierOnlineOffersList = async (numberOfFailedCalls: number, setNumberOfFailedCalls: SetterOrUpdater<number>,
-                                                      pageNumber?: number, setPageNumber?: SetterOrUpdater<number>): Promise<Offer[]> => {
+export const retrievePremierOnlineOffersList = async (numberOfFailedCalls: number, setNumberOfFailedCalls: SetterOrUpdater<number>): Promise<Offer[]> => {
     // result to return
     let premierOnlineOffers: Offer[] = [];
 
@@ -741,8 +729,8 @@ export const retrievePremierOnlineOffersList = async (numberOfFailedCalls: numbe
                     countryCode: CountryCode.Us,
                     filterType: OfferFilter.PremierOnline,
                     offerStates: [OfferState.Active, OfferState.Scheduled],
-                    pageNumber: pageNumber !== undefined ? pageNumber : 1,
-                    pageSize: 14, // load all the premier online offers, so we can sort them appropriately
+                    pageNumber: 1,
+                    pageSize: 30, // load all the premier online offers, so we can sort them appropriately
                     redemptionType: RedemptionType.Cardlinked
                 }
             }));
@@ -758,10 +746,6 @@ export const retrievePremierOnlineOffersList = async (numberOfFailedCalls: numbe
 
                 // ensure that there is at least one premier online offer in the list
                 if (premierOnlineOffers !== undefined && premierOnlineOffers !== null && premierOnlineOffers.length > 0) {
-                    // increase the page number, if needed
-                    pageNumber !== null && pageNumber !== undefined &&
-                    setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
-
                     retryCount = 0;
                 } else {
                     /**
@@ -1154,9 +1138,6 @@ export const retrieveFidelisPartnerList = async (): Promise<FidelisPartner[]> =>
  * @param numberOfFailedCalls parameter specifying the existing number of failed calls.
  * @param setNumberOfFailedCalls setter or updater used to update the failed number of calls,
  * in case this call fails
- * @param pageNumber parameter specifying a page number that we will get the nearby locations
- * from
- * @param setPageNumber setter or updater used to update the page number.
  * @param currentUserLocation the current location object of the user
  * @param setCurrentUserLocation setter or updates used to update the current user location if needed
  *
@@ -1164,7 +1145,7 @@ export const retrieveFidelisPartnerList = async (): Promise<FidelisPartner[]> =>
  * will be used to get the list of offers nearby.
  */
 export const retrievePremierOffersNearby = async (numberOfFailedCalls: number, setNumberOfFailedCalls: SetterOrUpdater<number>,
-                                                  pageNumber: number, setPageNumber: SetterOrUpdater<number>, currentUserLocation: LocationObject | null,
+                                                  currentUserLocation: LocationObject | null,
                                                   setCurrentUserLocation: SetterOrUpdater<LocationObject | null>): Promise<Offer[] | null> => {
     // result to return
     let nearbyOffers: Offer[] | null = [];
@@ -1197,7 +1178,7 @@ export const retrievePremierOffersNearby = async (numberOfFailedCalls: number, s
                             countryCode: CountryCode.Us,
                             filterType: OfferFilter.PremierNearby,
                             offerStates: [OfferState.Active, OfferState.Scheduled],
-                            pageNumber: pageNumber,
+                            pageNumber: 1,
                             pageSize: 1, // load 1 premier nearby offer at a time
                             radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
                             radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
@@ -1218,8 +1199,6 @@ export const retrievePremierOffersNearby = async (numberOfFailedCalls: number, s
 
                         // ensure that there is at least one nearby offer in the list
                         if (nearbyOffers !== undefined && nearbyOffers !== null && nearbyOffers.length > 0) {
-                            setPageNumber(pageNumber + 1);
-                            // retrieve the array of nearby offers from the API call
                             retryCount = 0;
                         } else {
                             /**
