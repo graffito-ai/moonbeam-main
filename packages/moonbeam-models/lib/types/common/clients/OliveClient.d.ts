@@ -139,10 +139,15 @@ export declare class OliveClient extends BaseAPIClient {
      *
      * @param getOffersInput the offers input, containing the filtering information
      * used to retrieve all the applicable/matching offers.
+     * @param numberOfRetries this optional param is applied in extreme circumstances,
+     * when the number of records returned does not match to the number of records parameter.
+     * @param pageNumber this optional param is applied in extreme circumstances,
+     * when the number of records returned does not match to the number of records parameter,
+     * and we need to decrease the page number forcefully.
      *
      * @returns a {@link OffersResponse} representing the matched offers' information.
      */
-    getOffers(getOffersInput: GetOffersInput): Promise<OffersResponse>;
+    getOffers(getOffersInput: GetOffersInput, numberOfRetries?: number, pageNumber?: number): Promise<OffersResponse>;
     /**
      * Function used to retrieve a user's card linking ID, given their Moonbeam
      * internal unique ID.

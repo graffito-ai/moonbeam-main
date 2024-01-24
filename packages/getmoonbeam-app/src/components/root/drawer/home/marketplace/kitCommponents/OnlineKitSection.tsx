@@ -243,7 +243,7 @@ export const OnlineKitSection = (props: {
         let offersShown = false;
 
         // offer listing
-        if (deDuplicatedOnlineOfferList.length !== 0) {
+        if (deDuplicatedOnlineOfferList !== undefined && deDuplicatedOnlineOfferList !== null && deDuplicatedOnlineOfferList.length !== 0) {
             offersShown = true;
             return (
                 <>
@@ -439,7 +439,8 @@ export const OnlineKitSection = (props: {
                             </View>
                             {
                                 !deDuplicatedOnlineOfferList || !onlineOfferList ||
-                                deDuplicatedOnlineOfferList.length === 0 || onlineOfferList.length === 0 ?
+                                (deDuplicatedOnlineOfferList !== undefined && deDuplicatedOnlineOfferList !== null && deDuplicatedOnlineOfferList.length === 0) ||
+                                (onlineOfferList !== undefined && onlineOfferList !== null && onlineOfferList.length === 0) ?
                                     <>
                                         <Card
                                             style={[styles.nearbyLoadingOfferCard, currentActiveKit !== null && currentActiveKit === OfferCategory.VeteranDay && {
@@ -548,7 +549,10 @@ export const OnlineKitSection = (props: {
                                                         setOnlineVeteransDayCategorizedOfferList(oldOnlineOffers => {
                                                             return [...oldOnlineOffers, ...additionalVeteransDayOffersToLoad]
                                                         });
-                                                        additionalVeteransDayOffersToLoad.length === 0 && setNoOnlineVeteransDayCategorizedOffersToLoad(true);
+                                                        additionalVeteransDayOffersToLoad !== undefined &&
+                                                        additionalVeteransDayOffersToLoad !== null &&
+                                                        additionalVeteransDayOffersToLoad.length === 0 &&
+                                                        setNoOnlineVeteransDayCategorizedOffersToLoad(true);
                                                         break;
                                                     case OfferCategory.Food:
                                                         const additionalFoodOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
@@ -556,7 +560,10 @@ export const OnlineKitSection = (props: {
                                                         setOnlineFoodCategorizedOfferList(oldOnlineOffers => {
                                                             return [...oldOnlineOffers, ...additionalFoodOffersToLoad]
                                                         });
-                                                        additionalFoodOffersToLoad.length === 0 && setNoOnlineFoodCategorizedOffersToLoad(true);
+                                                        additionalFoodOffersToLoad !== undefined &&
+                                                        additionalFoodOffersToLoad !== null &&
+                                                        additionalFoodOffersToLoad.length === 0 &&
+                                                        setNoOnlineFoodCategorizedOffersToLoad(true);
                                                         break;
                                                     case OfferCategory.Retail:
                                                         const additionalRetailOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
@@ -564,7 +571,10 @@ export const OnlineKitSection = (props: {
                                                         setOnlineRetailCategorizedOfferList(oldOnlineOffers => {
                                                             return [...oldOnlineOffers, ...additionalRetailOffersToLoad]
                                                         });
-                                                        additionalRetailOffersToLoad.length === 0 && setNoOnlineRetailCategorizedOffersToLoad(true);
+                                                        additionalRetailOffersToLoad !== undefined &&
+                                                        additionalRetailOffersToLoad !== null &&
+                                                        additionalRetailOffersToLoad.length === 0 &&
+                                                        setNoOnlineRetailCategorizedOffersToLoad(true);
                                                         break;
                                                     case OfferCategory.Entertainment:
                                                         const additionalEntertainmentOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
@@ -572,7 +582,10 @@ export const OnlineKitSection = (props: {
                                                         setOnlineEntertainmentCategorizedOfferList(oldOnlineOffers => {
                                                             return [...oldOnlineOffers, ...additionalEntertainmentOffersToLoad]
                                                         });
-                                                        additionalEntertainmentOffersToLoad.length === 0 && setNoOnlineEntertainmentCategorizedOffersToLoad(true);
+                                                        additionalEntertainmentOffersToLoad !== undefined &&
+                                                        additionalEntertainmentOffersToLoad !== null &&
+                                                        additionalEntertainmentOffersToLoad.length === 0 &&
+                                                        setNoOnlineEntertainmentCategorizedOffersToLoad(true);
                                                         break;
                                                     case OfferCategory.Electronics:
                                                         const additionalElectronicsOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
@@ -580,7 +593,10 @@ export const OnlineKitSection = (props: {
                                                         setOnlineElectronicsCategorizedOfferList(oldOnlineOffers => {
                                                             return [...oldOnlineOffers, ...additionalElectronicsOffersToLoad]
                                                         });
-                                                        additionalElectronicsOffersToLoad.length === 0 && setNoOnlineElectronicsCategorizedOffersToLoad(true);
+                                                        additionalElectronicsOffersToLoad !== undefined &&
+                                                        additionalElectronicsOffersToLoad !== null &&
+                                                        additionalElectronicsOffersToLoad.length === 0 &&
+                                                        setNoOnlineElectronicsCategorizedOffersToLoad(true);
                                                         break;
                                                     case OfferCategory.Home:
                                                         const additionalHomeOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
@@ -588,7 +604,10 @@ export const OnlineKitSection = (props: {
                                                         setOnlineHomeCategorizedOfferList(oldOnlineOffers => {
                                                             return [...oldOnlineOffers, ...additionalHomeOffersToLoad]
                                                         });
-                                                        additionalHomeOffersToLoad.length === 0 && setNoOnlineHomeCategorizedOffersToLoad(true);
+                                                        additionalHomeOffersToLoad !== undefined &&
+                                                        additionalHomeOffersToLoad !== null &&
+                                                        additionalHomeOffersToLoad.length === 0 &&
+                                                        setNoOnlineHomeCategorizedOffersToLoad(true);
                                                         break;
                                                     case OfferCategory.HealthAndBeauty:
                                                         const additionalHealthAndBeautyOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
@@ -596,7 +615,10 @@ export const OnlineKitSection = (props: {
                                                         setOnlineHealthAndBeautyCategorizedOfferList(oldOnlineOffers => {
                                                             return [...oldOnlineOffers, ...additionalHealthAndBeautyOffersToLoad]
                                                         });
-                                                        additionalHealthAndBeautyOffersToLoad.length === 0 && setNoOnlineHealthAndBeautyCategorizedOffersToLoad(true);
+                                                        additionalHealthAndBeautyOffersToLoad !== undefined &&
+                                                        additionalHealthAndBeautyOffersToLoad !== null &&
+                                                        additionalHealthAndBeautyOffersToLoad.length === 0 &&
+                                                        setNoOnlineHealthAndBeautyCategorizedOffersToLoad(true);
                                                         break;
                                                     case OfferCategory.OfficeAndBusiness:
                                                         const additionalOfficeAndBusinessOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
@@ -604,7 +626,10 @@ export const OnlineKitSection = (props: {
                                                         setOnlineOfficeAndBusinessCategorizedOfferList(oldOnlineOffers => {
                                                             return [...oldOnlineOffers, ...additionalOfficeAndBusinessOffersToLoad]
                                                         });
-                                                        additionalOfficeAndBusinessOffersToLoad.length === 0 && setNoOnlineOfficeAndBusinessCategorizedOffersToLoad(true);
+                                                        additionalOfficeAndBusinessOffersToLoad !== undefined &&
+                                                        additionalOfficeAndBusinessOffersToLoad !== null &&
+                                                        additionalOfficeAndBusinessOffersToLoad.length === 0 &&
+                                                        setNoOnlineOfficeAndBusinessCategorizedOffersToLoad(true);
                                                         break;
                                                     case OfferCategory.ServicesAndSubscriptions:
                                                         const additionalServicesAndSubscriptionsOffersToLoad = await retrieveCategorizedOnlineOffersList(numberOfOnlineOffers, setNumberOfOnlineOffers,
@@ -612,7 +637,10 @@ export const OnlineKitSection = (props: {
                                                         setOnlineServicesAndSubscriptionsCategorizedOfferList(oldOnlineOffers => {
                                                             return [...oldOnlineOffers, ...additionalServicesAndSubscriptionsOffersToLoad]
                                                         });
-                                                        additionalServicesAndSubscriptionsOffersToLoad.length === 0 && setNoOnlineServicesAndSubscriptionsCategorizedOffersToLoad(true);
+                                                        additionalServicesAndSubscriptionsOffersToLoad !== undefined &&
+                                                        additionalServicesAndSubscriptionsOffersToLoad !== null &&
+                                                        additionalServicesAndSubscriptionsOffersToLoad.length === 0 &&
+                                                        setNoOnlineServicesAndSubscriptionsCategorizedOffersToLoad(true);
                                                         break;
                                                     default:
                                                         break;

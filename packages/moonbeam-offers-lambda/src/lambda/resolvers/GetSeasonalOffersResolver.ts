@@ -54,7 +54,7 @@ export const getSeasonalOffers = async (fieldName: string, getOffersInput: GetOf
                     const oliveClient = new OliveClient(process.env.ENV_NAME!, region);
 
                     // execute the GET offers Olive REST call
-                    const offersResponse: OffersResponse = await oliveClient.getOffers(getOffersInput);
+                    const offersResponse: OffersResponse = await oliveClient.getOffers(getOffersInput, 3);
 
                     // check to see if the offers call was executed successfully
                     if (offersResponse && !offersResponse.errorMessage && !offersResponse.errorType && offersResponse.data &&

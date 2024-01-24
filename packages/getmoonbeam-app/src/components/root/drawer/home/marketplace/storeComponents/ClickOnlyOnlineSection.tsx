@@ -57,7 +57,7 @@ export const ClickOnlyOnlineSection = (props: {
      * React node and/or nodes containing the click-only online offers.
      */
     const renderRowData = useMemo(() => (_type: string | number, data: Offer, index: number): JSX.Element | JSX.Element[] => {
-        if (clickOnlyOnlineOfferList.length !== 0) {
+        if (clickOnlyOnlineOfferList !== undefined && clickOnlyOnlineOfferList !== null && clickOnlyOnlineOfferList.length !== 0) {
             return (
                 <>
                     <TouchableOpacity style={{left: '3%'}}
@@ -129,7 +129,8 @@ export const ClickOnlyOnlineSection = (props: {
         }
 
         // populate the click-only online offer data provider and list view
-        if (clickOnlyOnlineOfferList.length > 0 && layoutProvider === null && dataProvider === null) {
+        if (clickOnlyOnlineOfferList !== undefined && clickOnlyOnlineOfferList !== null &&
+            clickOnlyOnlineOfferList.length > 0 && layoutProvider === null && dataProvider === null) {
             setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedClickOnlyOnlineOfferList));
             setLayoutProvider(new LayoutProvider(
                 _ => 0,

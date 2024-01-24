@@ -143,7 +143,7 @@ export const Store = ({navigation}: StoreProps) => {
                             responseData.getFidelisPartners.data : [];
 
                     // ensure that there is at least one featured partner in the list
-                    if (fidelisPartners.length > 0) {
+                    if (fidelisPartners !== undefined && fidelisPartners !== null && fidelisPartners.length > 0) {
                         // const fidelisPartnersSorted = fidelisPartners.sort(dynamicSort("brandName"));
                         setFidelisPartnerList(fidelisPartners);
 
@@ -536,7 +536,7 @@ export const Store = ({navigation}: StoreProps) => {
                             }
                         }
                     } else {
-                        const errorMessage = `Unexpected error while retrieving nearby offers ${JSON.stringify(nearbyOffersResult)}`;
+                        const errorMessage = `Unexpected error while retrieving nearby offers ${nearbyOffersResult}`;
                         console.log(errorMessage);
                         await logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated);
 
@@ -702,11 +702,12 @@ export const Store = ({navigation}: StoreProps) => {
         }
 
         // load the Fidelis partners if their list is empty
-        fidelisPartnerList !== null && fidelisPartnerList.length === 0 && loadFidelisData().then(_ => {
+        fidelisPartnerList !== undefined && fidelisPartnerList !== null && fidelisPartnerList.length === 0 && loadFidelisData().then(_ => {
         });
 
         // make sure to stop loading the store when we have at least 1 Fidelis partners, online offers and click-only offers
-        if (fidelisPartnerList !== null && fidelisPartnerList.length !== 0 && onlineOfferList !== null && onlineOfferList.length !== 0 && clickOnlyOnlineOfferList !== null && clickOnlyOnlineOfferList.length !== 0) {
+        if (fidelisPartnerList !== undefined && fidelisPartnerList !== null && fidelisPartnerList.length !== 0 && onlineOfferList !== undefined &&
+            onlineOfferList !== null && onlineOfferList.length !== 0 && clickOnlyOnlineOfferList !== undefined && clickOnlyOnlineOfferList !== null && clickOnlyOnlineOfferList.length !== 0) {
             // release the loader on button press
             !isReady && setIsReady(true);
         }

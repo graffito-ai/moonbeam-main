@@ -47,13 +47,11 @@ export const getPremierOffers = async (fieldName: string, getOffersInput: GetOff
                 const oliveClient = new OliveClient(process.env.ENV_NAME!, region);
 
                 // execute the GET offers Olive REST call
-                const offersResponse: OffersResponse = await oliveClient.getOffers(getOffersInput);
+                const offersResponse: OffersResponse = await oliveClient.getOffers(getOffersInput, 3);
 
                 // check to see if the offers call was executed successfully
                 if (offersResponse && !offersResponse.errorMessage && !offersResponse.errorType && offersResponse.data &&
-                    offersResponse.data.totalNumberOfPages !== undefined && offersResponse.data.totalNumberOfRecords !== undefined &&
-                    offersResponse.data.offers !== undefined) {
-
+                    offersResponse.data.totalNumberOfPages !== undefined && offersResponse.data.totalNumberOfRecords !== undefined) {
                     /**
                      * Todo: Remove this once the front-end is changed. Olive changed the type of the reward type for their enum so we're going to patch
                      * this so we match with whatever we had this on the front-end before they made this breaking change.

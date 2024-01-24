@@ -55,7 +55,8 @@ export const MapHorizontalSection = () => {
      * included in here.
      */
     useEffect(() => {
-        if (uniqueNearbyOffersListForMainHorizontalMap.length !== 0) {
+        if (uniqueNearbyOffersListForMainHorizontalMap !== undefined && uniqueNearbyOffersListForMainHorizontalMap !== null &&
+            uniqueNearbyOffersListForMainHorizontalMap.length !== 0) {
             setLoadingSpinnerShown(false);
         }
         if (mapViewRef && mapViewRef.current && currentUserLocation !== null && !mapIsDisplayed) {

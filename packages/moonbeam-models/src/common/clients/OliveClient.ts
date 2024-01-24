@@ -7,8 +7,7 @@ import {
     GetUserCardLinkingIdInput,
     GetUserCardLinkingIdResponse,
     MemberDetailsResponse,
-    MemberResponse,
-    Offer,
+    MemberResponse, Offer,
     OfferFilter,
     OfferIdResponse,
     OfferRedemptionTypeResponse,
@@ -21,7 +20,7 @@ import {
     TransactionResponse,
     TransactionsErrorType,
     UpdatedTransactionEvent,
-    UpdatedTransactionEventResponse
+    UpdatedTransactionEventResponse,
 } from "../GraphqlExports";
 import {BaseAPIClient} from "./BaseAPIClient";
 import {Constants} from "../Constants";
@@ -1409,10 +1408,15 @@ export class OliveClient extends BaseAPIClient {
      *
      * @param getOffersInput the offers input, containing the filtering information
      * used to retrieve all the applicable/matching offers.
+     * @param numberOfRetries this optional param is applied in extreme circumstances,
+     * when the number of records returned does not match to the number of records parameter.
+     * @param pageNumber this optional param is applied in extreme circumstances,
+     * when the number of records returned does not match to the number of records parameter,
+     * and we need to decrease the page number forcefully.
      *
      * @returns a {@link OffersResponse} representing the matched offers' information.
      */
-    async getOffers(getOffersInput: GetOffersInput): Promise<OffersResponse> {
+    async getOffers(getOffersInput: GetOffersInput, numberOfRetries?: number, pageNumber?: number): Promise<OffersResponse> {
         // easily identifiable API endpoint information
         const endpointInfo = 'GET /offers Olive API';
 
@@ -1503,7 +1507,7 @@ export class OliveClient extends BaseAPIClient {
             requestURL += `?loyaltyProgramId=${loyaltyProgramId}`;
             // Olive deprecated the `redemptionType=all` and replaced it with its removal
             requestURL += getOffersInput.redemptionType !== RedemptionType.All ? `&redemptionType=${getOffersInput.redemptionType}` : ``;
-            requestURL += `&availability=${getOffersInput.availability}&countryCode=${getOffersInput.countryCode}&pageSize=${getOffersInput.pageSize}&pageNumber=${getOffersInput.pageNumber}`;
+            requestURL += `&availability=${getOffersInput.availability}&countryCode=${getOffersInput.countryCode}&pageSize=${getOffersInput.pageSize}&pageNumber=${pageNumber !== null && pageNumber !== undefined ? pageNumber : getOffersInput.pageNumber}`;
             getOffersInput.offerStates.forEach(state => {
                 requestURL += `&offerStates=${state}`;
             })
@@ -1530,7 +1534,7 @@ export class OliveClient extends BaseAPIClient {
                 },
                 timeout: 25000, // in milliseconds here
                 timeoutErrorMessage: 'Olive API timed out after 25000ms!'
-            }).then(getOffersResponse => {
+            }).then(async getOffersResponse => {
                 // we don't want to log this in case of success responses, because the offer responses are very long (frugality)
                 // console.log(`${endpointInfo} response ${JSON.stringify(getOffersResponse.data)}`);
 
@@ -1540,12 +1544,32 @@ export class OliveClient extends BaseAPIClient {
                  */
                 if (getOffersResponse.data !== undefined && getOffersResponse.data["totalNumberOfPages"] !== undefined &&
                     getOffersResponse.data["totalNumberOfRecords"] !== undefined && getOffersResponse.data["items"] !== undefined) {
-                    // return the array of offer items accordingly
-                    return {
-                        data: {
-                            offers: getOffersResponse.data["items"] as Offer[],
-                            totalNumberOfPages: getOffersResponse.data["totalNumberOfPages"],
-                            totalNumberOfRecords: getOffersResponse.data["totalNumberOfRecords"]
+                    // if we somehow get an un-matching number of records to records returned, then retry this call at most, twice
+                    if (getOffersResponse.data["totalNumberOfRecords"] > 0 && getOffersResponse.data["items"].length === 0) {
+                        if (numberOfRetries === undefined || numberOfRetries === 0) {
+                            // return the array of offer items accordingly
+                            return {
+                                data: {
+                                    offers: getOffersResponse.data["items"] as Offer[],
+                                    totalNumberOfPages: getOffersResponse.data["totalNumberOfPages"],
+                                    totalNumberOfRecords: getOffersResponse.data["totalNumberOfRecords"]
+                                }
+                            }
+                        } else {
+                            await delay(1000); // delay 1 seconds between calls
+                            console.log(`Re-attempting to retrieve offers due to mismatch items/records retrieved!`);
+                            return this.getOffers(getOffersInput, numberOfRetries-1, getOffersInput.pageNumber > 1
+                                ? getOffersInput.pageNumber - 1
+                                : undefined);
+                        }
+                    } else {
+                        // return the array of offer items accordingly
+                        return {
+                            data: {
+                                offers: getOffersResponse.data["items"] as Offer[],
+                                totalNumberOfPages: getOffersResponse.data["totalNumberOfPages"],
+                                totalNumberOfRecords: getOffersResponse.data["totalNumberOfRecords"]
+                            }
                         }
                     }
                 } else {
@@ -1729,3 +1753,15 @@ export class OliveClient extends BaseAPIClient {
         }
     }
 }
+
+/**
+ * Function used as a delay
+ *
+ * @param ms number of milliseconds to delay by
+ *
+ * @returns a {@link Promise}
+ */
+const delay = (ms: number): Promise<any> => {
+    return new Promise( resolve => setTimeout(resolve, ms) );
+}
+

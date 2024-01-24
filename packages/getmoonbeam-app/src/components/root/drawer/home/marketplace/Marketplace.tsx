@@ -65,7 +65,7 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
         // set the kit title, according to the user selected option
         if (currentActiveKit !== null) {
             const filteredKits = moonbeamKits.filter(kit => kit.type === currentActiveKit);
-            if (filteredKits.length === 1) {
+            if (filteredKits !== undefined && filteredKits !== null && filteredKits.length === 1) {
                 setKitImage(filteredKits[0].backgroundPictureSource);
                 setKitTitle(filteredKits[0].secondaryTitle.toString());
             }

@@ -46,6 +46,7 @@ import {SetterOrUpdater} from "recoil";
 import {appUpgradeVersionCheck} from 'app-upgrade-react-native-sdk';
 import {Platform} from "react-native";
 import * as envInfo from "../../local-env-info.json";
+import React from "react";
 
 /**
  * Function used to log a message from the frontend through CloudWatch.
@@ -140,9 +141,11 @@ export const retrieveCardLinkingId = async (userId: string): Promise<string> => 
             if (responseData.getUserCardLinkingId.errorType === MilitaryVerificationErrorType.NoneOrAbsent) {
                 return '';
             } else {
-                const message = `Unexpected error while retrieving transactional data through the API ${JSON.stringify(retrievedCardLinkingIdResult)}`;
-                console.log(message);
-                await logEvent(message, LoggingLevel.Error, true);
+                if (responseData && responseData.getUserCardLinkingId.errorMessage !== null) {
+                    const message = `Unexpected error while retrieving user's card linking id through the API ${responseData.getUserCardLinkingId.errorMessage}`;
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Error, true);
+                }
 
                 // if there are any errors, just set it as an empty string
                 return '';
@@ -164,51 +167,61 @@ export const retrieveCardLinkingId = async (userId: string): Promise<string> => 
  * whether we prompt users with an alert recommending an app upgrade or not.
  *
  * Depending on whether we have a breaking app version out, this might be turned on or off.
+ *
+ * @param appUpgradeChecked param used to make sure that this upgrade only happens once.
+ * @param setAppUpgradeChecked param used to set the state of the app upgrade checked flag accordingly
+ *
+ * @return a {@link Promise} of {@link void}, since we do not need to return anything, given that
+ * this just checks the app upgrade and behave accordingly.
+ *
  */
-export const appUpgradeCheck = async (): Promise<void> => {
-    try {
-        // first retrieve the API Key for App Upgrade by performing the getAppUpgradeCredentials AWS AppSync call
-        const getAppUpgradeCredentialsResult = await API.graphql(graphqlOperation(getAppUpgradeCredentials));
+export const appUpgradeCheck = async (appUpgradeChecked: boolean, setAppUpgradeChecked: React.Dispatch<React.SetStateAction<boolean>>): Promise<void> => {
+    if (!appUpgradeChecked) {
+        setAppUpgradeChecked(true);
+        try {
+            // first retrieve the API Key for App Upgrade by performing the getAppUpgradeCredentials AWS AppSync call
+            const getAppUpgradeCredentialsResult = await API.graphql(graphqlOperation(getAppUpgradeCredentials));
 
-        // retrieve the data block from the response
-        // @ts-ignore
-        const appUpgradeCredentialsResponseData = getAppUpgradeCredentialsResult ? getAppUpgradeCredentialsResult.data : null;
+            // retrieve the data block from the response
+            // @ts-ignore
+            const appUpgradeCredentialsResponseData = getAppUpgradeCredentialsResult ? getAppUpgradeCredentialsResult.data : null;
 
-        // check if there are any errors in the returned response
-        if (appUpgradeCredentialsResponseData !== null && appUpgradeCredentialsResponseData !== undefined &&
-            appUpgradeCredentialsResponseData.getAppUpgradeCredentials.errorMessage === null) {
-            const appStorageAPIKey = appUpgradeCredentialsResponseData.getAppUpgradeCredentials.data;
+            // check if there are any errors in the returned response
+            if (appUpgradeCredentialsResponseData !== null && appUpgradeCredentialsResponseData !== undefined &&
+                appUpgradeCredentialsResponseData.getAppUpgradeCredentials.errorMessage === null) {
+                const appStorageAPIKey = appUpgradeCredentialsResponseData.getAppUpgradeCredentials.data;
 
-            // build the app information used to decide whether the user will get prompted with the app upgrade notification or not
-            const appInfo = {
-                appId: Platform.OS === 'android' ? 'com.moonbeam.moonbeamfin' : '6450375130', // The App ID from the Play Store or App Store
-                appName: 'Moonbeam Finance', // The App Name
-                appVersion: '0.0.16', // The targeted App Version to be updated to
-                platform: Platform.OS === 'android' ? 'android' : 'ios', // The App Platform
-                environment: envInfo.envName === Stages.DEV ? 'development' : 'production', // App Environment, production, development
-                appLanguage: 'en', // App Language ex: en, es, etc.
-            };
+                // build the app information used to decide whether the user will get prompted with the app upgrade notification or not
+                const appInfo = {
+                    appId: Platform.OS === 'android' ? 'com.moonbeam.moonbeamfin' : '6450375130', // The App ID from the Play Store or App Store
+                    appName: 'Moonbeam Finance', // The App Name
+                    appVersion: '0.0.16', // The targeted App Version to be updated to
+                    platform: Platform.OS === 'android' ? 'android' : 'ios', // The App Platform
+                    environment: envInfo.envName === Stages.DEV ? 'development' : 'production', // App Environment, production, development
+                    appLanguage: 'en', // App Language ex: en, es, etc.
+                };
 
-            // configure the alert that will get displayed to the user accordingly
-            const alertConfig = {
-                title: 'Please Update',
-                updateButtonTitle: 'Update Now',
-                // laterButtonTitle: 'Later',
-                // onDismissCallback: () => { console.log('Dismiss') },
-                // onLaterCallback: () => { console.log('Later') }
-            };
+                // configure the alert that will get displayed to the user accordingly
+                const alertConfig = {
+                    title: 'Please Update',
+                    updateButtonTitle: 'Update Now',
+                    // laterButtonTitle: 'Later',
+                    // onDismissCallback: () => { console.log('Dismiss') },
+                    // onLaterCallback: () => { console.log('Later') }
+                };
 
-            // perform the user check for the App Upgrade
-            appUpgradeVersionCheck(appInfo, appStorageAPIKey, alertConfig);
-        } else {
-            const errorMessage = `Unexpected error while creating retrieving the App Storage API Key through the getAppUpgradeCredentials API ${JSON.stringify(appUpgradeCredentialsResponseData)}`;
+                // perform the user check for the App Upgrade
+                await appUpgradeVersionCheck(appInfo, appStorageAPIKey, alertConfig);
+            } else {
+                const errorMessage = `Unexpected error while creating retrieving the App Storage API Key through the getAppUpgradeCredentials API ${JSON.stringify(appUpgradeCredentialsResponseData)}`;
+                console.log(errorMessage);
+                await logEvent(errorMessage, LoggingLevel.Error, true);
+            }
+        } catch (error) {
+            const errorMessage = `Unexpected error while checking the App Upgrade version ${error} ${JSON.stringify(error)}`;
             console.log(errorMessage);
             await logEvent(errorMessage, LoggingLevel.Error, true);
         }
-    } catch (error) {
-        const errorMessage = `Unexpected error while checking the App Upgrade version ${error} ${JSON.stringify(error)}`;
-        console.log(errorMessage);
-        await logEvent(errorMessage, LoggingLevel.Error, true);
     }
 }
 
@@ -280,12 +293,14 @@ export const processUserReferral = async (referralCode: string, toId: string, ca
             }
         } else {
             // throw an error if the user id retrieval from the getUserFromReferral API failed
-            const errorMessage = `Unexpected error while retrieving existing user id through the getUserFromReferral API ${JSON.stringify(userFromReferralResult)}`;
-            console.log(errorMessage);
-            await logEvent(errorMessage, LoggingLevel.Error, true);
+            if (userFromReferralData !== null && userFromReferralData !== undefined && userFromReferralData.getUserFromReferral.errorMessage !== null) {
+                const errorMessage = `Unexpected error while retrieving existing user id through the getUserFromReferral API ${userFromReferralData.getUserFromReferral.errorMessage}`;
+                console.log(errorMessage);
+                await logEvent(errorMessage, LoggingLevel.Error, true);
+            }
 
             return {
-                errorMessage: errorMessage,
+                errorMessage: `Unexpected error while retrieving existing user id through the getUserFromReferral API`,
                 errorType: ReferralErrorType.UnexpectedError
             }
         }
@@ -390,12 +405,15 @@ export const updateUserAuthStat = async (userId: string): Promise<UserAuthSessio
                     }
                 }
             } else {
-                const errorMessage = `Unexpected error while retrieving existing user session through the getUserAuthSession API ${JSON.stringify(getUserAuthSessionResponseData)}`;
-                console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Error, true);
+                if (getUserAuthSessionResponseData !== null && getUserAuthSessionResponseData !== undefined &&
+                    getUserAuthSessionResponseData.getUserAuthSession.errorMessage !== null) {
+                    const errorMessage = `Unexpected error while retrieving existing user session through the getUserAuthSession API ${getUserAuthSessionResponseData.getUserAuthSession.errorMessage}`;
+                    console.log(errorMessage);
+                    await logEvent(errorMessage, LoggingLevel.Error, true);
+                }
 
                 return {
-                    errorMessage: errorMessage,
+                    errorMessage: `Unexpected error while retrieving existing user session through the getUserAuthSession API`,
                     errorType: UserAuthSessionErrorType.UnexpectedError
                 }
             }
@@ -618,59 +636,79 @@ export const retrievePremierClickOnlyOnlineOffersList = async (numberOfFailedCal
     // result to return
     let premierClickOnlyOnlineOffers: Offer[] = [];
 
-    try {
-        // call the getOffers API
-        const premierClickOnlyOnlineOffersResult = await API.graphql(graphqlOperation(getPremierOffers, {
-            getOffersInput: {
-                availability: OfferAvailability.Global,
-                countryCode: CountryCode.Us,
-                filterType: OfferFilter.PremierOnline,
-                offerStates: [OfferState.Active, OfferState.Scheduled],
-                pageNumber: pageNumber !== undefined ? pageNumber : 1,
-                pageSize: 20, // load all the premier click-only online offers, so we can sort them appropriately
-                redemptionType: RedemptionType.Click
-            }
-        }));
+    // at most call this once if failing (because this sometimes freezes up the marketplace if not retried)
+    let retryCount = 1;
+    while (retryCount > 0) {
+        try {
+            // call the getOffers API
+            const premierClickOnlyOnlineOffersResult = await API.graphql(graphqlOperation(getPremierOffers, {
+                getOffersInput: {
+                    availability: OfferAvailability.Global,
+                    countryCode: CountryCode.Us,
+                    filterType: OfferFilter.PremierOnline,
+                    offerStates: [OfferState.Active, OfferState.Scheduled],
+                    pageNumber: pageNumber !== undefined ? pageNumber : 1,
+                    pageSize: 20, // load all the premier click-only online offers, so we can sort them appropriately
+                    redemptionType: RedemptionType.Click
+                }
+            }));
 
-        // retrieve the data block from the response
-        // @ts-ignore
-        const responseData = premierClickOnlyOnlineOffersResult ? premierClickOnlyOnlineOffersResult.data : null;
+            // retrieve the data block from the response
+            // @ts-ignore
+            const responseData = premierClickOnlyOnlineOffersResult ? premierClickOnlyOnlineOffersResult.data : null;
 
-        // check if there are any errors in the returned response
-        if (responseData && responseData.getPremierOffers.errorMessage === null) {
-            // retrieve the array of premier click-only online offers from the API call
-            premierClickOnlyOnlineOffers = responseData.getPremierOffers.data.offers;
+            // check if there are any errors in the returned response
+            if (responseData && responseData.getPremierOffers.errorMessage === null) {
+                // retrieve the array of premier click-only online offers from the API call
+                premierClickOnlyOnlineOffers = responseData.getPremierOffers.data.offers;
 
-            // ensure that there is at least one premier click-only online offer in the list
-            if (premierClickOnlyOnlineOffers.length > 0) {
-                // increase the page number, if needed
-                pageNumber !== null && pageNumber !== undefined &&
-                setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
+                // ensure that there is at least one premier click-only online offer in the list
+                if (premierClickOnlyOnlineOffers !== undefined && premierClickOnlyOnlineOffers !== null && premierClickOnlyOnlineOffers.length > 0) {
+                    // increase the page number, if needed
+                    pageNumber !== null && pageNumber !== undefined &&
+                    setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
 
-                return premierClickOnlyOnlineOffers;
+                    retryCount = 0;
+                } else {
+                    /**
+                     * for some reason this call sometimes returns an empty array even if the total number of records are not 0.
+                     * In that case, we do not need to print anything.
+                     */
+                    if (responseData.getPremierOffers !== undefined && responseData.getPremierOffers !== null && responseData.getPremierOffers.errorMessage === null &&
+                        responseData.getPremierOffers.data !== undefined && responseData.getPremierOffers.data !== null &&
+                        responseData.getPremierOffers.data.offers !== undefined && responseData.getPremierOffers.data.offers !== null &&
+                        responseData.getPremierOffers.data.totalNumberOfRecords !== undefined && responseData.getPremierOffers.data.totalNumberOfRecords !== null &&
+                        responseData.getPremierOffers.data.offers.length === 0 && responseData.getPremierOffers.data.totalNumberOfRecords !== 0) {
+                        retryCount -= 1;
+                    } else {
+                        const message = `No premier click-only online offers to display ${JSON.stringify(premierClickOnlyOnlineOffersResult)}, retry count ${retryCount}`;
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Warning, true);
+
+                        retryCount-=1;
+                    }
+                }
             } else {
-                const message = `No premier click-only online offers to display ${JSON.stringify(premierClickOnlyOnlineOffersResult)}`;
-                console.log(message);
-                await logEvent(message, LoggingLevel.Warning, true);
+                if (responseData && responseData.getPremierOffers.errorMessage !== null) {
+                    const message = `Unexpected error while retrieving premier click-only online offers ${responseData.getPremierOffers.errorMessage}`;
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Error, true);
+                }
 
-                return premierClickOnlyOnlineOffers;
+                setNumberOfFailedCalls(numberOfFailedCalls + 1);
+                retryCount-=1;
             }
-        } else {
-            const message = `Unexpected error while retrieving premier click-only online offers ${JSON.stringify(premierClickOnlyOnlineOffersResult)}`;
+        } catch (error) {
+            const message = `Unexpected error while attempting to retrieve premier click-only online offers ${JSON.stringify(error)} ${error}`;
             console.log(message);
             await logEvent(message, LoggingLevel.Error, true);
 
             setNumberOfFailedCalls(numberOfFailedCalls + 1);
-            return premierClickOnlyOnlineOffers;
+            retryCount-=1;
         }
-    } catch (error) {
-        const message = `Unexpected error while attempting to retrieve premier click-only online offers ${JSON.stringify(error)} ${error}`;
-        console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
-
-        setNumberOfFailedCalls(numberOfFailedCalls + 1);
-        return premierClickOnlyOnlineOffers;
     }
+
+    return premierClickOnlyOnlineOffers;
 }
 
 /**
@@ -692,59 +730,79 @@ export const retrievePremierOnlineOffersList = async (numberOfFailedCalls: numbe
     // result to return
     let premierOnlineOffers: Offer[] = [];
 
-    try {
-        // call the getOffers API
-        const premierOnlineOffersResult = await API.graphql(graphqlOperation(getPremierOffers, {
-            getOffersInput: {
-                availability: OfferAvailability.Global,
-                countryCode: CountryCode.Us,
-                filterType: OfferFilter.PremierOnline,
-                offerStates: [OfferState.Active, OfferState.Scheduled],
-                pageNumber: pageNumber !== undefined ? pageNumber : 1,
-                pageSize: 14, // load all the premier online offers, so we can sort them appropriately
-                redemptionType: RedemptionType.Cardlinked
-            }
-        }));
+    // at most call this once if failing (because this sometimes freezes up the marketplace)
+    let retryCount = 1;
+    while (retryCount > 0) {
+        try {
+            // call the getOffers API
+            const premierOnlineOffersResult = await API.graphql(graphqlOperation(getPremierOffers, {
+                getOffersInput: {
+                    availability: OfferAvailability.Global,
+                    countryCode: CountryCode.Us,
+                    filterType: OfferFilter.PremierOnline,
+                    offerStates: [OfferState.Active, OfferState.Scheduled],
+                    pageNumber: pageNumber !== undefined ? pageNumber : 1,
+                    pageSize: 14, // load all the premier online offers, so we can sort them appropriately
+                    redemptionType: RedemptionType.Cardlinked
+                }
+            }));
 
-        // retrieve the data block from the response
-        // @ts-ignore
-        const responseData = premierOnlineOffersResult ? premierOnlineOffersResult.data : null;
+            // retrieve the data block from the response
+            // @ts-ignore
+            const responseData = premierOnlineOffersResult ? premierOnlineOffersResult.data : null;
 
-        // check if there are any errors in the returned response
-        if (responseData && responseData.getPremierOffers.errorMessage === null) {
-            // retrieve the array of premier online offers from the API call
-            premierOnlineOffers = responseData.getPremierOffers.data.offers;
+            // check if there are any errors in the returned response
+            if (responseData && responseData.getPremierOffers.errorMessage === null) {
+                // retrieve the array of premier online offers from the API call
+                premierOnlineOffers = responseData.getPremierOffers.data.offers;
 
-            // ensure that there is at least one premier online offer in the list
-            if (premierOnlineOffers.length > 0) {
-                // increase the page number, if needed
-                pageNumber !== null && pageNumber !== undefined &&
-                setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
+                // ensure that there is at least one premier online offer in the list
+                if (premierOnlineOffers !== undefined && premierOnlineOffers !== null && premierOnlineOffers.length > 0) {
+                    // increase the page number, if needed
+                    pageNumber !== null && pageNumber !== undefined &&
+                    setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
 
-                return premierOnlineOffers;
+                    retryCount = 0;
+                } else {
+                    /**
+                     * for some reason this call sometimes returns an empty array even if the total number of records are not 0.
+                     * In that case, we do not need to print anything.
+                     */
+                    if (responseData.getPremierOffers !== undefined && responseData.getPremierOffers !== null && responseData.getPremierOffers.errorMessage === null &&
+                        responseData.getPremierOffers.data !== undefined && responseData.getPremierOffers.data !== null &&
+                        responseData.getPremierOffers.data.offers !== undefined && responseData.getPremierOffers.data.offers !== null &&
+                        responseData.getPremierOffers.data.totalNumberOfRecords !== undefined && responseData.getPremierOffers.data.totalNumberOfRecords !== null &&
+                        responseData.getPremierOffers.data.offers.length === 0 && responseData.getPremierOffers.data.totalNumberOfRecords !== 0) {
+                        retryCount -= 1;
+                    } else {
+                        const message = `No premier online offers to display ${JSON.stringify(premierOnlineOffersResult)}, retry count ${retryCount}`;
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Warning, true);
+
+                        retryCount-=1;
+                    }
+                }
             } else {
-                const message = `No premier online offers to display ${JSON.stringify(premierOnlineOffersResult)}`;
-                console.log(message);
-                await logEvent(message, LoggingLevel.Warning, true);
+                if (responseData && responseData.getPremierOffers.errorMessage !== null) {
+                    const message = `Unexpected error while retrieving premier online offers ${responseData.getPremierOffers.errorMessage}`;
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Error, true);
+                }
 
-                return premierOnlineOffers;
+                setNumberOfFailedCalls(numberOfFailedCalls + 1);
+                retryCount-=1;
             }
-        } else {
-            const message = `Unexpected error while retrieving premier online offers ${JSON.stringify(premierOnlineOffersResult)}`;
+        } catch (error) {
+            const message = `Unexpected error while attempting to retrieve premier online offers ${JSON.stringify(error)} ${error}`;
             console.log(message);
             await logEvent(message, LoggingLevel.Error, true);
 
             setNumberOfFailedCalls(numberOfFailedCalls + 1);
-            return premierOnlineOffers;
+            retryCount-=1;
         }
-    } catch (error) {
-        const message = `Unexpected error while attempting to retrieve premier online offers ${JSON.stringify(error)} ${error}`;
-        console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
-
-        setNumberOfFailedCalls(numberOfFailedCalls + 1);
-        return premierOnlineOffers;
     }
+
+    return premierOnlineOffers;
 }
 
 /**
@@ -767,78 +825,86 @@ export const retrieveCategorizedOnlineOffersList = async (totalNumberOfOffersAva
     // result to return
     let onlineOffers: Offer[] = [];
 
-    try {
-        // call the getOffers API for all categorized other than Veterans Day, for which we call getSeasonalOffers API
-        const onlineOffersResult = offerCategory !== OfferCategory.VeteranDay
-            ? await API.graphql(graphqlOperation(getOffers, {
-                getOffersInput: {
-                    availability: OfferAvailability.Global,
-                    countryCode: CountryCode.Us,
-                    filterType: OfferFilter.CategorizedOnline,
-                    offerStates: [OfferState.Active, OfferState.Scheduled],
-                    pageNumber: pageNumber !== undefined ? pageNumber : 1, // if no page number is passed in, revert to the first page number
-                    pageSize: 15, // load 15 offers
-                    redemptionType: RedemptionType.All,
-                    offerCategory: offerCategory
+    // at most call this once if failing (because this sometimes freezes up the marketplace)
+    let retryCount = 1;
+    while (retryCount > 0) {
+        try {
+            // call the getOffers API for all categorized other than Veterans Day, for which we call getSeasonalOffers API
+            const onlineOffersResult = offerCategory !== OfferCategory.VeteranDay
+                ? await API.graphql(graphqlOperation(getOffers, {
+                    getOffersInput: {
+                        availability: OfferAvailability.Global,
+                        countryCode: CountryCode.Us,
+                        filterType: OfferFilter.CategorizedOnline,
+                        offerStates: [OfferState.Active, OfferState.Scheduled],
+                        pageNumber: pageNumber !== undefined ? pageNumber : 1, // if no page number is passed in, revert to the first page number
+                        pageSize: 15, // load 15 offers
+                        redemptionType: RedemptionType.All,
+                        offerCategory: offerCategory
+                    }
+                }))
+                : await API.graphql(graphqlOperation(getSeasonalOffers, {
+                    getOffersInput: {
+                        availability: OfferAvailability.ClientOnly,
+                        countryCode: CountryCode.Us,
+                        filterType: OfferFilter.SeasonalOnline,
+                        offerStates: [OfferState.Active, OfferState.Scheduled],
+                        pageNumber: pageNumber !== undefined ? pageNumber : 1, // if no page number is passed in, revert to the first page number
+                        pageSize: 20, // load 15 offers
+                        redemptionType: RedemptionType.All,
+                        offerSeasonalType: OfferSeasonalType.VeteransDay
+                    }
+                }));
+
+            // retrieve the data block from the response
+            // @ts-ignore
+            const responseData = onlineOffersResult ? onlineOffersResult.data : null;
+
+            // get the appropriate property depending on whether the offers are seasonal or not
+            const offerProperty = offerCategory !== OfferCategory.VeteranDay ? 'getOffers' : 'getSeasonalOffers';
+
+            // check if there are any errors in the returned response
+            if (responseData && responseData[`${offerProperty}`].errorMessage === null) {
+                // retrieve the array of online offers from the API call
+                onlineOffers = responseData[`${offerProperty}`].data.offers;
+
+                // ensure that there is at least one online offer in the list
+                if (onlineOffers !== undefined && onlineOffers !== null && onlineOffers.length > 0) {
+                    // increase the page number, if needed
+                    pageNumber !== null && pageNumber !== undefined &&
+                    setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
+
+                    // set the total number of online offers available, if not previously set
+                    totalNumberOfOffersAvailable !== responseData[`${offerProperty}`].data.totalNumberOfRecords &&
+                    setTotalNumberOfOffersAvailable !== undefined && setTotalNumberOfOffersAvailable(responseData[`${offerProperty}`].data.totalNumberOfRecords);
+
+                    retryCount = 0;
+                } else {
+                    const errorMessage = `No categorized online offers to display for category ${offerCategory} ${JSON.stringify(onlineOffersResult)}`;
+                    console.log(errorMessage);
+                    await logEvent(errorMessage, LoggingLevel.Warning, true);
+
+                    retryCount -= 1;
                 }
-            }))
-            : await API.graphql(graphqlOperation(getSeasonalOffers, {
-                getOffersInput: {
-                    availability: OfferAvailability.ClientOnly,
-                    countryCode: CountryCode.Us,
-                    filterType: OfferFilter.SeasonalOnline,
-                    offerStates: [OfferState.Active, OfferState.Scheduled],
-                    pageNumber: pageNumber !== undefined ? pageNumber : 1, // if no page number is passed in, revert to the first page number
-                    pageSize: 20, // load 15 offers
-                    redemptionType: RedemptionType.All,
-                    offerSeasonalType: OfferSeasonalType.VeteransDay
-                }
-            }));
-
-        // retrieve the data block from the response
-        // @ts-ignore
-        const responseData = onlineOffersResult ? onlineOffersResult.data : null;
-
-        // get the appropriate property depending on whether the offers are seasonal or not
-        const offerProperty = offerCategory !== OfferCategory.VeteranDay ? 'getOffers' : 'getSeasonalOffers';
-
-        // check if there are any errors in the returned response
-        if (responseData && responseData[`${offerProperty}`].errorMessage === null) {
-            // retrieve the array of online offers from the API call
-            onlineOffers = responseData[`${offerProperty}`].data.offers;
-
-            // ensure that there is at least one online offer in the list
-            if (onlineOffers.length > 0) {
-                // increase the page number, if needed
-                pageNumber !== null && pageNumber !== undefined &&
-                setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
-
-                // set the total number of online offers available, if not previously set
-                totalNumberOfOffersAvailable !== responseData[`${offerProperty}`].data.totalNumberOfRecords &&
-                setTotalNumberOfOffersAvailable !== undefined && setTotalNumberOfOffersAvailable(responseData[`${offerProperty}`].data.totalNumberOfRecords);
-
-                return onlineOffers;
             } else {
-                const errorMessage = `No categorized online offers to display for category ${offerCategory} ${JSON.stringify(onlineOffersResult)}`;
-                console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Warning, true);
+                if (responseData && responseData[`${offerProperty}`].errorMessage !== null) {
+                    const errorMessage = `Unexpected error while retrieving categorized online offers for category ${offerCategory} ${responseData[`${offerProperty}`].errorMessage}`;
+                    console.log(errorMessage);
+                    await logEvent(errorMessage, LoggingLevel.Error, true);
+                }
 
-                return onlineOffers;
+                retryCount -= 1;
             }
-        } else {
-            const errorMessage = `Unexpected error while retrieving categorized online offers for category ${offerCategory} ${JSON.stringify(onlineOffersResult)}`;
+        } catch (error) {
+            const errorMessage = `Unexpected error while attempting to retrieve categorized online offers for category ${offerCategory} ${JSON.stringify(error)} ${error}`;
             console.log(errorMessage);
             await logEvent(errorMessage, LoggingLevel.Error, true);
 
-            return onlineOffers;
+            retryCount -= 1;
         }
-    } catch (error) {
-        const errorMessage = `Unexpected error while attempting to retrieve categorized online offers for category ${offerCategory} ${JSON.stringify(error)} ${error}`;
-        console.log(errorMessage);
-        await logEvent(errorMessage, LoggingLevel.Error, true);
-
-        return onlineOffers;
     }
+
+    return onlineOffers;
 }
 
 /**
@@ -864,63 +930,71 @@ export const retrieveClickOnlyOnlineOffersList = async (numberOfFailedCalls: num
     // result to return
     let clickOnlyOnlineOffers: Offer[] = [];
 
-    try {
-        // call the getOffers API
-        const clickOnlyOnlineOffersResult = await API.graphql(graphqlOperation(getOffers, {
-            getOffersInput: {
-                availability: OfferAvailability.Global,
-                countryCode: CountryCode.Us,
-                filterType: OfferFilter.Online,
-                offerStates: [OfferState.Active, OfferState.Scheduled],
-                pageNumber: pageNumber !== undefined ? pageNumber : 1, // if no page number is passed in, revert to the first page number
-                pageSize: 15, // load 15 offers
-                redemptionType: RedemptionType.Click
-            }
-        }));
+    // at most call this once if failing (because this sometimes freezes up the marketplace)
+    let retryCount = 1;
+    while (retryCount > 0) {
+        try {
+            // call the getOffers API
+            const clickOnlyOnlineOffersResult = await API.graphql(graphqlOperation(getOffers, {
+                getOffersInput: {
+                    availability: OfferAvailability.Global,
+                    countryCode: CountryCode.Us,
+                    filterType: OfferFilter.Online,
+                    offerStates: [OfferState.Active, OfferState.Scheduled],
+                    pageNumber: pageNumber !== undefined ? pageNumber : 1, // if no page number is passed in, revert to the first page number
+                    pageSize: 15, // load 15 offers
+                    redemptionType: RedemptionType.Click
+                }
+            }));
 
-        // retrieve the data block from the response
-        // @ts-ignore
-        const responseData = clickOnlyOnlineOffersResult ? clickOnlyOnlineOffersResult.data : null;
+            // retrieve the data block from the response
+            // @ts-ignore
+            const responseData = clickOnlyOnlineOffersResult ? clickOnlyOnlineOffersResult.data : null;
 
-        // check if there are any errors in the returned response
-        if (responseData && responseData.getOffers.errorMessage === null) {
-            // retrieve the array of click-only online offers from the API call
-            clickOnlyOnlineOffers = responseData.getOffers.data.offers;
+            // check if there are any errors in the returned response
+            if (responseData && responseData.getOffers.errorMessage === null) {
+                // retrieve the array of click-only online offers from the API call
+                clickOnlyOnlineOffers = responseData.getOffers.data.offers;
 
-            // ensure that there is at least one click-only online offer in the list
-            if (clickOnlyOnlineOffers.length > 0) {
-                // increase the page number, if needed
-                pageNumber !== null && pageNumber !== undefined &&
-                setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
+                // ensure that there is at least one click-only online offer in the list
+                if (clickOnlyOnlineOffers !== undefined && clickOnlyOnlineOffers !== null && clickOnlyOnlineOffers.length > 0) {
+                    // increase the page number, if needed
+                    pageNumber !== null && pageNumber !== undefined &&
+                    setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
 
-                // set the total number of click-only online offers available, if not previously set
-                totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
-                setTotalNumberOfOffersAvailable !== undefined && setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
+                    // set the total number of click-only online offers available, if not previously set
+                    totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
+                    setTotalNumberOfOffersAvailable !== undefined && setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
 
-                return clickOnlyOnlineOffers;
+                    retryCount = 0;
+                } else {
+                    const message = `No click-only online offers to display ${JSON.stringify(clickOnlyOnlineOffersResult)}`;
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Info, true);
+
+                    retryCount -= 1;
+                }
             } else {
-                const message = `No click-only online offers to display ${JSON.stringify(clickOnlyOnlineOffersResult)}`;
-                console.log(message);
-                await logEvent(message, LoggingLevel.Info, true);
+                if (responseData && responseData.getOffers.errorMessage !== null) {
+                    const errorMessage = `Unexpected error while retrieving click-only online offers ${responseData.getOffers.errorMessage}`;
+                    console.log(errorMessage);
+                    await logEvent(errorMessage, LoggingLevel.Error, true);
+                }
 
-                return clickOnlyOnlineOffers;
+                setNumberOfFailedCalls(numberOfFailedCalls + 1);
+                retryCount -= 1;
             }
-        } else {
-            const errorMessage = `Unexpected error while retrieving click-only online offers ${JSON.stringify(clickOnlyOnlineOffersResult)}`;
+        } catch (error) {
+            const errorMessage = `Unexpected error while attempting to retrieve click-only online offers ${JSON.stringify(error)} ${error}`;
             console.log(errorMessage);
             await logEvent(errorMessage, LoggingLevel.Error, true);
 
             setNumberOfFailedCalls(numberOfFailedCalls + 1);
-            return clickOnlyOnlineOffers;
+            retryCount -= 1;
         }
-    } catch (error) {
-        const errorMessage = `Unexpected error while attempting to retrieve click-only online offers ${JSON.stringify(error)} ${error}`;
-        console.log(errorMessage);
-        await logEvent(errorMessage, LoggingLevel.Error, true);
-
-        setNumberOfFailedCalls(numberOfFailedCalls + 1);
-        return clickOnlyOnlineOffers;
     }
+
+    return clickOnlyOnlineOffers;
 }
 
 /**
@@ -946,63 +1020,71 @@ export const retrieveOnlineOffersList = async (numberOfFailedCalls: number, setN
     // result to return
     let onlineOffers: Offer[] = [];
 
-    try {
-        // call the getOffers API
-        const onlineOffersResult = await API.graphql(graphqlOperation(getOffers, {
-            getOffersInput: {
-                availability: OfferAvailability.Global,
-                countryCode: CountryCode.Us,
-                filterType: OfferFilter.Online,
-                offerStates: [OfferState.Active, OfferState.Scheduled],
-                pageNumber: pageNumber !== undefined ? pageNumber : 1, // if no page number is passed in, revert to the first page number
-                pageSize: 15, // load 15 offers
-                redemptionType: RedemptionType.Cardlinked
-            }
-        }));
+    // at most call this once if failing (because this sometimes freezes up the marketplace)
+    let retryCount = 1;
+    while (retryCount > 0) {
+        try {
+            // call the getOffers API
+            const onlineOffersResult = await API.graphql(graphqlOperation(getOffers, {
+                getOffersInput: {
+                    availability: OfferAvailability.Global,
+                    countryCode: CountryCode.Us,
+                    filterType: OfferFilter.Online,
+                    offerStates: [OfferState.Active, OfferState.Scheduled],
+                    pageNumber: pageNumber !== undefined ? pageNumber : 1, // if no page number is passed in, revert to the first page number
+                    pageSize: 15, // load 15 offers
+                    redemptionType: RedemptionType.Cardlinked
+                }
+            }));
 
-        // retrieve the data block from the response
-        // @ts-ignore
-        const responseData = onlineOffersResult ? onlineOffersResult.data : null;
+            // retrieve the data block from the response
+            // @ts-ignore
+            const responseData = onlineOffersResult ? onlineOffersResult.data : null;
 
-        // check if there are any errors in the returned response
-        if (responseData && responseData.getOffers.errorMessage === null) {
-            // retrieve the array of online offers from the API call
-            onlineOffers = responseData.getOffers.data.offers;
+            // check if there are any errors in the returned response
+            if (responseData && responseData.getOffers.errorMessage === null) {
+                // retrieve the array of online offers from the API call
+                onlineOffers = responseData.getOffers.data.offers;
 
-            // ensure that there is at least one online offer in the list
-            if (onlineOffers.length > 0) {
-                // increase the page number, if needed
-                pageNumber !== null && pageNumber !== undefined &&
-                setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
+                // ensure that there is at least one online offer in the list
+                if (onlineOffers !== undefined && onlineOffers !== null && onlineOffers.length > 0) {
+                    // increase the page number, if needed
+                    pageNumber !== null && pageNumber !== undefined &&
+                    setPageNumber !== null && setPageNumber !== undefined && setPageNumber(pageNumber + 1);
 
-                // set the total number of online offers available, if not previously set
-                totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
-                setTotalNumberOfOffersAvailable !== undefined && setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
+                    // set the total number of online offers available, if not previously set
+                    totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
+                    setTotalNumberOfOffersAvailable !== undefined && setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
 
-                return onlineOffers;
+                    retryCount = 0;
+                } else {
+                    const message = `No online offers to display ${JSON.stringify(onlineOffersResult)}`;
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Warning, true);
+
+                    retryCount-=1;
+                }
             } else {
-                const message = `No online offers to display ${JSON.stringify(onlineOffersResult)}`;
-                console.log(message);
-                await logEvent(message, LoggingLevel.Warning, true);
+                if (responseData && responseData.getOffers.errorMessage === null !== null) {
+                    const message = `Unexpected error while retrieving online offers ${responseData.getOffers.errorMessage}`;
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Error, true);
+                }
 
-                return onlineOffers;
+                setNumberOfFailedCalls(numberOfFailedCalls + 1);
+                retryCount-=1;
             }
-        } else {
-            const message = `Unexpected error while retrieving online offers ${JSON.stringify(onlineOffersResult)}`;
+        } catch (error) {
+            const message = `Unexpected error while attempting to retrieve online offers ${JSON.stringify(error)} ${error}`;
             console.log(message);
             await logEvent(message, LoggingLevel.Error, true);
 
             setNumberOfFailedCalls(numberOfFailedCalls + 1);
-            return onlineOffers;
+            retryCount-=1;
         }
-    } catch (error) {
-        const message = `Unexpected error while attempting to retrieve online offers ${JSON.stringify(error)} ${error}`;
-        console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
-
-        setNumberOfFailedCalls(numberOfFailedCalls + 1);
-        return onlineOffers;
     }
+
+    return onlineOffers;
 }
 
 /**
@@ -1016,43 +1098,53 @@ export const retrieveFidelisPartnerList = async (): Promise<FidelisPartner[]> =>
     // result to return
     let fidelisPartners: FidelisPartner[] = [];
 
-    try {
-        // call the getFidelisPartners API
-        const fidelisPartnersResult = await API.graphql(graphqlOperation(getFidelisPartners));
+    // at most call this once if failing (because this sometimes freezes up the marketplace)
+    let retryCount = 1;
+    while (retryCount > 0) {
+        try {
+            // call the getFidelisPartners API
+            const fidelisPartnersResult = await API.graphql(graphqlOperation(getFidelisPartners));
 
-        // retrieve the data block from the response
-        // @ts-ignore
-        const responseData = fidelisPartnersResult ? fidelisPartnersResult.data : null;
+            // retrieve the data block from the response
+            // @ts-ignore
+            const responseData = fidelisPartnersResult ? fidelisPartnersResult.data : null;
 
-        // check if there are any errors in the returned response
-        if (responseData && responseData.getFidelisPartners.errorMessage === null) {
-            // retrieve the array of Fidelis partners from the API call
-            fidelisPartners = responseData.getFidelisPartners.data;
+            // check if there are any errors in the returned response
+            if (responseData && responseData.getFidelisPartners.errorMessage === null) {
+                // retrieve the array of Fidelis partners from the API call
+                fidelisPartners = responseData.getFidelisPartners.data;
 
-            // ensure that there is at least one featured partner in the list
-            if (fidelisPartners !== undefined && fidelisPartners !== null && fidelisPartners.length > 0) {
-                return fidelisPartners.sort(dynamicSort("brandName"));
+                // ensure that there is at least one featured partner in the list
+                if (fidelisPartners !== undefined && fidelisPartners !== null && fidelisPartners.length > 0) {
+                    fidelisPartners =  fidelisPartners.sort(dynamicSort("brandName"));
+
+                    retryCount = 0;
+                } else {
+                    const errorMessage = `No Fidelis partners to display ${JSON.stringify(fidelisPartnersResult)}`;
+                    console.log(errorMessage);
+                    await logEvent(errorMessage, LoggingLevel.Error, true);
+
+                    retryCount -= 1;
+                }
             } else {
-                const errorMessage = `No Fidelis partners to display ${JSON.stringify(fidelisPartnersResult)}`;
-                console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Error, true);
+                if (responseData && responseData.getFidelisPartners.errorMessage !== null) {
+                    const errorMessage = `Unexpected error while retrieving Fidelis partner offers ${responseData.getFidelisPartners.errorMessage}`;
+                    console.log(errorMessage);
+                    await logEvent(errorMessage, LoggingLevel.Error, true);
+                }
 
-                return fidelisPartners;
+                retryCount -= 1;
             }
-        } else {
-            const errorMessage = `Unexpected error while retrieving Fidelis partner offers ${JSON.stringify(fidelisPartnersResult)}`;
+        } catch (error) {
+            const errorMessage = `Unexpected error while attempting to retrieve the Fidelis partner offers ${JSON.stringify(error)} ${error}`;
             console.log(errorMessage);
             await logEvent(errorMessage, LoggingLevel.Error, true);
 
-            return fidelisPartners;
+            retryCount -= 1;
         }
-    } catch (error) {
-        const errorMessage = `Unexpected error while attempting to retrieve the Fidelis partner offers ${JSON.stringify(error)} ${error}`;
-        console.log(errorMessage);
-        await logEvent(errorMessage, LoggingLevel.Error, true);
-
-        return fidelisPartners;
     }
+
+    return fidelisPartners;
 }
 
 /**
@@ -1075,88 +1167,113 @@ export const retrievePremierOffersNearby = async (numberOfFailedCalls: number, s
                                                   pageNumber: number, setPageNumber: SetterOrUpdater<number>, currentUserLocation: LocationObject | null,
                                                   setCurrentUserLocation: SetterOrUpdater<LocationObject | null>): Promise<Offer[] | null> => {
     // result to return
-    let nearbyOffers: Offer[] = [];
+    let nearbyOffers: Offer[] | null = [];
 
-    try {
-        // first retrieve the necessary permissions for location purposes
-        const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
-        if (foregroundPermissionStatus.status !== 'granted') {
-            const errorMessage = `Permission to access location was not granted!`;
-            console.log(errorMessage);
-            await logEvent(errorMessage, LoggingLevel.Warning, true);
+    // at most call this once if failing (because this sometimes freezes up the marketplace)
+    let retryCount = 1;
+    while (retryCount > 0) {
+        try {
+            // first retrieve the necessary permissions for location purposes
+            const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
+            if (foregroundPermissionStatus.status !== 'granted') {
+                const errorMessage = `Permission to access location was not granted!`;
+                console.log(errorMessage);
+                await logEvent(errorMessage, LoggingLevel.Warning, true);
 
-            return null;
-        } else {
-            if (currentUserLocation === null) {
-                const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
-                setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getCurrentPositionAsync());
-            }
+                nearbyOffers = null;
+                retryCount = 0;
+            } else {
+                if (currentUserLocation === null) {
+                    const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
+                    setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getCurrentPositionAsync());
+                }
 
-            // first retrieve the latitude and longitude of the current user
-            if (currentUserLocation !== null && currentUserLocation.coords && currentUserLocation.coords.latitude && currentUserLocation.coords.longitude) {
-                // call the getOffers API
-                const premierNearbyOffersResult = await API.graphql(graphqlOperation(getPremierOffers, {
-                    getOffersInput: {
-                        availability: OfferAvailability.Global,
-                        countryCode: CountryCode.Us,
-                        filterType: OfferFilter.PremierNearby,
-                        offerStates: [OfferState.Active, OfferState.Scheduled],
-                        pageNumber: pageNumber,
-                        pageSize: 1, // load 1 premier nearby offer at a time
-                        radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
-                        radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
-                        radiusLatitude: currentUserLocation.coords.latitude,
-                        radiusLongitude: currentUserLocation.coords.longitude,
-                        redemptionType: RedemptionType.Cardlinked
-                    }
-                }));
+                // first retrieve the latitude and longitude of the current user
+                if (currentUserLocation !== null && currentUserLocation.coords && currentUserLocation.coords.latitude && currentUserLocation.coords.longitude) {
+                    // call the getOffers API
+                    const premierNearbyOffersResult = await API.graphql(graphqlOperation(getPremierOffers, {
+                        getOffersInput: {
+                            availability: OfferAvailability.Global,
+                            countryCode: CountryCode.Us,
+                            filterType: OfferFilter.PremierNearby,
+                            offerStates: [OfferState.Active, OfferState.Scheduled],
+                            pageNumber: pageNumber,
+                            pageSize: 1, // load 1 premier nearby offer at a time
+                            radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
+                            radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
+                            radiusLatitude: currentUserLocation.coords.latitude,
+                            radiusLongitude: currentUserLocation.coords.longitude,
+                            redemptionType: RedemptionType.Cardlinked
+                        }
+                    }));
 
-                // retrieve the data block from the response
-                // @ts-ignore
-                const responseData = premierNearbyOffersResult ? premierNearbyOffersResult.data : null;
+                    // retrieve the data block from the response
+                    // @ts-ignore
+                    const responseData = premierNearbyOffersResult ? premierNearbyOffersResult.data : null;
 
-                // check if there are any errors in the returned response
-                if (responseData && responseData.getPremierOffers.errorMessage === null) {
-                    // retrieve the array of nearby offers from the API call
-                    nearbyOffers = responseData.getPremierOffers.data.offers;
-
-                    // ensure that there is at least one nearby offer in the list
-                    if (nearbyOffers.length > 0) {
-                        setPageNumber(pageNumber + 1);
+                    // check if there are any errors in the returned response
+                    if (responseData && responseData.getPremierOffers.errorMessage === null) {
                         // retrieve the array of nearby offers from the API call
-                        return nearbyOffers;
-                    } else {
-                        const errorMessage = `No premier nearby offers to display ${JSON.stringify(premierNearbyOffersResult)}`;
-                        console.log(errorMessage);
-                        await logEvent(errorMessage, LoggingLevel.Warning, true);
+                        nearbyOffers = responseData.getPremierOffers.data.offers;
 
-                        return [];
+                        // ensure that there is at least one nearby offer in the list
+                        if (nearbyOffers !== undefined && nearbyOffers !== null && nearbyOffers.length > 0) {
+                            setPageNumber(pageNumber + 1);
+                            // retrieve the array of nearby offers from the API call
+                            retryCount = 0;
+                        } else {
+                            /**
+                             * for some reason this call sometimes returns an empty array even if the total number of records are not 0.
+                             * In that case, we do not need to print anything.
+                             */
+                            if (responseData.getPremierOffers !== undefined && responseData.getPremierOffers !== null && responseData.getPremierOffers.errorMessage === null &&
+                                responseData.getPremierOffers.data !== undefined && responseData.getPremierOffers.data !== null &&
+                                responseData.getPremierOffers.data.offers !== undefined && responseData.getPremierOffers.data.offers !== null &&
+                                responseData.getPremierOffers.data.totalNumberOfRecords !== undefined && responseData.getPremierOffers.data.totalNumberOfRecords !== null &&
+                                responseData.getPremierOffers.data.offers.length === 0 && responseData.getPremierOffers.data.totalNumberOfRecords !== 0) {
+                                retryCount -= 1;
+                            } else {
+                                const errorMessage = `No premier nearby offers to display ${JSON.stringify(premierNearbyOffersResult)}, retry count ${retryCount}`;
+                                console.log(errorMessage);
+                                await logEvent(errorMessage, LoggingLevel.Warning, true);
+
+                                nearbyOffers =  [];
+                                retryCount -= 1;
+                            }
+                        }
+                    } else {
+                        if (responseData && responseData.getPremierOffers.errorMessage !== null) {
+                            const errorMessage = `Unexpected error while retrieving premier nearby offers ${responseData.getPremierOffers.errorMessage}`;
+                            console.log(errorMessage);
+                            await logEvent(errorMessage, LoggingLevel.Error, true);
+                        }
+
+                        setNumberOfFailedCalls(numberOfFailedCalls + 1);
+                        nearbyOffers =  null;
+                        retryCount -= 1;
                     }
                 } else {
-                    const errorMessage = `Unexpected error while retrieving premier nearby offers ${JSON.stringify(premierNearbyOffersResult)}`;
+                    const errorMessage = `Unable to retrieve the current user's location coordinates!`;
                     console.log(errorMessage);
                     await logEvent(errorMessage, LoggingLevel.Error, true);
 
                     setNumberOfFailedCalls(numberOfFailedCalls + 1);
-                    return null;
+                    nearbyOffers =  null;
+                    retryCount -= 1;
                 }
-            } else {
-                const errorMessage = `Unable to retrieve the current user's location coordinates!`;
-                console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Error, true);
-
-                setNumberOfFailedCalls(numberOfFailedCalls + 1);
-                return null;
             }
-        }
-    } catch (error) {
-        const errorMessage = `Unexpected error while attempting to retrieve premier nearby offers ${JSON.stringify(error)} ${error}`;
-        console.log(errorMessage);
-        await logEvent(errorMessage, LoggingLevel.Error, true);
+        } catch (error) {
+            const errorMessage = `Unexpected error while attempting to retrieve premier nearby offers ${JSON.stringify(error)} ${error}`;
+            console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Error, true);
 
-        setNumberOfFailedCalls(numberOfFailedCalls + 1);
-        return null;
+            setNumberOfFailedCalls(numberOfFailedCalls + 1);
+            nearbyOffers =  null;
+            retryCount -= 1;
+        }
     }
+
+    return nearbyOffers;
 }
 
 /**
@@ -1188,104 +1305,115 @@ export const retrieveOffersNearbyForMap = async (numberOfFailedCalls: number, se
                                                  setTotalNumberOfOffersAvailable?: SetterOrUpdater<number>, fullScreenMap?: boolean,
                                                  fullScreenLatitude?: number, fullScreenLongitude?: number): Promise<Offer[] | null> => {
     // result to return
-    let nearbyOffers: Offer[] = [];
+    let nearbyOffers: Offer[] | null = [];
 
-    try {
-        // first retrieve the necessary permissions for location purposes
-        const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
-        if (foregroundPermissionStatus.status !== 'granted') {
-            const message = `Permission to access location was not granted!`;
-            console.log(message);
-            await logEvent(message, LoggingLevel.Warning, true);
+    // at most call this once if failing (because this sometimes freezes up the marketplace)
+    let retryCount = 1;
+    while (retryCount > 0) {
+        try {
+            // first retrieve the necessary permissions for location purposes
+            const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
+            if (foregroundPermissionStatus.status !== 'granted') {
+                const message = `Permission to access location was not granted!`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Warning, true);
 
-            return null;
-        } else {
-            if (currentUserLocation === null) {
-                const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
-                setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getCurrentPositionAsync());
-            }
+                nearbyOffers = null;
+                retryCount = 0;
+            } else {
+                if (currentUserLocation === null) {
+                    const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
+                    setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getCurrentPositionAsync());
+                }
 
-            // first retrieve the latitude and longitude of the current user
-            if (currentUserLocation !== null && currentUserLocation.coords && currentUserLocation.coords.latitude && currentUserLocation.coords.longitude) {
-                // call the getOffers API
-                const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
-                    getOffersInput: {
-                        availability: OfferAvailability.Global,
-                        countryCode: CountryCode.Us,
-                        filterType: OfferFilter.Nearby,
-                        offerStates: [OfferState.Active, OfferState.Scheduled],
-                        pageNumber: 1, // only look at the first page number (since we are loading a lot of offers for what we can display on the map)
-                        pageSize: fullScreenMap === undefined || !fullScreenMap ? 10 : 1000, // only load 10 nearby offers for the main horizontal map and 1000 for full screen map
-                        radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
-                        radius: fullScreenMap === undefined || !fullScreenMap ? 10000 : 20000, // radius of 10 km for horizontal map and 20 km for full screen map
-                        radiusLatitude: fullScreenLatitude !== undefined ? fullScreenLatitude : currentUserLocation.coords.latitude,
-                        radiusLongitude: fullScreenLongitude !== undefined ? fullScreenLongitude : currentUserLocation.coords.longitude,
-                        redemptionType: RedemptionType.Cardlinked
-                    }
-                }));
+                // first retrieve the latitude and longitude of the current user
+                if (currentUserLocation !== null && currentUserLocation.coords && currentUserLocation.coords.latitude && currentUserLocation.coords.longitude) {
+                    // call the getOffers API
+                    const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
+                        getOffersInput: {
+                            availability: OfferAvailability.Global,
+                            countryCode: CountryCode.Us,
+                            filterType: OfferFilter.Nearby,
+                            offerStates: [OfferState.Active, OfferState.Scheduled],
+                            pageNumber: 1, // only look at the first page number (since we are loading a lot of offers for what we can display on the map)
+                            pageSize: fullScreenMap === undefined || !fullScreenMap ? 10 : 1000, // only load 10 nearby offers for the main horizontal map and 1000 for full screen map
+                            radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
+                            radius: fullScreenMap === undefined || !fullScreenMap ? 10000 : 20000, // radius of 10 km for horizontal map and 20 km for full screen map
+                            radiusLatitude: fullScreenLatitude !== undefined ? fullScreenLatitude : currentUserLocation.coords.latitude,
+                            radiusLongitude: fullScreenLongitude !== undefined ? fullScreenLongitude : currentUserLocation.coords.longitude,
+                            redemptionType: RedemptionType.Cardlinked
+                        }
+                    }));
 
-                // retrieve the data block from the response
-                // @ts-ignore
-                const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
+                    // retrieve the data block from the response
+                    // @ts-ignore
+                    const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
 
-                // check if there are any errors in the returned response
-                if (responseData && responseData.getOffers.errorMessage === null) {
-                    // retrieve the array of nearby offers from the API call
-                    nearbyOffers = responseData.getOffers.data.offers;
-
-                    // ensure that there is at least one nearby offer in the list
-                    if (nearbyOffers.length > 0) {
-                        // set the total number of offers available nearby, if not previously set
-                        fullScreenMap === undefined && totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
-                        setTotalNumberOfOffersAvailable !== undefined && setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
+                    // check if there are any errors in the returned response
+                    if (responseData && responseData.getOffers.errorMessage === null) {
                         // retrieve the array of nearby offers from the API call
-                        return nearbyOffers;
-                    } else {
-                        const message = `No nearby offers to display for main horizontal map ${JSON.stringify(nearbyOffersResult)}`;
-                        console.log(message);
-                        await logEvent(message, LoggingLevel.Info, true);
+                        nearbyOffers = responseData.getOffers.data.offers;
 
-                        // fall back to offers near their home address
-                        return userInformation["address"] && userInformation["address"]["formatted"]
-                            ? await retrieveOffersNearLocationForMap(userInformation["address"]["formatted"],
-                                totalNumberOfOffersAvailable, setTotalNumberOfOffersAvailable, fullScreenMap, fullScreenLatitude, fullScreenLongitude)
-                            : nearbyOffers;
+                        // ensure that there is at least one nearby offer in the list
+                        if (nearbyOffers !== undefined && nearbyOffers !== null && nearbyOffers.length > 0) {
+                            // set the total number of offers available nearby, if not previously set
+                            fullScreenMap === undefined && totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
+                            setTotalNumberOfOffersAvailable !== undefined && setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
+                            // retrieve the array of nearby offers from the API call
+                            retryCount = 0;
+                        } else {
+                            const message = `No nearby offers to display for main horizontal map ${JSON.stringify(nearbyOffersResult)}`;
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Info, true);
+
+                            // fall back to offers near their home address
+                            nearbyOffers = userInformation["address"] && userInformation["address"]["formatted"]
+                                ? await retrieveOffersNearLocationForMap(userInformation["address"]["formatted"],
+                                    totalNumberOfOffersAvailable, setTotalNumberOfOffersAvailable, fullScreenMap, fullScreenLatitude, fullScreenLongitude)
+                                : nearbyOffers;
+                            retryCount -= 1;
+                        }
+                    } else {
+                        if (responseData && responseData.getOffers.errorMessage !== null) {
+                            const message = `Unexpected error while retrieving nearby offers for main horizontal map ${responseData.getOffers.errorMessage}`;
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Error, true);
+                        }
+
+                        setNumberOfFailedCalls(numberOfFailedCalls + 1);
+                        retryCount -= 1;
                     }
                 } else {
-                    const message = `Unexpected error while retrieving nearby offers for main horizontal map ${JSON.stringify(nearbyOffersResult)}`;
+                    const message = `Unable to retrieve the current user's location coordinates!`;
                     console.log(message);
                     await logEvent(message, LoggingLevel.Error, true);
 
                     setNumberOfFailedCalls(numberOfFailedCalls + 1);
-                    return nearbyOffers;
+                    retryCount -= 1;
                 }
-            } else {
-                const message = `Unable to retrieve the current user's location coordinates!`;
-                console.log(message);
-                await logEvent(message, LoggingLevel.Error, true);
+            }
+        } catch (error) {
+            const message = `Unexpected error while attempting to retrieve nearby offers for main horizontal map ${JSON.stringify(error)} ${error}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, true);
 
-                setNumberOfFailedCalls(numberOfFailedCalls + 1);
-                return nearbyOffers;
+            setNumberOfFailedCalls(numberOfFailedCalls + 1);
+
+            // @ts-ignore
+            if (!error.code && (error.code !== 'ERR_LOCATION_INFO_PLIST' || error.code !== 'E_LOCATION_UNAVAILABLE')) {
+                retryCount -= 1;
+            } else {
+                // fall back to offers near their home address
+                nearbyOffers = userInformation["address"] && userInformation["address"]["formatted"]
+                    ? await retrieveOffersNearLocationForMap(userInformation["address"]["formatted"],
+                        totalNumberOfOffersAvailable, setTotalNumberOfOffersAvailable, fullScreenMap, fullScreenLatitude, fullScreenLongitude)
+                    : nearbyOffers;
+                retryCount -= 1;
             }
         }
-    } catch (error) {
-        const message = `Unexpected error while attempting to retrieve nearby offers for main horizontal map ${JSON.stringify(error)} ${error}`;
-        console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
-
-        setNumberOfFailedCalls(numberOfFailedCalls + 1);
-
-        // @ts-ignore
-        if (!error.code && (error.code !== 'ERR_LOCATION_INFO_PLIST' || error.code !== 'E_LOCATION_UNAVAILABLE')) {
-            return nearbyOffers;
-        } else {
-            // fall back to offers near their home address
-            return userInformation["address"] && userInformation["address"]["formatted"]
-                ? await retrieveOffersNearLocationForMap(userInformation["address"]["formatted"],
-                    totalNumberOfOffersAvailable, setTotalNumberOfOffersAvailable, fullScreenMap, fullScreenLatitude, fullScreenLongitude)
-                : nearbyOffers;
-        }
     }
+
+    return nearbyOffers;
 }
 
 /**
@@ -1311,75 +1439,83 @@ const retrieveOffersNearLocationForMap = async (address: string, totalNumberOfOf
     // result to return
     let nearbyOffers: Offer[] = [];
 
-    try {
-        // first retrieve the necessary geolocation information based on the user's home address
-        const geoLocationArray = await Location.geocodeAsync(address);
-        /**
-         * get the first location point in the array of geolocation returned
-         */
-        const geoLocation = geoLocationArray && geoLocationArray.length !== 0 ? geoLocationArray[0] : null;
-        if (!geoLocation) {
-            const message = `Unable to retrieve user's home location's geolocation ${address}`;
-            console.log(message);
-            await logEvent(message, LoggingLevel.Error, true);
-
-            return nearbyOffers;
-        } else {
-            // call the getOffers API
-            const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
-                getOffersInput: {
-                    availability: OfferAvailability.Global,
-                    countryCode: CountryCode.Us,
-                    filterType: OfferFilter.Nearby,
-                    offerStates: [OfferState.Active, OfferState.Scheduled],
-                    pageNumber: 1, // only look at the first page number (since we are loading a lot of offers for what we can display on the map)
-                    pageSize: fullScreenMap === undefined || !fullScreenMap ? 10 : 1000, // only load 10 nearby offers for the main horizontal map and 1000 for full screen map
-                    radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
-                    radius: fullScreenMap === undefined || !fullScreenMap ? 10000 : 20000, // radius of 10 km for horizontal map and 20 km for full screen map
-                    radiusLatitude: fullScreenLatitude !== undefined ? fullScreenLatitude : geoLocation.latitude,
-                    radiusLongitude: fullScreenLongitude !== undefined ? fullScreenLongitude : geoLocation.longitude,
-                    redemptionType: RedemptionType.Cardlinked
-                }
-            }));
-
-            // retrieve the data block from the response
-            // @ts-ignore
-            const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
-
-            // check if there are any errors in the returned response
-            if (responseData && responseData.getOffers.errorMessage === null) {
-                // retrieve the array of nearby offers from the API call
-                nearbyOffers = responseData.getOffers.data.offers;
-
-                // ensure that there is at least one nearby offer in the list
-                if (nearbyOffers.length > 0) {
-                    // set the total number of offers available nearby, if not previously set
-                    fullScreenMap === undefined && totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
-                    setTotalNumberOfOffersAvailable !== undefined && setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
-
-                    return nearbyOffers;
-                } else {
-                    const message = `No offers near user's home location to display for main horizontal map ${JSON.stringify(nearbyOffersResult)}`;
-                    console.log(message);
-                    await logEvent(message, LoggingLevel.Warning, true);
-
-                    return nearbyOffers;
-                }
-            } else {
-                const message = `Unexpected error while retrieving offers near user's home location for main horizontal map ${JSON.stringify(nearbyOffersResult)}`;
+    // at most call this once if failing (because this sometimes freezes up the marketplace)
+    let retryCount = 1;
+    while (retryCount > 0) {
+        try {
+            // first retrieve the necessary geolocation information based on the user's home address
+            const geoLocationArray = await Location.geocodeAsync(address);
+            /**
+             * get the first location point in the array of geolocation returned
+             */
+            const geoLocation = geoLocationArray && geoLocationArray.length !== 0 ? geoLocationArray[0] : null;
+            if (!geoLocation) {
+                const message = `Unable to retrieve user's home location's geolocation ${address}`;
                 console.log(message);
                 await logEvent(message, LoggingLevel.Error, true);
 
-                return nearbyOffers;
-            }
-        }
-    } catch (error) {
-        const message = `Unexpected error while attempting to retrieve offers near user's home location for main horizontal map ${JSON.stringify(error)} ${error}`;
-        console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
+                retryCount = 0;
+            } else {
+                // call the getOffers API
+                const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
+                    getOffersInput: {
+                        availability: OfferAvailability.Global,
+                        countryCode: CountryCode.Us,
+                        filterType: OfferFilter.Nearby,
+                        offerStates: [OfferState.Active, OfferState.Scheduled],
+                        pageNumber: 1, // only look at the first page number (since we are loading a lot of offers for what we can display on the map)
+                        pageSize: fullScreenMap === undefined || !fullScreenMap ? 10 : 1000, // only load 10 nearby offers for the main horizontal map and 1000 for full screen map
+                        radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
+                        radius: fullScreenMap === undefined || !fullScreenMap ? 10000 : 20000, // radius of 10 km for horizontal map and 20 km for full screen map
+                        radiusLatitude: fullScreenLatitude !== undefined ? fullScreenLatitude : geoLocation.latitude,
+                        radiusLongitude: fullScreenLongitude !== undefined ? fullScreenLongitude : geoLocation.longitude,
+                        redemptionType: RedemptionType.Cardlinked
+                    }
+                }));
 
-        return nearbyOffers;
+                // retrieve the data block from the response
+                // @ts-ignore
+                const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.getOffers.errorMessage === null) {
+                    // retrieve the array of nearby offers from the API call
+                    nearbyOffers = responseData.getOffers.data.offers;
+
+                    // ensure that there is at least one nearby offer in the list
+                    if (nearbyOffers !== undefined && nearbyOffers !== null && nearbyOffers.length > 0) {
+                        // set the total number of offers available nearby, if not previously set
+                        fullScreenMap === undefined && totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
+                        setTotalNumberOfOffersAvailable !== undefined && setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
+
+                        retryCount = 0;
+                    } else {
+                        const message = `No offers near user's home location to display for main horizontal map ${JSON.stringify(nearbyOffersResult)}`;
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Warning, true);
+
+                        retryCount -= 1;
+                    }
+                } else {
+                    if (responseData && responseData.getOffers.errorMessage !== null) {
+                        const message = `Unexpected error while retrieving offers near user's home location for main horizontal map ${responseData.getOffers.errorMessage}`;
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Error, true);
+                    }
+
+                    retryCount -= 1;
+                }
+            }
+        } catch (error) {
+            const message = `Unexpected error while attempting to retrieve offers near user's home location for main horizontal map ${JSON.stringify(error)} ${error}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, true);
+
+            retryCount -= 1;
+        }
     }
+
+    return nearbyOffers;
 }
 
 /**
@@ -1419,110 +1555,121 @@ export const retrieveOffersNearby = async (numberOfFailedCalls: number, setNumbe
                                            setCurrentUserLocation: SetterOrUpdater<LocationObject | null>,
                                            totalNumberOfOffersAvailable: number, setTotalNumberOfOffersAvailable: SetterOrUpdater<number>): Promise<Offer[] | null> => {
     // result to return
-    let nearbyOffers: Offer[] = [];
+    let nearbyOffers: Offer[] | null = [];
 
-    try {
-        // first retrieve the necessary permissions for location purposes
-        const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
-        if (foregroundPermissionStatus.status !== 'granted') {
-            const message = `Permission to access location was not granted!`;
-            console.log(message);
-            await logEvent(message, LoggingLevel.Info, true);
+    // at most call this once if failing (because this sometimes freezes up the marketplace)
+    let retryCount = 1;
+    while (retryCount > 0) {
+        try {
+            // first retrieve the necessary permissions for location purposes
+            const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
+            if (foregroundPermissionStatus.status !== 'granted') {
+                const message = `Permission to access location was not granted!`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Info, true);
 
-            return null;
-        } else {
-            if (currentUserLocation === null) {
-                const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
-                setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getCurrentPositionAsync());
-            }
+                retryCount = 0;
+                nearbyOffers = null;
+            } else {
+                if (currentUserLocation === null) {
+                    const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
+                    setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getCurrentPositionAsync());
+                }
 
-            // first retrieve the latitude and longitude of the current user
-            if (currentUserLocation !== null && currentUserLocation.coords && currentUserLocation.coords.latitude && currentUserLocation.coords.longitude) {
-                // call the getOffers API
-                const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
-                    getOffersInput: {
-                        availability: OfferAvailability.Global,
-                        countryCode: CountryCode.Us,
-                        filterType: OfferFilter.Nearby,
-                        offerStates: [OfferState.Active, OfferState.Scheduled],
-                        pageNumber: pageNumber,
-                        pageSize: premierPageNumber === 1 ? 5 : 15, // for the first time load 5 and then load 15 at a time
-                        radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
-                        radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
-                        radiusLatitude: currentUserLocation.coords.latitude,
-                        radiusLongitude: currentUserLocation.coords.longitude,
-                        redemptionType: RedemptionType.Cardlinked
-                    }
-                }));
+                // first retrieve the latitude and longitude of the current user
+                if (currentUserLocation !== null && currentUserLocation.coords && currentUserLocation.coords.latitude && currentUserLocation.coords.longitude) {
+                    // call the getOffers API
+                    const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
+                        getOffersInput: {
+                            availability: OfferAvailability.Global,
+                            countryCode: CountryCode.Us,
+                            filterType: OfferFilter.Nearby,
+                            offerStates: [OfferState.Active, OfferState.Scheduled],
+                            pageNumber: pageNumber,
+                            pageSize: premierPageNumber === 1 ? 5 : 15, // for the first time load 5 and then load 15 at a time
+                            radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
+                            radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
+                            radiusLatitude: currentUserLocation.coords.latitude,
+                            radiusLongitude: currentUserLocation.coords.longitude,
+                            redemptionType: RedemptionType.Cardlinked
+                        }
+                    }));
 
-                // retrieve the data block from the response
-                // @ts-ignore
-                const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
+                    // retrieve the data block from the response
+                    // @ts-ignore
+                    const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
 
-                // check if there are any errors in the returned response
-                if (responseData && responseData.getOffers.errorMessage === null) {
-                    // retrieve the array of nearby offers from the API call
-                    nearbyOffers = responseData.getOffers.data.offers;
-
-                    // ensure that there is at least one nearby offer in the list
-                    if (nearbyOffers.length > 0) {
-                        // increase the page number according to whether it's the first time loading these offers or not
-                        premierPageNumber === 1
-                            ? setPremierPageNumber(premierPageNumber + 1)
-                            : setPageNumber(pageNumber + 1);
-                        // set the total number of offers available within 25 miles of the user, if not previously set
-                        totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
-                        setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
+                    // check if there are any errors in the returned response
+                    if (responseData && responseData.getOffers.errorMessage === null) {
                         // retrieve the array of nearby offers from the API call
-                        return nearbyOffers;
-                    } else {
-                        const message = `No nearby offers to display ${JSON.stringify(nearbyOffersResult)}`;
-                        console.log(message);
-                        await logEvent(message, LoggingLevel.Info, true);
+                        nearbyOffers = responseData.getOffers.data.offers;
 
-                        // fall back to offers near their home address
-                        return userInformation["address"] && userInformation["address"]["formatted"]
-                            ? await retrieveOffersNearLocation(userInformation["address"]["formatted"], pageNumber,
-                                setPageNumber, premierPageNumber, setPremierPageNumber, setOffersNearUserLocationFlag, marketplaceCache, userInformation,
-                                totalNumberOfOffersAvailable, setTotalNumberOfOffersAvailable)
-                            : nearbyOffers;
+                        // ensure that there is at least one nearby offer in the list
+                        if (nearbyOffers !== undefined && nearbyOffers !== null && nearbyOffers.length > 0) {
+                            // increase the page number according to whether it's the first time loading these offers or not
+                            premierPageNumber === 1
+                                ? setPremierPageNumber(premierPageNumber + 1)
+                                : setPageNumber(pageNumber + 1);
+                            // set the total number of offers available within 25 miles of the user, if not previously set
+                            totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
+                            setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
+                            // retrieve the array of nearby offers from the API call
+                            retryCount = 0;
+                        } else {
+                            const message = `No nearby offers to display ${JSON.stringify(nearbyOffersResult)}`;
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Info, true);
+
+                            // fall back to offers near their home address
+                            retryCount -= 1;
+                            nearbyOffers = userInformation["address"] && userInformation["address"]["formatted"]
+                                ? await retrieveOffersNearLocation(userInformation["address"]["formatted"], pageNumber,
+                                    setPageNumber, premierPageNumber, setPremierPageNumber, setOffersNearUserLocationFlag, marketplaceCache, userInformation,
+                                    totalNumberOfOffersAvailable, setTotalNumberOfOffersAvailable)
+                                : nearbyOffers;
+                        }
+                    } else {
+                        if (responseData && responseData.getOffers.errorMessage !== null) {
+                            const errorMessage = `Unexpected error while retrieving nearby offers ${responseData.getOffers.errorMessage}`;
+                            console.log(errorMessage);
+                            await logEvent(errorMessage, LoggingLevel.Error, true);
+                        }
+
+                        setNumberOfFailedCalls(numberOfFailedCalls + 1);
+                        retryCount -= 1;
                     }
                 } else {
-                    const errorMessage = `Unexpected error while retrieving nearby offers ${JSON.stringify(nearbyOffersResult)}`;
+                    const errorMessage = `Unable to retrieve the current user's location coordinates!`;
                     console.log(errorMessage);
                     await logEvent(errorMessage, LoggingLevel.Error, true);
 
                     setNumberOfFailedCalls(numberOfFailedCalls + 1);
-                    return nearbyOffers;
+                    retryCount -= 1;
                 }
-            } else {
-                const errorMessage = `Unable to retrieve the current user's location coordinates!`;
-                console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Error, true);
+            }
+        } catch (error) {
+            const errorMessage = `Unexpected error while attempting to retrieve nearby offers ${JSON.stringify(error)} ${error}`;
+            console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Error, true);
 
-                setNumberOfFailedCalls(numberOfFailedCalls + 1);
-                return nearbyOffers;
+            setNumberOfFailedCalls(numberOfFailedCalls + 1);
+
+            // @ts-ignore
+            if (!error.code && (error.code !== 'ERR_LOCATION_INFO_PLIST' || error.code !== 'E_LOCATION_UNAVAILABLE')) {
+                retryCount -= 1;
+            } else {
+                // fall back to offers near their home address
+                retryCount -= 1;
+                nearbyOffers = userInformation["address"] && userInformation["address"]["formatted"]
+                    ? await retrieveOffersNearLocation(userInformation["address"]["formatted"], pageNumber,
+                        setPageNumber, premierPageNumber, setPremierPageNumber, setOffersNearUserLocationFlag, marketplaceCache, userInformation,
+                        totalNumberOfOffersAvailable, setTotalNumberOfOffersAvailable)
+                    : nearbyOffers
             }
         }
-    } catch (error) {
-        const errorMessage = `Unexpected error while attempting to retrieve nearby offers ${JSON.stringify(error)} ${error}`;
-        console.log(errorMessage);
-        await logEvent(errorMessage, LoggingLevel.Error, true);
-
-        setNumberOfFailedCalls(numberOfFailedCalls + 1);
-
-        // @ts-ignore
-        if (!error.code && (error.code !== 'ERR_LOCATION_INFO_PLIST' || error.code !== 'E_LOCATION_UNAVAILABLE')) {
-            return nearbyOffers;
-        } else {
-            // fall back to offers near their home address
-            return userInformation["address"] && userInformation["address"]["formatted"]
-                ? await retrieveOffersNearLocation(userInformation["address"]["formatted"], pageNumber,
-                    setPageNumber, premierPageNumber, setPremierPageNumber, setOffersNearUserLocationFlag, marketplaceCache, userInformation,
-                    totalNumberOfOffersAvailable, setTotalNumberOfOffersAvailable)
-                : nearbyOffers;
-        }
     }
+
+    return nearbyOffers;
 }
 
 /**
@@ -1556,105 +1703,114 @@ const retrieveOffersNearLocation = async (address: string, pageNumber: number, s
     // result to return
     let nearbyOffers: Offer[] = [];
 
-    try {
-        // check to see if we already have these offers cached, for the first page, if we do retrieve them from cache instead
-        if (pageNumber === 1 && marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-offerNearUserHome`) !== null) {
-            const message = 'offers near user home are cached';
-            console.log(message);
-            await logEvent(message, LoggingLevel.Info, true);
-
-            // increase the page number, if needed
-            setPageNumber(pageNumber + 1);
-
-            // set the nearby user location flag
-            setOffersNearUserLocationFlag(true);
-
-            return await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-offerNearUserHome`);
-        } else {
-            const message = 'offers near user home are not cached, or page number is not 1';
-            console.log(message);
-            await logEvent(message, LoggingLevel.Info, true);
-
-            // first retrieve the necessary geolocation information based on the user's home address
-            const geoLocationArray = await Location.geocodeAsync(address);
-            /**
-             * get the first location point in the array of geolocation returned
-             */
-            const geoLocation = geoLocationArray && geoLocationArray.length !== 0 ? geoLocationArray[0] : null;
-            if (!geoLocation) {
-                const message = `Unable to retrieve user's home location's geolocation ${address}`;
+    // at most call this once if failing (because this sometimes freezes up the marketplace)
+    let retryCount = 1;
+    while (retryCount > 0) {
+        try {
+            // check to see if we already have these offers cached, for the first page, if we do retrieve them from cache instead
+            if (pageNumber === 1 && marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-offerNearUserHome`) !== null) {
+                const message = 'offers near user home are cached';
                 console.log(message);
-                await logEvent(message, LoggingLevel.Warning, true);
+                await logEvent(message, LoggingLevel.Info, true);
 
-                return nearbyOffers;
+                // increase the page number, if needed
+                setPageNumber(pageNumber + 1);
+
+                // set the nearby user location flag
+                setOffersNearUserLocationFlag(true);
+
+                retryCount = 0;
+                nearbyOffers = marketplaceCache!.getItem(`${userInformation["custom:userId"]}-offerNearUserHome`);
             } else {
-                // call the getOffers API
-                const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
-                    getOffersInput: {
-                        availability: OfferAvailability.Global,
-                        countryCode: CountryCode.Us,
-                        filterType: OfferFilter.Nearby,
-                        offerStates: [OfferState.Active, OfferState.Scheduled],
-                        pageNumber: pageNumber !== undefined ? pageNumber : 1, // cache the first page only, otherwise retrieve the appropriate page number
-                        pageSize: premierPageNumber === 1 ? 5 : 15, // for the first time load 5 and then load 15 at a time
-                        radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
-                        radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
-                        radiusLatitude: geoLocation.latitude,
-                        radiusLongitude: geoLocation.longitude,
-                        redemptionType: RedemptionType.Cardlinked
-                    }
-                }));
+                const message = 'offers near user home are not cached, or page number is not 1';
+                console.log(message);
+                await logEvent(message, LoggingLevel.Info, true);
 
-                // retrieve the data block from the response
-                // @ts-ignore
-                const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
+                // first retrieve the necessary geolocation information based on the user's home address
+                const geoLocationArray = await Location.geocodeAsync(address);
+                /**
+                 * get the first location point in the array of geolocation returned
+                 */
+                const geoLocation = geoLocationArray && geoLocationArray.length !== 0 ? geoLocationArray[0] : null;
+                if (!geoLocation) {
+                    const message = `Unable to retrieve user's home location's geolocation ${address}`;
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Warning, true);
 
-                // check if there are any errors in the returned response
-                if (responseData && responseData.getOffers.errorMessage === null) {
-                    // retrieve the array of nearby offers from the API call
-                    nearbyOffers = responseData.getOffers.data.offers;
-
-                    // ensure that there is at least one nearby offer in the list
-                    if (nearbyOffers.length > 0) {
-                        // if the page number is 1, then cache the first page of offers near user home
-                        pageNumber === 1 && marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-offerNearUserHome`, nearbyOffers);
-
-                        // increase the page number according to whether it's the first time loading these offers or not
-                        premierPageNumber === 1
-                            ? setPremierPageNumber(premierPageNumber + 1)
-                            : setPageNumber(pageNumber + 1);
-
-                        // set the nearby user location flag
-                        setOffersNearUserLocationFlag(true);
-
-                        // set the total number of offers available within 25 miles of the user, if not previously set
-                        totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
-                        setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
-
-                        return nearbyOffers;
-                    } else {
-                        const message = `No offers near user's home location to display ${JSON.stringify(nearbyOffersResult)}`;
-                        console.log(message);
-                        await logEvent(message, LoggingLevel.Info, true);
-
-                        return nearbyOffers;
-                    }
+                    retryCount = 0;
                 } else {
-                    const errorMessage = `Unexpected error while retrieving offers near user's home location ${JSON.stringify(nearbyOffersResult)}`;
-                    console.log(errorMessage);
-                    await logEvent(errorMessage, LoggingLevel.Error, true);
+                    // call the getOffers API
+                    const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
+                        getOffersInput: {
+                            availability: OfferAvailability.Global,
+                            countryCode: CountryCode.Us,
+                            filterType: OfferFilter.Nearby,
+                            offerStates: [OfferState.Active, OfferState.Scheduled],
+                            pageNumber: pageNumber !== undefined ? pageNumber : 1, // cache the first page only, otherwise retrieve the appropriate page number
+                            pageSize: premierPageNumber === 1 ? 5 : 15, // for the first time load 5 and then load 15 at a time
+                            radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
+                            radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
+                            radiusLatitude: geoLocation.latitude,
+                            radiusLongitude: geoLocation.longitude,
+                            redemptionType: RedemptionType.Cardlinked
+                        }
+                    }));
 
-                    return nearbyOffers;
+                    // retrieve the data block from the response
+                    // @ts-ignore
+                    const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
+
+                    // check if there are any errors in the returned response
+                    if (responseData && responseData.getOffers.errorMessage === null) {
+                        // retrieve the array of nearby offers from the API call
+                        nearbyOffers = responseData.getOffers.data.offers;
+
+                        // ensure that there is at least one nearby offer in the list
+                        if (nearbyOffers !== undefined && nearbyOffers !== null && nearbyOffers.length > 0) {
+                            // if the page number is 1, then cache the first page of offers near user home
+                            pageNumber === 1 && marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-offerNearUserHome`, nearbyOffers);
+
+                            // increase the page number according to whether it's the first time loading these offers or not
+                            premierPageNumber === 1
+                                ? setPremierPageNumber(premierPageNumber + 1)
+                                : setPageNumber(pageNumber + 1);
+
+                            // set the nearby user location flag
+                            setOffersNearUserLocationFlag(true);
+
+                            // set the total number of offers available within 25 miles of the user, if not previously set
+                            totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
+                            setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
+
+                            retryCount = 0;
+                        } else {
+                            const message = `No offers near user's home location to display ${JSON.stringify(nearbyOffersResult)}`;
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Info, true);
+
+                            retryCount -= 1;
+                        }
+                    } else {
+                        if (responseData && responseData.getOffers.errorMessage !== null) {
+                            const errorMessage = `Unexpected error while retrieving offers near user's home location ${responseData.getOffers.errorMessage}`;
+                            console.log(errorMessage);
+                            await logEvent(errorMessage, LoggingLevel.Error, true);
+                        }
+
+                        retryCount -= 1;
+                    }
                 }
             }
-        }
-    } catch (error) {
-        const errorMessage = `Unexpected error while attempting to retrieve offers near user's home location ${JSON.stringify(error)} ${error}`;
-        console.log(errorMessage);
-        await logEvent(errorMessage, LoggingLevel.Error, true);
+        } catch (error) {
+            const errorMessage = `Unexpected error while attempting to retrieve offers near user's home location ${JSON.stringify(error)} ${error}`;
+            console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Error, true);
 
-        return nearbyOffers;
+            retryCount -= 1;
+        }
     }
+
+    return nearbyOffers;
 }
 
 /**
@@ -1685,106 +1841,117 @@ export const retrieveCategorizedOffersNearby = async (pageNumber: number, setPag
                                                       totalNumberOfOffersAvailable: number, setTotalNumberOfOffersAvailable: SetterOrUpdater<number>,
                                                       offerCategory: OfferCategory): Promise<Offer[] | null> => {
     // result to return
-    let nearbyOffers: Offer[] = [];
+    let nearbyOffers: Offer[] | null = [];
 
-    try {
-        // first retrieve the necessary permissions for location purposes
-        const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
-        if (foregroundPermissionStatus.status !== 'granted') {
-            const errorMessage = `Permission to access location was not granted!`;
-            console.log(errorMessage);
-            await logEvent(errorMessage, LoggingLevel.Warning, true);
+    // at most call this once if failing (because this sometimes freezes up the marketplace)
+    let retryCount = 1;
+    while (retryCount > 0) {
+        try {
+            // first retrieve the necessary permissions for location purposes
+            const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
+            if (foregroundPermissionStatus.status !== 'granted') {
+                const errorMessage = `Permission to access location was not granted!`;
+                console.log(errorMessage);
+                await logEvent(errorMessage, LoggingLevel.Warning, true);
 
-            return null;
-        } else {
-            if (currentUserLocation === null) {
-                const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
-                setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getCurrentPositionAsync());
-            }
+                retryCount = 0;
+                nearbyOffers = null;
+            } else {
+                if (currentUserLocation === null) {
+                    const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
+                    setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getCurrentPositionAsync());
+                }
 
-            // first retrieve the latitude and longitude of the current user
-            if (currentUserLocation !== null && currentUserLocation.coords && currentUserLocation.coords.latitude && currentUserLocation.coords.longitude) {
-                // call the getOffers API
-                const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
-                    getOffersInput: {
-                        availability: OfferAvailability.Global,
-                        countryCode: CountryCode.Us,
-                        filterType: OfferFilter.CategorizedNearby,
-                        offerStates: [OfferState.Active, OfferState.Scheduled],
-                        pageNumber: pageNumber,
-                        pageSize: 15, // load 15 offers at a time
-                        radiusIncludeOnlineStores: false, // do not include online offers in nearby categorized offers list
-                        radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
-                        radiusLatitude: currentUserLocation.coords.latitude,
-                        radiusLongitude: currentUserLocation.coords.longitude,
-                        redemptionType: RedemptionType.Cardlinked,
-                        offerCategory: offerCategory
-                    }
-                }));
+                // first retrieve the latitude and longitude of the current user
+                if (currentUserLocation !== null && currentUserLocation.coords && currentUserLocation.coords.latitude && currentUserLocation.coords.longitude) {
+                    // call the getOffers API
+                    const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
+                        getOffersInput: {
+                            availability: OfferAvailability.Global,
+                            countryCode: CountryCode.Us,
+                            filterType: OfferFilter.CategorizedNearby,
+                            offerStates: [OfferState.Active, OfferState.Scheduled],
+                            pageNumber: pageNumber,
+                            pageSize: 15, // load 15 offers at a time
+                            radiusIncludeOnlineStores: false, // do not include online offers in nearby categorized offers list
+                            radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
+                            radiusLatitude: currentUserLocation.coords.latitude,
+                            radiusLongitude: currentUserLocation.coords.longitude,
+                            redemptionType: RedemptionType.Cardlinked,
+                            offerCategory: offerCategory
+                        }
+                    }));
 
-                // retrieve the data block from the response
-                // @ts-ignore
-                const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
+                    // retrieve the data block from the response
+                    // @ts-ignore
+                    const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
 
-                // check if there are any errors in the returned response
-                if (responseData && responseData.getOffers.errorMessage === null) {
-                    // retrieve the array of nearby offers from the API call
-                    nearbyOffers = responseData.getOffers.data.offers;
-
-                    // ensure that there is at least one nearby offer in the list
-                    if (nearbyOffers.length > 0) {
-                        // increase the page number according to whether it's the first time loading these offers or not
-                        setPageNumber(pageNumber + 1);
-                        // set the total number of offers available within 25 miles of the user, if not previously set
-                        totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
-                        setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
+                    // check if there are any errors in the returned response
+                    if (responseData && responseData.getOffers.errorMessage === null) {
                         // retrieve the array of nearby offers from the API call
-                        return nearbyOffers;
+                        nearbyOffers = responseData.getOffers.data.offers;
+
+                        // ensure that there is at least one nearby offer in the list
+                        if (nearbyOffers !== undefined && nearbyOffers !== null && nearbyOffers.length > 0) {
+                            // increase the page number according to whether it's the first time loading these offers or not
+                            setPageNumber(pageNumber + 1);
+                            // set the total number of offers available within 25 miles of the user, if not previously set
+                            totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
+                            setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
+                            // retrieve the array of nearby offers from the API call
+                            retryCount = 0;
+                        } else {
+                            const errorMessage = `No nearby categorized offers to display for category ${offerCategory} ${JSON.stringify(nearbyOffersResult)}`;
+                            console.log(errorMessage);
+                            await logEvent(errorMessage, LoggingLevel.Warning, true);
+
+
+                            // fall back to offers near their home address
+                            retryCount -= 1;
+                            nearbyOffers =  userInformation["address"] && userInformation["address"]["formatted"]
+                                ? await retrieveCategorizedOffersNearLocation(userInformation["address"]["formatted"], pageNumber,
+                                    setPageNumber, setOffersNearUserLocationFlag, totalNumberOfOffersAvailable,
+                                    setTotalNumberOfOffersAvailable, offerCategory)
+                                : nearbyOffers;
+                        }
                     } else {
-                        const errorMessage = `No nearby categorized offers to display for category ${offerCategory} ${JSON.stringify(nearbyOffersResult)}`;
-                        console.log(errorMessage);
-                        await logEvent(errorMessage, LoggingLevel.Warning, true);
+                        if (responseData && responseData.getOffers.errorMessage !== null) {
+                            const errorMessage = `Unexpected error while retrieving nearby categorized offers for category ${offerCategory} ${responseData.getOffers.errorMessage}`;
+                            console.log(errorMessage);
+                            await logEvent(errorMessage, LoggingLevel.Error, true);
+                        }
 
-
-                        // fall back to offers near their home address
-                        return userInformation["address"] && userInformation["address"]["formatted"]
-                            ? await retrieveCategorizedOffersNearLocation(userInformation["address"]["formatted"], pageNumber,
-                                setPageNumber, setOffersNearUserLocationFlag, totalNumberOfOffersAvailable,
-                                setTotalNumberOfOffersAvailable, offerCategory)
-                            : nearbyOffers;
+                        retryCount -= 1;
                     }
                 } else {
-                    const errorMessage = `Unexpected error while retrieving nearby categorized offers for category ${offerCategory} ${JSON.stringify(nearbyOffersResult)}`;
+                    const errorMessage = `Unable to retrieve the current user's location coordinates!`;
                     console.log(errorMessage);
                     await logEvent(errorMessage, LoggingLevel.Error, true);
 
-                    return nearbyOffers;
+                    retryCount -= 1;
                 }
-            } else {
-                const errorMessage = `Unable to retrieve the current user's location coordinates!`;
-                console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Error, true);
+            }
+        } catch (error) {
+            const errorMessage = `Unexpected error while attempting to retrieve categorized nearby offers for category ${offerCategory} ${JSON.stringify(error)} ${error}`;
+            console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Error, true);
 
-                return nearbyOffers;
+            // @ts-ignore
+            if (!error.code && (error.code !== 'ERR_LOCATION_INFO_PLIST' || error.code !== 'E_LOCATION_UNAVAILABLE')) {
+                retryCount -= 1;
+            } else {
+                // fall back to offers near their home address
+                retryCount -= 1;
+                nearbyOffers = userInformation["address"] && userInformation["address"]["formatted"]
+                    ? await retrieveCategorizedOffersNearLocation(userInformation["address"]["formatted"], pageNumber,
+                        setPageNumber, setOffersNearUserLocationFlag, totalNumberOfOffersAvailable,
+                        setTotalNumberOfOffersAvailable, offerCategory)
+                    : nearbyOffers;
             }
         }
-    } catch (error) {
-        const errorMessage = `Unexpected error while attempting to retrieve categorized nearby offers for category ${offerCategory} ${JSON.stringify(error)} ${error}`;
-        console.log(errorMessage);
-        await logEvent(errorMessage, LoggingLevel.Error, true);
-
-        // @ts-ignore
-        if (!error.code && (error.code !== 'ERR_LOCATION_INFO_PLIST' || error.code !== 'E_LOCATION_UNAVAILABLE')) {
-            return nearbyOffers;
-        } else {
-            // fall back to offers near their home address
-            return userInformation["address"] && userInformation["address"]["formatted"]
-                ? await retrieveCategorizedOffersNearLocation(userInformation["address"]["formatted"], pageNumber,
-                    setPageNumber, setOffersNearUserLocationFlag, totalNumberOfOffersAvailable,
-                    setTotalNumberOfOffersAvailable, offerCategory)
-                : nearbyOffers;
-        }
     }
+
+    return nearbyOffers;
 }
 
 /**
@@ -1813,80 +1980,88 @@ const retrieveCategorizedOffersNearLocation = async (address: string, pageNumber
     // result to return
     let nearbyOffers: Offer[] = [];
 
-    try {
-        // first retrieve the necessary geolocation information based on the user's home address
-        const geoLocationArray = await Location.geocodeAsync(address);
-        /**
-         * get the first location point in the array of geolocation returned
-         */
-        const geoLocation = geoLocationArray && geoLocationArray.length !== 0 ? geoLocationArray[0] : null;
-        if (!geoLocation) {
-            const errorMessage = `Unable to retrieve user's home location's geolocation ${address}`;
-            console.log(errorMessage);
-            await logEvent(errorMessage, LoggingLevel.Error, true);
-
-            return nearbyOffers;
-        } else {
-            // call the getOffers API
-            const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
-                getOffersInput: {
-                    availability: OfferAvailability.Global,
-                    countryCode: CountryCode.Us,
-                    filterType: OfferFilter.CategorizedNearby,
-                    offerStates: [OfferState.Active, OfferState.Scheduled],
-                    pageNumber: pageNumber,
-                    pageSize: 15, // load 15 offers at a time
-                    radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
-                    radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
-                    radiusLatitude: geoLocation.latitude,
-                    radiusLongitude: geoLocation.longitude,
-                    redemptionType: RedemptionType.Cardlinked,
-                    offerCategory: offerCategory
-                }
-            }));
-
-            // retrieve the data block from the response
-            // @ts-ignore
-            const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
-
-            // check if there are any errors in the returned response
-            if (responseData && responseData.getOffers.errorMessage === null) {
-                // retrieve the array of nearby offers from the API call
-                nearbyOffers = responseData.getOffers.data.offers;
-
-                // ensure that there is at least one nearby offer in the list
-                if (nearbyOffers.length > 0) {
-                    // increase the page number according to whether it's the first time loading these offers or not
-                    setPageNumber(pageNumber + 1);
-
-                    // set the nearby user location flag
-                    setOffersNearUserLocationFlag(true);
-
-                    // set the total number of offers available within 25 miles of the user, if not previously set
-                    totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
-                    setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
-
-                    return nearbyOffers;
-                } else {
-                    const errorMessage = `No offers near user's home location to display ${JSON.stringify(nearbyOffersResult)}`;
-                    console.log(errorMessage);
-                    await logEvent(errorMessage, LoggingLevel.Warning, true);
-
-                    return nearbyOffers;
-                }
-            } else {
-                const errorMessage = `Unexpected error while retrieving offers near user's home location ${JSON.stringify(nearbyOffersResult)}`;
+    // at most call this once if failing (because this sometimes freezes up the marketplace)
+    let retryCount = 1;
+    while (retryCount > 0) {
+        try {
+            // first retrieve the necessary geolocation information based on the user's home address
+            const geoLocationArray = await Location.geocodeAsync(address);
+            /**
+             * get the first location point in the array of geolocation returned
+             */
+            const geoLocation = geoLocationArray && geoLocationArray.length !== 0 ? geoLocationArray[0] : null;
+            if (!geoLocation) {
+                const errorMessage = `Unable to retrieve user's home location's geolocation ${address}`;
                 console.log(errorMessage);
                 await logEvent(errorMessage, LoggingLevel.Error, true);
 
-                return nearbyOffers;
-            }
-        }
-    } catch (error) {
-        const errorMessage = `Unexpected error while attempting to retrieve offers near user's home location ${JSON.stringify(error)} ${error}`;
-        console.log(errorMessage);
-        await logEvent(errorMessage, LoggingLevel.Error, true);
+                retryCount = 0;
+            } else {
+                // call the getOffers API
+                const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
+                    getOffersInput: {
+                        availability: OfferAvailability.Global,
+                        countryCode: CountryCode.Us,
+                        filterType: OfferFilter.CategorizedNearby,
+                        offerStates: [OfferState.Active, OfferState.Scheduled],
+                        pageNumber: pageNumber,
+                        pageSize: 15, // load 15 offers at a time
+                        radiusIncludeOnlineStores: false, // do not include online offers in nearby offers list
+                        radius: 50000, // radius of 50 km (50,000 meters) roughly equal to 25 miles
+                        radiusLatitude: geoLocation.latitude,
+                        radiusLongitude: geoLocation.longitude,
+                        redemptionType: RedemptionType.Cardlinked,
+                        offerCategory: offerCategory
+                    }
+                }));
 
-        return nearbyOffers;
+                // retrieve the data block from the response
+                // @ts-ignore
+                const responseData = nearbyOffersResult ? nearbyOffersResult.data : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.getOffers.errorMessage === null) {
+                    // retrieve the array of nearby offers from the API call
+                    nearbyOffers = responseData.getOffers.data.offers;
+
+                    // ensure that there is at least one nearby offer in the list
+                    if (nearbyOffers !== undefined && nearbyOffers !== null && nearbyOffers.length > 0) {
+                        // increase the page number according to whether it's the first time loading these offers or not
+                        setPageNumber(pageNumber + 1);
+
+                        // set the nearby user location flag
+                        setOffersNearUserLocationFlag(true);
+
+                        // set the total number of offers available within 25 miles of the user, if not previously set
+                        totalNumberOfOffersAvailable !== responseData.getOffers.data.totalNumberOfRecords &&
+                        setTotalNumberOfOffersAvailable(responseData.getOffers.data.totalNumberOfRecords);
+
+                        retryCount = 0;
+                    } else {
+                        const errorMessage = `No offers near user's home location to display ${JSON.stringify(nearbyOffersResult)}`;
+                        console.log(errorMessage);
+                        await logEvent(errorMessage, LoggingLevel.Warning, true);
+
+                        retryCount -= 1;
+                    }
+                } else {
+                    if (responseData && responseData.getOffers.errorMessage !== null) {
+                        const errorMessage = `Unexpected error while retrieving offers near user's home location ${responseData.getOffers.errorMessage}`;
+                        console.log(errorMessage);
+                        await logEvent(errorMessage, LoggingLevel.Error, true);
+                    }
+
+                    retryCount -= 1;
+                }
+            }
+        } catch (error) {
+            const errorMessage = `Unexpected error while attempting to retrieve offers near user's home location ${JSON.stringify(error)} ${error}`;
+            console.log(errorMessage);
+            await logEvent(errorMessage, LoggingLevel.Error, true);
+
+            retryCount -= 1;
+        }
     }
+
+    return nearbyOffers;
 }

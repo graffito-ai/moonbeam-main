@@ -40,7 +40,7 @@ export const getFidelisPartners = async (fieldName: string): Promise<FidelisPart
             offerStates: [OfferState.Active, OfferState.Scheduled], // we want to retrieve active (regular discount) and scheduled (birthday, holiday) offers
             pageNumber: pageNumber,
             pageSize: 50 // display 50 offers at a time (that we will then use to aggregate throughout our Fidelis partners)
-        });
+        }, 3);
 
         // check to see if the first offers call was executed successfully
         if (firstOffersResponse && !firstOffersResponse.errorMessage && !firstOffersResponse.errorType && firstOffersResponse.data &&
@@ -66,7 +66,7 @@ export const getFidelisPartners = async (fieldName: string): Promise<FidelisPart
                     }
                 }
             });
-            
+
             // set the Fidelis offers accordingly
             fidelisOffers.push(...firstOffersResponse.data.offers);
 
@@ -85,7 +85,7 @@ export const getFidelisPartners = async (fieldName: string): Promise<FidelisPart
                     offerStates: [OfferState.Active, OfferState.Scheduled], // we want to retrieve active (regular discount) and scheduled (birthday, holiday) offers
                     pageNumber: pageNumber,
                     pageSize: 50 // display 50 offers at a time (that we will then use to aggregate throughout our Fidelis partners)
-                });
+                }, 3);
 
                 // check to see if the subsequent offers call was executed successfully
                 if (subsequentOffersResponse && !subsequentOffersResponse.errorMessage && !subsequentOffersResponse.errorType && subsequentOffersResponse.data &&

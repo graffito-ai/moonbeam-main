@@ -270,7 +270,7 @@ export const NearbyKitSection = (props: {
         calculatedDistance = Math.round((calculatedDistance / 1609.34) * 100) / 100
 
         // offer listing
-        if (deDuplicatedNearbyOfferList.length !== 0) {
+        if (deDuplicatedNearbyOfferList !== undefined && deDuplicatedNearbyOfferList !== null && deDuplicatedNearbyOfferList.length !== 0) {
             offersShown = true;
             return physicalLocation !== '' ? (
                 <>
@@ -410,7 +410,10 @@ export const NearbyKitSection = (props: {
     return (
         <>
             {
-                deDuplicatedNearbyOfferList.length !== 0 && nearbyOfferList.length !== 0 &&
+                deDuplicatedNearbyOfferList !== undefined && deDuplicatedNearbyOfferList !== null &&
+                deDuplicatedNearbyOfferList.length !== 0 &&
+                nearbyOfferList !== undefined && nearbyOfferList !== null &&
+                nearbyOfferList.length !== 0 &&
                 <View style={[
                     styles.kitOffersView,
                     !nearbyKitListExpanded ? {height: hp(30), top: hp(0)} : {height: hp(100)},

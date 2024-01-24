@@ -44,7 +44,7 @@ export const FidelisSection = (props: {
      */
         // @ts-ignore
     const renderRowData = useMemo(() => (type: string | number, data: FidelisPartner, index: number): JSX.Element | JSX.Element[] => {
-            if (fidelisPartnerList !== null && fidelisPartnerList.length !== 0) {
+            if (fidelisPartnerList !== undefined && fidelisPartnerList !== null && fidelisPartnerList.length !== 0) {
                 // retrieve appropriate offer for partner (everyday)
                 let offer: Offer | null = null;
                 for (const matchedOffer of data.offers) {
@@ -154,7 +154,8 @@ export const FidelisSection = (props: {
      * included in here.
      */
     useEffect(() => {
-        if (fidelisPartnerList !== null && fidelisPartnerList.length > 0 && layoutProvider === null && dataProvider === null) {
+        if (fidelisPartnerList !== undefined && fidelisPartnerList !== null &&
+            fidelisPartnerList.length > 0 && layoutProvider === null && dataProvider === null) {
             setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(fidelisPartnerList));
             setLayoutProvider(new LayoutProvider(
                 _ => 0,

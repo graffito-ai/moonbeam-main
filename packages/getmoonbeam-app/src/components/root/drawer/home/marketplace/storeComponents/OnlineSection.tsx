@@ -62,7 +62,7 @@ export const OnlineSection = (props: {
      * React node and/or nodes containing the online offers.
      */
     const renderRowData = useMemo(() => (_type: string | number, data: Offer, index: number): JSX.Element | JSX.Element[] => {
-        if (onlineOfferList.length !== 0) {
+        if (onlineOfferList !== undefined && onlineOfferList !== null && onlineOfferList.length !== 0) {
             return (
                 <TouchableOpacity style={{left: '3%'}}
                                   onPress={() => {
@@ -131,7 +131,7 @@ export const OnlineSection = (props: {
         }
 
         // populate the online offer data provider and list view
-        if (onlineOfferList.length > 0 && layoutProvider === null && dataProvider === null) {
+        if (onlineOfferList !== undefined && onlineOfferList !== null && onlineOfferList.length > 0 && layoutProvider === null && dataProvider === null) {
             setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedOnlineOfferList));
             setLayoutProvider(new LayoutProvider(
                 _ => 0,
@@ -148,7 +148,7 @@ export const OnlineSection = (props: {
         <>
             <View
                 style={[styles.onlineOffersView,
-                    nearbyOfferList.length < 6 &&
+                    nearbyOfferList !== undefined && nearbyOfferList !== null && nearbyOfferList.length < 6 &&
                     {
                         height: hp(5),
                         bottom: hp(35)

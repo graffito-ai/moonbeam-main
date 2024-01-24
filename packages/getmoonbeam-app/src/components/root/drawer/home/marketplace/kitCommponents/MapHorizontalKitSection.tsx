@@ -81,7 +81,7 @@ export const MapHorizontalKitSection = () => {
         latitudeDelta: 0
     });
     // constants used to keep track of shared states
-    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [, setFullScreenKitMapActive] = useRecoilState(fullScreenKitMapActiveState);
     const [, setNearbyOffersSpinnerShown] = useRecoilState(nearbyOffersSpinnerShownState);
     const [, setReloadNearbyDueToPermissionsChange] = useRecoilState(reloadNearbyDueToPermissionsChangeState);
@@ -165,7 +165,8 @@ export const MapHorizontalKitSection = () => {
                     break;
             }
         }
-        if (uniqueNearbyOffersListForMainHorizontalMap.length !== 0 || numberOfNearbyCategorizedOffers !== 0) {
+        if ((uniqueNearbyOffersListForMainHorizontalMap !== undefined && uniqueNearbyOffersListForMainHorizontalMap !== null &&
+            uniqueNearbyOffersListForMainHorizontalMap.length !== 0) || numberOfNearbyCategorizedOffers !== 0) {
             setLoadingSpinnerShown(false);
         }
         if (mapViewRef && mapViewRef.current && currentUserLocation !== null && !mapIsDisplayed) {
@@ -183,10 +184,16 @@ export const MapHorizontalKitSection = () => {
                 }, 0);
             });
         }
-        if (!noNearbyKitOffersAvailable && (uniqueNearbyOffersListForMainHorizontalMap.length === 0 || numberOfNearbyCategorizedOffers === 0)) {
+        if (!noNearbyKitOffersAvailable && ((
+            uniqueNearbyOffersListForMainHorizontalMap !== undefined &&
+            uniqueNearbyOffersListForMainHorizontalMap !== null &&
+            uniqueNearbyOffersListForMainHorizontalMap.length === 0) || numberOfNearbyCategorizedOffers === 0)) {
             setNoNearbyKitOffersAvailable(true)
         }
-        if (noNearbyKitOffersAvailable && (uniqueNearbyOffersListForMainHorizontalMap.length !== 0 || numberOfNearbyCategorizedOffers !== 0)) {
+        if (noNearbyKitOffersAvailable && ((
+            uniqueNearbyOffersListForMainHorizontalMap !== undefined &&
+            uniqueNearbyOffersListForMainHorizontalMap !== null &&
+            uniqueNearbyOffersListForMainHorizontalMap.length !== 0) || numberOfNearbyCategorizedOffers !== 0)) {
             setNoNearbyKitOffersAvailable(false);
         }
 
@@ -251,70 +258,72 @@ export const MapHorizontalKitSection = () => {
         const results: JSX.Element[] = [];
 
         // for each unique offer, build a Map Marker to return specifying the offer percentage
-        for (let i = 0; i < uniqueNearbyOffersListForMainHorizontalMap.length && i !== 10; i++) {
-            // get the location coordinates of this offer
-            let storeLatitude: number = 0;
-            let storeLongitude: number = 0;
-            uniqueNearbyOffersListForMainHorizontalMap[i] && uniqueNearbyOffersListForMainHorizontalMap[i].storeDetails !== undefined &&
-            uniqueNearbyOffersListForMainHorizontalMap[i].storeDetails !== null && uniqueNearbyOffersListForMainHorizontalMap[i].storeDetails!.forEach(store => {
-                /**
-                 * there are many possible stores with physical locations.
-                 * We want to get the one closest (within 5-7 miles from the user,
-                 * which is equivalent to approximately 10 km, which is 10000 meters)
-                 */
-                if (store !== null &&
-                    store!.isOnline === false && store!.distance !== null && store!.distance !== undefined
-                    && store!.distance! <= 10000) {
-                    // set the store's coordinates accordingly
-                    storeLatitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
-                    store!.geoLocation!.latitude !== null && store!.geoLocation!.latitude !== undefined
-                        ? store!.geoLocation!.latitude! : 0;
-                    storeLongitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
-                    store!.geoLocation!.longitude !== null && store!.geoLocation!.longitude !== undefined
-                        ? store!.geoLocation!.longitude! : 0;
-                }
-            });
+        if (uniqueNearbyOffersListForMainHorizontalMap !== undefined && uniqueNearbyOffersListForMainHorizontalMap !== null) {
+            for (let i = 0; i < uniqueNearbyOffersListForMainHorizontalMap.length && i !== 10; i++) {
+                // get the location coordinates of this offer
+                let storeLatitude: number = 0;
+                let storeLongitude: number = 0;
+                uniqueNearbyOffersListForMainHorizontalMap[i] && uniqueNearbyOffersListForMainHorizontalMap[i].storeDetails !== undefined &&
+                uniqueNearbyOffersListForMainHorizontalMap[i].storeDetails !== null && uniqueNearbyOffersListForMainHorizontalMap[i].storeDetails!.forEach(store => {
+                    /**
+                     * there are many possible stores with physical locations.
+                     * We want to get the one closest (within 5-7 miles from the user,
+                     * which is equivalent to approximately 10 km, which is 10000 meters)
+                     */
+                    if (store !== null &&
+                        store!.isOnline === false && store!.distance !== null && store!.distance !== undefined
+                        && store!.distance! <= 10000) {
+                        // set the store's coordinates accordingly
+                        storeLatitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
+                        store!.geoLocation!.latitude !== null && store!.geoLocation!.latitude !== undefined
+                            ? store!.geoLocation!.latitude! : 0;
+                        storeLongitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
+                        store!.geoLocation!.longitude !== null && store!.geoLocation!.longitude !== undefined
+                            ? store!.geoLocation!.longitude! : 0;
+                    }
+                });
 
-            // add this Map Marker for the store belonging to this unique offer, if there are valid coordinates retrieved from it
-            storeLatitude !== 0 && storeLongitude !== 0 && results.push(
-                <>
-                    <Marker
-                        key={uniqueNearbyOffersListForMainHorizontalMap[i].id}
-                        coordinate={{
-                            latitude: storeLatitude,
-                            longitude: storeLongitude
-                        }}
-                    >
-                        <ImageBackground
-                            style={styles.toolTipMain}
-                            source={MoonbeamPinImage}
-                            contentFit={'contain'}
-                            transition={1000}
-                            cachePolicy={'memory-disk'}
+                // add this Map Marker for the store belonging to this unique offer, if there are valid coordinates retrieved from it
+                storeLatitude !== 0 && storeLongitude !== 0 && results.push(
+                    <>
+                        <Marker
+                            key={uniqueNearbyOffersListForMainHorizontalMap[i].id}
+                            coordinate={{
+                                latitude: storeLatitude,
+                                longitude: storeLongitude
+                            }}
                         >
-                            <View style={{flexDirection: 'row', width: wp(25)}}>
-                                <Image
-                                    style={styles.toolTipImageDetail}
-                                    source={{
-                                        uri: uniqueNearbyOffersListForMainHorizontalMap[i].brandLogoSm!
-                                    }}
-                                    placeholder={MoonbeamPlaceholderImage}
-                                    placeholderContentFit={'contain'}
-                                    contentFit={'contain'}
-                                    transition={1000}
-                                    cachePolicy={'memory-disk'}
-                                />
-                                <Text style={styles.toolTipImagePrice}>
-                                    {uniqueNearbyOffersListForMainHorizontalMap[i]!.reward!.type! === RewardType.RewardPercent
-                                        ? `${uniqueNearbyOffersListForMainHorizontalMap[i]!.reward!.value}%`
-                                        : `$${uniqueNearbyOffersListForMainHorizontalMap[i]!.reward!.value}`}
-                                    {" Off "}
-                                </Text>
-                            </View>
-                        </ImageBackground>
-                    </Marker>
-                </>
-            )
+                            <ImageBackground
+                                style={styles.toolTipMain}
+                                source={MoonbeamPinImage}
+                                contentFit={'contain'}
+                                transition={1000}
+                                cachePolicy={'memory-disk'}
+                            >
+                                <View style={{flexDirection: 'row', width: wp(25)}}>
+                                    <Image
+                                        style={styles.toolTipImageDetail}
+                                        source={{
+                                            uri: uniqueNearbyOffersListForMainHorizontalMap[i].brandLogoSm!
+                                        }}
+                                        placeholder={MoonbeamPlaceholderImage}
+                                        placeholderContentFit={'contain'}
+                                        contentFit={'contain'}
+                                        transition={1000}
+                                        cachePolicy={'memory-disk'}
+                                    />
+                                    <Text style={styles.toolTipImagePrice}>
+                                        {uniqueNearbyOffersListForMainHorizontalMap[i]!.reward!.type! === RewardType.RewardPercent
+                                            ? `${uniqueNearbyOffersListForMainHorizontalMap[i]!.reward!.value}%`
+                                            : `$${uniqueNearbyOffersListForMainHorizontalMap[i]!.reward!.value}`}
+                                        {" Off "}
+                                    </Text>
+                                </View>
+                            </ImageBackground>
+                        </Marker>
+                    </>
+                )
+            }
         }
         return results;
     }, [uniqueNearbyOffersListForMainHorizontalMap]);
@@ -383,7 +392,8 @@ export const MapHorizontalKitSection = () => {
                 </Dialog>
             </Portal>
             <View
-                style={[(locationServicesButton || (uniqueNearbyOffersListForMainHorizontalMap.length === 0 || numberOfNearbyCategorizedOffers === 0)) ? {bottom: hp(16)} : {top: hp(0)},
+                style={[(locationServicesButton || ((uniqueNearbyOffersListForMainHorizontalMap !== undefined && uniqueNearbyOffersListForMainHorizontalMap !== null && uniqueNearbyOffersListForMainHorizontalMap.length === 0)
+                    || numberOfNearbyCategorizedOffers === 0)) ? {bottom: hp(16)} : {top: hp(0)},
                     nearbyKitListExpanded && {top: hp(1)}]}>
                 {
                     !onlineKitListExpanded && !nearbyKitListExpanded &&
@@ -441,7 +451,8 @@ export const MapHorizontalKitSection = () => {
                         </Card.Content>
                     </Card>
                     :
-                    (uniqueNearbyOffersListForMainHorizontalMap.length === 0 || numberOfNearbyCategorizedOffers === 0) && !onlineKitListExpanded && !nearbyKitListExpanded
+                    ((uniqueNearbyOffersListForMainHorizontalMap !== undefined && uniqueNearbyOffersListForMainHorizontalMap !== null && uniqueNearbyOffersListForMainHorizontalMap.length === 0)
+                        || numberOfNearbyCategorizedOffers === 0) && !onlineKitListExpanded && !nearbyKitListExpanded
                         ?
                         <Card style={styles.nearbyLoadingOfferCard}>
                             <Card.Content>

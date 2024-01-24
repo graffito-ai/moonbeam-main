@@ -139,11 +139,11 @@ export class AmplifyAuthStack extends NestedStack {
             },
             passwordPolicy: {
                 tempPasswordValidity: Duration.hours(48),
-                minLength: 12,
-                requireDigits: true,
-                requireSymbols: true,
-                requireUppercase: true,
-                requireLowercase: true
+                minLength: 8,
+                requireDigits: false,
+                requireSymbols: false,
+                requireUppercase: false,
+                requireLowercase: false
             },
             email: UserPoolEmail.withSES({
                 fromEmail:  props.stage === Stages.DEV

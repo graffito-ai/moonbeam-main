@@ -571,7 +571,7 @@ export const FullScreenMap = (props: {
                                                     userInformation, currentUserLocation,
                                                     setCurrentUserLocation, undefined, undefined,
                                                     true, currentMapRegion.latitude, currentMapRegion.longitude).then(additionalOffers => {
-                                                    if (additionalOffers !== null && additionalOffers.length > 0) {
+                                                    if (additionalOffers !== undefined && additionalOffers !== null && additionalOffers.length > 0) {
                                                         // add the new coordinates in the list of coordinates
                                                         setLoadedCoordinates({
                                                             latitude: currentMapRegion.latitude,

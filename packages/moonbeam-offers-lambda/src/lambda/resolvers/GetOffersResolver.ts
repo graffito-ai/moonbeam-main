@@ -49,7 +49,8 @@ export const getOffers = async (fieldName: string, getOffersInput: GetOffersInpu
                 const oliveClient = new OliveClient(process.env.ENV_NAME!, region);
 
                 // execute the GET offers Olive REST call
-                const offersResponse: OffersResponse = await oliveClient.getOffers(getOffersInput);
+                const offersResponse: OffersResponse = (getOffersInput.filterType === OfferFilter.Nearby || getOffersInput.filterType === OfferFilter.CategorizedNearby) ?
+                    await oliveClient.getOffers(getOffersInput) : await oliveClient.getOffers(getOffersInput, 3);
 
                 // check to see if the offers call was executed successfully
                 if (offersResponse && !offersResponse.errorMessage && !offersResponse.errorType && offersResponse.data &&

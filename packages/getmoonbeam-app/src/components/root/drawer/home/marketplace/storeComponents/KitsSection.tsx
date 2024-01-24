@@ -132,7 +132,7 @@ export const KitsSection = (props: {
      * included in here.
      */
     useEffect(() => {
-        if (moonbeamKits.length > 0 && layoutProvider === null && dataProvider === null) {
+        if (moonbeamKits !== undefined && moonbeamKits !== null && moonbeamKits.length > 0 && layoutProvider === null && dataProvider === null) {
             setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(moonbeamKits));
             setLayoutProvider(new LayoutProvider(
                 _ => 0,
@@ -156,7 +156,7 @@ export const KitsSection = (props: {
      */
         // @ts-ignore
     const renderRowData = useMemo(() => (type: string | number, data: MoonbeamKit, index: number): JSX.Element | JSX.Element[] => {
-            if (moonbeamKits.length !== 0) {
+            if (moonbeamKits !== undefined && moonbeamKits !== null && moonbeamKits.length !== 0) {
                 return (
                     <>
                         <Card

@@ -294,7 +294,9 @@ export const Kit = ({navigation}: KitProps) => {
     const loadActiveKit = async (): Promise<void> => {
         switch (currentActiveKit) {
             case OfferCategory.VeteranDay:
-                if (!loadingOnlineVeteransDayCategorizedInProgress && !noOnlineVeteransDayCategorizedOffersToLoad && onlineVeteransDayCategorizedOfferList.length < 20) {
+                if (!loadingOnlineVeteransDayCategorizedInProgress && !noOnlineVeteransDayCategorizedOffersToLoad &&
+                    onlineVeteransDayCategorizedOfferList !== undefined &&
+                    onlineVeteransDayCategorizedOfferList !== null && onlineVeteransDayCategorizedOfferList.length < 20) {
                     await loadOnlineVeteransDayCategorizedData();
                 }
                 if (!isVeteransDayKitLoaded) {
@@ -308,9 +310,13 @@ export const Kit = ({navigation}: KitProps) => {
                 }
                 break;
             case OfferCategory.Food:
-                if (!loadingOnlineFoodCategorizedInProgress && !noOnlineFoodCategorizedOffersToLoad && onlineFoodCategorizedOfferList.length < 20) {
+                if (!loadingOnlineFoodCategorizedInProgress && !noOnlineFoodCategorizedOffersToLoad &&
+                    onlineFoodCategorizedOfferList !== undefined &&
+                    onlineFoodCategorizedOfferList !== null && onlineFoodCategorizedOfferList.length < 20) {
                     await loadOnlineFoodCategorizedData();
-                } else if (!loadingNearbyFoodCategorizedOffersInProgress && !noNearbyFoodCategorizedOffersToLoad && nearbyFoodCategorizedOfferList.length < 20) {
+                } else if (!loadingNearbyFoodCategorizedOffersInProgress && !noNearbyFoodCategorizedOffersToLoad &&
+                    nearbyFoodCategorizedOfferList !== undefined &&
+                    nearbyFoodCategorizedOfferList !== null && nearbyFoodCategorizedOfferList.length < 20) {
                     await loadNearbyFoodCategorizedData();
                 }
                 if (!isFoodKitLoaded) {
@@ -324,9 +330,13 @@ export const Kit = ({navigation}: KitProps) => {
                 }
                 break;
             case OfferCategory.Retail:
-                if (!loadingOnlineRetailCategorizedInProgress && !noOnlineRetailCategorizedOffersToLoad && onlineRetailCategorizedOfferList.length < 20) {
+                if (!loadingOnlineRetailCategorizedInProgress && !noOnlineRetailCategorizedOffersToLoad &&
+                    onlineRetailCategorizedOfferList !== undefined &&
+                    onlineRetailCategorizedOfferList !== null && onlineRetailCategorizedOfferList.length < 20) {
                     await loadOnlineRetailCategorizedData();
-                } else if (!loadingNearbyRetailCategorizedOffersInProgress && !noNearbyRetailCategorizedOffersToLoad && nearbyRetailCategorizedOfferList.length < 20) {
+                } else if (!loadingNearbyRetailCategorizedOffersInProgress && !noNearbyRetailCategorizedOffersToLoad &&
+                    nearbyRetailCategorizedOfferList !== undefined &&
+                    nearbyRetailCategorizedOfferList !== null && nearbyRetailCategorizedOfferList.length < 20) {
                     await loadNearbyRetailCategorizedData();
                 }
                 if (!isRetailKitLoaded) {
@@ -340,9 +350,15 @@ export const Kit = ({navigation}: KitProps) => {
                 }
                 break;
             case OfferCategory.Entertainment:
-                if (!loadingOnlineEntertainmentCategorizedInProgress && !noOnlineEntertainmentCategorizedOffersToLoad && onlineEntertainmentCategorizedOfferList.length < 20) {
+                if (!loadingOnlineEntertainmentCategorizedInProgress && !noOnlineEntertainmentCategorizedOffersToLoad &&
+                    onlineEntertainmentCategorizedOfferList !== undefined &&
+                    onlineEntertainmentCategorizedOfferList !== null &&
+                    onlineEntertainmentCategorizedOfferList.length < 20) {
                     await loadOnlineEntertainmentCategorizedData();
-                } else if (!loadingNearbyEntertainmentCategorizedOffersInProgress && !noNearbyEntertainmentCategorizedOffersToLoad && nearbyEntertainmentCategorizedOfferList.length < 20) {
+                } else if (!loadingNearbyEntertainmentCategorizedOffersInProgress && !noNearbyEntertainmentCategorizedOffersToLoad &&
+                    nearbyEntertainmentCategorizedOfferList !== undefined &&
+                    nearbyEntertainmentCategorizedOfferList !== null &&
+                    nearbyEntertainmentCategorizedOfferList.length < 20) {
                     await loadNearbyEntertainmentCategorizedData();
                 }
                 if (!isEntertainmentKitLoaded) {
@@ -356,9 +372,13 @@ export const Kit = ({navigation}: KitProps) => {
                 }
                 break;
             case OfferCategory.Electronics:
-                if (!loadingOnlineElectronicsCategorizedInProgress && !noOnlineElectronicsCategorizedOffersToLoad && onlineElectronicsCategorizedOfferList.length < 20) {
+                if (!loadingOnlineElectronicsCategorizedInProgress && !noOnlineElectronicsCategorizedOffersToLoad &&
+                    onlineElectronicsCategorizedOfferList !== undefined &&
+                    onlineElectronicsCategorizedOfferList !== null && onlineElectronicsCategorizedOfferList.length < 20) {
                     await loadOnlineElectronicsCategorizedData()
-                } else if (!loadingNearbyElectronicsCategorizedOffersInProgress && !noNearbyElectronicsCategorizedOffersToLoad && nearbyElectronicsCategorizedOfferList.length < 20) {
+                } else if (!loadingNearbyElectronicsCategorizedOffersInProgress && !noNearbyElectronicsCategorizedOffersToLoad &&
+                    nearbyElectronicsCategorizedOfferList !== undefined &&
+                    nearbyElectronicsCategorizedOfferList !== null && nearbyElectronicsCategorizedOfferList.length < 20) {
                     await loadNearbyElectronicsCategorizedData();
                 }
                 if (!isElectronicsKitLoaded) {
@@ -372,9 +392,13 @@ export const Kit = ({navigation}: KitProps) => {
                 }
                 break;
             case OfferCategory.Home:
-                if (!loadingOnlineHomeCategorizedInProgress && !noOnlineHomeCategorizedOffersToLoad && onlineHomeCategorizedOfferList.length < 20) {
+                if (!loadingOnlineHomeCategorizedInProgress && !noOnlineHomeCategorizedOffersToLoad &&
+                    onlineHomeCategorizedOfferList !== undefined &&
+                    onlineHomeCategorizedOfferList !== null && onlineHomeCategorizedOfferList.length < 20) {
                     await loadOnlineHomeCategorizedData();
-                } else if (!loadingNearbyHomeCategorizedOffersInProgress && !noNearbyHomeCategorizedOffersToLoad && nearbyHomeCategorizedOfferList.length < 20) {
+                } else if (!loadingNearbyHomeCategorizedOffersInProgress && !noNearbyHomeCategorizedOffersToLoad &&
+                    nearbyHomeCategorizedOfferList !== undefined &&
+                    nearbyHomeCategorizedOfferList !== null && nearbyHomeCategorizedOfferList.length < 20) {
                     await loadNearbyHomeCategorizedData();
                 }
                 if (!isHomeKitLoaded) {
@@ -388,9 +412,13 @@ export const Kit = ({navigation}: KitProps) => {
                 }
                 break;
             case OfferCategory.HealthAndBeauty:
-                if (!loadingOnlineHealthAndBeautyCategorizedInProgress && !noOnlineHealthAndBeautyCategorizedOffersToLoad && onlineHealthAndBeautyCategorizedOfferList.length < 20) {
+                if (!loadingOnlineHealthAndBeautyCategorizedInProgress && !noOnlineHealthAndBeautyCategorizedOffersToLoad &&
+                    onlineHealthAndBeautyCategorizedOfferList !== undefined && onlineHealthAndBeautyCategorizedOfferList !== null &&
+                    onlineHealthAndBeautyCategorizedOfferList.length < 20) {
                     await loadOnlineHealthAndBeautyCategorizedData();
-                } else if (!loadingNearbyHealthAndBeautyCategorizedOffersInProgress && !noNearbyHealthAndBeautyCategorizedOffersToLoad && nearbyHealthAndBeautyCategorizedOfferList.length < 20) {
+                } else if (!loadingNearbyHealthAndBeautyCategorizedOffersInProgress && !noNearbyHealthAndBeautyCategorizedOffersToLoad &&
+                    nearbyHealthAndBeautyCategorizedOfferList !== undefined && nearbyHealthAndBeautyCategorizedOfferList !== null &&
+                    nearbyHealthAndBeautyCategorizedOfferList.length < 20) {
                     await loadNearbyHealthAndBeautyCategorizedData();
                 }
                 if (!isHealthAndBeautyKitLoaded) {
@@ -404,9 +432,13 @@ export const Kit = ({navigation}: KitProps) => {
                 }
                 break;
             case OfferCategory.OfficeAndBusiness:
-                if (!loadingOnlineOfficeAndBusinessCategorizedInProgress && !noOnlineOfficeAndBusinessCategorizedOffersToLoad && onlineOfficeAndBusinessCategorizedOfferList.length < 20) {
+                if (!loadingOnlineOfficeAndBusinessCategorizedInProgress && !noOnlineOfficeAndBusinessCategorizedOffersToLoad &&
+                    onlineOfficeAndBusinessCategorizedOfferList !== undefined && onlineOfficeAndBusinessCategorizedOfferList !== null &&
+                    onlineOfficeAndBusinessCategorizedOfferList.length < 20) {
                     await loadOnlineOfficeAndBusinessCategorizedData();
-                } else if (!loadingNearbyOfficeAndBusinessCategorizedOffersInProgress && !noNearbyOfficeAndBusinessCategorizedOffersToLoad && nearbyOfficeAndBusinessCategorizedOfferList.length < 20) {
+                } else if (!loadingNearbyOfficeAndBusinessCategorizedOffersInProgress && !noNearbyOfficeAndBusinessCategorizedOffersToLoad &&
+                    nearbyOfficeAndBusinessCategorizedOfferList !== undefined && nearbyOfficeAndBusinessCategorizedOfferList !== null &&
+                    nearbyOfficeAndBusinessCategorizedOfferList.length < 20) {
                     await loadNearbyOfficeAndBusinessCategorizedData();
                 }
                 if (!isOfficeAndBusinessKitLoaded) {
@@ -420,9 +452,13 @@ export const Kit = ({navigation}: KitProps) => {
                 }
                 break;
             case OfferCategory.ServicesAndSubscriptions:
-                if (!loadingOnlineServicesAndSubscriptionsCategorizedInProgress && !noOnlineServicesAndSubscriptionsCategorizedOffersToLoad && onlineServicesAndSubscriptionsCategorizedOfferList.length < 20) {
+                if (!loadingOnlineServicesAndSubscriptionsCategorizedInProgress && !noOnlineServicesAndSubscriptionsCategorizedOffersToLoad &&
+                    onlineServicesAndSubscriptionsCategorizedOfferList !== undefined && onlineServicesAndSubscriptionsCategorizedOfferList !== null &&
+                    onlineServicesAndSubscriptionsCategorizedOfferList.length < 20) {
                     await loadOnlineServicesAndSubscriptionsCategorizedData();
-                } else if (!loadingNearbyServicesAndSubscriptionsCategorizedOffersInProgress && !noNearbyServicesAndSubscriptionsCategorizedOffersToLoad && nearbyServicesAndSubscriptionsCategorizedOfferList.length < 20) {
+                } else if (!loadingNearbyServicesAndSubscriptionsCategorizedOffersInProgress && !noNearbyServicesAndSubscriptionsCategorizedOffersToLoad &&
+                    nearbyServicesAndSubscriptionsCategorizedOfferList !== undefined && nearbyServicesAndSubscriptionsCategorizedOfferList !== null &&
+                    nearbyServicesAndSubscriptionsCategorizedOfferList.length < 20) {
                     await loadNearbyServicesAndSubscriptionsCategorizedData();
                 }
                 if (!isServicesAndSubscriptionsKitLoaded) {
@@ -449,7 +485,8 @@ export const Kit = ({navigation}: KitProps) => {
                 await retrieveCategorizedOnlineOffersList(numberOfVeteransDayCategorizedOnlineOffers, setNumberOfVeteransDayCategorizedOnlineOffers,
                     OfferCategory.VeteranDay, onlineVeteransDayCategorizedOffersPageNumber, setOnlineVeteransDayCategorizedOffersPageNumber);
 
-            if (additionalOnlineVeteransDayCategoryOffers.length === 0) {
+            if (additionalOnlineVeteransDayCategoryOffers !== undefined && additionalOnlineVeteransDayCategoryOffers !== null &&
+                additionalOnlineVeteransDayCategoryOffers.length === 0) {
                 setNoOnlineVeteransDayCategorizedOffersToLoad(true);
                 setOnlineVeteransDayCategorizedOfferList(oldOnlineVeteransDayCategorizedOfferList => {
                     return [...oldOnlineVeteransDayCategorizedOfferList, ...additionalOnlineVeteransDayCategoryOffers]
@@ -475,7 +512,8 @@ export const Kit = ({navigation}: KitProps) => {
             const additionalOnlineFoodCategoryOffers =
                 await retrieveCategorizedOnlineOffersList(numberOfFoodCategorizedOnlineOffers, setNumberOfFoodCategorizedOnlineOffers,
                     OfferCategory.Food, onlineFoodCategorizedOffersPageNumber, setOnlineFoodCategorizedOffersPageNumber);
-            if (additionalOnlineFoodCategoryOffers.length === 0) {
+            if (additionalOnlineFoodCategoryOffers !== undefined && additionalOnlineFoodCategoryOffers !== null &&
+                additionalOnlineFoodCategoryOffers.length === 0) {
                 setNoOnlineFoodCategorizedOffersToLoad(true);
                 setOnlineFoodCategorizedOfferList(oldOnlineFoodCategorizedOfferList => {
                     return [...oldOnlineFoodCategorizedOfferList, ...additionalOnlineFoodCategoryOffers]
@@ -501,7 +539,8 @@ export const Kit = ({navigation}: KitProps) => {
             const additionalOnlineRetailCategoryOffers =
                 await retrieveCategorizedOnlineOffersList(numberOfRetailCategorizedOnlineOffers, setNumberOfRetailCategorizedOnlineOffers,
                     OfferCategory.Retail, onlineRetailCategorizedOffersPageNumber, setOnlineRetailCategorizedOffersPageNumber);
-            if (additionalOnlineRetailCategoryOffers.length === 0) {
+            if (additionalOnlineRetailCategoryOffers !== undefined && additionalOnlineRetailCategoryOffers !== null &&
+                additionalOnlineRetailCategoryOffers.length === 0) {
                 setNoOnlineRetailCategorizedOffersToLoad(true);
                 setOnlineRetailCategorizedOfferList(oldOnlineRetailCategorizedOfferList => {
                     return [...oldOnlineRetailCategorizedOfferList, ...additionalOnlineRetailCategoryOffers]
@@ -527,7 +566,8 @@ export const Kit = ({navigation}: KitProps) => {
             const additionalOnlineEntertainmentCategoryOffers =
                 await retrieveCategorizedOnlineOffersList(numberOfEntertainmentCategorizedOnlineOffers, setNumberOfEntertainmentCategorizedOnlineOffers,
                     OfferCategory.Entertainment, onlineEntertainmentCategorizedOffersPageNumber, setOnlineEntertainmentCategorizedOffersPageNumber);
-            if (additionalOnlineEntertainmentCategoryOffers.length === 0) {
+            if (additionalOnlineEntertainmentCategoryOffers !== undefined && additionalOnlineEntertainmentCategoryOffers !== null &&
+                additionalOnlineEntertainmentCategoryOffers.length === 0) {
                 setNoOnlineEntertainmentCategorizedOffersToLoad(true);
                 setOnlineEntertainmentCategorizedOfferList(oldOnlineEntertainmentCategorizedOfferList => {
                     return [...oldOnlineEntertainmentCategorizedOfferList, ...additionalOnlineEntertainmentCategoryOffers]
@@ -553,7 +593,8 @@ export const Kit = ({navigation}: KitProps) => {
             const additionalOnlineElectronicsCategoryOffers =
                 await retrieveCategorizedOnlineOffersList(numberOfElectronicsCategorizedOnlineOffers, setNumberOfElectronicsCategorizedOnlineOffers,
                     OfferCategory.Electronics, onlineElectronicsCategorizedOffersPageNumber, setOnlineElectronicsCategorizedOffersPageNumber);
-            if (additionalOnlineElectronicsCategoryOffers.length === 0) {
+            if (additionalOnlineElectronicsCategoryOffers !== undefined && additionalOnlineElectronicsCategoryOffers !== null &&
+                additionalOnlineElectronicsCategoryOffers.length === 0) {
                 setNoOnlineElectronicsCategorizedOffersToLoad(true);
                 setOnlineElectronicsCategorizedOfferList(oldOnlineElectronicsCategorizedOfferList => {
                     return [...oldOnlineElectronicsCategorizedOfferList, ...additionalOnlineElectronicsCategoryOffers]
