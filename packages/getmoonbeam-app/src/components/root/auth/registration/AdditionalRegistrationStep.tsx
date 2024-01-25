@@ -238,7 +238,7 @@ export const AdditionalRegistrationStep = () => {
                     label: "Street Address",
                     textColor: "#FFFFFF",
                     left: <TextInput.Icon icon="home-map-marker" size={hp(3)}
-                                          style={{marginTop: hp(2)}} iconColor="#FFFFFF"/>,
+                                          style={{marginTop: hp(2)}} color="#FFFFFF"/>,
                     onChangeText: (value: React.SetStateAction<string>) => {
                         setIsAddressLineFocus(true);
                         setRegistrationMainError(false);
@@ -302,7 +302,7 @@ export const AdditionalRegistrationStep = () => {
                         textColor={"#FFFFFF"}
                         left={
                             <TextInput.Icon icon="home-city" size={hp(2.8)} style={{marginTop: hp(2)}}
-                                            iconColor="#FFFFFF"/>
+                                            color="#FFFFFF"/>
                         }
                     />
                     <View style={styles.inputColumnViewAddress}>
@@ -343,7 +343,7 @@ export const AdditionalRegistrationStep = () => {
                             textColor={"#FFFFFF"}
                             left={
                                 <TextInput.Icon icon="flag" size={hp(2.8)} style={{marginTop: hp(2)}}
-                                                iconColor="#FFFFFF"/>
+                                                color="#FFFFFF"/>
                             }
                         />
                         <TextInput
@@ -381,7 +381,7 @@ export const AdditionalRegistrationStep = () => {
                             textColor={"#FFFFFF"}
                             left={
                                 <TextInput.Icon icon="dialpad" size={hp(2.8)} style={{marginTop: hp(2)}}
-                                                iconColor="#FFFFFF"/>
+                                                color="#FFFFFF"/>
                             }
                         />
                     </View>

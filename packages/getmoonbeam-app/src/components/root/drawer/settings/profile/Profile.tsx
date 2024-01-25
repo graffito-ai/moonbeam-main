@@ -87,7 +87,7 @@ export const Profile = ({navigation}: ProfileProps) => {
     const [dutyStatusErrors, setDutyStatusErrors] = useState<string[]>([]);
     const bottomSheetRef = useRef(null);
     // constants used to keep track of shared states
-    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [globalCache,] = useRecoilState(globalAmplifyCacheState);
     const [showBottomSheet, setShowBottomSheet] = useRecoilState(codeVerificationSheetShown);
     const [codeVerified, setCodeVerified] = useRecoilState(codeVerifiedState);
@@ -138,7 +138,8 @@ export const Profile = ({navigation}: ProfileProps) => {
                 // show a success modal
                 const message = `Profile information successfully updated!`;
                 console.log(message);
-                logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {});
+                logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {
+                });
 
                 setModalCustomMessage(message);
                 setModalButtonMessage('Ok');
@@ -157,7 +158,8 @@ export const Profile = ({navigation}: ProfileProps) => {
             // populate the information from the information object
             birthday === "" && email === "" && phoneNumber === "" && addressLine === "" &&
             addressCity === "" && addressState === "" && addressZip === "" && enlistingYear === "" &&
-            dutyStatus === "" && retrieveUserInfo().then(() => {});
+            dutyStatus === "" && retrieveUserInfo().then(() => {
+            });
 
             // manipulate the bottom sheet
             if (!showBottomSheet && bottomSheetRef) {
@@ -243,8 +245,13 @@ export const Profile = ({navigation}: ProfileProps) => {
             userInformation["family_name"] && userInformation["birthdate"] &&
             userInformation["email"] && userInformation["phone_number"] &&
             userInformation["address"] && userInformation["address"]["formatted"] &&
-            userInformation["custom:enlistmentYear"] && userInformation["custom:branch"] &&
-            userInformation["custom:duty_status"]) {
+            (
+                (!userInformation["custom:militaryAffiliation"] || userInformation["custom:militaryAffiliation"] === null) ?
+                    userInformation["custom:enlistmentYear"] && userInformation["custom:branch"] &&
+                    userInformation["custom:duty_status"]
+                    :
+                    userInformation["custom:militaryAffiliation"]
+            )) {
             // release the loader on button press
             setIsReady(true);
 
@@ -462,10 +469,11 @@ export const Profile = ({navigation}: ProfileProps) => {
                 // update the user attributes accordingly (all besides email for now, and in the future phone number as well)
                 const updateAttributesResult = await Auth.updateUserAttributes(user, {
                     'address': formattedAddress,
-                    // ToDo: in the future need to have a separate flow for the phone number, as we have one for email
                     'phone_number': formattedPhoneNumber,
-                    'custom:duty_status': dutyStatus
-                });
+                    ...((!userInformation["custom:militaryAffiliation"] || userInformation["custom:militaryAffiliation"] === null) && {
+                        'custom:duty_status': dutyStatus
+                    })
+                })
 
                 // check if the update was successful or not
                 if (updateAttributesResult && updateAttributesResult.toLowerCase().includes('success')) {
@@ -476,8 +484,10 @@ export const Profile = ({navigation}: ProfileProps) => {
                             formatted: formattedAddress
                         },
                         phone_number: formattedPhoneNumber,
-                        ["custom:duty_status"]: dutyStatus
-                    });
+                        ...((!userInformation["custom:militaryAffiliation"] || userInformation["custom:militaryAffiliation"] === null) && {
+                            ["custom:duty_status"]: dutyStatus
+                        })
+                    })
 
                     const message = `Profile information successfully updated!`;
                     console.log(message);
@@ -615,7 +625,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                         </Dialog>
                     </Portal>
                     <SafeAreaView style={styles.mainContainer}>
-                        <View style={[styles.topContainer, StyleSheet.absoluteFill]}>
+                        <View style={[styles.topContainer, StyleSheet.absoluteFill, {marginBottom: -hp(30)}]}>
                             <TouchableOpacity
                                 activeOpacity={1}
                                 disabled={!showBottomSheet}
@@ -726,33 +736,65 @@ export const Profile = ({navigation}: ProfileProps) => {
                                                             async () => {
                                                                 // check if we are editing, and we want to save
                                                                 if (editingFlag) {
-                                                                    if (email === "" || phoneNumber === "" || addressLine === "" || addressCity === "" || addressState === "" || addressZip === "" ||
-                                                                        dutyStatus === "" || emailErrors.length !== 0 || phoneErrors.length !== 0 || addressLineErrors.length !== 0 || addressCityErrors.length !== 0 ||
-                                                                        addressStateErrors.length !== 0 || addressZipErrors.length !== 0 || dutyStatusErrors.length !== 0) {
-                                                                        // only populate main error if there are no other errors showing
-                                                                        if (emailErrors.length === 0 && phoneErrors.length === 0 &&
-                                                                            addressLineErrors.length === 0 && addressCityErrors.length === 0 && addressStateErrors.length === 0 &&
-                                                                            addressZipErrors.length === 0 && dutyStatusErrors.length === 0) {
-                                                                            setProfileUpdatesMainError(true);
+                                                                    if ((!userInformation["custom:militaryAffiliation"] || userInformation["custom:militaryAffiliation"] === null)) {
+                                                                        if (email === "" || phoneNumber === "" || addressLine === "" || addressCity === "" || addressState === "" || addressZip === "" ||
+                                                                            dutyStatus === "" || emailErrors.length !== 0 || phoneErrors.length !== 0 || addressLineErrors.length !== 0 || addressCityErrors.length !== 0 ||
+                                                                            addressStateErrors.length !== 0 || addressZipErrors.length !== 0 || dutyStatusErrors.length !== 0) {
+                                                                            // only populate main error if there are no other errors showing
+                                                                            if (emailErrors.length === 0 && phoneErrors.length === 0 &&
+                                                                                addressLineErrors.length === 0 && addressCityErrors.length === 0 && addressStateErrors.length === 0 &&
+                                                                                addressZipErrors.length === 0 && dutyStatusErrors.length === 0) {
+                                                                                setProfileUpdatesMainError(true);
+                                                                            }
+                                                                        } else {
+                                                                            setProfileUpdatesMainError(false);
+
+                                                                            // we first need to decide whether there's a need for an email or phone verification screen to show up
+                                                                            if (email.toLowerCase() !== userInformation["email"].toLowerCase()) {
+                                                                                // show the bottom sheet
+                                                                                setShowBottomSheet(true);
+
+                                                                                // close the keyboard so it doesn't overlap with anything
+                                                                                Keyboard.dismiss();
+
+                                                                                // performs the actual saving of fields in the bottom sheet
+                                                                            } else {
+                                                                                // performs the actual saving of fields here
+                                                                                await updateProfile();
+
+                                                                                // changes the editing flag accordingly
+                                                                                setEditingFlag(false);
+                                                                            }
                                                                         }
                                                                     } else {
-                                                                        setProfileUpdatesMainError(false);
-
-                                                                        // we first need to decide whether there's a need for an email or phone verification screen to show up
-                                                                        if (email.toLowerCase() !== userInformation["email"].toLowerCase()) {
-                                                                            // show the bottom sheet
-                                                                            setShowBottomSheet(true);
-
-                                                                            // close the keyboard so it doesn't overlap with anything
-                                                                            Keyboard.dismiss();
-
-                                                                            // performs the actual saving of fields in the bottom sheet
+                                                                        if (email === "" || phoneNumber === "" || addressLine === "" || addressCity === "" || addressState === "" || addressZip === "" ||
+                                                                            emailErrors.length !== 0 || phoneErrors.length !== 0 || addressLineErrors.length !== 0 || addressCityErrors.length !== 0 ||
+                                                                            addressStateErrors.length !== 0 || addressZipErrors.length !== 0) {
+                                                                            // only populate main error if there are no other errors showing
+                                                                            if (emailErrors.length === 0 && phoneErrors.length === 0 &&
+                                                                                addressLineErrors.length === 0 && addressCityErrors.length === 0 && addressStateErrors.length === 0 &&
+                                                                                addressZipErrors.length === 0) {
+                                                                                setProfileUpdatesMainError(true);
+                                                                            }
                                                                         } else {
-                                                                            // performs the actual saving of fields here
-                                                                            await updateProfile();
+                                                                            setProfileUpdatesMainError(false);
 
-                                                                            // changes the editing flag accordingly
-                                                                            setEditingFlag(false);
+                                                                            // we first need to decide whether there's a need for an email or phone verification screen to show up
+                                                                            if (email.toLowerCase() !== userInformation["email"].toLowerCase()) {
+                                                                                // show the bottom sheet
+                                                                                setShowBottomSheet(true);
+
+                                                                                // close the keyboard so it doesn't overlap with anything
+                                                                                Keyboard.dismiss();
+
+                                                                                // performs the actual saving of fields in the bottom sheet
+                                                                            } else {
+                                                                                // performs the actual saving of fields here
+                                                                                await updateProfile();
+
+                                                                                // changes the editing flag accordingly
+                                                                                setEditingFlag(false);
+                                                                            }
                                                                         }
                                                                     }
                                                                 } else {
@@ -766,34 +808,60 @@ export const Profile = ({navigation}: ProfileProps) => {
                                                             style={styles.buttonText}>{!editingFlag ? 'Edit Profile' : 'Save Changes'}</Text>
                                                     </TouchableOpacity>
                                                 </View>
-                                                {profileUpdatesMainError
-                                                    ?
-                                                    <Text
-                                                        style={styles.errorMessage}>Please
-                                                        fill out the information below!</Text>
-                                                    : (emailErrors.length !== 0 && !profileUpdatesMainError)
-                                                        ? <Text
-                                                            style={styles.errorMessage}>{emailErrors[0]}</Text>
-                                                        : (phoneErrors.length !== 0 && !profileUpdatesMainError)
+                                                {(!userInformation["custom:militaryAffiliation"] || userInformation["custom:militaryAffiliation"] === null) ?
+                                                    (profileUpdatesMainError
+                                                        ?
+                                                        <Text
+                                                            style={styles.errorMessage}>Please
+                                                            fill out the information below!</Text>
+                                                        : (emailErrors.length !== 0 && !profileUpdatesMainError)
                                                             ? <Text
-                                                                style={styles.errorMessage}>{phoneErrors[0]}</Text>
-                                                            : (addressLineErrors.length !== 0 && !profileUpdatesMainError)
+                                                                style={styles.errorMessage}>{emailErrors[0]}</Text>
+                                                            : (phoneErrors.length !== 0 && !profileUpdatesMainError)
                                                                 ? <Text
-                                                                    style={styles.errorMessage}>{addressLineErrors[0]}</Text>
-                                                                : (addressCityErrors.length !== 0 && !profileUpdatesMainError)
-                                                                    ?
-                                                                    <Text
-                                                                        style={styles.errorMessage}>{addressCityErrors[0]}</Text>
-                                                                    : (addressStateErrors.length !== 0 && !profileUpdatesMainError)
-                                                                        ? <Text
-                                                                            style={styles.errorMessage}>{addressStateErrors[0]}</Text>
-                                                                        : (addressZipErrors.length !== 0 && !profileUpdatesMainError)
+                                                                    style={styles.errorMessage}>{phoneErrors[0]}</Text>
+                                                                : (addressLineErrors.length !== 0 && !profileUpdatesMainError)
+                                                                    ? <Text
+                                                                        style={styles.errorMessage}>{addressLineErrors[0]}</Text>
+                                                                    : (addressCityErrors.length !== 0 && !profileUpdatesMainError)
+                                                                        ?
+                                                                        <Text
+                                                                            style={styles.errorMessage}>{addressCityErrors[0]}</Text>
+                                                                        : (addressStateErrors.length !== 0 && !profileUpdatesMainError)
                                                                             ? <Text
-                                                                                style={styles.errorMessage}>{addressZipErrors[0]}</Text>
-                                                                            : (dutyStatusErrors.length !== 0 && !profileUpdatesMainError)
+                                                                                style={styles.errorMessage}>{addressStateErrors[0]}</Text>
+                                                                            : (addressZipErrors.length !== 0 && !profileUpdatesMainError)
                                                                                 ? <Text
-                                                                                    style={styles.errorMessage}>{dutyStatusErrors[0]}</Text>
-                                                                                : <></>
+                                                                                    style={styles.errorMessage}>{addressZipErrors[0]}</Text>
+                                                                                : (dutyStatusErrors.length !== 0 && !profileUpdatesMainError)
+                                                                                    ? <Text
+                                                                                        style={styles.errorMessage}>{dutyStatusErrors[0]}</Text>
+                                                                                    : <></>)
+                                                    : (profileUpdatesMainError
+                                                        ?
+                                                        <Text
+                                                            style={styles.errorMessage}>Please
+                                                            fill out the information below!</Text>
+                                                        : (emailErrors.length !== 0 && !profileUpdatesMainError)
+                                                            ? <Text
+                                                                style={styles.errorMessage}>{emailErrors[0]}</Text>
+                                                            : (phoneErrors.length !== 0 && !profileUpdatesMainError)
+                                                                ? <Text
+                                                                    style={styles.errorMessage}>{phoneErrors[0]}</Text>
+                                                                : (addressLineErrors.length !== 0 && !profileUpdatesMainError)
+                                                                    ? <Text
+                                                                        style={styles.errorMessage}>{addressLineErrors[0]}</Text>
+                                                                    : (addressCityErrors.length !== 0 && !profileUpdatesMainError)
+                                                                        ?
+                                                                        <Text
+                                                                            style={styles.errorMessage}>{addressCityErrors[0]}</Text>
+                                                                        : (addressStateErrors.length !== 0 && !profileUpdatesMainError)
+                                                                            ? <Text
+                                                                                style={styles.errorMessage}>{addressStateErrors[0]}</Text>
+                                                                            : (addressZipErrors.length !== 0 && !profileUpdatesMainError)
+                                                                                ? <Text
+                                                                                    style={styles.errorMessage}>{addressZipErrors[0]}</Text>
+                                                                                : <></>)
                                                 }
                                                 <View
                                                     style={styles.profileContentView}>
@@ -813,7 +881,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                                                         style={styles.textInputNonEditable}
                                                         label="Birthday"
                                                         textColor={"#FFFFFF"}
-                                                        left={<TextInput.Icon icon="cake" iconColor="#FFFFFF"/>}
+                                                        left={<TextInput.Icon icon="cake" color="#FFFFFF"/>}
                                                     />
                                                     <TextInput
                                                         autoCapitalize={"none"}
@@ -848,9 +916,9 @@ export const Profile = ({navigation}: ProfileProps) => {
                                                         placeholder={'Required'}
                                                         label="Email"
                                                         textColor={"#FFFFFF"}
-                                                        left={<TextInput.Icon icon="email" iconColor="#FFFFFF"/>}
+                                                        left={<TextInput.Icon icon="email" color="#FFFFFF"/>}
                                                         {...editingFlag && {
-                                                            right: <TextInput.Icon icon="pencil" iconColor="#F2FF5D"/>
+                                                            right: <TextInput.Icon icon="pencil" color="#F2FF5D"/>
                                                         }}
                                                     />
                                                     <TextInput
@@ -889,9 +957,9 @@ export const Profile = ({navigation}: ProfileProps) => {
                                                         placeholder={'Required +1 (XXX)-XXX-XXXX'}
                                                         label="Phone Number"
                                                         textColor={"#FFFFFF"}
-                                                        left={<TextInput.Icon icon="phone" iconColor="#FFFFFF"/>}
+                                                        left={<TextInput.Icon icon="phone" color="#FFFFFF"/>}
                                                         {...editingFlag && {
-                                                            right: <TextInput.Icon icon="pencil" iconColor="#F2FF5D"/>
+                                                            right: <TextInput.Icon icon="pencil" color="#F2FF5D"/>
                                                         }}
                                                     />
                                                     <TextInput
@@ -928,9 +996,9 @@ export const Profile = ({navigation}: ProfileProps) => {
                                                         label="Street Address"
                                                         textColor={"#FFFFFF"}
                                                         left={<TextInput.Icon icon="home-map-marker"
-                                                                              iconColor="#FFFFFF"/>}
+                                                                              color="#FFFFFF"/>}
                                                         {...editingFlag && {
-                                                            right: <TextInput.Icon icon="pencil" iconColor="#F2FF5D"/>
+                                                            right: <TextInput.Icon icon="pencil" color="#F2FF5D"/>
                                                         }}
                                                     />
                                                     <TextInput
@@ -966,9 +1034,9 @@ export const Profile = ({navigation}: ProfileProps) => {
                                                         placeholder={'Required'}
                                                         label="City"
                                                         textColor={"#FFFFFF"}
-                                                        left={<TextInput.Icon icon="home-city" iconColor="#FFFFFF"/>}
+                                                        left={<TextInput.Icon icon="home-city" color="#FFFFFF"/>}
                                                         {...editingFlag && {
-                                                            right: <TextInput.Icon icon="pencil" iconColor="#F2FF5D"/>
+                                                            right: <TextInput.Icon icon="pencil" color="#F2FF5D"/>
                                                         }}
                                                     />
                                                     <View style={styles.inputColumnViewAddress}>
@@ -1005,10 +1073,10 @@ export const Profile = ({navigation}: ProfileProps) => {
                                                             placeholder={'Required'}
                                                             label="State"
                                                             textColor={"#FFFFFF"}
-                                                            left={<TextInput.Icon icon="flag" iconColor="#FFFFFF"/>}
+                                                            left={<TextInput.Icon icon="flag" color="#FFFFFF"/>}
                                                             {...editingFlag && {
                                                                 right: <TextInput.Icon icon="pencil"
-                                                                                       iconColor="#F2FF5D"/>
+                                                                                       color="#F2FF5D"/>
                                                             }}
                                                         />
                                                         <TextInput
@@ -1046,120 +1114,125 @@ export const Profile = ({navigation}: ProfileProps) => {
                                                             placeholder={'Required'}
                                                             label="Zip"
                                                             textColor={"#FFFFFF"}
-                                                            left={<TextInput.Icon icon="dialpad" iconColor="#FFFFFF"/>}
+                                                            left={<TextInput.Icon icon="dialpad" color="#FFFFFF"/>}
                                                             {...editingFlag && {
                                                                 right: <TextInput.Icon icon="pencil"
-                                                                                       iconColor="#F2FF5D"/>
+                                                                                       color="#F2FF5D"/>
                                                             }}
                                                         />
                                                     </View>
-                                                    <View style={styles.pickerView}>
-                                                        <DropDownPicker
-                                                            showArrowIcon={editingFlag}
-                                                            ArrowDownIconComponent={({}) => (
-                                                                <TextInput.Icon
-                                                                    style={{right: 30, bottom: 10}}
-                                                                    iconColor="#F2FF5D"
-                                                                    icon="pencil"
-                                                                    onPress={() => {
-                                                                        setDropdownDutyState(true);
+                                                    {
+                                                        !userInformation["custom:militaryAffiliation"] || userInformation["custom:militaryAffiliation"] === null &&
+                                                        <>
+                                                            <View style={styles.pickerView}>
+                                                                <DropDownPicker
+                                                                    showArrowIcon={editingFlag}
+                                                                    ArrowDownIconComponent={({}) => (
+                                                                        <TextInput.Icon
+                                                                            style={{right: 30, bottom: 10}}
+                                                                            color="#F2FF5D"
+                                                                            icon="pencil"
+                                                                            onPress={() => {
+                                                                                setDropdownDutyState(true);
+                                                                            }}
+                                                                        />
+                                                                    )}
+                                                                    disabled={!editingFlag}
+                                                                    zIndex={5000}
+                                                                    placeholder={"Duty Status"}
+                                                                    // containerStyle={dropdownDutyState && Platform.OS === 'android' && {height: hp(25)}}
+                                                                    dropDownContainerStyle={[!editingFlag ? styles.dropdownContainerNonEditable : styles.dropdownContainer, Platform.OS === 'android' ? {height: hp(20)} : {height: hp(15)}]}
+                                                                    style={!editingFlag
+                                                                        ? (styles.dropdownPickerNonEditable)
+                                                                        : (styles.dropdownPicker)}
+                                                                    dropDownDirection={"BOTTOM"}
+                                                                    open={dropdownDutyState}
+                                                                    value={dutyStatus === "" ? null : dutyStatus}
+                                                                    items={dutyItems}
+                                                                    setOpen={setDropdownDutyState}
+                                                                    setValue={setDutyStatus}
+                                                                    setItems={setDutyItems}
+                                                                    onOpen={() => {
+                                                                        setProfileUpdatesMainError(false);
                                                                     }}
-                                                                />
-                                                            )}
-                                                            disabled={!editingFlag}
-                                                            zIndex={5000}
-                                                            placeholder={"Duty Status"}
-                                                            // containerStyle={dropdownDutyState && Platform.OS === 'android' && {height: hp(25)}}
-                                                            dropDownContainerStyle={[!editingFlag ? styles.dropdownContainerNonEditable : styles.dropdownContainer, Platform.OS === 'android' ? {height: hp(20)} : {height: hp(15)}]}
-                                                            style={!editingFlag
-                                                                ? (styles.dropdownPickerNonEditable)
-                                                                : (styles.dropdownPicker)}
-                                                            dropDownDirection={"BOTTOM"}
-                                                            open={dropdownDutyState}
-                                                            value={dutyStatus === "" ? null : dutyStatus}
-                                                            items={dutyItems}
-                                                            setOpen={setDropdownDutyState}
-                                                            setValue={setDutyStatus}
-                                                            setItems={setDutyItems}
-                                                            onOpen={() => {
-                                                                setProfileUpdatesMainError(false);
-                                                            }}
-                                                            onClose={() => {
-                                                                setDropdownDutyState(false);
-                                                            }}
-                                                            onSelectItem={(item) => {
-                                                                setDutyStatus(item.value!);
+                                                                    onClose={() => {
+                                                                        setDropdownDutyState(false);
+                                                                    }}
+                                                                    onSelectItem={(item) => {
+                                                                        setDutyStatus(item.value!);
 
-                                                                // validate value
-                                                                fieldValidator.validateField(item.value!, "dutyStatus", setDutyStatusErrors);
-                                                            }}
-                                                            theme="DARK"
-                                                            multiple={false}
-                                                            listMode="MODAL"
-                                                            modalAnimationType="slide"
-                                                            modalContentContainerStyle={{
-                                                                backgroundColor: '#313030'
-                                                            }}
-                                                            modalTitleStyle={{
-                                                                fontSize: hp(2.3),
-                                                                fontFamily: 'Raleway-Regular',
-                                                                color: '#F2FF5D'
-                                                            }}
-                                                            listItemContainerStyle={{
-                                                                top: hp(1.5)
-                                                            }}
-                                                            listItemLabelStyle={styles.textInputContentStyle}
-                                                            modalTitle={"Select your Duty Status"}
-                                                            // @ts-ignore
-                                                            arrowIconStyle={{tintColor: '#FFFFFF'}}
-                                                            // @ts-ignore
-                                                            closeIconStyle={{tintColor: '#FFFFFF'}}
-                                                            placeholderStyle={styles.textInputContentStyle}
-                                                            // @ts-ignore
-                                                            tickIconStyle={{tintColor: '#313030'}}
-                                                            selectedItemLabelStyle={[styles.textInputContentStyle, {color: '#313030'}]}
-                                                            selectedItemContainerStyle={{backgroundColor: '#D9D9D9'}}
-                                                            itemSeparator={false}
-                                                            labelStyle={styles.textInputContentStyle}
-                                                        />
-                                                    </View>
-                                                    <TextInput
-                                                        autoCorrect={false}
-                                                        autoComplete={"off"}
-                                                        disabled={true}
-                                                        placeholderTextColor={'#D9D9D9'}
-                                                        activeUnderlineColor={'#F2FF5D'}
-                                                        underlineColor={'#D9D9D9'}
-                                                        outlineColor={'#D9D9D9'}
-                                                        activeOutlineColor={'#F2FF5D'}
-                                                        selectionColor={'#F2FF5D'}
-                                                        mode={'flat'}
-                                                        value={enlistingYear}
-                                                        contentStyle={styles.textInputContentStyle}
-                                                        style={[styles.textInputNonEditable, {marginTop: hp(7.5)}]}
-                                                        label="Year of Enlistment/Commission"
-                                                        textColor={"#FFFFFF"}
-                                                        left={<TextInput.Icon icon="calendar" iconColor="#FFFFFF"/>}
-                                                    />
-                                                    <TextInput
-                                                        autoCapitalize={"sentences"}
-                                                        autoCorrect={false}
-                                                        autoComplete={"off"}
-                                                        disabled={true}
-                                                        placeholderTextColor={'#D9D9D9'}
-                                                        activeUnderlineColor={'#F2FF5D'}
-                                                        underlineColor={'#D9D9D9'}
-                                                        outlineColor={'#D9D9D9'}
-                                                        activeOutlineColor={'#F2FF5D'}
-                                                        selectionColor={'#F2FF5D'}
-                                                        mode={'flat'}
-                                                        value={militaryBranch}
-                                                        contentStyle={styles.textInputContentStyle}
-                                                        style={[styles.textInputNonEditable, {marginTop: hp(3)}]}
-                                                        label="Military Branch"
-                                                        textColor={"#FFFFFF"}
-                                                        left={<TextInput.Icon icon="tank" iconColor="#FFFFFF"/>}
-                                                    />
+                                                                        // validate value
+                                                                        fieldValidator.validateField(item.value!, "dutyStatus", setDutyStatusErrors);
+                                                                    }}
+                                                                    theme="DARK"
+                                                                    multiple={false}
+                                                                    listMode="MODAL"
+                                                                    modalAnimationType="slide"
+                                                                    modalContentContainerStyle={{
+                                                                        backgroundColor: '#313030'
+                                                                    }}
+                                                                    modalTitleStyle={{
+                                                                        fontSize: hp(2.3),
+                                                                        fontFamily: 'Raleway-Regular',
+                                                                        color: '#F2FF5D'
+                                                                    }}
+                                                                    listItemContainerStyle={{
+                                                                        top: hp(1.5)
+                                                                    }}
+                                                                    listItemLabelStyle={styles.textInputContentStyle}
+                                                                    modalTitle={"Select your Duty Status"}
+                                                                    // @ts-ignore
+                                                                    arrowIconStyle={{tintColor: '#FFFFFF'}}
+                                                                    // @ts-ignore
+                                                                    closeIconStyle={{tintColor: '#FFFFFF'}}
+                                                                    placeholderStyle={styles.textInputContentStyle}
+                                                                    // @ts-ignore
+                                                                    tickIconStyle={{tintColor: '#313030'}}
+                                                                    selectedItemLabelStyle={[styles.textInputContentStyle, {color: '#313030'}]}
+                                                                    selectedItemContainerStyle={{backgroundColor: '#D9D9D9'}}
+                                                                    itemSeparator={false}
+                                                                    labelStyle={styles.textInputContentStyle}
+                                                                />
+                                                            </View>
+                                                            <TextInput
+                                                                autoCorrect={false}
+                                                                autoComplete={"off"}
+                                                                disabled={true}
+                                                                placeholderTextColor={'#D9D9D9'}
+                                                                activeUnderlineColor={'#F2FF5D'}
+                                                                underlineColor={'#D9D9D9'}
+                                                                outlineColor={'#D9D9D9'}
+                                                                activeOutlineColor={'#F2FF5D'}
+                                                                selectionColor={'#F2FF5D'}
+                                                                mode={'flat'}
+                                                                value={enlistingYear}
+                                                                contentStyle={styles.textInputContentStyle}
+                                                                style={[styles.textInputNonEditable, {marginTop: hp(7.5)}]}
+                                                                label="Year of Enlistment/Commission"
+                                                                textColor={"#FFFFFF"}
+                                                                left={<TextInput.Icon icon="calendar" color="#FFFFFF"/>}
+                                                            />
+                                                            <TextInput
+                                                                autoCapitalize={"sentences"}
+                                                                autoCorrect={false}
+                                                                autoComplete={"off"}
+                                                                disabled={true}
+                                                                placeholderTextColor={'#D9D9D9'}
+                                                                activeUnderlineColor={'#F2FF5D'}
+                                                                underlineColor={'#D9D9D9'}
+                                                                outlineColor={'#D9D9D9'}
+                                                                activeOutlineColor={'#F2FF5D'}
+                                                                selectionColor={'#F2FF5D'}
+                                                                mode={'flat'}
+                                                                value={militaryBranch}
+                                                                contentStyle={styles.textInputContentStyle}
+                                                                style={[styles.textInputNonEditable, {marginTop: hp(3)}]}
+                                                                label="Military Branch"
+                                                                textColor={"#FFFFFF"}
+                                                                left={<TextInput.Icon icon="tank" color="#FFFFFF"/>}
+                                                            />
+                                                        </>
+                                                    }
                                                 </View>
                                             </LinearGradient>
                                         </View>

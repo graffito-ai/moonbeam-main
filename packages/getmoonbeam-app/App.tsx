@@ -1,5 +1,4 @@
 import * as SplashScreen from 'expo-splash-screen';
-import {Logs} from "expo";
 import {initialize} from './Setup';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -99,11 +98,6 @@ SplashScreen.preventAutoHideAsync().then(() => {
 // initialize the application according to the current Amplify environment
 initialize();
 
-// enable CLI logging with Expo - for DEV only
-if (envInfo.envName === Stages.DEV) {
-    Logs.enableExpoCliLogging();
-}
-
 /**
  * App component, representing the main application entrypoint.
  *
@@ -155,27 +149,27 @@ export default function App() {
                 // preload fonts, make any API calls that we need in here
                 // preloading all Raleway fonts
                 await Font.loadAsync({
-                    'Changa-Bold': require('assets/fonts/Changa/static/Changa-Bold.ttf'),
-                    'Changa-ExtraBold': require('assets/fonts/Changa/static/Changa-ExtraBold.ttf'),
-                    'Changa-ExtraLight': require('assets/fonts/Changa/static/Changa-ExtraLight.ttf'),
-                    'Changa-Light': require('assets/fonts/Changa/static/Changa-Light.ttf'),
-                    'Changa-Medium': require('assets/fonts/Changa/static/Changa-Medium.ttf'),
-                    'Changa-Regular': require('assets/fonts/Changa/static/Changa-Regular.ttf'),
-                    'Changa-SemiBold': require('assets/fonts/Changa/static/Changa-SemiBold.ttf'),
-                    'Saira-Bold': require('assets/fonts/Saira/static/Saira-Bold.ttf'),
-                    'Saira-ExtraBold': require('assets/fonts/Saira/static/Saira-ExtraBold.ttf'),
-                    'Saira-ExtraLight': require('assets/fonts/Saira/static/Saira-ExtraLight.ttf'),
-                    'Saira-Light': require('assets/fonts/Saira/static/Saira-Light.ttf'),
-                    'Saira-Medium': require('assets/fonts/Saira/static/Saira-Medium.ttf'),
-                    'Saira-Regular': require('assets/fonts/Saira/static/Saira-Regular.ttf'),
-                    'Saira-SemiBold': require('assets/fonts/Saira/static/Saira-SemiBold.ttf'),
-                    'Raleway-Bold': require('assets/fonts/Raleway/static/Raleway-Bold.ttf'),
-                    'Raleway-ExtraBold': require('assets/fonts/Raleway/static/Raleway-ExtraBold.ttf'),
-                    'Raleway-ExtraLight': require('assets/fonts/Raleway/static/Raleway-ExtraLight.ttf'),
-                    'Raleway-Light': require('assets/fonts/Raleway/static/Raleway-Light.ttf'),
-                    'Raleway-Medium': require('assets/fonts/Raleway/static/Raleway-Medium.ttf'),
-                    'Raleway-Regular': require('assets/fonts/Raleway/static/Raleway-Regular.ttf'),
-                    'Raleway-SemiBold': require('assets/fonts/Raleway/static/Raleway-SemiBold.ttf'),
+                    'Changa-Bold': require('./assets/fonts/Changa/static/Changa-Bold.ttf'),
+                    'Changa-ExtraBold': require('./assets/fonts/Changa/static/Changa-ExtraBold.ttf'),
+                    'Changa-ExtraLight': require('./assets/fonts/Changa/static/Changa-ExtraLight.ttf'),
+                    'Changa-Light': require('./assets/fonts/Changa/static/Changa-Light.ttf'),
+                    'Changa-Medium': require('./assets/fonts/Changa/static/Changa-Medium.ttf'),
+                    'Changa-Regular': require('./assets/fonts/Changa/static/Changa-Regular.ttf'),
+                    'Changa-SemiBold': require('./assets/fonts/Changa/static/Changa-SemiBold.ttf'),
+                    'Saira-Bold': require('./assets/fonts/Saira/static/Saira-Bold.ttf'),
+                    'Saira-ExtraBold': require('./assets/fonts/Saira/static/Saira-ExtraBold.ttf'),
+                    'Saira-ExtraLight': require('./assets/fonts/Saira/static/Saira-ExtraLight.ttf'),
+                    'Saira-Light': require('./assets/fonts/Saira/static/Saira-Light.ttf'),
+                    'Saira-Medium': require('./assets/fonts/Saira/static/Saira-Medium.ttf'),
+                    'Saira-Regular': require('./assets/fonts/Saira/static/Saira-Regular.ttf'),
+                    'Saira-SemiBold': require('./assets/fonts/Saira/static/Saira-SemiBold.ttf'),
+                    'Raleway-Bold': require('./assets/fonts/Raleway/static/Raleway-Bold.ttf'),
+                    'Raleway-ExtraBold': require('./assets/fonts/Raleway/static/Raleway-ExtraBold.ttf'),
+                    'Raleway-ExtraLight': require('./assets/fonts/Raleway/static/Raleway-ExtraLight.ttf'),
+                    'Raleway-Light': require('./assets/fonts/Raleway/static/Raleway-Light.ttf'),
+                    'Raleway-Medium': require('./assets/fonts/Raleway/static/Raleway-Medium.ttf'),
+                    'Raleway-Regular': require('./assets/fonts/Raleway/static/Raleway-Regular.ttf'),
+                    'Raleway-SemiBold': require('./assets/fonts/Raleway/static/Raleway-SemiBold.ttf'),
                 });
             } catch (e) {
                 console.warn(e);

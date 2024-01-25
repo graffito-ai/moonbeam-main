@@ -957,7 +957,7 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                                             placeholder={'Type in your email...'}
                                             label="Email"
                                             textColor={"#FFFFFF"}
-                                            left={<TextInput.Icon icon="email" iconColor="#FFFFFF"/>}
+                                            left={<TextInput.Icon icon="email" color="#FFFFFF"/>}
                                         />
                                         <TextInput
                                             autoCapitalize={"none"}
@@ -987,9 +987,9 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                                             secureTextEntry={!passwordShown}
                                             textColor={"#FFFFFF"}
                                             right={<TextInput.Icon icon={!passwordShown ? "eye" : "eye-off"}
-                                                                   iconColor={passwordShown ? "#F2FF5D" : "#FFFFFF"}
+                                                                   color={passwordShown ? "#F2FF5D" : "#FFFFFF"}
                                                                    onPress={() => setIsPasswordShown(!passwordShown)}/>}
-                                            left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
+                                            left={<TextInput.Icon icon="lock" color="#FFFFFF"/>}
                                         />
                                         <View style={styles.forgotPasswordView}>
                                             <Text style={styles.forgotPasswordButton}

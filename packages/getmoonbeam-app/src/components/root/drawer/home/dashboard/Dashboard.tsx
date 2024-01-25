@@ -429,6 +429,7 @@ export const Dashboard = ({}) => {
                                                       bannerMessage={bannerState.bannerMessage}
                                                       bannerButtonLabel={bannerState.bannerButtonLabel}
                                                       bannerButtonLabelActionSource={bannerState.bannerButtonLabelActionSource}
+                                                      //@ts-ignore
                                                       bannerArtSource={bannerState.bannerArtSource}
                                                       dismissing={bannerState.dismissing}
                                         />

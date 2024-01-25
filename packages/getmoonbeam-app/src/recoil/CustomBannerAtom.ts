@@ -15,7 +15,7 @@ const customBannerState = atom({
         bannerMessage: "",
         bannerButtonLabel: "",
         bannerButtonLabelActionSource: "",
-        bannerArtSource: require(''),
+        bannerArtSource: "",
         dismissing: false
     }
 });

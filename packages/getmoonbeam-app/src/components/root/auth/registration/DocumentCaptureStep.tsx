@@ -448,17 +448,17 @@ export const DocumentCaptureStep = () => {
                 copyToCacheDirectory: true
             });
             // if the user successfully selected a document using the picker
-            if (result.type === "success") {
+            if (!result.canceled && result.assets !== null && result.assets.length !== 0) {
                 // if the document was picked successfully, then check against its size
-                if (!result.size || (result.size && isValidSize(result.size!))) {
+                if (result.assets.length !== 1 || (result.assets[0] && isValidSize(result.assets[0].size!))) {
                     /**
                      * build a new upload URI, used to upload the file to the file system storage
                      * in order to obtain a valid URI/URL that can be use for further steps
                      */
-                    const uri = `${FileSystem.documentDirectory}${result.name.replaceAll(" ", "")}`;
+                    const uri = `${FileSystem.documentDirectory}${result.assets[0].name.replaceAll(" ", "")}`;
                     // copy the file to the file system storage
                     await FileSystem.copyAsync({
-                        from: result.uri,
+                        from: result.assets[0].uri,
                         to: uri
                     });
                     /**
@@ -506,8 +506,8 @@ export const DocumentCaptureStep = () => {
                 }
             } else {
                 const errorMessage = `Please upload a file to continue!`;
-                console.log(`${errorMessage} - ${result.type}`);
-                await logEvent(`${errorMessage} - ${result.type}`, LoggingLevel.Warning, userIsAuthenticated);
+                console.log(`${errorMessage} - ${result.canceled}`);
+                await logEvent(`${errorMessage} - ${result.canceled}`, LoggingLevel.Warning, userIsAuthenticated);
 
                 // set the documentation errors accordingly
                 // @ts-ignore
@@ -674,11 +674,11 @@ export const DocumentCaptureStep = () => {
                                                     style={styles.pictureUploadedTextInput}
                                                     value={"document"}
                                                     textColor={"#FFFFFF"}
-                                                    left={<TextInput.Icon icon="file" iconColor="#FFFFFF"/>}
+                                                    left={<TextInput.Icon icon="file" color="#FFFFFF"/>}
                                                     right={
                                                         <TextInput.Icon
                                                             icon="close"
-                                                            iconColor="#FFFFFF"
+                                                            color="#FFFFFF"
                                                             onPress={() => {
                                                                 // Disable the next button and enable the upload button, and reset the capture file name
                                                                 setCaptureButtonState(false);
@@ -748,11 +748,11 @@ export const DocumentCaptureStep = () => {
                                                     style={styles.fileUploadedTextInput}
                                                     value={"document"}
                                                     textColor={"#FFFFFF"}
-                                                    left={<TextInput.Icon icon="file" iconColor="#FFFFFF"/>}
+                                                    left={<TextInput.Icon icon="file" color="#FFFFFF"/>}
                                                     right={
                                                         <TextInput.Icon
                                                             icon="close"
-                                                            iconColor="#FFFFFF"
+                                                            color="#FFFFFF"
                                                             onPress={() => {
                                                                 // Disable the next button and enable the capture buttons, and reset the upload file name
                                                                 setCaptureButtonState(false);

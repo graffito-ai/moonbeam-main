@@ -10,7 +10,7 @@ const splashStatusState = atom({
         splashTitle: "",
         splashDescription: "",
         splashButtonText: "",
-        splashArtSource: require('')
+        splashArtSource: ""
     }
 });
 

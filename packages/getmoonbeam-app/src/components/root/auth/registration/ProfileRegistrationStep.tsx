@@ -266,7 +266,7 @@ export const ProfileRegistrationStep = () => {
                     label="Email"
                     textColor={"#FFFFFF"}
                     left={
-                        <TextInput.Icon icon="email" size={hp(3.3)} style={{marginTop: hp(1.8)}} iconColor="#FFFFFF"/>
+                        <TextInput.Icon icon="email" size={hp(3.3)} style={{marginTop: hp(1.8)}} color="#FFFFFF"/>
                     }
                 />
                 <TextInput
@@ -307,7 +307,7 @@ export const ProfileRegistrationStep = () => {
                     label="Birthday"
                     textColor={"#FFFFFF"}
                     left={
-                        <TextInput.Icon icon="cake" size={hp(3)} style={{marginTop: hp(1.8)}} iconColor="#FFFFFF"/>
+                        <TextInput.Icon icon="cake" size={hp(3)} style={{marginTop: hp(1.8)}} color="#FFFFFF"/>
                     }
                 />
                 <TextInput
@@ -348,7 +348,7 @@ export const ProfileRegistrationStep = () => {
                     label="Phone Number"
                     textColor={"#FFFFFF"}
                     left={
-                        <TextInput.Icon icon="phone" size={hp(3)} style={{marginTop: hp(1.9)}} iconColor="#FFFFFF"/>
+                        <TextInput.Icon icon="phone" size={hp(3)} style={{marginTop: hp(1.9)}} color="#FFFFFF"/>
                     }
                 />
                 {
@@ -392,7 +392,7 @@ export const ProfileRegistrationStep = () => {
                             textColor={"#FFFFFF"}
                             left={
                                 <TextInput.Icon icon="calendar" size={hp(2.8)} style={{marginTop: hp(2.2)}}
-                                                iconColor="#FFFFFF"/>
+                                                color="#FFFFFF"/>
                             }
                         />
                         :
@@ -436,7 +436,7 @@ export const ProfileRegistrationStep = () => {
                                 textColor={"#FFFFFF"}
                                 left={
                                     <TextInput.Icon icon="bank" size={hp(2.8)} style={{marginTop: hp(2.2)}}
-                                                    iconColor="#FFFFFF"/>
+                                                    color="#FFFFFF"/>
                                 }
                             />
                             <HelperText style={{

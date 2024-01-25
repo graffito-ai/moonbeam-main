@@ -29,6 +29,7 @@ export const CardLinkingStatusSplashStep = () => {
     return (
         <>
             <SplashScreen
+                //@ts-ignore
                 splashArtSource={splashState.splashArtSource}
                 splashButtonText={splashState.splashButtonText}
                 splashTitle={splashState.splashTitle}

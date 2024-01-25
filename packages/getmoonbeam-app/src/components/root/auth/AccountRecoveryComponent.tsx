@@ -369,7 +369,7 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                     placeholder={'Required'}
                                                     label="Email"
                                                     textColor={"#FFFFFF"}
-                                                    left={<TextInput.Icon icon="email" iconColor="#FFFFFF"/>}
+                                                    left={<TextInput.Icon icon="email" color="#FFFFFF"/>}
                                                 />
                                             </>
                                             : stepNumber === 1 ?
@@ -407,9 +407,9 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                         placeholder={'Required'}
                                                         label="Password"
                                                         textColor={"#FFFFFF"}
-                                                        left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
+                                                        left={<TextInput.Icon icon="lock" color="#FFFFFF"/>}
                                                         right={<TextInput.Icon icon="eye"
-                                                                               iconColor={isPasswordShown ? "#F2FF5D" : "#FFFFFF"}
+                                                                               color={isPasswordShown ? "#F2FF5D" : "#FFFFFF"}
                                                                                onPress={() => setIsPasswordShown(!isPasswordShown)}/>}
                                                     />
                                                     <TextInput
@@ -445,9 +445,9 @@ export const AccountRecoveryComponent = ({navigation}: AccountRecoveryProps) => 
                                                         placeholder={'Required (must match Password)'}
                                                         label="Confirm Password"
                                                         textColor={"#FFFFFF"}
-                                                        left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
+                                                        left={<TextInput.Icon icon="lock" color="#FFFFFF"/>}
                                                         right={<TextInput.Icon icon="eye"
-                                                                               iconColor={isConfirmPasswordShown ? "#F2FF5D" : "#FFFFFF"}
+                                                                               color={isConfirmPasswordShown ? "#F2FF5D" : "#FFFFFF"}
                                                                                onPress={() => setIsConfirmPasswordShown(!isConfirmPasswordShown)}/>}
                                                     />
                                                 </>

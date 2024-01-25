@@ -520,6 +520,7 @@ export const AppWall = ({navigation}: AppWallProps) => {
                             {
                                 stepNumber === 0
                                     ? <SplashScreen
+                                        //@ts-ignore
                                         splashArtSource={splashState.splashArtSource}
                                         splashButtonText={splashState.splashButtonText}
                                         splashTitle={splashState.splashTitle}
@@ -588,7 +589,7 @@ export const AppWall = ({navigation}: AppWallProps) => {
                                                                 left={
                                                                     <TextInput.Icon icon="bank" size={hp(2.8)}
                                                                                     style={{marginTop: hp(2.2)}}
-                                                                                    iconColor="#FFFFFF"/>
+                                                                                    color="#FFFFFF"/>
                                                                 }
                                                             />
                                                             <HelperText style={{
@@ -659,6 +660,7 @@ export const AppWall = ({navigation}: AppWallProps) => {
                                             ? <WallDocumentCaptureStep/>
                                             : stepNumber === 3
                                                 ? <SplashScreen
+                                                    //@ts-ignore
                                                     splashArtSource={splashState.splashArtSource}
                                                     splashButtonText={splashState.splashButtonText}
                                                     splashTitle={splashState.splashTitle}

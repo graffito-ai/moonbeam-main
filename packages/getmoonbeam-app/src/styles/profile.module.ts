@@ -26,8 +26,7 @@ export const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     topContainer: {
-        width: wp(100),
-        marginBottom: -hp(2),
+        width: wp(100)
     },
     profileContentView: {
         backgroundColor: 'transparent',

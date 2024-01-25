@@ -92,8 +92,6 @@ export const commonStyles = StyleSheet.create({
         color: '#313030',
         fontFamily: 'Saira-Medium',
     },
-
-
     dialogStyle: {
         backgroundColor: '#5B5A5A',
         borderRadius: wp(5)

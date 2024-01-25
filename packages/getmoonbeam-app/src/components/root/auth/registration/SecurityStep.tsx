@@ -117,11 +117,11 @@ export const SecurityStep = () => {
                     label="Password"
                     textColor={"#FFFFFF"}
                     left={
-                        <TextInput.Icon icon="lock" size={hp(2.8)} style={{marginTop: hp(2)}} iconColor="#FFFFFF"/>
+                        <TextInput.Icon icon="lock" size={hp(2.8)} style={{marginTop: hp(2)}} color="#FFFFFF"/>
                     }
                     right={<TextInput.Icon icon="eye"
                                            size={hp(2.8)} style={{marginTop: hp(2)}}
-                                           iconColor={isPasswordShown ? "#F2FF5D" : "#FFFFFF"}
+                                           color={isPasswordShown ? "#F2FF5D" : "#FFFFFF"}
                                            onPress={() => setIsPasswordShown(!isPasswordShown)}/>}
                 />
                 <TextInput
@@ -158,11 +158,11 @@ export const SecurityStep = () => {
                     label="Confirm Password"
                     textColor={"#FFFFFF"}
                     left={
-                        <TextInput.Icon icon="lock" size={hp(2.8)} style={{marginTop: hp(2)}} iconColor="#FFFFFF"/>
+                        <TextInput.Icon icon="lock" size={hp(2.8)} style={{marginTop: hp(2)}} color="#FFFFFF"/>
                     }
                     right={<TextInput.Icon icon="eye"
                                            size={hp(2.8)} style={{marginTop: hp(2)}}
-                                           iconColor={isConfirmPasswordShown ? "#F2FF5D" : "#FFFFFF"}
+                                           color={isConfirmPasswordShown ? "#F2FF5D" : "#FFFFFF"}
                                            onPress={() => setIsConfirmPasswordShown(!isConfirmPasswordShown)}/>}
                 />
                 <View style={styles.disclaimerView}>

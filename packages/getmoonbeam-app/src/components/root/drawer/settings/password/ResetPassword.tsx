@@ -283,9 +283,9 @@ export const ResetPassword = ({}: ResetPasswordProps) => {
                                             placeholder={'Required'}
                                             label="Old Password"
                                             textColor={"#FFFFFF"}
-                                            left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
+                                            left={<TextInput.Icon icon="lock" color="#FFFFFF"/>}
                                             right={<TextInput.Icon icon="eye"
-                                                                   iconColor={isOldPasswordShown ? "#F2FF5D" : "#FFFFFF"}
+                                                                   color={isOldPasswordShown ? "#F2FF5D" : "#FFFFFF"}
                                                                    onPress={() => setIsOldPasswordShown(!isOldPasswordShown)}/>}
                                         />
                                         <TextInput
@@ -320,9 +320,9 @@ export const ResetPassword = ({}: ResetPasswordProps) => {
                                             placeholder={'Required'}
                                             label="New Password"
                                             textColor={"#FFFFFF"}
-                                            left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
+                                            left={<TextInput.Icon icon="lock" color="#FFFFFF"/>}
                                             right={<TextInput.Icon icon="eye"
-                                                                   iconColor={isPasswordShown ? "#F2FF5D" : "#FFFFFF"}
+                                                                   color={isPasswordShown ? "#F2FF5D" : "#FFFFFF"}
                                                                    onPress={() => setIsPasswordShown(!isPasswordShown)}/>}
                                         />
                                         <TextInput
@@ -357,9 +357,9 @@ export const ResetPassword = ({}: ResetPasswordProps) => {
                                             placeholder={'Must match'}
                                             label="Confirm New Password"
                                             textColor={"#FFFFFF"}
-                                            left={<TextInput.Icon icon="lock" iconColor="#FFFFFF"/>}
+                                            left={<TextInput.Icon icon="lock" color="#FFFFFF"/>}
                                             right={<TextInput.Icon icon="eye"
-                                                                   iconColor={isConfirmPasswordShown ? "#F2FF5D" : "#FFFFFF"}
+                                                                   color={isConfirmPasswordShown ? "#F2FF5D" : "#FFFFFF"}
                                                                    onPress={() => setIsConfirmPasswordShown(!isConfirmPasswordShown)}/>}
                                         />
                                     </View>

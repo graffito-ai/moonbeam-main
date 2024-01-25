@@ -131,7 +131,9 @@
         {
           "faceIDPermission": "$(PRODUCT_NAME) will access and use Face ID, in order to allow you to easily authenticate, either for the purposes of accessing your account, or for various protected account-related functionalities. Please note that Moonbeam will not store any of your biometric information."
         }
-      ]
+      ],
+      "expo-font",
+      "expo-secure-store"
     ],
     "extra": {
       "eas": {

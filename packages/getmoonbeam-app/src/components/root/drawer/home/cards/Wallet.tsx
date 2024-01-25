@@ -584,6 +584,7 @@ export const Wallet = ({navigation}: CardsProps) => {
                                     <SplashScreen splashTitle={splashState.splashTitle}
                                                   splashDescription={splashState.splashDescription}
                                                   splashButtonText={splashState.splashButtonText}
+                                                  //@ts-ignore
                                                   splashArtSource={splashState.splashArtSource}
                                     />
                                     :
