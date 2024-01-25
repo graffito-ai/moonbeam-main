@@ -1460,11 +1460,11 @@ export class OliveClient extends BaseAPIClient {
             // the loyalty program id is defaulted to the default loyalty program
             const defaultLoyaltyProgramId: string | undefined = moonbeamDefaultLoyalty;
             // build the search offers URL
-            requestURL += `?loyaltyProgramId=${defaultLoyaltyProgramId}&countryCode=US&pageSize=10000&pageNumber=1&offerStates=active&offerStates=scheduled`;
+            requestURL += `?loyaltyProgramId=${defaultLoyaltyProgramId}&countryCode=US&pageSize=1000&pageNumber=1&offerStates=active&offerStates=scheduled`;
             requestURL += (searchOffersInput.radius && searchOffersInput.radiusLatitude && searchOffersInput.radiusLongitude)
                 ? `&radiusLatitude=${searchOffersInput.radiusLatitude!}&radiusLongitude=${searchOffersInput.radiusLongitude!}&radius=${searchOffersInput.radius!}`
                 : ``;
-            requestURL += `&brandDba=${encodeURIComponent(searchOffersInput.brandName)}`;
+            requestURL += `&search=\"${searchOffersInput.searchText}\"`;
             // log the request URL, since we are doing a lot of filtering, for sanity purposes
             console.log(`Request URL for Olive ${requestURL}`);
             return axios.get(requestURL, {

@@ -1372,10 +1372,10 @@ export enum RewardType {
 }
 
 export type SearchOffersInput = {
-  brandName: Scalars['String'];
   radius?: InputMaybe<Scalars['Int']>;
   radiusLatitude?: InputMaybe<Scalars['Float']>;
   radiusLongitude?: InputMaybe<Scalars['Float']>;
+  searchText: Scalars['String'];
 };
 
 export type SendEmailNotificationInput = {

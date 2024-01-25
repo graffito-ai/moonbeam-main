@@ -6,7 +6,7 @@
   "author": "Marius Acsinte <marius@moonbeam.vet>",
   "license": "Moonbeam Inc. Proprietary Code License <https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/LICENSE/browse>",
   "scripts": {
-    "build": "lerna run build --stream --include-dependencies",
+    "build": "touch ./packages/getmoonbeam-cdk/graphql/schema.graphql && lerna run build --stream --include-dependencies",
     "clean": "lerna run clean && rm -rf ./node_modules",
     "postinstall": "husky install",
     "release": "yarn run clean && yarn install && yarn run build"

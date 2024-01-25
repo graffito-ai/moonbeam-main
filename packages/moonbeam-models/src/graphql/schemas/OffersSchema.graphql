@@ -203,7 +203,7 @@ input GetOffersInput {
 }
 
 input SearchOffersInput {
-    brandName: String!
+    searchText: String! # this can include a category or name of brand, e.g ('food', 'drinks' or 'Nike').
     radiusLatitude: Float
     radiusLongitude: Float
     radius: Int
