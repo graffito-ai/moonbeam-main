@@ -193,6 +193,72 @@ query GetFidelisPartners {
         }
     }
 }
+query SearchOffers($searchOffersinput: SearchOffersInput!) {
+    searchOffers(searchOffersInput: $searchOffersinput) {
+        errorMessage
+        errorType
+        data {
+            totalNumberOfPages
+            totalNumberOfRecords
+            offers {
+                id
+                corporateId
+                created
+                offerState
+                availability
+                brandId
+                brandDba
+                brandLogo
+                brandLogoSm
+                brandBanner
+                brandParentCategory
+                brandStubCopy
+                brandWebsite
+                storeDetails {
+                    id
+                    name
+                    phone
+                    address1
+                    city
+                    state
+                    countryCode
+                    postCode
+                    geoLocation {
+                        latitude
+                        longitude
+                    }
+                    isOnline
+                    distance
+                }
+                description
+                reach
+                title
+                qualifier
+                tile
+                startDate
+                endDate
+                currency
+                extOfferId
+                supplierOfferKey
+                redemptionType
+                redemptionInstructionUrl
+                redemptionTrigger
+                budget
+                daysAvailability
+                stores
+                totalRedeemLimit
+                redeemLimitPerUser
+                purchaseAmount
+                purchaseFrequency
+                reward {
+                    type
+                    value
+                    maxValue
+                }
+            }
+        }
+    }
+}
 query GetOffers($getOffersInput: GetOffersInput!) {
     getOffers(getOffersInput: $getOffersInput) {
         errorMessage

@@ -3,6 +3,7 @@
 type Query {
     getFAQs: FAQResponse! @aws_cognito_user_pools
     getOffers(getOffersInput: GetOffersInput!): OffersResponse! @aws_cognito_user_pools
+    searchOffers(searchOffersInput: SearchOffersInput!): OffersResponse! @aws_cognito_user_pools
     getPremierOffers(getOffersInput: GetOffersInput!): OffersResponse! @aws_cognito_user_pools
     getSeasonalOffers(getOffersInput: GetOffersInput!): OffersResponse! @aws_cognito_user_pools
     getFidelisPartners: FidelisPartnerResponse! @aws_cognito_user_pools

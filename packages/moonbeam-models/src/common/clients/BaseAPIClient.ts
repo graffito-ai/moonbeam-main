@@ -49,7 +49,7 @@ import {
     UserForNotificationReminderResponse,
     MilitaryVerificationReportingInformationResponse,
     GetMilitaryVerificationInformationInput,
-    PutMilitaryVerificationReportInput, MilitaryVerificationReportResponse
+    PutMilitaryVerificationReportInput, MilitaryVerificationReportResponse, SearchOffersInput
 } from "../GraphqlExports";
 
 /**
@@ -269,6 +269,14 @@ export abstract class BaseAPIClient {
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_MULTIPLE_CARDS_FEATURE_REMINDER_AUTH_TOKEN],
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_MULTIPLE_CARDS_FEATURE_REMINDER_TEMPLATE_ID]];
                                     }
+                                case NotificationType.SpouseFeatureReminder:
+                                    return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                        clientPairAsJson[Constants.AWSPairConstants.SPOUSE_FEATURE_REMINDER_AUTH_TOKEN],
+                                        clientPairAsJson[Constants.AWSPairConstants.SPOUSE_FEATURE_REMINDER_TEMPLATE_ID]];
+                                case NotificationType.FeedbackTemplate_1Reminder:
+                                    return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                        clientPairAsJson[Constants.AWSPairConstants.FEEDBACK_TEMPLATE_1_REMINDER_AUTH_TOKEN],
+                                        clientPairAsJson[Constants.AWSPairConstants.FEEDBACK_TEMPLATE_1_REMINDER_AUTH_TOKEN]];
                                 default:
                                     console.log(`Unknown notifications type to retrieve secrets in ${verificationClientSecretsName}`);
                                     return [null, null];
@@ -455,6 +463,18 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected getOffers?(getOffersInput: GetOffersInput): Promise<OffersResponse>;
+
+    /**
+     * Function used to search an offer, given certain filters to be passed in.
+     *
+     * @param searchOffersInput the offers input, containing the filtering information
+     * used to search any applicable/matching offers.
+     *
+     * @returns a {@link OffersResponse} representing the matched offers' information.
+     *
+     * @protected
+     */
+    protected searchOffers?(searchOffersInput: SearchOffersInput): Promise<OffersResponse>;
 
     /**
      * Function used to get all the physical devices associated with a particular user.

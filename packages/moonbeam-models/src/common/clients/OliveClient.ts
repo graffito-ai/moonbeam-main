@@ -15,7 +15,7 @@ import {
     OffersErrorType,
     OffersResponse,
     RedemptionType,
-    RemoveCardResponse,
+    RemoveCardResponse, SearchOffersInput,
     Transaction,
     TransactionResponse,
     TransactionsErrorType,
@@ -1404,6 +1404,147 @@ export class OliveClient extends BaseAPIClient {
     }
 
     /**
+     * Function used to search an offer, given certain filters to be passed in.
+     *
+     * @param searchOffersInput the offers input, containing the filtering information
+     * used to search any applicable/matching offers.
+     *
+     * @returns a {@link OffersResponse} representing the matched offers' information.
+     */
+    async searchOffers(searchOffersInput: SearchOffersInput): Promise<OffersResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'GET /offers Olive API for searching offers';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the GET offers call through the client
+            const [oliveBaseURL, olivePublicKey, olivePrivateKey,
+                moonbeamDefaultLoyalty, moonbeamFidelisDefaultLoyalty, moonbeamOnlineLoyalty,
+                moonbeamPremierOnlineLoyalty, moonbeamPremierNearbyLoyalty, moonbeamVeteransDayLoyalty,
+                moonbeamClickLoyalty, moonbeamPremierClickLoyalty] =
+                await super.retrieveServiceCredentials(
+                    Constants.AWSPairConstants.OLIVE_SECRET_NAME,
+                    undefined,
+                    undefined,
+                    true);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (oliveBaseURL === null || oliveBaseURL.length === 0 ||
+                olivePublicKey === null || olivePublicKey.length === 0 ||
+                olivePrivateKey === null || olivePrivateKey!.length === 0 ||
+                moonbeamDefaultLoyalty === null || moonbeamDefaultLoyalty!.length === 0 ||
+                moonbeamFidelisDefaultLoyalty === null || moonbeamFidelisDefaultLoyalty!.length === 0 ||
+                moonbeamOnlineLoyalty === null || moonbeamOnlineLoyalty!.length === 0 ||
+                moonbeamVeteransDayLoyalty === null || moonbeamVeteransDayLoyalty!.length === 0 ||
+                moonbeamClickLoyalty === null || moonbeamClickLoyalty!.length === 0 ||
+                moonbeamPremierClickLoyalty === null || moonbeamPremierClickLoyalty!.length === 0 ||
+                moonbeamPremierOnlineLoyalty === null || moonbeamPremierOnlineLoyalty!.length === 0 ||
+                moonbeamPremierNearbyLoyalty === null || moonbeamPremierNearbyLoyalty!.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Olive API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: OffersErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * GET /offers
+             * @link https://developer.oliveltd.com/reference/list-offers
+             *
+             * build the Olive API request params to be passed in, and perform a GET to it with the appropriate information
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            let requestURL = `${oliveBaseURL}/offers`;
+            // the loyalty program id is defaulted to the default loyalty program
+            const defaultLoyaltyProgramId: string | undefined = moonbeamDefaultLoyalty;
+            // build the search offers URL
+            requestURL += `?loyaltyProgramId=${defaultLoyaltyProgramId}&countryCode=US&pageSize=10000&pageNumber=1&offerStates=active&offerStates=scheduled`;
+            requestURL += (searchOffersInput.radius && searchOffersInput.radiusLatitude && searchOffersInput.radiusLongitude)
+                ? `&radiusLatitude=${searchOffersInput.radiusLatitude!}&radiusLongitude=${searchOffersInput.radiusLongitude!}&radius=${searchOffersInput.radius!}`
+                : ``;
+            requestURL += `&brandDba=${encodeURIComponent(searchOffersInput.brandName)}`;
+            // log the request URL, since we are doing a lot of filtering, for sanity purposes
+            console.log(`Request URL for Olive ${requestURL}`);
+            return axios.get(requestURL, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Olive-Key": olivePrivateKey
+                },
+                timeout: 25000, // in milliseconds here
+                timeoutErrorMessage: 'Olive API timed out after 25000ms!'
+            }).then(async getOffersResponse => {
+                /**
+                 * if we reached this, then we assume that a 2xx response code was returned.
+                 * check the contents of the response, and act appropriately.
+                 */
+                if (getOffersResponse.data !== undefined && getOffersResponse.data["totalNumberOfPages"] !== undefined &&
+                    getOffersResponse.data["totalNumberOfRecords"] !== undefined && getOffersResponse.data["items"] !== undefined) {
+                    // return the array of offer items accordingly
+                    return {
+                        data: {
+                            offers: getOffersResponse.data["items"] as Offer[],
+                            totalNumberOfPages: getOffersResponse.data["totalNumberOfPages"],
+                            totalNumberOfRecords: getOffersResponse.data["totalNumberOfRecords"]
+                        }
+                    }
+                } else {
+                    return {
+                        errorMessage: `Invalid response structure returned from ${endpointInfo} response ${JSON.stringify(getOffersResponse)}!`,
+                        errorType: OffersErrorType.ValidationError
+                    }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Olive API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: OffersErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Olive API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: OffersErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: OffersErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while initiating the offers retrieval through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: OffersErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
      * Function used to get all the offers, given certain filters to be passed in.
      *
      * @param getOffersInput the offers input, containing the filtering information
@@ -1441,7 +1582,9 @@ export class OliveClient extends BaseAPIClient {
                 moonbeamOnlineLoyalty === null || moonbeamOnlineLoyalty!.length === 0 ||
                 moonbeamVeteransDayLoyalty === null || moonbeamVeteransDayLoyalty!.length === 0 ||
                 moonbeamClickLoyalty === null || moonbeamClickLoyalty!.length === 0 ||
-                moonbeamPremierClickLoyalty === null || moonbeamPremierClickLoyalty!.length === 0) {
+                moonbeamPremierClickLoyalty === null || moonbeamPremierClickLoyalty!.length === 0 ||
+                moonbeamPremierOnlineLoyalty === null || moonbeamPremierOnlineLoyalty!.length === 0 ||
+                moonbeamPremierNearbyLoyalty === null || moonbeamPremierNearbyLoyalty!.length === 0) {
                 const errorMessage = "Invalid Secrets obtained for Olive API call!";
                 console.log(errorMessage);
 

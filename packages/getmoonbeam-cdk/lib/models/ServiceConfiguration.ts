@@ -311,6 +311,7 @@ export interface OffersConfiguration {
     readonly getFidelisPartnersResolverName: string;
     readonly getPremierOffersResolverName: string;
     readonly getSeasonalOffersResolverName: string;
+    readonly searchOffersResolverName: string;
 }
 
 /**

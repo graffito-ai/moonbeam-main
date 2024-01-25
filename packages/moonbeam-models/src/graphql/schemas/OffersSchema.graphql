@@ -202,3 +202,10 @@ input GetOffersInput {
     offerSeasonalType: OfferSeasonalType # required only when the offer filter is SEASONAL_NEARBY or SEASONAL_ONLINE
 }
 
+input SearchOffersInput {
+    brandName: String!
+    radiusLatitude: Float
+    radiusLongitude: Float
+    radius: Int
+}
+

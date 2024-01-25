@@ -155,7 +155,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 getOffersResolverName: 'getOffers',
                 getFidelisPartnersResolverName: 'getFidelisPartners',
                 getPremierOffersResolverName: 'getPremierOffers',
-                getSeasonalOffersResolverName: 'getSeasonalOffers'
+                getSeasonalOffersResolverName: 'getSeasonalOffers',
+                searchOffersResolverName: 'searchOffers'
             },
             faqConfig: {
                 faqFunctionName: 'faqLambdaFunction',
@@ -373,7 +374,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 getOffersResolverName: 'getOffers',
                 getFidelisPartnersResolverName: 'getFidelisPartners',
                 getPremierOffersResolverName: 'getPremierOffers',
-                getSeasonalOffersResolverName: 'getSeasonalOffers'
+                getSeasonalOffersResolverName: 'getSeasonalOffers',
+                searchOffersResolverName: 'searchOffers'
             },
             faqConfig: {
                 faqFunctionName: 'faqLambdaFunction',

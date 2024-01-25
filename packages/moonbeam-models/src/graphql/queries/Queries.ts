@@ -239,6 +239,76 @@ export const getFidelisPartners = /* GraphQL */ `
     }
 `;
 
+// Query used to search an offer based on certain filtering (this will pas through offers from Olive directly)
+export const searchOffers = /* GraphQL */ `
+    query SearchOffers($searchOffersinput: SearchOffersInput!) {
+        searchOffers(searchOffersInput: $searchOffersinput) {
+            errorMessage
+            errorType
+            data {
+                totalNumberOfPages
+                totalNumberOfRecords
+                offers {
+                    id
+                    corporateId
+                    created
+                    offerState
+                    availability
+                    brandId
+                    brandDba
+                    brandLogo
+                    brandLogoSm
+                    brandBanner
+                    brandParentCategory
+                    brandStubCopy
+                    brandWebsite
+                    storeDetails {
+                        id
+                        name
+                        phone
+                        address1
+                        city
+                        state
+                        countryCode
+                        postCode
+                        geoLocation {
+                            latitude
+                            longitude
+                        }
+                        isOnline
+                        distance
+                    }
+                    description
+                    reach
+                    title
+                    qualifier
+                    tile
+                    startDate
+                    endDate
+                    currency
+                    extOfferId
+                    supplierOfferKey
+                    redemptionType
+                    redemptionInstructionUrl
+                    redemptionTrigger
+                    budget
+                    daysAvailability
+                    stores
+                    totalRedeemLimit
+                    redeemLimitPerUser
+                    purchaseAmount
+                    purchaseFrequency
+                    reward {
+                        type
+                        value
+                        maxValue
+                    }
+                }
+            }
+        }
+    }
+`;
+
 // Query used to retrieve available offers using certain filtering (this will pass through offers from Olive directly)
 export const getOffers = /* GraphQL */ `
     query GetOffers($getOffersInput: GetOffersInput!) {

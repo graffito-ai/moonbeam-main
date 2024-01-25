@@ -3,6 +3,7 @@
 type Query {
     getFAQs: FAQResponse! @aws_cognito_user_pools
     getOffers(getOffersInput: GetOffersInput!): OffersResponse! @aws_cognito_user_pools
+    searchOffers(searchOffersInput: SearchOffersInput!): OffersResponse! @aws_cognito_user_pools
     getPremierOffers(getOffersInput: GetOffersInput!): OffersResponse! @aws_cognito_user_pools
     getSeasonalOffers(getOffersInput: GetOffersInput!): OffersResponse! @aws_cognito_user_pools
     getFidelisPartners: FidelisPartnerResponse! @aws_cognito_user_pools
@@ -705,6 +706,8 @@ enum NotificationType {
     REFERRAL_TEMPLATE_2_REMINDER
     REFERRAL_TEMPLATE_3_REMINDER
     MULTIPLE_CARD_FEATURE_REMINDER
+    SPOUSE_FEATURE_REMINDER
+    FEEDBACK_TEMPLATE_1_REMINDER
 }
 
 enum NotificationChannelType {
@@ -1049,6 +1052,13 @@ input GetOffersInput {
     offerSeasonalType: OfferSeasonalType # required only when the offer filter is SEASONAL_NEARBY or SEASONAL_ONLINE
 }
 
+input SearchOffersInput {
+    brandName: String!
+    radiusLatitude: Float
+    radiusLongitude: Float
+    radius: Int
+}
+
 # graphql/FAQSchema.graphql
 # FAQ Schema File
 enum FAQErrorType {
@@ -1154,6 +1164,8 @@ enum NotificationReminderType {
     REFERRAL_TEMPLATE_2_REMINDER
     REFERRAL_TEMPLATE_3_REMINDER
     MULTIPLE_CARD_FEATURE_REMINDER
+    SPOUSE_FEATURE_REMINDER
+    FEEDBACK_TEMPLATE_1_REMINDER
 }
 
 enum NotificationReminderStatus {

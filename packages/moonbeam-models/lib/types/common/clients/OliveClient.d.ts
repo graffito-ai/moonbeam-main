@@ -1,4 +1,4 @@
-import { Card, CardLinkResponse, GetOffersInput, GetUserCardLinkingIdInput, GetUserCardLinkingIdResponse, MemberDetailsResponse, MemberResponse, OfferIdResponse, OfferRedemptionTypeResponse, OffersResponse, RemoveCardResponse, Transaction, TransactionResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse } from "../GraphqlExports";
+import { Card, CardLinkResponse, GetOffersInput, GetUserCardLinkingIdInput, GetUserCardLinkingIdResponse, MemberDetailsResponse, MemberResponse, OfferIdResponse, OfferRedemptionTypeResponse, OffersResponse, RemoveCardResponse, SearchOffersInput, Transaction, TransactionResponse, UpdatedTransactionEvent, UpdatedTransactionEventResponse } from "../GraphqlExports";
 import { BaseAPIClient } from "./BaseAPIClient";
 /**
  * Class used as the base/generic client for all Olive card linking related calls.
@@ -134,6 +134,15 @@ export declare class OliveClient extends BaseAPIClient {
      * we retrieved.
      */
     getTransactionDetails(transaction: Transaction): Promise<TransactionResponse>;
+    /**
+     * Function used to search an offer, given certain filters to be passed in.
+     *
+     * @param searchOffersInput the offers input, containing the filtering information
+     * used to search any applicable/matching offers.
+     *
+     * @returns a {@link OffersResponse} representing the matched offers' information.
+     */
+    searchOffers(searchOffersInput: SearchOffersInput): Promise<OffersResponse>;
     /**
      * Function used to get all the offers, given certain filters to be passed in.
      *

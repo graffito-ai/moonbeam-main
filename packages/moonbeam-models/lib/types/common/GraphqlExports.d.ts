@@ -813,12 +813,14 @@ export declare enum NotificationReminderStatus {
 }
 export declare enum NotificationReminderType {
     CardLinkingReminder = "CARD_LINKING_REMINDER",
+    FeedbackTemplate_1Reminder = "FEEDBACK_TEMPLATE_1_REMINDER",
     MultipleCardFeatureReminder = "MULTIPLE_CARD_FEATURE_REMINDER",
     NewMapFeatureReminder = "NEW_MAP_FEATURE_REMINDER",
     ReferralTemplate_1Reminder = "REFERRAL_TEMPLATE_1_REMINDER",
     ReferralTemplate_2Reminder = "REFERRAL_TEMPLATE_2_REMINDER",
     ReferralTemplate_3Reminder = "REFERRAL_TEMPLATE_3_REMINDER",
     ReferralTemplateLaunch = "REFERRAL_TEMPLATE_LAUNCH",
+    SpouseFeatureReminder = "SPOUSE_FEATURE_REMINDER",
     VeteransDayTemplate_1Reminder = "VETERANS_DAY_TEMPLATE_1_REMINDER",
     VeteransDayTemplate_2Reminder = "VETERANS_DAY_TEMPLATE_2_REMINDER",
     VeteransDayTemplate_3Reminder = "VETERANS_DAY_TEMPLATE_3_REMINDER"
@@ -838,6 +840,7 @@ export declare enum NotificationType {
     EligibleForReimbursement = "ELIGIBLE_FOR_REIMBURSEMENT",
     ExpirationLinkedCardNotice = "EXPIRATION_LINKED_CARD_NOTICE",
     ExpiredLinkedCard = "EXPIRED_LINKED_CARD",
+    FeedbackTemplate_1Reminder = "FEEDBACK_TEMPLATE_1_REMINDER",
     MarketingRelated = "MARKETING_RELATED",
     MilitaryStatusChangedPendingToRejected = "MILITARY_STATUS_CHANGED_PENDING_TO_REJECTED",
     MilitaryStatusChangedPendingToVerified = "MILITARY_STATUS_CHANGED_PENDING_TO_VERIFIED",
@@ -850,6 +853,7 @@ export declare enum NotificationType {
     ReferralTemplate_2Reminder = "REFERRAL_TEMPLATE_2_REMINDER",
     ReferralTemplate_3Reminder = "REFERRAL_TEMPLATE_3_REMINDER",
     ReferralTemplateLaunch = "REFERRAL_TEMPLATE_LAUNCH",
+    SpouseFeatureReminder = "SPOUSE_FEATURE_REMINDER",
     VeteransDayTemplate_1Reminder = "VETERANS_DAY_TEMPLATE_1_REMINDER",
     VeteransDayTemplate_2Reminder = "VETERANS_DAY_TEMPLATE_2_REMINDER",
     VeteransDayTemplate_3Reminder = "VETERANS_DAY_TEMPLATE_3_REMINDER"
@@ -1048,6 +1052,7 @@ export type Query = {
     getUserCardLinkingId: GetUserCardLinkingIdResponse;
     getUserFromReferral: UserFromReferralResponse;
     getUsersWithNoCards: IneligibleLinkedUsersResponse;
+    searchOffers: OffersResponse;
 };
 export type QueryGetCardLinkArgs = {
     getCardLinkInput: GetCardLinkInput;
@@ -1099,6 +1104,9 @@ export type QueryGetUserCardLinkingIdArgs = {
 };
 export type QueryGetUserFromReferralArgs = {
     userFromReferralInput: UserFromReferralInput;
+};
+export type QuerySearchOffersArgs = {
+    searchOffersInput: SearchOffersInput;
 };
 export declare enum RedemptionTrigger {
     CumulativePurchaseAmount = "cumulative_purchase_amount",
@@ -1164,6 +1172,12 @@ export declare enum RewardType {
     RewardAmount = "reward_amount",
     RewardPercent = "reward_percent"
 }
+export type SearchOffersInput = {
+    brandName: Scalars['String'];
+    radius?: InputMaybe<Scalars['Int']>;
+    radiusLatitude?: InputMaybe<Scalars['Float']>;
+    radiusLongitude?: InputMaybe<Scalars['Float']>;
+};
 export type SendEmailNotificationInput = {
     emailDestination: Scalars['String'];
     userFullName: Scalars['String'];
@@ -2077,6 +2091,82 @@ export type GetFidelisPartnersQuery = {
                 } | null;
             } | null>;
         } | null> | null;
+    };
+};
+export type SearchOffersQueryVariables = Exact<{
+    searchOffersinput: SearchOffersInput;
+}>;
+export type SearchOffersQuery = {
+    __typename?: 'Query';
+    searchOffers: {
+        __typename?: 'OffersResponse';
+        errorMessage?: string | null;
+        errorType?: OffersErrorType | null;
+        data?: {
+            __typename?: 'OffersPaginatedResponse';
+            totalNumberOfPages: number;
+            totalNumberOfRecords: number;
+            offers: Array<{
+                __typename?: 'Offer';
+                id?: string | null;
+                corporateId?: string | null;
+                created?: string | null;
+                offerState?: OfferState | null;
+                availability?: OfferAvailability | null;
+                brandId?: string | null;
+                brandDba?: string | null;
+                brandLogo?: string | null;
+                brandLogoSm?: string | null;
+                brandBanner?: string | null;
+                brandParentCategory?: string | null;
+                brandStubCopy?: string | null;
+                brandWebsite?: string | null;
+                description?: string | null;
+                reach?: OfferReach | null;
+                title?: string | null;
+                qualifier?: string | null;
+                tile?: string | null;
+                startDate?: string | null;
+                endDate?: string | null;
+                currency?: CurrencyCodeType | null;
+                extOfferId?: string | null;
+                supplierOfferKey?: string | null;
+                redemptionType?: RedemptionType | null;
+                redemptionInstructionUrl?: string | null;
+                redemptionTrigger?: RedemptionTrigger | null;
+                budget?: number | null;
+                daysAvailability?: Array<number | null> | null;
+                stores?: Array<string | null> | null;
+                totalRedeemLimit?: number | null;
+                redeemLimitPerUser?: number | null;
+                purchaseAmount?: number | null;
+                purchaseFrequency?: number | null;
+                storeDetails?: Array<{
+                    __typename?: 'OfferStore';
+                    id?: string | null;
+                    name?: string | null;
+                    phone?: string | null;
+                    address1?: string | null;
+                    city?: string | null;
+                    state?: string | null;
+                    countryCode?: CountryCode | null;
+                    postCode?: string | null;
+                    isOnline?: boolean | null;
+                    distance?: number | null;
+                    geoLocation?: {
+                        __typename?: 'OfferStoreGeoLocation';
+                        latitude?: number | null;
+                        longitude?: number | null;
+                    } | null;
+                } | null> | null;
+                reward?: {
+                    __typename?: 'Reward';
+                    type?: RewardType | null;
+                    value?: number | null;
+                    maxValue?: number | null;
+                } | null;
+            } | null>;
+        } | null;
     };
 };
 export type GetOffersQueryVariables = Exact<{
