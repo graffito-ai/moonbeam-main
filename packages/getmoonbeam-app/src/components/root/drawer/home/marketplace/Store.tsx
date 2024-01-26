@@ -58,7 +58,7 @@ import {
     reloadNearbyDueToPermissionsChangeState,
     showClickOnlyBottomSheetState,
     storeNavigationState,
-    toggleViewPressedState
+    toggleViewPressedState, verticalSectionActiveState
 } from "../../../../../recoil/StoreOfferAtom";
 import {currentUserLocationState} from "../../../../../recoil/RootAtom";
 import {KitsSection} from "./storeComponents/KitsSection";
@@ -87,7 +87,8 @@ export const Store = ({navigation}: StoreProps) => {
     const [noFilteredOffersAvailable, setNoFilteredOffersAvailable] = useState<boolean>(false);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [shouldCacheImages, setShouldCacheImages] = useState<boolean>(true);
-    // constants used to keep track of shared states
+    // constants used to keep track of shared states\
+    const [whichVerticalSectionActive, ] = useRecoilState(verticalSectionActiveState);
     const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [fidelisPartnerList, setFidelisPartnerList] = useRecoilState(fidelisPartnerListState);
     const [, setStoreNavigationState] = useRecoilState(storeNavigationState);
@@ -800,7 +801,7 @@ export const Store = ({navigation}: StoreProps) => {
                             showsVerticalScrollIndicator={false}
                             enableAutomaticScroll={(Platform.OS === 'ios')}
                             contentContainerStyle={commonStyles.rowContainer}
-                            keyboardShouldPersistTaps={'handled'}
+                            keyboardShouldPersistTaps={whichVerticalSectionActive === 'search' ? 'always' : 'handled'}
                         >
                             <View style={[styles.mainView]}>
                                 <TouchableOpacity

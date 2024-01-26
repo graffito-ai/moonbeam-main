@@ -33,6 +33,11 @@ export const styles = StyleSheet.create({
         width: hp(5),
         height: hp(5)
     },
+    searchBarBackButton: {
+        left: wp(3),
+        top: hp(1.2),
+        marginRight: wp(4)
+    },
     searchBar: {
         marginTop: hp(0.5),
         width: wp(94),
@@ -975,5 +980,46 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: hp(1.8),
         top: hp(0.5)
-    }
+    },
+    searchDivider: {
+        top: hp(1),
+        width: wp(100),
+        alignSelf: 'center'
+    },
+    searchSuggestionView: {
+        top: hp(2),
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: wp(100),
+        height: hp(7),
+        alignSelf: 'center'
+    },
+    searchSuggestionLeftIcon: {
+        alignSelf: 'flex-start',
+        top: hp(0.5),
+        marginLeft: wp(2)
+    },
+    searchSuggestionRightIcon: {
+        alignSelf: 'flex-end',
+        top: hp(0.5),
+        marginRight: wp(2)
+    },
+    searchSuggestionTextHighlighted: {
+        alignSelf: 'flex-start',
+        fontFamily: 'Saira-SemiBold',
+        color: '#F2FF5D',
+        fontSize: hp(2),
+        top: hp(0.5),
+        width: wp(70),
+        textAlign: 'left'
+    },
+    searchSuggestionText: {
+        alignSelf: 'flex-start',
+        fontFamily: 'Saira-SemiBold',
+        color: '#FFFFFF',
+        fontSize: hp(2),
+        top: hp(0.5),
+        width: wp(70),
+        textAlign: 'left'
+    },
 });

@@ -1026,7 +1026,7 @@ const toggleViewPressedState = atom<'horizontal' | 'vertical' | 'map' | null>({
 /**
  * Atom used to keep track of the vertical view toggle in the store
  */
-const verticalSectionActiveState = atom<'fidelis' | 'online' | 'nearby' | 'click-only-online' | null>({
+const verticalSectionActiveState = atom<'search' | 'fidelis' | 'online' | 'nearby' | 'click-only-online' | null>({
     key: "verticalSectionActiveState",
     default: 'online'
 });

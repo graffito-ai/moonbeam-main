@@ -4,7 +4,7 @@
   "description": "This sub-package represents Moonbeam's mobile application.",
   "repository": "https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/packages/getmoonbeam-app/package.json/browse",
   "author": "Marius Acsinte <marius@moonbeam.vet>",
-  "license": "Moonbeam Inc. Proprietary Code License <https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/LICENSE/browse>",
+  "license": "Tailhook Inc. Proprietary Code License <https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/LICENSE/browse>",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "android": "expo start --android",

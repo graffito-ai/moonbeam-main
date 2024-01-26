@@ -1,19 +1,22 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {FidelisPartner, LoggingLevel, Offer, RewardType} from "@moonbeam/moonbeam-models";
-import {ActivityIndicator, Card, FAB, List, Portal, Text} from "react-native-paper";
+import {ActivityIndicator, Card, Divider, FAB, List, Portal, Text} from "react-native-paper";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import {styles} from "../../../../../../styles/store.module";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
     filteredByDiscountPressedState,
-    filtersActiveState, noClickOnlyOnlineOffersToLoadState,
+    filtersActiveState,
+    noClickOnlyOnlineOffersToLoadState,
     noNearbyOffersToLoadState,
     noOnlineOffersToLoadState,
     resetSearchState,
-    searchQueryState, showClickOnlyBottomSheetState,
+    searchQueryState,
+    showClickOnlyBottomSheetState,
     storeOfferPhysicalLocationState,
     storeOfferState,
-    toggleViewPressedState, uniqueClickOnlyOnlineOffersListState,
+    toggleViewPressedState,
+    uniqueClickOnlyOnlineOffersListState,
     uniqueNearbyOffersListState,
     uniqueOnlineOffersListState,
     verticalSectionActiveState
@@ -25,10 +28,11 @@ import {Image} from 'expo-image';
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
-import {Platform, View} from "react-native";
+import {Keyboard, Platform, TouchableOpacity, View} from "react-native";
 import {getDistance} from "geolib";
 import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
 import {logEvent} from "../../../../../../utils/AppSync";
+import {Icon} from "@rneui/base";
 
 /**
  * VerticalOffers component.
@@ -68,7 +72,7 @@ export const VerticalOffers = (props: {
     const [clickOnlyOnlineDataProvider, setClickOnlyOnlineDataProvider] = useState<DataProvider | null>(null);
     const [clickOnlyOnlineLayoutProvider, setClickOnlyOnlineLayoutProvider] = useState<LayoutProvider | null>(null);
     // constants used to keep track of shared states
-    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [currentUserLocation,] = useRecoilState(currentUserLocationState);
     const [filteredByDiscountPressed, setFilteredByDiscountPressed] = useRecoilState(filteredByDiscountPressedState);
     const [filtersActive, setAreFiltersActive] = useRecoilState(filtersActiveState);
@@ -95,6 +99,12 @@ export const VerticalOffers = (props: {
      * included in here.
      */
     useEffect(() => {
+        // if the active section is not the search section, do not show the keyboard
+        if (whichVerticalSectionActive !== 'search') {
+            // close keyboard is opened
+            Keyboard.dismiss();
+        }
+
         // update the list data providers if we are loading more offers accordingly
         if (verticalListLoading) {
             if (whichVerticalSectionActive === 'online') {
@@ -165,36 +175,36 @@ export const VerticalOffers = (props: {
             ));
         }
         // handle searches accordingly
-        if (searchQuery.length !== 0 && searchQuery.length >= 3) {
-            const matchedFidelisPartnerList = props.fidelisPartnerList.filter(partner => partner.brandName.toLowerCase().includes(searchQuery.toLowerCase()));
-            const matchedClickOnlyOnlineOfferList = deDuplicatedClickOnlyOnlineOfferList.filter(offer => offer.brandDba !== null && offer.brandDba !== undefined && offer.brandDba.toLowerCase().includes(searchQuery.toLowerCase()));
-            const matchedOnlineOfferList = deDuplicatedOnlineOfferList.filter(offer => offer.brandDba !== null && offer.brandDba !== undefined && offer.brandDba.toLowerCase().includes(searchQuery.toLowerCase()));
-            const matchedNearbyOfferList = deDuplicatedNearbyOfferList.filter(offer => offer.brandDba !== null && offer.brandDba !== undefined && offer.brandDba.toLowerCase().includes(searchQuery.toLowerCase()));
-
-            if (matchedFidelisPartnerList.length !== 0 && searchQuery.length >= 3 && !offersMatched) {
-                setOffersMatched(true);
-                setFidelisDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(matchedFidelisPartnerList));
-                setWhichVerticalSectionActive('fidelis');
-            }
-            if (matchedClickOnlyOnlineOfferList.length !== 0 && searchQuery.length >= 3 && !offersMatched) {
-                setOffersMatched(true);
-                setClickOnlyOnlineDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(matchedClickOnlyOnlineOfferList));
-                setWhichVerticalSectionActive('click-only-online');
-            }
-            if (matchedOnlineOfferList.length !== 0 && searchQuery.length >= 3 && !offersMatched) {
-                setOffersMatched(true);
-                setOnlineDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(matchedOnlineOfferList));
-                setWhichVerticalSectionActive('online');
-            }
-            if (matchedNearbyOfferList.length !== 0 && searchQuery.length >= 3 && !offersMatched) {
-                setOffersMatched(true);
-                setNearbyDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(matchedNearbyOfferList));
-                setWhichVerticalSectionActive('nearby');
-            }
-            if (matchedClickOnlyOnlineOfferList.length === 0 && matchedNearbyOfferList.length === 0 && matchedOnlineOfferList.length === 0 && matchedFidelisPartnerList.length === 0 && !offersMatched) {
-                props.setNoFilteredOffersAvailable(true);
-            }
-        }
+        // if (searchQuery.length !== 0 && searchQuery.length >= 3) {
+        //     const matchedFidelisPartnerList = props.fidelisPartnerList.filter(partner => partner.brandName.toLowerCase().includes(searchQuery.toLowerCase()));
+        //     const matchedClickOnlyOnlineOfferList = deDuplicatedClickOnlyOnlineOfferList.filter(offer => offer.brandDba !== null && offer.brandDba !== undefined && offer.brandDba.toLowerCase().includes(searchQuery.toLowerCase()));
+        //     const matchedOnlineOfferList = deDuplicatedOnlineOfferList.filter(offer => offer.brandDba !== null && offer.brandDba !== undefined && offer.brandDba.toLowerCase().includes(searchQuery.toLowerCase()));
+        //     const matchedNearbyOfferList = deDuplicatedNearbyOfferList.filter(offer => offer.brandDba !== null && offer.brandDba !== undefined && offer.brandDba.toLowerCase().includes(searchQuery.toLowerCase()));
+        //
+        //     if (matchedFidelisPartnerList.length !== 0 && searchQuery.length >= 3 && !offersMatched) {
+        //         setOffersMatched(true);
+        //         setFidelisDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(matchedFidelisPartnerList));
+        //         setWhichVerticalSectionActive('fidelis');
+        //     }
+        //     if (matchedClickOnlyOnlineOfferList.length !== 0 && searchQuery.length >= 3 && !offersMatched) {
+        //         setOffersMatched(true);
+        //         setClickOnlyOnlineDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(matchedClickOnlyOnlineOfferList));
+        //         setWhichVerticalSectionActive('click-only-online');
+        //     }
+        //     if (matchedOnlineOfferList.length !== 0 && searchQuery.length >= 3 && !offersMatched) {
+        //         setOffersMatched(true);
+        //         setOnlineDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(matchedOnlineOfferList));
+        //         setWhichVerticalSectionActive('online');
+        //     }
+        //     if (matchedNearbyOfferList.length !== 0 && searchQuery.length >= 3 && !offersMatched) {
+        //         setOffersMatched(true);
+        //         setNearbyDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(matchedNearbyOfferList));
+        //         setWhichVerticalSectionActive('nearby');
+        //     }
+        //     if (matchedClickOnlyOnlineOfferList.length === 0 && matchedNearbyOfferList.length === 0 && matchedOnlineOfferList.length === 0 && matchedFidelisPartnerList.length === 0 && !offersMatched) {
+        //         props.setNoFilteredOffersAvailable(true);
+        //     }
+        // }
         // reset searches accordingly
         if (resetSearch) {
             whichVerticalSectionActive === 'online' ?
@@ -220,7 +230,7 @@ export const VerticalOffers = (props: {
         onlineDataProvider, onlineLayoutProvider,
         nearbyDataProvider, nearbyLayoutProvider,
         deDuplicatedNearbyOfferList, deDuplicatedOnlineOfferList,
-        deDuplicatedClickOnlyOnlineOfferList]);
+        whichVerticalSectionActive, deDuplicatedClickOnlyOnlineOfferList]);
 
     /**
      * Function used to populate the rows containing the Fidelis offers data.
@@ -1381,6 +1391,125 @@ export const VerticalOffers = (props: {
                                                         showsVerticalScrollIndicator: false
                                                     }}
                                                 />
+                                            }
+                                            {
+                                                whichVerticalSectionActive === 'search' &&
+                                                <View
+                                                    style={{flexDirection: 'column'}}>
+                                                    <Card style={[styles.verticalOffersBannerCard, {
+                                                        height: hp(100),
+                                                        backgroundColor: '#1c1a1f'
+                                                    }]}>
+                                                        <Card.Content>
+                                                            <View style={{flexDirection: 'column', bottom: hp(2)}}>
+                                                                <Text
+                                                                    style={styles.verticalOfferBannerName}>{'Search offers'}</Text>
+                                                                <Text
+                                                                    style={styles.verticalOfferBannerSubtitleName}>{'Look for a specific brand or category.'}</Text>
+                                                                {
+                                                                    searchQuery.length === 0 ?
+                                                                        <View style={{top: hp(2)}}>
+                                                                            <Divider style={styles.searchDivider}/>
+                                                                            <TouchableOpacity
+                                                                                style={styles.searchSuggestionView}>
+                                                                                <Icon name="auto-graph"
+                                                                                      type={'material'}
+                                                                                      style={styles.searchSuggestionLeftIcon}
+                                                                                      size={hp(3.5)}
+                                                                                      color={'#F2FF5D'}/>
+                                                                                <Text numberOfLines={1}
+                                                                                      style={styles.searchSuggestionText}>
+                                                                                    <Text
+                                                                                        style={styles.searchSuggestionTextHighlighted}>
+                                                                                        {'\'Food\''}
+                                                                                    </Text>
+                                                                                    {` in Categories`}
+                                                                                </Text>
+                                                                                <Icon name="arrow-right"
+                                                                                      type={'octicon'}
+                                                                                      style={styles.searchSuggestionRightIcon}
+                                                                                      size={hp(3.5)}
+                                                                                      color={'#D9D9D9'}/>
+                                                                            </TouchableOpacity>
+                                                                            <Divider style={styles.searchDivider}/>
+                                                                            <Divider style={styles.searchDivider}/>
+                                                                            <TouchableOpacity
+                                                                                style={styles.searchSuggestionView}>
+                                                                                <Icon name="auto-graph"
+                                                                                      type={'material'}
+                                                                                      style={styles.searchSuggestionLeftIcon}
+                                                                                      size={hp(3.5)}
+                                                                                      color={'#F2FF5D'}/>
+                                                                                <Text numberOfLines={1}
+                                                                                      style={styles.searchSuggestionText}>
+                                                                                    <Text
+                                                                                        style={styles.searchSuggestionTextHighlighted}>
+                                                                                        {'\'Jack in the Box\''}
+                                                                                    </Text>
+                                                                                    {` in Brands`}
+                                                                                </Text>
+                                                                                <Icon name="arrow-right"
+                                                                                      type={'octicon'}
+                                                                                      style={styles.searchSuggestionRightIcon}
+                                                                                      size={hp(3.5)}
+                                                                                      color={'#D9D9D9'}/>
+                                                                            </TouchableOpacity>
+                                                                            <Divider style={styles.searchDivider}/>
+                                                                            <Divider style={styles.searchDivider}/>
+                                                                            <TouchableOpacity
+                                                                                style={styles.searchSuggestionView}>
+                                                                                <Icon name="auto-graph"
+                                                                                      type={'material'}
+                                                                                      style={styles.searchSuggestionLeftIcon}
+                                                                                      size={hp(3.5)}
+                                                                                      color={'#F2FF5D'}/>
+                                                                                <Text numberOfLines={1}
+                                                                                      style={styles.searchSuggestionText}>
+                                                                                    <Text
+                                                                                        style={styles.searchSuggestionTextHighlighted}>
+                                                                                        {'\'Retail\''}
+                                                                                    </Text>
+                                                                                    {` in Categories`}
+                                                                                </Text>
+                                                                                <Icon name="arrow-right"
+                                                                                      type={'octicon'}
+                                                                                      style={styles.searchSuggestionRightIcon}
+                                                                                      size={hp(3.5)}
+                                                                                      color={'#D9D9D9'}/>
+                                                                            </TouchableOpacity>
+                                                                            <Divider style={styles.searchDivider}/>
+                                                                        </View>
+                                                                        :
+                                                                        <View style={{top: hp(2)}}>
+                                                                            <Divider style={styles.searchDivider}/>
+                                                                            <TouchableOpacity
+                                                                                style={styles.searchSuggestionView}>
+                                                                                <Icon name="search"
+                                                                                      type={'material'}
+                                                                                      style={styles.searchSuggestionLeftIcon}
+                                                                                      size={hp(3.5)}
+                                                                                      color={'#F2FF5D'}/>
+                                                                                <Text numberOfLines={1}
+                                                                                      style={styles.searchSuggestionTextHighlighted}>
+                                                                                    <Text
+                                                                                        style={styles.searchSuggestionText}>
+                                                                                        {'Lookup:  '}
+                                                                                    </Text>
+                                                                                    {`\'${searchQuery}\'`}
+                                                                                </Text>
+                                                                                <Icon name="arrow-right"
+                                                                                      type={'octicon'}
+                                                                                      style={styles.searchSuggestionRightIcon}
+                                                                                      size={hp(3.5)}
+                                                                                      color={'#D9D9D9'}/>
+                                                                            </TouchableOpacity>
+                                                                            <Divider style={styles.searchDivider}/>
+                                                                        </View>
+                                                                }
+                                                            </View>
+                                                        </Card.Content>
+                                                    </Card>
+                                                </View>
                                             }
                                         </>
                                 }
