@@ -15,13 +15,13 @@ type AppReview @aws_cognito_user_pools {
 
 type GetAppReviewEligibilityResponse @aws_cognito_user_pools {
     data: Boolean
-    errorType: AppUpgradeErrorType
+    errorType: AppReviewErrorType
     errorMessage: String
 }
 
 type AppReviewResponse @aws_cognito_user_pools {
-    data: AppReview!
-    errorType: AppUpgradeErrorType
+    data: AppReview
+    errorType: AppReviewErrorType
     errorMessage: String
 }
 

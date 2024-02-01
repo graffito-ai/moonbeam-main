@@ -44,9 +44,9 @@ export enum AppReviewErrorType {
 
 export type AppReviewResponse = {
   __typename?: 'AppReviewResponse';
-  data: AppReview;
+  data?: Maybe<AppReview>;
   errorMessage?: Maybe<Scalars['String']>;
-  errorType?: Maybe<AppUpgradeErrorType>;
+  errorType?: Maybe<AppReviewErrorType>;
 };
 
 export enum AppUpgradeErrorType {
@@ -420,7 +420,7 @@ export type GetAppReviewEligibilityResponse = {
   __typename?: 'GetAppReviewEligibilityResponse';
   data?: Maybe<Scalars['Boolean']>;
   errorMessage?: Maybe<Scalars['String']>;
-  errorType?: Maybe<AppUpgradeErrorType>;
+  errorType?: Maybe<AppReviewErrorType>;
 };
 
 export type GetCardLinkInput = {
@@ -1712,7 +1712,7 @@ export type CreateAppReviewMutationVariables = Exact<{
 }>;
 
 
-export type CreateAppReviewMutation = { __typename?: 'Mutation', createAppReview: { __typename?: 'AppReviewResponse', errorMessage?: string | null, errorType?: AppUpgradeErrorType | null, data: { __typename?: 'AppReview', id: string, createdAt: string, updatedAt: string } } };
+export type CreateAppReviewMutation = { __typename?: 'Mutation', createAppReview: { __typename?: 'AppReviewResponse', errorMessage?: string | null, errorType?: AppReviewErrorType | null, data?: { __typename?: 'AppReview', id: string, createdAt: string, updatedAt: string } | null } };
 
 export type PutMilitaryVerificationReportMutationVariables = Exact<{
   putMilitaryVerificationReportInput: PutMilitaryVerificationReportInput;
@@ -1852,7 +1852,7 @@ export type GetAppReviewEligibilityQueryVariables = Exact<{
 }>;
 
 
-export type GetAppReviewEligibilityQuery = { __typename?: 'Query', getAppReviewEligibility: { __typename?: 'GetAppReviewEligibilityResponse', errorMessage?: string | null, errorType?: AppUpgradeErrorType | null, data?: boolean | null } };
+export type GetAppReviewEligibilityQuery = { __typename?: 'Query', getAppReviewEligibility: { __typename?: 'GetAppReviewEligibilityResponse', errorMessage?: string | null, errorType?: AppReviewErrorType | null, data?: boolean | null } };
 
 export type GetFilesForUserQueryVariables = Exact<{
   getFilesForUserInput: GetFilesForUserInput;

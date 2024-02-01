@@ -25,7 +25,7 @@ import {LoggingResolverStack} from "../stacks/LoggingResolverStack";
 import {
     MilitaryVerificationReportingProducerConsumerStack
 } from "../stacks/MilitaryVerificationReportingProducerConsumerStack";
-import {AppReviewResolverStack} from "../stacks/AppReviewResolverStack";
+import { AppReviewResolverStack } from "../stacks/AppReviewResolverStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages

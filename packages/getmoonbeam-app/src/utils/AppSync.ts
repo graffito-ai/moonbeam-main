@@ -1,11 +1,12 @@
 import {
-    CountryCode,
+    CountryCode, createAppReview,
     createDevice, createLogEvent,
     createNotification,
     CreateNotificationInput,
     createReferral,
     createUserAuthSession,
     FidelisPartner,
+    getAppReviewEligibility,
     getAppUpgradeCredentials,
     getDeviceByToken,
     getFidelisPartners,
@@ -48,6 +49,99 @@ import {appUpgradeVersionCheck} from 'app-upgrade-react-native-sdk';
 import {Platform} from "react-native";
 import * as envInfo from "../../local-env-info.json";
 import React from "react";
+
+/**
+ * Function used to check whether a user is eligible for an App Store Review
+ * pop-up or not.
+ *
+ * @param userId the Moonbeam internal user id use to check the App Review eligibility for.
+ *
+ * @returns a {@link Promise} of a {@link Boolean} representing a flag indicating whether the user is
+ * eligible for an App Store Review pop-up or not.
+ */
+export const getAppReviewEligibilityCheck = async (userId: string): Promise<boolean> => {
+    try {
+        // call the getAppReviewEligibility API to retrieve eligibility flag
+        const appReviewEligibilityResult = await API.graphql(graphqlOperation(getAppReviewEligibility, {
+            getAppReviewEligibilityInput: {
+                id: userId
+            }
+        }));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const responseEligibilityFlag = appReviewEligibilityResult ? appReviewEligibilityResult.data : null;
+
+        if (responseEligibilityFlag && responseEligibilityFlag.getAppReviewEligibility.errorMessage === null &&
+            responseEligibilityFlag.getAppReviewEligibility.data !== undefined && responseEligibilityFlag.getAppReviewEligibility.data !== null) {
+            // return the app review eligibility flag accordingly
+            return responseEligibilityFlag.getAppReviewEligibility.data;
+        } else {
+            // return that the user is not eligible for an App Review, if there has been an error while checking
+            const message = `Error while executing the get app review eligibility check query ${responseEligibilityFlag.getAppReviewEligibility.errorMessage}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, true);
+
+            return false;
+        }
+    } catch (error) {
+        // return that the user is not eligible for an App Review, if there has been an unexpected error while checking
+        const message = `Unexpected error while executing the get app review eligibility check query for: ${userId}, ${JSON.stringify(error)} ${error}`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, true);
+
+        return false;
+    }
+}
+
+/**
+ * Function used to either create a new and/or update an existing App Review
+ * record for a particular user.
+ *
+ * @param userId the Moonbeam internal user id used to create and/or update a new/existing
+ * App Review record for.
+ *
+ * @returns a {@link Promise} of a {@link Boolean} representing a flag indicating whether the App Review
+ * creation/update has been successful or not.
+ */
+export const createOrUpdateAppReviewRecord = async (userId: string): Promise<boolean> => {
+    try {
+        // call the createAppReview API to create/update an App Review
+        const appReviewResult = await API.graphql(graphqlOperation(createAppReview, {
+            createAppReviewInput: {
+                id: userId
+            }
+        }));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const responseAppReview = appReviewResult ? appReviewResult.data : null;
+
+        if (responseAppReview && responseAppReview.createAppReview.errorMessage === null &&
+            responseAppReview.createAppReview.data !== undefined && responseAppReview.createAppReview.data !== null &&
+            responseAppReview.createAppReview.data.createdAt !== undefined && responseAppReview.createAppReview.data.createdAt !== null &&
+            responseAppReview.createAppReview.data.updatedAt !== undefined && responseAppReview.createAppReview.data.updatedAt !== null &&
+            responseAppReview.createAppReview.data.id !== undefined && responseAppReview.createAppReview.data.id !== null &&
+            responseAppReview.createAppReview.data.id === userId) {
+            // if we got to this point, we know that there has been a successful App Review creation/update performed
+            return true;
+        } else {
+            // return false when an error occurs during creation/update
+            const message = `Error while executing the create/update app review eligibility check mutation ${responseAppReview.createAppReview.errorMessage}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, true);
+
+            return false;
+        }
+    } catch (error) {
+        // return false when an unexpected error occurs during creation/update
+        const message = `Unexpected error while executing the create/update app review eligibility check mutation for: ${userId}, ${JSON.stringify(error)} ${error}`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, true);
+
+        return false;
+    }
+}
 
 /**
  * Function used to search an offer or offer category based on a search query

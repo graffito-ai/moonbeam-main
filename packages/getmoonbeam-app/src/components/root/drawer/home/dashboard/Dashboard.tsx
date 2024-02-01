@@ -14,7 +14,7 @@ import {CustomBanner} from "../../../../common/CustomBanner";
 import {customBannerState} from "../../../../../recoil/CustomBannerAtom";
 import BottomSheet from '@gorhom/bottom-sheet';
 import {TransactionsBottomSheet} from "./transactions/TransactionsBottomSheet";
-import {MoonbeamTransaction} from "@moonbeam/moonbeam-models";
+import {LoggingLevel, MoonbeamTransaction} from "@moonbeam/moonbeam-models";
 import {
     currentBalanceState,
     lifetimeSavingsState,
@@ -30,6 +30,7 @@ import MoonbeamProfilePlaceholder from "../../../../../../assets/art/moonbeam-pr
 import MoonbeamStorePlaceholder from "../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
 import * as StoreReview from 'expo-store-review';
+import {createOrUpdateAppReviewRecord, getAppReviewEligibilityCheck, logEvent} from "../../../../../utils/AppSync";
 
 
 /**
@@ -82,24 +83,40 @@ export const Dashboard = ({}) => {
                 if (appUrl.includes('notification') && appUrl.includes('cashback') && !appReviewModalShown) {
                     isAppReviewModalShown(true);
 
-                    /**
-                     * ToDo: here we need to determine whether a user needs to review the app
-                     *       meaning, if they have already reviewed the app in the past 3 months,
-                     *       then they do not have to review the app again.
-                     */
-                    StoreReview.isAvailableAsync().then((availabilityFlag) => {
-                        // if the platform has the capabilities for store review
-                        if (availabilityFlag) {
-                            StoreReview.hasAction().then((actionCapability) => {
-                                // if the store is capable directing the user to some kind of store review flow.
-                                if (actionCapability) {
-                                    StoreReview.requestReview().then(() => {
-                                        /**
-                                         * ToDo: here we need to store a new review for the user.
-                                         */
+                    // first check to see if the user is eligible to be shown the App Review Modal
+                    getAppReviewEligibilityCheck(userInformation["custom:userId"]).then(appReviewEligibilityCheck => {
+                        if (appReviewEligibilityCheck) {
+                            const message = `User ${userInformation["custom:userId"]} is ELIGIBLE to be shown the App Review modal, proceeding!`;
+                            console.log(message);
+                            logEvent(message, LoggingLevel.Info).then(() => {});
+
+                            StoreReview.isAvailableAsync().then((availabilityFlag) => {
+                                // if the platform has the capabilities for store review
+                                if (availabilityFlag) {
+                                    StoreReview.hasAction().then((actionCapability) => {
+                                        // if the store is capable directing the user to some kind of store review flow.
+                                        if (actionCapability) {
+                                            StoreReview.requestReview().then(() => {
+                                                /**
+                                                 * store and/or update the App Review record for the user, so we don't show them the App Review next time
+                                                 * unless it has been more than 3 months since they've last seen it (established through eligibility check).
+                                                 */
+                                                createOrUpdateAppReviewRecord(userInformation["custom:userId"]).then(appReviewRecordCreationOrUpdateCheck => {
+                                                    const message = appReviewRecordCreationOrUpdateCheck
+                                                        ? `Successfully processed App Review record for user ${userInformation["custom:userId"]}!`
+                                                        : `Failed to process App Review record for user ${userInformation["custom:userId"]}!`
+                                                    console.log(message);
+                                                    logEvent(message, appReviewRecordCreationOrUpdateCheck ? LoggingLevel.Info : LoggingLevel.Error).then(() => {});
+                                                });
+                                            });
+                                        }
                                     });
                                 }
                             });
+                        } else {
+                            const message = `User ${userInformation["custom:userId"]} is NOT ELIGIBLE to be shown the App Review modal, skipping!`;
+                            console.log(message);
+                            logEvent(message, LoggingLevel.Info).then(() => {});
                         }
                     });
                 }

@@ -276,7 +276,7 @@ export abstract class BaseAPIClient {
                                 case NotificationType.FeedbackTemplate_1Reminder:
                                     return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
                                         clientPairAsJson[Constants.AWSPairConstants.FEEDBACK_TEMPLATE_1_REMINDER_AUTH_TOKEN],
-                                        clientPairAsJson[Constants.AWSPairConstants.FEEDBACK_TEMPLATE_1_REMINDER_AUTH_TOKEN]];
+                                        clientPairAsJson[Constants.AWSPairConstants.FEEDBACK_TEMPLATE_1_REMINDER_TEMPLATE_ID]];
                                 default:
                                     console.log(`Unknown notifications type to retrieve secrets in ${verificationClientSecretsName}`);
                                     return [null, null];

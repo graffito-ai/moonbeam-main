@@ -1398,3 +1398,39 @@ type MilitaryVerificationReportingInformationResponse @aws_cognito_user_pools @a
     errorType: MilitaryVerificationReportingErrorType
     errorMessage: String
 }
+# graphql/AppReviewSchema.graphql
+# App Review Schema File
+enum AppReviewErrorType {
+    DUPLICATE_OBJECT_FOUND
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+    NONE_OR_ABSENT
+}
+
+type AppReview @aws_cognito_user_pools {
+    id: ID! # represents the internal Moonbeam user id
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+}
+
+type GetAppReviewEligibilityResponse @aws_cognito_user_pools {
+    data: Boolean
+    errorType: AppReviewErrorType
+    errorMessage: String
+}
+
+type AppReviewResponse @aws_cognito_user_pools {
+    data: AppReview
+    errorType: AppReviewErrorType
+    errorMessage: String
+}
+
+input GetAppReviewEligibilityInput {
+    id: ID! # represents the internal Moonbeam user id
+}
+
+input CreateAppReviewInput {
+    id: ID! # represents the internal Moonbeam user id
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+}

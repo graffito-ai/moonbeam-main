@@ -48,9 +48,9 @@ export declare enum AppReviewErrorType {
 }
 export type AppReviewResponse = {
     __typename?: 'AppReviewResponse';
-    data: AppReview;
+    data?: Maybe<AppReview>;
     errorMessage?: Maybe<Scalars['String']>;
-    errorType?: Maybe<AppUpgradeErrorType>;
+    errorType?: Maybe<AppReviewErrorType>;
 };
 export declare enum AppUpgradeErrorType {
     DuplicateObjectFound = "DUPLICATE_OBJECT_FOUND",
@@ -377,7 +377,7 @@ export type GetAppReviewEligibilityResponse = {
     __typename?: 'GetAppReviewEligibilityResponse';
     data?: Maybe<Scalars['Boolean']>;
     errorMessage?: Maybe<Scalars['String']>;
-    errorType?: Maybe<AppUpgradeErrorType>;
+    errorType?: Maybe<AppReviewErrorType>;
 };
 export type GetCardLinkInput = {
     id: Scalars['ID'];
@@ -1467,13 +1467,13 @@ export type CreateAppReviewMutation = {
     createAppReview: {
         __typename?: 'AppReviewResponse';
         errorMessage?: string | null;
-        errorType?: AppUpgradeErrorType | null;
-        data: {
+        errorType?: AppReviewErrorType | null;
+        data?: {
             __typename?: 'AppReview';
             id: string;
             createdAt: string;
             updatedAt: string;
-        };
+        } | null;
     };
 };
 export type PutMilitaryVerificationReportMutationVariables = Exact<{
@@ -1898,7 +1898,7 @@ export type GetAppReviewEligibilityQuery = {
     getAppReviewEligibility: {
         __typename?: 'GetAppReviewEligibilityResponse';
         errorMessage?: string | null;
-        errorType?: AppUpgradeErrorType | null;
+        errorType?: AppReviewErrorType | null;
         data?: boolean | null;
     };
 };
