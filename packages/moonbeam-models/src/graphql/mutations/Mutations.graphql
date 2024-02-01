@@ -1,5 +1,16 @@
 # graphql/Mutations.graphql
 # Mutations Schema File
+mutation CreateAppReview($createAppReviewInput: CreateAppReviewInput!) {
+    createAppReview(createAppReviewInput: $createAppReviewInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            createdAt
+            updatedAt
+        }
+    }
+}
 mutation PutMilitaryVerificationReport($putMilitaryVerificationReportInput: PutMilitaryVerificationReportInput!) {
     putMilitaryVerificationReport(putMilitaryVerificationReportInput: $putMilitaryVerificationReportInput) {
         errorMessage

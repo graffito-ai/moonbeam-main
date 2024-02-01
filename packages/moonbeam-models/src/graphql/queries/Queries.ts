@@ -1,4 +1,17 @@
-// This is a file used to define the all GraphQL query constants
+/**
+ * This is a file used to define the all GraphQL query constants
+ */
+
+// Query used to retrieve the app review eligibility for a particular user
+export const getAppReviewEligibility = /* GraphQL */ `
+    query GetAppReviewEligibility($getAppReviewEligibilityInput: GetAppReviewEligibilityInput!) {
+        getAppReviewEligibility(getAppReviewEligibilityInput: $getAppReviewEligibilityInput) {
+            errorMessage
+            errorType
+            data
+        }
+    }
+`;
 
 // Query used to retrieve the files for a particular user from a bucket, if existent,
 // so we can see if a user has uploaded any documentation and/or files.

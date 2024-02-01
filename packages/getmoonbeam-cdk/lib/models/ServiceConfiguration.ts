@@ -351,6 +351,17 @@ export interface NotificationReminderConfiguration {
 }
 
 /**
+ * Interface used to define the configuration for the app review service resolvers (GraphQL based),
+ * and other afferent data stores.
+ */
+export interface AppReviewConfiguration {
+    readonly appReviewFunctionName: string;
+    readonly appReviewTableName: string;
+    readonly getAppReviewEligibilityResolverName: string;
+    readonly createAppReviewResolverName: string;
+}
+
+/**
  * Interface used to define the configuration for the app upgrade service resolvers (GraphQL based),
  * and other afferent data stores.
  */

@@ -808,9 +808,7 @@ export const Store = ({navigation}: StoreProps) => {
                                             style: {backgroundColor: 'transparent', opacity: 0.3}
                                         }}
                                     >
-                                        <SearchSection
-                                            setModalVisible={setModalVisible}
-                                        />
+                                        <SearchSection/>
                                         <View style={{
                                             height: hp(1),
                                             backgroundColor: '#313030'

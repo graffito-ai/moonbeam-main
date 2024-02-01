@@ -21,12 +21,9 @@ import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
 /**
  * SearchSection component.
  *
- * @param props properties to be passed into the component
  * @constructor constructor for the component.
  */
-export const SearchSection = (props: {
-    setModalVisible: React.Dispatch<React.SetStateAction<boolean>>
-}) => {
+export const SearchSection = () => {
     // constants used to keep track of shared states
     const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
     const deDupedNearbyOfferList = useRecoilValue(uniqueNearbyOffersListState);

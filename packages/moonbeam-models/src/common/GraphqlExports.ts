@@ -28,6 +28,27 @@ export type AddCardInput = {
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
+export type AppReview = {
+  __typename?: 'AppReview';
+  createdAt: Scalars['AWSDateTime'];
+  id: Scalars['ID'];
+  updatedAt: Scalars['AWSDateTime'];
+};
+
+export enum AppReviewErrorType {
+  DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  ValidationError = 'VALIDATION_ERROR'
+}
+
+export type AppReviewResponse = {
+  __typename?: 'AppReviewResponse';
+  data: AppReview;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<AppUpgradeErrorType>;
+};
+
 export enum AppUpgradeErrorType {
   DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
   NoneOrAbsent = 'NONE_OR_ABSENT',
@@ -143,6 +164,12 @@ export enum CountryCode {
   Ca = 'CA',
   Us = 'US'
 }
+
+export type CreateAppReviewInput = {
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+  id: Scalars['ID'];
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
 
 export type CreateCardLinkInput = {
   card: CardInput;
@@ -383,6 +410,17 @@ export type FilesForUserResponse = {
   data?: Maybe<Array<Maybe<Scalars['String']>>>;
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<StorageErrorType>;
+};
+
+export type GetAppReviewEligibilityInput = {
+  id: Scalars['ID'];
+};
+
+export type GetAppReviewEligibilityResponse = {
+  __typename?: 'GetAppReviewEligibilityResponse';
+  data?: Maybe<Scalars['Boolean']>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<AppUpgradeErrorType>;
 };
 
 export type GetCardLinkInput = {
@@ -762,6 +800,7 @@ export type MoonbeamUpdatedTransactionResponse = {
 export type Mutation = {
   __typename?: 'Mutation';
   addCard: CardLinkResponse;
+  createAppReview: AppReviewResponse;
   createCardLink: CardLinkResponse;
   createDevice: UserDeviceResponse;
   createFAQ: FaqResponse;
@@ -785,6 +824,11 @@ export type Mutation = {
 
 export type MutationAddCardArgs = {
   addCardInput: AddCardInput;
+};
+
+
+export type MutationCreateAppReviewArgs = {
+  createAppReviewInput: CreateAppReviewInput;
 };
 
 
@@ -1181,6 +1225,7 @@ export type PutMilitaryVerificationReportInput = {
 export type Query = {
   __typename?: 'Query';
   getAllUsersForNotificationReminders: UserForNotificationReminderResponse;
+  getAppReviewEligibility: GetAppReviewEligibilityResponse;
   getAppUpgradeCredentials: AppUpgradeResponse;
   getCardLink: CardLinkResponse;
   getDevice: UserDeviceResponse;
@@ -1205,6 +1250,11 @@ export type Query = {
   getUserFromReferral: UserFromReferralResponse;
   getUsersWithNoCards: IneligibleLinkedUsersResponse;
   searchOffers: OffersResponse;
+};
+
+
+export type QueryGetAppReviewEligibilityArgs = {
+  getAppReviewEligibilityInput: GetAppReviewEligibilityInput;
 };
 
 
@@ -1657,6 +1707,13 @@ export type UserFromReferralResponse = {
   errorType?: Maybe<ReferralErrorType>;
 };
 
+export type CreateAppReviewMutationVariables = Exact<{
+  createAppReviewInput: CreateAppReviewInput;
+}>;
+
+
+export type CreateAppReviewMutation = { __typename?: 'Mutation', createAppReview: { __typename?: 'AppReviewResponse', errorMessage?: string | null, errorType?: AppUpgradeErrorType | null, data: { __typename?: 'AppReview', id: string, createdAt: string, updatedAt: string } } };
+
 export type PutMilitaryVerificationReportMutationVariables = Exact<{
   putMilitaryVerificationReportInput: PutMilitaryVerificationReportInput;
 }>;
@@ -1789,6 +1846,13 @@ export type UpdateMilitaryVerificationStatusMutationVariables = Exact<{
 
 
 export type UpdateMilitaryVerificationStatusMutation = { __typename?: 'Mutation', updateMilitaryVerificationStatus: { __typename?: 'UpdateMilitaryVerificationResponse', errorType?: MilitaryVerificationErrorType | null, errorMessage?: string | null, id?: string | null, militaryVerificationStatus?: MilitaryVerificationStatusType | null } };
+
+export type GetAppReviewEligibilityQueryVariables = Exact<{
+  getAppReviewEligibilityInput: GetAppReviewEligibilityInput;
+}>;
+
+
+export type GetAppReviewEligibilityQuery = { __typename?: 'Query', getAppReviewEligibility: { __typename?: 'GetAppReviewEligibilityResponse', errorMessage?: string | null, errorType?: AppUpgradeErrorType | null, data?: boolean | null } };
 
 export type GetFilesForUserQueryVariables = Exact<{
   getFilesForUserInput: GetFilesForUserInput;

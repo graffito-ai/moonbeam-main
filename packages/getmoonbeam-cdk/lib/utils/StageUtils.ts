@@ -25,6 +25,7 @@ import {LoggingResolverStack} from "../stacks/LoggingResolverStack";
 import {
     MilitaryVerificationReportingProducerConsumerStack
 } from "../stacks/MilitaryVerificationReportingProducerConsumerStack";
+import {AppReviewResolverStack} from "../stacks/AppReviewResolverStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -353,6 +354,19 @@ export class StageUtils {
                         environmentVariables: stageConfiguration.environmentVariables
                     });
                 loggingResolverStack.addDependency(appSyncStack);
+
+                // create the Logging resolver stack && add it to the CDK app
+                const appReviewResolverStack = new AppReviewResolverStack(this.app, `moonbeam-app-review-resolver-${stageKey}`, {
+                    stackName: `moonbeam-app-review-resolver-${stageKey}`,
+                    description: 'This stack will contain all the AppSync related resources needed by the Lambda App Review resolver',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    graphqlApiId: appSyncStack.graphqlApiId,
+                    graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
+                    appReviewConfig: stageConfiguration.appReviewConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                appReviewResolverStack.addDependency(appSyncStack);
 
                 // create the API Gateway Service API stack && add it to the CDK app
                 const apiGatewayStack = new APIGatewayServiceStack(this.app, `moonbeam-api-gateway-${stageKey}`, {

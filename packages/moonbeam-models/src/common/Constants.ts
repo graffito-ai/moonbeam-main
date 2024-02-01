@@ -59,6 +59,7 @@ export namespace Constants {
         export const AWS_LAMBDA_INITIALIZATION_TYPE = 'AWS_LAMBDA_INITIALIZATION_TYPE';
         export const AWS_LAMBDA_PROVISIONED_CONCURRENCY = 'provisioned-concurrency';
         export const USER_AUTH_SESSION_TABLE = 'USER_AUTH_SESSION_TABLE';
+        export const APP_REVIEW_TABLE: string = 'APP_REVIEW_TABLE';
         export const FAQ_TABLE: string = 'FAQ_TABLE';
         export const NOTIFICATION_REMINDER_TABLE: string = 'NOTIFICATION_REMINDER_TABLE';
         export const MILITARY_VERIFICATION_TABLE: string = 'MILITARY_VERIFICATION_TABLE';

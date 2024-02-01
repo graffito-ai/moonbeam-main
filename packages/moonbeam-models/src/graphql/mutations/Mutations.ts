@@ -1,4 +1,21 @@
-// This is a file used to define the all GraphQL query constants
+/**
+ * This is a file used to define the all GraphQL mutation constants
+ */
+
+// Mutation used to create and/or update a new and/or existing app review for a particular user.
+export const createAppReview = /* GraphQL */ `
+    mutation CreateAppReview($createAppReviewInput: CreateAppReviewInput!) {
+        createAppReview(createAppReviewInput: $createAppReviewInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                createdAt
+                updatedAt
+            }
+        }
+    }
+`;
 
 // Mutation used to create and/or update a new and/or existing military verification report
 export const putMilitaryVerificationReport = /* GraphQL */ `

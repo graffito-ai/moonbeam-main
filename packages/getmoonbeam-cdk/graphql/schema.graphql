@@ -26,6 +26,7 @@ type Query {
     getUserFromReferral(userFromReferralInput: UserFromReferralInput!): UserFromReferralResponse! @aws_cognito_user_pools @aws_api_key
     getUserCardLinkingId(getUserCardLinkingIdInput: GetUserCardLinkingIdInput!): GetUserCardLinkingIdResponse! @aws_cognito_user_pools @aws_api_key
     getMilitaryVerificationInformation(getMilitaryVerificationInformationInput: GetMilitaryVerificationInformationInput!): MilitaryVerificationReportingInformationResponse! @aws_cognito_user_pools @aws_api_key
+    getAppReviewEligibility(getAppReviewEligibilityInput: GetAppReviewEligibilityInput!): GetAppReviewEligibilityResponse! @aws_cognito_user_pools
 }
 
 type Mutation {
@@ -48,6 +49,7 @@ type Mutation {
     updateReferral(updateReferralInput: UpdateReferralInput!): ReferralResponse! @aws_cognito_user_pools @aws_api_key
     createLogEvent(createLogEventInput: CreateLogEventInput!): LoggingResponse! @aws_cognito_user_pools @aws_iam
     putMilitaryVerificationReport(putMilitaryVerificationReportInput: PutMilitaryVerificationReportInput!): MilitaryVerificationReportResponse! @aws_cognito_user_pools @aws_api_key
+    createAppReview(createAppReviewInput: CreateAppReviewInput!): AppReviewResponse! @aws_cognito_user_pools
 }
 
 type Subscription {

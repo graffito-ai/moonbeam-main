@@ -1,3 +1,7 @@
+/**
+ * This is a file used to define the all GraphQL mutation constants
+ */
+export declare const createAppReview = "\n    mutation CreateAppReview($createAppReviewInput: CreateAppReviewInput!) {\n        createAppReview(createAppReviewInput: $createAppReviewInput) {\n            errorMessage\n            errorType\n            data {\n                id\n                createdAt\n                updatedAt\n            }\n        }\n    }\n";
 export declare const putMilitaryVerificationReport = "\n    mutation PutMilitaryVerificationReport($putMilitaryVerificationReportInput: PutMilitaryVerificationReportInput!) {\n        putMilitaryVerificationReport(putMilitaryVerificationReportInput: $putMilitaryVerificationReportInput) {\n            errorMessage\n            errorType\n            data\n        }\n    }\n";
 export declare const createLogEvent = "\n    mutation CreateLogEvent($createLogEventInput: CreateLogEventInput!) {\n        createLogEvent(createLogEventInput: $createLogEventInput) {\n            errorMessage\n            errorType\n            data\n        }\n    }\n";
 export declare const createReferral = "\n    mutation CreateReferral($createReferralInput: CreateReferralInput!) {\n        createReferral(createReferralInput: $createReferralInput) {\n            errorMessage\n            errorType\n            data {\n                fromId\n                timestamp\n                toId\n                campaignCode\n                createdAt\n                updatedAt\n                status\n            }\n        }\n    }\n";

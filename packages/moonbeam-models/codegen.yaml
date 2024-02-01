@@ -16,6 +16,7 @@ schema:
   - ./src/graphql/schemas/ReferralSchema.graphql
   - ./src/graphql/schemas/LoggingSchema.graphql
   - ./src/graphql/schemas/MilitaryVerificationReportingSchema.graphql
+  - ./src/graphql/schemas/AppReviewSchema.graphql
 documents:
   - ./src/graphql/queries/Queries.graphql
   - ./src/graphql/mutations/Mutations.graphql

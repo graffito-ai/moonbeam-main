@@ -1,5 +1,12 @@
 # graphql/Queries.graphql
 # Queries Schema File
+query GetAppReviewEligibility($getAppReviewEligibilityInput: GetAppReviewEligibilityInput!) {
+    getAppReviewEligibility(getAppReviewEligibilityInput: $getAppReviewEligibilityInput) {
+        errorMessage
+        errorType
+        data
+    }
+}
 query GetFilesForUser($getFilesForUserInput: GetFilesForUserInput!) {
     getFilesForUser(getFilesForUserInput: $getFilesForUserInput) {
         errorMessage

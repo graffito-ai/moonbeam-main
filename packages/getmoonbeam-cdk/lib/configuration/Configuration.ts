@@ -223,6 +223,12 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 createLogEventResolverName: 'createLogEvent',
                 frontEndLogGroupName: 'moonbeam-frontend'
             },
+            appReviewConfig: {
+                appReviewFunctionName: 'appReviewFunction',
+                appReviewTableName: 'appReviewTable',
+                createAppReviewResolverName: 'createAppReview',
+                getAppReviewEligibilityResolverName: 'getAppReviewEligibility'
+            },
             environmentVariables: new Map<string, string>([])
         },
         [`${Stages.PROD}-${Regions.PDX}`]: {
@@ -441,6 +447,12 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 loggingFunctionName: 'loggingFunction',
                 createLogEventResolverName: 'createLogEvent',
                 frontEndLogGroupName: 'moonbeam-frontend'
+            },
+            appReviewConfig: {
+                appReviewFunctionName: 'appReviewFunction',
+                appReviewTableName: 'appReviewTable',
+                createAppReviewResolverName: 'createAppReview',
+                getAppReviewEligibilityResolverName: 'getAppReviewEligibility'
             },
             environmentVariables: new Map<string, string>([])
         },
