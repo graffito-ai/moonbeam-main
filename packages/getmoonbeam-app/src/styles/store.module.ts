@@ -787,6 +787,13 @@ export const styles = StyleSheet.create({
         fontSize: hp(1.8),
         top: hp(0.5)
     },
+    verticalOfferBannerSubtitleNameHighlighted: {
+        alignSelf: 'center',
+        fontFamily: 'Saira-Medium',
+        color: '#F2FF5D',
+        fontSize: hp(1.8),
+        top: hp(0.5)
+    },
     verticalNoOffersName: {
         fontFamily: 'Raleway-SemiBold',
         color: '#FFFFFF',

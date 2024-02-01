@@ -6,15 +6,17 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-nativ
 import {Icon} from "@rneui/base";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
-    filteredByDiscountPressedState,
-    filtersActiveState,
-    resetSearchState,
+    filteredByDiscountPressedState, filteredOffersListState,
+    filtersActiveState, noFilteredOffersToLoadState,
     searchQueryState,
     toggleViewPressedState,
     uniqueNearbyOffersListState,
     verticalSectionActiveState
 } from "../../../../../../recoil/StoreOfferAtom";
 import {bottomTabShownState} from "../../../../../../recoil/HomeAtom";
+import {searchQueryExecute} from "../../../../../../utils/AppSync";
+import {filteredOffersSpinnerShownState} from "../../../../../../recoil/AuthAtom";
+import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
 
 /**
  * SearchSection component.
@@ -23,10 +25,7 @@ import {bottomTabShownState} from "../../../../../../recoil/HomeAtom";
  * @constructor constructor for the component.
  */
 export const SearchSection = (props: {
-    setNoFilteredOffersAvailable: React.Dispatch<React.SetStateAction<boolean>>,
     setModalVisible: React.Dispatch<React.SetStateAction<boolean>>
-    setShouldCacheImages: React.Dispatch<React.SetStateAction<boolean>>,
-    setFilteredOffersSpinnerShown: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
     // constants used to keep track of shared states
     const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
@@ -34,9 +33,12 @@ export const SearchSection = (props: {
     const [toggleViewPressed, setToggleViewPressed] = useRecoilState(toggleViewPressedState);
     const [searchQuery, setSearchQuery] = useRecoilState(searchQueryState);
     const [whichVerticalSectionActive, setWhichVerticalSectionActive] = useRecoilState(verticalSectionActiveState);
-    const [, setResetSearch] = useRecoilState(resetSearchState);
     const [, setFilteredByDiscountPressed] = useRecoilState(filteredByDiscountPressedState);
     const [, setAreFiltersActive] = useRecoilState(filtersActiveState);
+    const [noFilteredOffersToLoad, setNoFilteredOffersToLoad] = useRecoilState(noFilteredOffersToLoadState);
+    const [, setFilteredOffersList] = useRecoilState(filteredOffersListState);
+    const [, setFilteredOffersSpinnerShown] = useRecoilState(filteredOffersSpinnerShownState);
+    const [currentUserLocation,] = useRecoilState(currentUserLocationState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -79,25 +81,20 @@ export const SearchSection = (props: {
                 }}>
                     <ToggleButton.Group
                         onValueChange={(value) => {
-                            // close keyboard is opened
+                            // close keyboard if opened
                             Keyboard.dismiss();
 
                             if (value === 'horizontal') {
                                 setBottomTabShown(true);
                                 setToggleViewPressed(value);
                                 setWhichVerticalSectionActive(null);
-                                if (searchQuery !== '') {
-                                    setSearchQuery('');
 
-                                    // set the no filtered offers available flag accordingly
-                                    props.setNoFilteredOffersAvailable(false);
+                                // reset any filtered offers
+                                setNoFilteredOffersToLoad(false);
+                                setFilteredOffersList([]);
 
-                                    // reset the search state
-                                    setResetSearch(true);
-
-                                    // set the caching flag for images accordingly
-                                    props.setShouldCacheImages(false);
-                                }
+                                // reset search query
+                                setSearchQuery("");
                             }
 
                             if (value === 'vertical') {
@@ -109,6 +106,13 @@ export const SearchSection = (props: {
                             if (value === 'map') {
                                 setBottomTabShown(false);
                                 setToggleViewPressed(value);
+
+                                // reset any filtered offers
+                                setNoFilteredOffersToLoad(false);
+                                setFilteredOffersList([]);
+
+                                // reset search query
+                                setSearchQuery("");
                             }
                         }}
                         value={toggleViewPressed}>
@@ -145,18 +149,13 @@ export const SearchSection = (props: {
                             <TouchableOpacity
                                 style={styles.searchBarBackButton}
                                 onPress={() => {
-                                    // reset the search state
-                                    setResetSearch(true);
-
-                                    // set the no filtered offers available flag accordingly
-                                    props.setNoFilteredOffersAvailable(false);
-
-                                    // set the caching flag for images accordingly
-                                    props.setShouldCacheImages(false);
-
                                     // set the appropriate vertical view
                                     setWhichVerticalSectionActive(null);
                                     setToggleViewPressed('horizontal');
+
+                                    // reset any filtered offers
+                                    setNoFilteredOffersToLoad(false);
+                                    setFilteredOffersList([]);
 
                                     // reset search query
                                     setSearchQuery("");
@@ -174,60 +173,76 @@ export const SearchSection = (props: {
                         }
                         <Searchbar
                             blurOnSubmit={false}
-                            autoFocus={whichVerticalSectionActive === 'search'}
+                            autoFocus={whichVerticalSectionActive === 'search' && !noFilteredOffersToLoad}
                             selectionColor={'#F2FF5D'}
                             iconColor={'#F2FF5D'}
                             placeholderTextColor={'#FFFFFF'}
                             cursorColor={'#F2FF5D'}
                             inputStyle={styles.searchBarInput}
                             style={[styles.searchBar, whichVerticalSectionActive === 'search' && {
-                                width: wp(85),
+                                width: wp(85.3),
                                 alignSelf: 'flex-end',
                                 right: wp(0.5),
                             }]}
                             value={searchQuery}
                             placeholder={whichVerticalSectionActive === 'search' ? "" : "Search for anything (e.g \"Nike\" or \"food\")"}
                             onTouchEndCapture={() => {
+                                // reset any filtered offers
+                                setNoFilteredOffersToLoad(false);
+                                setFilteredOffersList([]);
+
                                 // set the appropriate vertical view
                                 setWhichVerticalSectionActive('search');
                                 setToggleViewPressed('vertical');
                             }}
                             onKeyPress={({nativeEvent}) => {
                                 if (nativeEvent.key === 'Backspace') {
-                                    // reset the search on backspace
-                                    setResetSearch(true);
-
-                                    // set the no filtered offers available flag accordingly
-                                    props.setNoFilteredOffersAvailable(false);
+                                    // reset any filtered offers
+                                    setNoFilteredOffersToLoad(false);
+                                    setFilteredOffersList([]);
                                 }
                             }}
                             onClearIconPress={(_) => {
-                                // reset the search state
-                                setResetSearch(true);
-
-                                // set the no filtered offers available flag accordingly
-                                props.setNoFilteredOffersAvailable(false);
-
-                                // set the caching flag for images accordingly
-                                props.setShouldCacheImages(false);
+                                // reset any filtered offers
+                                setNoFilteredOffersToLoad(false);
+                                setFilteredOffersList([]);
 
                                 // reset search query
                                 setSearchQuery("");
                             }}
                             onSubmitEditing={async (event) => {
-                                // reset the search state
-                                setResetSearch(true);
-
                                 setSearchQuery(event.nativeEvent.text);
+
+                                // clean any previous offers
+                                setFilteredOffersList([]);
+
+                                // execute the search query
+                                setFilteredOffersSpinnerShown(true);
+                                const queriedOffers =
+                                    (currentUserLocation !== null && currentUserLocation.coords.latitude !== null && currentUserLocation.coords.latitude !== undefined &&
+                                    currentUserLocation.coords.longitude !== null && currentUserLocation.coords.longitude !== undefined)
+                                        ? await searchQueryExecute(event.nativeEvent.text, currentUserLocation.coords.latitude, currentUserLocation.coords.longitude)
+                                        : await searchQueryExecute(event.nativeEvent.text);
+                                if (queriedOffers.length == 0) {
+                                    setNoFilteredOffersToLoad(true);
+                                    setFilteredOffersSpinnerShown(false);
+                                } else {
+                                    setNoFilteredOffersToLoad(false);
+                                    setFilteredOffersList([...queriedOffers]);
+                                }
+
+                                // dismiss keyboard
+                                Keyboard.dismiss();
                             }}
                             onChangeText={(query) => {
                                 {
+                                    // reset any filtered offers
+                                    setNoFilteredOffersToLoad(false);
+                                    setFilteredOffersList([]);
+
                                     // set the appropriate vertical view
                                     setWhichVerticalSectionActive('search');
                                     setToggleViewPressed('vertical');
-
-                                    // reset the search state
-                                    setResetSearch(true);
 
                                     setSearchQuery(query);
                                 }
@@ -249,17 +264,11 @@ export const SearchSection = (props: {
                                                 color={whichVerticalSectionActive === 'click-only-online' ? '#5B5A5A' : '#F2FF5D'}/>
                                       )}
                                       onPress={() => {
-                                          // reset the search state
-                                          setResetSearch(true);
-
                                           // reset the filters
                                           setFilteredByDiscountPressed(false);
                                           setAreFiltersActive(false);
 
                                           if (whichVerticalSectionActive === 'click-only-online') {
-                                              // set the no filtered offers available flag accordingly
-                                              props.setNoFilteredOffersAvailable(false);
-
                                               setSearchQuery('');
                                               setWhichVerticalSectionActive(null);
                                               setToggleViewPressed('horizontal');
@@ -278,17 +287,11 @@ export const SearchSection = (props: {
                                                 color={whichVerticalSectionActive === 'fidelis' ? '#5B5A5A' : '#F2FF5D'}/>
                                       )}
                                       onPress={() => {
-                                          // reset the search state
-                                          setResetSearch(true);
-
                                           // reset the filters
                                           setFilteredByDiscountPressed(false);
                                           setAreFiltersActive(false);
 
                                           if (whichVerticalSectionActive === 'fidelis') {
-                                              // set the no filtered offers available flag accordingly
-                                              props.setNoFilteredOffersAvailable(false);
-
                                               setSearchQuery('');
                                               setWhichVerticalSectionActive(null);
                                               setToggleViewPressed('horizontal');
@@ -307,17 +310,11 @@ export const SearchSection = (props: {
                                                 color={whichVerticalSectionActive === 'online' ? '#5B5A5A' : '#F2FF5D'}/>
                                       )}
                                       onPress={() => {
-                                          // reset the search state
-                                          setResetSearch(true);
-
                                           // reset the filters
                                           setFilteredByDiscountPressed(false);
                                           setAreFiltersActive(false);
 
                                           if (whichVerticalSectionActive === 'online') {
-                                              // set the no filtered offers available flag accordingly
-                                              props.setNoFilteredOffersAvailable(false);
-
                                               setSearchQuery('');
                                               setWhichVerticalSectionActive(null);
                                               setToggleViewPressed('horizontal');
@@ -340,17 +337,11 @@ export const SearchSection = (props: {
                                       )}
                                       textStyle={[styles.verticalSectionActiveChipText, whichVerticalSectionActive === 'nearby' ? {color: '#5B5A5A'} : {color: '#F2FF5D'}]}
                                       onPress={() => {
-                                          // reset the search state
-                                          setResetSearch(true);
-
                                           // reset the filters
                                           setFilteredByDiscountPressed(false);
                                           setAreFiltersActive(false);
 
                                           if (whichVerticalSectionActive === 'nearby') {
-                                              // set the no filtered offers available flag accordingly
-                                              props.setNoFilteredOffersAvailable(false);
-
                                               setSearchQuery('');
                                               setWhichVerticalSectionActive(null);
                                               setToggleViewPressed('horizontal');

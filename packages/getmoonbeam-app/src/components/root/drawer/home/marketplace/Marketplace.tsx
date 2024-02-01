@@ -14,10 +14,15 @@ import {heightPercentageToDP as hp} from "react-native-responsive-screen";
 import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
 import {
     currentActiveKitState,
+    filteredOffersListState,
     fullScreenKitMapActiveState,
     nearbyKitListIsExpandedState,
-    onlineKitListIsExpandedState, showClickOnlyBottomSheetState,
-    storeNavigationState
+    noFilteredOffersToLoadState,
+    onlineKitListIsExpandedState,
+    searchQueryState,
+    showClickOnlyBottomSheetState,
+    storeNavigationState,
+    toggleViewPressedState
 } from "../../../../../recoil/StoreOfferAtom";
 import {moonbeamKits} from "./storeComponents/KitsSection";
 import {styles} from "../../../../../styles/store.module";
@@ -34,6 +39,11 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
     const [kitImage, setKitImage] = useState<any>(null);
     const [kitTitle, setKitTitle] = useState<string>("Kit");
     // constants used to keep track of shared states
+    const [, setSearchQuery] = useRecoilState(searchQueryState);
+    const [, setNoFilteredOffersToLoad] = useRecoilState(noFilteredOffersToLoadState);
+    const [, setFilteredOffersList] = useRecoilState(filteredOffersListState);
+    const [, setToggleViewPressed] = useRecoilState(toggleViewPressedState);
+
     const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
     const [fullScreenKitMapActive, setFullScreenKitMapActive] = useRecoilState(fullScreenKitMapActiveState);
     const [, setOnlineKitListExpanded] = useRecoilState(onlineKitListIsExpandedState);
@@ -56,6 +66,18 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
      * included in here.
      */
     useEffect(() => {
+        // for anything else other than the marketplace, reset the search queries if active, and go to the horizontal view
+        if (navigation.getState().index !== 1) {
+            // reset any filtered offers
+            setNoFilteredOffersToLoad(false);
+            setFilteredOffersList([]);
+
+            // reset search query
+            setSearchQuery("");
+
+            // reset the view to the default horizontal one
+            setToggleViewPressed('horizontal');
+        }
         // set the app drawer status accordingly ,custom banner visibility and drawer swipe actions accordingly
         if (navigation.getState().index === 1) {
             setAppDrawerHeaderShown(false);

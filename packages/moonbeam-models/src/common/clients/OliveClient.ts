@@ -1464,7 +1464,7 @@ export class OliveClient extends BaseAPIClient {
             requestURL += (searchOffersInput.radius && searchOffersInput.radiusLatitude && searchOffersInput.radiusLongitude)
                 ? `&radiusLatitude=${searchOffersInput.radiusLatitude!}&radiusLongitude=${searchOffersInput.radiusLongitude!}&radius=${searchOffersInput.radius!}`
                 : ``;
-            requestURL += `&search=\"${searchOffersInput.searchText}\"`;
+            requestURL += `&search=\"${encodeURIComponent(searchOffersInput.searchText)}\"`;
             // log the request URL, since we are doing a lot of filtering, for sanity purposes
             console.log(`Request URL for Olive ${requestURL}`);
             return axios.get(requestURL, {

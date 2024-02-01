@@ -16,7 +16,6 @@ import {View} from "react-native";
 import {
     filteredByDiscountPressedState,
     filtersActiveState,
-    resetSearchState,
     searchQueryState
 } from "../../../../recoil/StoreOfferAtom";
 
@@ -31,7 +30,6 @@ export const Home = ({navigation}: HomeProps) => {
     // constants used to keep track of shared states
     const [, setFilteredByDiscountPressed] = useRecoilState(filteredByDiscountPressedState);
     const [, setAreFiltersActive] = useRecoilState(filtersActiveState);
-    const [, setResetSearch] = useRecoilState(resetSearchState);
     const [, setSearchQuery] = useRecoilState(searchQueryState);
     const [, setDrawerNavigation] = useRecoilState(drawerNavigationState);
     const [bottomTabShown,] = useRecoilState(bottomTabShownState);
@@ -56,8 +54,6 @@ export const Home = ({navigation}: HomeProps) => {
             setIsDrawerInDashboard(true);
 
             // reset any store/marketplace related items
-            setSearchQuery('');
-            setResetSearch(true);
             setFilteredByDiscountPressed(false);
             setAreFiltersActive(false);
         }

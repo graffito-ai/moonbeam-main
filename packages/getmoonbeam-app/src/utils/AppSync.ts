@@ -23,12 +23,13 @@ import {
     OfferCategory,
     OfferFilter,
     OfferSeasonalType,
-    OfferState,
+    OfferState, OfferStore,
     PushDevice,
     RedemptionType,
     Referral,
     ReferralErrorType,
     ReferralResponse,
+    searchOffers,
     Stages,
     updateDevice,
     updateUserAuthSession,
@@ -47,6 +48,303 @@ import {appUpgradeVersionCheck} from 'app-upgrade-react-native-sdk';
 import {Platform} from "react-native";
 import * as envInfo from "../../local-env-info.json";
 import React from "react";
+
+/**
+ * Function used to search an offer or offer category based on a search query
+ * inputted by the user.
+ *
+ * @param searchQuery representing the search query to be used when executing
+ * the search
+ * @param latitude the latitude passed in, representing the phone's latitude location coordinate
+ * @param longitude the longitude passed in, representing the phones' longitude location coordinate
+ *
+ * @returns a {@link Promise} of an {@link Array} of {@link Offer}, representing the offers to be returned
+ */
+export const searchQueryExecute = async (searchQuery: string, latitude?: number, longitude?: number): Promise<Offer[]> => {
+    try {
+        // parallelize the calls for online and nearby offers
+        const searchResults = await Promise.all([
+            searchOnlineOffers(searchQuery),
+            latitude !== undefined && longitude !== undefined
+                ? searchNearbyOffers(searchQuery, latitude, longitude)
+                : []
+        ]);
+        // populate the results to be returned accordingly
+        return [...searchResults[0], ...latitude !== undefined && longitude !== undefined ? searchResults[1] : []];
+        // return [...searchResults[0], latitude !== undefined && longitude !== undefined ? searchResults[1] : []];
+    } catch (error) {
+        const message = `Unexpected error while executing the search query for: \'${searchQuery}\', ${JSON.stringify(error)} ${error}`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, true);
+
+        return [];
+    }
+}
+
+/**
+ * Function used to execute the search for online offers only
+ *
+ * @param searchQuery representing the search query to be used when executing
+ * the search.
+ * @param latitude the latitude passed in, representing the phone's latitude location coordinate
+ * @param longitude the longitude passed in, representing the phones' longitude location coordinate
+ *
+ * @returns a {@link Promise} of an {@link Array} of {@link Offer}, representing the online offers to be returned
+ */
+const searchNearbyOffers = async (searchQuery: string, latitude: number, longitude: number): Promise<Offer[]> => {
+    // results to be returned
+    let nearbyOffers: Offer[] = [];
+
+    try {
+        // call the searchOffers API for nearby offers
+        const searchOfferNearbyResult = await API.graphql(graphqlOperation(searchOffers, {
+            searchOffersInput: {
+                searchText: searchQuery,
+                radius: 82000, // set radius of 82 km (82,000 meters) roughly equal to 50 miles
+                radiusLatitude: latitude,
+                radiusLongitude: longitude
+            }
+        }));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const responseNearbyData = searchOfferNearbyResult ? searchOfferNearbyResult.data : null;
+
+        if (responseNearbyData && responseNearbyData.searchOffers.errorMessage === null &&
+            responseNearbyData.searchOffers.data !== undefined && responseNearbyData.searchOffers.data !== null &&
+            responseNearbyData.searchOffers.data.offers !== undefined && responseNearbyData.searchOffers.data.offers !== null &&
+            responseNearbyData.searchOffers.data.offers.length !== 0) {
+            // offer matched by name
+            const offersMatchedByName: Offer[] = [];
+            // offer matched by category
+            const offersMatchedByCategory: Offer[] = [];
+            // offers matched by description
+            const offersMatchedByDescription: Offer[] = [];
+            /**
+             * for this first call, we filter out all the offers that are not nearby.
+             *
+             * We attempt to see if there are any offers matching by name, and we also see
+             * if there are any offers matching by category and description.
+             *
+             * Name supersedes the category and description offers all the time, and we will return the offers
+             * matched by name first.
+             */
+            responseNearbyData.searchOffers.data.offers.forEach(retrievedOffer => {
+                const offer = retrievedOffer as Offer;
+
+                // matches by name first
+                if (offer.brandDba !== null && offer.brandDba !== undefined && offer.brandDba!.toLowerCase().trimStart().trimEnd() &&
+                    offer.brandDba!.toLowerCase().trimStart().trimEnd().includes(searchQuery.toLowerCase().trimStart().trimEnd())) {
+                    // flag to be used in determining whether we consider this offer or not
+                    let nearbyOffer = false;
+                    offer.storeDetails !== null && offer.storeDetails !== undefined && offer.storeDetails.forEach(retrievedStoreDetail => {
+                        const storeDetail = retrievedStoreDetail as OfferStore;
+                        // make sure that we filter offers by the ones that are nearby
+                        if (storeDetail.isOnline === false) {
+                            nearbyOffer = true;
+                        }
+                    });
+                    // only add offer if it is nearby
+                    if (nearbyOffer) {
+                        // push offer in the offers matched by name list
+                        offersMatchedByName.push(offer);
+                    }
+                }
+                // matches by category next
+                else if (offer.brandParentCategory !== null && offer.brandParentCategory !== undefined && offer.brandParentCategory!.toLowerCase().trimStart().trimEnd() &&
+                    offer.brandParentCategory!.toLowerCase().trimStart().trimEnd().includes(searchQuery.toLowerCase().trimStart().trimEnd())) {
+                    // flag to be used in determining whether we consider this offer or not
+                    let nearbyOffer = false;
+                    offer.storeDetails !== null && offer.storeDetails !== undefined && offer.storeDetails.forEach(retrievedStoreDetail => {
+                        const storeDetail = retrievedStoreDetail as OfferStore;
+                        // make sure that we filter offers by the ones that are nearby
+                        if (storeDetail.isOnline === false) {
+                            nearbyOffer = true;
+                        }
+                    });
+                    // only add offer if it is nearby
+                    if (nearbyOffer) {
+                        // push offer in the offers matched by category list
+                        offersMatchedByCategory.push(offer);
+                    }
+                }
+                // matches by description last
+                else {
+                    // flag to be used in determining whether we consider this offer or not
+                    let nearbyOffer = false;
+                    offer.storeDetails !== null && offer.storeDetails !== undefined && offer.storeDetails.forEach(retrievedStoreDetail => {
+                        const storeDetail = retrievedStoreDetail as OfferStore;
+                        // make sure that we filter offers by the ones that are nearby
+                        if (storeDetail.isOnline === false) {
+                            nearbyOffer = true;
+                        }
+                    });
+                    // only add offer if it is not nearby
+                    if (nearbyOffer) {
+                        // push offer in the offers matched by description list
+                        offersMatchedByDescription.push(offer);
+                    }
+                }
+            });
+            // prioritize offers searched by name over offers searched by category
+            // prioritize offers searched by name over offers searched by category and description
+            nearbyOffers = [...offersMatchedByName, ...offersMatchedByCategory, ...offersMatchedByDescription];
+
+            return nearbyOffers;
+        } else {
+            // if there are no offers, then we do not log an error message
+            if (responseNearbyData && responseNearbyData.searchOffers.errorMessage === null &&
+                responseNearbyData.searchOffers.data !== undefined && responseNearbyData.searchOffers.data !== null &&
+                responseNearbyData.searchOffers.data.offers !== undefined && responseNearbyData.searchOffers.data.offers !== null &&
+                responseNearbyData.searchOffers.data.offers.length === 0) {
+                return nearbyOffers;
+            } else {
+                // if there was an error while logging an event, just console.log it accordingly
+                const message = `Error while executing nearby search query ${responseNearbyData.searchOffers.errorMessage}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, true);
+
+                return nearbyOffers;
+            }
+        }
+    } catch (error) {
+        const message = `Unexpected error while executing the search query for nearby offers for: \'${searchQuery}\', ${JSON.stringify(error)} ${error}`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, true);
+
+        return nearbyOffers;
+    }
+}
+
+/**
+ * Function used to execute the search for online offers only
+ *
+ * @param searchQuery representing the search query to be used when executing
+ * the search.
+ *
+ * @returns a {@link Promise} of an {@link Array} of {@link Offer}, representing the online offers to be returned
+ */
+const searchOnlineOffers = async (searchQuery: string): Promise<Offer[]> => {
+    // results to be returned
+    let onlineOffers: Offer[] = [];
+
+    try {
+        // first, call the searchOffers API without nearby offers
+        const searchOfferWithoutNearbyResult = await API.graphql(graphqlOperation(searchOffers, {
+            searchOffersInput: {
+                searchText: searchQuery
+            }
+        }));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const responseWithoutNearbyData = searchOfferWithoutNearbyResult ? searchOfferWithoutNearbyResult.data : null;
+
+        // check if there are any errors in the returned response
+        if (responseWithoutNearbyData && responseWithoutNearbyData.searchOffers.errorMessage === null &&
+            responseWithoutNearbyData.searchOffers.data !== undefined && responseWithoutNearbyData.searchOffers.data !== null &&
+            responseWithoutNearbyData.searchOffers.data.offers !== undefined && responseWithoutNearbyData.searchOffers.data.offers !== null &&
+            responseWithoutNearbyData.searchOffers.data.offers.length !== 0) {
+            // offers matched by name
+            const offersMatchedByName: Offer[] = [];
+            // offers matched by category
+            const offersMatchedByCategory: Offer[] = [];
+            // offers matched by description
+            const offersMatchedByDescription: Offer[] = [];
+            /**
+             * for this first call, we filter out all the offers that are not nearby.
+             *
+             * We attempt to see if there are any offers matching by name, and we also see
+             * if there are any offers matching by category and description.
+             *
+             * Name supersedes the category and description offers all the time, and we will return the offers
+             * matched by name first.
+             */
+            responseWithoutNearbyData.searchOffers.data.offers.forEach(retrievedOffer => {
+                const offer = retrievedOffer as Offer;
+
+                // matches by name first
+                if (offer.brandDba !== null && offer.brandDba !== undefined && offer.brandDba!.toLowerCase().trimStart().trimEnd() &&
+                    offer.brandDba!.toLowerCase().trimStart().trimEnd().includes(searchQuery.toLowerCase().trimStart().trimEnd())) {
+                    // flag to be used in determining whether we consider this offer or not
+                    let onlineOffer = false;
+                    offer.storeDetails !== null && offer.storeDetails !== undefined && offer.storeDetails.forEach(retrievedStoreDetail => {
+                        const storeDetail = retrievedStoreDetail as OfferStore;
+                        // make sure that we filter offers by the ones that are not nearby first
+                        if (storeDetail.isOnline === true) {
+                            onlineOffer = true;
+                        }
+                    });
+                    // only add offer if it is not nearby
+                    if (onlineOffer) {
+                        // push offer in the offers matched by name list
+                        offersMatchedByName.push(offer);
+                    }
+                }
+                // matches by category next
+                else if (offer.brandParentCategory !== null && offer.brandParentCategory !== undefined && offer.brandParentCategory!.toLowerCase().trimStart().trimEnd() &&
+                    offer.brandParentCategory!.toLowerCase().trimStart().trimEnd().includes(searchQuery.toLowerCase().trimStart().trimEnd())) {
+                    // flag to be used in determining whether we consider this offer or not
+                    let onlineOffer = false;
+                    offer.storeDetails !== null && offer.storeDetails !== undefined && offer.storeDetails.forEach(retrievedStoreDetail => {
+                        const storeDetail = retrievedStoreDetail as OfferStore;
+                        // make sure that we filter offers by the ones that are not nearby first
+                        if (storeDetail.isOnline === true) {
+                            onlineOffer = true;
+                        }
+                    });
+                    // only add offer if it is not nearby
+                    if (onlineOffer) {
+                        // push offer in the offers matched by category list
+                        offersMatchedByCategory.push(offer);
+                    }
+                }
+                // matches by description last
+                else {
+                    // flag to be used in determining whether we consider this offer or not
+                    let onlineOffer = false;
+                    offer.storeDetails !== null && offer.storeDetails !== undefined && offer.storeDetails.forEach(retrievedStoreDetail => {
+                        const storeDetail = retrievedStoreDetail as OfferStore;
+                        // make sure that we filter offers by the ones that are not nearby first
+                        if (storeDetail.isOnline === true) {
+                            onlineOffer = true;
+                        }
+                    });
+                    // only add offer if it is not nearby
+                    if (onlineOffer) {
+                        // push offer in the offers matched by description list
+                        offersMatchedByDescription.push(offer);
+                    }
+                }
+            });
+            // prioritize offers searched by name over offers searched by category and description
+            onlineOffers = [...offersMatchedByName, ...offersMatchedByCategory, ...offersMatchedByDescription];
+
+            return onlineOffers;
+        } else {
+            // if there are no offers, then we do not log an error message
+            if (responseWithoutNearbyData && responseWithoutNearbyData.searchOffers.errorMessage === null &&
+                responseWithoutNearbyData.searchOffers.data !== undefined && responseWithoutNearbyData.searchOffers.data !== null &&
+                responseWithoutNearbyData.searchOffers.data.offers !== undefined && responseWithoutNearbyData.searchOffers.data.offers !== null &&
+                responseWithoutNearbyData.searchOffers.data.offers.length === 0) {
+                return onlineOffers;
+            } else {
+                // if there was an error while logging an event, just console.log it accordingly
+                const message = `Error while executing non-nearby search query ${responseWithoutNearbyData.searchOffers.errorMessage}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, true);
+
+                return onlineOffers;
+            }
+        }
+    } catch (error) {
+        const message = `Unexpected error while executing the search query for online offers for: \'${searchQuery}\', ${JSON.stringify(error)} ${error}`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, true);
+
+        return onlineOffers;
+    }
+}
 
 /**
  * Function used to log a message from the frontend through CloudWatch.
@@ -677,7 +975,7 @@ export const retrievePremierClickOnlyOnlineOffersList = async (numberOfFailedCal
                         console.log(message);
                         await logEvent(message, LoggingLevel.Warning, true);
 
-                        retryCount-=1;
+                        retryCount -= 1;
                     }
                 }
             } else {
@@ -688,7 +986,7 @@ export const retrievePremierClickOnlyOnlineOffersList = async (numberOfFailedCal
                 }
 
                 setNumberOfFailedCalls(numberOfFailedCalls + 1);
-                retryCount-=1;
+                retryCount -= 1;
             }
         } catch (error) {
             const message = `Unexpected error while attempting to retrieve premier click-only online offers ${JSON.stringify(error)} ${error}`;
@@ -696,7 +994,7 @@ export const retrievePremierClickOnlyOnlineOffersList = async (numberOfFailedCal
             await logEvent(message, LoggingLevel.Error, true);
 
             setNumberOfFailedCalls(numberOfFailedCalls + 1);
-            retryCount-=1;
+            retryCount -= 1;
         }
     }
 
@@ -763,7 +1061,7 @@ export const retrievePremierOnlineOffersList = async (numberOfFailedCalls: numbe
                         console.log(message);
                         await logEvent(message, LoggingLevel.Warning, true);
 
-                        retryCount-=1;
+                        retryCount -= 1;
                     }
                 }
             } else {
@@ -774,7 +1072,7 @@ export const retrievePremierOnlineOffersList = async (numberOfFailedCalls: numbe
                 }
 
                 setNumberOfFailedCalls(numberOfFailedCalls + 1);
-                retryCount-=1;
+                retryCount -= 1;
             }
         } catch (error) {
             const message = `Unexpected error while attempting to retrieve premier online offers ${JSON.stringify(error)} ${error}`;
@@ -782,7 +1080,7 @@ export const retrievePremierOnlineOffersList = async (numberOfFailedCalls: numbe
             await logEvent(message, LoggingLevel.Error, true);
 
             setNumberOfFailedCalls(numberOfFailedCalls + 1);
-            retryCount-=1;
+            retryCount -= 1;
         }
     }
 
@@ -1046,7 +1344,7 @@ export const retrieveOnlineOffersList = async (numberOfFailedCalls: number, setN
                     console.log(message);
                     await logEvent(message, LoggingLevel.Warning, true);
 
-                    retryCount-=1;
+                    retryCount -= 1;
                 }
             } else {
                 if (responseData && responseData.getOffers.errorMessage === null !== null) {
@@ -1056,7 +1354,7 @@ export const retrieveOnlineOffersList = async (numberOfFailedCalls: number, setN
                 }
 
                 setNumberOfFailedCalls(numberOfFailedCalls + 1);
-                retryCount-=1;
+                retryCount -= 1;
             }
         } catch (error) {
             const message = `Unexpected error while attempting to retrieve online offers ${JSON.stringify(error)} ${error}`;
@@ -1064,7 +1362,7 @@ export const retrieveOnlineOffersList = async (numberOfFailedCalls: number, setN
             await logEvent(message, LoggingLevel.Error, true);
 
             setNumberOfFailedCalls(numberOfFailedCalls + 1);
-            retryCount-=1;
+            retryCount -= 1;
         }
     }
 
@@ -1100,7 +1398,7 @@ export const retrieveFidelisPartnerList = async (): Promise<FidelisPartner[]> =>
 
                 // ensure that there is at least one featured partner in the list
                 if (fidelisPartners !== undefined && fidelisPartners !== null && fidelisPartners.length > 0) {
-                    fidelisPartners =  fidelisPartners.sort(dynamicSort("brandName"));
+                    fidelisPartners = fidelisPartners.sort(dynamicSort("brandName"));
 
                     retryCount = 0;
                 } else {
@@ -1216,7 +1514,7 @@ export const retrievePremierOffersNearby = async (numberOfFailedCalls: number, s
                                 console.log(errorMessage);
                                 await logEvent(errorMessage, LoggingLevel.Warning, true);
 
-                                nearbyOffers =  [];
+                                nearbyOffers = [];
                                 retryCount -= 1;
                             }
                         }
@@ -1228,7 +1526,7 @@ export const retrievePremierOffersNearby = async (numberOfFailedCalls: number, s
                         }
 
                         setNumberOfFailedCalls(numberOfFailedCalls + 1);
-                        nearbyOffers =  null;
+                        nearbyOffers = null;
                         retryCount -= 1;
                     }
                 } else {
@@ -1237,7 +1535,7 @@ export const retrievePremierOffersNearby = async (numberOfFailedCalls: number, s
                     await logEvent(errorMessage, LoggingLevel.Error, true);
 
                     setNumberOfFailedCalls(numberOfFailedCalls + 1);
-                    nearbyOffers =  null;
+                    nearbyOffers = null;
                     retryCount -= 1;
                 }
             }
@@ -1247,7 +1545,7 @@ export const retrievePremierOffersNearby = async (numberOfFailedCalls: number, s
             await logEvent(errorMessage, LoggingLevel.Error, true);
 
             setNumberOfFailedCalls(numberOfFailedCalls + 1);
-            nearbyOffers =  null;
+            nearbyOffers = null;
             retryCount -= 1;
         }
     }
@@ -1887,7 +2185,7 @@ export const retrieveCategorizedOffersNearby = async (pageNumber: number, setPag
 
                             // fall back to offers near their home address
                             retryCount -= 1;
-                            nearbyOffers =  userInformation["address"] && userInformation["address"]["formatted"]
+                            nearbyOffers = userInformation["address"] && userInformation["address"]["formatted"]
                                 ? await retrieveCategorizedOffersNearLocation(userInformation["address"]["formatted"], pageNumber,
                                     setPageNumber, setOffersNearUserLocationFlag, totalNumberOfOffersAvailable,
                                     setTotalNumberOfOffersAvailable, offerCategory)

@@ -193,8 +193,8 @@ query GetFidelisPartners {
         }
     }
 }
-query SearchOffers($searchOffersinput: SearchOffersInput!) {
-    searchOffers(searchOffersInput: $searchOffersinput) {
+query SearchOffers($searchOffersInput: SearchOffersInput!) {
+    searchOffers(searchOffersInput: $searchOffersInput) {
         errorMessage
         errorType
         data {

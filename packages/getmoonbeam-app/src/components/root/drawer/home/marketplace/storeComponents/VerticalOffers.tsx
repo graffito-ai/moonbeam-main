@@ -1,29 +1,35 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
-import {FidelisPartner, LoggingLevel, Offer, RewardType} from "@moonbeam/moonbeam-models";
+import {FidelisPartner, LoggingLevel, Offer, OfferStore, RedemptionType, RewardType} from "@moonbeam/moonbeam-models";
 import {ActivityIndicator, Card, Divider, FAB, List, Portal, Text} from "react-native-paper";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import {styles} from "../../../../../../styles/store.module";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
     filteredByDiscountPressedState,
+    filteredOffersListState,
     filtersActiveState,
     noClickOnlyOnlineOffersToLoadState,
+    noFilteredOffersToLoadState,
     noNearbyOffersToLoadState,
     noOnlineOffersToLoadState,
-    resetSearchState,
     searchQueryState,
     showClickOnlyBottomSheetState,
     storeOfferPhysicalLocationState,
     storeOfferState,
     toggleViewPressedState,
     uniqueClickOnlyOnlineOffersListState,
+    uniqueFilteredOffersListState,
     uniqueNearbyOffersListState,
     uniqueOnlineOffersListState,
     verticalSectionActiveState
 } from "../../../../../../recoil/StoreOfferAtom";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
-import {currentUserInformation, userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
+import {
+    currentUserInformation,
+    filteredOffersSpinnerShownState,
+    userIsAuthenticatedState
+} from "../../../../../../recoil/AuthAtom";
 import {Image} from 'expo-image';
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
@@ -31,7 +37,7 @@ import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
 import {Keyboard, Platform, TouchableOpacity, View} from "react-native";
 import {getDistance} from "geolib";
 import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
-import {logEvent} from "../../../../../../utils/AppSync";
+import {logEvent, searchQueryExecute} from "../../../../../../utils/AppSync";
 import {Icon} from "@rneui/base";
 
 /**
@@ -42,27 +48,21 @@ import {Icon} from "@rneui/base";
  */
 export const VerticalOffers = (props: {
     navigation: NativeStackNavigationProp<MarketplaceStackParamList, 'Store'>,
-    shouldCacheImages: boolean,
-    noFilteredOffersAvailable: boolean,
     fidelisPartnerList: FidelisPartner[],
-    filteredOffersSpinnerShown: boolean,
-    setFilteredOffersSpinnerShown: React.Dispatch<React.SetStateAction<boolean>>,
     retrieveOnlineOffersList: () => Promise<void>,
     retrieveClickOnlineOffersList: () => Promise<void>,
     offersNearUserLocationFlag: boolean,
     retrieveNearbyOffersList: () => Promise<void>,
-    retrieveOffersNearLocation: (string) => Promise<void>,
-    setNoFilteredOffersAvailable: React.Dispatch<React.SetStateAction<boolean>>
+    retrieveOffersNearLocation: (string) => Promise<void>
 }) => {
     // constants used to keep track of local component state
     const nearbyListView = useRef();
     const onlineListView = useRef();
     const clickOnlyOnlineListView = useRef();
-    const [offersMatched, setOffersMatched] = useState<boolean>(false);
+    const [verticalListLoading, setVerticalListLoading] = useState<boolean>(false);
     const [clickOnlyOnlineLoadingOffers, setClickOnlyOnlineLoadingOffers] = useState<boolean>(false);
     const [onlineLoadingOffers, setOnlineLoadingOffers] = useState<boolean>(false);
     const [nearbyLoadingOffers, setNearbyLoadingOffers] = useState<boolean>(false);
-    const [verticalListLoading, setVerticalListLoading] = useState<boolean>(false);
     const [fidelisDataProvider, setFidelisDataProvider] = useState<DataProvider | null>(null);
     const [fidelisLayoutProvider, setFidelisLayoutProvider] = useState<LayoutProvider | null>(null);
     const [nearbyDataProvider, setNearbyDataProvider] = useState<DataProvider | null>(null);
@@ -71,18 +71,23 @@ export const VerticalOffers = (props: {
     const [onlineLayoutProvider, setOnlineLayoutProvider] = useState<LayoutProvider | null>(null);
     const [clickOnlyOnlineDataProvider, setClickOnlyOnlineDataProvider] = useState<DataProvider | null>(null);
     const [clickOnlyOnlineLayoutProvider, setClickOnlyOnlineLayoutProvider] = useState<LayoutProvider | null>(null);
+    const [filteredOffersDataProvider, setFilteredOffersDataProvider] = useState<DataProvider | null>(null);
+    const [filteredOffersLayoutProvider, setFilteredOffersLayoutProvider] = useState<LayoutProvider | null>(null);
     // constants used to keep track of shared states
+    const [, setFilteredOffersList] = useRecoilState(filteredOffersListState);
+    const [filteredOffersSpinnerShown, setFilteredOffersSpinnerShown] = useRecoilState(filteredOffersSpinnerShownState);
     const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [currentUserLocation,] = useRecoilState(currentUserLocationState);
     const [filteredByDiscountPressed, setFilteredByDiscountPressed] = useRecoilState(filteredByDiscountPressedState);
+    const deDuplicatedFilteredOfferList = useRecoilValue(uniqueFilteredOffersListState);
     const [filtersActive, setAreFiltersActive] = useRecoilState(filtersActiveState);
     const [toggleViewPressed,] = useRecoilState(toggleViewPressedState);
     const [searchQuery, setSearchQuery] = useRecoilState(searchQueryState);
-    const [whichVerticalSectionActive, setWhichVerticalSectionActive] = useRecoilState(verticalSectionActiveState);
-    const [resetSearch, setResetSearch] = useRecoilState(resetSearchState);
+    const [whichVerticalSectionActive,] = useRecoilState(verticalSectionActiveState);
     const [, setStoreOfferPhysicalLocation] = useRecoilState(storeOfferPhysicalLocationState);
     const [noNearbyOffersToLoad,] = useRecoilState(noNearbyOffersToLoadState);
     const [noOnlineOffersToLoad,] = useRecoilState(noOnlineOffersToLoadState);
+    const [noFilteredOffersToLoad, setNoFilteredOffersToLoad] = useRecoilState(noFilteredOffersToLoadState);
     const [noClickOnlyOnlineOffersToLoad,] = useRecoilState(noClickOnlyOnlineOffersToLoadState);
     const deDuplicatedClickOnlyOnlineOfferList = useRecoilValue(uniqueClickOnlyOnlineOffersListState);
     const deDuplicatedOnlineOfferList = useRecoilValue(uniqueOnlineOffersListState);
@@ -101,7 +106,7 @@ export const VerticalOffers = (props: {
     useEffect(() => {
         // if the active section is not the search section, do not show the keyboard
         if (whichVerticalSectionActive !== 'search') {
-            // close keyboard is opened
+            // close keyboard if opened
             Keyboard.dismiss();
         }
 
@@ -117,19 +122,15 @@ export const VerticalOffers = (props: {
                 setClickOnlyOnlineDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedClickOnlyOnlineOfferList));
                 setVerticalListLoading(false);
             }
-            // setTimeout(() => {
-            //     if (whichVerticalSectionActive === 'online') {
-            //         setOnlineDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedOnlineOfferList));
-            //         setVerticalListLoading(false);
-            //         setOnlineLoadingOffers(false);
-            //     } else if (whichVerticalSectionActive === 'nearby') {
-            //         setNearbyDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedNearbyOfferList));
-            //         setVerticalListLoading(false);
-            //         setNearbyLoadingOffers(false);
-            //     }
-            // }, whichVerticalSectionActive === 'online' ? 2000 : 3000);
         }
-
+        if (filteredOffersSpinnerShown && deDuplicatedFilteredOfferList.length !== 0) {
+            if (whichVerticalSectionActive === 'search') {
+                setTimeout(() => {
+                    setFilteredOffersSpinnerShown(false);
+                    setFilteredOffersDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedFilteredOfferList));
+                }, 200);
+            }
+        }
         // populate the click-only online offer data provider and list view
         if (deDuplicatedClickOnlyOnlineOfferList.length > 0 && clickOnlyOnlineLayoutProvider === null && clickOnlyOnlineDataProvider === null) {
             setClickOnlyOnlineDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedClickOnlyOnlineOfferList));
@@ -174,63 +175,26 @@ export const VerticalOffers = (props: {
                 }
             ));
         }
-        // handle searches accordingly
-        // if (searchQuery.length !== 0 && searchQuery.length >= 3) {
-        //     const matchedFidelisPartnerList = props.fidelisPartnerList.filter(partner => partner.brandName.toLowerCase().includes(searchQuery.toLowerCase()));
-        //     const matchedClickOnlyOnlineOfferList = deDuplicatedClickOnlyOnlineOfferList.filter(offer => offer.brandDba !== null && offer.brandDba !== undefined && offer.brandDba.toLowerCase().includes(searchQuery.toLowerCase()));
-        //     const matchedOnlineOfferList = deDuplicatedOnlineOfferList.filter(offer => offer.brandDba !== null && offer.brandDba !== undefined && offer.brandDba.toLowerCase().includes(searchQuery.toLowerCase()));
-        //     const matchedNearbyOfferList = deDuplicatedNearbyOfferList.filter(offer => offer.brandDba !== null && offer.brandDba !== undefined && offer.brandDba.toLowerCase().includes(searchQuery.toLowerCase()));
-        //
-        //     if (matchedFidelisPartnerList.length !== 0 && searchQuery.length >= 3 && !offersMatched) {
-        //         setOffersMatched(true);
-        //         setFidelisDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(matchedFidelisPartnerList));
-        //         setWhichVerticalSectionActive('fidelis');
-        //     }
-        //     if (matchedClickOnlyOnlineOfferList.length !== 0 && searchQuery.length >= 3 && !offersMatched) {
-        //         setOffersMatched(true);
-        //         setClickOnlyOnlineDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(matchedClickOnlyOnlineOfferList));
-        //         setWhichVerticalSectionActive('click-only-online');
-        //     }
-        //     if (matchedOnlineOfferList.length !== 0 && searchQuery.length >= 3 && !offersMatched) {
-        //         setOffersMatched(true);
-        //         setOnlineDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(matchedOnlineOfferList));
-        //         setWhichVerticalSectionActive('online');
-        //     }
-        //     if (matchedNearbyOfferList.length !== 0 && searchQuery.length >= 3 && !offersMatched) {
-        //         setOffersMatched(true);
-        //         setNearbyDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(matchedNearbyOfferList));
-        //         setWhichVerticalSectionActive('nearby');
-        //     }
-        //     if (matchedClickOnlyOnlineOfferList.length === 0 && matchedNearbyOfferList.length === 0 && matchedOnlineOfferList.length === 0 && matchedFidelisPartnerList.length === 0 && !offersMatched) {
-        //         props.setNoFilteredOffersAvailable(true);
-        //     }
-        // }
-        // reset searches accordingly
-        if (resetSearch) {
-            whichVerticalSectionActive === 'online' ?
-                setOnlineDataProvider(new DataProvider((r1, r2) => r1 !== r2)
-                    .cloneWithRows(deDuplicatedOnlineOfferList))
-                :
-                whichVerticalSectionActive === 'click-only-online' ?
-                    setClickOnlyOnlineDataProvider(new DataProvider((r1, r2) => r1 !== r2)
-                        .cloneWithRows(deDuplicatedClickOnlyOnlineOfferList))
-                    :
-                    whichVerticalSectionActive === 'nearby'
-                        ? setNearbyDataProvider(new DataProvider((r1, r2) => r1 !== r2)
-                            .cloneWithRows(deDuplicatedNearbyOfferList))
-                        : setFidelisDataProvider(new DataProvider((r1, r2) => r1 !== r2)
-                            .cloneWithRows(props.fidelisPartnerList))
-            setResetSearch(false);
-            setOffersMatched(false);
+        // populate the Fidelis offer data provider and list view
+        if (deDuplicatedFilteredOfferList.length > 0 && filteredOffersLayoutProvider === null && filteredOffersDataProvider === null) {
+            setFilteredOffersDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(deDuplicatedFilteredOfferList));
+            setFilteredOffersLayoutProvider(new LayoutProvider(
+                _ => 0,
+                (_, dim) => {
+                    dim.width = wp(100);
+                    dim.height = hp(10);
+                }
+            ));
         }
     }, [props.fidelisPartnerList, searchQuery,
-        verticalListLoading, offersMatched, resetSearch,
-        fidelisDataProvider, fidelisLayoutProvider,
-        clickOnlyOnlineDataProvider, clickOnlyOnlineLayoutProvider,
-        onlineDataProvider, onlineLayoutProvider,
-        nearbyDataProvider, nearbyLayoutProvider,
+        verticalListLoading, fidelisDataProvider,
+        fidelisLayoutProvider, clickOnlyOnlineDataProvider,
+        clickOnlyOnlineLayoutProvider, onlineDataProvider,
+        filteredOffersLayoutProvider, filteredOffersDataProvider,
+        onlineLayoutProvider, nearbyDataProvider, nearbyLayoutProvider,
         deDuplicatedNearbyOfferList, deDuplicatedOnlineOfferList,
-        whichVerticalSectionActive, deDuplicatedClickOnlyOnlineOfferList]);
+        deDuplicatedFilteredOfferList, whichVerticalSectionActive,
+        filteredOffersSpinnerShown, deDuplicatedClickOnlyOnlineOfferList, noFilteredOffersToLoad]);
 
     /**
      * Function used to populate the rows containing the Fidelis offers data.
@@ -247,7 +211,7 @@ export const VerticalOffers = (props: {
         let offersShown = false;
 
         // offer listing
-        if (props.fidelisPartnerList.length !== 0 && !props.noFilteredOffersAvailable) {
+        if (props.fidelisPartnerList.length !== 0) {
             offersShown = true;
             // retrieve appropriate offer for partner (everyday)
             let offer: Offer | null = null;
@@ -275,10 +239,12 @@ export const VerticalOffers = (props: {
                                     </Card>
                                     <Card style={styles.verticalOfferCard}
                                           onPress={() => {
-                                              // reset search
-                                              setSearchQuery('');
-                                              setOffersMatched(false);
-                                              setResetSearch(true);
+                                              // reset any filtered offers
+                                              setNoFilteredOffersToLoad(false);
+                                              setFilteredOffersList([]);
+
+                                              // reset search query
+                                              setSearchQuery("");
 
                                               // set the clicked offer/partner accordingly
                                               setStoreOfferClicked(data);
@@ -323,10 +289,12 @@ export const VerticalOffers = (props: {
                             :
                             <Card style={styles.verticalOfferCard}
                                   onPress={() => {
-                                      // reset search
-                                      setSearchQuery('');
-                                      setOffersMatched(false);
-                                      setResetSearch(true);
+                                      // reset any filtered offers
+                                      setNoFilteredOffersToLoad(false);
+                                      setFilteredOffersList([]);
+
+                                      // reset search query
+                                      setSearchQuery("");
 
                                       // set the clicked offer/partner accordingly
                                       setStoreOfferClicked(data);
@@ -402,7 +370,7 @@ export const VerticalOffers = (props: {
         let offersShown = false;
 
         // offer listing
-        if (deDuplicatedClickOnlyOnlineOfferList.length !== 0 && !props.noFilteredOffersAvailable) {
+        if (deDuplicatedClickOnlyOnlineOfferList.length !== 0) {
             offersShown = true;
             return (
                 <>
@@ -422,10 +390,12 @@ export const VerticalOffers = (props: {
                                     </Card>
                                     <Card style={styles.verticalOfferCard}
                                           onPress={() => {
-                                              // reset search
-                                              setSearchQuery('');
-                                              setOffersMatched(false);
-                                              setResetSearch(true);
+                                              // reset any filtered offers
+                                              setNoFilteredOffersToLoad(false);
+                                              setFilteredOffersList([]);
+
+                                              // reset search query
+                                              setSearchQuery("");
 
                                               // set the clicked offer/partner accordingly
                                               setStoreOfferClicked(data);
@@ -470,10 +440,12 @@ export const VerticalOffers = (props: {
                             :
                             <Card style={styles.verticalOfferCard}
                                   onPress={() => {
-                                      // reset search
-                                      setSearchQuery('');
-                                      setOffersMatched(false);
-                                      setResetSearch(true);
+                                      // reset any filtered offers
+                                      setNoFilteredOffersToLoad(false);
+                                      setFilteredOffersList([]);
+
+                                      // reset search query
+                                      setSearchQuery("");
 
                                       // set the clicked offer/partner accordingly
                                       setStoreOfferClicked(data);
@@ -549,7 +521,7 @@ export const VerticalOffers = (props: {
         let offersShown = false;
 
         // offer listing
-        if (deDuplicatedOnlineOfferList.length !== 0 && !props.noFilteredOffersAvailable) {
+        if (deDuplicatedOnlineOfferList.length !== 0) {
             offersShown = true;
             return (
                 <>
@@ -569,10 +541,12 @@ export const VerticalOffers = (props: {
                                     </Card>
                                     <Card style={styles.verticalOfferCard}
                                           onPress={() => {
-                                              // reset search
-                                              setSearchQuery('');
-                                              setOffersMatched(false);
-                                              setResetSearch(true);
+                                              // reset any filtered offers
+                                              setNoFilteredOffersToLoad(false);
+                                              setFilteredOffersList([]);
+
+                                              // reset search query
+                                              setSearchQuery("");
 
                                               // set the clicked offer/partner accordingly
                                               setStoreOfferClicked(data);
@@ -617,10 +591,12 @@ export const VerticalOffers = (props: {
                             :
                             <Card style={styles.verticalOfferCard}
                                   onPress={() => {
-                                      // reset search
-                                      setSearchQuery('');
-                                      setOffersMatched(false);
-                                      setResetSearch(true);
+                                      // reset any filtered offers
+                                      setNoFilteredOffersToLoad(false);
+                                      setFilteredOffersList([]);
+
+                                      // reset search query
+                                      setSearchQuery("");
 
                                       // set the clicked offer/partner accordingly
                                       setStoreOfferClicked(data);
@@ -680,6 +656,297 @@ export const VerticalOffers = (props: {
 
         return (<></>);
     }, [deDuplicatedOnlineOfferList]);
+
+    /**
+     * Function used to populate the rows containing the filtered offers data.
+     *
+     * @param type row type to be passed in
+     * @param data data to be passed in for the row
+     * @param index row index
+     *
+     * @return a {@link JSX.Element} or an {@link Array} of {@link JSX.Element} representing the
+     * React node and/or nodes containing the filtered offers.
+     */
+    const renderFilteredRowData = useMemo(() => (_type: string | number, data: Offer, index: number): JSX.Element | JSX.Element[] => {
+        // offer listing
+        if (deDuplicatedFilteredOfferList.length !== 0) {
+            // get the physical location of this offer alongside its coordinates
+            let physicalLocation: string = '';
+            let storeLatitude: number = 0;
+            let storeLongitude: number = 0;
+            // check to see if offer is nearby or online
+            let isOnline = true;
+            data && data.storeDetails !== undefined && data.storeDetails !== null && data.storeDetails!.forEach(store => {
+                const storeDetail = store as OfferStore;
+                if (storeDetail.isOnline === false) {
+                    isOnline = false;
+                }
+
+                /**
+                 * there are many possible stores with physical locations.
+                 * We want to get the one closest (within 25 miles from the user,
+                 * which is equivalent to approximately 50 km, which is 50000 meters)
+                 */
+                if (physicalLocation === '' && store !== null &&
+                    store!.isOnline === false && store!.distance !== null && store!.distance !== undefined
+                    && store!.distance! <= 50000) {
+                    // set the store's coordinates accordingly
+                    storeLatitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
+                    store!.geoLocation!.latitude !== null && store!.geoLocation!.latitude !== undefined
+                        ? store!.geoLocation!.latitude! : 0;
+                    storeLongitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
+                    store!.geoLocation!.longitude !== null && store!.geoLocation!.longitude !== undefined
+                        ? store!.geoLocation!.longitude! : 0;
+
+                    // Olive needs to get better at displaying the address. For now, we will do this input sanitization
+                    if (store!.address1 !== undefined && store!.address1 !== null && store!.address1!.length !== 0 &&
+                        store!.city !== undefined && store!.city !== null && store!.city!.length !== 0 &&
+                        store!.state !== undefined && store!.state !== null && store!.state!.length !== 0 &&
+                        store!.postCode !== undefined && store!.postCode !== null && store!.postCode!.length !== 0) {
+                        physicalLocation =
+                            (store!.address1!.toLowerCase().includes(store!.city!.toLowerCase())
+                                && store!.address1!.toLowerCase().includes(store!.state!.toLowerCase())
+                                && store!.address1!.toLowerCase().includes(store!.postCode!.toLowerCase()))
+                                ? store!.address1!
+                                : `${store!.address1!}, ${store!.city!}, ${store!.state!}, ${store!.postCode!}`;
+                    } else {
+                        physicalLocation = store!.address1!;
+                    }
+                }
+            });
+
+            // calculate the distance between the location of the store displayed and the user's current location (in miles)
+            let calculatedDistance = currentUserLocation !== null && storeLatitude !== 0 && storeLongitude !== 0 ? getDistance({
+                latitude: storeLatitude,
+                longitude: storeLongitude
+            }, {
+                latitude: currentUserLocation.coords.latitude,
+                longitude: currentUserLocation.coords.longitude
+            }, 1) : 0;
+            // the accuracy above is in meters, so we are calculating it up to miles where 1 mile = 1609.34 meters
+            calculatedDistance = Math.round((calculatedDistance / 1609.34) * 100) / 100;
+
+            return (
+                <>
+                    {
+                        index === 0
+                            ?
+                            <>
+                                <View style={{flexDirection: 'column'}}>
+                                    <Card style={styles.verticalOffersBannerCard}>
+                                        <Card.Content>
+                                            <View style={{flexDirection: 'column', bottom: hp(1)}}>
+                                                <Text style={styles.verticalOfferBannerName}>{'Filtered Offers'}</Text>
+                                                <Text
+                                                    style={styles.verticalOfferBannerSubtitleName}>{`Search results for: `}
+                                                    <Text style={styles.verticalOfferBannerSubtitleNameHighlighted}>
+                                                        {`\'${searchQuery}\'`}
+                                                    </Text>
+                                                </Text>
+                                            </View>
+                                        </Card.Content>
+                                    </Card>
+                                    <Card style={styles.verticalOfferCard}
+                                          onPress={() => {
+                                              /**
+                                               * depending on the type of offer (online, click-only, nearby, Fidelis),
+                                               * act accordingly when something is pressed.
+                                               */
+                                              if (data.redemptionType !== undefined && data.redemptionType !== null) {
+                                                  switch (data.redemptionType) {
+                                                      case RedemptionType.Click:
+                                                          // set the clicked offer/partner accordingly
+                                                          setStoreOfferClicked(data);
+                                                          // show the click only bottom sheet
+                                                          setShowClickOnlyBottomSheet(true);
+
+                                                          break;
+                                                      case RedemptionType.All:
+                                                      case RedemptionType.Cardlinked:
+                                                      case RedemptionType.Mobile:
+                                                          // for online offers
+                                                          if (isOnline) {
+                                                              // set the clicked offer/partner accordingly
+                                                              setStoreOfferClicked(data);
+                                                              // @ts-ignore
+                                                              props.navigation.navigate('StoreOffer', {});
+                                                          }
+                                                          // for nearby offers
+                                                          else {
+                                                              // set the clicked offer/partner accordingly
+                                                              setStoreOfferClicked(data);
+                                                              // set the clicked offer physical location
+                                                              storeLatitude !== 0 && storeLongitude !== 0 && setStoreOfferPhysicalLocation({
+                                                                  latitude: storeLatitude,
+                                                                  longitude: storeLongitude,
+                                                                  latitudeDelta: 0,
+                                                                  longitudeDelta: 0,
+                                                                  addressAsString: physicalLocation
+                                                              });
+                                                              // @ts-ignore
+                                                              props.navigation.navigate('StoreOffer', {});
+                                                          }
+                                                          break;
+                                                      default:
+                                                          break;
+                                                  }
+                                              }
+                                          }}>
+                                        <Card.Content>
+                                            <List.Icon color={'#F2FF5D'}
+                                                       icon="chevron-right"
+                                                       style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
+                                            <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
+                                                <View style={styles.verticalOfferLogoBackground}>
+                                                    <Image
+                                                        style={styles.verticalOfferLogo}
+                                                        source={{
+                                                            uri: data.brandLogoSm!,
+                                                        }}
+                                                        placeholder={MoonbeamPlaceholderImage}
+                                                        placeholderContentFit={'contain'}
+                                                        contentFit={'contain'}
+                                                        transition={1000}
+                                                        cachePolicy={'none'}
+                                                    />
+                                                </View>
+                                                <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                                    <Text numberOfLines={1}
+                                                          style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                                    <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
+                                                        <Text style={styles.verticalOfferBenefit}>
+                                                            {data.reward!.type! === RewardType.RewardPercent
+                                                                ? `${data.reward!.value}%`
+                                                                : `$${data.reward!.value}`}
+                                                        </Text>
+                                                        {" Off "}
+                                                    </Text>
+                                                    {
+                                                        currentUserLocation !== null && storeLatitude !== 0 && storeLongitude !== 0 &&
+                                                        <Text numberOfLines={1} style={styles.verticalOfferDistance}>
+                                                            {`${calculatedDistance} miles away`}
+                                                        </Text>
+                                                    }
+                                                </View>
+                                            </View>
+                                        </Card.Content>
+                                    </Card>
+                                </View>
+                            </>
+                            :
+                            (isOnline || (!isOnline && currentUserLocation !== null && storeLatitude !== 0 && storeLongitude !== 0)) ?
+                                <Card style={styles.verticalOfferCard}
+                                      onPress={() => {
+                                          /**
+                                           * depending on the type of offer (online, click-only, nearby, Fidelis),
+                                           * act accordingly when something is pressed.
+                                           */
+                                          if (data.redemptionType !== undefined && data.redemptionType !== null) {
+                                              switch (data.redemptionType) {
+                                                  case RedemptionType.Click:
+                                                      // set the clicked offer/partner accordingly
+                                                      setStoreOfferClicked(data);
+                                                      // show the click only bottom sheet
+                                                      setShowClickOnlyBottomSheet(true);
+
+                                                      break;
+                                                  case RedemptionType.All:
+                                                  case RedemptionType.Cardlinked:
+                                                  case RedemptionType.Mobile:
+                                                      // check to see if offer is nearby or online
+                                                      let isOnline = true;
+                                                      if (data.storeDetails !== undefined && data.storeDetails !== null) {
+                                                          data.storeDetails.forEach(retrievedStoreDetail => {
+                                                              const storeDetail = retrievedStoreDetail as OfferStore;
+                                                              if (storeDetail.isOnline === false) {
+                                                                  isOnline = false;
+                                                              }
+                                                          });
+                                                      }
+                                                      // for online offers
+                                                      if (isOnline) {
+                                                          // set the clicked offer/partner accordingly
+                                                          setStoreOfferClicked(data);
+                                                          // @ts-ignore
+                                                          props.navigation.navigate('StoreOffer', {});
+                                                      }
+                                                      // for nearby offers
+                                                      else {
+                                                          // set the clicked offer/partner accordingly
+                                                          setStoreOfferClicked(data);
+                                                          // set the clicked offer physical location
+                                                          storeLatitude !== 0 && storeLongitude !== 0 && setStoreOfferPhysicalLocation({
+                                                              latitude: storeLatitude,
+                                                              longitude: storeLongitude,
+                                                              latitudeDelta: 0,
+                                                              longitudeDelta: 0,
+                                                              addressAsString: physicalLocation
+                                                          });
+                                                          // @ts-ignore
+                                                          props.navigation.navigate('StoreOffer', {});
+                                                      }
+                                                      break;
+                                                  default:
+                                                      break;
+                                              }
+                                          }
+                                      }}>
+                                    <Card.Content>
+                                        <List.Icon color={'#F2FF5D'}
+                                                   icon="chevron-right"
+                                                   style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
+                                        <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
+                                            <View style={styles.verticalOfferLogoBackground}>
+                                                <Image
+                                                    style={styles.verticalOfferLogo}
+                                                    source={{
+                                                        uri: data.brandLogoSm!,
+                                                    }}
+                                                    placeholder={MoonbeamPlaceholderImage}
+                                                    placeholderContentFit={'contain'}
+                                                    contentFit={'contain'}
+                                                    transition={1000}
+                                                    cachePolicy={'none'}
+                                                />
+                                            </View>
+                                            <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                                <Text numberOfLines={1}
+                                                      style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                                <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
+                                                    <Text style={styles.verticalOfferBenefit}>
+                                                        {data.reward!.type! === RewardType.RewardPercent
+                                                            ? `${data.reward!.value}%`
+                                                            : `$${data.reward!.value}`}
+                                                    </Text>
+                                                    {" Off "}
+                                                </Text>
+                                                {
+                                                    currentUserLocation !== null && storeLatitude !== 0 && storeLongitude !== 0 &&
+                                                    <Text numberOfLines={1} style={styles.verticalOfferDistance}>
+                                                        {`${calculatedDistance} miles away`}
+                                                    </Text>
+                                                }
+                                            </View>
+                                        </View>
+                                    </Card.Content>
+                                </Card>
+                                : <></>
+                    }
+                </>
+            )
+        } else {
+            return (
+                <Card style={styles.verticalOfferCard}>
+                    <Card.Content>
+                        <View style={{flexDirection: 'row'}}>
+                            <Text
+                                style={[styles.verticalNoOffersName, {color: '#F2FF5D'}]}>{`No Matched Offers for \'${searchQuery}\'`}</Text>
+                        </View>
+                    </Card.Content>
+                </Card>
+            )
+        }
+    }, [deDuplicatedFilteredOfferList]);
 
     /**
      * Function used to populate the rows containing the nearby offers data.
@@ -745,7 +1012,7 @@ export const VerticalOffers = (props: {
         calculatedDistance = Math.round((calculatedDistance / 1609.34) * 100) / 100
 
         // offer listing
-        if (deDuplicatedNearbyOfferList.length !== 0 && !props.noFilteredOffersAvailable) {
+        if (deDuplicatedNearbyOfferList.length !== 0) {
             offersShown = true;
             return physicalLocation !== '' ? (
                 <>
@@ -765,10 +1032,12 @@ export const VerticalOffers = (props: {
                                     </Card>
                                     <Card style={styles.verticalOfferCard}
                                           onPress={() => {
-                                              // reset search
-                                              setSearchQuery('');
-                                              setOffersMatched(false);
-                                              setResetSearch(true);
+                                              // reset any filtered offers
+                                              setNoFilteredOffersToLoad(false);
+                                              setFilteredOffersList([]);
+
+                                              // reset search query
+                                              setSearchQuery("");
 
                                               // set the clicked offer/partner accordingly
                                               setStoreOfferClicked(data);
@@ -824,10 +1093,12 @@ export const VerticalOffers = (props: {
                             :
                             <Card style={styles.verticalOfferCard}
                                   onPress={() => {
-                                      // reset search
-                                      setSearchQuery('');
-                                      setOffersMatched(false);
-                                      setResetSearch(true);
+                                      // reset any filtered offers
+                                      setNoFilteredOffersToLoad(false);
+                                      setFilteredOffersList([]);
+
+                                      // reset search query
+                                      setSearchQuery("");
 
                                       // set the clicked offer/partner accordingly
                                       setStoreOfferClicked(data);
@@ -983,6 +1254,7 @@ export const VerticalOffers = (props: {
                 toggleViewPressed === 'vertical' &&
                 <View style={{flex: 1}}>
                     {
+                        whichVerticalSectionActive !== 'search' &&
                         <Portal>
                             <FAB.Group
                                 fabStyle={{
@@ -1010,8 +1282,12 @@ export const VerticalOffers = (props: {
                                             size: 'medium',
                                             label: 'Discount\nPercentage',
                                             onPress: () => {
-                                                setSearchQuery('');
-                                                setOffersMatched(false);
+                                                // reset any filtered offers
+                                                setNoFilteredOffersToLoad(false);
+                                                setFilteredOffersList([]);
+
+                                                // reset search query
+                                                setSearchQuery("");
 
                                                 setAreFiltersActive(false);
                                                 setFilteredByDiscountPressed(true);
@@ -1093,213 +1369,26 @@ export const VerticalOffers = (props: {
                         </Portal>
                     }
                     {
-                        !props.filteredOffersSpinnerShown ?
+                        !filteredOffersSpinnerShown ?
                             <>
                                 {
-                                    props.noFilteredOffersAvailable ?
-                                        <>
-                                            <Card style={styles.verticalOfferCard}>
-                                                <Card.Content>
-                                                    <View style={{flexDirection: 'row'}}>
-                                                        <Text
-                                                            style={[styles.verticalNoOffersName, {color: '#F2FF5D'}]}>{'No Matched Offers'}</Text>
-                                                    </View>
-                                                </Card.Content>
-                                            </Card>
-                                        </>
-                                        :
-                                        <>
-                                            {
-                                                deDuplicatedClickOnlyOnlineOfferList.length !== 0 && whichVerticalSectionActive === 'click-only-online' &&
-                                                clickOnlyOnlineDataProvider !== null && clickOnlyOnlineLayoutProvider !== null &&
-                                                <>
-                                                    <RecyclerListView
-                                                        // @ts-ignore
-                                                        ref={onlineListView}
-                                                        style={{width: wp(100)}}
-                                                        layoutProvider={clickOnlyOnlineLayoutProvider!}
-                                                        dataProvider={clickOnlyOnlineDataProvider!}
-                                                        rowRenderer={renderClickOnlyOnlineRowData}
-                                                        isHorizontal={false}
-                                                        forceNonDeterministicRendering={true}
-                                                        renderFooter={() => {
-                                                            return (
-                                                                verticalListLoading || clickOnlyOnlineLoadingOffers ?
-                                                                    <>
-                                                                        <View
-                                                                            style={{
-                                                                                width: wp(100),
-                                                                                alignSelf: 'center'
-                                                                            }}/>
-                                                                        <Card
-                                                                            style={[styles.loadCard,
-                                                                                {
-                                                                                    width: wp(100),
-                                                                                    height: hp(10),
-                                                                                    bottom: hp(2)
-                                                                                }
-                                                                            ]}>
-                                                                            <Card.Content>
-                                                                                <View style={{flexDirection: 'column'}}>
-                                                                                    <View style={{
-                                                                                        flexDirection: 'row'
-                                                                                    }}>
-                                                                                        <View>
-                                                                                            <ActivityIndicator
-                                                                                                style={{
-                                                                                                    alignSelf: 'center',
-                                                                                                    top: hp(2),
-                                                                                                    left: wp(40)
-                                                                                                }}
-                                                                                                animating={true}
-                                                                                                color={'#F2FF5D'}
-                                                                                                size={hp(5)}
-                                                                                            />
-
-                                                                                        </View>
-                                                                                    </View>
-                                                                                </View>
-                                                                            </Card.Content>
-                                                                        </Card>
-                                                                    </> : <></>
-                                                            )
-                                                        }}
-                                                        {
-                                                            ...(Platform.OS === 'ios') ?
-                                                                {onEndReachedThreshold: 0} :
-                                                                {onEndReachedThreshold: 1}
-                                                        }
-                                                        onEndReached={async () => {
-                                                            const errorMessage = `End of list reached. Trying to refresh more items.`;
-                                                            console.log(errorMessage);
-                                                            await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
-
-                                                            // if there are items to load
-                                                            if (!noClickOnlyOnlineOffersToLoad) {
-                                                                // set the loader
-                                                                setClickOnlyOnlineLoadingOffers(true);
-                                                                await loadMoreClickOnlyOnlineOffers();
-                                                            } else {
-                                                                const errorMessage = `Maximum number of click-only online offers reached ${deDuplicatedClickOnlyOnlineOfferList.length}`;
-                                                                console.log(errorMessage);
-                                                                await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
-
-                                                                setClickOnlyOnlineLoadingOffers(false);
-                                                            }
-                                                        }}
-                                                        scrollViewProps={{
-                                                            pagingEnabled: "true",
-                                                            decelerationRate: "fast",
-                                                            snapToAlignment: "start",
-                                                            persistentScrollbar: false,
-                                                            showsVerticalScrollIndicator: false,
-                                                        }}
-                                                    />
-                                                </>
-                                            }
-                                            {
-                                                deDuplicatedOnlineOfferList.length !== 0 && whichVerticalSectionActive === 'online' &&
-                                                onlineDataProvider !== null && onlineLayoutProvider !== null &&
-                                                <>
-                                                    <RecyclerListView
-                                                        // @ts-ignore
-                                                        ref={onlineListView}
-                                                        style={{width: wp(100)}}
-                                                        layoutProvider={onlineLayoutProvider!}
-                                                        dataProvider={onlineDataProvider!}
-                                                        rowRenderer={renderOnlineRowData}
-                                                        isHorizontal={false}
-                                                        forceNonDeterministicRendering={true}
-                                                        renderFooter={() => {
-                                                            return (
-                                                                verticalListLoading || onlineLoadingOffers ?
-                                                                    <>
-                                                                        <View
-                                                                            style={{
-                                                                                width: wp(100),
-                                                                                alignSelf: 'center'
-                                                                            }}/>
-                                                                        <Card
-                                                                            style={[styles.loadCard,
-                                                                                {
-                                                                                    width: wp(100),
-                                                                                    height: hp(10),
-                                                                                    bottom: hp(2)
-                                                                                }
-                                                                            ]}>
-                                                                            <Card.Content>
-                                                                                <View style={{flexDirection: 'column'}}>
-                                                                                    <View style={{
-                                                                                        flexDirection: 'row'
-                                                                                    }}>
-                                                                                        <View>
-                                                                                            <ActivityIndicator
-                                                                                                style={{
-                                                                                                    alignSelf: 'center',
-                                                                                                    top: hp(2),
-                                                                                                    left: wp(40)
-                                                                                                }}
-                                                                                                animating={true}
-                                                                                                color={'#F2FF5D'}
-                                                                                                size={hp(5)}
-                                                                                            />
-
-                                                                                        </View>
-                                                                                    </View>
-                                                                                </View>
-                                                                            </Card.Content>
-                                                                        </Card>
-                                                                    </> : <></>
-                                                            )
-                                                        }}
-                                                        {
-                                                            ...(Platform.OS === 'ios') ?
-                                                                {onEndReachedThreshold: 0} :
-                                                                {onEndReachedThreshold: 1}
-                                                        }
-                                                        onEndReached={async () => {
-                                                            const errorMessage = `End of list reached. Trying to refresh more items.`;
-                                                            console.log(errorMessage);
-                                                            await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
-
-                                                            // if there are items to load
-                                                            if (!noOnlineOffersToLoad) {
-                                                                // set the loader
-                                                                setOnlineLoadingOffers(true);
-                                                                await loadMoreOnlineOffers();
-                                                            } else {
-                                                                const errorMessage = `Maximum number of online offers reached ${deDuplicatedOnlineOfferList.length}`;
-                                                                console.log(errorMessage);
-                                                                await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
-
-                                                                setOnlineLoadingOffers(false);
-                                                            }
-                                                        }}
-                                                        scrollViewProps={{
-                                                            pagingEnabled: "true",
-                                                            decelerationRate: "fast",
-                                                            snapToAlignment: "start",
-                                                            persistentScrollbar: false,
-                                                            showsVerticalScrollIndicator: false,
-                                                        }}
-                                                    />
-                                                </>
-                                            }
-                                            {
-                                                deDuplicatedNearbyOfferList.length !== 0 && whichVerticalSectionActive === 'nearby' &&
-                                                nearbyDataProvider !== null && nearbyLayoutProvider !== null &&
+                                    <>
+                                        {
+                                            deDuplicatedClickOnlyOnlineOfferList.length !== 0 && whichVerticalSectionActive === 'click-only-online' &&
+                                            clickOnlyOnlineDataProvider !== null && clickOnlyOnlineLayoutProvider !== null &&
+                                            <>
                                                 <RecyclerListView
                                                     // @ts-ignore
-                                                    ref={nearbyListView}
-                                                    style={{flex: 1, height: hp(50), width: wp(100)}}
-                                                    layoutProvider={nearbyLayoutProvider!}
-                                                    dataProvider={nearbyDataProvider!}
-                                                    rowRenderer={renderNearbyRowData}
+                                                    ref={onlineListView}
+                                                    style={{width: wp(100)}}
+                                                    layoutProvider={clickOnlyOnlineLayoutProvider!}
+                                                    dataProvider={clickOnlyOnlineDataProvider!}
+                                                    rowRenderer={renderClickOnlyOnlineRowData}
                                                     isHorizontal={false}
                                                     forceNonDeterministicRendering={true}
                                                     renderFooter={() => {
                                                         return (
-                                                            verticalListLoading || nearbyLoadingOffers ?
+                                                            verticalListLoading || clickOnlyOnlineLoadingOffers ?
                                                                 <>
                                                                     <View
                                                                         style={{
@@ -1350,16 +1439,16 @@ export const VerticalOffers = (props: {
                                                         await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
 
                                                         // if there are items to load
-                                                        if (!noNearbyOffersToLoad) {
+                                                        if (!noClickOnlyOnlineOffersToLoad) {
                                                             // set the loader
-                                                            setNearbyLoadingOffers(true);
-                                                            await loadMoreNearbyOffers();
+                                                            setClickOnlyOnlineLoadingOffers(true);
+                                                            await loadMoreClickOnlyOnlineOffers();
                                                         } else {
-                                                            const errorMessage = `Maximum number of nearby offers reached ${deDuplicatedNearbyOfferList.length}`;
+                                                            const errorMessage = `Maximum number of click-only online offers reached ${deDuplicatedClickOnlyOnlineOfferList.length}`;
                                                             console.log(errorMessage);
                                                             await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
 
-                                                            setNearbyLoadingOffers(false);
+                                                            setClickOnlyOnlineLoadingOffers(false);
                                                         }
                                                     }}
                                                     scrollViewProps={{
@@ -1370,176 +1459,538 @@ export const VerticalOffers = (props: {
                                                         showsVerticalScrollIndicator: false,
                                                     }}
                                                 />
-                                            }
-                                            {
-                                                props.fidelisPartnerList.length !== 0 && whichVerticalSectionActive === 'fidelis' &&
-                                                fidelisDataProvider !== null && fidelisLayoutProvider !== null &&
+                                            </>
+                                        }
+                                        {
+                                            deDuplicatedOnlineOfferList.length !== 0 && whichVerticalSectionActive === 'online' &&
+                                            onlineDataProvider !== null && onlineLayoutProvider !== null &&
+                                            <>
                                                 <RecyclerListView
-                                                    style={{flex: 1, height: hp(50), width: wp(100)}}
-                                                    layoutProvider={fidelisLayoutProvider!}
-                                                    dataProvider={fidelisDataProvider!}
-                                                    rowRenderer={renderFidelisRowData}
+                                                    // @ts-ignore
+                                                    ref={onlineListView}
+                                                    style={{width: wp(100)}}
+                                                    layoutProvider={onlineLayoutProvider!}
+                                                    dataProvider={onlineDataProvider!}
+                                                    rowRenderer={renderOnlineRowData}
                                                     isHorizontal={false}
                                                     forceNonDeterministicRendering={true}
+                                                    renderFooter={() => {
+                                                        return (
+                                                            verticalListLoading || onlineLoadingOffers ?
+                                                                <>
+                                                                    <View
+                                                                        style={{
+                                                                            width: wp(100),
+                                                                            alignSelf: 'center'
+                                                                        }}/>
+                                                                    <Card
+                                                                        style={[styles.loadCard,
+                                                                            {
+                                                                                width: wp(100),
+                                                                                height: hp(10),
+                                                                                bottom: hp(2)
+                                                                            }
+                                                                        ]}>
+                                                                        <Card.Content>
+                                                                            <View style={{flexDirection: 'column'}}>
+                                                                                <View style={{
+                                                                                    flexDirection: 'row'
+                                                                                }}>
+                                                                                    <View>
+                                                                                        <ActivityIndicator
+                                                                                            style={{
+                                                                                                alignSelf: 'center',
+                                                                                                top: hp(2),
+                                                                                                left: wp(40)
+                                                                                            }}
+                                                                                            animating={true}
+                                                                                            color={'#F2FF5D'}
+                                                                                            size={hp(5)}
+                                                                                        />
+
+                                                                                    </View>
+                                                                                </View>
+                                                                            </View>
+                                                                        </Card.Content>
+                                                                    </Card>
+                                                                </> : <></>
+                                                        )
+                                                    }}
+                                                    {
+                                                        ...(Platform.OS === 'ios') ?
+                                                            {onEndReachedThreshold: 0} :
+                                                            {onEndReachedThreshold: 1}
+                                                    }
                                                     onEndReached={async () => {
+                                                        const errorMessage = `End of list reached. Trying to refresh more items.`;
+                                                        console.log(errorMessage);
+                                                        await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
+                                                        // if there are items to load
+                                                        if (!noOnlineOffersToLoad) {
+                                                            // set the loader
+                                                            setOnlineLoadingOffers(true);
+                                                            await loadMoreOnlineOffers();
+                                                        } else {
+                                                            const errorMessage = `Maximum number of online offers reached ${deDuplicatedOnlineOfferList.length}`;
+                                                            console.log(errorMessage);
+                                                            await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
+                                                            setOnlineLoadingOffers(false);
+                                                        }
                                                     }}
                                                     scrollViewProps={{
                                                         pagingEnabled: "true",
                                                         decelerationRate: "fast",
                                                         snapToAlignment: "start",
                                                         persistentScrollbar: false,
-                                                        showsVerticalScrollIndicator: false
+                                                        showsVerticalScrollIndicator: false,
                                                     }}
                                                 />
-                                            }
-                                            {
-                                                whichVerticalSectionActive === 'search' &&
-                                                <View
-                                                    style={{flexDirection: 'column'}}>
-                                                    <Card style={[styles.verticalOffersBannerCard, {
-                                                        height: hp(100),
-                                                        backgroundColor: '#1c1a1f'
-                                                    }]}>
-                                                        <Card.Content>
-                                                            <View style={{flexDirection: 'column', bottom: hp(2)}}>
-                                                                <Text
-                                                                    style={styles.verticalOfferBannerName}>{'Search offers'}</Text>
-                                                                <Text
-                                                                    style={styles.verticalOfferBannerSubtitleName}>{'Look for a specific brand or category.'}</Text>
-                                                                {
-                                                                    searchQuery.length === 0 ?
-                                                                        <View style={{top: hp(2)}}>
-                                                                            <Divider style={styles.searchDivider}/>
-                                                                            <TouchableOpacity
-                                                                                style={styles.searchSuggestionView}>
-                                                                                <Icon name="auto-graph"
-                                                                                      type={'material'}
-                                                                                      style={styles.searchSuggestionLeftIcon}
-                                                                                      size={hp(3.5)}
-                                                                                      color={'#F2FF5D'}/>
-                                                                                <Text numberOfLines={1}
-                                                                                      style={styles.searchSuggestionText}>
-                                                                                    <Text
-                                                                                        style={styles.searchSuggestionTextHighlighted}>
-                                                                                        {'\'Food\''}
-                                                                                    </Text>
-                                                                                    {` in Categories`}
-                                                                                </Text>
-                                                                                <Icon name="arrow-right"
-                                                                                      type={'octicon'}
-                                                                                      style={styles.searchSuggestionRightIcon}
-                                                                                      size={hp(3.5)}
-                                                                                      color={'#D9D9D9'}/>
-                                                                            </TouchableOpacity>
-                                                                            <Divider style={styles.searchDivider}/>
-                                                                            <Divider style={styles.searchDivider}/>
-                                                                            <TouchableOpacity
-                                                                                style={styles.searchSuggestionView}>
-                                                                                <Icon name="auto-graph"
-                                                                                      type={'material'}
-                                                                                      style={styles.searchSuggestionLeftIcon}
-                                                                                      size={hp(3.5)}
-                                                                                      color={'#F2FF5D'}/>
-                                                                                <Text numberOfLines={1}
-                                                                                      style={styles.searchSuggestionText}>
-                                                                                    <Text
-                                                                                        style={styles.searchSuggestionTextHighlighted}>
-                                                                                        {'\'Jack in the Box\''}
-                                                                                    </Text>
-                                                                                    {` in Brands`}
-                                                                                </Text>
-                                                                                <Icon name="arrow-right"
-                                                                                      type={'octicon'}
-                                                                                      style={styles.searchSuggestionRightIcon}
-                                                                                      size={hp(3.5)}
-                                                                                      color={'#D9D9D9'}/>
-                                                                            </TouchableOpacity>
-                                                                            <Divider style={styles.searchDivider}/>
-                                                                            <Divider style={styles.searchDivider}/>
-                                                                            <TouchableOpacity
-                                                                                style={styles.searchSuggestionView}>
-                                                                                <Icon name="auto-graph"
-                                                                                      type={'material'}
-                                                                                      style={styles.searchSuggestionLeftIcon}
-                                                                                      size={hp(3.5)}
-                                                                                      color={'#F2FF5D'}/>
-                                                                                <Text numberOfLines={1}
-                                                                                      style={styles.searchSuggestionText}>
-                                                                                    <Text
-                                                                                        style={styles.searchSuggestionTextHighlighted}>
-                                                                                        {'\'Retail\''}
-                                                                                    </Text>
-                                                                                    {` in Categories`}
-                                                                                </Text>
-                                                                                <Icon name="arrow-right"
-                                                                                      type={'octicon'}
-                                                                                      style={styles.searchSuggestionRightIcon}
-                                                                                      size={hp(3.5)}
-                                                                                      color={'#D9D9D9'}/>
-                                                                            </TouchableOpacity>
-                                                                            <Divider style={styles.searchDivider}/>
+                                            </>
+                                        }
+                                        {
+                                            deDuplicatedNearbyOfferList.length !== 0 && whichVerticalSectionActive === 'nearby' &&
+                                            nearbyDataProvider !== null && nearbyLayoutProvider !== null &&
+                                            <RecyclerListView
+                                                // @ts-ignore
+                                                ref={nearbyListView}
+                                                style={{flex: 1, height: hp(50), width: wp(100)}}
+                                                layoutProvider={nearbyLayoutProvider!}
+                                                dataProvider={nearbyDataProvider!}
+                                                rowRenderer={renderNearbyRowData}
+                                                isHorizontal={false}
+                                                forceNonDeterministicRendering={true}
+                                                renderFooter={() => {
+                                                    return (
+                                                        verticalListLoading || nearbyLoadingOffers ?
+                                                            <>
+                                                                <View
+                                                                    style={{
+                                                                        width: wp(100),
+                                                                        alignSelf: 'center'
+                                                                    }}/>
+                                                                <Card
+                                                                    style={[styles.loadCard,
+                                                                        {
+                                                                            width: wp(100),
+                                                                            height: hp(10),
+                                                                            bottom: hp(2)
+                                                                        }
+                                                                    ]}>
+                                                                    <Card.Content>
+                                                                        <View style={{flexDirection: 'column'}}>
+                                                                            <View style={{
+                                                                                flexDirection: 'row'
+                                                                            }}>
+                                                                                <View>
+                                                                                    <ActivityIndicator
+                                                                                        style={{
+                                                                                            alignSelf: 'center',
+                                                                                            top: hp(2),
+                                                                                            left: wp(40)
+                                                                                        }}
+                                                                                        animating={true}
+                                                                                        color={'#F2FF5D'}
+                                                                                        size={hp(5)}
+                                                                                    />
+
+                                                                                </View>
+                                                                            </View>
                                                                         </View>
-                                                                        :
-                                                                        <View style={{top: hp(2)}}>
-                                                                            <Divider style={styles.searchDivider}/>
-                                                                            <TouchableOpacity
-                                                                                style={styles.searchSuggestionView}>
-                                                                                <Icon name="search"
-                                                                                      type={'material'}
-                                                                                      style={styles.searchSuggestionLeftIcon}
-                                                                                      size={hp(3.5)}
-                                                                                      color={'#F2FF5D'}/>
-                                                                                <Text numberOfLines={1}
-                                                                                      style={styles.searchSuggestionTextHighlighted}>
-                                                                                    <Text
-                                                                                        style={styles.searchSuggestionText}>
-                                                                                        {'Lookup:  '}
-                                                                                    </Text>
-                                                                                    {`\'${searchQuery}\'`}
-                                                                                </Text>
-                                                                                <Icon name="arrow-right"
-                                                                                      type={'octicon'}
-                                                                                      style={styles.searchSuggestionRightIcon}
-                                                                                      size={hp(3.5)}
-                                                                                      color={'#D9D9D9'}/>
-                                                                            </TouchableOpacity>
-                                                                            <Divider style={styles.searchDivider}/>
+                                                                    </Card.Content>
+                                                                </Card>
+                                                            </> : <></>
+                                                    )
+                                                }}
+                                                {
+                                                    ...(Platform.OS === 'ios') ?
+                                                        {onEndReachedThreshold: 0} :
+                                                        {onEndReachedThreshold: 1}
+                                                }
+                                                onEndReached={async () => {
+                                                    const errorMessage = `End of list reached. Trying to refresh more items.`;
+                                                    console.log(errorMessage);
+                                                    await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
+                                                    // if there are items to load
+                                                    if (!noNearbyOffersToLoad) {
+                                                        // set the loader
+                                                        setNearbyLoadingOffers(true);
+                                                        await loadMoreNearbyOffers();
+                                                    } else {
+                                                        const errorMessage = `Maximum number of nearby offers reached ${deDuplicatedNearbyOfferList.length}`;
+                                                        console.log(errorMessage);
+                                                        await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
+                                                        setNearbyLoadingOffers(false);
+                                                    }
+                                                }}
+                                                scrollViewProps={{
+                                                    pagingEnabled: "true",
+                                                    decelerationRate: "fast",
+                                                    snapToAlignment: "start",
+                                                    persistentScrollbar: false,
+                                                    showsVerticalScrollIndicator: false,
+                                                }}
+                                            />
+                                        }
+                                        {
+                                            props.fidelisPartnerList.length !== 0 && whichVerticalSectionActive === 'fidelis' &&
+                                            fidelisDataProvider !== null && fidelisLayoutProvider !== null &&
+                                            <RecyclerListView
+                                                style={{flex: 1, height: hp(50), width: wp(100)}}
+                                                layoutProvider={fidelisLayoutProvider!}
+                                                dataProvider={fidelisDataProvider!}
+                                                rowRenderer={renderFidelisRowData}
+                                                isHorizontal={false}
+                                                forceNonDeterministicRendering={true}
+                                                onEndReached={async () => {
+                                                }}
+                                                scrollViewProps={{
+                                                    pagingEnabled: "true",
+                                                    decelerationRate: "fast",
+                                                    snapToAlignment: "start",
+                                                    persistentScrollbar: false,
+                                                    showsVerticalScrollIndicator: false
+                                                }}
+                                            />
+                                        }
+                                        {
+                                            (deDuplicatedFilteredOfferList.length !== 0 && whichVerticalSectionActive === 'search' &&
+                                                filteredOffersDataProvider !== null && filteredOffersLayoutProvider !== null && !noFilteredOffersToLoad) &&
+                                            <RecyclerListView
+                                                // @ts-ignore
+                                                ref={nearbyListView}
+                                                style={{flex: 1, height: hp(50), width: wp(100)}}
+                                                layoutProvider={filteredOffersLayoutProvider!}
+                                                dataProvider={filteredOffersDataProvider!}
+                                                rowRenderer={renderFilteredRowData}
+                                                isHorizontal={false}
+                                                forceNonDeterministicRendering={true}
+                                                renderFooter={() => {
+                                                    return (
+                                                        filteredOffersSpinnerShown ?
+                                                            <>
+                                                                <View
+                                                                    style={{
+                                                                        width: wp(100),
+                                                                        alignSelf: 'center'
+                                                                    }}/>
+                                                                <Card
+                                                                    style={[styles.loadCard,
+                                                                        {
+                                                                            width: wp(100),
+                                                                            height: hp(10),
+                                                                            bottom: hp(2)
+                                                                        }
+                                                                    ]}>
+                                                                    <Card.Content>
+                                                                        <View style={{flexDirection: 'column'}}>
+                                                                            <View style={{
+                                                                                flexDirection: 'row'
+                                                                            }}>
+                                                                                <View>
+                                                                                    <ActivityIndicator
+                                                                                        style={{
+                                                                                            alignSelf: 'center',
+                                                                                            top: hp(2),
+                                                                                            left: wp(40)
+                                                                                        }}
+                                                                                        animating={true}
+                                                                                        color={'#F2FF5D'}
+                                                                                        size={hp(5)}
+                                                                                    />
+
+                                                                                </View>
+                                                                            </View>
                                                                         </View>
-                                                                }
-                                                            </View>
-                                                        </Card.Content>
-                                                    </Card>
-                                                </View>
-                                            }
-                                        </>
+                                                                    </Card.Content>
+                                                                </Card>
+                                                            </> : <></>
+                                                    )
+                                                }}
+                                                {
+                                                    ...(Platform.OS === 'ios') ?
+                                                        {onEndReachedThreshold: 0} :
+                                                        {onEndReachedThreshold: 1}
+                                                }
+                                                scrollViewProps={{
+                                                    pagingEnabled: "true",
+                                                    decelerationRate: "fast",
+                                                    snapToAlignment: "start",
+                                                    persistentScrollbar: false,
+                                                    showsVerticalScrollIndicator: false,
+                                                }}
+                                            />
+                                        }
+                                        {
+                                            deDuplicatedFilteredOfferList.length === 0 && whichVerticalSectionActive === 'search' && noFilteredOffersToLoad &&
+                                            <View style={{flexDirection: 'column'}}>
+                                                <Card style={styles.verticalOffersBannerCard}>
+                                                    <Card.Content>
+                                                        <View style={{flexDirection: 'column', bottom: hp(1)}}>
+                                                            <Text
+                                                                style={styles.verticalOfferBannerName}>{'Filtered Offers'}</Text>
+                                                            <Text
+                                                                style={styles.verticalOfferBannerSubtitleName}>{`Search results for: `}
+                                                                <Text style={styles.verticalOfferBannerSubtitleNameHighlighted}>
+                                                                    {`\'${searchQuery}\'`}
+                                                                </Text>
+                                                            </Text>
+                                                        </View>
+                                                    </Card.Content>
+                                                </Card>
+                                                <Card style={styles.verticalOfferCard}>
+                                                    <Card.Content>
+                                                        <View style={{flexDirection: 'row'}}>
+                                                            <Text
+                                                                style={[styles.verticalNoOffersName, {color: '#F2FF5D'}]}>{`No Matched Offers`}</Text>
+                                                        </View>
+                                                    </Card.Content>
+                                                </Card>
+                                            </View>
+                                        }
+                                        {
+                                            deDuplicatedFilteredOfferList.length === 0 && whichVerticalSectionActive === 'search' && !noFilteredOffersToLoad &&
+                                            <View
+                                                style={{flexDirection: 'column'}}>
+                                                <Card style={[styles.verticalOffersBannerCard, {
+                                                    height: hp(100),
+                                                    backgroundColor: '#1c1a1f'
+                                                }]}>
+                                                    <Card.Content>
+                                                        <View style={{flexDirection: 'column', bottom: hp(1)}}>
+                                                            <Text
+                                                                style={styles.verticalOfferBannerName}>{'Search offers'}</Text>
+                                                            <Text
+                                                                style={styles.verticalOfferBannerSubtitleName}>{'Look for a specific brand or category.'}</Text>
+                                                            {
+                                                                searchQuery.length === 0 ?
+                                                                    <View style={{top: hp(2)}}>
+                                                                        <Divider style={styles.searchDivider}/>
+                                                                        <TouchableOpacity
+                                                                            style={styles.searchSuggestionView}
+                                                                            onPress={async () => {
+                                                                                // set the search query accordingly
+                                                                                setSearchQuery('food');
+
+                                                                                // clean any previous offers
+                                                                                setFilteredOffersList([]);
+
+                                                                                // execute the search query
+                                                                                setFilteredOffersSpinnerShown(true);
+                                                                                const queriedOffers =
+                                                                                    (currentUserLocation !== null && currentUserLocation.coords.latitude !== null && currentUserLocation.coords.latitude !== undefined &&
+                                                                                        currentUserLocation.coords.longitude !== null && currentUserLocation.coords.longitude !== undefined)
+                                                                                        ? await searchQueryExecute('food', currentUserLocation.coords.latitude, currentUserLocation.coords.longitude)
+                                                                                        : await searchQueryExecute('food');
+                                                                                if (queriedOffers.length == 0) {
+                                                                                    setNoFilteredOffersToLoad(true);
+                                                                                    setFilteredOffersSpinnerShown(false);
+                                                                                } else {
+                                                                                    setNoFilteredOffersToLoad(false);
+                                                                                    setFilteredOffersList([...queriedOffers]);
+                                                                                }
+
+                                                                                // dismiss keyboard
+                                                                                Keyboard.dismiss();
+                                                                            }}
+                                                                        >
+                                                                            <Icon name="auto-graph"
+                                                                                  type={'material'}
+                                                                                  style={styles.searchSuggestionLeftIcon}
+                                                                                  size={hp(3.5)}
+                                                                                  color={'#F2FF5D'}/>
+                                                                            <Text numberOfLines={1}
+                                                                                  style={styles.searchSuggestionText}>
+                                                                                <Text
+                                                                                    style={styles.searchSuggestionTextHighlighted}>
+                                                                                    {'\'Food\''}
+                                                                                </Text>
+                                                                                {` in Categories`}
+                                                                            </Text>
+                                                                            <Icon name="arrow-right"
+                                                                                  type={'octicon'}
+                                                                                  style={styles.searchSuggestionRightIcon}
+                                                                                  size={hp(3.5)}
+                                                                                  color={'#D9D9D9'}/>
+                                                                        </TouchableOpacity>
+                                                                        <Divider style={styles.searchDivider}/>
+                                                                        <Divider style={styles.searchDivider}/>
+                                                                        <TouchableOpacity
+                                                                            style={styles.searchSuggestionView}
+                                                                            onPress={async () => {
+                                                                                // set the search query accordingly
+                                                                                setSearchQuery('Jack in the Box');
+
+                                                                                // clean any previous offers
+                                                                                setFilteredOffersList([]);
+
+                                                                                // execute the search query
+                                                                                setFilteredOffersSpinnerShown(true);
+                                                                                const queriedOffers =
+                                                                                    (currentUserLocation !== null && currentUserLocation.coords.latitude !== null && currentUserLocation.coords.latitude !== undefined &&
+                                                                                        currentUserLocation.coords.longitude !== null && currentUserLocation.coords.longitude !== undefined)
+                                                                                        ? await searchQueryExecute('Jack in the Box', currentUserLocation.coords.latitude, currentUserLocation.coords.longitude)
+                                                                                        : await searchQueryExecute('Jack in the Box');
+                                                                                if (queriedOffers.length == 0) {
+                                                                                    setNoFilteredOffersToLoad(true);
+                                                                                    setFilteredOffersSpinnerShown(false);
+                                                                                } else {
+                                                                                    setNoFilteredOffersToLoad(false);
+                                                                                    setFilteredOffersList([...queriedOffers]);
+                                                                                }
+
+                                                                                // dismiss keyboard
+                                                                                Keyboard.dismiss();
+                                                                            }}
+                                                                        >
+                                                                            <Icon name="auto-graph"
+                                                                                  type={'material'}
+                                                                                  style={styles.searchSuggestionLeftIcon}
+                                                                                  size={hp(3.5)}
+                                                                                  color={'#F2FF5D'}/>
+                                                                            <Text numberOfLines={1}
+                                                                                  style={styles.searchSuggestionText}>
+                                                                                <Text
+                                                                                    style={styles.searchSuggestionTextHighlighted}>
+                                                                                    {'\'Jack in the Box\''}
+                                                                                </Text>
+                                                                                {` in Brands`}
+                                                                            </Text>
+                                                                            <Icon name="arrow-right"
+                                                                                  type={'octicon'}
+                                                                                  style={styles.searchSuggestionRightIcon}
+                                                                                  size={hp(3.5)}
+                                                                                  color={'#D9D9D9'}/>
+                                                                        </TouchableOpacity>
+                                                                        <Divider style={styles.searchDivider}/>
+                                                                        <Divider style={styles.searchDivider}/>
+                                                                        <TouchableOpacity
+                                                                            style={styles.searchSuggestionView}
+                                                                            onPress={async () => {
+                                                                                // set the search query accordingly
+                                                                                setSearchQuery('retail');
+
+                                                                                // clean any previous offers
+                                                                                setFilteredOffersList([]);
+
+                                                                                // execute the search query
+                                                                                setFilteredOffersSpinnerShown(true);
+                                                                                const queriedOffers =
+                                                                                    (currentUserLocation !== null && currentUserLocation.coords.latitude !== null && currentUserLocation.coords.latitude !== undefined &&
+                                                                                        currentUserLocation.coords.longitude !== null && currentUserLocation.coords.longitude !== undefined)
+                                                                                        ? await searchQueryExecute('retail', currentUserLocation.coords.latitude, currentUserLocation.coords.longitude)
+                                                                                        : await searchQueryExecute('retail');
+                                                                                if (queriedOffers.length == 0) {
+                                                                                    setNoFilteredOffersToLoad(true);
+                                                                                    setFilteredOffersSpinnerShown(false);
+                                                                                } else {
+                                                                                    setNoFilteredOffersToLoad(false);
+                                                                                    setFilteredOffersList([...queriedOffers]);
+                                                                                }
+
+                                                                                // dismiss keyboard
+                                                                                Keyboard.dismiss();
+                                                                            }}
+                                                                        >
+                                                                            <Icon name="auto-graph"
+                                                                                  type={'material'}
+                                                                                  style={styles.searchSuggestionLeftIcon}
+                                                                                  size={hp(3.5)}
+                                                                                  color={'#F2FF5D'}/>
+                                                                            <Text numberOfLines={1}
+                                                                                  style={styles.searchSuggestionText}>
+                                                                                <Text
+                                                                                    style={styles.searchSuggestionTextHighlighted}>
+                                                                                    {'\'Retail\''}
+                                                                                </Text>
+                                                                                {` in Categories`}
+                                                                            </Text>
+                                                                            <Icon name="arrow-right"
+                                                                                  type={'octicon'}
+                                                                                  style={styles.searchSuggestionRightIcon}
+                                                                                  size={hp(3.5)}
+                                                                                  color={'#D9D9D9'}/>
+                                                                        </TouchableOpacity>
+                                                                        <Divider style={styles.searchDivider}/>
+                                                                    </View>
+                                                                    :
+                                                                    <View style={{top: hp(2)}}>
+                                                                        <Divider style={styles.searchDivider}/>
+                                                                        <TouchableOpacity
+                                                                            style={styles.searchSuggestionView}
+                                                                            onPress={async () => {
+                                                                                // clean any previous offers
+                                                                                setFilteredOffersList([]);
+
+                                                                                // execute the search query
+                                                                                setFilteredOffersSpinnerShown(true);
+                                                                                const queriedOffers =
+                                                                                    (currentUserLocation !== null && currentUserLocation.coords.latitude !== null && currentUserLocation.coords.latitude !== undefined &&
+                                                                                        currentUserLocation.coords.longitude !== null && currentUserLocation.coords.longitude !== undefined)
+                                                                                        ? await searchQueryExecute(searchQuery, currentUserLocation.coords.latitude, currentUserLocation.coords.longitude)
+                                                                                        : await searchQueryExecute(searchQuery);
+                                                                                if (queriedOffers.length == 0) {
+                                                                                    setNoFilteredOffersToLoad(true);
+                                                                                    setFilteredOffersSpinnerShown(false);
+                                                                                } else {
+                                                                                    setNoFilteredOffersToLoad(false);
+                                                                                    setFilteredOffersList([...queriedOffers]);
+                                                                                }
+
+                                                                                // dismiss keyboard
+                                                                                Keyboard.dismiss();
+                                                                            }}
+                                                                        >
+                                                                            <Icon name="search"
+                                                                                  type={'material'}
+                                                                                  style={styles.searchSuggestionLeftIcon}
+                                                                                  size={hp(3.5)}
+                                                                                  color={'#F2FF5D'}/>
+                                                                            <Text numberOfLines={1}
+                                                                                  style={styles.searchSuggestionTextHighlighted}>
+                                                                                <Text
+                                                                                    style={styles.searchSuggestionText}>
+                                                                                    {'Lookup:  '}
+                                                                                </Text>
+                                                                                {`\'${searchQuery}\'`}
+                                                                            </Text>
+                                                                            <Icon name="arrow-right"
+                                                                                  type={'octicon'}
+                                                                                  style={styles.searchSuggestionRightIcon}
+                                                                                  size={hp(3.5)}
+                                                                                  color={'#D9D9D9'}/>
+                                                                        </TouchableOpacity>
+                                                                        <Divider style={styles.searchDivider}/>
+                                                                    </View>
+                                                            }
+                                                        </View>
+                                                    </Card.Content>
+                                                </Card>
+                                            </View>
+                                        }
+                                    </>
                                 }
                             </>
                             : <>
                                 <View
-                                    style={{width: wp(100)}}/>
-                                <Card
-                                    style={[styles.loadCard, {alignSelf: 'center', left: wp(23), top: hp(15)}]}>
-                                    <Card.Content>
-                                        <View style={{flexDirection: 'column'}}>
-                                            <View style={{
-                                                flexDirection: 'row'
-                                            }}>
-                                                <View style={{top: hp(5)}}>
-                                                    <ActivityIndicator
-                                                        style={{
-                                                            top: hp(2),
-                                                            left: wp(10)
-                                                        }}
-                                                        animating={true}
-                                                        color={'#F2FF5D'}
-                                                        size={hp(5)}
-                                                    />
+                                    style={{width: wp(100), alignSelf: 'center', right: wp(10)}}>
+                                    <View style={{top: hp(5)}}>
+                                        <ActivityIndicator
+                                            style={{
+                                                top: hp(2),
+                                                left: wp(10)
+                                            }}
+                                            animating={true}
+                                            color={'#F2FF5D'}
+                                            size={hp(5)}
+                                        />
 
-                                                </View>
-                                            </View>
-                                        </View>
-                                    </Card.Content>
-                                </Card>
+                                    </View>
+                                </View>
+
                             </>
                     }
                 </View>

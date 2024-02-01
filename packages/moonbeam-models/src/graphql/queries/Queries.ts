@@ -241,8 +241,8 @@ export const getFidelisPartners = /* GraphQL */ `
 
 // Query used to search an offer based on certain filtering (this will pas through offers from Olive directly)
 export const searchOffers = /* GraphQL */ `
-    query SearchOffers($searchOffersinput: SearchOffersInput!) {
-        searchOffers(searchOffersInput: $searchOffersinput) {
+    query SearchOffers($searchOffersInput: SearchOffersInput!) {
+        searchOffers(searchOffersInput: $searchOffersInput) {
             errorMessage
             errorType
             data {

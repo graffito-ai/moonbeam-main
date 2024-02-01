@@ -267,6 +267,32 @@ const uniqueClickOnlyOnlineOffersListState = selector<Offer[]>({
 });
 
 /**
+ * Atom used to keep track of the list of filtered (search) offers to be displayed
+ * to the end user.
+ */
+const filteredOffersListState = atom<Offer[]>({
+    key: "filteredOffersListState",
+    default: []
+});
+
+/**
+ * A selector used to make sure that there are no duplicate filtered (search) offers returned.
+ */
+const uniqueFilteredOffersListState = selector<Offer[]>({
+    key: 'uniqueFilteredOffersListState',
+    get: ({get}) => {
+        const filteredOffersList = get(filteredOffersListState);
+        if (filteredOffersList === null) {
+            return [];
+        } else {
+            // make sure that all offers are unique based on their id
+            return [...new Map(filteredOffersList.map(offer =>
+                [offer.id, offer])).values()];
+        }
+    }
+});
+
+/**
  * Atom used to keep track of the list of online offers to be displayed to the end user.
  */
 const onlineOffersListState = atom<Offer[]>({
@@ -812,6 +838,15 @@ const filtersActiveState = atom<boolean>({
 });
 
 /**
+ * Atom used to keep track of whether there are more filtered
+ * offers to load
+ */
+const noFilteredOffersToLoadState = atom<boolean>({
+    key: "noFilteredOffersToLoadState",
+    default: false
+});
+
+/**
  * Atom used to keep track of whether there are any more online offers to load.
  */
 const noOnlineOffersToLoadState = atom<boolean>({
@@ -1004,14 +1039,6 @@ const reloadNearbyDueToPermissionsChangeState = atom<boolean>({
  */
 const nearbyOffersSpinnerShownState = atom<boolean>({
     key: "nearbyOffersSpinnerShownState",
-    default: false
-});
-
-/**
- * Atom used to keep track of whether a search should be reset or not
- */
-const resetSearchState = atom<boolean>({
-    key: "resetSearchState",
     default: false
 });
 
@@ -1404,6 +1431,9 @@ const showClickOnlyBottomSheetState = atom<boolean>({
  * Export all atoms and/or selectors
  */
 export {
+    noFilteredOffersToLoadState,
+    filteredOffersListState,
+    uniqueFilteredOffersListState,
     showClickOnlyBottomSheetState,
     numberOfFailedOnlineOfferCallsState,
     numberOfFailedNearbyOfferCallsState,
@@ -1458,7 +1488,6 @@ export {
     toggleViewPressedState,
     verticalSectionActiveState,
     searchQueryState,
-    resetSearchState,
     nearbyOffersSpinnerShownState,
     reloadNearbyDueToPermissionsChangeState,
     locationServicesButtonState,

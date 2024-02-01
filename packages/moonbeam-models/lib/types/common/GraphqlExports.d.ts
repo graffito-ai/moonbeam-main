@@ -2094,7 +2094,7 @@ export type GetFidelisPartnersQuery = {
     };
 };
 export type SearchOffersQueryVariables = Exact<{
-    searchOffersinput: SearchOffersInput;
+    searchOffersInput: SearchOffersInput;
 }>;
 export type SearchOffersQuery = {
     __typename?: 'Query';

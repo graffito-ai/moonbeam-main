@@ -594,9 +594,19 @@ const currentMemberAffiliationState = atom<null | MilitaryAffiliation>({
 });
 
 /**
+ * Atom used to keep track of whether we are displaying a loading screen in the vertical offers
+ * during a search or not.
+ */
+const filteredOffersSpinnerShownState = atom<boolean>({
+    key: "filteredOffersSpinnerShownState",
+    default: false
+})
+
+/**
  * Export all atoms and/or selectors
  */
 export {
+    filteredOffersSpinnerShownState,
     ssnErrorsState,
     ssnState,
     currentMemberAffiliationState,

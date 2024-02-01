@@ -28,7 +28,8 @@ import {
     automaticallyVerifyRegistrationCodeState,
     birthdayErrorState,
     birthdayState,
-    cardLinkingRegistrationStatusState, currentMemberAffiliationState,
+    cardLinkingRegistrationStatusState,
+    currentMemberAffiliationState,
     currentUserInformation,
     deferToLoginState,
     documentsReCapturePhotoState,
@@ -76,9 +77,12 @@ import {
     registrationVerificationDigit3,
     registrationVerificationDigit4,
     registrationVerificationDigit5,
-    registrationVerificationDigit6, ssnErrorsState, ssnState, userIsAuthenticatedState,
+    registrationVerificationDigit6,
+    ssnErrorsState,
+    ssnState,
+    userIsAuthenticatedState,
     verificationCodeErrorsState,
-    verificationDocumentState
+    verificationDocumentState, filteredOffersSpinnerShownState
 } from '../../recoil/AuthAtom';
 // @ts-ignore
 import SideBarImage from '../../../assets/art/sidebar.png';
@@ -90,7 +94,8 @@ import {
     appWallDocumentsRePickPhotoState,
     appWallPermissionsInstructionsCustomMessageState,
     appWallPermissionsModalCustomMessageState,
-    appWallPermissionsModalVisibleState, cardLinkingIdState,
+    appWallPermissionsModalVisibleState,
+    cardLinkingIdState,
     cardLinkingStatusState,
     customBannerShown,
     drawerDashboardState,
@@ -128,6 +133,7 @@ import {
     currentActiveKitState,
     fidelisPartnerListState,
     filteredByDiscountPressedState,
+    filteredOffersListState,
     filtersActiveState,
     fullScreenKitMapActiveState,
     isElectronicsKitLoadedState,
@@ -162,7 +168,7 @@ import {
     nearbyRetailCategorizedOffersPageNumberState,
     nearbyServicesAndSubscriptionsCategorizedOffersListState,
     nearbyServicesAndSubscriptionsCategorizedOffersPageNumberState,
-    noClickOnlyOnlineOffersToLoadState,
+    noClickOnlyOnlineOffersToLoadState, noFilteredOffersToLoadState,
     noNearbyElectronicsCategorizedOffersToLoadState,
     noNearbyEntertainmentCategorizedOffersToLoadState,
     noNearbyFoodCategorizedOffersToLoadState,
@@ -234,8 +240,8 @@ import {
     premierNearbyOffersPageNumberState,
     premierOnlineOffersPageNumberState,
     reloadNearbyDueToPermissionsChangeState,
-    resetSearchState,
-    searchQueryState, showClickOnlyBottomSheetState,
+    searchQueryState,
+    showClickOnlyBottomSheetState,
     storeNavigationState,
     storeOfferPhysicalLocationState,
     storeOfferState,
@@ -259,6 +265,7 @@ import Constants from 'expo-constants';
 import {AppOwnership} from "expo-constants/src/Constants.types";
 import {logEvent} from "../../utils/AppSync";
 import {LoggingLevel} from "@moonbeam/moonbeam-models";
+
 /**
  * import branch only if the app is not running in Expo Go (so we can actually run the application without Branch for
  * Expo Go), for easier testing purposes.
@@ -404,7 +411,6 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const locationServicesButtonStateReset = useResetRecoilState(locationServicesButtonState);
     const reloadNearbyDueToPermissionsChangeStateReset = useResetRecoilState(reloadNearbyDueToPermissionsChangeState);
     const nearbyOffersSpinnerShownStateReset = useResetRecoilState(nearbyOffersSpinnerShownState);
-    const resetSearchStateReset = useResetRecoilState(resetSearchState);
     const toggleViewPressedStateReset = useResetRecoilState(toggleViewPressedState);
     const verticalSectionActiveStateReset = useResetRecoilState(verticalSectionActiveState);
     const searchQueryStateReset = useResetRecoilState(searchQueryState);
@@ -519,6 +525,9 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const currentMemberAffiliationStateReset = useResetRecoilState(currentMemberAffiliationState);
     const ssnStateReset = useResetRecoilState(ssnState);
     const ssnErrorsStateReset = useResetRecoilState(ssnErrorsState);
+    const filteredOffersListStateReset = useResetRecoilState(filteredOffersListState);
+    const noFilteredOffersToLoadReset = useResetRecoilState(noFilteredOffersToLoadState);
+    const filteredOffersSpinnerShownStateReset = useResetRecoilState(filteredOffersSpinnerShownState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -669,7 +678,6 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             locationServicesButtonStateReset();
             reloadNearbyDueToPermissionsChangeStateReset();
             nearbyOffersSpinnerShownStateReset();
-            resetSearchStateReset();
             toggleViewPressedStateReset();
             verticalSectionActiveStateReset();
             searchQueryStateReset();
@@ -784,6 +792,9 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             currentMemberAffiliationStateReset();
             ssnStateReset();
             ssnErrorsStateReset();
+            filteredOffersListStateReset();
+            noFilteredOffersToLoadReset();
+            filteredOffersSpinnerShownStateReset();
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {
                 // import branch

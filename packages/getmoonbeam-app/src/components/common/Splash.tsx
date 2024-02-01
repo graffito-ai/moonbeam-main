@@ -75,14 +75,14 @@ import {
     ssnState,
     userIsAuthenticatedState,
     verificationCodeErrorsState,
-    verificationDocumentState
+    verificationDocumentState, filteredOffersSpinnerShownState
 } from "../../recoil/AuthAtom";
 import {
     clickOnlyOnlineOffersListState,
     clickOnlyOnlineOffersPageNumberState,
     currentActiveKitState,
     fidelisPartnerListState,
-    filteredByDiscountPressedState,
+    filteredByDiscountPressedState, filteredOffersListState,
     filtersActiveState,
     fullScreenKitMapActiveState,
     isElectronicsKitLoadedState,
@@ -117,7 +117,7 @@ import {
     nearbyRetailCategorizedOffersPageNumberState,
     nearbyServicesAndSubscriptionsCategorizedOffersListState,
     nearbyServicesAndSubscriptionsCategorizedOffersPageNumberState,
-    noClickOnlyOnlineOffersToLoadState,
+    noClickOnlyOnlineOffersToLoadState, noFilteredOffersToLoadState,
     noNearbyElectronicsCategorizedOffersToLoadState,
     noNearbyEntertainmentCategorizedOffersToLoadState,
     noNearbyFoodCategorizedOffersToLoadState,
@@ -189,7 +189,6 @@ import {
     premierNearbyOffersPageNumberState,
     premierOnlineOffersPageNumberState,
     reloadNearbyDueToPermissionsChangeState,
-    resetSearchState,
     searchQueryState,
     showClickOnlyBottomSheetState,
     storeNavigationState,
@@ -390,7 +389,6 @@ export const SplashScreen = (props: {
     const locationServicesButtonStateReset = useResetRecoilState(locationServicesButtonState);
     const reloadNearbyDueToPermissionsChangeStateReset = useResetRecoilState(reloadNearbyDueToPermissionsChangeState);
     const nearbyOffersSpinnerShownStateReset = useResetRecoilState(nearbyOffersSpinnerShownState);
-    const resetSearchStateReset = useResetRecoilState(resetSearchState);
     const toggleViewPressedStateReset = useResetRecoilState(toggleViewPressedState);
     const verticalSectionActiveStateReset = useResetRecoilState(verticalSectionActiveState);
     const searchQueryStateReset = useResetRecoilState(searchQueryState);
@@ -505,6 +503,9 @@ export const SplashScreen = (props: {
     const currentMemberAffiliationStateReset = useResetRecoilState(currentMemberAffiliationState);
     const ssnStateReset = useResetRecoilState(ssnState);
     const ssnErrorsStateReset = useResetRecoilState(ssnErrorsState);
+    const filteredOffersListStateReset = useResetRecoilState(filteredOffersListState);
+    const noFilteredOffersToLoadReset = useResetRecoilState(noFilteredOffersToLoadState);
+    const filteredOffersSpinnerShownStateReset = useResetRecoilState(filteredOffersSpinnerShownState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -638,7 +639,6 @@ export const SplashScreen = (props: {
             locationServicesButtonStateReset();
             reloadNearbyDueToPermissionsChangeStateReset();
             nearbyOffersSpinnerShownStateReset();
-            resetSearchStateReset();
             toggleViewPressedStateReset();
             verticalSectionActiveStateReset();
             searchQueryStateReset();
@@ -753,6 +753,9 @@ export const SplashScreen = (props: {
             currentMemberAffiliationStateReset();
             ssnStateReset();
             ssnErrorsStateReset();
+            filteredOffersListStateReset();
+            noFilteredOffersToLoadReset();
+            filteredOffersSpinnerShownStateReset();
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {
                 // import branch

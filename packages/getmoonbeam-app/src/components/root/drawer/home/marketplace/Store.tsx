@@ -49,7 +49,7 @@ import {
     nearbyOffersListState,
     nearbyOffersPageNumberState,
     nearbyOffersSpinnerShownState,
-    noClickOnlyOnlineOffersToLoadState,
+    noClickOnlyOnlineOffersToLoadState, noFilteredOffersToLoadState,
     noNearbyOffersToLoadState,
     noOnlineOffersToLoadState,
     offersNearUserLocationFlagState,
@@ -83,11 +83,9 @@ export const Store = ({navigation}: StoreProps) => {
     const [areNearbyOffersReady, setAreNearbyOffersReady] = useState<boolean>(false);
     const [isReady, setIsReady] = useState<boolean>(false);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
-    const [filteredOffersSpinnerShown, setFilteredOffersSpinnerShown] = useState<boolean>(false);
-    const [noFilteredOffersAvailable, setNoFilteredOffersAvailable] = useState<boolean>(false);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
-    const [shouldCacheImages, setShouldCacheImages] = useState<boolean>(true);
-    // constants used to keep track of shared states\
+    // constants used to keep track of shared states
+    const [noFilteredOffersToLoad, ] = useRecoilState(noFilteredOffersToLoadState);
     const [whichVerticalSectionActive, ] = useRecoilState(verticalSectionActiveState);
     const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [fidelisPartnerList, setFidelisPartnerList] = useRecoilState(fidelisPartnerListState);
@@ -633,17 +631,12 @@ export const Store = ({navigation}: StoreProps) => {
                             <Portal.Host>
                                 <VerticalOffers
                                     navigation={navigation}
-                                    noFilteredOffersAvailable={noFilteredOffersAvailable}
-                                    shouldCacheImages={shouldCacheImages}
                                     fidelisPartnerList={fidelisPartnerList}
-                                    filteredOffersSpinnerShown={filteredOffersSpinnerShown}
-                                    setFilteredOffersSpinnerShown={setFilteredOffersSpinnerShown}
                                     retrieveOnlineOffersList={retrieveOnlineOffersList}
                                     retrieveClickOnlineOffersList={retrieveClickOnlyOnlineOffersList}
                                     offersNearUserLocationFlag={offersNearUserLocationFlag}
                                     retrieveNearbyOffersList={retrieveNearbyOffersList}
                                     retrieveOffersNearLocation={retrieveOffersNearLocation}
-                                    setNoFilteredOffersAvailable={setNoFilteredOffersAvailable}
                                 />
                             </Portal.Host>
                             :
@@ -801,7 +794,7 @@ export const Store = ({navigation}: StoreProps) => {
                             showsVerticalScrollIndicator={false}
                             enableAutomaticScroll={(Platform.OS === 'ios')}
                             contentContainerStyle={commonStyles.rowContainer}
-                            keyboardShouldPersistTaps={whichVerticalSectionActive === 'search' ? 'always' : 'handled'}
+                            keyboardShouldPersistTaps={whichVerticalSectionActive === 'search' && !noFilteredOffersToLoad ? 'always' : 'handled'}
                         >
                             <View style={[styles.mainView]}>
                                 <TouchableOpacity
@@ -816,10 +809,7 @@ export const Store = ({navigation}: StoreProps) => {
                                         }}
                                     >
                                         <SearchSection
-                                            setNoFilteredOffersAvailable={setNoFilteredOffersAvailable}
                                             setModalVisible={setModalVisible}
-                                            setShouldCacheImages={setShouldCacheImages}
-                                            setFilteredOffersSpinnerShown={setFilteredOffersSpinnerShown}
                                         />
                                         <View style={{
                                             height: hp(1),
