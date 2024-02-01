@@ -82,7 +82,7 @@ import {
     ssnState,
     userIsAuthenticatedState,
     verificationCodeErrorsState,
-    verificationDocumentState, filteredOffersSpinnerShownState
+    verificationDocumentState, filteredOffersSpinnerShownState, appUrlState
 } from '../../recoil/AuthAtom';
 // @ts-ignore
 import SideBarImage from '../../../assets/art/sidebar.png';
@@ -528,6 +528,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const filteredOffersListStateReset = useResetRecoilState(filteredOffersListState);
     const noFilteredOffersToLoadReset = useResetRecoilState(noFilteredOffersToLoadState);
     const filteredOffersSpinnerShownStateReset = useResetRecoilState(filteredOffersSpinnerShownState);
+    const appUrlStateReset = useResetRecoilState(appUrlState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -795,6 +796,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             filteredOffersListStateReset();
             noFilteredOffersToLoadReset();
             filteredOffersSpinnerShownStateReset();
+            appUrlStateReset();
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {
                 // import branch

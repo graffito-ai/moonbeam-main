@@ -12,7 +12,7 @@ import {
     addressLineState,
     addressStateState,
     addressZipState,
-    amplifySignUpProcessErrorsState,
+    amplifySignUpProcessErrorsState, appUrlState,
     birthdayState,
     currentMemberAffiliationState,
     currentUserInformation,
@@ -38,7 +38,7 @@ import {
     userIsAuthenticatedState
 } from '../../../recoil/AuthAtom';
 import {AccountRecoveryComponent} from "./AccountRecoveryComponent";
-import {TouchableOpacity, View} from "react-native";
+import {Linking, TouchableOpacity, View} from "react-native";
 import {commonStyles} from "../../../styles/common.module";
 import {AppDrawer} from "../drawer/AppDrawer";
 import {DocumentsViewer} from "../../common/DocumentsViewer";
@@ -97,6 +97,7 @@ import {initializeBranch} from "../../../utils/Branch";
 import {Spinner} from "../../common/Spinner";
 import Constants from 'expo-constants';
 import {AppOwnership} from "expo-constants/src/Constants.types";
+import * as ExpoLinking from "expo-linking";
 
 /**
  * import branch only if the app is not running in Expo Go (so we can actually run the application without Branch for
@@ -128,6 +129,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
         const [loadingNearbyOffersForFullScreenMapInProgress, setIsLoadingNearbyOffersForFullScreenMapInProgress] = useState<boolean>(false);
         const [areOffersForFullScreenMapLoaded, setAreOffersForFullScreenMapLoaded] = useState<boolean>(false);
         // constants used to keep track of shared states
+        const [appUrl, setAppUrl] = useRecoilState(appUrlState);
         const [, setCurrentMemberAffiliation] = useRecoilState(currentMemberAffiliationState);
         const [numberOfFailedHorizontalMapOfferCalls, setNumberOfFailedHorizontalMapOfferCalls] = useRecoilState(numberOfFailedHorizontalMapOfferCallsState);
         const [numberOfNearbyFailedCalls, setNumberOfNearbyFailedCalls] = useRecoilState(numberOfFailedNearbyOfferCallsState);
@@ -203,21 +205,87 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
          * included in here.
          */
         useEffect(() => {
+            // subscribe to incoming deep-linking attempts in the auth component
+            Linking.getInitialURL().then(async (url) => {
+                if (url) {
+                    // const message = `Initial url retrieval : ${url}`;
+                    // console.log(message);
+                    // logEvent(message, LoggingLevel.Info, true).then(() => {});
+                    setAppUrl(url);
+
+                    // re-direct to the Authentication screen
+                    setAuthScreen('SignIn');
+                    navigation.navigate("Authentication", {
+                        marketplaceCache: route.params.marketplaceCache,
+                        cache: route.params.cache,
+                        currentUserLocation: route.params.currentUserLocation,
+                        expoPushToken: route.params.expoPushToken,
+                        onLayoutRootView: route.params.onLayoutRootView
+                    });
+                }
+            }).catch(err => {
+                const errorMessage = `An error occurred while observing initial url ${err}`;
+                console.log(errorMessage);
+                logEvent(errorMessage, LoggingLevel.Error, true).then(() => {});
+            });
+            Linking.addEventListener('url', async (urlObject) => {
+                if (urlObject && urlObject.url) {
+                    const url = urlObject.url;
+                    // const message = `Listening to incoming url changes : ${url}`
+                    // console.log(message);
+                    // logEvent(message, LoggingLevel.Info, true).then(() => {});
+                    setAppUrl(url);
+
+                    // re-direct to the Authentication screen
+                    setAuthScreen('SignIn');
+                    navigation.navigate("Authentication", {
+                        marketplaceCache: route.params.marketplaceCache,
+                        cache: route.params.cache,
+                        currentUserLocation: route.params.currentUserLocation,
+                        expoPushToken: route.params.expoPushToken,
+                        onLayoutRootView: route.params.onLayoutRootView
+                    });
+                }
+            });
+
             // import branch accordingly
             !isRunningInExpoGo && import('react-native-branch').then((branch) => {
                 // handle incoming deep-links through the latest referring params of the Branch SDK
-                branch !== null && branch.default !== null && !latestReferringParamsChecked && branch.default.getLatestReferringParams(false).then(params => {
+                branch !== null && branch.default !== null && !latestReferringParamsChecked && branch.default.getLatestReferringParams(false).then(async params => {
                     setLatestReferringParamsChecked(true);
                     if (params) {
                         if (params['~tags'] && params['~tags'].length === 2) {
-                            // set the referral code to be used during registration
-                            setReferralCode(params['~tags'][0].toString());
+                            // check whether this is a referral specific branch url or a notification deep-link url
+                            if ((params['~tags'][0].toString() === 'cashback' && params['~tags'][1].toString() === 'notifications') ||
+                                (params['~tags'][1].toString() === 'cashback' && params['~tags'][0].toString() === 'notifications')) {
+                                setAppUrl(`${await ExpoLinking.getInitialURL()}/notifications/cashback`);
 
-                            // set the marketing campaign code used for the referral
-                            setReferralCodeMarketingCampaign(params['~tags'][1].toString());
+                                // re-direct to the Authentication screen
+                                setAuthScreen('SignIn');
+                                navigation.navigate("Authentication", {
+                                    marketplaceCache: route.params.marketplaceCache,
+                                    cache: route.params.cache,
+                                    currentUserLocation: route.params.currentUserLocation,
+                                    expoPushToken: route.params.expoPushToken,
+                                    onLayoutRootView: route.params.onLayoutRootView
+                                });
+                            } else {
+                                // set the referral code to be used during registration
+                                setReferralCode(params['~tags'][0].toString());
 
-                            // re-direct to the registration screen
-                            setAuthScreen('Registration');
+                                // set the marketing campaign code used for the referral
+                                setReferralCodeMarketingCampaign(params['~tags'][1].toString());
+
+                                // re-direct to the registration screen
+                                setAuthScreen('Registration');
+                                navigation.navigate("Authentication", {
+                                    marketplaceCache: route.params.marketplaceCache,
+                                    cache: route.params.cache,
+                                    currentUserLocation: route.params.currentUserLocation,
+                                    expoPushToken: route.params.expoPushToken,
+                                    onLayoutRootView: route.params.onLayoutRootView
+                                });
+                            }
                         }
                     }
                 });
@@ -357,7 +425,7 @@ export const AuthenticationComponent = ({route, navigation}: AuthenticationProps
                 }
             });
         }, [
-            userIsAuthenticated, reloadNearbyDueToPermissionsChange,
+            userIsAuthenticated, reloadNearbyDueToPermissionsChange, appUrl,
             noNearbyOffersToLoad, nearbyOfferList, onlineOfferList,
             clickOnlyOnlineOfferList, loadingClickOnlyOnlineInProgress,
             noClickOnlyOnlineOffersToLoad, marketplaceCache, loadingOnlineInProgress,

@@ -12,14 +12,14 @@ export type RootStackParamList = {
         marketplaceCache: typeof Cache,
         currentUserLocation: LocationObject | null,
         expoPushToken: ExpoPushToken,
-        onLayoutRootView: () => Promise<void>,
+        onLayoutRootView: () => Promise<void>
     }
     Authentication: {
         cache: typeof Cache,
         marketplaceCache: typeof Cache,
         currentUserLocation: LocationObject | null,
         expoPushToken: ExpoPushToken,
-        onLayoutRootView: () => Promise<void>,
+        onLayoutRootView: () => Promise<void>
     }
 };
 

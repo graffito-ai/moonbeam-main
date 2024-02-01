@@ -3,7 +3,7 @@ import {ImageBackground, SafeAreaView, ScrollView, TouchableOpacity, View} from 
 import {Dialog, List, Portal, SegmentedButtons, Text} from "react-native-paper";
 import {styles} from "../../../../../styles/dashboard.module";
 import {useRecoilState, useRecoilValue} from "recoil";
-import {currentUserInformation} from "../../../../../recoil/AuthAtom";
+import {appUrlState, currentUserInformation} from "../../../../../recoil/AuthAtom";
 import {Spinner} from "../../../../common/Spinner";
 // @ts-ignore
 import DashboardBackgroundImage from "../../../../../../assets/backgrounds/dashboard-background.png";
@@ -29,6 +29,8 @@ import MoonbeamProfilePlaceholder from "../../../../../../assets/art/moonbeam-pr
 // @ts-ignore
 import MoonbeamStorePlaceholder from "../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
+import * as StoreReview from 'expo-store-review';
+
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -38,6 +40,7 @@ import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
  */
 export const Dashboard = ({}) => {
     // constants used to keep track of local component state
+    const [appReviewModalShown, isAppReviewModalShown] = useState<boolean>(false);
     const [isReady,] = useState<boolean>(true);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [statsDialogVisible, setStatsDialogVisible] = useState(false);
@@ -49,6 +52,7 @@ export const Dashboard = ({}) => {
     const bottomSheetRef = useRef(null);
     const [selectedTransaction, setSelectedTransaction] = useState<MoonbeamTransaction | null>(null);
     // constants used to keep track of shared states
+    const [appUrl,] = useRecoilState(appUrlState);
     const [userInformation,] = useRecoilState(currentUserInformation);
     const [profilePictureURI,] = useRecoilState(profilePictureURIState);
     const [bannerState,] = useRecoilState(customBannerState);
@@ -69,6 +73,38 @@ export const Dashboard = ({}) => {
      */
     useEffect(() => {
         if (userInformation["custom:userId"]) {
+            // if we have a global app url that we opened the app from, act accordingly
+            if (appUrl) {
+                /**
+                 * if we clicked a cashback notification, then we want to consider showing a
+                 * store review pop-up.
+                 */
+                if (appUrl.includes('notification') && appUrl.includes('cashback') && !appReviewModalShown) {
+                    isAppReviewModalShown(true);
+
+                    /**
+                     * ToDo: here we need to determine whether a user needs to review the app
+                     *       meaning, if they have already reviewed the app in the past 3 months,
+                     *       then they do not have to review the app again.
+                     */
+                    StoreReview.isAvailableAsync().then((availabilityFlag) => {
+                        // if the platform has the capabilities for store review
+                        if (availabilityFlag) {
+                            StoreReview.hasAction().then((actionCapability) => {
+                                // if the store is capable directing the user to some kind of store review flow.
+                                if (actionCapability) {
+                                    StoreReview.requestReview().then(() => {
+                                        /**
+                                         * ToDo: here we need to store a new review for the user.
+                                         */
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+
             // check to see if the user information object has been populated accordingly
             if (userInformation["given_name"] && userInformation["family_name"]) {
                 setCurrentUserTitle(`${Array.from(userInformation["given_name"].split(" ")[0])[0] as string}${Array.from(userInformation["family_name"].split(" ")[0])[0] as string}`);
@@ -99,8 +135,9 @@ export const Dashboard = ({}) => {
                 bottomSheetRef.current?.expand?.();
             }
         }
-    }, [userInformation["given_name"], userInformation["family_name"],
-        userInformation["custom:userId"], showTransactionsBottomSheet, bottomSheetRef]);
+    }, [userInformation["given_name"], userInformation["family_name"], appUrl,
+        appReviewModalShown, userInformation["custom:userId"],
+        showTransactionsBottomSheet, bottomSheetRef]);
 
     /**
      * Function used to convert a number of milliseconds to a particular time

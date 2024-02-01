@@ -10,13 +10,14 @@
     "android": "expo start --android",
     "build": "tsc",
     "clean": "rm -rf node_modules",
+    "start-go": "npx expo start --go",
     "start-dev": "expo start --dev-client",
     "start-dev-clean": "rm -rf node_modules && yarn install && expo start --dev-client -c",
     "start-clean": "rm -rf node_modules && yarn install && expo start -c",
     "start-dev-reset-cache": "expo start --dev-client -c",
     "start-reset-cache": "expo start -c",
     "ios": "expo start --ios",
-    "start": "expo start",
+    "start": "expo start --go",
     "web": "expo start --web"
   },
   "dependencies": {
@@ -67,6 +68,7 @@
     "expo-sms": "~11.7.1",
     "expo-splash-screen": "~0.26.4",
     "expo-status-bar": "~1.11.1",
+    "expo-store-review": "^6.8.3",
     "expo-task-manager": "~11.7.1",
     "expo-tracking-transparency": "~3.3.0",
     "expo-updates": "~0.24.8",

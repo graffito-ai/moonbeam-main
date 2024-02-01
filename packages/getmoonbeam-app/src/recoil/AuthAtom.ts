@@ -600,12 +600,21 @@ const currentMemberAffiliationState = atom<null | MilitaryAffiliation>({
 const filteredOffersSpinnerShownState = atom<boolean>({
     key: "filteredOffersSpinnerShownState",
     default: false
-})
+});
+
+/**
+ * Atom used to keep track of the app url, if app is opened from an external URL.
+ */
+const appUrlState = atom<string>({
+    key: "appUrlState",
+    default: ""
+});
 
 /**
  * Export all atoms and/or selectors
  */
 export {
+    appUrlState,
     filteredOffersSpinnerShownState,
     ssnErrorsState,
     ssnState,

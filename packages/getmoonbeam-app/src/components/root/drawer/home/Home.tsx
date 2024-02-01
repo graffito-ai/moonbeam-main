@@ -13,11 +13,7 @@ import {Marketplace} from "./marketplace/Marketplace";
 import {drawerDashboardState} from "../../../../recoil/AppDrawerAtom";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {View} from "react-native";
-import {
-    filteredByDiscountPressedState,
-    filtersActiveState,
-    searchQueryState
-} from "../../../../recoil/StoreOfferAtom";
+import {filteredByDiscountPressedState, filtersActiveState} from "../../../../recoil/StoreOfferAtom";
 
 /**
  * Home component. This is where the bottom bar components will reside, as well
@@ -30,7 +26,6 @@ export const Home = ({navigation}: HomeProps) => {
     // constants used to keep track of shared states
     const [, setFilteredByDiscountPressed] = useRecoilState(filteredByDiscountPressedState);
     const [, setAreFiltersActive] = useRecoilState(filtersActiveState);
-    const [, setSearchQuery] = useRecoilState(searchQueryState);
     const [, setDrawerNavigation] = useRecoilState(drawerNavigationState);
     const [bottomTabShown,] = useRecoilState(bottomTabShownState);
     const [userInformation,] = useRecoilState(currentUserInformation);

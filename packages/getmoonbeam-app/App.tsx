@@ -140,9 +140,9 @@ export default function App() {
          */
         if (lastNotificationResponse) {
             // navigate to your desired screen
-            const errorMessage = 'incoming notification and/or notification response received (last notification handle)';
-            console.log(errorMessage);
-            logEvent(errorMessage, LoggingLevel.Info, true).then(() => {});
+            const message = 'incoming notification and/or notification response received (last notification handle)';
+            console.log(message);
+            logEvent(message, LoggingLevel.Info, true).then(() => {});
         }
         const prepare = async () => {
             try {
@@ -327,7 +327,7 @@ export default function App() {
                                         cache: cache!,
                                         currentUserLocation: currentUserLocation,
                                         expoPushToken: expoPushToken,
-                                        onLayoutRootView: onLayoutRootView
+                                        onLayoutRootView: onLayoutRootView,
                                     }}
                                 />
                             </RootStack.Navigator>
