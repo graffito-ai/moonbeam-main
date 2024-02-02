@@ -5,18 +5,11 @@
  * @param lernaFlag flag to highlight whether the given repo is a mono repo or not.
  */
 export const setCommitLintConfig = (
-    directoryPath: string,
-    lernaFlag: boolean
+    directoryPath: string
 ) => {
-    const {
-        utils: { getPackages }
-    } = lernaFlag
-        ? require('@commitlint/config-lerna-scopes')
-        : { utils: { getPackages: 'not a monorepo' } };
     return {
         extends: [
-            '@commitlint/config-conventional',
-            '@commitlint/config-lerna-scopes'
+            '@commitlint/config-conventional'
         ],
         /**
          * Any rules defined below here will override rules from @commitlint/config-conventional
@@ -36,12 +29,42 @@ export const setCommitLintConfig = (
             'references-empty': [2, 'never'],
             'scope-empty': [2, 'never'],
             // Adding the global-level-scope for this package in the list of scopes
-            'scope-enum': async (ctx: any) => [
+            'scope-enum': async (_: any) => [
                 2,
-                'always',
-                [
-                    ...(lernaFlag ? await getPackages(ctx) : []),
-                    directoryPath.split('/').pop()
+                'always', [
+                    directoryPath.split('/').pop(),
+                    'getmoonbeam-app',
+                    'getmoonbeam-cdk',
+                    'moonbeam-commitlint',
+                    'moonbeam-models',
+                    'moonbeam-tsconfig',
+                    'moonbeam-app-review-lambda',
+                    'moonbeam-app-upgrade-lambda',
+                    'moonbeam-card-linking-lambda',
+                    'moonbeam-faq-lambda',
+                    'moonbeam-logging-lambda',
+                    'moonbeam-military-verification-lambda',
+                    'moonbeam-military-verification-notification-consumer-lambda',
+                    'moonbeam-military-verification-notification-producer-lambda',
+                    'moonbeam-military-verification-reporting-consumer-lambda',
+                    'moonbeam-military-verification-reporting-producer-lambda',
+                    'moonbeam-notification-reminder-consumer-lambda',
+                    'moonbeam-notification-reminder-producer-lambda',
+                    'moonbeam-notification-reminder-lambda',
+                    'moonbeam-notifications-lambda',
+                    'moonbeam-offers-lambda',
+                    'moonbeam-physical-devices-lambda',
+                    'moonbeam-referral-consumer-lambda',
+                    'moonbeam-referral-lambda',
+                    'moonbeam-referral-producer-lambda',
+                    'moonbeam-storage-lambda',
+                    'moonbeam-transactional-notifications-offers-consumer-lambda',
+                    'moonbeam-transactional-offers-consumer-lambda',
+                    'moonbeam-transactions-lambda',
+                    'moonbeam-transactions-producer-lambda',
+                    'moonbeam-updated-transactional-offers-consumer-lambda',
+                    'moonbeam-updated-transactions-producer-lambda',
+                    'moonbeam-user-auth-session-lambda'
                 ]
             ],
             'subject-case': [

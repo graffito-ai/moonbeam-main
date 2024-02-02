@@ -18,8 +18,8 @@
     "@aws-sdk/cloudfront-signer": "^3.329.0",
     "@aws-sdk/lib-storage": "^3.337.0",
     "@aws-sdk/types": "^3.272.0",
-    "@moonbeam/moonbeam-models": "1.0.0",
-    "@moonbeam/moonbeam-tsconfig": "1.0.0"
+    "@moonbeam/moonbeam-models": "*",
+    "@moonbeam/moonbeam-tsconfig": "*"
   },
   "private": true
 }

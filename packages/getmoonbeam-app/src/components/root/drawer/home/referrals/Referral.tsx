@@ -73,33 +73,37 @@ export const Referral = ({navigation}: ReferralProps) => {
 
     /**
      * Function used to get the next date for our raffle drawing
-     * (it will happen every 2 weeks, starting on 12/22/2023)
+     * (it will happen every 2 months).
      */
     const getNextDrawingDate = () => {
+        /**
+         * depending on the current date, determine which raffle drawing date we will show
+         * by setting it two months ahead.
+         */
         const currentDate = new Date();
 
         // these are the next dates for the raffle that will determine the next raffle drawing date
-        const firstRaffle = new Date('2023-12-22');
-        const secondRaffle = new Date('2024-01-10');
-        const thirdRaffle = new Date('2024-01-24');
-        const fourthRaffle = new Date('2024-02-07');
+        const firstRaffle = new Date('2024-04-01');
+        const secondRaffle = new Date('2024-06-01');
+        const thirdRaffle = new Date('2024-08-01');
+        const fourthRaffle = new Date('2024-10-01');
 
         // depending on the current date, determine which raffle drawing date we will show
         if (currentDate < firstRaffle) {
-            setNextDrawingDate(`12/22/2023`);
-            setCampaignMarketingCode(MarketingCampaignCode.Raffleregdec23);
+            setNextDrawingDate(`04/01/2024`);
+            setCampaignMarketingCode(MarketingCampaignCode.Raffleregapr24);
         } else if (currentDate < secondRaffle) {
-            setNextDrawingDate(`01/10/2024`);
-            setCampaignMarketingCode(MarketingCampaignCode.Raffleregjan24);
+            setNextDrawingDate(`06/01/2024`);
+            setCampaignMarketingCode(MarketingCampaignCode.Raffleregjun24);
         } else if (currentDate < thirdRaffle) {
-            setNextDrawingDate(`01/24/2024`);
-            setCampaignMarketingCode(MarketingCampaignCode.Raffleregjan24);
+            setNextDrawingDate(`08/01/2024`);
+            setCampaignMarketingCode(MarketingCampaignCode.Raffleregaug24);
         } else if (currentDate < fourthRaffle) {
-            setNextDrawingDate(`02/07/2024`);
-            setCampaignMarketingCode(MarketingCampaignCode.Raffleregfeb24);
+            setNextDrawingDate(`10/01/2024`);
+            setCampaignMarketingCode(MarketingCampaignCode.Raffleregoct24);
         } else {
-            setNextDrawingDate(`03/01/2024`);
-            setCampaignMarketingCode(MarketingCampaignCode.Raffleregmar24);
+            setNextDrawingDate(`12/01/2024`);
+            setCampaignMarketingCode(MarketingCampaignCode.Raffleregdec24);
         }
     }
 

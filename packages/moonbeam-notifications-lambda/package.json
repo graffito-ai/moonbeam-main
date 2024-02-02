@@ -14,8 +14,8 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.338.0",
     "@aws-sdk/types": "^3.272.0",
-    "@moonbeam/moonbeam-models": "1.0.0",
-    "@moonbeam/moonbeam-tsconfig": "1.0.0",
+    "@moonbeam/moonbeam-models": "*",
+    "@moonbeam/moonbeam-tsconfig": "*",
     "@aws-sdk/util-dynamodb": "^3.382.0"
   },
   "private": true

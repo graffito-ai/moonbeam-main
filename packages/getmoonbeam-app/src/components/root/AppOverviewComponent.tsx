@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {ImageBackground, Linking, TouchableOpacity, View} from "react-native";
 import {commonStyles} from '../../styles/common.module';
 import {styles} from '../../styles/appOverview.module';
@@ -17,6 +17,7 @@ import {AppOwnership} from "expo-constants/src/Constants.types";
 import {logEvent} from "../../utils/AppSync";
 import {LoggingLevel} from "@moonbeam/moonbeam-models";
 import * as ExpoLinking from "expo-linking";
+import * as Notifications from "expo-notifications";
 /**
  * import branch only if the app is not running in Expo Go (so we can actually run the application without Branch for
  * Expo Go), for easier testing purposes.
@@ -43,6 +44,11 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
     const [deepLinkingSourced, setDeepLinkingSourced] = useState<boolean>(false);
     const [stepNumber, setStepNumber] = useState<number>(0);
 
+    // notification states and listeners
+    const notificationListener = useRef<Notifications.Subscription>();
+    const responseListener = useRef<Notifications.Subscription>();
+    const lastNotificationResponse = Notifications.useLastNotificationResponse();
+
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
      * auth-related functionality for example), as well as any afferent API calls.
@@ -51,12 +57,56 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
      * included in here.
      */
     useEffect(() => {
+        /**
+         * we're favoring this over the notification listeners (since they don't always work)
+         * we left the listeners from the useEffect perspective temporarily until we do some deep
+         * dive.
+         */
+        if (lastNotificationResponse) {
+            // navigate to your desired screen
+            const message = `incoming notification and/or notification response received`;
+            console.log(message);
+            logEvent(message, LoggingLevel.Info, true).then(() => {
+            });
+
+            // filter incoming notification action, and set the app url accordingly
+            if (lastNotificationResponse.notification.request.content.data && lastNotificationResponse.notification.request.content.data.clickAction) {
+                if (lastNotificationResponse.notification.request.content.data.clickAction === 'https://app.moonbeam.vet/transaction/cashback') {
+                    ExpoLinking.getInitialURL().then(baseUrl => {
+                        setAppUrl(`${baseUrl}/notifications/cashback`);
+                    });
+                }
+            }
+        }
+        // This listener is fired whenever a notification is received while the app is foregrounded.
+        notificationListener.current = Notifications.addNotificationReceivedListener(_ => {
+            // Do something with the notification
+            const message = `Incoming push notification received`;
+            console.log(message);
+            logEvent(message, LoggingLevel.Info, true).then(() => {
+            });
+        });
+        // This listener is fired whenever a user taps on or interacts with a notification (works when an app is foregrounded, backgrounded, or killed).
+        responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+            // Do something with the notification/response
+            const message = `Incoming notification interaction response received`;
+            console.log(message);
+            logEvent(message, LoggingLevel.Info, true).then(() => {
+            });
+
+            // filter incoming notification action, and set the app url accordingly
+            if (response.notification.request.content.data && response.notification.request.content.data.clickAction) {
+                if (response.notification.request.content.data.clickAction === 'https://app.moonbeam.vet/transaction/cashback') {
+                    ExpoLinking.getInitialURL().then(baseUrl => {
+                        setAppUrl(`${baseUrl}/notifications/cashback`);
+                    });
+                }
+            }
+        });
+
         // subscribe to incoming deep-linking attempts in the app overview component
         Linking.getInitialURL().then(async (url) => {
             if (url) {
-                // const message = `Initial url retrieval : ${url}`;
-                // console.log(message);
-                // logEvent(message, LoggingLevel.Info, true).then(() => {});
                 setAppUrl(url);
 
                 // re-direct to the Authentication screen
@@ -77,9 +127,6 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
         Linking.addEventListener('url', async (urlObject) => {
             if (urlObject && urlObject.url) {
                 const url = urlObject.url;
-                // const message = `Listening to incoming url changes : ${url}`
-                // console.log(message);
-                // logEvent(message, LoggingLevel.Info, true).then(() => {});
                 setAppUrl(url);
 
                 // re-direct to the Authentication screen
@@ -178,7 +225,12 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
             });
             setDeferToLogin(false);
         }
-    }, [deferToLogin, authScreen, deepLinkingSourced, latestReferringParamsChecked,
+        return () => {
+            notificationListener.current && Notifications.removeNotificationSubscription(notificationListener.current!);
+            responseListener.current && Notifications.removeNotificationSubscription(responseListener.current!);
+        };
+    }, [lastNotificationResponse, responseListener, notificationListener,
+        deferToLogin, authScreen, deepLinkingSourced, latestReferringParamsChecked,
         appTrackingPermissionsDone, appUrl]);
 
     // return the component for the AppOverview page

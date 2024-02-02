@@ -553,10 +553,15 @@ export type LoggingResponse = {
 
 export enum MarketingCampaignCode {
   Milbilboard1 = 'MILBILBOARD1',
+  Raffleregapr24 = 'RAFFLEREGAPR24',
+  Raffleregaug24 = 'RAFFLEREGAUG24',
   Raffleregdec23 = 'RAFFLEREGDEC23',
+  Raffleregdec24 = 'RAFFLEREGDEC24',
   Raffleregfeb24 = 'RAFFLEREGFEB24',
   Raffleregjan24 = 'RAFFLEREGJAN24',
+  Raffleregjun24 = 'RAFFLEREGJUN24',
   Raffleregmar24 = 'RAFFLEREGMAR24',
+  Raffleregoct24 = 'RAFFLEREGOCT24',
   Sunnyactual1 = 'SUNNYACTUAL1'
 }
 

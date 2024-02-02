@@ -17,9 +17,8 @@
     "@graphql-codegen/cli": "^3.2.1",
     "@graphql-codegen/typescript": "^3.0.1",
     "@graphql-codegen/typescript-operations": "^3.0.1",
-    "@moonbeam/moonbeam-tsconfig": "1.0.0",
-    "@types/aws-lambda": "^8.10.111",
-    "axios": "^1.4.0"
+    "@moonbeam/moonbeam-tsconfig": "*",
+    "@types/aws-lambda": "^8.10.111"
   },
   "private": true
 }

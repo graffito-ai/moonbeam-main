@@ -1,6 +1,6 @@
 import * as SplashScreen from 'expo-splash-screen';
 import {initialize} from './Setup';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native';
 import * as Font from 'expo-font';
@@ -23,8 +23,8 @@ import * as Location from 'expo-location';
 import {LocationObject} from 'expo-location';
 import {Image} from 'expo-image';
 import * as envInfo from "./local-env-info.json";
-import {LoggingLevel, Stages} from "@moonbeam/moonbeam-models";
 import {logEvent} from "./src/utils/AppSync";
+import {LoggingLevel, Stages} from "@moonbeam/moonbeam-models";
 
 // this handler determines how your app handles notifications that come in while the app is foregrounded.
 Notifications.setNotificationHandler({
@@ -120,10 +120,7 @@ export default function App() {
     const [expoPushToken, setExpoPushToken] = useState<ExpoPushToken>({
         type: 'expo',
         data: ''
-    })
-    const notificationListener = useRef<Notifications.Subscription>();
-    const responseListener = useRef<Notifications.Subscription>();
-    const lastNotificationResponse = Notifications.useLastNotificationResponse();
+    });
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -133,17 +130,6 @@ export default function App() {
      * included in here.
      */
     useEffect(() => {
-        /**
-         * we're favoring this over the notification listeners (since they don't always work)
-         * we left the listeners from the useEffect perspective temporarily until we do some deep
-         * dive.
-         */
-        if (lastNotificationResponse) {
-            // navigate to your desired screen
-            const message = 'incoming notification and/or notification response received (last notification handle)';
-            console.log(message);
-            logEvent(message, LoggingLevel.Info, true).then(() => {});
-        }
         const prepare = async () => {
             try {
                 // preload fonts, make any API calls that we need in here
@@ -184,22 +170,6 @@ export default function App() {
                     setDeviceIsSetForNotifications(true);
                     setExpoPushToken(await registerForPushNotificationsAsync());
                 }
-
-                // This listener is fired whenever a notification is received while the app is foregrounded.
-                notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-                    // Do something with the notification
-                    const message = `Incoming push notification received ${notification}`;
-                    console.log(message);
-                    logEvent(message, LoggingLevel.Info, true).then(() => {});
-                });
-
-                // This listener is fired whenever a user taps on or interacts with a notification (works when an app is foregrounded, backgrounded, or killed).
-                responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-                    // Do something with the notification/response
-                    const message = `Incoming notification interaction response received ${response}`;
-                    console.log(message);
-                    logEvent(message, LoggingLevel.Info, true).then(() => {});
-                });
 
                 // configure the Global Cache - @link https://docs.amplify.aws/lib/utilities/cache/q/platform/js/#api-reference
                 // @ts-ignore
@@ -248,7 +218,8 @@ export default function App() {
                     if (foregroundPermissionStatus.status !== 'granted') {
                         const errorMessage = `Permission to access location was not granted!`;
                         console.log(errorMessage);
-                        logEvent(errorMessage, LoggingLevel.Warning, true).then(() => {});
+                        logEvent(errorMessage, LoggingLevel.Warning, true).then(() => {
+                        });
 
                         setCurrentUserLocation(null);
                     } else {
@@ -259,19 +230,15 @@ export default function App() {
 
                 // tell the application to render
                 setAppIsReady(true);
-
-                return () => {
-                    notificationListener.current && Notifications.removeNotificationSubscription(notificationListener.current!);
-                    responseListener.current && Notifications.removeNotificationSubscription(responseListener.current!);
-                };
             }
         }
         // prepare the app
         if (!appLoaded) {
             setIsAppLoaded(true);
-            prepare().then(() => {});
+            prepare().then(() => {
+            });
         }
-    }, [lastNotificationResponse, currentUserLocation, deviceSetForNotifications]);
+    }, [currentUserLocation, deviceSetForNotifications]);
 
     /**
      * Invoked when the application is mounted and the layout changes

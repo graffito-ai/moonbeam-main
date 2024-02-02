@@ -1,11 +1,41 @@
 {
-  "tasksRunnerOptions": {
-    "default": {
-      "runner": "nx/tasks-runners/default",
-      "options": {
-        "cacheableOperations": []
-      }
+  "affected": {
+    "defaultBase": "origin/main"
+  },
+  "targetDefaults": {
+    "build": {
+      "cache": true,
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "{projectRoot}/dist",
+        "{projectRoot}/lib"
+      ]
+    },
+    "clean": {
+      "dependsOn": [
+        "^clean"
+      ]
+    },
+    "install": {
+      "cache": true,
+      "dependsOn": [
+        "^install"
+      ]
+    },
+    "test": {
+      "dependsOn": [
+        "^test"
+      ],
+      "cache": true
+    },
+    "release": {
+      "cache": true,
+      "dependsOn": [
+        "^release"
+      ]
     }
   },
-  "defaultBase": "main"
+  "nxCloudAccessToken": "YmUyNDhiY2EtMmQ0Yy00ZGQxLWE3ZTctZGU0NWFjNTgxYTY1fHJlYWQtd3JpdGU="
 }
