@@ -7,7 +7,12 @@ import {LinearGradient} from "expo-linear-gradient";
 import {Text} from "react-native-paper";
 import GestureRecognizer from 'react-native-swipe-gestures';
 import {useRecoilState} from "recoil";
-import {appUrlState, deferToLoginState, initialAuthenticationScreen} from "../../recoil/AuthAtom";
+import {
+    appUrlState,
+    deferToLoginState,
+    initialAuthenticationScreen,
+    userIsAuthenticatedState
+} from "../../recoil/AuthAtom";
 import {appOverviewSteps} from "../../models/Constants";
 import {requestAppTrackingTransparencyPermission} from "../../utils/Permissions";
 import * as SecureStore from "expo-secure-store";
@@ -33,6 +38,7 @@ const isRunningInExpoGo = Constants.appOwnership === AppOwnership.Expo;
  */
 export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [appUrl, setAppUrl] = useRecoilState(appUrlState);
     const [appTrackingPermissionsDone, setAreAppTrackingPermissionsDone] = useState<boolean>(false);
     const [, setReferralCodeMarketingCampaign] = useRecoilState(referralCodeMarketingCampaignState);
@@ -46,7 +52,7 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
 
     // notification states and listeners
     const notificationListener = useRef<Notifications.Subscription>();
-    const responseListener = useRef<Notifications.Subscription>();
+    const notificationResponseListener = useRef<Notifications.Subscription>();
     const lastNotificationResponse = Notifications.useLastNotificationResponse();
 
     /**
@@ -87,7 +93,7 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
             });
         });
         // This listener is fired whenever a user taps on or interacts with a notification (works when an app is foregrounded, backgrounded, or killed).
-        responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+        notificationResponseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
             // Do something with the notification/response
             const message = `Incoming notification interaction response received`;
             console.log(message);
@@ -96,6 +102,7 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
 
             // filter incoming notification action, and set the app url accordingly
             if (response.notification.request.content.data && response.notification.request.content.data.clickAction) {
+                // filters for notification click actions for cashback notifications
                 if (response.notification.request.content.data.clickAction === 'https://app.moonbeam.vet/transaction/cashback') {
                     ExpoLinking.getInitialURL().then(baseUrl => {
                         setAppUrl(`${baseUrl}/notifications/cashback`);
@@ -141,7 +148,56 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
             }
         });
 
-        // import branch accordingly
+        // import branch accordingly and subscribe to incoming URIs
+        let branchUnsubscribe : any = null;
+        !isRunningInExpoGo && import('react-native-branch').then((branch) => {
+            branchUnsubscribe = branch.default.subscribe({
+                onOpenStart: ({ uri, cachedInitialEvent }) => {
+                    const message = `Branch subscribe onOpenStart, will open ${uri}, with cachedInitialEvent ${cachedInitialEvent}`;
+                    console.log(message);
+                    logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {});
+                },
+                onOpenComplete: async (event) => {
+                    const params = event.params;
+                    if (params) {
+                        if (params['~tags'] && params['~tags'].length === 2) {
+                            // check whether this is a referral specific branch url or a notification deep-link url
+                            if ((params['~tags'][0].toString() === 'cashback' && params['~tags'][1].toString() === 'notifications') ||
+                                (params['~tags'][1].toString() === 'cashback' && params['~tags'][0].toString() === 'notifications')) {
+                                setAppUrl(`${await ExpoLinking.getInitialURL()}/notifications/cashback`);
+
+                                // re-direct to the Authentication screen
+                                setAuthScreen('SignIn');
+                                navigation.navigate("Authentication", {
+                                    marketplaceCache: route.params.marketplaceCache,
+                                    cache: route.params.cache,
+                                    currentUserLocation: route.params.currentUserLocation,
+                                    expoPushToken: route.params.expoPushToken,
+                                    onLayoutRootView: route.params.onLayoutRootView
+                                });
+                            } else {
+                                // set the referral code to be used during registration
+                                setReferralCode(params['~tags'][0].toString());
+
+                                // set the marketing campaign code used for the referral
+                                setReferralCodeMarketingCampaign(params['~tags'][1].toString());
+
+                                // re-direct to the registration screen
+                                setAuthScreen('Registration');
+                                navigation.navigate("Authentication", {
+                                    marketplaceCache: route.params.marketplaceCache,
+                                    cache: route.params.cache,
+                                    currentUserLocation: route.params.currentUserLocation,
+                                    expoPushToken: route.params.expoPushToken,
+                                    onLayoutRootView: route.params.onLayoutRootView
+                                });
+                            }
+                        }
+                    }
+                },
+            });
+        });
+        // import branch accordingly and subscribe to latest referring params
         !isRunningInExpoGo && import('react-native-branch').then((branch) => {
             // handle incoming deep-links through the latest referring params of the Branch SDK
             branch !== null && branch.default !== null && !latestReferringParamsChecked && branch.default.getLatestReferringParams(false).then(async params => {
@@ -227,9 +283,11 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
         }
         return () => {
             notificationListener.current && Notifications.removeNotificationSubscription(notificationListener.current!);
-            responseListener.current && Notifications.removeNotificationSubscription(responseListener.current!);
+            notificationResponseListener.current && Notifications.removeNotificationSubscription(notificationResponseListener.current!);
+            Linking.removeAllListeners('url');
+            branchUnsubscribe !== null && branchUnsubscribe();
         };
-    }, [lastNotificationResponse, responseListener, notificationListener,
+    }, [lastNotificationResponse, notificationResponseListener, notificationListener,
         deferToLogin, authScreen, deepLinkingSourced, latestReferringParamsChecked,
         appTrackingPermissionsDone, appUrl]);
 

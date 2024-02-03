@@ -9,7 +9,7 @@
     "reset": "npx nx reset",
     "build": "touch ./packages/getmoonbeam-cdk/graphql/schema.graphql && npx nx run-many -t build",
     "clean": "npx nx run-many -t clean && rm -rf ./node_modules",
-    "postinstall": "husky install",
+    "postinstall": "husky install && patch-package",
     "release": "yarn run clean && yarn install && yarn run build"
   },
   "devDependencies": {
@@ -23,8 +23,7 @@
     "packages": [
       "packages/*"
     ],
-    "nohoist": [
-    ]
+    "nohoist": []
   },
   "private": true
 }

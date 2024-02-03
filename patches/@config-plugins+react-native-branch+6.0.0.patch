@@ -1,0 +1,20 @@
+diff --git a/node_modules/@config-plugins/react-native-branch/android/build.gradle b/node_modules/@config-plugins/react-native-branch/android/build.gradle
+index 62cff15..5eed075 100644
+--- a/node_modules/@config-plugins/react-native-branch/android/build.gradle
++++ b/node_modules/@config-plugins/react-native-branch/android/build.gradle
+@@ -38,12 +38,12 @@ android {
+   compileSdkVersion safeExtGet("compileSdkVersion", 31)
+ 
+   compileOptions {
+-    sourceCompatibility JavaVersion.VERSION_11
+-    targetCompatibility JavaVersion.VERSION_11
++    sourceCompatibility JavaVersion.VERSION_17
++    targetCompatibility JavaVersion.VERSION_17
+   }
+ 
+   kotlinOptions {
+-    jvmTarget = JavaVersion.VERSION_11.majorVersion
++    jvmTarget = JavaVersion.VERSION_17.majorVersion
+   }
+ 
+   defaultConfig {

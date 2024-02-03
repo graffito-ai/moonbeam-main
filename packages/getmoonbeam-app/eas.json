@@ -8,12 +8,12 @@
       "distribution": "internal",
       "ios": {
         "resourceClass": "large",
-        "image": "default",
+        "image": "latest",
         "enterpriseProvisioning": "adhoc"
       },
       "android": {
         "resourceClass": "large",
-        "image": "default"
+        "image": "latest"
       }
     },
     "preview": {
@@ -22,11 +22,11 @@
     "production": {
       "ios": {
         "resourceClass": "large",
-        "image": "default"
+        "image": "latest"
       },
       "android": {
         "resourceClass": "large",
-        "image": "default"
+        "image": "latest"
       }
     }
   },
