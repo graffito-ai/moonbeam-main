@@ -28,7 +28,7 @@
       "backgroundColor": "#313030"
     },
     "ios": {
-      "buildNumber": "1",
+      "buildNumber": "2",
       "bundleIdentifier": "com.moonbeam.moonbeamfinance",
       "supportsTablet": false,
       "infoPlist": {
@@ -84,12 +84,6 @@
         "@config-plugins/react-native-branch",
         {
           "apiKey": "key_live_dCiEy5Jy3M9LvuF3YtBmXogiEtfJdz6J"
-        }
-      ],
-      [
-        "expo-updates",
-        {
-          "username": "moonbeamfin"
         }
       ],
       [

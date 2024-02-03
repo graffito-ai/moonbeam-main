@@ -5,7 +5,7 @@ import {
     CreateNotificationInput,
     createReferral,
     createUserAuthSession,
-    FidelisPartner,
+    FidelisPartner, geoCodeAsync,
     getAppReviewEligibility,
     getAppUpgradeCredentials,
     getDeviceByToken,
@@ -49,6 +49,60 @@ import {appUpgradeVersionCheck} from 'app-upgrade-react-native-sdk';
 import {Platform} from "react-native";
 import * as envInfo from "../../local-env-info.json";
 import React from "react";
+import {LocationGeocodedLocation} from "expo-location/src/Location.types";
+
+/**
+ * Function used to geocode a location's address asynchronously using Google Maps APIs.
+ *
+ * @param address address to be geocoded.
+ *
+ * @return an {@link Array} of {@link LocationGeocodedLocation} objects, representing the geocoded
+ * locations (typically only one) for the provided address.
+ */
+export const geocodeAsync = async (address: string): Promise<LocationGeocodedLocation[]> => {
+    // sometime this address it not accurate from Olive/Triple, so we do our best to sanitize it
+    let sanitizedAddress = address.trimStart().trimEnd().trim();
+    sanitizedAddress = Array.from(new Set(sanitizedAddress.split(','))).toString();
+
+    // results to be returned
+    const results: LocationGeocodedLocation[] = [];
+
+    try {
+        // call the geoCodeAsync API to retrieve the appropriate location coordinates for the given address
+        const geoCodeAsyncResult = await API.graphql(graphqlOperation(geoCodeAsync, {
+            address: sanitizedAddress
+        }));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const responseGeoCodeAsyncLocations = geoCodeAsyncResult ? geoCodeAsyncResult.data : null;
+
+        if (responseGeoCodeAsyncLocations && responseGeoCodeAsyncLocations.geoCodeAsync.errorMessage === null &&
+            responseGeoCodeAsyncLocations.geoCodeAsync.data !== undefined && responseGeoCodeAsyncLocations.geoCodeAsync.data !== null &&
+            responseGeoCodeAsyncLocations.geoCodeAsync.data.length !== 0) {
+            // return the first matched geoCoded location
+            results.push({
+                latitude: responseGeoCodeAsyncLocations.geoCodeAsync.data[0].latitude,
+                longitude: responseGeoCodeAsyncLocations.geoCodeAsync.data[0].longitude
+            });
+            return results;
+        } else {
+            // return that the results and print an error in case there was an error while executing the address geocoding
+            const message = `Error while executing the geoCoding query ${responseGeoCodeAsyncLocations.geoCodeAsync.errorMessage}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, true);
+
+            return results;
+        }
+    } catch (error) {
+        // return that the results and print an error in case there was an unexpected error while attempting to geocode address
+        const message = `Unexpected error while geoCoding ${sanitizedAddress}, ${JSON.stringify(error)} ${error}`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, true);
+
+        return results;
+    }
+}
 
 /**
  * Function used to check whether a user is eligible for an App Store Review
@@ -1815,7 +1869,7 @@ const retrieveOffersNearLocationForMap = async (address: string, totalNumberOfOf
     while (retryCount > 0) {
         try {
             // first retrieve the necessary geolocation information based on the user's home address
-            const geoLocationArray = await Location.geocodeAsync(address);
+            const geoLocationArray = await geocodeAsync(address);
             /**
              * get the first location point in the array of geolocation returned
              */
@@ -2098,7 +2152,7 @@ const retrieveOffersNearLocation = async (address: string, pageNumber: number, s
                 await logEvent(message, LoggingLevel.Info, true);
 
                 // first retrieve the necessary geolocation information based on the user's home address
-                const geoLocationArray = await Location.geocodeAsync(address);
+                const geoLocationArray = await geocodeAsync(address);
                 /**
                  * get the first location point in the array of geolocation returned
                  */
@@ -2356,7 +2410,7 @@ const retrieveCategorizedOffersNearLocation = async (address: string, pageNumber
     while (retryCount > 0) {
         try {
             // first retrieve the necessary geolocation information based on the user's home address
-            const geoLocationArray = await Location.geocodeAsync(address);
+            const geoLocationArray = await geocodeAsync(address);
             /**
              * get the first location point in the array of geolocation returned
              */

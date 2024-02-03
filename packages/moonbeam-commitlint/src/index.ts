@@ -52,6 +52,7 @@ export const setCommitLintConfig = (
                     'moonbeam-notification-reminder-producer-lambda',
                     'moonbeam-notification-reminder-lambda',
                     'moonbeam-notifications-lambda',
+                    'moonbeam-utilities-lambda',
                     'moonbeam-offers-lambda',
                     'moonbeam-physical-devices-lambda',
                     'moonbeam-referral-consumer-lambda',

@@ -17,7 +17,7 @@ import {
     TransactionsConfiguration,
     TransactionsProducerConsumerConfiguration,
     UpdatedTransactionsProducerConsumerConfiguration,
-    UserAuthSessionConfiguration
+    UserAuthSessionConfiguration, UtilitiesConfiguration
 } from "./ServiceConfiguration";
 
 /**
@@ -47,6 +47,7 @@ export interface StageConfiguration {
     readonly physicalDevicesConfig: PhysicalDevicesConfiguration;
     readonly notificationReminderConfig: NotificationReminderConfiguration;
     readonly appUpgradeConfig: AppUpgradeConfiguration;
+    readonly utilitiesConfig: UtilitiesConfiguration;
     readonly appReviewConfig: AppReviewConfiguration;
     readonly referralConfig: ReferralConfiguration;
     readonly loggingConfig: LoggingConfiguration;

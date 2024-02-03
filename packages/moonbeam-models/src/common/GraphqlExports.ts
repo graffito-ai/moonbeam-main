@@ -412,6 +412,13 @@ export type FilesForUserResponse = {
   errorType?: Maybe<StorageErrorType>;
 };
 
+export type GeocodeAsyncResponse = {
+  __typename?: 'GeocodeAsyncResponse';
+  data?: Maybe<Array<Maybe<Location>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<UtilitiesErrorType>;
+};
+
 export type GetAppReviewEligibilityInput = {
   id: Scalars['ID'];
 };
@@ -523,6 +530,12 @@ export type IneligibleLinkedUsersResponse = {
   data?: Maybe<Array<Maybe<RetrieveUserDetailsForNotifications>>>;
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<CardLinkErrorType>;
+};
+
+export type Location = {
+  __typename?: 'Location';
+  latitude: Scalars['Float'];
+  longitude: Scalars['Float'];
 };
 
 export enum LoggingAcknowledgmentType {
@@ -1229,6 +1242,7 @@ export type PutMilitaryVerificationReportInput = {
 
 export type Query = {
   __typename?: 'Query';
+  geoCodeAsync: GeocodeAsyncResponse;
   getAllUsersForNotificationReminders: UserForNotificationReminderResponse;
   getAppReviewEligibility: GetAppReviewEligibilityResponse;
   getAppUpgradeCredentials: AppUpgradeResponse;
@@ -1255,6 +1269,11 @@ export type Query = {
   getUserFromReferral: UserFromReferralResponse;
   getUsersWithNoCards: IneligibleLinkedUsersResponse;
   searchOffers: OffersResponse;
+};
+
+
+export type QueryGeoCodeAsyncArgs = {
+  address: Scalars['String'];
 };
 
 
@@ -1712,6 +1731,14 @@ export type UserFromReferralResponse = {
   errorType?: Maybe<ReferralErrorType>;
 };
 
+export enum UtilitiesErrorType {
+  DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  RestrictedAccess = 'RESTRICTED_ACCESS',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  ValidationError = 'VALIDATION_ERROR'
+}
+
 export type CreateAppReviewMutationVariables = Exact<{
   createAppReviewInput: CreateAppReviewInput;
 }>;
@@ -1915,6 +1942,13 @@ export type GetAllUsersForNotificationRemindersQueryVariables = Exact<{ [key: st
 
 
 export type GetAllUsersForNotificationRemindersQuery = { __typename?: 'Query', getAllUsersForNotificationReminders: { __typename?: 'UserForNotificationReminderResponse', errorMessage?: string | null, errorType?: NotificationReminderErrorType | null, data?: Array<{ __typename?: 'RetrieveUserDetailsForNotifications', id: string, email: string, firstName: string, lastName: string } | null> | null } };
+
+export type GeoCodeAsyncQueryVariables = Exact<{
+  address: Scalars['String'];
+}>;
+
+
+export type GeoCodeAsyncQuery = { __typename?: 'Query', geoCodeAsync: { __typename?: 'GeocodeAsyncResponse', errorMessage?: string | null, errorType?: UtilitiesErrorType | null, data?: Array<{ __typename?: 'Location', latitude: number, longitude: number } | null> | null } };
 
 export type GetFaQsQueryVariables = Exact<{ [key: string]: never; }>;
 

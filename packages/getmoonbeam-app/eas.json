@@ -4,32 +4,29 @@
   },
   "build": {
     "development": {
-      "channel": "development",
       "developmentClient": true,
       "distribution": "internal",
       "ios": {
         "resourceClass": "large",
-        "image": "latest",
+        "image": "default",
         "enterpriseProvisioning": "adhoc"
       },
       "android": {
         "resourceClass": "large",
-        "image": "latest"
+        "image": "default"
       }
     },
     "preview": {
-      "channel": "preview",
       "distribution": "internal"
     },
     "production": {
-      "channel": "production",
-      "android": {
-        "resourceClass": "large",
-        "image": "latest"
-      },
       "ios": {
         "resourceClass": "large",
-        "image": "latest"
+        "image": "default"
+      },
+      "android": {
+        "resourceClass": "large",
+        "image": "default"
       }
     }
   },

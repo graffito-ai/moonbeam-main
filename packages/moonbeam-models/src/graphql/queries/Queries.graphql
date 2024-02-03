@@ -115,6 +115,16 @@ query GetAllUsersForNotificationReminders {
         }
     }
 }
+query GeoCodeAsync($address: String!) {
+    geoCodeAsync(address: $address) {
+        errorMessage
+        errorType
+        data {
+            latitude
+            longitude
+        }
+    }
+}
 query GetFAQs {
     getFAQs {
         errorMessage

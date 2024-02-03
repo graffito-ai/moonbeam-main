@@ -7,6 +7,7 @@ import {Marker, PROVIDER_GOOGLE, Region} from "react-native-maps";
 import * as Location from "expo-location";
 import {LocationObject} from "expo-location";
 import {
+    onlineOffersListState,
     showClickOnlyBottomSheetState,
     toggleViewPressedState,
     uniqueNearbyOffersListForMainHorizontalMapState
@@ -46,6 +47,7 @@ export const MapHorizontalSection = () => {
     const uniqueNearbyOffersListForMainHorizontalMap = useRecoilValue(uniqueNearbyOffersListForMainHorizontalMapState);
     const [currentUserLocation, setCurrentUserLocation] = useRecoilState(currentUserLocationState);
     const [showClickOnlyBottomSheet,] = useRecoilState(showClickOnlyBottomSheetState);
+    const [onlineOfferList,] = useRecoilState(onlineOffersListState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -55,8 +57,8 @@ export const MapHorizontalSection = () => {
      * included in here.
      */
     useEffect(() => {
-        if (uniqueNearbyOffersListForMainHorizontalMap !== undefined && uniqueNearbyOffersListForMainHorizontalMap !== null &&
-            uniqueNearbyOffersListForMainHorizontalMap.length !== 0) {
+        if ((uniqueNearbyOffersListForMainHorizontalMap !== undefined && uniqueNearbyOffersListForMainHorizontalMap !== null &&
+            uniqueNearbyOffersListForMainHorizontalMap.length !== 0) || onlineOfferList.length !== 0) {
             setLoadingSpinnerShown(false);
         }
         if (mapViewRef && mapViewRef.current && currentUserLocation !== null && !mapIsDisplayed) {
@@ -74,7 +76,7 @@ export const MapHorizontalSection = () => {
                 }, 0);
             });
         }
-    }, [currentUserLocation, mapIsDisplayed, mapViewRef, uniqueNearbyOffersListForMainHorizontalMap]);
+    }, [currentUserLocation, mapIsDisplayed, mapViewRef, uniqueNearbyOffersListForMainHorizontalMap, onlineOfferList]);
 
     /**
      * Function used to retrieve the user's location and animate/move the horizontal map to that position

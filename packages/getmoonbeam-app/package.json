@@ -71,7 +71,6 @@
     "expo-store-review": "^6.8.3",
     "expo-task-manager": "~11.7.1",
     "expo-tracking-transparency": "~3.3.0",
-    "expo-updates": "~0.24.8",
     "geolib": "^3.3.4",
     "lerna": "^7.1.5",
     "lodash": "^4.17.21",

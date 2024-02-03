@@ -16,7 +16,7 @@
     "@aws-sdk/types": "^3.272.0",
     "@moonbeam/moonbeam-models": "*",
     "@moonbeam/moonbeam-tsconfig": "*",
-    "axios": "^1.4.0",
+    "axios": "^1.6.7",
     "uuid": "^9.0.0"
   },
   "private": true

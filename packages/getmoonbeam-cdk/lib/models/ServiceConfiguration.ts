@@ -371,6 +371,15 @@ export interface AppUpgradeConfiguration {
 }
 
 /**
+ * Interface used to define the configuration for the utilities service resolvers (GraphQL based),
+ * and other afferent data stores.
+ */
+export interface UtilitiesConfiguration {
+    readonly utilitiesFunctionName: string;
+    readonly geoCodeAsyncResolverName: string;
+}
+
+/**
  * Interface used to define the configuration used for logging purposes.
  */
 export interface LoggingConfiguration {

@@ -1122,7 +1122,7 @@ export const Profile = ({navigation}: ProfileProps) => {
                                                         />
                                                     </View>
                                                     {
-                                                        !userInformation["custom:militaryAffiliation"] || userInformation["custom:militaryAffiliation"] === null &&
+                                                        (!userInformation["custom:militaryAffiliation"] || userInformation["custom:militaryAffiliation"] === null) &&
                                                         <>
                                                             <View style={styles.pickerView}>
                                                                 <DropDownPicker

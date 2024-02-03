@@ -23,7 +23,6 @@ cdk.out
 packages/**/*.d.ts
 packages/**/dist/
 packages/moonbeam-commitlint/lib
-packages/moonbeam-models/lib
 packages/moonbeam-app-review-lambda/lib
 packages/moonbeam-app-upgrade-lambda/lib
 packages/moonbeam-card-linking-lambda/lib
@@ -39,6 +38,7 @@ packages/moonbeam-notification-reminder-producer-lambda/lib
 packages/moonbeam-notification-reminder-lambda/lib
 packages/moonbeam-notifications-lambda/lib
 packages/moonbeam-offers-lambda/lib
+packages/moonbeam-utilities-lambda/lib
 packages/moonbeam-physical-devices-lambda/lib
 packages/moonbeam-referral-consumer-lambda/lib
 packages/moonbeam-referral-lambda/lib

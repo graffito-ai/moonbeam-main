@@ -1,6 +1,7 @@
 # graphql/Root.graphql
 # Main Schema File
 type Query {
+    geoCodeAsync(address: String!): GeocodeAsyncResponse! @aws_cognito_user_pools
     getFAQs: FAQResponse! @aws_cognito_user_pools
     getOffers(getOffersInput: GetOffersInput!): OffersResponse! @aws_cognito_user_pools
     searchOffers(searchOffersInput: SearchOffersInput!): OffersResponse! @aws_cognito_user_pools
@@ -1438,4 +1439,24 @@ input CreateAppReviewInput {
     id: ID! # represents the internal Moonbeam user id
     createdAt: AWSDateTime
     updatedAt: AWSDateTime
+}
+# graphql/UtilitiesSchema.graphql
+# Utilities Schema File
+enum UtilitiesErrorType {
+    DUPLICATE_OBJECT_FOUND
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+    RESTRICTED_ACCESS
+}
+
+type Location @aws_cognito_user_pools {
+    latitude: Float!,
+    longitude: Float!
+}
+
+type GeocodeAsyncResponse @aws_cognito_user_pools {
+    data: [Location]
+    errorType: UtilitiesErrorType
+    errorMessage: String
 }

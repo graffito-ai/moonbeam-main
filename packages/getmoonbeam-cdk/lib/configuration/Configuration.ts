@@ -229,6 +229,10 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 createAppReviewResolverName: 'createAppReview',
                 getAppReviewEligibilityResolverName: 'getAppReviewEligibility'
             },
+            utilitiesConfig: {
+                utilitiesFunctionName: 'utilitiesFunction',
+                geoCodeAsyncResolverName: 'geoCodeAsync'
+            },
             environmentVariables: new Map<string, string>([])
         },
         [`${Stages.PROD}-${Regions.PDX}`]: {
@@ -453,6 +457,10 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 appReviewTableName: 'appReviewTable',
                 createAppReviewResolverName: 'createAppReview',
                 getAppReviewEligibilityResolverName: 'getAppReviewEligibility'
+            },
+            utilitiesConfig: {
+                utilitiesFunctionName: 'utilitiesFunction',
+                geoCodeAsyncResolverName: 'geoCodeAsync'
             },
             environmentVariables: new Map<string, string>([])
         },

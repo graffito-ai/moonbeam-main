@@ -11,6 +11,7 @@ export * from './common/clients/MoonbeamClient';
 export * from './common/clients/OliveClient';
 export * from './common/clients/CourierClient';
 export * from './common/clients/AppUpgradeClient';
+export * from './common/clients/GoogleMapsClient';
 export * from './common/PremierNearbyOfferIds';
 export * from './common/PremierOnlineOfferIds';
 export * from './common/PremierClickOnlyOnlineOfferIds';

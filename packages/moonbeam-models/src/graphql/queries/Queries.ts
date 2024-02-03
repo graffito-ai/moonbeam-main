@@ -159,6 +159,20 @@ export const getAllUsersForNotificationReminders = /* GraphQL */ `
     }
 `;
 
+// Query used to GeoCode and address using Google's APIs
+export const geoCodeAsync = /* GraphQL */ `
+    query GeoCodeAsync($address: String!) {
+        geoCodeAsync(address: $address) {
+            errorMessage
+            errorType
+            data {
+                latitude
+                longitude
+            }
+        }
+    }
+`;
+
 // Query used to retrieve all the FAQs
 export const getFAQs = /* GraphQL */ `
     query GetFAQs {

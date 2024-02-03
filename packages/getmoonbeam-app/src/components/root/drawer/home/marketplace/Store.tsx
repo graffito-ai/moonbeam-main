@@ -13,7 +13,8 @@ import {
     CountryCode,
     FidelisPartner,
     getFidelisPartners,
-    getOffers, LoggingLevel,
+    getOffers,
+    LoggingLevel,
     Offer,
     OfferAvailability,
     OfferFilter,
@@ -49,7 +50,8 @@ import {
     nearbyOffersListState,
     nearbyOffersPageNumberState,
     nearbyOffersSpinnerShownState,
-    noClickOnlyOnlineOffersToLoadState, noFilteredOffersToLoadState,
+    noClickOnlyOnlineOffersToLoadState,
+    noFilteredOffersToLoadState,
     noNearbyOffersToLoadState,
     noOnlineOffersToLoadState,
     offersNearUserLocationFlagState,
@@ -58,7 +60,8 @@ import {
     reloadNearbyDueToPermissionsChangeState,
     showClickOnlyBottomSheetState,
     storeNavigationState,
-    toggleViewPressedState, verticalSectionActiveState
+    toggleViewPressedState,
+    verticalSectionActiveState
 } from "../../../../../recoil/StoreOfferAtom";
 import {currentUserLocationState} from "../../../../../recoil/RootAtom";
 import {KitsSection} from "./storeComponents/KitsSection";
@@ -67,7 +70,7 @@ import {ClickOnlyOnlineSection} from "./storeComponents/ClickOnlyOnlineSection";
 import BottomSheet from "@gorhom/bottom-sheet";
 import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
 import {ClickOnlyOffersBottomSheet} from "./storeComponents/ClickOnlyOffersBottomSheet";
-import {logEvent} from "../../../../../utils/AppSync";
+import {geocodeAsync, logEvent} from "../../../../../utils/AppSync";
 
 /**
  * Store component.
@@ -85,9 +88,9 @@ export const Store = ({navigation}: StoreProps) => {
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     // constants used to keep track of shared states
-    const [noFilteredOffersToLoad, ] = useRecoilState(noFilteredOffersToLoadState);
-    const [whichVerticalSectionActive, ] = useRecoilState(verticalSectionActiveState);
-    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
+    const [noFilteredOffersToLoad,] = useRecoilState(noFilteredOffersToLoadState);
+    const [whichVerticalSectionActive,] = useRecoilState(verticalSectionActiveState);
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [fidelisPartnerList, setFidelisPartnerList] = useRecoilState(fidelisPartnerListState);
     const [, setStoreNavigationState] = useRecoilState(storeNavigationState);
     const [currentUserLocation, setCurrentUserLocation] = useRecoilState(currentUserLocationState);
@@ -151,19 +154,19 @@ export const Store = ({navigation}: StoreProps) => {
 
                         retryCount = 0;
                     } else {
-                        retryCount -=1;
+                        retryCount -= 1;
                         const message = `No Fidelis partners to display ${JSON.stringify(fidelisPartnersResult)}`;
                         console.log(message);
                         await logEvent(message, LoggingLevel.Warning, userIsAuthenticated);
                     }
                 } else {
-                    retryCount -=1;
+                    retryCount -= 1;
                     const message = `Unexpected error while retrieving Fidelis partner offers ${JSON.stringify(fidelisPartnersResult)}`;
                     console.log(message);
                     await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
                 }
             } catch (error) {
-                retryCount -=1;
+                retryCount -= 1;
                 const message = `Unexpected error while attempting to retrieve the Fidelis partner offers ${JSON.stringify(error)} ${error}`;
                 console.log(message);
                 await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
@@ -337,7 +340,7 @@ export const Store = ({navigation}: StoreProps) => {
                  * get the first location point in the array of geolocation returned (based on the user's address since
                  * that was what we used when we cached these offers)
                  */
-                const geoLocationArray = await Location.geocodeAsync(userInformation["address"]["formatted"]);
+                const geoLocationArray = await geocodeAsync(userInformation["address"]["formatted"]);
                 const geoLocation = geoLocationArray && geoLocationArray.length !== 0 ? geoLocationArray[0] : null;
                 if (!geoLocation) {
                     const message = `Unable to retrieve user's home location's geolocation ${address}`;
@@ -356,7 +359,7 @@ export const Store = ({navigation}: StoreProps) => {
                 await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
 
                 // first retrieve the necessary geolocation information based on the user's home address
-                const geoLocationArray = await Location.geocodeAsync(address);
+                const geoLocationArray = await geocodeAsync(address);
                 /**
                  * get the first location point in the array of geolocation returned
                  */
@@ -824,7 +827,12 @@ export const Store = ({navigation}: StoreProps) => {
                                     {
                                         <View {...showClickOnlyBottomSheet && {pointerEvents: "none"}}
                                               {...showClickOnlyBottomSheet ? {
-                                                  style: {backgroundColor: 'transparent', opacity: 0.3, height: '100%', width: '100%'}
+                                                  style: {
+                                                      backgroundColor: 'transparent',
+                                                      opacity: 0.3,
+                                                      height: '100%',
+                                                      width: '100%'
+                                                  }
                                               } : {style: {display: 'none'}}}>
                                             {retrieveStoreContents(true)}
                                         </View>

@@ -1,0 +1,20 @@
+# graphql/UtilitiesSchema.graphql
+# Utilities Schema File
+enum UtilitiesErrorType {
+    DUPLICATE_OBJECT_FOUND
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+    RESTRICTED_ACCESS
+}
+
+type Location @aws_cognito_user_pools {
+    latitude: Float!,
+    longitude: Float!
+}
+
+type GeocodeAsyncResponse @aws_cognito_user_pools {
+    data: [Location]
+    errorType: UtilitiesErrorType
+    errorMessage: String
+}

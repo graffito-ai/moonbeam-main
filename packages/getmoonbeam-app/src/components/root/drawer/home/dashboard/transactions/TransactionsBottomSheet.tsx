@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 import {Linking, Platform, SafeAreaView, StyleSheet, TouchableOpacity, View} from "react-native";
-import {Dialog, Portal, Text} from "react-native-paper";
+import {ActivityIndicator, Dialog, Portal, Text} from "react-native-paper";
 import {styles} from "../../../../../../styles/dashboard.module";
 import MapView, {Marker, PROVIDER_GOOGLE} from "react-native-maps";
 import * as Location from 'expo-location';
@@ -19,9 +19,9 @@ import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-s
 // @ts-ignore
 import MoonbeamPinImage from "../../../../../../../assets/pin-shape.png";
 import {Image, ImageBackground} from "expo-image";
-import {widthPercentageToDP as wp} from "react-native-responsive-screen";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
-import {logEvent} from "../../../../../../utils/AppSync";
+import {geocodeAsync, logEvent} from "../../../../../../utils/AppSync";
 import {LoggingLevel} from "@moonbeam/moonbeam-models";
 
 /**
@@ -52,6 +52,7 @@ export const TransactionsBottomSheet = (props: {
     transactionTimestamp: string
 }) => {
     // constants used to keep track of local component state
+    const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(false);
     const [permissionsModalVisible, setPermissionsModalVisible] = useState<boolean>(false);
     const [permissionsModalCustomMessage, setPermissionsModalCustomMessage] = useState<string>("");
     const [permissionsInstructionsCustomMessage, setPermissionsInstructionsCustomMessage] = useState<string>("");
@@ -60,7 +61,7 @@ export const TransactionsBottomSheet = (props: {
     const mapViewRef = useRef(null);
     const discountPercentage = `${Math.round((Number(props.transactionDiscountAmount) / Number(props.transactionAmount)) * 100)}%`;
     // constants used to keep track of shared states
-    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [, setShowTransactionBottomSheet] = useRecoilState(showTransactionBottomSheetState);
 
     /**
@@ -76,6 +77,7 @@ export const TransactionsBottomSheet = (props: {
 
     // retrieve the geolocation (latitude and longitude of the store which the transaction was made at)
     const retrieveStoreGeolocation = async (): Promise<void> => {
+        setLoadingSpinnerShown(true);
         // first retrieve the necessary permissions for location purposes
         const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
         if (foregroundPermissionStatus.status !== 'granted') {
@@ -84,10 +86,9 @@ export const TransactionsBottomSheet = (props: {
             await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
 
             setLocationServicesButton(true);
+            setLoadingSpinnerShown(false);
         } else {
-            const geoLocationArray = await Location.geocodeAsync(props.transactionStoreAddress!, {
-                useGoogleMaps: true
-            });
+            const geoLocationArray = await geocodeAsync(props.transactionStoreAddress!);
             /**
              * get the first location point in the array of geolocation returned, since we will have the full address of the store,
              * which will result in a 100% accuracy for 1 location match
@@ -97,6 +98,7 @@ export const TransactionsBottomSheet = (props: {
             // building the transaction store geolocation object
             let transactionStoreGeoLocation: TransactionStoreLocation | null = null;
             if (geoLocation) {
+                setLoadingSpinnerShown(false);
                 // set the store location details accordingly
                 transactionStoreGeoLocation = {
                     latitude: geoLocation.latitude!,
@@ -245,60 +247,71 @@ export const TransactionsBottomSheet = (props: {
                             </View>
                         </>
                         :
-                        props.transactionStoreAddress &&
-                        <View style={styles.transactionMapView}>
-                            <MapView
-                                provider={PROVIDER_GOOGLE}
-                                userInterfaceStyle={'dark'}
-                                zoomControlEnabled={true}
-                                ref={mapViewRef}
-                                style={[StyleSheet.absoluteFillObject, {borderRadius: 30}]}
-                            >
-                                {
-                                    transactionStoreGeoLocation &&
-                                    <Marker
-                                        onPress={async () => {
-                                            await retrieveStoreGeolocation();
-                                        }}
-                                        coordinate={{
-                                            latitude: transactionStoreGeoLocation.latitude!,
-                                            longitude: transactionStoreGeoLocation.longitude!
-                                        }}
+                        <>
+                            {
+                                loadingSpinnerShown &&
+                                <ActivityIndicator
+                                    style={{top: hp(15), marginBottom: hp(-6), zIndex: 10}}
+                                    animating={true} color={'#313030'}
+                                    size={wp(13)}/>
+                            }
+                            {
+                                props.transactionStoreAddress &&
+                                <View style={styles.transactionMapView}>
+                                    <MapView
+                                        provider={PROVIDER_GOOGLE}
+                                        userInterfaceStyle={'dark'}
+                                        zoomControlEnabled={true}
+                                        ref={mapViewRef}
+                                        style={[StyleSheet.absoluteFillObject, {borderRadius: 30, zIndex: 5}]}
                                     >
-                                        <TouchableOpacity onPress={async () => {
-                                            await retrieveStoreGeolocation();
-                                        }}>
-                                            <ImageBackground
-                                                style={styles.toolTipMain}
-                                                source={MoonbeamPinImage}
-                                                contentFit={'contain'}
-                                                transition={1000}
-                                                cachePolicy={'memory-disk'}
+                                        {
+                                            transactionStoreGeoLocation &&
+                                            <Marker
+                                                onPress={async () => {
+                                                    await retrieveStoreGeolocation();
+                                                }}
+                                                coordinate={{
+                                                    latitude: transactionStoreGeoLocation.latitude!,
+                                                    longitude: transactionStoreGeoLocation.longitude!
+                                                }}
                                             >
-                                                <View style={{flexDirection: 'row', width: wp(25)}}>
-                                                    <View style={styles.toolTipImageDetailBackground}>
-                                                        <Image
-                                                            style={styles.toolTipImageDetail}
-                                                            source={{
-                                                                uri: props.brandImage
-                                                            }}
-                                                            placeholder={MoonbeamPlaceholderImage}
-                                                            placeholderContentFit={'contain'}
-                                                            contentFit={'contain'}
-                                                            transition={1000}
-                                                            cachePolicy={'memory-disk'}
-                                                        />
-                                                    </View>
-                                                    <Text style={styles.toolTipImagePrice}>
-                                                        {`${discountPercentage} Off `}
-                                                    </Text>
-                                                </View>
-                                            </ImageBackground>
-                                        </TouchableOpacity>
-                                    </Marker>
-                                }
-                            </MapView>
-                        </View>
+                                                <TouchableOpacity onPress={async () => {
+                                                    await retrieveStoreGeolocation();
+                                                }}>
+                                                    <ImageBackground
+                                                        style={styles.toolTipMain}
+                                                        source={MoonbeamPinImage}
+                                                        contentFit={'contain'}
+                                                        transition={1000}
+                                                        cachePolicy={'memory-disk'}
+                                                    >
+                                                        <View style={{flexDirection: 'row', width: wp(25)}}>
+                                                            <View style={styles.toolTipImageDetailBackground}>
+                                                                <Image
+                                                                    style={styles.toolTipImageDetail}
+                                                                    source={{
+                                                                        uri: props.brandImage
+                                                                    }}
+                                                                    placeholder={MoonbeamPlaceholderImage}
+                                                                    placeholderContentFit={'contain'}
+                                                                    contentFit={'contain'}
+                                                                    transition={1000}
+                                                                    cachePolicy={'memory-disk'}
+                                                                />
+                                                            </View>
+                                                            <Text style={styles.toolTipImagePrice}>
+                                                                {`${discountPercentage} Off `}
+                                                            </Text>
+                                                        </View>
+                                                    </ImageBackground>
+                                                </TouchableOpacity>
+                                            </Marker>
+                                        }
+                                    </MapView>
+                                </View>
+                            }
+                        </>
                 }
             </SafeAreaView>
         </>

@@ -26,6 +26,7 @@ import {
     MilitaryVerificationReportingProducerConsumerStack
 } from "../stacks/MilitaryVerificationReportingProducerConsumerStack";
 import { AppReviewResolverStack } from "../stacks/AppReviewResolverStack";
+import {UtilitiesResolverStack} from "../stacks/UtilitiesResolverStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -316,6 +317,19 @@ export class StageUtils {
                     environmentVariables: stageConfiguration.environmentVariables
                 });
                 appUpgradeResolverStack.addDependency(appSyncStack);
+
+                // create the Utilities resolver stack && add it to the CDK app
+                const utilitiesResolverStack = new UtilitiesResolverStack(this.app, `moonbeam-utilities-resolver-${stageKey}`, {
+                    stackName: `moonbeam-utilities-resolver-${stageKey}`,
+                    description: 'This stack will contain all the AppSync related resources needed by the Lambda Utilities resolver',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    graphqlApiId: appSyncStack.graphqlApiId,
+                    graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
+                    utilitiesConfig: stageConfiguration.utilitiesConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                utilitiesResolverStack.addDependency(appSyncStack);
 
                 // create the Referral Producer Consumer stack && add it to the CDK app
                 const referralProducerConsumerStack = new ReferralProducerConsumerStack(this.app, `moonbeam-referral-producer-consumer-${stageKey}`, {
