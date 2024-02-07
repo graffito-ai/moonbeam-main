@@ -7,9 +7,6 @@
   "repository": "https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/packages/moonbeam-branchlint/package.json/browse",
   "author": "Marius Acsinte <marius@moonbeam.vet>",
   "license": "Moonbeam Inc. Proprietary Code License <https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/LICENSE/browse>",
-  "bin": {
-    "branch-name-lint": "echo hello"
-  },
   "scripts": {
     "build": "rm -rf ./lib && tsc",
     "clean": "rm -rf build/ lib/ node_modules/"

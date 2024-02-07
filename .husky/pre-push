@@ -1,2 +1,4 @@
 #!/bin/sh
-. "$(dirname "$2")/packages/moonbeam-branchlint/bin/branch-name-lint"
+cd ./packages/moonbeam-branchlint/
+ls
+./node_modules/.bin/branch-name-lint ./src/branchlint.json

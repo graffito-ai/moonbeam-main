@@ -22,6 +22,7 @@ cdk.out
 *.d.ts
 packages/**/*.d.ts
 packages/**/dist/
+packages/moonbeam-branchlint/lib
 packages/moonbeam-commitlint/lib
 packages/moonbeam-app-review-lambda/lib
 packages/moonbeam-app-upgrade-lambda/lib

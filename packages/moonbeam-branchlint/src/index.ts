@@ -1,5 +1,5 @@
 /**
- * Function used to export the Git Branch linting configuration.
+ * Function used to export the BranchLint configuration.
  */
 export const setBranchLintConfig = () => {
     return {
@@ -23,7 +23,7 @@ export const setBranchLintConfig = () => {
                 "test": "test",
                 "revert": "revert",
                 "copy": "copy",
-                "release": "releases",
+                "release": "releases"
             },
             "banned": [
                 "wip"
