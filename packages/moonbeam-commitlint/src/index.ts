@@ -37,6 +37,7 @@ export const setCommitLintConfig = (
                     'moonbeam-commitlint',
                     'moonbeam-models',
                     'moonbeam-tsconfig',
+                    'moonbeam-branchlint',
                     'moonbeam-app-review-lambda',
                     'moonbeam-app-upgrade-lambda',
                     'moonbeam-card-linking-lambda',

@@ -19,7 +19,7 @@ npx --no -- commitlint --edit $1 || (echo "Commitlint failed, expected format is
 #######################################################################################
 <type>(scope): #<issue_number> - <subject - max length 72 characters>
 # Example:
-# feat(moonbeam-commitlint): this is a super cool commit message
+# feat(moonbeam-commitlint): #ISSUE_NUMBER this is a super cool commit message
 
 [body - max length 500 characters]
 # Example:
@@ -27,12 +27,12 @@ npx --no -- commitlint --edit $1 || (echo "Commitlint failed, expected format is
 
 <footer with ticket references>
 # Example:
-# MOONBM-123
+# MOONBM-ISSUE_NUMBER
 
 ########################################################################################
 # types:             ['feat', 'fix', 'docs', 'style', 'refactor', 'test', 'revert']
 # scope:             ['name of mono repo', 'name of sub-package within /packages/ directory']
-# ticket references: ['MOONBM-']
+# ticket references: ['MOONBM-#ISSUE_NUMBER']
 # '<>':              means REQUIRED, will always need to get replaced by some content
 # '[]':              means OPTIONAL, will sometimes need to get replaced by some content
 #
