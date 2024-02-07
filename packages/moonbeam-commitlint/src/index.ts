@@ -2,7 +2,6 @@
  * Function used to export the CommitLint configuration.
  *
  * @param directoryPath path of the directory where the CommitLint will be set up.
- * @param lernaFlag flag to highlight whether the given repo is a mono repo or not.
  */
 export const setCommitLintConfig = (
     directoryPath: string
@@ -88,7 +87,7 @@ export const setCommitLintConfig = (
             'type-enum': [
                 2,
                 'always',
-                ['feat', 'fix', 'docs', 'style', 'refactor', 'test', 'revert']
+                ['feat', 'fix', 'docs', 'style', 'refactor', 'test', 'revert', 'copy']
             ],
             'type-case': [2, 'always', 'lower-case'],
             'type-empty': [2, 'never']

@@ -1,0 +1,18 @@
+{
+    "extends": "@moonbeam/moonbeam-tsconfig",
+    "compilerOptions": {
+        "noEmit": false,
+        "outDir": "./lib",
+        "rootDir": "./src/",
+        "declarationDir": "lib/types",
+        "baseUrl": "./",
+        "typeRoots": ["../../node_modules/@types"]
+    },
+    "exclude": [
+        "build",
+        "node_modules",
+        "../../build",
+        "../../node_modules",
+        "dist"
+    ]
+}

@@ -127,7 +127,7 @@ export const AdditionalRegistrationStep = () => {
             }
             <GooglePlacesAutocomplete
                 ref={ref => {
-                    ref?.setAddressText('Required (1 West Example Street)')
+                    ref?.setAddressText(addressLine)
                 }}
                 placeholder="Required (1 West Example Street)"
                 query={{
