@@ -33,7 +33,7 @@ import {
     uniqueNearbyRetailOffersListState,
     uniqueNearbyServicesAndSubscriptionsOffersListState
 } from "../../../../../../recoil/StoreOfferAtom";
-import {Image, ImageBackground} from "expo-image";
+import {Image} from "expo-image";
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {Card, Dialog, Portal, Text} from "react-native-paper";
@@ -47,7 +47,7 @@ import {moonbeamKits} from "../storeComponents/KitsSection";
 import MoonbeamNoOffersKit from "../../../../../../../assets/art/moonbeam-no-offers-kit.png";
 // @ts-ignore
 import MoonbeamLocationServices from "../../../../../../../assets/art/moonbeam-location-services-1.png";
-import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
+import {heightPercentageToDP as hp} from "react-native-responsive-screen";
 import {commonStyles} from "../../../../../../styles/common.module";
 // @ts-ignore
 import MoonbeamPreferencesIOS from "../../../../../../../assets/art/moonbeam-preferences-ios.jpg";
@@ -251,11 +251,11 @@ export const MapHorizontalKitSection = () => {
      * Function used to display some offers (about 10 based on what we decide in the AppSync.ts file) in the main horizontal map,
      * so that we can get users excited about the offers, and they eventually click on the Full Screen Map view.
      *
-     * @returns a {@link JSX.Element[]} representing an array of the Map Markers to display, containing the offers
+     * @returns a {@link React.JSX.Element[]} representing an array of the Map Markers to display, containing the offers
      * information
      */
-    const displayMapMarkersWithinMap = useMemo(() => (): JSX.Element[] => {
-        const results: JSX.Element[] = [];
+    const displayMapMarkersWithinMap = useMemo(() => (): React.JSX.Element[] => {
+        const results: React.JSX.Element[] = [];
 
         // for each unique offer, build a Map Marker to return specifying the offer percentage
         if (uniqueNearbyOffersListForMainHorizontalMap !== undefined && uniqueNearbyOffersListForMainHorizontalMap !== null) {
@@ -293,14 +293,12 @@ export const MapHorizontalKitSection = () => {
                                 longitude: storeLongitude
                             }}
                         >
-                            <ImageBackground
-                                style={styles.toolTipMain}
-                                source={MoonbeamPinImage}
-                                contentFit={'contain'}
-                                transition={1000}
-                                cachePolicy={'memory-disk'}
-                            >
-                                <View style={{flexDirection: 'row', width: wp(25)}}>
+                            <TouchableOpacity
+                                style={styles.toolTipTouchableView}
+                                onPress={async () => {
+                                    // do nothing
+                                }}>
+                                <View style={styles.toolTipView}>
                                     <Image
                                         style={styles.toolTipImageDetail}
                                         source={{
@@ -319,7 +317,25 @@ export const MapHorizontalKitSection = () => {
                                         {" Off "}
                                     </Text>
                                 </View>
-                            </ImageBackground>
+                                {
+                                    Platform.OS === 'android' ?
+                                        <>
+                                            <View style={styles.triangleContainer}>
+                                                <View style={styles.toolTipTriangle}/>
+                                            </View>
+                                            <View style={[styles.triangleContainer, {bottom: hp(0.3)}]}>
+                                                <View style={styles.toolTipTriangleOutside}/>
+                                            </View>
+                                        </> :
+                                        <>
+                                            <View style={styles.triangleContainer}>
+                                                <View style={styles.toolTipTriangle}/>
+                                                <View
+                                                    style={[styles.toolTipTriangleOutside, {top: hp(0.3)}]}/>
+                                            </View>
+                                        </>
+                                }
+                            </TouchableOpacity>
                         </Marker>
                     </>
                 )

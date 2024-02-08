@@ -59,3 +59,5 @@ packages/getmoonbeam-app/src/aws-exports.js
 packages/getmoonbeam-app/credentials.json
 packages/getmoonbeam-app/credentials/**/*
 .nx/cache
+packages/getmoonbeam-app/*.env
+packages/getmoonbeam-app/google-services.json

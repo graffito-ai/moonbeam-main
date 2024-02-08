@@ -17,7 +17,8 @@ import {
     currentActiveKitState,
     locationServicesButtonState,
     nearbyOffersListForFullScreenMapState,
-    nearbyOffersSpinnerShownState, numberOfFailedHorizontalMapOfferCallsState,
+    nearbyOffersSpinnerShownState,
+    numberOfFailedHorizontalMapOfferCallsState,
     reloadNearbyDueToPermissionsChangeState,
     storeNavigationState,
     storeOfferPhysicalLocationState,
@@ -26,9 +27,9 @@ import {
 } from "../../../../../../recoil/StoreOfferAtom";
 // @ts-ignore
 import MoonbeamLocationServices from "../../../../../../../assets/art/moonbeam-location-services-1.png";
-import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
+import {heightPercentageToDP as hp} from "react-native-responsive-screen";
 import {currentUserInformation, userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
-import {Image, ImageBackground} from "expo-image";
+import {Image} from "expo-image";
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 // @ts-ignore
@@ -75,7 +76,7 @@ export const FullScreenMapKitSection = (props: {
     const [regionChangedInitially, setRegionChangedInitially] = useState<boolean>(false);
     const [canSearchForAdditionalOffers, setCanSearchForAdditionalOffers] = useState<boolean>(false);
     // constants used to keep track of shared states
-    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [numberOfFailedHorizontalMapOfferCalls, setNumberOfFailedHorizontalMapOfferCalls] = useRecoilState(numberOfFailedHorizontalMapOfferCallsState);
     const [storeNavigation,] = useRecoilState(storeNavigationState);
     const [, setCurrentActiveKit] = useRecoilState(currentActiveKitState);
@@ -189,11 +190,11 @@ export const FullScreenMapKitSection = (props: {
      * Function used to display offers on the map, depending on where the user is on the map, from a latitude and longitude
      * perspective. We start with the current user location, and move from there, depending on how a user moves on the map.
      *
-     * @returns a {@link JSX.Element[]} representing an array of the Map Markers to display, containing the offers
+     * @returns a {@link React.JSX.Element[]} representing an array of the Map Markers to display, containing the offers
      * information
      */
-    const displayMapMarkersWithinMap = useMemo(() => (): JSX.Element[] => {
-        const markers: JSX.Element[] = [];
+    const displayMapMarkersWithinMap = useMemo(() => (): React.JSX.Element[] => {
+        const markers: React.JSX.Element[] = [];
 
         // for each unique offer, build a Map Marker to return specifying the offer percentage
         for (let i = 0; i < uniqueNearbyOffersListForFullScreenMap.length; i++) {
@@ -262,47 +263,59 @@ export const FullScreenMapKitSection = (props: {
                             longitude: storeLongitude
                         }}
                     >
-                        <TouchableOpacity onPress={async () => {
-                            // set the clicked offer/partner accordingly
-                            setStoreOfferClicked(uniqueNearbyOffersListForFullScreenMap[i]);
-                            // set the clicked offer physical location
-                            setStoreOfferPhysicalLocation({
-                                latitude: storeLatitude,
-                                longitude: storeLongitude,
-                                latitudeDelta: 0,
-                                longitudeDelta: 0,
-                                addressAsString: physicalLocation
-                            });
-                            // @ts-ignore
-                            props.navigation.navigate('StoreOffer', {});
-                        }}>
-                            <ImageBackground
-                                style={styles.toolTipMain}
-                                source={MoonbeamPinImage}
-                                contentFit={'contain'}
-                                transition={1000}
-                                cachePolicy={'memory-disk'}
-                            >
-                                <View style={{flexDirection: 'row', width: wp(25)}}>
-                                    <Image
-                                        style={styles.toolTipImageDetail}
-                                        source={{
-                                            uri: uniqueNearbyOffersListForFullScreenMap[i].brandLogoSm!
-                                        }}
-                                        placeholder={MoonbeamPlaceholderImage}
-                                        placeholderContentFit={'contain'}
-                                        contentFit={'contain'}
-                                        transition={1000}
-                                        cachePolicy={'memory-disk'}
-                                    />
-                                    <Text style={styles.toolTipImagePrice}>
-                                        {uniqueNearbyOffersListForFullScreenMap[i]!.reward!.type! === RewardType.RewardPercent
-                                            ? `${uniqueNearbyOffersListForFullScreenMap[i]!.reward!.value}%`
-                                            : `$${uniqueNearbyOffersListForFullScreenMap[i]!.reward!.value}`}
-                                        {" Off "}
-                                    </Text>
-                                </View>
-                            </ImageBackground>
+                        <TouchableOpacity
+                            style={styles.toolTipTouchableView}
+                            onPress={async () => {
+                                // set the clicked offer/partner accordingly
+                                setStoreOfferClicked(uniqueNearbyOffersListForFullScreenMap[i]);
+                                // set the clicked offer physical location
+                                setStoreOfferPhysicalLocation({
+                                    latitude: storeLatitude,
+                                    longitude: storeLongitude,
+                                    latitudeDelta: 0,
+                                    longitudeDelta: 0,
+                                    addressAsString: physicalLocation
+                                });
+                                // @ts-ignore
+                                props.navigation.navigate('StoreOffer', {});
+                            }}>
+                            <View style={styles.toolTipView}>
+                                <Image
+                                    style={styles.toolTipImageDetail}
+                                    source={{
+                                        uri: uniqueNearbyOffersListForFullScreenMap[i].brandLogoSm!
+                                    }}
+                                    placeholder={MoonbeamPlaceholderImage}
+                                    placeholderContentFit={'contain'}
+                                    contentFit={'contain'}
+                                    transition={1000}
+                                    cachePolicy={'memory-disk'}
+                                />
+                                <Text style={styles.toolTipImagePrice}>
+                                    {uniqueNearbyOffersListForFullScreenMap[i]!.reward!.type! === RewardType.RewardPercent
+                                        ? `${uniqueNearbyOffersListForFullScreenMap[i]!.reward!.value}%`
+                                        : `$${uniqueNearbyOffersListForFullScreenMap[i]!.reward!.value}`}
+                                    {" Off "}
+                                </Text>
+                            </View>
+                            {
+                                Platform.OS === 'android' ?
+                                    <>
+                                        <View style={styles.triangleContainer}>
+                                            <View style={styles.toolTipTriangle}/>
+                                        </View>
+                                        <View style={[styles.triangleContainer, {bottom: hp(0.3)}]}>
+                                            <View style={styles.toolTipTriangleOutside}/>
+                                        </View>
+                                    </> :
+                                    <>
+                                        <View style={styles.triangleContainer}>
+                                            <View style={styles.toolTipTriangle}/>
+                                            <View
+                                                style={[styles.toolTipTriangleOutside, {top: hp(0.3)}]}/>
+                                        </View>
+                                    </>
+                            }
                         </TouchableOpacity>
                     </Marker>
                 );

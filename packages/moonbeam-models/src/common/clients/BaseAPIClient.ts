@@ -9,7 +9,10 @@ import {
     CreateNotificationResponse,
     EligibleLinkedUsersResponse,
     EmailFromCognitoResponse,
+    GeocodeAsyncInput,
+    GeocodeAsyncResponse,
     GetDevicesForUserInput,
+    GetMilitaryVerificationInformationInput,
     GetOffersInput,
     GetReferralsByStatusInput,
     GetTransactionByStatusInput,
@@ -21,6 +24,8 @@ import {
     MemberResponse,
     MilitaryVerificationNotificationUpdate,
     MilitaryVerificationReportingInformation,
+    MilitaryVerificationReportingInformationResponse,
+    MilitaryVerificationReportResponse,
     MilitaryVerificationStatusType,
     MoonbeamTransaction,
     MoonbeamTransactionResponse,
@@ -34,8 +39,10 @@ import {
     OfferIdResponse,
     OfferRedemptionTypeResponse,
     OffersResponse,
+    PutMilitaryVerificationReportInput,
     ReferralResponse,
     RemoveCardResponse,
+    SearchOffersInput,
     SendEmailNotificationInput,
     SendMobilePushNotificationInput,
     Transaction,
@@ -46,10 +53,7 @@ import {
     UpdateReferralInput,
     UpdateTransactionInput,
     UserDevicesResponse,
-    UserForNotificationReminderResponse,
-    MilitaryVerificationReportingInformationResponse,
-    GetMilitaryVerificationInformationInput,
-    PutMilitaryVerificationReportInput, MilitaryVerificationReportResponse, SearchOffersInput, GeocodeAsyncResponse
+    UserForNotificationReminderResponse
 } from "../GraphqlExports";
 
 /**
@@ -135,7 +139,9 @@ export abstract class BaseAPIClient {
                     case Constants.AWSPairConstants.APP_UPGRADE_SECRET_NAME:
                         return [clientPairAsJson[Constants.AWSPairConstants.APP_UPGRADE_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.APP_UPGRADE_API_KEY]];
                     case Constants.AWSPairConstants.GOOGLE_MAPS_APIS_INTERNAL_SECRET_NAME:
-                        return [clientPairAsJson[Constants.AWSPairConstants.GOOGLE_MAPS_APIS_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.GOOGLE_MAPS_APIS_KEY]];
+                        return [clientPairAsJson[Constants.AWSPairConstants.GOOGLE_MAPS_APIS_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.GOOGLE_MAPS_APIS_IOS_KEY],
+                            clientPairAsJson[Constants.AWSPairConstants.GOOGLE_MAPS_APIS_ANDROID_KEY], clientPairAsJson[Constants.AWSPairConstants.GOOGLE_MAPS_ANDROID_SHA],
+                            clientPairAsJson[Constants.AWSPairConstants.GOOGLE_MAPS_APIS_KEY]];
                     case Constants.AWSPairConstants.COURIER_INTERNAL_SECRET_NAME:
                         // return the appropriate secrets, depending on the type of notification passed in
                         if (!notificationType) {
@@ -324,14 +330,15 @@ export abstract class BaseAPIClient {
     /**
      * Function used to geocode a particular address, for a location to be passed in.
      *
-     * @param address which we will retrieve the geocoded information for.
+     * @param geocodeAsyncInput input passed in,
+     * which we will retrieve the geocoded information for.
      *
      * @returns a {@link GeocodeAsyncResponse}, representing the passed in address's
      * geocoded information.
      *
      * @protected
      */
-    protected geoCodeAsync?(address: string): Promise<GeocodeAsyncResponse>;
+    protected geoCodeAsync?(geocodeAsyncInput: GeocodeAsyncInput): Promise<GeocodeAsyncResponse>;
 
     /**
      * Function used to get the military verification information of one

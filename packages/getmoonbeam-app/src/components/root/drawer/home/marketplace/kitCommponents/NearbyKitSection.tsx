@@ -213,10 +213,10 @@ export const NearbyKitSection = (props: {
      * @param data data to be passed in for the row
      * @param index row index
      *
-     * @return a {@link JSX.Element} or an {@link Array} of {@link JSX.Element} representing the
+     * @return a {@link React.JSX.Element} or an {@link Array} of {@link React.JSX.Element} representing the
      * React node and/or nodes containing the nearby offers.
      */
-    const renderNearbyRowData = useMemo(() => (_type: string | number, data: Offer, index: number): JSX.Element | JSX.Element[] => {
+    const renderNearbyRowData = useMemo(() => (_type: string | number, data: Offer, index: number): React.JSX.Element | React.JSX.Element[] => {
         // flag to determine whether there are any offers shown at all - so we can display the empty message otherwise
         let offersShown = false;
 

@@ -104,13 +104,81 @@ export const styles = StyleSheet.create({
         width: wp(92),
         left: wp(5)
     },
+
+
     toolTipMain: {
-        height: hp(9.5),
-        width: wp(25),
+        height: '100%',
+        width: '100%',
         flexDirection: 'row',
+        alignSelf: 'center'
+    },
+    toolTipTouchableView: {
+        height: hp(10),
+        width: wp(25),
+        flexDirection: 'column',
         alignContent: 'center',
         alignItems: 'center',
         alignSelf: 'center'
+    },
+    toolTipView: {
+        top: hp(2),
+        flexDirection: 'row',
+        height: '49%',
+        width: '100%',
+        alignSelf: 'center',
+        backgroundColor: '#F2FF5D',
+        borderColor: '#313030',
+        borderRadius: 10,
+        borderWidth: hp(0.6),
+        alignContent: 'space-between'
+    },
+    toolTipImageDetail: {
+        height: '90%',
+        width: '50%',
+        alignSelf: 'center'
+    },
+    toolTipImagePrice: {
+        alignSelf: 'center',
+        fontFamily: 'Raleway-ExtraBold',
+        fontSize: wp(3.5),
+        textAlign: 'center',
+        bottom: hp(0.25),
+        color: '#blue'
+    },
+    triangleContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    toolTipTriangleOutside: {
+        zIndex: 100,
+        width: 0,
+        height: 0,
+        backgroundColor: "transparent",
+        borderStyle: 'solid',
+        overflow: 'hidden',
+        borderLeftWidth: 16,
+        borderRightWidth: 16,
+        borderTopWidth: 17,
+        borderRightColor: 'transparent',
+        borderBottomColor: 'transparent',
+        borderLeftColor: 'transparent',
+        borderTopColor: '#313030',
+    },
+    toolTipTriangle: {
+        zIndex: 200,
+        top: hp(1.41),
+        width: 0,
+        height: 0,
+        backgroundColor: "transparent",
+        borderStyle: 'solid',
+        overflow: 'hidden',
+        borderLeftWidth: 13,
+        borderRightWidth: 13,
+        borderTopWidth: 15,
+        borderRightColor: 'transparent',
+        borderBottomColor: 'transparent',
+        borderLeftColor: 'transparent',
+        borderTopColor: '#F2FF5D',
     },
     toolTipFullScreenImageDetailBackground: {
         backgroundColor: '#FFFFFF',
@@ -123,25 +191,6 @@ export const styles = StyleSheet.create({
         left: wp(1.55),
         borderTopLeftRadius: 3,
         borderBottomLeftRadius: 3,
-    },
-    toolTipImageDetail: {
-        marginRight: wp(3),
-        bottom: hp(0.70),
-        left: wp(1.575),
-        height: hp(2.8),
-        width: hp(3.75),
-        borderTopLeftRadius: 3,
-        borderBottomLeftRadius: 3,
-    },
-
-    toolTipImagePrice: {
-        right: wp(0.7),
-        alignSelf: 'flex-end',
-        fontFamily: 'Raleway-ExtraBold',
-        fontSize: hp(1.7),
-        bottom: hp(1),
-        textAlign: 'center',
-        color: '#313030'
     },
     kitsScrollView: {
         bottom: hp(2),

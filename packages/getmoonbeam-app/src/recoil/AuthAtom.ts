@@ -611,9 +611,19 @@ const appUrlState = atom<string>({
 });
 
 /**
+ * Atom used to keep track of whether the address line field/text input during registration
+ * is in focus mode or not.
+ */
+const addressLineFocusState = atom<boolean>({
+    key: "addressLineFocusState",
+    default: false
+});
+
+/**
  * Export all atoms and/or selectors
  */
 export {
+    addressLineFocusState,
     appUrlState,
     filteredOffersSpinnerShownState,
     ssnErrorsState,

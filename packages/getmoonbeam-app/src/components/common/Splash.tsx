@@ -75,7 +75,7 @@ import {
     ssnState,
     userIsAuthenticatedState,
     verificationCodeErrorsState,
-    verificationDocumentState, filteredOffersSpinnerShownState, appUrlState
+    verificationDocumentState, filteredOffersSpinnerShownState, appUrlState, addressLineFocusState
 } from "../../recoil/AuthAtom";
 import {
     clickOnlyOnlineOffersListState,
@@ -507,6 +507,7 @@ export const SplashScreen = (props: {
     const noFilteredOffersToLoadReset = useResetRecoilState(noFilteredOffersToLoadState);
     const filteredOffersSpinnerShownStateReset = useResetRecoilState(filteredOffersSpinnerShownState);
     const appUrlStateReset = useResetRecoilState(appUrlState);
+    const addressLineFocusStateReset = useResetRecoilState(addressLineFocusState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -758,6 +759,7 @@ export const SplashScreen = (props: {
             noFilteredOffersToLoadReset();
             filteredOffersSpinnerShownStateReset();
             appUrlStateReset();
+            addressLineFocusStateReset();
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {
                 // import branch

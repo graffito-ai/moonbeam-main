@@ -39,11 +39,11 @@ export const FidelisSection = (props: {
      * @param data data to be passed in for the row
      * @param index row index
      *
-     * @return a {@link JSX.Element} or an {@link Array} of {@link JSX.Element} representing the
+     * @return a {@link React.JSX.Element} or an {@link Array} of {@link React.JSX.Element} representing the
      * React node and/or nodes containing the Fidelis partner offers.
      */
         // @ts-ignore
-    const renderRowData = useMemo(() => (type: string | number, data: FidelisPartner, index: number): JSX.Element | JSX.Element[] => {
+    const renderRowData = useMemo(() => (type: string | number, data: FidelisPartner, index: number): React.JSX.Element | React.JSX.Element[] => {
             if (fidelisPartnerList !== undefined && fidelisPartnerList !== null && fidelisPartnerList.length !== 0) {
                 // retrieve appropriate offer for partner (everyday)
                 let offer: Offer | null = null;

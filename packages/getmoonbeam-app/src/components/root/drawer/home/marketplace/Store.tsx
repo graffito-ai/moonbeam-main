@@ -19,6 +19,7 @@ import {
     OfferAvailability,
     OfferFilter,
     OfferState,
+    OsType,
     RedemptionType
 } from "@moonbeam/moonbeam-models";
 import {API, graphqlOperation} from "aws-amplify";
@@ -340,7 +341,7 @@ export const Store = ({navigation}: StoreProps) => {
                  * get the first location point in the array of geolocation returned (based on the user's address since
                  * that was what we used when we cached these offers)
                  */
-                const geoLocationArray = await geocodeAsync(userInformation["address"]["formatted"]);
+                const geoLocationArray = await geocodeAsync(userInformation["address"]["formatted"], Platform.OS === 'ios' ? OsType.Ios : OsType.Android);
                 const geoLocation = geoLocationArray && geoLocationArray.length !== 0 ? geoLocationArray[0] : null;
                 if (!geoLocation) {
                     const message = `Unable to retrieve user's home location's geolocation ${address}`;
@@ -359,7 +360,7 @@ export const Store = ({navigation}: StoreProps) => {
                 await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
 
                 // first retrieve the necessary geolocation information based on the user's home address
-                const geoLocationArray = await geocodeAsync(address);
+                const geoLocationArray = await geocodeAsync(address, Platform.OS === 'ios' ? OsType.Ios : OsType.Android);
                 /**
                  * get the first location point in the array of geolocation returned
                  */
@@ -579,10 +580,10 @@ export const Store = ({navigation}: StoreProps) => {
      * @param withoutMapRender in case of Android the map feature for when the bottom sheet shows
      * up does not load properly, therefore we will not render it.
      *
-     * @returns a {@link JSX.Element[]} representing the store contents to display
+     * @returns a {@link React.JSX.Element[]} representing the store contents to display
      */
-    const retrieveStoreContents = (withoutMapRender: boolean): JSX.Element[] => {
-        const storeComponents: JSX.Element[] = [];
+    const retrieveStoreContents = (withoutMapRender: boolean): React.JSX.Element[] => {
+        const storeComponents: React.JSX.Element[] = [];
         storeComponents.push(
             <>
                 {

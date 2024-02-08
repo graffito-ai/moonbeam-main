@@ -115,8 +115,8 @@ query GetAllUsersForNotificationReminders {
         }
     }
 }
-query GeoCodeAsync($address: String!) {
-    geoCodeAsync(address: $address) {
+query GeoCodeAsync($geocodeAsyncInput: GeocodeAsyncInput!) {
+    geoCodeAsync(geocodeAsyncInput: $geocodeAsyncInput) {
         errorMessage
         errorType
         data {

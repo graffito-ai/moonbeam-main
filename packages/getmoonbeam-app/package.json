@@ -21,6 +21,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "axios": "^1.6.7",
     "@aws-amplify/api": "^5.2.0",
     "@aws-amplify/pubsub": "^5.2.0",
     "@babel/core": "^7.20.0",
@@ -81,7 +82,6 @@
     "react-native-dropdown-picker": "^5.4.6",
     "react-native-gesture-handler": "~2.14.0",
     "react-native-get-random-values": "~1.8.0",
-    "react-native-google-places-autocomplete": "^2.5.1",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-map-clustering": "^3.4.2",
     "react-native-maps": "1.10.0",

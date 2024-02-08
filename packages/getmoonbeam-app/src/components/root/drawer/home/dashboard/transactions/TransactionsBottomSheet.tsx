@@ -18,11 +18,11 @@ import {useRecoilState} from "recoil";
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 // @ts-ignore
 import MoonbeamPinImage from "../../../../../../../assets/pin-shape.png";
-import {Image, ImageBackground} from "expo-image";
+import {Image} from "expo-image";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 import {geocodeAsync, logEvent} from "../../../../../../utils/AppSync";
-import {LoggingLevel} from "@moonbeam/moonbeam-models";
+import {LoggingLevel, OsType} from "@moonbeam/moonbeam-models";
 
 /**
  * Interface to be used for determining the location of transaction
@@ -88,7 +88,7 @@ export const TransactionsBottomSheet = (props: {
             setLocationServicesButton(true);
             setLoadingSpinnerShown(false);
         } else {
-            const geoLocationArray = await geocodeAsync(props.transactionStoreAddress!);
+            const geoLocationArray = await geocodeAsync(props.transactionStoreAddress!, Platform.OS === 'ios' ? OsType.Ios : OsType.Android);
             /**
              * get the first location point in the array of geolocation returned, since we will have the full address of the store,
              * which will result in a 100% accuracy for 1 location match
@@ -276,35 +276,45 @@ export const TransactionsBottomSheet = (props: {
                                                     longitude: transactionStoreGeoLocation.longitude!
                                                 }}
                                             >
-                                                <TouchableOpacity onPress={async () => {
-                                                    await retrieveStoreGeolocation();
-                                                }}>
-                                                    <ImageBackground
-                                                        style={styles.toolTipMain}
-                                                        source={MoonbeamPinImage}
-                                                        contentFit={'contain'}
-                                                        transition={1000}
-                                                        cachePolicy={'memory-disk'}
-                                                    >
-                                                        <View style={{flexDirection: 'row', width: wp(25)}}>
-                                                            <View style={styles.toolTipImageDetailBackground}>
-                                                                <Image
-                                                                    style={styles.toolTipImageDetail}
-                                                                    source={{
-                                                                        uri: props.brandImage
-                                                                    }}
-                                                                    placeholder={MoonbeamPlaceholderImage}
-                                                                    placeholderContentFit={'contain'}
-                                                                    contentFit={'contain'}
-                                                                    transition={1000}
-                                                                    cachePolicy={'memory-disk'}
-                                                                />
-                                                            </View>
-                                                            <Text style={styles.toolTipImagePrice}>
-                                                                {`${discountPercentage} Off `}
-                                                            </Text>
-                                                        </View>
-                                                    </ImageBackground>
+                                                <TouchableOpacity
+                                                    style={styles.toolTipTouchableView}
+                                                    onPress={async () => {
+                                                        await retrieveStoreGeolocation();
+                                                    }}>
+                                                    <View style={styles.toolTipView}>
+                                                        <Image
+                                                            style={styles.toolTipImageDetail}
+                                                            source={{
+                                                                uri: props.brandImage
+                                                            }}
+                                                            placeholder={MoonbeamPlaceholderImage}
+                                                            placeholderContentFit={'contain'}
+                                                            contentFit={'contain'}
+                                                            transition={1000}
+                                                            cachePolicy={'memory-disk'}
+                                                        />
+                                                        <Text style={styles.toolTipImagePrice}>
+                                                            {`${discountPercentage} Off `}
+                                                        </Text>
+                                                    </View>
+                                                    {
+                                                        Platform.OS === 'android' ?
+                                                            <>
+                                                                <View style={styles.triangleContainer}>
+                                                                    <View style={styles.toolTipTriangle}/>
+                                                                </View>
+                                                                <View style={[styles.triangleContainer, {bottom: hp(0.3)}]}>
+                                                                    <View style={styles.toolTipTriangleOutside}/>
+                                                                </View>
+                                                            </> :
+                                                            <>
+                                                                <View style={styles.triangleContainer}>
+                                                                    <View style={styles.toolTipTriangle}/>
+                                                                    <View
+                                                                        style={[styles.toolTipTriangleOutside, {top: hp(0.3)}]}/>
+                                                                </View>
+                                                            </>
+                                                    }
                                                 </TouchableOpacity>
                                             </Marker>
                                         }

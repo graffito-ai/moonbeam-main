@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {styles} from "../../../../../../styles/store.module";
-import {Platform, StyleSheet, View} from "react-native";
+import {Platform, StyleSheet, TouchableOpacity, View} from "react-native";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
 import {Marker, PROVIDER_GOOGLE, Region} from "react-native-maps";
@@ -12,7 +12,7 @@ import {
     toggleViewPressedState,
     uniqueNearbyOffersListForMainHorizontalMapState
 } from "../../../../../../recoil/StoreOfferAtom";
-import {Image, ImageBackground} from "expo-image";
+import {Image} from "expo-image";
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {Portal, Text} from "react-native-paper";
@@ -21,7 +21,7 @@ import {LoggingLevel, RewardType} from "@moonbeam/moonbeam-models";
 import MoonbeamPinImage from "../../../../../../../assets/pin-shape.png";
 import MapView from "react-native-map-clustering";
 import {Spinner} from "../../../../../common/Spinner";
-import {widthPercentageToDP as wp} from 'react-native-responsive-screen';
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 import {logEvent} from "../../../../../../utils/AppSync";
 
@@ -42,7 +42,7 @@ export const MapHorizontalSection = () => {
         latitudeDelta: 0
     });
     // constants used to keep track of shared states
-    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [, setToggleViewPressed] = useRecoilState(toggleViewPressedState);
     const uniqueNearbyOffersListForMainHorizontalMap = useRecoilValue(uniqueNearbyOffersListForMainHorizontalMapState);
     const [currentUserLocation, setCurrentUserLocation] = useRecoilState(currentUserLocationState);
@@ -125,11 +125,11 @@ export const MapHorizontalSection = () => {
      * Function used to display some offers (about 10 based on what we decide in the AppSync.ts file) in the main horizontal map,
      * so that we can get users excited about the offers, and they eventually click on the Full Screen Map view.
      *
-     * @returns a {@link JSX.Element[]} representing an array of the Map Markers to display, containing the offers
+     * @returns a {@link React.JSX.Element[]} representing an array of the Map Markers to display, containing the offers
      * information
      */
-    const displayMapMarkersWithinMap = useMemo(() => (): JSX.Element[] => {
-        const results: JSX.Element[] = [];
+    const displayMapMarkersWithinMap = useMemo(() => (): React.JSX.Element[] => {
+        const results: React.JSX.Element[] = [];
 
         // for each unique offer, build a Map Marker to return specifying the offer percentage
         for (let i = 0; i < uniqueNearbyOffersListForMainHorizontalMap.length; i++) {
@@ -166,14 +166,12 @@ export const MapHorizontalSection = () => {
                             longitude: storeLongitude
                         }}
                     >
-                        <ImageBackground
-                            style={styles.toolTipMain}
-                            source={MoonbeamPinImage}
-                            contentFit={'contain'}
-                            transition={1000}
-                            cachePolicy={'memory-disk'}
-                        >
-                            <View style={{flexDirection: 'row', width: wp(25)}}>
+                        <TouchableOpacity
+                            style={styles.toolTipTouchableView}
+                            onPress={async () => {
+                                // do nothing
+                            }}>
+                            <View style={styles.toolTipView}>
                                 <Image
                                     style={styles.toolTipImageDetail}
                                     source={{
@@ -192,7 +190,25 @@ export const MapHorizontalSection = () => {
                                     {" Off "}
                                 </Text>
                             </View>
-                        </ImageBackground>
+                            {
+                                Platform.OS === 'android' ?
+                                    <>
+                                        <View style={styles.triangleContainer}>
+                                            <View style={styles.toolTipTriangle}/>
+                                        </View>
+                                        <View style={[styles.triangleContainer, {bottom: hp(0.3)}]}>
+                                            <View style={styles.toolTipTriangleOutside}/>
+                                        </View>
+                                    </> :
+                                    <>
+                                        <View style={styles.triangleContainer}>
+                                            <View style={styles.toolTipTriangle}/>
+                                            <View
+                                                style={[styles.toolTipTriangleOutside, {top: hp(0.3)}]}/>
+                                        </View>
+                                    </>
+                            }
+                        </TouchableOpacity>
                     </Marker>
                 </>
             )

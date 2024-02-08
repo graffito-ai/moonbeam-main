@@ -1,14 +1,15 @@
-import {GeocodeAsyncResponse, UtilitiesErrorType, GoogleMapsClient} from "@moonbeam/moonbeam-models";
+import {GeocodeAsyncResponse, UtilitiesErrorType, GoogleMapsClient, GeocodeAsyncInput} from "@moonbeam/moonbeam-models";
 
 /**
  * GeoCodeAsync resolver
  *
  * @param fieldName name of the resolver path from the AppSync event
- * @param address address to perform the geocoding for
+ * @param geocodeAsyncInput input used to contain the details for address and platform
+ * that we are performing the geocoding for.
  *
  * @returns {@link Promise} of {@link GeocodeAsyncResponse}
  */
-export const geoCodeAsync = async (fieldName: string, address: string): Promise<GeocodeAsyncResponse> => {
+export const geoCodeAsync = async (fieldName: string, geocodeAsyncInput: GeocodeAsyncInput): Promise<GeocodeAsyncResponse> => {
     try {
         // retrieving the current function region
         const region = process.env.AWS_REGION!;
@@ -17,7 +18,7 @@ export const geoCodeAsync = async (fieldName: string, address: string): Promise<
         const googleMapsApiClient = new GoogleMapsClient(process.env.ENV_NAME!, region);
 
         // return the GeoCoded address accordingly
-        return googleMapsApiClient.geoCodeAsync(address);
+        return googleMapsApiClient.geoCodeAsync(geocodeAsyncInput);
     } catch (err) {
         const errorMessage = `Unexpected error while executing ${fieldName} query ${err}`;
         console.log(errorMessage);
