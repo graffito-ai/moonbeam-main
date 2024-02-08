@@ -25,8 +25,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         "./amplify/.config/local-env-info.json"
     ],
     notification: {
-        icon: "",
-        color: "",
+        color: "#313030",
         androidMode: "default",
         androidCollapsedTitle: "Updates from Moonbeam",
         iosDisplayInForeground: true
@@ -35,7 +34,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         backgroundColor: "#313030"
     },
     ios: {
-        buildNumber: "1",
+        buildNumber: "2",
         bundleIdentifier: process.env.IOS_BUNDLE_IDENTIFIER,
         supportsTablet: false,
         infoPlist: {
@@ -95,12 +94,18 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         }
     },
     runtimeVersion: {
-        policy: "sdkVersion"
+        policy: "nativeVersion"
     },
     updates: {
         url: process.env.EAS_UPDATES_URL
     },
     plugins: [
+        [
+            "expo-updates",
+            {
+                "username": "moonbeamfin"
+            }
+        ],
         [
             "@config-plugins/react-native-branch",
             {

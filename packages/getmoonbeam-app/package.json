@@ -21,6 +21,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "expo-updates": "^0.24.9",
     "axios": "^1.6.7",
     "@aws-amplify/api": "^5.2.0",
     "@aws-amplify/pubsub": "^5.2.0",
