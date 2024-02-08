@@ -21,29 +21,27 @@ export const searchAddressPredictions = async (address: string): Promise<Predict
     try {
         /**
          * base URL to call for Google APIs.
-         *
-         * the keys that we are using are ok to be in plaintext because they are protected through Google Cloud
          */
         const googleMapsAPIsBaseUrl = 'https://maps.googleapis.com';
         let googleMapsAPIsPrivateKey: string = "";
         let headers: any = {};
         if (Platform.OS === 'ios') {
             // @ts-ignore
-            googleMapsAPIsPrivateKey = `${Constants.expoConfig.ios.config.googleMapsApiKey}`;
+            googleMapsAPIsPrivateKey = `${Constants.expoConfig.extra.GOOGLE_MAPS_APIS_IOS_KEY}`;
             headers = {
                 "Content-Type": "application/json",
                 // @ts-ignore
-                "X-Ios-Bundle-Identifier": `${Constants.expoConfig.ios.bundleIdentifier}`
+                "X-Ios-Bundle-Identifier": `${Constants.expoConfig.extra.IOS_BUNDLE_IDENTIFIER}`
             };
         } else {
             // @ts-ignore
-            googleMapsAPIsPrivateKey = `${Constants.expoConfig.android.config.googleMaps.apiKey}`;
+            googleMapsAPIsPrivateKey = `${Constants.expoConfig.extra.GOOGLE_MAPS_APIS_ANDROID_KEY}`;
             headers = {
                 "Content-Type": "application/json",
                 // @ts-ignore
-                "X-Android-Certificate": `${Constants.expoConfig.extra.android.mapSha}`,
+                "X-Android-Certificate": `${Constants.expoConfig.extra.GOOGLE_MAPS_ANDROID_SHA}`,
                 // @ts-ignore
-                "X-Android-Package": `${Constants.expoConfig.android.package}`
+                "X-Android-Package": `${Constants.expoConfig.extra.ANDROID_PACKAGE}`
             };
         }
 
