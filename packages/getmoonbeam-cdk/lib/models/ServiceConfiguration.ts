@@ -377,6 +377,7 @@ export interface AppUpgradeConfiguration {
 export interface UtilitiesConfiguration {
     readonly utilitiesFunctionName: string;
     readonly geoCodeAsyncResolverName: string;
+    readonly getLocationPredictionsResolverName: string;
 }
 
 /**

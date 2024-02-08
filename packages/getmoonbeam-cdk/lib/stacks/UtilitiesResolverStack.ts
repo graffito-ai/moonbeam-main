@@ -3,7 +3,7 @@ import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
 import path from "path";
 import {Constants, Stages} from "@moonbeam/moonbeam-models";
-import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
+import {Effect, PolicyStatement, Role} from "aws-cdk-lib/aws-iam";
 import {Alias} from "aws-cdk-lib/aws-lambda";
 
 /**
@@ -17,9 +17,13 @@ export class UtilitiesResolverStack extends Stack {
      *
      * @param scope scope to be passed in (usually a CDK App Construct)
      * @param id stack id to be passed in
+     * @param authenticatedRole authenticated role to be passed in, used by Amplify
+     * @param unauthenticatedRole unauthenticated role to be passed in, used by Amplify
      * @param props stack properties to be passed in
      */
-    constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'utilitiesConfig'> & { graphqlApiId: string, graphqlApiName: string }) {
+    constructor(scope: Construct, id: string,
+                authenticatedRole: Role, unauthenticatedRole: Role,
+                props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'utilitiesConfig'> & { graphqlApiId: string, graphqlApiName: string }) {
         super(scope, id, props);
 
         // create a new Lambda function to be used with the AppSync API for the resolvers
@@ -59,6 +63,10 @@ export class UtilitiesResolverStack extends Stack {
             typeName: "Query",
             fieldName: `${props.utilitiesConfig.geoCodeAsyncResolverName}`
         });
+        utilitiesLambdaSource.createResolver(`${props.utilitiesConfig.getLocationPredictionsResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Query",
+            fieldName: `${props.utilitiesConfig.getLocationPredictionsResolverName}`
+        });
 
         // enable the Lambda function the retrieval of the Google Maps APIs internal API secrets
         utilitiesLambda.addToRolePolicy(
@@ -71,6 +79,34 @@ export class UtilitiesResolverStack extends Stack {
                     // this ARN is retrieved post secret creation
                     ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:google-maps-internal-secret-pair-dev-us-west-2-ccUuPZ"] : [],
                     ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:google-maps-internal-secret-pair-prod-us-west-2-j2o61z"] : []
+                ]
+            })
+        );
+
+        // enable the auth and unauthenticated AWS Amplify role to call the specific Mutation Lambda resolver, used for retrieving Locations Predictions
+        authenticatedRole.addToPrincipalPolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "appsync:GraphQL"
+                ],
+                resources: [
+                    // this ARN is retrieved post GraphQL API creation
+                    ...props.stage === Stages.DEV ? [`arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Query/fields/${props.utilitiesConfig.getLocationPredictionsResolverName}`] : [],
+                    ...props.stage === Stages.PROD ? [`arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Query/fields/${props.utilitiesConfig.getLocationPredictionsResolverName}`] : []
+                ]
+            })
+        );
+        unauthenticatedRole.addToPrincipalPolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "appsync:GraphQL"
+                ],
+                resources: [
+                    // this ARN is retrieved post GraphQL API creation
+                    ...props.stage === Stages.DEV ? [`arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Query/fields/${props.utilitiesConfig.getLocationPredictionsResolverName}`] : [],
+                    ...props.stage === Stages.PROD ? [`arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Query/fields/${props.utilitiesConfig.getLocationPredictionsResolverName}`] : []
                 ]
             })
         );

@@ -24,6 +24,29 @@ type GeocodeAsyncResponse @aws_cognito_user_pools {
     errorMessage: String
 }
 
+type GetLocationPredictionsResponse @aws_iam @aws_cognito_user_pools {
+    data: [LocationPredictionType]
+    errorType: UtilitiesErrorType
+    errorMessage: String
+}
+
+type LocationPredictionType @aws_iam @aws_cognito_user_pools {
+    description: String
+    place_id: String
+    reference: String
+    matched_substrings: String # this will be any[] converted through JSON.stringify(any[])
+    structured_formatting: String # this will be an Object converted through JSON.stringify(Object)
+    address_components: String # this will be any[] converted through JSON.stringify(any[])
+    terms: String #this will be Object[] converted through JSON.stringify(Object[])
+    types: [String]
+
+}
+
+input GetLocationPredictionsInput {
+    address: String!,
+    osType: OSType!
+}
+
 input GeocodeAsyncInput {
     address: String!,
     osType: OSType!

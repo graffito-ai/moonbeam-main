@@ -11,7 +11,7 @@ import {
     EmailFromCognitoResponse,
     GeocodeAsyncInput,
     GeocodeAsyncResponse,
-    GetDevicesForUserInput,
+    GetDevicesForUserInput, GetLocationPredictionsInput, GetLocationPredictionsResponse,
     GetMilitaryVerificationInformationInput,
     GetOffersInput,
     GetReferralsByStatusInput,
@@ -326,6 +326,19 @@ export abstract class BaseAPIClient {
             throw new Error(errorMessage);
         }
     }
+
+    /**
+     * Function used to retrieve location predictions, for a location to be passed in.
+     *
+     * @param getLocationPredictionsInput input passed in,
+     * which we will be used in returning location predictions
+     *
+     * @returns a {@link GetLocationPredictionsResponse}, representing the retrieved location predictions
+     * to be returned.
+     *
+     * @protected
+     */
+    protected getLocationPredictions?(getLocationPredictionsInput: GetLocationPredictionsInput): Promise<GetLocationPredictionsResponse>;
 
     /**
      * Function used to geocode a particular address, for a location to be passed in.

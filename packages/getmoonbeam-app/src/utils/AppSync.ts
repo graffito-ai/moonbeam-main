@@ -9,13 +9,14 @@ import {
     getAppReviewEligibility,
     getAppUpgradeCredentials,
     getDeviceByToken,
-    getFidelisPartners,
+    getFidelisPartners, GetLocationPredictionsResponse,
     getOffers,
     getPremierOffers,
     getSeasonalOffers,
     getUserAuthSession,
     getUserCardLinkingId,
-    getUserFromReferral,
+    getUserFromReferral, LocationPredictionType,
+    getLocationPredictions,
     LoggingLevel,
     MarketingCampaignCode,
     MilitaryVerificationErrorType,
@@ -500,6 +501,63 @@ const searchOnlineOffers = async (searchQuery: string): Promise<Offer[]> => {
 }
 
 /**
+ * Function used to retrieve address line predictions.
+ *
+ * @param address address to used while retrieving predictions.
+ * @param osType type of platform that we are using (Android or iOS).
+ *
+ * @returns a {@link Promise} of {@link GetLocationPredictionsResponse} representing the retrieved
+ * location permissions.
+ */
+export const searchAddressPredictions = async (address: string, osType: OsType): Promise<GetLocationPredictionsResponse> => {
+    try {
+        // the result obtained from the getLocationsPredictions call
+        const searchAddressPredictionsResult = await API.graphql({
+            query: getLocationPredictions,
+            variables: {
+                getLocationPredictionsInput: {
+                    address: address,
+                    osType: osType
+                }
+            },
+            authMode: 'AWS_IAM'
+        });
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const responseData = searchAddressPredictionsResult ? searchAddressPredictionsResult.data : null;
+
+        // check if there are any errors in the returned response
+        if (responseData && responseData.getLocationPredictions.errorMessage === null &&
+            responseData.getLocationPredictions.data !== undefined && responseData.getLocationPredictions.data !== null &&
+            responseData.getLocationPredictions.data.length !== 0) {
+            // return successfully retrieved location predictions
+            return {
+                data: responseData.getLocationPredictions.data as LocationPredictionType[]
+            }
+        } else {
+            // if there was an error while retrieving location predictions, just return an empty result
+            const message = `Error while retrieving location predictions for ${address} ${responseData.createLogEvent.errorMessage}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, true);
+
+            return {
+                data: []
+            }
+        }
+    } catch (error) {
+        // if there was an error while attempting to retrieve location predictions, just return an empty result
+        const message = `Unexpected error while attempting to retrieved location predictions for ${address} ${JSON.stringify(error)} ${error}`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, true);
+
+        return {
+            data: []
+        }
+    }
+}
+
+/**
  * Function used to log a message from the frontend through CloudWatch.
  *
  * @param message representing the message to the log event
@@ -523,6 +581,7 @@ export const logEvent = async (message: string, level: LoggingLevel, unauthentic
                 }
             }));
         } else {
+            // only our IAM user from the Amplify App will have access to use this
             logEventResult = await API.graphql({
                 query: createLogEvent,
                 variables: {

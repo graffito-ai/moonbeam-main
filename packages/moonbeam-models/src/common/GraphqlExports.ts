@@ -458,6 +458,18 @@ export type GetFilesForUserInput = {
   type: FileType;
 };
 
+export type GetLocationPredictionsInput = {
+  address: Scalars['String'];
+  osType: OsType;
+};
+
+export type GetLocationPredictionsResponse = {
+  __typename?: 'GetLocationPredictionsResponse';
+  data?: Maybe<Array<Maybe<LocationPredictionType>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<UtilitiesErrorType>;
+};
+
 export type GetMilitaryVerificationInformationInput = {
   endDate?: InputMaybe<Scalars['AWSDateTime']>;
   id?: InputMaybe<Scalars['ID']>;
@@ -541,6 +553,18 @@ export type Location = {
   __typename?: 'Location';
   latitude: Scalars['Float'];
   longitude: Scalars['Float'];
+};
+
+export type LocationPredictionType = {
+  __typename?: 'LocationPredictionType';
+  address_components?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  matched_substrings?: Maybe<Scalars['String']>;
+  place_id?: Maybe<Scalars['String']>;
+  reference?: Maybe<Scalars['String']>;
+  structured_formatting?: Maybe<Scalars['String']>;
+  terms?: Maybe<Scalars['String']>;
+  types?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 export enum LoggingAcknowledgmentType {
@@ -1264,6 +1288,7 @@ export type Query = {
   getFAQs: FaqResponse;
   getFidelisPartners: FidelisPartnerResponse;
   getFilesForUser: FilesForUserResponse;
+  getLocationPredictions: GetLocationPredictionsResponse;
   getMilitaryVerificationInformation: MilitaryVerificationReportingInformationResponse;
   getMilitaryVerificationStatus: GetMilitaryVerificationResponse;
   getNotificationReminders: NotificationReminderResponse;
@@ -1314,6 +1339,11 @@ export type QueryGetDevicesForUserArgs = {
 
 export type QueryGetFilesForUserArgs = {
   getFilesForUserInput: GetFilesForUserInput;
+};
+
+
+export type QueryGetLocationPredictionsArgs = {
+  getLocationPredictionsInput: GetLocationPredictionsInput;
 };
 
 
@@ -1888,6 +1918,13 @@ export type UpdateMilitaryVerificationStatusMutationVariables = Exact<{
 
 
 export type UpdateMilitaryVerificationStatusMutation = { __typename?: 'Mutation', updateMilitaryVerificationStatus: { __typename?: 'UpdateMilitaryVerificationResponse', errorType?: MilitaryVerificationErrorType | null, errorMessage?: string | null, id?: string | null, militaryVerificationStatus?: MilitaryVerificationStatusType | null } };
+
+export type GetLocationPredictionsQueryVariables = Exact<{
+  getLocationPredictionsInput: GetLocationPredictionsInput;
+}>;
+
+
+export type GetLocationPredictionsQuery = { __typename?: 'Query', getLocationPredictions: { __typename?: 'GetLocationPredictionsResponse', errorMessage?: string | null, errorType?: UtilitiesErrorType | null, data?: Array<{ __typename?: 'LocationPredictionType', description?: string | null, place_id?: string | null, reference?: string | null, matched_substrings?: string | null, structured_formatting?: string | null, address_components?: string | null, terms?: string | null, types?: Array<string | null> | null } | null> | null } };
 
 export type GetAppReviewEligibilityQueryVariables = Exact<{
   getAppReviewEligibilityInput: GetAppReviewEligibilityInput;
