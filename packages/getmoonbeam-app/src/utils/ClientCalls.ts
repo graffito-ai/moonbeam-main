@@ -103,7 +103,7 @@ export const searchAddressPredictions = async (address: string): Promise<Predict
                         } else {
                             const errorMessage = `Invalid response structure returned from Latter Places API response!`
                             console.log(errorMessage);
-                            await logEvent(errorMessage, LoggingLevel.Error, false);
+                            await logEvent(errorMessage, LoggingLevel.Error, true);
                         }
                     }
                 }
@@ -111,7 +111,7 @@ export const searchAddressPredictions = async (address: string): Promise<Predict
             } else {
                 const errorMessage = `Invalid response structure returned from Initial Places API response!`
                 console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Error, false);
+                await logEvent(errorMessage, LoggingLevel.Error, true);
 
                 return [];
             }
@@ -123,7 +123,7 @@ export const searchAddressPredictions = async (address: string): Promise<Predict
                  */
                 const errorMessage = `Non 2xxx response while calling the Initial Places API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
                 console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Error, false);
+                await logEvent(errorMessage, LoggingLevel.Error, true);
 
                 return [];
             } else if (error.request) {
@@ -134,14 +134,14 @@ export const searchAddressPredictions = async (address: string): Promise<Predict
                  */
                 const errorMessage = `No response received while calling the Initial Places API, for request ${error.request}`;
                 console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Error, false);
+                await logEvent(errorMessage, LoggingLevel.Error, true);
 
                 return [];
             } else {
                 // Something happened in setting up the request that triggered an Error
                 const errorMessage = `Unexpected error while setting up the request for the Initial Places API, ${(error && error.message) && error.message}`;
                 console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Error, false);
+                await logEvent(errorMessage, LoggingLevel.Error, true);
 
                 return [];
             }
@@ -150,7 +150,7 @@ export const searchAddressPredictions = async (address: string): Promise<Predict
         // return that the results and print an error in case there was an unexpected error while attempting to retrieve address predictions
         const message = `Unexpected error while retrieving address predictions for ${sanitizedAddress}, ${JSON.stringify(error)} ${error}`;
         console.log(message);
-        await logEvent(message, LoggingLevel.Error, false);
+        await logEvent(message, LoggingLevel.Error, true);
 
         return [];
     }

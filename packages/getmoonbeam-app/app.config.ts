@@ -34,7 +34,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         backgroundColor: "#313030"
     },
     ios: {
-        buildNumber: "2",
+        buildNumber: "3",
         bundleIdentifier: process.env.IOS_BUNDLE_IDENTIFIER,
         supportsTablet: false,
         infoPlist: {
