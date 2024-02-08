@@ -25,6 +25,7 @@ import {Image} from 'expo-image';
 import * as envInfo from "./local-env-info.json";
 import {logEvent} from "./src/utils/AppSync";
 import {LoggingLevel, Stages} from "@moonbeam/moonbeam-models";
+import * as Updates from 'expo-updates';
 
 // this handler determines how your app handles notifications that come in while the app is foregrounded.
 Notifications.setNotificationHandler({
@@ -35,6 +36,31 @@ Notifications.setNotificationHandler({
         priority: AndroidNotificationPriority.MAX
     }),
 });
+
+/**
+ * Function used to check for Expo Updates available over the air
+ * (instead of having to actually deploy the app all the time).
+ *
+ * @returns a {@link Promise} of {@link void} since there is nothing to return here.
+ */
+async function onFetchUpdateAsync(): Promise<void> {
+    try {
+        // check for any available updates
+        const update = await Updates.checkForUpdateAsync();
+
+        // is any updates are available, then update app accordingly
+        if (update.isAvailable) {
+            // fetch the update in local storage
+            await Updates.fetchUpdateAsync();
+            // reload the app asynchronously
+            await Updates.reloadAsync();
+        }
+    } catch (error) {
+        const errorMessage = `Error fetching latest Expo update: ${error}`;
+        console.log(errorMessage);
+        await logEvent(errorMessage, LoggingLevel.Error, true);
+    }
+}
 
 /**
  * Function used to register the app for async push notifications, and return
@@ -169,6 +195,12 @@ export default function App() {
                 if (envInfo.envName !== Stages.DEV && !deviceSetForNotifications) {
                     setDeviceIsSetForNotifications(true);
                     setExpoPushToken(await registerForPushNotificationsAsync());
+                }
+
+                // wait for incoming over the air updates and act accordingly
+                if (envInfo.envName !== Stages.DEV && Updates.channel !== undefined &&
+                    Updates.channel !== null && Updates.channel === "production") {
+                    await onFetchUpdateAsync();
                 }
 
                 // configure the Global Cache - @link https://docs.amplify.aws/lib/utilities/cache/q/platform/js/#api-reference
