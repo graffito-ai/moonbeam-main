@@ -2,6 +2,26 @@
  * This is a file used to define the all GraphQL query constants
  */
 
+// Query used to retrieve location predictions given an address
+export const getLocationPredictions = /* GraphQL */ `
+    query GetLocationPredictions($getLocationPredictionsInput: GetLocationPredictionsInput!) {
+        getLocationPredictions(getLocationPredictionsInput: $getLocationPredictionsInput) {
+            errorMessage
+            errorType
+            data {
+                description
+                place_id
+                reference
+                matched_substrings
+                structured_formatting
+                address_components
+                terms
+                types
+            }
+        }
+    }
+`;
+
 // Query used to retrieve the app review eligibility for a particular user
 export const getAppReviewEligibility = /* GraphQL */ `
     query GetAppReviewEligibility($getAppReviewEligibilityInput: GetAppReviewEligibilityInput!) {

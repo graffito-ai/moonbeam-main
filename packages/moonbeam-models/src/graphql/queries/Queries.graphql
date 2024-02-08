@@ -1,5 +1,21 @@
 # graphql/Queries.graphql
 # Queries Schema File
+query GetLocationPredictions($getLocationPredictionsInput: GetLocationPredictionsInput!) {
+    getLocationPredictions(getLocationPredictionsInput: $getLocationPredictionsInput) {
+        errorMessage
+        errorType
+        data {
+            description
+            place_id
+            reference
+            matched_substrings
+            structured_formatting
+            address_components
+            terms
+            types
+        }
+    }
+}
 query GetAppReviewEligibility($getAppReviewEligibilityInput: GetAppReviewEligibilityInput!) {
     getAppReviewEligibility(getAppReviewEligibilityInput: $getAppReviewEligibilityInput) {
         errorMessage

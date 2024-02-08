@@ -22,12 +22,11 @@ import {
 import {militaryBranchItems} from "../../../../models/Constants";
 import {TextInput} from "react-native-paper";
 import {FieldValidator} from "../../../../utils/FieldValidator";
-import {MilitaryAffiliation} from "@moonbeam/moonbeam-models";
+import {LocationPredictionType, MilitaryAffiliation, OsType} from "@moonbeam/moonbeam-models";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import DropDownPicker from "react-native-dropdown-picker";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
-import {PredictionType} from "../../../../models/PredictionType";
-import {searchAddressPredictions} from "../../../../utils/ClientCalls";
+import { searchAddressPredictions } from "../../../../utils/AppSync";
 
 /**
  * AdditionalRegistrationStep component.
@@ -37,7 +36,7 @@ import {searchAddressPredictions} from "../../../../utils/ClientCalls";
 export const AdditionalRegistrationStep = () => {
     // constants used to keep track of local component state
     const predictionsListView = useRef();
-    const [predictions, setPredictions] = useState<PredictionType[]>([]);
+    const [predictions, setPredictions] = useState<LocationPredictionType[]>([]);
     const [dataProvider, setDataProvider] = useState<DataProvider | null>(null);
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
     const [autoFilledAddressLine, setAutoFilledAddressLine] = useState<boolean>(false);
@@ -128,8 +127,19 @@ export const AdditionalRegistrationStep = () => {
      * @return a {@link React.JSX.Element} or an {@link Array} of {@link React.JSX.Element} representing the
      * React node and/or nodes containing the address line predictions.
      */
-    const renderPredictionData = useMemo(() => (_type: string | number, data: PredictionType, index: number): React.JSX.Element | React.JSX.Element[] => {
+    const renderPredictionData = useMemo(() => (_type: string | number, data: LocationPredictionType, index: number): React.JSX.Element | React.JSX.Element[] => {
         if (predictions !== undefined && predictions !== null && predictions.length !== 0) {
+            // format location prediction data accordingly
+            const locationPredictionData = {
+                address_components: JSON.parse(data.address_components!),
+                description: data.description,
+                matched_substrings: JSON.parse(data.matched_substrings!),
+                place_id: data.place_id,
+                reference: data.reference,
+                structured_formatting: JSON.parse(data.structured_formatting!),
+                terms: JSON.parse(data.terms!),
+                types: data.types
+            }
             return (
                 <>
                     <TouchableOpacity
@@ -138,14 +148,14 @@ export const AdditionalRegistrationStep = () => {
                             borderBottomWidth: hp(0.15)
                         }]}
                         onPress={() => {
-                            if (data && data.address_components && data.address_components.length !== 0) {
+                            if (locationPredictionData && locationPredictionData.address_components && locationPredictionData.address_components.length !== 0) {
                                 setAutoFilledAddressLine(true);
                                 // autofilled address details
                                 let autoFilledAddressLine = '';
                                 let autoFilledCity = '';
                                 let autoFilledState = '';
                                 let autoFilledZip = '';
-                                data.address_components.forEach(component => {
+                                locationPredictionData.address_components.forEach(component => {
                                     // autofill the address according to the details
                                     if (component.types.includes('street_number')) {
                                         autoFilledAddressLine += autoFilledAddressLine.length !== 0
@@ -181,7 +191,7 @@ export const AdditionalRegistrationStep = () => {
                                 setIsAddressLineFocus(false);
                             }
                         }}>
-                        <Text style={styles.addressLinePredictionDescription}>{data.description}</Text>
+                        <Text style={styles.addressLinePredictionDescription}>{locationPredictionData.description}</Text>
                     </TouchableOpacity>
                 </>
             );
@@ -251,7 +261,11 @@ export const AdditionalRegistrationStep = () => {
                         if (!autoFilledAddressLine) {
                             setAddressLine(value.toString());
                             if (value.toString().length >= 5) {
-                                const addressPredictions = await searchAddressPredictions(value.toString())
+                                const addressPredictionsResult =
+                                    await searchAddressPredictions(value.toString(), Platform.OS === 'ios' ? OsType.Ios : OsType.Android);
+                                const addressPredictions = (addressPredictionsResult.data !== null && addressPredictionsResult.data !== undefined)
+                                    ? addressPredictionsResult.data as LocationPredictionType[]
+                                    : [];
                                 setPredictions(addressPredictions);
                                 setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(addressPredictions));
                                 setLayoutProvider(new LayoutProvider(

@@ -231,7 +231,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             },
             utilitiesConfig: {
                 utilitiesFunctionName: 'utilitiesFunction',
-                geoCodeAsyncResolverName: 'geoCodeAsync'
+                geoCodeAsyncResolverName: 'geoCodeAsync',
+                getLocationPredictionsResolverName: 'getLocationPredictions'
             },
             environmentVariables: new Map<string, string>([])
         },
@@ -460,7 +461,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             },
             utilitiesConfig: {
                 utilitiesFunctionName: 'utilitiesFunction',
-                geoCodeAsyncResolverName: 'geoCodeAsync'
+                geoCodeAsyncResolverName: 'geoCodeAsync',
+                getLocationPredictionsResolverName: 'getLocationPredictions'
             },
             environmentVariables: new Map<string, string>([])
         },
