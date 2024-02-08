@@ -34,7 +34,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         backgroundColor: "#313030"
     },
     ios: {
-        buildNumber: "3",
+        buildNumber: "4",
         bundleIdentifier: process.env.IOS_BUNDLE_IDENTIFIER,
         supportsTablet: false,
         infoPlist: {
@@ -91,6 +91,16 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         },
         android: {
             mapSha: process.env.GOOGLE_MAPS_ANDROID_SHA
+        },
+        environmentVariable: {
+            ANDROID_PACKAGE: process.env.ANDROID_PACKAGE,
+            BRANCH_API_KEY: process.env.BRANCH_API_KEY,
+            EAS_UPDATES_URL: process.env.EAS_UPDATES_URL,
+            GOOGLE_MAPS_ANDROID_SHA: process.env.GOOGLE_MAPS_ANDROID_SHA,
+            GOOGLE_MAPS_APIS_ANDROID_KEY: process.env.GOOGLE_MAPS_APIS_ANDROID_KEY,
+            GOOGLE_MAPS_APIS_IOS_KEY: process.env.GOOGLE_MAPS_APIS_IOS_KEY,
+            GOOGLE_SERVICES_JSON: process.env.GOOGLE_SERVICES_JSON,
+            IOS_BUNDLE_IDENTIFIER: process.env.IOS_BUNDLE_IDENTIFIER
         }
     },
     runtimeVersion: {
@@ -109,7 +119,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         [
             "@config-plugins/react-native-branch",
             {
-                "apiKey": "key_live_dCiEy5Jy3M9LvuF3YtBmXogiEtfJdz6J"
+                "apiKey": `${process.env.BRANCH_API_KEY}`
             }
         ],
         [
