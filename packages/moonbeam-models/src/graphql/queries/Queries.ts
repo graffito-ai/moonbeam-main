@@ -161,8 +161,8 @@ export const getAllUsersForNotificationReminders = /* GraphQL */ `
 
 // Query used to GeoCode and address using Google's APIs
 export const geoCodeAsync = /* GraphQL */ `
-    query GeoCodeAsync($address: String!) {
-        geoCodeAsync(address: $address) {
+    query GeoCodeAsync($geocodeAsyncInput: GeocodeAsyncInput!) {
+        geoCodeAsync(geocodeAsyncInput: $geocodeAsyncInput) {
             errorMessage
             errorType
             data {

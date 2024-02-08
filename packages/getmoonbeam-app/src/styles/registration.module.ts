@@ -568,4 +568,27 @@ export const styles = StyleSheet.create({
         fontSize: hp(2),
         marginTop: hp(0.5)
     },
+    addressLinePredictionsDropdownView: {
+        top: hp(1.2),
+        height: hp(30),
+        width: wp(87),
+        backgroundColor: '#D9D9D9',
+        left: wp(5),
+        marginBottom: hp(35)
+    },
+    addressLinePredictionItem: {
+        backgroundColor: '#808080',
+        width: wp(87),
+        height: hp(7.5),
+        flexDirection: 'row',
+        alignContent: 'space-between'
+    },
+    addressLinePredictionDescription: {
+        top: hp(2),
+        fontSize: hp(1.45),
+        width: wp(87),
+        fontFamily: 'Raleway-Bold',
+        color: '#FFFFFF',
+        left: wp(5)
+    }
 });

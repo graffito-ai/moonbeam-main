@@ -1,7 +1,7 @@
 # graphql/Root.graphql
 # Main Schema File
 type Query {
-    geoCodeAsync(address: String!): GeocodeAsyncResponse! @aws_cognito_user_pools
+    geoCodeAsync(geocodeAsyncInput: GeocodeAsyncInput!): GeocodeAsyncResponse! @aws_cognito_user_pools
     getFAQs: FAQResponse! @aws_cognito_user_pools
     getOffers(getOffersInput: GetOffersInput!): OffersResponse! @aws_cognito_user_pools
     searchOffers(searchOffersInput: SearchOffersInput!): OffersResponse! @aws_cognito_user_pools

@@ -203,10 +203,10 @@ export const VerticalOffers = (props: {
      * @param data data to be passed in for the row
      * @param index row index
      *
-     * @return a {@link JSX.Element} or an {@link Array} of {@link JSX.Element} representing the
+     * @return a {@link React.JSX.Element} or an {@link Array} of {@link React.JSX.Element} representing the
      * React node and/or nodes containing the Fidelis offers.
      */
-    const renderFidelisRowData = useMemo(() => (_type: string | number, data: FidelisPartner, index: number): JSX.Element | JSX.Element[] => {
+    const renderFidelisRowData = useMemo(() => (_type: string | number, data: FidelisPartner, index: number): React.JSX.Element | React.JSX.Element[] => {
         // flag to determine whether there are any offers shown at all - so we can display the empty message otherwise
         let offersShown = false;
 
@@ -362,10 +362,10 @@ export const VerticalOffers = (props: {
      * @param data data to be passed in for the row
      * @param index row index
      *
-     * @return a {@link JSX.Element} or an {@link Array} of {@link JSX.Element} representing the
+     * @return a {@link React.JSX.Element} or an {@link Array} of {@link React.JSX.Element} representing the
      * React node and/or nodes containing the click-only online offers.
      */
-    const renderClickOnlyOnlineRowData = useMemo(() => (_type: string | number, data: Offer, index: number): JSX.Element | JSX.Element[] => {
+    const renderClickOnlyOnlineRowData = useMemo(() => (_type: string | number, data: Offer, index: number): React.JSX.Element | React.JSX.Element[] => {
         // flag to determine whether there are any offers shown at all - so we can display the empty message otherwise
         let offersShown = false;
 
@@ -513,10 +513,10 @@ export const VerticalOffers = (props: {
      * @param data data to be passed in for the row
      * @param index row index
      *
-     * @return a {@link JSX.Element} or an {@link Array} of {@link JSX.Element} representing the
+     * @return a {@link React.JSX.Element} or an {@link Array} of {@link React.JSX.Element} representing the
      * React node and/or nodes containing the online offers.
      */
-    const renderOnlineRowData = useMemo(() => (_type: string | number, data: Offer, index: number): JSX.Element | JSX.Element[] => {
+    const renderOnlineRowData = useMemo(() => (_type: string | number, data: Offer, index: number): React.JSX.Element | React.JSX.Element[] => {
         // flag to determine whether there are any offers shown at all - so we can display the empty message otherwise
         let offersShown = false;
 
@@ -664,10 +664,10 @@ export const VerticalOffers = (props: {
      * @param data data to be passed in for the row
      * @param index row index
      *
-     * @return a {@link JSX.Element} or an {@link Array} of {@link JSX.Element} representing the
+     * @return a {@link React.JSX.Element} or an {@link Array} of {@link React.JSX.Element} representing the
      * React node and/or nodes containing the filtered offers.
      */
-    const renderFilteredRowData = useMemo(() => (_type: string | number, data: Offer, index: number): JSX.Element | JSX.Element[] => {
+    const renderFilteredRowData = useMemo(() => (_type: string | number, data: Offer, index: number): React.JSX.Element | React.JSX.Element[] => {
         // offer listing
         if (deDuplicatedFilteredOfferList.length !== 0) {
             // get the physical location of this offer alongside its coordinates
@@ -955,10 +955,10 @@ export const VerticalOffers = (props: {
      * @param data data to be passed in for the row
      * @param index row index
      *
-     * @return a {@link JSX.Element} or an {@link Array} of {@link JSX.Element} representing the
+     * @return a {@link React.JSX.Element} or an {@link Array} of {@link React.JSX.Element} representing the
      * React node and/or nodes containing the nearby offers.
      */
-    const renderNearbyRowData = useMemo(() => (_type: string | number, data: Offer, index: number): JSX.Element | JSX.Element[] => {
+    const renderNearbyRowData = useMemo(() => (_type: string | number, data: Offer, index: number): React.JSX.Element | React.JSX.Element[] => {
         // flag to determine whether there are any offers shown at all - so we can display the empty message otherwise
         let offersShown = false;
 

@@ -412,6 +412,11 @@ export type FilesForUserResponse = {
   errorType?: Maybe<StorageErrorType>;
 };
 
+export type GeocodeAsyncInput = {
+  address: Scalars['String'];
+  osType: OsType;
+};
+
 export type GeocodeAsyncResponse = {
   __typename?: 'GeocodeAsyncResponse';
   data?: Maybe<Array<Maybe<Location>>>;
@@ -1062,6 +1067,11 @@ export enum NotificationsErrorType {
   ValidationError = 'VALIDATION_ERROR'
 }
 
+export enum OsType {
+  Android = 'ANDROID',
+  Ios = 'IOS'
+}
+
 export type Offer = {
   __typename?: 'Offer';
   availability?: Maybe<OfferAvailability>;
@@ -1273,7 +1283,7 @@ export type Query = {
 
 
 export type QueryGeoCodeAsyncArgs = {
-  address: Scalars['String'];
+  geocodeAsyncInput: GeocodeAsyncInput;
 };
 
 
@@ -1944,7 +1954,7 @@ export type GetAllUsersForNotificationRemindersQueryVariables = Exact<{ [key: st
 export type GetAllUsersForNotificationRemindersQuery = { __typename?: 'Query', getAllUsersForNotificationReminders: { __typename?: 'UserForNotificationReminderResponse', errorMessage?: string | null, errorType?: NotificationReminderErrorType | null, data?: Array<{ __typename?: 'RetrieveUserDetailsForNotifications', id: string, email: string, firstName: string, lastName: string } | null> | null } };
 
 export type GeoCodeAsyncQueryVariables = Exact<{
-  address: Scalars['String'];
+  geocodeAsyncInput: GeocodeAsyncInput;
 }>;
 
 

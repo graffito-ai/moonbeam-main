@@ -1,4 +1,4 @@
-import {GeocodeAsyncResponse, UtilitiesErrorType} from "@moonbeam/moonbeam-models";
+import {GeocodeAsyncInput, GeocodeAsyncResponse, UtilitiesErrorType} from "@moonbeam/moonbeam-models";
 import {geoCodeAsync} from "./resolvers/GeoCodeAsyncResolver";
 
 /**
@@ -9,7 +9,7 @@ type AppSyncEvent = {
         fieldName: string
     },
     arguments: {
-        address: string
+        geocodeAsyncInput: GeocodeAsyncInput
     },
     identity: {
         sub: string;
@@ -28,7 +28,7 @@ exports.handler = async (event: AppSyncEvent): Promise<GeocodeAsyncResponse> => 
     console.log(`Received new Utility event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
         case "geoCodeAsync":
-            return await geoCodeAsync(event.info.fieldName, event.arguments.address);
+            return await geoCodeAsync(event.info.fieldName, event.arguments.geocodeAsyncInput);
         default:
             const errorMessage = `Unexpected field name: ${event.info.fieldName}`;
             console.log(errorMessage);

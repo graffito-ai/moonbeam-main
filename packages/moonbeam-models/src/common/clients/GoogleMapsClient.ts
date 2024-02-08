@@ -1,5 +1,5 @@
 import {BaseAPIClient} from "./BaseAPIClient";
-import {GeocodeAsyncResponse, UtilitiesErrorType} from "../GraphqlExports";
+import {GeocodeAsyncInput, GeocodeAsyncResponse, OsType, UtilitiesErrorType} from "../GraphqlExports";
 import {Constants} from "../Constants";
 import axios from "axios";
 
@@ -21,28 +21,56 @@ export class GoogleMapsClient extends BaseAPIClient {
     /**
      * Function used to geocode a particular address, for a location to be passed in.
      *
-     * @param address which we will retrieve the geocoded information for.
+     * @param geocodeAsyncInput input passed in,
+     * which we will retrieve the geocoded information for.
      *
      * @returns a {@link GeocodeAsyncResponse}, representing the passed in address's
      * geocoded information.
+     *
+     * @protected
      */
-    async geoCodeAsync(address: string): Promise<GeocodeAsyncResponse> {
+    async geoCodeAsync(geocodeAsyncInput: GeocodeAsyncInput): Promise<GeocodeAsyncResponse> {
         // easily identifiable API endpoint information
         const endpointInfo = 'geoCodeAsync Google Maps APIs';
 
         try {
             // retrieve the API Key and Base URL, needed in order to GeoCode the passed in address accordingly
-            const [googleMapsAPIsBaseUrl, googleMapsAPIsPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.GOOGLE_MAPS_APIS_INTERNAL_SECRET_NAME);
+            const [googleMapsAPIsBaseUrl, googleMapsAPIsIOSPrivateKey,
+                googleMapsAPIsAndroidPrivateKey, googleMapsAndroidSha,
+                googleMapsBackedAPIsKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.GOOGLE_MAPS_APIS_INTERNAL_SECRET_NAME);
 
             // check to see if we obtained any invalid secret values from the call above
             if (googleMapsAPIsBaseUrl === null || googleMapsAPIsBaseUrl.length === 0 ||
-                googleMapsAPIsPrivateKey === null || googleMapsAPIsPrivateKey.length === 0) {
+                googleMapsAPIsIOSPrivateKey === null || googleMapsAPIsIOSPrivateKey.length === 0 ||
+                googleMapsAPIsAndroidPrivateKey === undefined || googleMapsAPIsAndroidPrivateKey === null ||
+                googleMapsAPIsAndroidPrivateKey.length === 0 || googleMapsAndroidSha === undefined ||
+                googleMapsAndroidSha === null || googleMapsAndroidSha.length === 0 ||
+                googleMapsBackedAPIsKey === undefined || googleMapsBackedAPIsKey === null ||
+                googleMapsBackedAPIsKey.length === 0) {
                 const errorMessage = "Invalid Secrets obtained for Google Maps APIs calls!";
                 console.log(errorMessage);
 
                 return {
                     errorMessage: errorMessage,
                     errorType: UtilitiesErrorType.UnexpectedError
+                };
+            }
+
+            // depending on the OSType passed in, build headers as well as keys accordingly
+            let googleMapsAPIsPrivateKey: string = "";
+            let headers: any = {};
+            if (geocodeAsyncInput.osType === OsType.Ios) {
+                googleMapsAPIsPrivateKey = googleMapsAPIsIOSPrivateKey;
+                headers = {
+                    "Content-Type": "application/json",
+                    "x-ios-bundle-identifier": "com.moonbeam.moonbeamfinance"
+                };
+            } else {
+                googleMapsAPIsPrivateKey = googleMapsAPIsAndroidPrivateKey;
+                headers = {
+                    "Content-Type": "application/json",
+                    "x-android-cert": `${googleMapsAndroidSha}`,
+                    "x-android-package": "com.moonbeam.moonbeamfin"
                 };
             }
 
@@ -54,10 +82,8 @@ export class GoogleMapsClient extends BaseAPIClient {
              * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
              * error for a better customer experience.
              */
-            return axios.get(`${googleMapsAPIsBaseUrl}/maps/api/place/autocomplete/json?input=${address}&types=geocode&key=${googleMapsAPIsPrivateKey}`, {
-                headers: {
-                    "Content-Type": "application/json"
-                },
+            return axios.get(`${googleMapsAPIsBaseUrl}/maps/api/place/autocomplete/json?input=${geocodeAsyncInput.address}&types=geocode&key=${googleMapsAPIsPrivateKey}`, {
+                headers: headers,
                 timeout: 15000, // in milliseconds here
                 timeoutErrorMessage: 'Google Maps API timed out after 15000ms!'
             }).then(googleMapsAutoCompletedResponse => {
@@ -75,8 +101,6 @@ export class GoogleMapsClient extends BaseAPIClient {
                     const placeID = googleMapsAutoCompletedResponse.data["predictions"][0]["place_id"];
 
                     /**
-                     *
-                     *
                      * GET /maps/api/geocode/json?place_id={placeID}}&key={googleMapsAPIsPrivateKey}
                      * @link https://developers.google.com/maps/documentation/geocoding/
                      *
@@ -85,9 +109,7 @@ export class GoogleMapsClient extends BaseAPIClient {
                      * error for a better customer experience.
                      */
                     return axios.get(`${googleMapsAPIsBaseUrl}/maps/api/geocode/json?place_id=${placeID}&key=${googleMapsAPIsPrivateKey}`, {
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
+                        headers: headers,
                         timeout: 15000, // in milliseconds here
                         timeoutErrorMessage: 'Google Maps API timed out after 15000ms!'
                     }).then(googleMapsGeoCodeResponse => {
@@ -203,7 +225,7 @@ export class GoogleMapsClient extends BaseAPIClient {
                 }
             });
         } catch (err) {
-            const errorMessage = `Unexpected error while GeoCoding ${address} through ${endpointInfo}`;
+            const errorMessage = `Unexpected error while GeoCoding ${geocodeAsyncInput.address} through ${endpointInfo}`;
             console.log(`${errorMessage} ${err}`);
 
             return {

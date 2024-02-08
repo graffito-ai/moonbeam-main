@@ -96,6 +96,9 @@ export namespace Constants {
         export const GOOGLE_MAPS_APIS_INTERNAL_SECRET_NAME = `google-maps-internal-secret-pair`;
         export const GOOGLE_MAPS_APIS_BASE_URL = `GOOGLE_MAPS_APIS_BASE_URL`;
         export const GOOGLE_MAPS_APIS_KEY = `GOOGLE_MAPS_APIS_KEY`;
+        export const GOOGLE_MAPS_APIS_IOS_KEY = `GOOGLE_MAPS_APIS_IOS_KEY`;
+        export const GOOGLE_MAPS_APIS_ANDROID_KEY = `GOOGLE_MAPS_APIS_ANDROID_KEY`;
+        export const GOOGLE_MAPS_ANDROID_SHA = `GOOGLE_MAPS_ANDROID_SHA`;
 
         export const COURIER_INTERNAL_SECRET_NAME = `courier-internal-secret-pair`;
         export const COURIER_BASE_URL = `COURIER_BASE_URL`;

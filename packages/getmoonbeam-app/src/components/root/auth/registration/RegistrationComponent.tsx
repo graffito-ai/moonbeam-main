@@ -14,7 +14,7 @@ import {
     additionalDocumentationNeeded,
     addressCityErrorsState,
     addressCityState,
-    addressLineErrorsState,
+    addressLineErrorsState, addressLineFocusState,
     addressLineState,
     addressStateErrorsState,
     addressStateState,
@@ -201,6 +201,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [ssnValue, setSSNValue] = useRecoilState(ssnState);
     const [ssnErrors, setSSNErrors] = useRecoilState(ssnErrorsState);
     // step 2
+    const [addressLineFocus, ] = useRecoilState(addressLineFocusState);
     const [addressLine, setAddressLine] = useRecoilState(addressLineState);
     const [addressLineErrors, setAddressLineErrors] = useRecoilState(addressLineErrorsState);
     const [addressCity, setAddressCity] = useRecoilState(addressCityState);
@@ -953,7 +954,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                             resizeMethod={"scale"}
                             source={RegistrationBackgroundImage}>
                             <KeyboardAwareScrollView
-                                scrollEnabled={stepNumber == 0 || stepNumber === 1 || stepNumber === 2 || stepNumber === 3}
+                                scrollEnabled={(stepNumber == 0 || (stepNumber === 1 && !addressLineFocus) || stepNumber === 2 || stepNumber === 3)}
                                 enableOnAndroid={true}
                                 showsVerticalScrollIndicator={false}
                                 enableAutomaticScroll={(Platform.OS === 'ios')}

@@ -1,16 +1,18 @@
-import {Platform, Text, View} from "react-native";
-import React, {useEffect, useState} from "react";
+import {Platform, Text, TouchableOpacity, View} from "react-native";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {styles} from "../../../../styles/registration.module";
 import {useRecoilState} from "recoil";
 import {
     addressCityErrorsState,
     addressCityState,
     addressLineErrorsState,
+    addressLineFocusState,
     addressLineState,
     addressStateErrorsState,
     addressStateState,
     addressZipErrorsState,
-    addressZipState, currentMemberAffiliationState,
+    addressZipState,
+    currentMemberAffiliationState,
     militaryBranchErrorsState,
     militaryBranchState,
     militaryBranchValueState,
@@ -20,10 +22,12 @@ import {
 import {militaryBranchItems} from "../../../../models/Constants";
 import {TextInput} from "react-native-paper";
 import {FieldValidator} from "../../../../utils/FieldValidator";
-import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
-import {GooglePlacesAutocomplete} from "react-native-google-places-autocomplete";
-import DropDownPicker from "react-native-dropdown-picker";
 import {MilitaryAffiliation} from "@moonbeam/moonbeam-models";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
+import DropDownPicker from "react-native-dropdown-picker";
+import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
+import {PredictionType} from "../../../../models/PredictionType";
+import {searchAddressPredictions} from "../../../../utils/ClientCalls";
 
 /**
  * AdditionalRegistrationStep component.
@@ -32,13 +36,17 @@ import {MilitaryAffiliation} from "@moonbeam/moonbeam-models";
  */
 export const AdditionalRegistrationStep = () => {
     // constants used to keep track of local component state
+    const predictionsListView = useRef();
+    const [predictions, setPredictions] = useState<PredictionType[]>([]);
+    const [dataProvider, setDataProvider] = useState<DataProvider | null>(null);
+    const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
     const [autoFilledAddressLine, setAutoFilledAddressLine] = useState<boolean>(false);
     const [branchItems, setBranchItems] = useState(militaryBranchItems);
-    const [addressLineFocus, setIsAddressLineFocus] = useState<boolean>(false);
     const [addressCityFocus, setIsAddressCityFocus] = useState<boolean>(false);
     const [addressStateFocus, setIsAddressStateFocus] = useState<boolean>(false);
     const [addressZipFocus, setIsAddressZipFocus] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [addressLineFocus, setIsAddressLineFocus] = useRecoilState(addressLineFocusState);
     const [currentMemberAffiliation,] = useRecoilState(currentMemberAffiliationState);
     const [addressLine, setAddressLine] = useRecoilState(addressLineState);
     const [addressCity, setAddressCity] = useRecoilState(addressCityState);
@@ -90,9 +98,97 @@ export const AdditionalRegistrationStep = () => {
             fieldValidator.validateField(militaryBranch, "militaryBranch", setMilitaryBranchErrors);
         }
         militaryBranch === "" && setMilitaryBranchErrors([]);
-    }, [addressLineFocus, addressLine, addressCityFocus, addressCity,
+
+        // populate the address line predictions data provider and list view
+        if (predictions !== undefined && predictions !== null && predictions.length > 0 && layoutProvider === null && dataProvider === null) {
+            setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(predictions));
+            setLayoutProvider(new LayoutProvider(
+                _ => 0,
+                (_, dim) => {
+                    dim.width = wp(87);
+                    dim.height = hp(7.5);
+                }
+            ));
+        }
+        if (predictions.length === 0) {
+            setIsAddressLineFocus(false);
+        }
+    }, [dataProvider, layoutProvider, predictions,
+        addressLineFocus, addressLine, addressCityFocus, addressCity,
         addressStateFocus, addressState,
         addressZipFocus, addressZip]);
+
+    /**
+     * Function used to populate the rows containing address line prediction data.
+     *
+     * @param type row type to be passed in
+     * @param data data to be passed in for the row
+     * @param index row index
+     *
+     * @return a {@link React.JSX.Element} or an {@link Array} of {@link React.JSX.Element} representing the
+     * React node and/or nodes containing the address line predictions.
+     */
+    const renderPredictionData = useMemo(() => (_type: string | number, data: PredictionType, index: number): React.JSX.Element | React.JSX.Element[] => {
+        if (predictions !== undefined && predictions !== null && predictions.length !== 0) {
+            return (
+                <>
+                    <TouchableOpacity
+                        style={[styles.addressLinePredictionItem, index !== predictions.length - 1 && {
+                            borderBottomColor: '#FFFFFF',
+                            borderBottomWidth: hp(0.15)
+                        }]}
+                        onPress={() => {
+                            if (data && data.address_components && data.address_components.length !== 0) {
+                                setAutoFilledAddressLine(true);
+                                // autofilled address details
+                                let autoFilledAddressLine = '';
+                                let autoFilledCity = '';
+                                let autoFilledState = '';
+                                let autoFilledZip = '';
+                                data.address_components.forEach(component => {
+                                    // autofill the address according to the details
+                                    if (component.types.includes('street_number')) {
+                                        autoFilledAddressLine += autoFilledAddressLine.length !== 0
+                                            ? ` ${component.long_name}`
+                                            : `${component.long_name}`;
+                                    } else if (component.types.includes('route')) {
+                                        autoFilledAddressLine += autoFilledAddressLine.length !== 0
+                                            ? ` ${component.long_name}`
+                                            : `${component.long_name}`;
+                                    } else if (component.types.includes('locality')) {
+                                        autoFilledCity += autoFilledCity.length !== 0
+                                            ? ` ${component.long_name}`
+                                            : `${component.long_name}`;
+                                    } else if (component.types.includes('administrative_area_level_1')) {
+                                        autoFilledState += autoFilledState.length !== 0
+                                            ? ` ${component.long_name}`
+                                            : `${component.long_name}`;
+                                    } else if (component.types.includes('postal_code')) {
+                                        autoFilledZip += autoFilledZip.length !== 0
+                                            ? ` ${component.long_name}`
+                                            : `${component.long_name}`;
+                                    }
+                                });
+                                setAddressCity(autoFilledCity);
+                                setAddressState(autoFilledState);
+                                setAddressZip(autoFilledZip);
+                                setAddressLine(autoFilledAddressLine);
+                                setAddressCityErrors([]);
+                                setAddressLineErrors([]);
+                                setAddressStateErrors([]);
+                                setAddressZipErrors([]);
+                                setPredictions([]);
+                                setIsAddressLineFocus(false);
+                            }
+                        }}>
+                        <Text style={styles.addressLinePredictionDescription}>{data.description}</Text>
+                    </TouchableOpacity>
+                </>
+            );
+        } else {
+            return (<></>);
+        }
+    }, [predictions]);
 
     // return the component for the AdditionalRegistrationStep, part of the Registration page
     return (
@@ -108,9 +204,11 @@ export const AdditionalRegistrationStep = () => {
                             : (addressStateErrors.length !== 0 && !registrationMainError)
                                 ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressStateErrors[0]}</Text>
                                 : (addressZipErrors.length !== 0 && !registrationMainError)
-                                    ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressZipErrors[0]}</Text>
+                                    ?
+                                    <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressZipErrors[0]}</Text>
                                     : (militaryBranchErrors.length !== 0 && !registrationMainError)
-                                        ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{militaryBranchErrors[0]}</Text>
+                                        ? <Text
+                                            style={[styles.errorMessage, {bottom: hp(2.4)}]}>{militaryBranchErrors[0]}</Text>
                                         : <></>)
                 : (registrationMainError
                     ?
@@ -122,133 +220,55 @@ export const AdditionalRegistrationStep = () => {
                             : (addressStateErrors.length !== 0 && !registrationMainError)
                                 ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressStateErrors[0]}</Text>
                                 : (addressZipErrors.length !== 0 && !registrationMainError)
-                                    ? <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressZipErrors[0]}</Text>
+                                    ?
+                                    <Text style={[styles.errorMessage, {bottom: hp(2.4)}]}>{addressZipErrors[0]}</Text>
                                     : <></>)
             }
-            <GooglePlacesAutocomplete
-                ref={ref => {
-                    ref?.setAddressText(addressLine)
-                }}
-                placeholder="Required (1 West Example Street)"
-                query={{
-                    key: Platform.OS === 'android'
-                        ? 'AIzaSyB8OpXoKULaEO8t46npUBbmIAM-ranxVfk'
-                        : 'AIzaSyBlj5BVB9ZxZS0V_Usf9pAhuCnw2mQhcaQ',
-                    language: 'en',
-                    types: 'address',
-                    components: 'country:us'
-                }}
-                keyboardShouldPersistTaps={"handled"}
-                enablePoweredByContainer={false}
-                fetchDetails={true}
-                onPress={(_, details) => {
-                    if (details && details.address_components && details.address_components.length !== 0) {
-                        setAutoFilledAddressLine(true);
-                        // autofilled address details
-                        let autoFilledAddressLine = '';
-                        let autoFilledCity = '';
-                        let autoFilledState = '';
-                        let autoFilledZip = '';
-                        details.address_components.forEach(component => {
-                            // autofill the address according to the details
-                            if (component.types.includes('street_number')) {
-                                autoFilledAddressLine += autoFilledAddressLine.length !== 0
-                                    ? ` ${component.long_name}`
-                                    : `${component.long_name}`;
-                            } else if (component.types.includes('route')) {
-                                autoFilledAddressLine += autoFilledAddressLine.length !== 0
-                                    ? ` ${component.long_name}`
-                                    : `${component.long_name}`;
-                            } else if (component.types.includes('locality')) {
-                                autoFilledCity += autoFilledCity.length !== 0
-                                    ? ` ${component.long_name}`
-                                    : `${component.long_name}`;
-                            } else if (component.types.includes('administrative_area_level_1')) {
-                                autoFilledState += autoFilledState.length !== 0
-                                    ? ` ${component.long_name}`
-                                    : `${component.long_name}`;
-                            } else if (component.types.includes('postal_code')) {
-                                autoFilledZip += autoFilledZip.length !== 0
-                                    ? ` ${component.long_name}`
-                                    : `${component.long_name}`;
-                            }
-                        });
-                        setAddressCity(autoFilledCity);
-                        setAddressState(autoFilledState);
-                        setAddressZip(autoFilledZip);
-                        setAddressLine(autoFilledAddressLine);
-                        setAddressCityErrors([]);
-                        setAddressLineErrors([]);
-                        setAddressStateErrors([]);
-                        setAddressZipErrors([]);
-                    }
-                }}
-                styles={{
-                    container: {
-                        ...(addressLineErrors.length !== 0 || registrationMainError ||
-                        addressCityErrors.length !== 0 || addressStateErrors.length !== 0 || addressZipErrors.length !== 0 ? {
-                            bottom: hp(1.2),
-                        } : {
-                            top: hp(2),
-                        }),
-                        left: wp(5),
-                        ...(addressLineFocus && addressLine.length !== 0) && {
-                            zIndex: 1000000
-                        }
-                    },
-                    listView: {
-                        height: hp(10),
-                        width: wp(87)
-                    },
-                    separator: {
-                        height: hp(0.05),
-                        backgroundColor: '#FFFFFF'
-                    },
-                    row: {
-                        backgroundColor: '#808080',
-                        width: wp(87),
-                        height: hp(7.5)
-                    },
-                    description: {
-                        paddingTop: hp(0.5),
-                        paddingBottom: hp(0.5),
-                        fontSize: hp(1.45),
-                        width: wp(87),
-                        fontFamily: 'Raleway-Bold',
-                        color: '#FFFFFF'
-                    }
-                }}
-                textInputProps={{
-                    InputComp: TextInput,
-                    autoCapitalize: "sentences",
-                    autoCorrect: false,
-                    autoComplete: "off",
-                    keyboardType: "default",
-                    placeholderTextColor: '#D9D9D9',
-                    activeUnderlineColor: '#F2FF5D',
-                    underlineColor: '#D9D9D9',
-                    outlineColor: '#D9D9D9',
-                    activeOutlineColor: '#F2FF5D',
-                    selectionColor: '#F2FF5D',
-                    mode: 'outlined',
-                    value: addressLine,
-                    contentStyle: styles.textInputContentStyle,
-                    style: [addressLineFocus ? styles.textInputFocusAddressLine : styles.textInputAddressLine, addressLine.length === 0 && {height: hp(6)}],
-                    placeholder: 'Required (1 West Example Street)',
-                    label: "Street Address",
-                    textColor: "#FFFFFF",
-                    left: <TextInput.Icon icon="home-map-marker" size={hp(3)}
-                                          style={{marginTop: hp(2)}} color="#FFFFFF"/>,
-                    onChangeText: (value: React.SetStateAction<string>) => {
+            <View style={{left: wp(5), top: hp(1)}}>
+                <TextInput
+                    autoCapitalize={"sentences"}
+                    autoCorrect={false}
+                    autoComplete={"off"}
+                    keyboardType={"default"}
+                    placeholderTextColor={'#D9D9D9'}
+                    activeUnderlineColor={'#F2FF5D'}
+                    underlineColor={'#D9D9D9'}
+                    outlineColor={'#D9D9D9'}
+                    activeOutlineColor={'#F2FF5D'}
+                    selectionColor={'#F2FF5D'}
+                    mode={'outlined'}
+                    value={addressLine}
+                    contentStyle={styles.textInputContentStyle}
+                    style={[addressLineFocus ? styles.textInputFocusAddressLine : styles.textInputAddressLine, addressLine.length === 0 && {height: hp(6)}]}
+                    placeholder={'Required (1 West Example Street)'}
+                    label={"Street Address"}
+                    textColor={"#FFFFFF"}
+                    left={<TextInput.Icon icon="home-map-marker" size={hp(3)}
+                                          style={{marginTop: hp(2)}} color="#FFFFFF"/>}
+                    onChangeText={async (value: React.SetStateAction<string>) => {
                         setIsAddressLineFocus(true);
                         setRegistrationMainError(false);
-                        !autoFilledAddressLine && setAddressLine(value.toString());
-                    },
-                    onBlur: () => {
+                        if (!autoFilledAddressLine) {
+                            setAddressLine(value.toString());
+                            if (value.toString().length >= 5) {
+                                const addressPredictions = await searchAddressPredictions(value.toString())
+                                setPredictions(addressPredictions);
+                                setDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(addressPredictions));
+                                setLayoutProvider(new LayoutProvider(
+                                    _ => 0,
+                                    (_, dim) => {
+                                        dim.width = wp(87);
+                                        dim.height = hp(7.5);
+                                    }
+                                ));
+                            }
+                        }
+                    }}
+                    onBlur={() => {
                         setIsAddressLineFocus(false);
                         setIsBackButtonShown(true);
-                    },
-                    onFocus: () => {
+                    }}
+                    onFocus={() => {
                         setAutoFilledAddressLine(false);
 
                         setIsAddressLineFocus(true);
@@ -256,58 +276,60 @@ export const AdditionalRegistrationStep = () => {
 
                         // close the dropdown if opened
                         dropdownBranchState && setDropdownBranchState(false);
+                    }}
+                    onPressIn={() => {
+                        setAddressLine('');
+                    }}
+                    clearTextOnFocus={true}
+                    clearButtonMode={'never'}
+                    returnKeyType={'search'}
+                />
+            </View>
+            {
+                dataProvider !== null && layoutProvider !== null && predictions.length !== 0 && addressLineFocus &&
+                <View style={[
+                    styles.addressLinePredictionsDropdownView,
+                    (addressLineErrors.length !== 0 || registrationMainError ||
+                        addressCityErrors.length !== 0 || addressStateErrors.length !== 0 || addressZipErrors.length !== 0) ? {
+                        bottom: hp(1.2),
+                    } : {
+                        top: hp(1.2),
                     },
-                    clearTextOnFocus: true,
-                    clearButtonMode: 'never'
-                }}
-            />
-            <View
-                style={[styles.additionalRegistrationView, addressLineFocus && addressLine.length !== 0 && {display: 'none'}]}>
-                <View style={[styles.additionalRegistrationBottomInputsView,
-                    currentMemberAffiliation !== MilitaryAffiliation.ServiceMember && {bottom: hp(5.5)}
                 ]}>
-                    <TextInput
-                        autoCapitalize={"sentences"}
-                        autoCorrect={false}
-                        autoComplete={"off"}
-                        keyboardType={"default"}
-                        placeholderTextColor={'#D9D9D9'}
-                        activeUnderlineColor={'#F2FF5D'}
-                        underlineColor={'#D9D9D9'}
-                        outlineColor={'#D9D9D9'}
-                        activeOutlineColor={'#F2FF5D'}
-                        selectionColor={'#F2FF5D'}
-                        mode={'outlined'}
-                        onChangeText={(value: React.SetStateAction<string>) => {
-                            setIsAddressCityFocus(true);
-                            setRegistrationMainError(false);
-                            setAddressCity(value);
-                        }}
-                        onBlur={() => {
-                            setIsAddressCityFocus(false);
-                            setIsBackButtonShown(true);
-                        }}
-                        value={addressCity}
-                        contentStyle={styles.textInputContentStyle}
-                        style={[addressCityFocus ? styles.textInputFocus : styles.textInput, addressCity.length === 0 && {height: hp(6)}]}
-                        onFocus={() => {
-                            setIsAddressCityFocus(true);
-                            setIsBackButtonShown(false);
-
-                            // close the dropdown if opened
-                            dropdownBranchState && setDropdownBranchState(false);
-                        }}
-                        placeholder={'Required'}
-                        label="City"
-                        textColor={"#FFFFFF"}
-                        left={
-                            <TextInput.Icon icon="home-city" size={hp(2.8)} style={{marginTop: hp(2)}}
-                                            color="#FFFFFF"/>
+                    <RecyclerListView
+                        // @ts-ignore
+                        ref={predictionsListView}
+                        style={{}}
+                        layoutProvider={layoutProvider!}
+                        dataProvider={dataProvider!}
+                        rowRenderer={renderPredictionData}
+                        isHorizontal={false}
+                        forceNonDeterministicRendering={true}
+                        {
+                            ...(Platform.OS === 'ios') ?
+                                {onEndReachedThreshold: 0} :
+                                {onEndReachedThreshold: 1}
                         }
+                        scrollViewProps={{
+                            keyboardShouldPersistTaps: 'always',
+                            pagingEnabled: "true",
+                            decelerationRate: "fast",
+                            // snapToAlignment: "start",
+                            persistentScrollbar: false,
+                            showsVerticalScrollIndicator: false,
+                        }}
                     />
-                    <View style={styles.inputColumnViewAddress}>
+                </View>
+            }
+            {
+                (!addressLineFocus || predictions.length === 0) &&
+                <View
+                    style={[styles.additionalRegistrationView]}>
+                    <View style={[styles.additionalRegistrationBottomInputsView,
+                        currentMemberAffiliation !== MilitaryAffiliation.ServiceMember && {bottom: hp(5.5)}
+                    ]}>
                         <TextInput
-                            autoCapitalize={"characters"}
+                            autoCapitalize={"sentences"}
                             autoCorrect={false}
                             autoComplete={"off"}
                             keyboardType={"default"}
@@ -319,135 +341,176 @@ export const AdditionalRegistrationStep = () => {
                             selectionColor={'#F2FF5D'}
                             mode={'outlined'}
                             onChangeText={(value: React.SetStateAction<string>) => {
-                                setIsAddressStateFocus(true);
+                                setIsAddressCityFocus(true);
                                 setRegistrationMainError(false);
-
-                                setAddressState(value);
+                                setAddressCity(value);
                             }}
                             onBlur={() => {
-                                setIsAddressStateFocus(false);
+                                setIsAddressCityFocus(false);
                                 setIsBackButtonShown(true);
                             }}
-                            value={addressState}
-                            contentStyle={styles.textInputNarrowContentStyle}
-                            style={[addressStateFocus ? styles.textInputNarrowFocus : styles.textInputNarrow, addressState.length === 0 && {height: hp(6)}]}
+                            value={addressCity}
+                            contentStyle={styles.textInputContentStyle}
+                            style={[addressCityFocus ? styles.textInputFocus : styles.textInput, addressCity.length === 0 && {height: hp(6)}]}
                             onFocus={() => {
-                                setIsAddressStateFocus(true);
+                                setIsAddressCityFocus(true);
                                 setIsBackButtonShown(false);
 
                                 // close the dropdown if opened
                                 dropdownBranchState && setDropdownBranchState(false);
                             }}
                             placeholder={'Required'}
-                            label="State"
+                            label="City"
                             textColor={"#FFFFFF"}
                             left={
-                                <TextInput.Icon icon="flag" size={hp(2.8)} style={{marginTop: hp(2)}}
+                                <TextInput.Icon icon="home-city" size={hp(2.8)} style={{marginTop: hp(2)}}
                                                 color="#FFFFFF"/>
                             }
                         />
-                        <TextInput
-                            autoCorrect={false}
-                            autoComplete={"off"}
-                            keyboardType={"number-pad"}
-                            placeholderTextColor={'#D9D9D9'}
-                            activeUnderlineColor={'#F2FF5D'}
-                            underlineColor={'#D9D9D9'}
-                            outlineColor={'#D9D9D9'}
-                            activeOutlineColor={'#F2FF5D'}
-                            selectionColor={'#F2FF5D'}
-                            mode={'outlined'}
-                            onChangeText={(value: React.SetStateAction<string>) => {
-                                setIsAddressZipFocus(true);
-                                setRegistrationMainError(false);
-                                setAddressZip(value);
-                            }}
-                            onBlur={() => {
-                                setIsAddressZipFocus(false);
-                                setIsBackButtonShown(true);
-                            }}
-                            value={addressZip}
-                            contentStyle={styles.textInputNarrowContentStyle}
-                            style={[addressZipFocus ? styles.textInputNarrowFocus : styles.textInputNarrow, {marginLeft: wp(7)}, addressZip.length === 0 && {height: hp(6)}]}
-                            onFocus={() => {
-                                setIsAddressZipFocus(true);
-                                setIsBackButtonShown(false);
-
-                                // close the dropdown if opened
-                                dropdownBranchState && setDropdownBranchState(false);
-                            }}
-                            placeholder={'Required'}
-                            label="Zip Code"
-                            textColor={"#FFFFFF"}
-                            left={
-                                <TextInput.Icon icon="dialpad" size={hp(2.8)} style={{marginTop: hp(2)}}
-                                                color="#FFFFFF"/>
-                            }
-                        />
-                    </View>
-                    {
-                        currentMemberAffiliation === MilitaryAffiliation.ServiceMember &&
-                        <View style={styles.pickerView}>
-                            <DropDownPicker
-                                zIndex={5000}
-                                placeholder={"Military Branch"}
-                                // containerStyle={dropdownBranchState && Platform.OS === 'android' && {height: hp(25)}}
-                                dropDownContainerStyle={[styles.dropdownContainer, Platform.OS === 'android' ? {height: hp(35)} : {height: hp(35)}]}
-                                style={styles.dropdownPicker}
-                                dropDownDirection={"BOTTOM"}
-                                open={dropdownBranchState}
-                                onOpen={() => {
+                        <View style={styles.inputColumnViewAddress}>
+                            <TextInput
+                                autoCapitalize={"characters"}
+                                autoCorrect={false}
+                                autoComplete={"off"}
+                                keyboardType={"default"}
+                                placeholderTextColor={'#D9D9D9'}
+                                activeUnderlineColor={'#F2FF5D'}
+                                underlineColor={'#D9D9D9'}
+                                outlineColor={'#D9D9D9'}
+                                activeOutlineColor={'#F2FF5D'}
+                                selectionColor={'#F2FF5D'}
+                                mode={'outlined'}
+                                onChangeText={(value: React.SetStateAction<string>) => {
+                                    setIsAddressStateFocus(true);
                                     setRegistrationMainError(false);
-                                    setIsBackButtonShown(false);
+
+                                    setAddressState(value);
                                 }}
-                                onClose={() => {
-                                    setDropdownBranchState(false);
+                                onBlur={() => {
+                                    setIsAddressStateFocus(false);
                                     setIsBackButtonShown(true);
                                 }}
-                                value={militaryBranch === "" ? null : militaryBranch}
-                                items={branchItems}
-                                setOpen={setDropdownBranchState}
-                                setValue={setMilitaryBranch}
-                                setItems={setBranchItems}
-                                onSelectItem={(item) => {
-                                    setMilitaryBranch(item.value!);
+                                value={addressState}
+                                contentStyle={styles.textInputNarrowContentStyle}
+                                style={[addressStateFocus ? styles.textInputNarrowFocus : styles.textInputNarrow, addressState.length === 0 && {height: hp(6)}]}
+                                onFocus={() => {
+                                    setIsAddressStateFocus(true);
+                                    setIsBackButtonShown(false);
 
-                                    // validate value
-                                    fieldValidator.validateField(item.value!, "militaryBranch", setMilitaryBranchErrors);
+                                    // close the dropdown if opened
+                                    dropdownBranchState && setDropdownBranchState(false);
                                 }}
-                                theme="DARK"
-                                multiple={false}
-                                listMode="MODAL"
-                                modalAnimationType="slide"
-                                modalContentContainerStyle={{
-                                    backgroundColor: '#313030'
+                                placeholder={'Required'}
+                                label="State"
+                                textColor={"#FFFFFF"}
+                                left={
+                                    <TextInput.Icon icon="flag" size={hp(2.8)} style={{marginTop: hp(2)}}
+                                                    color="#FFFFFF"/>
+                                }
+                            />
+                            <TextInput
+                                autoCorrect={false}
+                                autoComplete={"off"}
+                                keyboardType={"number-pad"}
+                                placeholderTextColor={'#D9D9D9'}
+                                activeUnderlineColor={'#F2FF5D'}
+                                underlineColor={'#D9D9D9'}
+                                outlineColor={'#D9D9D9'}
+                                activeOutlineColor={'#F2FF5D'}
+                                selectionColor={'#F2FF5D'}
+                                mode={'outlined'}
+                                onChangeText={(value: React.SetStateAction<string>) => {
+                                    setIsAddressZipFocus(true);
+                                    setRegistrationMainError(false);
+                                    setAddressZip(value);
                                 }}
-                                modalTitleStyle={{
-                                    fontSize: hp(2.3),
-                                    fontFamily: 'Raleway-Regular',
-                                    color: '#F2FF5D'
+                                onBlur={() => {
+                                    setIsAddressZipFocus(false);
+                                    setIsBackButtonShown(true);
                                 }}
-                                listItemContainerStyle={{
-                                    top: hp(1.5)
+                                value={addressZip}
+                                contentStyle={styles.textInputNarrowContentStyle}
+                                style={[addressZipFocus ? styles.textInputNarrowFocus : styles.textInputNarrow, {marginLeft: wp(7)}, addressZip.length === 0 && {height: hp(6)}]}
+                                onFocus={() => {
+                                    setIsAddressZipFocus(true);
+                                    setIsBackButtonShown(false);
+
+                                    // close the dropdown if opened
+                                    dropdownBranchState && setDropdownBranchState(false);
                                 }}
-                                listItemLabelStyle={styles.dropdownTextInputContentStyle}
-                                modalTitle={"Select your Military Branch"}
-                                // @ts-ignore
-                                arrowIconStyle={{tintColor: '#FFFFFF'}}
-                                // @ts-ignore
-                                closeIconStyle={{tintColor: '#FFFFFF'}}
-                                placeholderStyle={styles.dropdownTextInputContentStyle}
-                                // @ts-ignore
-                                tickIconStyle={{tintColor: '#313030'}}
-                                selectedItemLabelStyle={[styles.dropdownTextInputContentStyle, {color: '#313030'}]}
-                                selectedItemContainerStyle={{backgroundColor: '#D9D9D9'}}
-                                itemSeparator={false}
-                                labelStyle={styles.dropdownTextInputContentStyle}
+                                placeholder={'Required'}
+                                label="Zip Code"
+                                textColor={"#FFFFFF"}
+                                left={
+                                    <TextInput.Icon icon="dialpad" size={hp(2.8)} style={{marginTop: hp(2)}}
+                                                    color="#FFFFFF"/>
+                                }
                             />
                         </View>
-                    }
+                        {
+                            currentMemberAffiliation === MilitaryAffiliation.ServiceMember &&
+                            <View style={styles.pickerView}>
+                                <DropDownPicker
+                                    zIndex={5000}
+                                    placeholder={"Military Branch"}
+                                    // containerStyle={dropdownBranchState && Platform.OS === 'android' && {height: hp(25)}}
+                                    dropDownContainerStyle={[styles.dropdownContainer, Platform.OS === 'android' ? {height: hp(35)} : {height: hp(35)}]}
+                                    style={styles.dropdownPicker}
+                                    dropDownDirection={"BOTTOM"}
+                                    open={dropdownBranchState}
+                                    onOpen={() => {
+                                        setRegistrationMainError(false);
+                                        setIsBackButtonShown(false);
+                                    }}
+                                    onClose={() => {
+                                        setDropdownBranchState(false);
+                                        setIsBackButtonShown(true);
+                                    }}
+                                    value={militaryBranch === "" ? null : militaryBranch}
+                                    items={branchItems}
+                                    setOpen={setDropdownBranchState}
+                                    setValue={setMilitaryBranch}
+                                    setItems={setBranchItems}
+                                    onSelectItem={(item) => {
+                                        setMilitaryBranch(item.value!);
+
+                                        // validate value
+                                        fieldValidator.validateField(item.value!, "militaryBranch", setMilitaryBranchErrors);
+                                    }}
+                                    theme="DARK"
+                                    multiple={false}
+                                    listMode="MODAL"
+                                    modalAnimationType="slide"
+                                    modalContentContainerStyle={{
+                                        backgroundColor: '#313030'
+                                    }}
+                                    modalTitleStyle={{
+                                        fontSize: hp(2.3),
+                                        fontFamily: 'Raleway-Regular',
+                                        color: '#F2FF5D'
+                                    }}
+                                    listItemContainerStyle={{
+                                        top: hp(1.5)
+                                    }}
+                                    listItemLabelStyle={styles.dropdownTextInputContentStyle}
+                                    modalTitle={"Select your Military Branch"}
+                                    // @ts-ignore
+                                    arrowIconStyle={{tintColor: '#FFFFFF'}}
+                                    // @ts-ignore
+                                    closeIconStyle={{tintColor: '#FFFFFF'}}
+                                    placeholderStyle={styles.dropdownTextInputContentStyle}
+                                    // @ts-ignore
+                                    tickIconStyle={{tintColor: '#313030'}}
+                                    selectedItemLabelStyle={[styles.dropdownTextInputContentStyle, {color: '#313030'}]}
+                                    selectedItemContainerStyle={{backgroundColor: '#D9D9D9'}}
+                                    itemSeparator={false}
+                                    labelStyle={styles.dropdownTextInputContentStyle}
+                                />
+                            </View>
+                        }
+                    </View>
                 </View>
-            </View>
+            }
         </>
     );
 }

@@ -1,5 +1,10 @@
 # graphql/UtilitiesSchema.graphql
 # Utilities Schema File
+enum OSType {
+    IOS,
+    ANDROID
+}
+
 enum UtilitiesErrorType {
     DUPLICATE_OBJECT_FOUND
     NONE_OR_ABSENT
@@ -17,4 +22,9 @@ type GeocodeAsyncResponse @aws_cognito_user_pools {
     data: [Location]
     errorType: UtilitiesErrorType
     errorMessage: String
+}
+
+input GeocodeAsyncInput {
+    address: String!,
+    osType: OSType!
 }

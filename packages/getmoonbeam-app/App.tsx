@@ -193,11 +193,6 @@ export default function App() {
                     storage: AsyncStorage
                 }));
 
-                // set appropriate Google API Key
-                Location.setGoogleApiKey(Platform.OS === 'android'
-                    ? 'AIzaSyB8OpXoKULaEO8t46npUBbmIAM-ranxVfk'
-                    : 'AIzaSyBlj5BVB9ZxZS0V_Usf9pAhuCnw2mQhcaQ');
-
                 // disable the Text scaling for the entire application
                 // @ts-ignore
                 Text.defaultProps = Text.defaultProps || {};
