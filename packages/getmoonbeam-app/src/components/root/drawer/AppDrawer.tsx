@@ -3,10 +3,11 @@ import {createDrawerNavigator} from "@react-navigation/drawer";
 import {AppDrawerProps} from "../../../models/props/AuthenticationProps";
 import {AppDrawerStackParamList} from "../../../models/props/AppDrawerProps";
 import {CustomDrawer} from "../../common/CustomDrawer";
-import {Animated, Platform, Text, TouchableOpacity, View} from "react-native";
+import {Animated, Text, TouchableOpacity, View} from "react-native";
 import {useRecoilState} from "recoil";
 import {
-    appDrawerHeaderShownState, cardLinkingIdState,
+    appDrawerHeaderShownState,
+    cardLinkingIdState,
     cardLinkingStatusState,
     customBannerShown,
     drawerDashboardState,
@@ -19,10 +20,14 @@ import * as Device from "expo-device";
 import {deviceTypeState} from "../../../recoil/RootAtom";
 import {
     CardLink,
-    createdTransaction, FileAccessLevel, FileType,
-    getCardLink, getFilesForUser,
+    createdTransaction,
+    FileAccessLevel,
+    FileType,
+    getCardLink,
+    getFilesForUser,
     getMilitaryVerificationStatus,
-    getTransaction, LoggingLevel,
+    getTransaction,
+    LoggingLevel,
     MilitaryVerificationErrorType,
     MilitaryVerificationStatusType,
     MoonbeamTransaction,
@@ -37,11 +42,12 @@ import {
     userIsAuthenticatedState
 } from "../../../recoil/AuthAtom";
 import {Spinner} from "../../common/Spinner";
-import {Dialog, IconButton, Portal} from "react-native-paper";
+import {Dialog, Portal} from "react-native-paper";
 import {commonStyles} from "../../../styles/common.module";
 import {AppWall} from "./home/wall/AppWall";
 import {customBannerState} from "../../../recoil/CustomBannerAtom";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {Icon as BaseIcon} from "@rneui/base";
 // @ts-ignore
 import CardLinkingImage from '../../../../assets/art/moonbeam-card-linking.png';
 // @ts-ignore
@@ -950,75 +956,81 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                                             width: wp(100),
                                                             flexDirection: 'column'
                                                         }}>
-                                                            <IconButton
-                                                                style={{
-                                                                    alignSelf: 'flex-start',
-                                                                    marginTop: hp(5.75),
-                                                                    opacity: 0.3
-                                                                }}
-                                                                icon={'menu'} iconColor={'#FFFFFF'}
-                                                                size={hp(4)}
-                                                                onPress={() => {
-                                                                    setShowTransactionsBottomSheet(false);
-                                                                    setShowWalletBottomSheet(false);
-                                                                    setShowClickOnlyBottomSheet(false);
-                                                                    navigation.openDrawer();
-                                                                }}/>
                                                             <Image resizeMode={"contain"}
                                                                    style={{
-                                                                       bottom: hp(8.5),
+                                                                       top: hp(2.15),
                                                                        opacity: 0.3,
-                                                                       height: hp(10),
-                                                                       width: wp(10),
-                                                                       alignSelf: 'center',
-                                                                       ...(Platform.OS === 'android' && {
-                                                                           alignSelf: 'center'
-                                                                       })
+                                                                       left: wp(5),
+                                                                       height: hp(12),
+                                                                       width: wp(12),
+                                                                       alignSelf: 'flex-start',
                                                                    }}
                                                                    source={MoonbeamNavigationLogo}
                                                             />
-                                                            <IconButton
-                                                                style={{
-                                                                    alignSelf: 'flex-end',
-                                                                    opacity: 0.3,
-                                                                    bottom: hp(16.8)
-                                                                }}
-                                                                icon={'gift'} iconColor={'#FFFFFF'}
-                                                                size={hp(3.5)}
-                                                                onPress={() => {
-                                                                    navigation.navigate('Referral', {});
-                                                                }}/>
-
+                                                            <View style={{bottom: hp(6.25)}}>
+                                                                <BaseIcon
+                                                                    type={'ionicon'}
+                                                                    name={'reorder-two-outline'}
+                                                                    color={'#FFFFFF'}
+                                                                    size={hp(5)}
+                                                                    style={{
+                                                                        alignSelf: 'flex-end',
+                                                                        marginRight: wp(5),
+                                                                        opacity: 0.3,
+                                                                    }}
+                                                                    onPress={() => {
+                                                                        setShowTransactionsBottomSheet(false);
+                                                                        setShowWalletBottomSheet(false);
+                                                                        setShowClickOnlyBottomSheet(false);
+                                                                        navigation.openDrawer();
+                                                                    }}/>
+                                                            </View>
+                                                            {/*<IconButton*/}
+                                                            {/*    style={{*/}
+                                                            {/*        alignSelf: 'flex-end',*/}
+                                                            {/*        opacity: 0.3,*/}
+                                                            {/*        bottom: hp(16.8)*/}
+                                                            {/*    }}*/}
+                                                            {/*    icon={'gift'} iconColor={'#FFFFFF'}*/}
+                                                            {/*    size={hp(3.5)}*/}
+                                                            {/*    onPress={() => {*/}
+                                                            {/*        navigation.navigate('Referral', {});*/}
+                                                            {/*    }}/>*/}
                                                         </View>
                                                     </View>
                                                 </TouchableOpacity>
                                             </>
                                     }),
-                                    headerLeft: () => <IconButton icon={'menu'} iconColor={'#FFFFFF'}
-                                                                  size={hp(4)}
-                                                                  onPress={() => {
-                                                                      setShowTransactionsBottomSheet(false);
-                                                                      setShowWalletBottomSheet(false);
-                                                                      setShowClickOnlyBottomSheet(false);
-                                                                      navigation.openDrawer();
-                                                                  }}/>,
-                                    headerRight: () => <IconButton icon={'gift'} iconColor={'#FFFFFF'}
-                                                                   size={hp(3.5)}
-                                                                   onPress={() => {
-                                                                       navigation.navigate('Referral', {});
-                                                                   }}/>,
+                                    headerLeft: () => <Image resizeMode={"contain"}
+                                                             style={{
+                                                                 left: wp(5),
+                                                                 height: hp(12),
+                                                                 width: wp(12)
+                                                             }}
+                                                             source={MoonbeamNavigationLogo}
+                                    />,
+                                    headerRight: () =>
+                                        <BaseIcon
+                                            type={'ionicon'}
+                                            name={'reorder-two-outline'}
+                                            color={'#FFFFFF'}
+                                            size={hp(5)}
+                                            style={{
+                                                marginRight: wp(5)
+                                            }}
+                                            onPress={() => {
+                                                setShowTransactionsBottomSheet(false);
+                                                setShowWalletBottomSheet(false);
+                                                setShowClickOnlyBottomSheet(false);
+                                                navigation.openDrawer();
+                                            }}/>,
+                                    // <IconButton icon={'gift'} iconColor={'#FFFFFF'}
+                                    //                            size={hp(3.5)}
+                                    //                            onPress={() => {
+                                    //                                navigation.navigate('Referral', {});
+                                    //                            }}/>,
                                     headerTitle: () =>
-                                        <Image resizeMode={"contain"}
-                                               style={{
-                                                   height: hp(10),
-                                                   width: wp(10),
-                                                   alignSelf: 'center',
-                                                   ...(Platform.OS === 'android' && {
-                                                       alignSelf: 'center'
-                                                   })
-                                               }}
-                                               source={MoonbeamNavigationLogo}
-                                        />,
+                                        <></>,
                                     headerStyle: drawerInDashboard ? {
                                         width: wp(100),
                                         backgroundColor: '#5B5A5A',

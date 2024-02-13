@@ -21,6 +21,8 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "react-native-svg": "^14.1.0",
+    "react-native-chart-kit": "^6.12.0",
     "expo-updates": "^0.24.9",
     "axios": "^1.6.7",
     "@aws-amplify/api": "^5.2.0",

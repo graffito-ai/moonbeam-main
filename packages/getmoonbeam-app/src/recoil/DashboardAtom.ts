@@ -92,7 +92,7 @@ const lifetimeSavingsState = selector<number>({
 
         /**
          * ONLY look at transactions that are in PENDING, PROCESSED or CREDITED state
-         * (do not look at REJECTED)
+         * (do not look at REJECTED).
          *
          * consider the pending and credited amounts for transactions, that will
          * be included in the lifetime savings total.

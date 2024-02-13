@@ -4,7 +4,7 @@ import {useRecoilState} from "recoil";
 import {appDrawerHeaderShownState, customBannerShown, drawerSwipeState} from "../../../../../recoil/AppDrawerAtom";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {DashboardControllerStackParamList} from "../../../../../models/props/DashboardControllerProps";
-import {Dashboard} from "./Dashboard";
+import {Dashboard} from "./dashboardComponents/Dashboard";
 import {showTransactionBottomSheetState, showWalletBottomSheetState} from "../../../../../recoil/DashboardAtom";
 import {bottomBarNavigationState} from "../../../../../recoil/HomeAtom";
 import {View} from "react-native";
