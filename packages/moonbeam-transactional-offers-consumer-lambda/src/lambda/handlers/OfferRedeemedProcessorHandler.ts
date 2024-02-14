@@ -47,7 +47,7 @@ export const processOfferRedeemedTransactions = async (event: SQSEvent): Promise
              * process the click-based offers)
              * 0) Call the GET transaction details Olive API to retrieve the redeemed offer ID. Using that offer ID,
              * call the GET offer details Olive API to retrieve the offer type for this transaction.
-             * If this offer type is click based and the status of the incoming transaction is PENDING,
+             * If this offer type is click based and the status of the incoming transaction is PENDING or REJECTED,
              * then we do not need to go through steps 1-6 (so we do not get false-positives for the click-based offers).
              *
              * 1) Call the GET member details Olive API to retrieve the member details (extMemberID) for member.
@@ -67,7 +67,7 @@ export const processOfferRedeemedTransactions = async (event: SQSEvent): Promise
             /**
              * 0) Call the GET transaction details Olive API to retrieve the redeemed offer ID. Using that offer ID,
              * call the GET offer details Olive API to retrieve the offer type for this transaction.
-             * If this offer type is click based and the status of the incoming transaction is PENDING,
+             * If this offer type is click based and the status of the incoming transaction is PENDING or REJECTED,
              * then we do not need to go through steps 1-6 (so we do not get false-positives for the click-based offers).
              */
             const clickOfferRedemptionResponse: OfferRedemptionTypeResponse = await getOfferRedemptionType(oliveClient, transaction.transactionId);
@@ -76,10 +76,10 @@ export const processOfferRedeemedTransactions = async (event: SQSEvent): Promise
             if (clickOfferRedemptionResponse && !clickOfferRedemptionResponse.errorMessage && !clickOfferRedemptionResponse.errorType &&
                 clickOfferRedemptionResponse.data) {
                 /**
-                 * If this offer type is click based and the status of the incoming transaction is PENDING,
+                 * If this offer type is click based and the status of the incoming transaction is PENDING or REJECTED,
                  * then we do not need to go through steps 1-6 (so we do not get false-positives for the click-based offers).
                  */
-                if (!(transaction.transactionStatus === TransactionsStatus.Pending && clickOfferRedemptionResponse.data === RedemptionType.Click)) {
+                if (!((transaction.transactionStatus === TransactionsStatus.Pending || transaction.transactionStatus === TransactionsStatus.Rejected) && clickOfferRedemptionResponse.data === RedemptionType.Click)) {
                     // 1) Call the GET member details Olive API to retrieve the member details (extMemberID) for member
                     const memberDetailsResponse: MemberDetailsResponse = await getMemberDetails(oliveClient, transaction.memberId);
 

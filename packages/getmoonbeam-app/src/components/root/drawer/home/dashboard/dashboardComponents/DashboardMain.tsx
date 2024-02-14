@@ -17,7 +17,10 @@ import {MoonbeamTransaction} from "@moonbeam/moonbeam-models";
  * @param props component properties to be passed in.
  * @constructor constructor for the component.
  */
-export const DashboardMain = (props: { setSelectedTransaction: React.Dispatch<React.SetStateAction<MoonbeamTransaction | null>> }) => {
+export const DashboardMain = (props: {
+    setSelectedTransaction: React.Dispatch<React.SetStateAction<MoonbeamTransaction | null>>,
+    setStatsDialogVisible: React.Dispatch<React.SetStateAction<boolean>>
+}) => {
     // constants used to keep track of local component state
     const [currentUserName, setCurrentUserName] = useState<string>("N/A");
     // constants used to keep track of shared states
@@ -58,7 +61,10 @@ export const DashboardMain = (props: { setSelectedTransaction: React.Dispatch<Re
                         end={{x: 1, y: 1}}
                         colors={['#5B5A5A', '#313030']}
                         style={styles.topDashboardView}>
-                        <TopDashboard currentUserName={currentUserName}/>
+                        <TopDashboard
+                            currentUserName={currentUserName}
+                            setStatsDialogVisible={props.setStatsDialogVisible}
+                        />
                         <CustomBanner bannerVisibilityState={bannerState.bannerVisibilityState}
                                       bannerMessage={bannerState.bannerMessage}
                                       bannerButtonLabel={bannerState.bannerButtonLabel}

@@ -23,7 +23,7 @@ export const BottomDashboard = (props: {
     // constants used to keep track of shared states
     const [bannerState,] = useRecoilState(customBannerState);
     const [bannerVisible,] = useRecoilState(bannerState.bannerVisibilityState);
-    const sortedTransactionData = useRecoilValue(sortedTransactionDataState);
+    const sortedTransactionData = [];
     const [, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
 
     /**
@@ -81,8 +81,8 @@ export const BottomDashboard = (props: {
                     <List.Item
                         titleStyle={styles.emptyTransactionsListItemTitle}
                         descriptionStyle={styles.listItemDescription}
-                        titleNumberOfLines={1}
-                        title={"No transactions available"}
+                        titleNumberOfLines={10}
+                        title={"No transactions available!"}
                     />
                 </>
             );

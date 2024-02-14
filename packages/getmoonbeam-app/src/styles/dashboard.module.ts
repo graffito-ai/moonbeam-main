@@ -67,8 +67,8 @@ export const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     topGreetingView: {
-        top: hp(1),
-        left: hp(2)
+        left: hp(2),
+        width: wp(100)
     },
     greetingText: {
         fontFamily: 'Saira-Light',
@@ -139,10 +139,13 @@ export const styles = StyleSheet.create({
         alignContent: 'center'
     },
     emptyTransactionsListItemTitle: {
+        top: hp(1.5),
         alignSelf: 'center',
-        fontSize: hp(2.3),
+        fontSize: hp(1.8),
         color: '#F2FF5D',
-        fontFamily: 'Saira-Medium'
+        fontFamily: 'Saira-Medium',
+        textAlign: 'center',
+        width: wp(80)
     },
     listItemTitle: {
         lineHeight: hp(2.55),

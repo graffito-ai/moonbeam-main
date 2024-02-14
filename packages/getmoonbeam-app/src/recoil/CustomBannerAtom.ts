@@ -1,13 +1,18 @@
 import {atom} from "recoil";
 
 /**
- * Atom used to keep track of the custom banner state, to be used for displaying a custom
- * banner.
+ * Atom used to keep track of the custom banner visibility, to be used for displaying a custom
+ * banner or not.
  */
 const bannerVisibilityState = atom({
     key: "bannerVisibilityState",
     default: false
 });
+
+/**
+ * Atom used to keep track of the custom banner state, to be used for displaying a custom
+ * banner.
+ */
 const customBannerState = atom({
     key: "customBannerState",
     default: {

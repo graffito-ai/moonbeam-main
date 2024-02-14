@@ -1,11 +1,12 @@
 import React, {useEffect} from 'react';
-import {ImageSourcePropType} from "react-native";
+import {ImageSourcePropType, View} from "react-native";
 import {Image} from 'expo-image';
 import {Banner, Text} from 'react-native-paper';
 import {RecoilState, useRecoilState} from "recoil";
 import {styles} from '../../styles/customBanner.module';
 import {customBannerShown} from "../../recoil/AppDrawerAtom";
 import {bottomBarNavigationState} from "../../recoil/HomeAtom";
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 /**
  * Custom Banner component. This component will be used as a banner for notification and/or
@@ -71,9 +72,11 @@ export const CustomBanner = (props: {
                     cachePolicy={'memory-disk'}
                 />
             )}>
-            <Text style={styles.bannerDescription}>
-                {props.bannerMessage}
-            </Text>
+            <View style={{top: hp(5)}}>
+                <Text style={styles.bannerDescription}>
+                    {props.bannerMessage}
+                </Text>
+            </View>
         </Banner>
     );
 };

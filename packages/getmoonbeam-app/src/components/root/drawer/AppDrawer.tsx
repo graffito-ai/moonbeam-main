@@ -424,7 +424,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     // set the banner state accordingly
                     setBannerState({
                         bannerVisibilityState: cardLinkingStatusState,
-                        bannerMessage: "You do not have a linked card. You will need to have a card in your wallet to see more details.",
+                        bannerMessage: "You do not have a linked card. You will need to have a linked-card in your wallet to see more transaction details.",
                         bannerButtonLabel: "Link Now",
                         bannerButtonLabelActionSource: "home/wallet",
                         bannerArtSource: CardLinkingImage,
@@ -619,7 +619,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                             // set the banner state accordingly
                             setBannerState({
                                 bannerVisibilityState: cardLinkingStatusState,
-                                bannerMessage: "You do not have a linked card. You will need to have a card in your wallet to see more details.",
+                                bannerMessage: "You do not have a linked card. You will need to have a linked-card in your wallet to see more transaction details.",
                                 bannerButtonLabel: "Link Now",
                                 bannerButtonLabelActionSource: "home/wallet",
                                 bannerArtSource: CardLinkingImage,
@@ -660,7 +660,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                             // set the banner state accordingly
                             setBannerState({
                                 bannerVisibilityState: cardLinkingStatusState,
-                                bannerMessage: "You do not have a linked card. You will need to have a card in your wallet to see more details.",
+                                bannerMessage: "You do not have a linked card. You will need to have a linked-card in your wallet to see more transaction details.",
                                 bannerButtonLabel: "Link Now",
                                 bannerButtonLabelActionSource: "home/wallet",
                                 bannerArtSource: CardLinkingImage,

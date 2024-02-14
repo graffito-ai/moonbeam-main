@@ -33,7 +33,6 @@ export const Dashboard = ({}) => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const [statsDialogVisible, setStatsDialogVisible] = useState(false);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
-    const [lifetimeSavingsDialog, setIsLifetimeSavingsDialog] = useState<boolean>(false);
     const [selectedTransaction, setSelectedTransaction] = useState<MoonbeamTransaction | null>(null);
     // constants used to keep track of shared states
     const [appUrl,] = useRecoilState(appUrlState);
@@ -126,54 +125,47 @@ export const Dashboard = ({}) => {
                             <Dialog style={commonStyles.dialogStyle} visible={statsDialogVisible} onDismiss={() => {
                                 setStatsDialogVisible(false)
                             }}>
-                                <Dialog.Icon icon="cash" color={"#F2FF5D"} size={hp(10)}/>
-                                <Dialog.Title style={commonStyles.dialogTitle}>Cashback Balances</Dialog.Title>
-                                <Dialog.Content>
-                                    <Text style={commonStyles.dialogParagraph}>
+                                <Dialog.Icon icon="cash"
+                                             color={"#F2FF5D"}
+                                             size={hp(8)}
+                                />
+                                <Dialog.Title style={[commonStyles.dialogTitle, {
+                                    bottom: hp(15),
+                                    textDecorationLine: 'underline',
+                                    fontSize: hp(2),
+                                    textAlign: 'center',
+                                    marginBottom: -hp(2)
+                                }]}>Cashback Balances</Dialog.Title>
+                                <Dialog.Content style={{bottom: hp(10), marginBottom: -hp(10)}}>
+                                    <Text style={[commonStyles.dialogParagraph, {fontSize: hp(1.70)}]}>
                                         {
-                                            lifetimeSavingsDialog ?
-                                                <>
-                                                    Your Moonbeam <Text
-                                                    style={commonStyles.dialogParagraphBold}>Cashback</Text> is split
-                                                    in two categories.
-                                                    <Text style={commonStyles.dialogParagraphBold}> Lifetime
-                                                        Savings</Text> and <Text
-                                                    style={commonStyles.dialogParagraphBold}>Current
-                                                    Balance</Text>.{"\n\n\n"}
-                                                    <Text
-                                                        style={commonStyles.dialogParagraphNumbered}>➊</Text> The <Text
-                                                    style={commonStyles.dialogParagraphBold}>Lifetime
-                                                    Savings</Text> amount includes your <Text
-                                                    style={commonStyles.dialogParagraphBold}>all-time cashback.</Text>
-                                                </> :
-                                                <>
-                                                    Your Moonbeam <Text
-                                                    style={commonStyles.dialogParagraphBold}>Cashback</Text> is split
-                                                    in two categories.
-                                                    <Text style={commonStyles.dialogParagraphBold}> Lifetime
-                                                        Savings</Text> and <Text
-                                                    style={commonStyles.dialogParagraphBold}>Current
-                                                    Balance</Text>.{"\n\n\n"}
-                                                    <Text
-                                                        style={commonStyles.dialogParagraphNumbered}>➊</Text> The <Text
-                                                    style={commonStyles.dialogParagraphBold}>Current
-                                                    Balance</Text> amount includes any <Text
-                                                    style={commonStyles.dialogParagraphBold}>processed</Text> cashback
-                                                    which can be
-                                                    redeemed through the Moonbeam platform.{"\n\n"}
-                                                    <Text style={commonStyles.dialogParagraphNumbered}>➋</Text> It can
-                                                    take upto 30 days
-                                                    for your cashback to reflect in your <Text
-                                                    style={commonStyles.dialogParagraphBold}>Current
-                                                    Balance</Text> amount.{"\n\n"}
-                                                    <Text style={commonStyles.dialogParagraphNumbered}>➌</Text> You will
-                                                    be able to transfer your
-                                                    <Text style={commonStyles.dialogParagraphBold}> Current
-                                                        Balance</Text> amount once it reaches $20.{"\n\n"}
-                                                    <Text style={commonStyles.dialogParagraphNumbered}>➍</Text> If you
-                                                    have any issues please contact support.{"\n\n"}
+                                            <>
+                                                Your Moonbeam cashback is split in two categories.
+                                                <Text style={commonStyles.dialogParagraphBold}> Total
+                                                    Saved</Text> and <Text
+                                                style={commonStyles.dialogParagraphBold}>Available
+                                                Balance</Text>.{"\n\n\n"}
+                                                <Text
+                                                    style={commonStyles.dialogParagraphNumbered}>➊</Text>   The <Text
+                                                style={commonStyles.dialogParagraphBold}>Total Saved</Text> amount are your
+                                                all-time savings, including those that are not yet processed.
+                                                {"\n\n"}
+                                                <Text
+                                                    style={commonStyles.dialogParagraphNumbered}>➋</Text>   The <Text
+                                                style={commonStyles.dialogParagraphBold}>Available
+                                                Balance</Text> amount is the processed cashback. This is the
+                                                only form of cash which can be redeemed. {"\n\n"}
+                                                <Text style={commonStyles.dialogParagraphNumbered}>➌</Text>   It can
+                                                take up to 30 days for pending cashback to reflect in your <Text
+                                                style={commonStyles.dialogParagraphBold}>Available Balance</Text>.{"\n\n"}
+                                                <Text style={commonStyles.dialogParagraphNumbered}>➍</Text>   You will
+                                                be able to transfer your
+                                                <Text style={commonStyles.dialogParagraphBold}> Available Balance</Text> amount once it
+                                                reaches $20 or more.{"\n\n"}
+                                                <Text style={commonStyles.dialogParagraphNumbered}>➎</Text>   If you
+                                                have any issues please contact support.{"\n\n"}
 
-                                                </>
+                                            </>
                                         }
                                     </Text>
                                 </Dialog.Content>
@@ -189,7 +181,10 @@ export const Dashboard = ({}) => {
                             </Dialog>
                         </Portal>
                         <SafeAreaView style={styles.mainDashboardView}>
-                            <DashboardMain setSelectedTransaction={setSelectedTransaction}/>
+                            <DashboardMain
+                                setSelectedTransaction={setSelectedTransaction}
+                                setStatsDialogVisible={setStatsDialogVisible}
+                            />
                             <DashboardBottomSheet selectedTransaction={selectedTransaction}
                                                   setSelectedTransaction={setSelectedTransaction}/>
                         </SafeAreaView>
