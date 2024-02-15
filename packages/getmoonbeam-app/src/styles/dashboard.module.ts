@@ -94,15 +94,17 @@ export const styles = StyleSheet.create({
         fontSize: hp(5)
     },
     avatarStyle: {
-        top: hp(5),
-        alignSelf: 'center',
+        top: hp(1.55),
+        right: wp(5),
+        alignSelf: 'flex-end',
         backgroundColor: 'white'
     },
     profileImage: {
-        left: wp(5),
+        top: hp(1.55),
+        right: wp(5),
         alignSelf: 'flex-start',
-        height: wp(11),
-        width: wp(11),
+        height: wp(9),
+        width: wp(9),
         borderRadius: wp(35) / 2,
         borderWidth: hp(0.20),
         borderColor: '#F2FF5D'
@@ -114,7 +116,7 @@ export const styles = StyleSheet.create({
     },
 
     bottomView: {
-        height: hp(31),
+        height: hp(33),
         backgroundColor: '#313030',
         shadowColor: 'black',
         shadowOffset: {width: -2, height: 5},

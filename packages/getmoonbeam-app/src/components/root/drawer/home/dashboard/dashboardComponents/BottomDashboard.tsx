@@ -23,7 +23,7 @@ export const BottomDashboard = (props: {
     // constants used to keep track of shared states
     const [bannerState,] = useRecoilState(customBannerState);
     const [bannerVisible,] = useRecoilState(bannerState.bannerVisibilityState);
-    const sortedTransactionData = [];
+    const sortedTransactionData = useRecoilValue(sortedTransactionDataState);
     const [, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
 
     /**

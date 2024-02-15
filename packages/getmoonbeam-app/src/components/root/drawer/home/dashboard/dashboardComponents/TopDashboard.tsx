@@ -14,10 +14,11 @@ import {
     lifetimeSavingsState,
     sortedTransactionDataState
 } from "../../../../../../recoil/DashboardAtom";
-import {useRecoilValue} from "recoil";
+import {useRecoilState, useRecoilValue} from "recoil";
 import {MerchantCategoryCodes, TransactionsStatus} from "@moonbeam/moonbeam-models";
 import * as _ from "lodash";
 import {FontAwesome} from "@expo/vector-icons";
+import {drawerNavigationState} from "../../../../../../recoil/HomeAtom";
 
 /**
  * Interface used to define a savings category object, part of the
@@ -49,6 +50,7 @@ export const TopDashboard = (props: {
     const [pieChartOffset, setPieChartOffset] = useState<number>(0);
     const [stepNumber, setStepNumber] = useState<number>(0);
     // constants used to keep track of shared states
+    const [drawerNavigation,] = useRecoilState(drawerNavigationState);
     const lifetimeSavings = useRecoilValue(lifetimeSavingsState);
     const currentBalance = useRecoilValue(currentBalanceState);
     const sortedTransactionData = useRecoilValue(sortedTransactionDataState);
@@ -236,7 +238,7 @@ export const TopDashboard = (props: {
      * "water-tank".
      */
     const calculateReimbursementLimit = (): number => {
-        let offset = 0;
+        let offset: number = 0;
 
         // calculate offset depending on whether we are past the $20 savings mark or not.
         if (currentBalance === 0) {
@@ -311,37 +313,42 @@ export const TopDashboard = (props: {
                 style={styles.imageCover}
                 imageStyle={{
                     left: wp(70),
-                    height: hp(35),
+                    height: hp(45),
                     width: wp(30),
                     resizeMode: 'contain'
                 }}
                 resizeMethod={"scale"}
                 source={DashboardBackgroundImage}>
-                <View style={styles.topGreetingView}>
-                    <Text
-                        style={styles.greetingText}>Hello,
-                        <Text style={styles.greetingNameText}> {props.currentUserName}</Text>
-                        <Icon
-                            size={hp(2.5)}
-                            style={{
-                                marginBottom: hp(0.4),
-                                marginLeft: hp(1.5)
-                            }}
-                            name={"info"}
-                            color={"#F2FF5D"}
-                            onPress={() => {
-                                // display the stats dialog
-                                props.setStatsDialogVisible(true);
-                            }}
-                        />
-                    </Text>
+                <View style={{
+                    zIndex: 100000,
+                    top: -hp(1)
+                }}>
+                    <View style={styles.topGreetingView}>
+                        <Text
+                            style={styles.greetingText}>Hello,
+                            <Text style={styles.greetingNameText}> {props.currentUserName}</Text>
+                            <Icon
+                                size={hp(2.5)}
+                                style={{
+                                    marginBottom: hp(0.4),
+                                    marginLeft: hp(1.5)
+                                }}
+                                name={"info"}
+                                color={"#F2FF5D"}
+                                onPress={() => {
+                                    // display the stats dialog
+                                    props.setStatsDialogVisible(true);
+                                }}
+                            />
+                        </Text>
+                    </View>
+                    <Divider
+                        color={'#F2FF5DBF'}
+                        style={{
+                            left: wp(4),
+                            width: wp(87)
+                        }}/>
                 </View>
-                <Divider
-                    color={'#F2FF5DBF'}
-                    style={{
-                        left: wp(4),
-                        width: wp(87)
-                    }}/>
                 <GestureRecognizer
                     onSwipeLeft={() => {
                         if (Number(lifetimeSavings.toFixed(2)) > 0.00 && sortedTransactionData.length > 0) {
@@ -609,7 +616,11 @@ export const TopDashboard = (props: {
                                   style={{marginTop: hp(1.5)}}
                                   type={'material-community'}
                                   size={hp(4)}
-                                  color={'#F2FF5D'}/>
+                                  color={'#F2FF5D'}
+                                  onPress={() => {
+                                      drawerNavigation && drawerNavigation.navigate("Referral", {});
+                                  }}
+                            />
                             <Text style={styles.topDashboardButtonText}>
                                 {"Refer"}
                             </Text>
@@ -619,7 +630,11 @@ export const TopDashboard = (props: {
                                   style={{marginTop: hp(1.5)}}
                                   type={'material-community'}
                                   size={hp(4)}
-                                  color={'#F2FF5D'}/>
+                                  color={'#F2FF5D'}
+                                  onPress={() => {
+                                      drawerNavigation && drawerNavigation.navigate("Support", {});
+                                  }}
+                            />
                             <Text style={styles.topDashboardButtonText}>
                                 {"Help"}
                             </Text>
