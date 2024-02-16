@@ -18,7 +18,7 @@ import * as StoreReview from 'expo-store-review';
 import {createOrUpdateAppReviewRecord, getAppReviewEligibilityCheck, logEvent} from "../../../../../../utils/AppSync";
 import {DashboardMain} from "./DashboardMain";
 import {DashboardBottomSheet} from "./DashboardBottomSheet";
-
+import {DashboardProps} from "../../../../../../models/props/DashboardControllerProps";
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -26,7 +26,7 @@ import {DashboardBottomSheet} from "./DashboardBottomSheet";
  *
  * @constructor constructor for the component.
  */
-export const Dashboard = ({}) => {
+export const Dashboard = ({navigation}: DashboardProps) => {
     // constants used to keep track of local component state
     const [appReviewModalShown, isAppReviewModalShown] = useState<boolean>(false);
     const [isReady,] = useState<boolean>(true);
@@ -182,6 +182,7 @@ export const Dashboard = ({}) => {
                         </Portal>
                         <SafeAreaView style={styles.mainDashboardView}>
                             <DashboardMain
+                                navigation={navigation}
                                 setSelectedTransaction={setSelectedTransaction}
                                 setStatsDialogVisible={setStatsDialogVisible}
                             />

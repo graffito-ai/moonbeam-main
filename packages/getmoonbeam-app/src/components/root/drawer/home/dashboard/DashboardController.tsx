@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {DashboardProps} from "../../../../../models/props/HomeProps";
+import {DashboardHomeProps} from "../../../../../models/props/HomeProps";
 import {useRecoilState} from "recoil";
 import {appDrawerHeaderShownState, customBannerShown, drawerSwipeState} from "../../../../../recoil/AppDrawerAtom";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
@@ -9,6 +9,7 @@ import {showTransactionBottomSheetState, showWalletBottomSheetState} from "../..
 import {bottomBarNavigationState} from "../../../../../recoil/HomeAtom";
 import {View} from "react-native";
 import {showClickOnlyBottomSheetState} from "../../../../../recoil/StoreOfferAtom";
+import {ReimbursementsController} from "./reimbursements/ReimbursementsController";
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -17,7 +18,7 @@ import {showClickOnlyBottomSheetState} from "../../../../../recoil/StoreOfferAto
  * @param navigation navigation object passed in from the parent navigator.
  * @constructor constructor for the component.
  */
-export const DashboardController = ({navigation}: DashboardProps) => {
+export const DashboardController = ({navigation}: DashboardHomeProps) => {
         // constants used to keep track of shared states
         const [, setBottomBarNavigation] = useRecoilState(bottomBarNavigationState);
         const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
@@ -53,14 +54,6 @@ export const DashboardController = ({navigation}: DashboardProps) => {
 
         /**
          * return the component for the DashboardController page
-         *
-         * in the future we will have to implement the TransactionsController and CashbackController
-         * in order to account for transaction and cashback statements. For now, we will load all
-         * transactions and credits/cashback amounts in the Dashboard component, without allowing users to have
-         * a detailed list-based view for them, split by week/month/year.
-         *
-         * (we will need to address this ASAP after release, because as transactions and cashback list sizes grow,
-         * it will be harder and harder for us to load them in a timely manner)
          */
         return (
             <>
@@ -78,14 +71,13 @@ export const DashboardController = ({navigation}: DashboardProps) => {
                             initialParams={{}}
                         />
                         <DashboardStack.Screen
-                            name="TransactionsController"
-                            component={() => {
-                                return (<></>)
-                            }}
+                            name="ReimbursementsController"
+                            component={ReimbursementsController}
                             initialParams={{}}
                         />
+                        {/*ToDo : This screen will need to be implemented, and it will represent a way for users to see all their transactions and statements */}
                         <DashboardStack.Screen
-                            name="CashbackController"
+                            name="TransactionsController"
                             component={() => {
                                 return (<></>)
                             }}

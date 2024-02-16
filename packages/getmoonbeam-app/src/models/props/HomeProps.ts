@@ -10,7 +10,7 @@ export type HomeStackParamList = {
 };
 
 // the Dashboard component props, within the Home stack
-export type DashboardProps = NativeStackScreenProps<HomeStackParamList, 'DashboardController'>;
+export type DashboardHomeProps = NativeStackScreenProps<HomeStackParamList, 'DashboardController'>;
 // the Marketplace component props, within the Home stack
 export type MarketplaceProps = NativeStackScreenProps<HomeStackParamList, 'Marketplace'>;
 // the Cards component props, within the Home stack

@@ -6,14 +6,14 @@ import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 export type DashboardControllerStackParamList = {
     Dashboard: {},
     TransactionsController: {},
-    CashbackController: {}
+    ReimbursementsController: {}
 };
 
 // the Dashboard component props, within the Dashboard Controller stack
 export type DashboardProps = NativeStackScreenProps<DashboardControllerStackParamList, 'Dashboard'>;
 // the TransactionsController component props, within the Dashboard Controller stack
-export type TransactionsController = NativeStackScreenProps<DashboardControllerStackParamList, 'TransactionsController'>;
-// the CashbackController component props, within the Dashboard Controller stack
-export type CashbackController = NativeStackScreenProps<DashboardControllerStackParamList, 'CashbackController'>;
+export type TransactionsControllerProps = NativeStackScreenProps<DashboardControllerStackParamList, 'TransactionsController'>;
+// the ReimbursementsController component props, within the Dashboard Controller stack
+export type ReimbursementsControllerProps = NativeStackScreenProps<DashboardControllerStackParamList, 'ReimbursementsController'>;
 
 

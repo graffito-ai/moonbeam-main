@@ -91,7 +91,7 @@ export const styles = StyleSheet.create({
     titleStyle: {
         fontFamily: 'Raleway-Regular',
         color: 'grey',
-        fontSize: hp(5)
+        fontSize: hp(2)
     },
     avatarStyle: {
         top: hp(1.55),

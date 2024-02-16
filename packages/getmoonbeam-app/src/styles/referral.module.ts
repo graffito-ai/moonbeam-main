@@ -11,7 +11,14 @@ export const styles = StyleSheet.create({
     closeIcon: {
         alignSelf: 'flex-start',
         marginTop: hp(6.5),
-        left: wp(5)
+        left: wp(5),
+        backgroundColor: '#2e2e33',
+        shadowColor: 'black',
+        shadowOffset: {width: -2, height: 5},
+        shadowOpacity: 0.35,
+        shadowRadius: 12,
+        elevation: 15,
+        borderRadius: 10
     },
     contentView: {
         height: hp(85),

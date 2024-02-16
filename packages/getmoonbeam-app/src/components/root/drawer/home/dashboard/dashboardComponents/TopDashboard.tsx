@@ -3,7 +3,7 @@ import {styles} from "../../../../../../styles/dashboard.module";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 // @ts-ignore
 import DashboardBackgroundImage from "../../../../../../../assets/backgrounds/dashboard-background.png";
-import {Animated, ImageBackground, StyleSheet, View} from "react-native";
+import {Animated, ImageBackground, StyleSheet, TouchableOpacity, View} from "react-native";
 import {Text} from "react-native-paper";
 import {Divider, Icon} from "@rneui/base";
 import {PieChart} from "react-native-chart-kit";
@@ -19,6 +19,8 @@ import {MerchantCategoryCodes, TransactionsStatus} from "@moonbeam/moonbeam-mode
 import * as _ from "lodash";
 import {FontAwesome} from "@expo/vector-icons";
 import {drawerNavigationState} from "../../../../../../recoil/HomeAtom";
+import {NativeStackNavigationProp} from "@react-navigation/native-stack";
+import {DashboardControllerStackParamList} from "../../../../../../models/props/DashboardControllerProps";
 
 /**
  * Interface used to define a savings category object, part of the
@@ -40,6 +42,7 @@ interface SavingsCategory {
  * @constructor constructor for the component.
  */
 export const TopDashboard = (props: {
+    navigation: NativeStackNavigationProp<DashboardControllerStackParamList, 'Dashboard', undefined>,
     currentUserName: string,
     setStatsDialogVisible: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
@@ -252,60 +255,6 @@ export const TopDashboard = (props: {
         return offset;
     }
 
-    // /**
-    //  * Function used to calculate the next savings milestone based on the
-    //  * currently available cash-out balance.
-    //  */
-    // const calculateNextMilestone = (): number => {
-    //     // calculate milestone offset
-    //     let offset: number = 0;
-    //     switch (Math.floor((lifetimeSavings) / 10).toString().length) {
-    //         case 1:
-    //             offset = 10;
-    //             break;
-    //         case 2:
-    //             offset = 20;
-    //             break
-    //         case 3:
-    //             offset = 50;
-    //             break;
-    //         case 4:
-    //             offset = 100;
-    //             break;
-    //         case 5:
-    //             offset = 250;
-    //             break;
-    //     }
-    //     return Math.floor((lifetimeSavings) / 10) === 0 ? 10 : Math.floor((lifetimeSavings) / 10) * 10 + offset;
-    // }
-    //
-    // /**
-    //  * Function used to calculate the previous savings milestone based on the
-    //  * currently available cash-out balance.
-    //  */
-    // const calculatePreviousMilestone = (): number => {
-    //     // calculate milestone offset
-    //     let offset: number = 0;
-    //     switch (Math.floor((lifetimeSavings) / 10).toString().length) {
-    //         case 1:
-    //             offset = 10;
-    //             break;
-    //         case 2:
-    //             offset = 20;
-    //             break
-    //         case 3:
-    //             offset = 50;
-    //             break;
-    //         case 4:
-    //             offset = 100;
-    //             break;
-    //         case 5:
-    //             offset = 250;
-    //             break;
-    //     }
-    //     return Math.floor((lifetimeSavings) / 10) === 0 ? 0 : Math.floor((lifetimeSavings) / 10) * 10 - offset;
-    // }
-
     // return the component for the TopDashboard, part of the Dashboard page
     return (
         <>
@@ -502,94 +451,6 @@ export const TopDashboard = (props: {
                             </View>
                         </>
                     }
-                    {/*{*/}
-                    {/*    stepNumber == 2 &&*/}
-                    {/*    <>*/}
-                    {/*        <View style={{alignSelf: 'flex-start', left: wp(5), marginTop: hp(2)}}>*/}
-                    {/*            <Text style={styles.totalSavingsLabel1Text}>*/}
-                    {/*                {"Total Saved:\n"}*/}
-                    {/*            </Text>*/}
-                    {/*            <Text style={styles.totalSavingsLabel2Text}>*/}
-                    {/*                {`$ ${lifetimeSavings}`}*/}
-                    {/*            </Text>*/}
-                    {/*        </View>*/}
-                    {/*        <View style={{*/}
-                    {/*            width: wp(100),*/}
-                    {/*            left: hp(12),*/}
-                    {/*            height: hp(10),*/}
-                    {/*            flexDirection: "row",*/}
-                    {/*            alignSelf: 'center',*/}
-                    {/*            marginTop: -hp(15.75)*/}
-                    {/*        }}>*/}
-                    {/*            <LineChart*/}
-                    {/*                style={{*/}
-                    {/*                    right: wp(18)*/}
-                    {/*                }}*/}
-                    {/*                data={{*/}
-                    {/*                    labels: ["", "", ""],*/}
-                    {/*                    datasets: [*/}
-                    {/*                        {*/}
-                    {/*                            data: [*/}
-                    {/*                                calculatePreviousMilestone(),*/}
-                    {/*                                lifetimeSavings,*/}
-                    {/*                                calculateNextMilestone()*/}
-                    {/*                            ]*/}
-                    {/*                        }*/}
-                    {/*                    ]*/}
-                    {/*                }}*/}
-                    {/*                width={wp(90)}*/}
-                    {/*                height={hp(20)}*/}
-                    {/*                verticalLabelRotation={0}*/}
-                    {/*                renderDotContent={({x, y, index, indexData}) => {*/}
-                    {/*                    return (<>*/}
-                    {/*                        {*/}
-                    {/*                            <TextSVG*/}
-                    {/*                                key={index}*/}
-                    {/*                                y={y + hp(2.5)}*/}
-                    {/*                                x={x}*/}
-                    {/*                                fill={index === 1 ? "#F2FF5D" : (index === 0 ? "#FFFFFF" : "#00f8d7")}*/}
-                    {/*                                fontSize={`${hp(1.75)}`}*/}
-                    {/*                                fontWeight="bold"*/}
-                    {/*                                textAnchor="middle"*/}
-                    {/*                                fontFamily={"Changa-Bold"}*/}
-                    {/*                            >*/}
-                    {/*                                {`$ ${indexData}`}*/}
-                    {/*                            </TextSVG>*/}
-                    {/*                        }*/}
-                    {/*                    </>);*/}
-                    {/*                }}*/}
-                    {/*                getDotColor={(_, dataPointIndex) => {*/}
-                    {/*                    if (dataPointIndex === 0) {*/}
-                    {/*                        return '#FFFFFF';*/}
-                    {/*                    } else if (dataPointIndex === 2) {*/}
-                    {/*                        return "#00f8d7";*/}
-                    {/*                    }*/}
-                    {/*                    return "#F2FF5D";*/}
-                    {/*                }}*/}
-                    {/*                withVerticalLines={false}*/}
-                    {/*                withHorizontalLines={false}*/}
-                    {/*                withVerticalLabels={false}*/}
-                    {/*                withHorizontalLabels={false}*/}
-                    {/*                chartConfig={{*/}
-                    {/*                    backgroundGradientFromOpacity: 0,*/}
-                    {/*                    backgroundGradientToOpacity: 0,*/}
-                    {/*                    decimalPlaces: 2,*/}
-                    {/*                    color: () => `#000000A5`,*/}
-                    {/*                    labelColor: () => `transparent`,*/}
-                    {/*                    propsForDots: {*/}
-                    {/*                        r: "6",*/}
-                    {/*                        strokeWidth: "5",*/}
-                    {/*                        stroke: "transparent"*/}
-                    {/*                    },*/}
-                    {/*                    propsForBackgroundLines: {*/}
-                    {/*                        strokeWidth: 0*/}
-                    {/*                    }*/}
-                    {/*                }}*/}
-                    {/*                bezier*/}
-                    {/*            />*/}
-                    {/*        </View>*/}
-                    {/*    </>*/}
-                    {/*}*/}
                     <View style={[commonStyles.columnContainer, styles.progressSteps]}>
                         <View style={stepNumber === 0 ? styles.activeStep : styles.inactiveStep}></View>
                         {
@@ -600,7 +461,11 @@ export const TopDashboard = (props: {
                 </GestureRecognizer>
                 <View style={styles.topDashboardButtonView}>
                     <View style={{flexDirection: 'row'}}>
-                        <View
+                        <TouchableOpacity
+                            activeOpacity={0.75}
+                            onPress={() => {
+                                props.navigation.navigate("ReimbursementsController", {});
+                            }}
                             style={[styles.topDashboardButton, {alignSelf: 'flex-start'}]}>
                             <Icon name="transfer"
                                   style={{marginTop: hp(1.5)}}
@@ -608,24 +473,28 @@ export const TopDashboard = (props: {
                                   size={hp(4)}
                                   color={'#F2FF5D'}/>
                             <Text style={styles.topDashboardButtonText}>
-                                {"Reimburse"}
+                                {"Cash Out"}
                             </Text>
-                        </View>
-                        <View style={[styles.topDashboardButton, {alignSelf: 'flex-end'}]}>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            activeOpacity={0.75}
+                            onPress={() => {
+                                drawerNavigation && drawerNavigation.navigate("Referral", {});
+                            }}
+                            style={[styles.topDashboardButton, {alignSelf: 'flex-end'}]}>
                             <Icon name="gift"
                                   style={{marginTop: hp(1.5)}}
                                   type={'material-community'}
                                   size={hp(4)}
                                   color={'#F2FF5D'}
-                                  onPress={() => {
-                                      drawerNavigation && drawerNavigation.navigate("Referral", {});
-                                  }}
                             />
                             <Text style={styles.topDashboardButtonText}>
                                 {"Refer"}
                             </Text>
-                        </View>
-                        <View style={[styles.topDashboardButton, {alignSelf: 'flex-end'}]}>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            activeOpacity={0.75}
+                            style={[styles.topDashboardButton, {alignSelf: 'flex-end'}]}>
                             <Icon name="help"
                                   style={{marginTop: hp(1.5)}}
                                   type={'material-community'}
@@ -638,7 +507,7 @@ export const TopDashboard = (props: {
                             <Text style={styles.topDashboardButtonText}>
                                 {"Help"}
                             </Text>
-                        </View>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </ImageBackground>

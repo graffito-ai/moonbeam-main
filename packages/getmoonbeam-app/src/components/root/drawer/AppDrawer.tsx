@@ -998,7 +998,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                                                             }}
                                                                             containerStyle={[styles.avatarStyle, {
                                                                                 alignSelf: 'flex-end',
-                                                                                marginTop: hp(5)
+                                                                                marginTop: hp(4.9)
                                                                             }]}
                                                                             onPress={async () => {
                                                                                 setShowTransactionsBottomSheet(false);
@@ -1019,7 +1019,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                                                             <ExpoImage
                                                                                 style={[styles.profileImage, {
                                                                                     alignSelf: 'flex-end',
-                                                                                    marginTop: hp(5)
+                                                                                    marginTop: hp(4.9)
                                                                                 }]}
                                                                                 source={{
                                                                                     uri: profilePictureURI
