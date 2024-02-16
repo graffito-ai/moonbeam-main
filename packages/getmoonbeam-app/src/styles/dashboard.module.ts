@@ -18,55 +18,95 @@ export const styles = StyleSheet.create({
         width: wp(100),
         alignContent: 'center',
         alignItems: 'center',
-        alignSelf: 'center',
-        backgroundColor: '#5B5A5A',
-        shadowColor: 'black',
-        shadowOffset: {width: -2, height: 8},
-        shadowOpacity: 0.5,
-        shadowRadius: 10,
-        elevation: 15,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
+        alignSelf: 'center'
     },
-    tppGreetingView: {
-        top: hp(5)
+    totalSavingsLabel1Text: {
+        fontFamily: 'Changa-Regular',
+        fontSize: hp(2.20),
+        width: wp(70),
+        textAlign: 'left',
+        color: '#FFFFFF',
+        textDecorationLine: 'underline'
+    },
+    totalSavingsLabel2Text: {
+        fontFamily: 'Changa-Bold',
+        fontSize: hp(2.10),
+        width: wp(70),
+        textAlign: 'left',
+        color: '#F2FF5D',
+        textDecorationLine: 'none',
+        bottom: hp(5)
+    },
+    topDashboardButtonView: {
+        flexDirection: 'column',
+        width: wp(100),
+        height: hp(10),
+        alignContent: 'space-between',
+        top: hp(4)
+    },
+    topDashboardButton: {
+        marginLeft: wp(14),
+        height: hp(7),
+        width: hp(7),
+        backgroundColor: 'rgba(91,90,90,0.5)',
+        shadowColor: 'black',
+        shadowOffset: {width: -2, height: 5},
+        shadowOpacity: 0.35,
+        shadowRadius: 12,
+        elevation: 15,
+        borderRadius: 10
+    },
+
+    topDashboardButtonText: {
+        top: hp(2),
+        fontFamily: 'Changa-Regular',
+        fontSize: hp(2.00),
+        width: wp(25),
+        textAlign: 'center',
+        color: '#FFFFFF',
+        alignSelf: 'center'
+    },
+    topGreetingView: {
+        left: hp(2),
+        width: wp(100)
     },
     greetingText: {
         fontFamily: 'Saira-Light',
         fontSize: hp(2.7),
         width: wp(100),
-        textAlign: 'center',
+        textAlign: 'left',
         color: '#FFFFFF'
     },
     greetingNameText: {
         fontFamily: 'Saira-SemiBold',
         bottom: hp(1.5),
-        fontSize: hp(3),
+        fontSize: hp(2.7),
         width: wp(100),
-        textAlign: 'center',
+        textAlign: 'left',
         color: '#FFFFFF'
     },
     imageCover: {
-        bottom: hp(5),
-        alignSelf: 'flex-start'
+        alignSelf: 'flex-end'
     },
     titleStyle: {
         fontFamily: 'Raleway-Regular',
         color: 'grey',
-        fontSize: hp(5)
+        fontSize: hp(2)
     },
     avatarStyle: {
-        top: hp(5),
-        alignSelf: 'center',
+        top: hp(1.55),
+        right: wp(5),
+        alignSelf: 'flex-end',
         backgroundColor: 'white'
     },
     profileImage: {
-        top: hp(5),
-        alignSelf: 'center',
-        height: wp(35),
-        width: wp(35),
-        borderRadius: wp(35)/2,
-        borderWidth: hp(0.40),
+        top: hp(1.55),
+        right: wp(5),
+        alignSelf: 'flex-start',
+        height: wp(9),
+        width: wp(9),
+        borderRadius: wp(35) / 2,
+        borderWidth: hp(0.20),
         borderColor: '#F2FF5D'
     },
     avatarAccessoryStyle: {
@@ -74,89 +114,22 @@ export const styles = StyleSheet.create({
         top: '75%',
         backgroundColor: '#303030'
     },
-    statisticsView: {
-        width: wp(90),
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignSelf: 'center',
-        alignItems: 'center',
-        bottom: 0,
-        top: hp(38),
-        position: 'absolute'
-    },
-    statLeftView: {
-        height: hp(8),
-        width: wp(30),
-        marginRight: wp(10),
-        justifyContent: 'center',
-        flexDirection: 'column'
-    },
-    statRightView: {
-        height: hp(8),
-        width: wp(30),
-        marginLeft: wp(10),
-        justifyContent: 'center',
-        flexDirection: 'column'
-    },
-    statTitleLeft: {
-        fontFamily: 'Raleway-ExtraBold',
-        fontSize: hp(2),
-        width: wp(50),
-        textAlign: 'center',
-        color: '#FFFFFF'
-    },
-    statNumberCenterLeft: {
-        fontFamily: 'Changa-Medium',
-        fontSize: hp(2.5),
-        width: wp(50),
-        textAlign: 'center',
-        color: '#F2FF5D',
-    },
-    statNumberCenterRight: {
-        fontFamily: 'Changa-Medium',
-        fontSize: hp(2.5),
-        width: wp(50),
-        textAlign: 'center',
-        color: '#F2FF5D',
-    },
-    statTitleRight: {
-        fontFamily: 'Raleway-ExtraBold',
-        fontSize: hp(2),
-        width: wp(50),
-        textAlign: 'center',
-        color: '#FFFFFF'
-    },
-    statTitleRegular: {
-        fontFamily: 'Raleway-Medium',
-        color: '#FFFFFF'
-    },
-    statInfoViewLeft: {
-        alignItems: 'center',
-        alignSelf: 'center',
-        justifyContent: 'center',
-        flexDirection: 'column'
-    },
-    statInfoViewRight: {
-        alignItems: 'center',
-        alignSelf: 'center',
-        justifyContent: 'center',
-        flexDirection: 'column'
-    },
-    verticalLine: {
-        height: hp(5),
-        width: wp(0.5),
-        backgroundColor: 'white'
-    },
+
     bottomView: {
-        flex: 1,
-        top: hp(2),
-    },
-    segmentedButtons: {
-        width: wp(95),
-        alignSelf: 'center'
+        height: hp(33),
+        backgroundColor: '#313030',
+        shadowColor: 'black',
+        shadowOffset: {width: -2, height: 5},
+        shadowOpacity: 0.55,
+        shadowRadius: 20,
+        elevation: 15,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
     },
     subHeaderTitle: {
-        alignSelf: 'center',
+        marginTop: hp(1.5),
+        left: wp(3),
+        alignSelf: 'flex-start',
         color: '#FFFFFF',
         fontSize: hp(2.3),
         fontFamily: 'Saira-SemiBold'
@@ -167,19 +140,17 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         alignContent: 'center'
     },
-    emptyPayoutListItemTitle: {
-        alignSelf: 'center',
-        fontSize: hp(2.3),
-        color: '#F2FF5D',
-        fontFamily: 'Saira-Medium'
-    },
     emptyTransactionsListItemTitle: {
+        top: hp(1.5),
         alignSelf: 'center',
-        fontSize: hp(2.3),
+        fontSize: hp(1.8),
         color: '#F2FF5D',
-        fontFamily: 'Saira-Medium'
+        fontFamily: 'Saira-Medium',
+        textAlign: 'center',
+        width: wp(80)
     },
     listItemTitle: {
+        lineHeight: hp(2.55),
         left: wp(5),
         fontSize: hp(2),
         color: '#FFFFFF',
@@ -194,6 +165,7 @@ export const styles = StyleSheet.create({
         width: wp(50)
     },
     itemRightView: {
+        left: wp(2),
         flexDirection: 'row'
     },
     itemRightDetailsView: {
@@ -232,15 +204,9 @@ export const styles = StyleSheet.create({
         top: hp(0.5)
     },
     mainDivider: {
-        height: hp(0.2),
+        height: hp(0.05),
         width: wp(100),
         backgroundColor: '#FFFFFF'
-    },
-    divider: {
-        height: hp(0.05),
-        alignSelf: 'flex-end',
-        width: wp(85),
-        backgroundColor: '#5B5A5A'
     },
     bottomSheet: {
         backgroundColor: '#5B5A5A'
@@ -456,5 +422,55 @@ export const styles = StyleSheet.create({
         fontSize: hp(2.3),
         fontFamily: 'Changa-Bold',
         color: '#F2FF5D'
-    }
+    },
+    dotsContainer: {
+        width: wp(100)
+    },
+    progressSteps: {
+        marginTop: hp(12)
+    },
+    activeStep: {
+        backgroundColor: '#F2FF5D',
+        width: wp(2.75),
+        height: wp(2.75),
+        marginLeft: wp(3),
+        marginRight: wp(2),
+        borderRadius: Math.round(wp(100) + hp(100)) / 2,
+    },
+    inactiveStep: {
+        backgroundColor: '#D9D9D9',
+        width: wp(2.75),
+        height: wp(2.75),
+        marginLeft: wp(3),
+        marginRight: wp(2),
+        borderRadius: Math.round(wp(100) + hp(100)) / 2,
+    },
+
+    legend: {
+        right: wp(50),
+        top: hp(1)
+    },
+    legendItem: {
+        flexDirection: "row",
+        marginTop: hp(0.75)
+    },
+    legendItemValue: {
+        lineHeight: hp(2.70),
+        left: hp(1),
+        fontSize: hp(1.65),
+        textAlign: 'justify',
+        bottom: hp(0.35),
+        fontFamily: 'Changa-Bold',
+        color: '#F2FF5D'
+    },
+    legendItemCategoryValue: {
+        width: wp(50),
+        lineHeight: hp(2.40),
+        left: hp(1),
+        fontSize: hp(1.35),
+        textAlign: 'justify',
+        bottom: hp(0.35),
+        fontFamily: 'Changa-Medium',
+        color: '#FFFFFF'
+    },
 });

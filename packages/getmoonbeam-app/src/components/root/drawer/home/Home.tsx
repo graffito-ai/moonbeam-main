@@ -1,7 +1,6 @@
 import React, {useEffect} from 'react';
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import {Icon} from "@rneui/base";
 import {HomeProps} from "../../../../models/props/AppDrawerProps";
-import {createMaterialBottomTabNavigator} from "@react-navigation/material-bottom-tabs";
 import {HomeStackParamList} from "../../../../models/props/HomeProps";
 import {useRecoilState} from "recoil";
 import {bottomTabShownState, drawerNavigationState} from "../../../../recoil/HomeAtom";
@@ -11,8 +10,9 @@ import {Wallet} from "./cards/Wallet";
 import {DashboardController} from "./dashboard/DashboardController";
 import {Marketplace} from "./marketplace/Marketplace";
 import {drawerDashboardState} from "../../../../recoil/AppDrawerAtom";
-import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
-import {View} from "react-native";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
+import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
+import {Text, TouchableOpacity, View} from "react-native";
 import {filteredByDiscountPressedState, filtersActiveState} from "../../../../recoil/StoreOfferAtom";
 
 /**
@@ -32,7 +32,7 @@ export const Home = ({navigation}: HomeProps) => {
     const [, setIsDrawerInDashboard] = useRecoilState(drawerDashboardState);
 
     // create a bottom navigator, to be used for our Home bottom bar navigation
-    const HomeTabStack = createMaterialBottomTabNavigator<HomeStackParamList>();
+    const HomeTabStack = createBottomTabNavigator<HomeStackParamList>();
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -65,54 +65,129 @@ export const Home = ({navigation}: HomeProps) => {
             <View style={{flex: 1, backgroundColor: '#313030'}}>
                 <HomeTabStack.Navigator
                     initialRouteName={"DashboardController"}
-                    shifting={true}
-                    labeled={true}
-                    activeColor={'white'}
-                    barStyle={{
-                        borderTopWidth: hp(0.05),
-                        ...(bottomTabShown && {height: hp(11)}),
-                        borderTopColor: '#FFFFFF',
-                        backgroundColor: '#313030',
-                        ...(!bottomTabShown && {display: 'none'}),
-                    }}
-                    screenOptions={({route}) => ({
-                        tabBarLabel: route.name === 'DashboardController' ? 'Home' : route.name,
-                        tabBarIcon: ({focused}) => {
-                            let iconName: string;
-                            let iconColor: string;
-
-                            if (route.name === 'DashboardController') {
-                                iconName = focused ? 'home-variant' : 'home-variant-outline';
-                                iconColor = !focused ? 'white' : '#F2FF5D';
-
-                                return <Icon name={iconName} size={25} color={iconColor}/>;
-                            } else if (route.name === 'Marketplace') {
-                                iconName = focused ? 'store-marker' : 'store-marker-outline';
-                                iconColor = !focused ? 'white' : '#F2FF5D';
-
-                                return <Icon name={iconName} size={25} color={iconColor}/>;
-                            } else if (route.name === 'Cards') {
-                                iconName = focused ? 'credit-card-multiple' : 'credit-card-multiple-outline';
-                                iconColor = !focused ? 'white' : '#F2FF5D';
-
-                                return <Icon name={iconName} size={25} color={iconColor}/>;
-                            }
-
-                            return <></>;
+                    screenOptions={() => ({
+                        tabBarShowLabel: false,
+                        headerShown: false,
+                        tabBarStyle: {
+                            ...(bottomTabShown && {height: hp(10)}),
+                            backgroundColor: '#3b3b3b',
+                            borderTopWidth: hp(0.05),
+                            borderTopColor: 'transparent',
+                            shadowColor: 'black',
+                            shadowOffset: {width: -2, height: 10},
+                            shadowOpacity: 0.95,
+                            shadowRadius: 15,
+                            elevation: 20,
+                            ...(!bottomTabShown && {display: 'none'})
                         }
                     })}
                 >
                     <HomeTabStack.Screen name="DashboardController"
                                          component={DashboardController}
                                          initialParams={{}}
+                                         options={{
+                                             tabBarIcon: ({focused}) => (
+                                                 <View style={{
+                                                     left: wp(3),
+                                                     alignItems: 'center',
+                                                     justifyContent: 'center',
+                                                     top: hp(0.5),
+                                                     width: wp(15),
+                                                     height: hp(6)
+                                                 }}>
+                                                     <Icon
+                                                         type={"antdesign"}
+                                                         name={'linechart'}
+                                                         size={25}
+                                                         color={!focused ? 'white' : '#F2FF5D'}
+                                                     />
+                                                     <Text style={{
+                                                         top: hp(0.5),
+                                                         fontFamily: 'Raleway-Bold',
+                                                         fontSize: hp(1.6),
+                                                         color: !focused ? 'white' : '#F2FF5D',
+                                                         textAlign: 'center'
+                                                     }}>
+                                                         {'Home'}
+                                                     </Text>
+                                                 </View>
+                                             )
+                                         }}
                     />
                     <HomeTabStack.Screen name="Marketplace"
                                          component={Marketplace}
                                          initialParams={{}}
+                                         options={({navigation}) => ({
+                                             tabBarButton: ({}) => (
+                                                 <TouchableOpacity
+                                                     activeOpacity={0.90}
+                                                     onPress={() => {
+                                                         // navigate to the Marketplace
+                                                         navigation.navigate('Marketplace', {});
+                                                     }}
+                                                     style={{
+                                                         zIndex: 10000,
+                                                         justifyContent: 'center',
+                                                         alignContent: 'center',
+                                                         shadowColor: 'black',
+                                                         shadowOffset: {width: -2, height: 10},
+                                                         shadowOpacity: 0.65,
+                                                         shadowRadius: 15,
+                                                         elevation: 20,
+                                                         borderRadius: 10,
+                                                         bottom: hp(2.5)
+                                                     }}>
+                                                     <View style={{
+                                                         width: hp(8),
+                                                         height: hp(8),
+                                                         borderRadius: 50,
+                                                         backgroundColor: '#F2FF5D',
+                                                         justifyContent: 'center',
+                                                         alignItems: 'center',
+                                                         alignContent: 'center'
+                                                     }}>
+                                                         <Icon
+                                                             type={"ionicon"}
+                                                             name={navigation.getState().index === 1 ? 'storefront': 'storefront'}
+                                                             size={45}
+                                                             color={'#3b3b3b'}
+                                                         />
+                                                     </View>
+                                                 </TouchableOpacity>
+                                             )
+                                         })}
                     />
                     <HomeTabStack.Screen name="Cards"
                                          component={Wallet}
                                          initialParams={{}}
+                                         options={{
+                                             tabBarIcon: ({focused}) => (
+                                                 <View style={{
+                                                     right: wp(3),
+                                                     alignItems: 'center',
+                                                     justifyContent: 'center',
+                                                     top: hp(0.5),
+                                                     width: wp(15),
+                                                     height: hp(6)
+                                                 }}>
+                                                     <Icon
+                                                         type={"antdesign"}
+                                                         name={'creditcard'}
+                                                         size={25}
+                                                         color={!focused ? 'white' : '#F2FF5D'}
+                                                     />
+                                                     <Text style={{
+                                                         top: hp(0.5),
+                                                         fontFamily: 'Raleway-Bold',
+                                                         fontSize: hp(1.6),
+                                                         color: !focused ? 'white' : '#F2FF5D',
+                                                         textAlign: 'center'
+                                                     }}>
+                                                         {'Wallet'}
+                                                     </Text>
+                                                 </View>
+                                             )
+                                         }}
                     />
                 </HomeTabStack.Navigator>
             </View>

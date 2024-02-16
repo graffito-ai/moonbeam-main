@@ -3,10 +3,11 @@ import {createDrawerNavigator} from "@react-navigation/drawer";
 import {AppDrawerProps} from "../../../models/props/AuthenticationProps";
 import {AppDrawerStackParamList} from "../../../models/props/AppDrawerProps";
 import {CustomDrawer} from "../../common/CustomDrawer";
-import {Animated, Platform, Text, TouchableOpacity, View} from "react-native";
+import {Animated, Text, TouchableOpacity, View} from "react-native";
 import {useRecoilState} from "recoil";
 import {
-    appDrawerHeaderShownState, cardLinkingIdState,
+    appDrawerHeaderShownState,
+    cardLinkingIdState,
     cardLinkingStatusState,
     customBannerShown,
     drawerDashboardState,
@@ -14,15 +15,18 @@ import {
     profilePictureURIState
 } from "../../../recoil/AppDrawerAtom";
 import {Home} from "./home/Home";
-import {Ionicons} from "@expo/vector-icons";
 import * as Device from "expo-device";
 import {deviceTypeState} from "../../../recoil/RootAtom";
 import {
     CardLink,
-    createdTransaction, FileAccessLevel, FileType,
-    getCardLink, getFilesForUser,
+    createdTransaction,
+    FileAccessLevel,
+    FileType,
+    getCardLink,
+    getFilesForUser,
     getMilitaryVerificationStatus,
-    getTransaction, LoggingLevel,
+    getTransaction,
+    LoggingLevel,
     MilitaryVerificationErrorType,
     MilitaryVerificationStatusType,
     MoonbeamTransaction,
@@ -42,10 +46,14 @@ import {commonStyles} from "../../../styles/common.module";
 import {AppWall} from "./home/wall/AppWall";
 import {customBannerState} from "../../../recoil/CustomBannerAtom";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {Avatar, Icon as ReactIcon} from "@rneui/base";
+import {Divider} from "@rneui/base";
 // @ts-ignore
 import CardLinkingImage from '../../../../assets/art/moonbeam-card-linking.png';
 // @ts-ignore
 import MoonbeamNavigationLogo from '../../../../assets/moonbeam-navigation-logo.png';
+// @ts-ignore
+import MoonbeamProfilePlaceholder from "../../../../assets/art/moonbeam-profile-placeholder.png";
 import {Settings} from "./settings/Settings";
 import {
     showTransactionBottomSheetState,
@@ -63,6 +71,9 @@ import Constants from 'expo-constants';
 import {AppOwnership} from "expo-constants/src/Constants.types";
 import {showClickOnlyBottomSheetState} from "../../../recoil/StoreOfferAtom";
 import Image = Animated.Image;
+import {styles} from "../../../styles/dashboard.module";
+import {Image as ExpoImage} from "expo-image/build/Image";
+import {ReimbursementsController} from "./home/dashboard/reimbursements/ReimbursementsController";
 
 /**
  * AppDrawer component.
@@ -72,6 +83,7 @@ import Image = Animated.Image;
 export const AppDrawer = ({}: AppDrawerProps) => {
         // constants used to keep track of local component state
         const [isReady, setIsReady] = useState<boolean>(true);
+        const [currentUserTitle, setCurrentUserTitle] = useState<string>("N/A");
         const [modalVisible, setModalVisible] = useState<boolean>(false);
         const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
         const [, setMilitaryStatusUpdatesSubscription] = useState<ZenObservable.Subscription | null>(null);
@@ -104,6 +116,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         const [showTransactionsBottomSheet, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
         const [, setShowWalletBottomSheet] = useRecoilState(showWalletBottomSheetState);
         const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
+        const [profilePictureURI,] = useRecoilState(profilePictureURIState);
 
         /**
          * create a drawer navigator, to be used for our sidebar navigation, which is the main driving
@@ -130,6 +143,12 @@ export const AppDrawer = ({}: AppDrawerProps) => {
 
                 // if a valid use is logged in/ and we have a valid user id
                 if (userInformation["custom:userId"]) {
+                    // check to see if the user information object has been populated accordingly
+                    if (userInformation["given_name"] && userInformation["family_name"] && currentUserTitle === 'N/A') {
+                        //set the title of the user's avatar in the dashboard, based on the user's information
+                        setCurrentUserTitle(`${Array.from(userInformation["given_name"].split(" ")[0])[0] as string}${Array.from(userInformation["family_name"].split(" ")[0])[0] as string}`);
+                    }
+
                     // initial app load
                     (!militaryStatusRetrieved && !cardLinkRetrieved && !profilePictureRetrieved && !transactionsRetrieved)
                     && loadAppData(false).then(([updatedUserInformation, updatedTransactionalData]) => {
@@ -332,6 +351,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
             }
         }, [
             deviceType, userInformation["custom:userId"], isLoaded,
+            userInformation["given_name"], userInformation["family_name"],
             militaryStatusRetrieved, cardLinkRetrieved, profilePictureRetrieved,
             transactionsRetrieved, updatedMilitaryStatus, cardLinkingIdRetrieved
         ]);
@@ -418,7 +438,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                     // set the banner state accordingly
                     setBannerState({
                         bannerVisibilityState: cardLinkingStatusState,
-                        bannerMessage: "You do not have a linked card. You will need to have a card in your wallet to see more details.",
+                        bannerMessage: "You do not have a linked card. You will need to have a linked-card in your wallet to see more transaction details.",
                         bannerButtonLabel: "Link Now",
                         bannerButtonLabelActionSource: "home/wallet",
                         bannerArtSource: CardLinkingImage,
@@ -613,7 +633,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                             // set the banner state accordingly
                             setBannerState({
                                 bannerVisibilityState: cardLinkingStatusState,
-                                bannerMessage: "You do not have a linked card. You will need to have a card in your wallet to see more details.",
+                                bannerMessage: "You do not have a linked card. You will need to have a linked-card in your wallet to see more transaction details.",
                                 bannerButtonLabel: "Link Now",
                                 bannerButtonLabelActionSource: "home/wallet",
                                 bannerArtSource: CardLinkingImage,
@@ -654,7 +674,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                             // set the banner state accordingly
                             setBannerState({
                                 bannerVisibilityState: cardLinkingStatusState,
-                                bannerMessage: "You do not have a linked card. You will need to have a card in your wallet to see more details.",
+                                bannerMessage: "You do not have a linked card. You will need to have a linked-card in your wallet to see more transaction details.",
                                 bannerButtonLabel: "Link Now",
                                 bannerButtonLabelActionSource: "home/wallet",
                                 bannerArtSource: CardLinkingImage,
@@ -923,105 +943,167 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                     ...(showTransactionsBottomSheet && {
                                         header: () =>
                                             <>
-                                                <TouchableOpacity
-                                                    activeOpacity={1}
-                                                    disabled={!showTransactionsBottomSheet}
-                                                    onPress={() => setShowTransactionsBottomSheet(false)}
-                                                >
-                                                    <View
-                                                        {...showTransactionsBottomSheet && {pointerEvents: "none"}}
-                                                        {...showTransactionsBottomSheet && {
-                                                            style: {backgroundColor: 'transparent', opacity: 0.3}
-                                                        }}
-                                                        style={drawerInDashboard ? {
-                                                            height: hp(11),
-                                                            width: wp(100),
-                                                            backgroundColor: 'black',
-                                                            shadowColor: 'transparent', // this covers iOS
-                                                            elevation: 0, // this covers Android
-                                                            opacity: 0.75,
-                                                            flexDirection: 'column'
-                                                        } : {
-                                                            backgroundColor: '#313030'
-                                                        }}
+                                                {
+                                                    <TouchableOpacity
+                                                        activeOpacity={1}
+                                                        disabled={!showTransactionsBottomSheet}
+                                                        onPress={() => setShowTransactionsBottomSheet(false)}
                                                     >
-                                                        <View style={{
-                                                            height: hp(11),
-                                                            width: wp(100),
-                                                            flexDirection: 'column'
-                                                        }}>
-                                                            <IconButton
+                                                        <View
+                                                            {...showTransactionsBottomSheet && {pointerEvents: "none"}}
+                                                            {...showTransactionsBottomSheet && {
+                                                                style: {backgroundColor: 'transparent', opacity: 0.3}
+                                                            }}
+                                                            style={drawerInDashboard ? {
+                                                                height: hp(8),
+                                                                width: wp(100),
+                                                                backgroundColor: 'black',
+                                                                shadowColor: 'transparent', // this covers iOS
+                                                                elevation: 0, // this covers Android
+                                                                opacity: 0.75,
+                                                                flexDirection: 'column'
+                                                            } : {
+                                                                backgroundColor: '#313030'
+                                                            }}
+                                                        >
+                                                            <View
+                                                                pointerEvents={"none"}
                                                                 style={{
-                                                                    alignSelf: 'flex-start',
-                                                                    marginTop: hp(5.75),
-                                                                    opacity: 0.3
-                                                                }}
-                                                                icon={'menu'} iconColor={'#FFFFFF'}
-                                                                size={hp(4)}
-                                                                onPress={() => {
-                                                                    setShowTransactionsBottomSheet(false);
-                                                                    setShowWalletBottomSheet(false);
-                                                                    setShowClickOnlyBottomSheet(false);
-                                                                    navigation.openDrawer();
-                                                                }}/>
-                                                            <Image resizeMode={"contain"}
-                                                                   style={{
-                                                                       bottom: hp(8.5),
-                                                                       opacity: 0.3,
-                                                                       height: hp(10),
-                                                                       width: wp(10),
-                                                                       alignSelf: 'center',
-                                                                       ...(Platform.OS === 'android' && {
-                                                                           alignSelf: 'center'
-                                                                       })
-                                                                   }}
-                                                                   source={MoonbeamNavigationLogo}
-                                                            />
-                                                            <IconButton
-                                                                style={{
-                                                                    alignSelf: 'flex-end',
-                                                                    opacity: 0.3,
-                                                                    bottom: hp(16.8)
-                                                                }}
-                                                                icon={'gift'} iconColor={'#FFFFFF'}
-                                                                size={hp(3.5)}
-                                                                onPress={() => {
-                                                                    navigation.navigate('Referral', {});
-                                                                }}/>
-
+                                                                    height: hp(11),
+                                                                    width: wp(100),
+                                                                    flexDirection: 'column',
+                                                                    opacity: 0.75
+                                                                }}>
+                                                                {
+                                                                    (!profilePictureURI || profilePictureURI === "") ?
+                                                                        <Avatar
+                                                                            {...profilePictureURI && profilePictureURI !== "" && {
+                                                                                source: {
+                                                                                    uri: profilePictureURI,
+                                                                                    cache: 'reload'
+                                                                                }
+                                                                            }
+                                                                            }
+                                                                            avatarStyle={{
+                                                                                resizeMode: 'cover',
+                                                                                borderColor: '#F2FF5D',
+                                                                                borderWidth: hp(0.20),
+                                                                            }}
+                                                                            size={hp(4)}
+                                                                            rounded
+                                                                            title={(!profilePictureURI || profilePictureURI === "") ? currentUserTitle : undefined}
+                                                                            {...(!profilePictureURI || profilePictureURI === "") && {
+                                                                                titleStyle: [
+                                                                                    styles.titleStyle
+                                                                                ]
+                                                                            }}
+                                                                            containerStyle={[styles.avatarStyle, {
+                                                                                alignSelf: 'flex-end',
+                                                                                marginTop: hp(4.9)
+                                                                            }]}
+                                                                            onPress={async () => {
+                                                                                setShowTransactionsBottomSheet(false);
+                                                                                setShowWalletBottomSheet(false);
+                                                                                setShowClickOnlyBottomSheet(false);
+                                                                                navigation.openDrawer();
+                                                                            }}
+                                                                        />
+                                                                        :
+                                                                        <TouchableOpacity
+                                                                            onPress={async () => {
+                                                                                setShowTransactionsBottomSheet(false);
+                                                                                setShowWalletBottomSheet(false);
+                                                                                setShowClickOnlyBottomSheet(false);
+                                                                                navigation.openDrawer();
+                                                                            }}
+                                                                        >
+                                                                            <ExpoImage
+                                                                                style={[styles.profileImage, {
+                                                                                    alignSelf: 'flex-end',
+                                                                                    marginTop: hp(4.9)
+                                                                                }]}
+                                                                                source={{
+                                                                                    uri: profilePictureURI
+                                                                                }}
+                                                                                placeholder={MoonbeamProfilePlaceholder}
+                                                                                placeholderContentFit={'cover'}
+                                                                                contentFit={'cover'}
+                                                                                transition={1000}
+                                                                                cachePolicy={'memory-disk'}
+                                                                            />
+                                                                        </TouchableOpacity>
+                                                                }
+                                                            </View>
                                                         </View>
-                                                    </View>
-                                                </TouchableOpacity>
+                                                    </TouchableOpacity>
+                                                }
                                             </>
                                     }),
-                                    headerLeft: () => <IconButton icon={'menu'} iconColor={'#FFFFFF'}
-                                                                  size={hp(4)}
-                                                                  onPress={() => {
-                                                                      setShowTransactionsBottomSheet(false);
-                                                                      setShowWalletBottomSheet(false);
-                                                                      setShowClickOnlyBottomSheet(false);
-                                                                      navigation.openDrawer();
-                                                                  }}/>,
-                                    headerRight: () => <IconButton icon={'gift'} iconColor={'#FFFFFF'}
-                                                                   size={hp(3.5)}
-                                                                   onPress={() => {
-                                                                       navigation.navigate('Referral', {});
-                                                                   }}/>,
+                                    headerLeft: () =>
+                                        <>
+                                        </>,
+                                    headerRight: () =>
+                                        <>
+                                            {
+                                                (!profilePictureURI || profilePictureURI === "") ?
+                                                    <Avatar
+                                                        {...profilePictureURI && profilePictureURI !== "" && {
+                                                            source: {
+                                                                uri: profilePictureURI,
+                                                                cache: 'reload'
+                                                            }
+                                                        }
+                                                        }
+                                                        avatarStyle={{
+                                                            resizeMode: 'cover',
+                                                            borderColor: '#F2FF5D',
+                                                            borderWidth: hp(0.20),
+                                                        }}
+                                                        size={hp(4)}
+                                                        rounded
+                                                        title={(!profilePictureURI || profilePictureURI === "") ? currentUserTitle : undefined}
+                                                        {...(!profilePictureURI || profilePictureURI === "") && {
+                                                            titleStyle: [
+                                                                styles.titleStyle
+                                                            ]
+                                                        }}
+                                                        containerStyle={styles.avatarStyle}
+                                                        onPress={async () => {
+                                                            setShowTransactionsBottomSheet(false);
+                                                            setShowWalletBottomSheet(false);
+                                                            setShowClickOnlyBottomSheet(false);
+                                                            navigation.openDrawer();
+                                                        }}
+                                                    />
+                                                    :
+                                                    <TouchableOpacity
+                                                        onPress={async () => {
+                                                            setShowTransactionsBottomSheet(false);
+                                                            setShowWalletBottomSheet(false);
+                                                            setShowClickOnlyBottomSheet(false);
+                                                            navigation.openDrawer();
+                                                        }}
+                                                    >
+                                                        <ExpoImage
+                                                            style={[styles.profileImage]}
+                                                            source={{
+                                                                uri: profilePictureURI
+                                                            }}
+                                                            placeholder={MoonbeamProfilePlaceholder}
+                                                            placeholderContentFit={'cover'}
+                                                            contentFit={'cover'}
+                                                            transition={1000}
+                                                            cachePolicy={'memory-disk'}
+                                                        />
+                                                    </TouchableOpacity>
+                                            }
+                                        </>,
                                     headerTitle: () =>
-                                        <Image resizeMode={"contain"}
-                                               style={{
-                                                   height: hp(10),
-                                                   width: wp(10),
-                                                   alignSelf: 'center',
-                                                   ...(Platform.OS === 'android' && {
-                                                       alignSelf: 'center'
-                                                   })
-                                               }}
-                                               source={MoonbeamNavigationLogo}
-                                        />,
+                                        <></>,
                                     headerStyle: drawerInDashboard ? {
                                         width: wp(100),
                                         backgroundColor: '#5B5A5A',
+                                        height: hp(8),
                                         shadowColor: 'transparent', // this covers iOS
                                         elevation: 0, // this covers Android
                                     } : {
@@ -1053,9 +1135,10 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                             marginBottom: 0
                                         },
                                         drawerIcon: () => (
-                                            <Icon
-                                                size={hp(3)}
-                                                name={'home-variant-outline'} color={'#F2FF5D'}/>
+                                            <ReactIcon
+                                                type={"antdesign"}
+                                                size={hp(2.5)}
+                                                name={'linechart'} color={'#F2FF5D'}/>
                                         ),
                                         headerShown: drawerHeaderShown
                                     }}
@@ -1065,55 +1148,235 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                     name={"Documents"}
                                     component={Documents}
                                     initialParams={{}}
-                                    options={{
+                                    options={({navigation}) => ({
+                                        header: () => (
+                                            <>
+                                                {
+                                                    <>
+                                                        <TouchableOpacity
+                                                            disabled={!showTransactionsBottomSheet}
+                                                            onPress={() => setShowTransactionsBottomSheet(false)}
+                                                        >
+                                                            <View
+                                                                {...showTransactionsBottomSheet && {pointerEvents: "none"}}
+                                                                {...showTransactionsBottomSheet && {
+                                                                    style: {backgroundColor: 'transparent'}
+                                                                }}
+                                                                style={drawerInDashboard ? {
+                                                                    height: hp(11),
+                                                                    width: wp(100),
+                                                                    backgroundColor: 'black',
+                                                                    shadowColor: 'transparent', // this covers iOS
+                                                                    elevation: 0, // this covers Android
+                                                                    flexDirection: 'column'
+                                                                } : {
+                                                                    backgroundColor: '#313030'
+                                                                }}
+                                                            >
+                                                                <View style={{
+                                                                    height: hp(11),
+                                                                    width: wp(100),
+                                                                    flexDirection: 'column'
+                                                                }}>
+                                                                    <IconButton
+                                                                        style={{
+                                                                            alignSelf: 'flex-start',
+                                                                            marginTop: hp(5.75),
+                                                                        }}
+                                                                        icon={'menu'} iconColor={'#FFFFFF'}
+                                                                        size={hp(4)}
+                                                                        onPress={() => {
+                                                                            setShowTransactionsBottomSheet(false);
+                                                                            setShowWalletBottomSheet(false);
+                                                                            setShowClickOnlyBottomSheet(false);
+                                                                            navigation.openDrawer();
+                                                                        }}/>
+                                                                    <Image resizeMode={"contain"}
+                                                                           style={{
+                                                                               bottom: hp(8.5),
+                                                                               height: hp(10),
+                                                                               width: wp(10),
+                                                                               alignSelf: 'center'
+                                                                           }}
+                                                                           source={MoonbeamNavigationLogo}
+                                                                    />
+                                                                </View>
+                                                            </View>
+                                                        </TouchableOpacity>
+                                                        <Divider color={"#D9D9D9"}/>
+                                                    </>
+                                                }
+                                            </>
+                                        ),
                                         swipeEnabled: drawerSwipeEnabled,
                                         drawerItemStyle: {
                                             right: wp(2),
                                             marginBottom: 0
                                         },
                                         drawerIcon: () => (
-                                            <Icon
-                                                size={hp(3)}
-                                                name={'file-document-multiple-outline'} color={'#F2FF5D'}/>
+                                            <ReactIcon
+                                                type={"antdesign"}
+                                                size={hp(2.5)}
+                                                name={'file1'} color={'#F2FF5D'}/>
                                         ),
                                         headerShown: drawerHeaderShown
-                                    }}
+                                    })}
                                 />
                                 <ApplicationDrawer.Screen
                                     name={"Settings"}
                                     component={Settings}
-                                    options={{
+                                    options={({navigation}) => ({
+                                        header: () => (
+                                            <>
+                                                {
+                                                    <>
+                                                        <TouchableOpacity
+                                                            disabled={!showTransactionsBottomSheet}
+                                                            onPress={() => setShowTransactionsBottomSheet(false)}
+                                                        >
+                                                            <View
+                                                                {...showTransactionsBottomSheet && {pointerEvents: "none"}}
+                                                                {...showTransactionsBottomSheet && {
+                                                                    style: {backgroundColor: 'transparent'}
+                                                                }}
+                                                                style={drawerInDashboard ? {
+                                                                    height: hp(11),
+                                                                    width: wp(100),
+                                                                    backgroundColor: 'black',
+                                                                    shadowColor: 'transparent', // this covers iOS
+                                                                    elevation: 0, // this covers Android
+                                                                    flexDirection: 'column'
+                                                                } : {
+                                                                    backgroundColor: '#313030'
+                                                                }}
+                                                            >
+                                                                <View style={{
+                                                                    height: hp(11),
+                                                                    width: wp(100),
+                                                                    flexDirection: 'column'
+                                                                }}>
+                                                                    <IconButton
+                                                                        style={{
+                                                                            alignSelf: 'flex-start',
+                                                                            marginTop: hp(5.75),
+                                                                        }}
+                                                                        icon={'menu'} iconColor={'#FFFFFF'}
+                                                                        size={hp(4)}
+                                                                        onPress={() => {
+                                                                            setShowTransactionsBottomSheet(false);
+                                                                            setShowWalletBottomSheet(false);
+                                                                            setShowClickOnlyBottomSheet(false);
+                                                                            navigation.openDrawer();
+                                                                        }}/>
+                                                                    <Image resizeMode={"contain"}
+                                                                           style={{
+                                                                               bottom: hp(8.5),
+                                                                               height: hp(10),
+                                                                               width: wp(10),
+                                                                               alignSelf: 'center'
+                                                                           }}
+                                                                           source={MoonbeamNavigationLogo}
+                                                                    />
+                                                                </View>
+                                                            </View>
+                                                        </TouchableOpacity>
+                                                        <Divider color={"#D9D9D9"}/>
+                                                    </>
+                                                }
+                                            </>
+                                        ),
                                         swipeEnabled: drawerSwipeEnabled,
                                         drawerItemStyle: {
                                             right: wp(2),
                                             marginBottom: 0
                                         },
                                         drawerIcon: () => (
-                                            <Ionicons
-                                                size={hp(3)}
-                                                name={'settings-outline'} color={'#F2FF5D'}/>
+                                            <ReactIcon
+                                                type={"antdesign"}
+                                                size={hp(2.5)}
+                                                name={'setting'} color={'#F2FF5D'}/>
                                         ),
                                         headerShown: drawerHeaderShown
-                                    }}
+                                    })}
                                     initialParams={{}}
                                 />
                                 <ApplicationDrawer.Screen
                                     name={"Support"}
                                     component={Support}
                                     initialParams={{}}
-                                    options={{
+                                    options={({navigation}) => ({
+                                        header: () => (
+                                            <>
+                                                {
+                                                    <>
+                                                        <TouchableOpacity
+                                                            disabled={!showTransactionsBottomSheet}
+                                                            onPress={() => setShowTransactionsBottomSheet(false)}
+                                                        >
+                                                            <View
+                                                                {...showTransactionsBottomSheet && {pointerEvents: "none"}}
+                                                                {...showTransactionsBottomSheet && {
+                                                                    style: {backgroundColor: 'transparent'}
+                                                                }}
+                                                                style={drawerInDashboard ? {
+                                                                    height: hp(11),
+                                                                    width: wp(100),
+                                                                    backgroundColor: 'black',
+                                                                    shadowColor: 'transparent', // this covers iOS
+                                                                    elevation: 0, // this covers Android
+                                                                    flexDirection: 'column'
+                                                                } : {
+                                                                    backgroundColor: '#313030'
+                                                                }}
+                                                            >
+                                                                <View style={{
+                                                                    height: hp(11),
+                                                                    width: wp(100),
+                                                                    flexDirection: 'column'
+                                                                }}>
+                                                                    <IconButton
+                                                                        style={{
+                                                                            alignSelf: 'flex-start',
+                                                                            marginTop: hp(5.75),
+                                                                        }}
+                                                                        icon={'menu'} iconColor={'#FFFFFF'}
+                                                                        size={hp(4)}
+                                                                        onPress={() => {
+                                                                            setShowTransactionsBottomSheet(false);
+                                                                            setShowWalletBottomSheet(false);
+                                                                            setShowClickOnlyBottomSheet(false);
+                                                                            navigation.openDrawer();
+                                                                        }}/>
+                                                                    <Image resizeMode={"contain"}
+                                                                           style={{
+                                                                               bottom: hp(8.5),
+                                                                               height: hp(10),
+                                                                               width: wp(10),
+                                                                               alignSelf: 'center'
+                                                                           }}
+                                                                           source={MoonbeamNavigationLogo}
+                                                                    />
+                                                                </View>
+                                                            </View>
+                                                        </TouchableOpacity>
+                                                        <Divider color={"#D9D9D9"}/>
+                                                    </>
+                                                }
+                                            </>
+                                        ),
                                         swipeEnabled: true,
                                         drawerItemStyle: {
                                             right: wp(2),
                                             marginBottom: 0
                                         },
                                         drawerIcon: () => (
-                                            <Icon
-                                                size={hp(3)}
-                                                name={'help-circle-outline'} color={'#F2FF5D'}/>
+                                            <ReactIcon
+                                                type={"antdesign"}
+                                                size={hp(2.5)}
+                                                name={'questioncircleo'} color={'#F2FF5D'}/>
                                         ),
                                         headerShown: drawerHeaderShown
-                                    }}
+                                    })}
                                 />
                                 <ApplicationDrawer.Screen
                                     name={"Referral"}
@@ -1130,6 +1393,25 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                             <Icon
                                                 size={hp(3)}
                                                 name={'gift'} color={'#F2FF5D'}/>
+                                        ),
+                                        headerShown: drawerHeaderShown
+                                    }}
+                                />
+                                <ApplicationDrawer.Screen
+                                    name={"Reimbursements"}
+                                    component={ReimbursementsController}
+                                    initialParams={{}}
+                                    options={{
+                                        swipeEnabled: drawerSwipeEnabled,
+                                        drawerItemStyle: {
+                                            display: 'none',
+                                            right: wp(2),
+                                            marginBottom: 0
+                                        },
+                                        drawerIcon: () => (
+                                            <Icon
+                                                size={hp(3)}
+                                                name={'cash'} color={'#F2FF5D'}/>
                                         ),
                                         headerShown: drawerHeaderShown
                                     }}

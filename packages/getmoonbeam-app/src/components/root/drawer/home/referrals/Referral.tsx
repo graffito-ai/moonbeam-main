@@ -62,6 +62,7 @@ export const Referral = ({navigation}: ReferralProps) => {
                 : `${userInformation["family_name"].toUpperCase()}-${userInformation["given_name"].charAt(0).toUpperCase()}-${crc32.str(userInformation["custom:userId"]).toString()}`
         );
 
+        // do not show the app drawer, and disable and swipe-based navigation for screen
         if (navigation.getState().index === 4) {
             appDrawerHeaderShown && setAppDrawerHeaderShown(false);
             drawerSwipeEnabled && setDrawerSwipeEnabled(false);
@@ -160,18 +161,20 @@ export const Referral = ({navigation}: ReferralProps) => {
     return (
         <>
             <View style={styles.mainReferralView}>
-                <Icon
-                    name={'close'}
-                    size={hp(4.5)}
-                    color={'#FFFFFF'}
-                    style={styles.closeIcon}
-                    onPress={async () => {
-                        setAppDrawerHeaderShown(true);
-                        setDrawerSwipeEnabled(true);
-                        setDrawerInDashboard(true);
-                        navigation.goBack();
-                    }}
-                />
+                <TouchableOpacity style={styles.closeIcon}>
+                    <Icon
+                        type={"antdesign"}
+                        name={"close"}
+                        size={hp(4.15)}
+                        color={'#FFFFFF'}
+                        onPress={async () => {
+                            setAppDrawerHeaderShown(true);
+                            setDrawerSwipeEnabled(true);
+                            setDrawerInDashboard(true);
+                            navigation.goBack();
+                        }}
+                    />
+                </TouchableOpacity>
                 <View style={styles.contentView}>
                     <Image
                         style={styles.referralMainImage}

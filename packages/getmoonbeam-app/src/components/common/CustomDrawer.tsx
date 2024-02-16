@@ -5,10 +5,9 @@ import {
     DrawerItemList
 } from '@react-navigation/drawer';
 import {ImageBackground, Text, TouchableOpacity, View} from 'react-native';
-import {Avatar, Divider} from "@rneui/base";
+import {Avatar, Divider, Icon} from "@rneui/base";
 import React, {useEffect, useState} from "react";
 import {commonStyles} from "../../styles/common.module";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import {styles} from '../../styles/customDrawer.module';
 import {useRecoilState, useResetRecoilState} from "recoil";
 import {
@@ -265,6 +264,7 @@ import Constants from 'expo-constants';
 import {AppOwnership} from "expo-constants/src/Constants.types";
 import {logEvent} from "../../utils/AppSync";
 import {LoggingLevel} from "@moonbeam/moonbeam-models";
+import {LinearGradient} from "expo-linear-gradient";
 
 /**
  * import branch only if the app is not running in Expo Go (so we can actually run the application without Branch for
@@ -847,18 +847,22 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                 !isReady ?
                     <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                     :
-                    <View style={{flex: 1}}>
+                    <LinearGradient
+                        style={{flex: 1}}
+                        start={{x: 1, y: 0.1}}
+                        end={{x: 1, y: 1}}
+                        colors={['#5B5A5A', '#313030']}>
                         <DrawerContentScrollView
                             {...props}
                             scrollEnabled={false}
-                            contentContainerStyle={{backgroundColor: '#5B5A5A', flexDirection: 'column'}}
+                            contentContainerStyle={{flexDirection: 'column'}}
                         >
                             <ImageBackground
                                 resizeMethod={"scale"}
                                 imageStyle={{
-                                    left: wp(40),
-                                    height: hp(30),
-                                    width: wp(30),
+                                    left: wp(45),
+                                    height: hp(25),
+                                    width: wp(25),
                                     resizeMode: 'stretch'
                                 }}
                                 source={SideBarImage}>
@@ -951,10 +955,13 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                             <DrawerItem
                                 activeBackgroundColor={'transparent'}
                                 activeTintColor={'#F2FF5D'}
-                                icon={() => <Icon
-                                    size={hp(3)}
-                                    name={'logout'}
-                                    color={'#F2FF5D'}/>}
+                                icon={() =>
+                                    <Icon
+                                        type={"antdesign"}
+                                        size={hp(2.3)}
+                                        name={'logout'}
+                                        color={'#F2FF5D'}/>
+                                }
                                 labelStyle={[styles.drawerItemLabel]}
                                 label={'Log Out'}
                                 onPress={async () => {
@@ -986,7 +993,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
                                 </View>
                             </TouchableOpacity>
                         </View>
-                    </View>
+                    </LinearGradient>
             }
         </>
     )

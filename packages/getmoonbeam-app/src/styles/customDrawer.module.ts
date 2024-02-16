@@ -47,11 +47,9 @@ export const styles = StyleSheet.create({
     },
     drawerItemListView: {
         flex: 1,
-        backgroundColor: '#5B5A5A',
         padding: 5
     },
     bottomDrawerItemListView: {
-        backgroundColor: '#5B5A5A',
         marginBottom: hp(3)
     },
     drawerItemLabel: {

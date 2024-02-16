@@ -8,23 +8,29 @@ export const styles = StyleSheet.create({
         borderTopWidth: hp(0.02),
         borderBottomWidth: hp(0.02),
         width: wp(100),
+        height: hp(30),
         position: 'absolute',
-        bottom: 0
+        bottom: 0,
     },
     buttonLabel: {
         fontFamily: 'Saira-Bold',
         color: '#F2FF5D',
-        marginTop: hp(2),
-        marginBottom: hp(2),
-        height: hp(2.3),
-        fontSize: hp(1.8)
+        fontSize: hp(1.9),
+        top: hp(1.5),
+        lineHeight: hp(3)
     },
     bannerImage: {
         width: wp(25),
-        height: hp(10),
-        left: wp(0.5)
+        height: hp(15),
+        left: wp(0.5),
+        top: hp(2)
     },
     bannerDescription: {
+        left: wp(2),
+        top: hp(3.5),
+        height: hp(12),
+        width: wp(64),
+        textAlign: 'left',
         fontFamily: 'Saira-Medium',
         fontSize: hp(1.7),
         color: '#FFFFFF'
