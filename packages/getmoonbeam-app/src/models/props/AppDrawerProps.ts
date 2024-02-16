@@ -14,7 +14,8 @@ export type AppDrawerStackParamList = {
         privacyFlag: boolean;
         appDrawerFlag: boolean;
     },
-    Referral: {}
+    Referral: {},
+    Reimbursements: {}
 };
 
 /**
@@ -37,3 +38,5 @@ export type AppWallProps = NativeStackScreenProps<AppDrawerStackParamList, 'AppW
 export type AppDrawerDocumentsViewerProps = NativeStackScreenProps<AppDrawerStackParamList, 'DocumentsViewer'>
 // the Referral Component props, within the AppDrawer stack
 export type ReferralProps = NativeStackScreenProps<AppDrawerStackParamList, 'Referral'>
+// the Reimbursements Component props, within the AppDrawer stack
+export type ReimbursementsProps = NativeStackScreenProps<AppDrawerStackParamList, 'Reimbursements'>

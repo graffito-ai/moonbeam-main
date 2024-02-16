@@ -1,7 +1,7 @@
-import React, {useEffect} from 'react';
-import {View} from "react-native";
+import React, {useEffect, useState} from 'react';
+import {Text, TouchableOpacity, View} from "react-native";
 import {ReimbursementsSummaryProps} from "../../../../../../models/props/ReimbursementsControllerProps";
-import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
+import {styles} from "../../../../../../styles/reimbursementsController.module";
 
 /**
  * Reimbursements Summary component. This component will be used as the main
@@ -10,6 +10,9 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-nativ
  * @constructor constructor for the component.
  */
 export const ReimbursementsSummary = ({navigation}: ReimbursementsSummaryProps) => {
+    // constants used to keep track of local component state
+    const [activeSummaryState, setActiveSummaryState] = useState<'all' | 'ongoing' | 'complete'>('all');
+
     // constants used to keep track of shared states
 
 
@@ -28,17 +31,56 @@ export const ReimbursementsSummary = ({navigation}: ReimbursementsSummaryProps) 
      */
     return (
         <>
-            <View style={{flex: 1, backgroundColor: '#e5e5e5'}}>
-                <View style={{
-                    flex: 0.10,
-                    backgroundColor: '#FFFFFF',
-                    shadowColor: 'black',
-                    shadowOffset: {width: -2, height: 8},
-                    shadowOpacity: 0.35,
-                    shadowRadius: 12,
-                    elevation: 15
-                }}>
-
+            <View
+                style={styles.reimbursementSummaryMainView}>
+                <View style={styles.reimbursementSummaryTab}>
+                    <Text style={styles.reimbursementSummaryTabTitle}>
+                        My Cashback
+                    </Text>
+                    <View style={styles.reimbursementSummaryTabButtonView}>
+                        <TouchableOpacity
+                            onPress={() => {
+                                // set the appropriate active summary state
+                                setActiveSummaryState('all');
+                            }}
+                            style={activeSummaryState === 'all'
+                                ? styles.reimbursementSummaryTabButtonActive
+                                : styles.reimbursementSummaryTabButton}>
+                            <Text style={activeSummaryState === 'all'
+                                ? styles.reimbursementSummaryTabButtonTextActive
+                                : styles.reimbursementSummaryTabButtonText}>
+                                All
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => {
+                                // set the appropriate active summary state
+                                setActiveSummaryState('ongoing');
+                            }}
+                            style={activeSummaryState === 'ongoing'
+                                ? styles.reimbursementSummaryTabButtonActive
+                                : styles.reimbursementSummaryTabButton}>
+                            <Text style={activeSummaryState === 'ongoing'
+                                ? styles.reimbursementSummaryTabButtonTextActive
+                                : styles.reimbursementSummaryTabButtonText}>
+                                Ongoing
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => {
+                                // set the appropriate active summary state
+                                setActiveSummaryState('complete');
+                            }}
+                            style={activeSummaryState === 'complete'
+                                ? styles.reimbursementSummaryTabButtonActive
+                                : styles.reimbursementSummaryTabButton}>
+                            <Text style={activeSummaryState === 'complete'
+                                ? styles.reimbursementSummaryTabButtonTextActive
+                                : styles.reimbursementSummaryTabButtonText}>
+                                Complete
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
         </>

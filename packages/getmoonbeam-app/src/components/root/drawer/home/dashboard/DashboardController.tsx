@@ -9,7 +9,6 @@ import {showTransactionBottomSheetState, showWalletBottomSheetState} from "../..
 import {bottomBarNavigationState} from "../../../../../recoil/HomeAtom";
 import {View} from "react-native";
 import {showClickOnlyBottomSheetState} from "../../../../../recoil/StoreOfferAtom";
-import {ReimbursementsController} from "./reimbursements/ReimbursementsController";
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -68,19 +67,6 @@ export const DashboardController = ({navigation}: DashboardHomeProps) => {
                         <DashboardStack.Screen
                             name="Dashboard"
                             component={Dashboard}
-                            initialParams={{}}
-                        />
-                        <DashboardStack.Screen
-                            name="ReimbursementsController"
-                            component={ReimbursementsController}
-                            initialParams={{}}
-                        />
-                        {/*ToDo : This screen will need to be implemented, and it will represent a way for users to see all their transactions and statements */}
-                        <DashboardStack.Screen
-                            name="TransactionsController"
-                            component={() => {
-                                return (<></>)
-                            }}
                             initialParams={{}}
                         />
                     </DashboardStack.Navigator>

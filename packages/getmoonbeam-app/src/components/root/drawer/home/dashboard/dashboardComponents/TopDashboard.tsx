@@ -19,8 +19,6 @@ import {MerchantCategoryCodes, TransactionsStatus} from "@moonbeam/moonbeam-mode
 import * as _ from "lodash";
 import {FontAwesome} from "@expo/vector-icons";
 import {drawerNavigationState} from "../../../../../../recoil/HomeAtom";
-import {NativeStackNavigationProp} from "@react-navigation/native-stack";
-import {DashboardControllerStackParamList} from "../../../../../../models/props/DashboardControllerProps";
 
 /**
  * Interface used to define a savings category object, part of the
@@ -42,7 +40,6 @@ interface SavingsCategory {
  * @constructor constructor for the component.
  */
 export const TopDashboard = (props: {
-    navigation: NativeStackNavigationProp<DashboardControllerStackParamList, 'Dashboard', undefined>,
     currentUserName: string,
     setStatsDialogVisible: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
@@ -464,7 +461,7 @@ export const TopDashboard = (props: {
                         <TouchableOpacity
                             activeOpacity={0.75}
                             onPress={() => {
-                                props.navigation.navigate("ReimbursementsController", {});
+                                drawerNavigation && drawerNavigation.navigate("Reimbursements", {});
                             }}
                             style={[styles.topDashboardButton, {alignSelf: 'flex-start'}]}>
                             <Icon name="transfer"

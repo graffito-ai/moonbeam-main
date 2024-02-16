@@ -18,7 +18,6 @@ import * as StoreReview from 'expo-store-review';
 import {createOrUpdateAppReviewRecord, getAppReviewEligibilityCheck, logEvent} from "../../../../../../utils/AppSync";
 import {DashboardMain} from "./DashboardMain";
 import {DashboardBottomSheet} from "./DashboardBottomSheet";
-import {DashboardProps} from "../../../../../../models/props/DashboardControllerProps";
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -26,7 +25,7 @@ import {DashboardProps} from "../../../../../../models/props/DashboardController
  *
  * @constructor constructor for the component.
  */
-export const Dashboard = ({navigation}: DashboardProps) => {
+export const Dashboard = () => {
     // constants used to keep track of local component state
     const [appReviewModalShown, isAppReviewModalShown] = useState<boolean>(false);
     const [isReady,] = useState<boolean>(true);
@@ -146,23 +145,26 @@ export const Dashboard = ({navigation}: DashboardProps) => {
                                                 style={commonStyles.dialogParagraphBold}>Available
                                                 Balance</Text>.{"\n\n\n"}
                                                 <Text
-                                                    style={commonStyles.dialogParagraphNumbered}>➊</Text>   The <Text
-                                                style={commonStyles.dialogParagraphBold}>Total Saved</Text> amount are your
+                                                    style={commonStyles.dialogParagraphNumbered}>➊</Text> The <Text
+                                                style={commonStyles.dialogParagraphBold}>Total Saved</Text> amount are
+                                                your
                                                 all-time savings, including those that are not yet processed.
                                                 {"\n\n"}
                                                 <Text
-                                                    style={commonStyles.dialogParagraphNumbered}>➋</Text>   The <Text
+                                                    style={commonStyles.dialogParagraphNumbered}>➋</Text> The <Text
                                                 style={commonStyles.dialogParagraphBold}>Available
                                                 Balance</Text> amount is the processed cashback. This is the
                                                 only form of cash which can be redeemed. {"\n\n"}
-                                                <Text style={commonStyles.dialogParagraphNumbered}>➌</Text>   It can
+                                                <Text style={commonStyles.dialogParagraphNumbered}>➌</Text> It can
                                                 take up to 30 days for pending cashback to reflect in your <Text
-                                                style={commonStyles.dialogParagraphBold}>Available Balance</Text>.{"\n\n"}
-                                                <Text style={commonStyles.dialogParagraphNumbered}>➍</Text>   You will
+                                                style={commonStyles.dialogParagraphBold}>Available
+                                                Balance</Text>.{"\n\n"}
+                                                <Text style={commonStyles.dialogParagraphNumbered}>➍</Text> You will
                                                 be able to transfer your
-                                                <Text style={commonStyles.dialogParagraphBold}> Available Balance</Text> amount once it
+                                                <Text style={commonStyles.dialogParagraphBold}> Available
+                                                    Balance</Text> amount once it
                                                 reaches $20 or more.{"\n\n"}
-                                                <Text style={commonStyles.dialogParagraphNumbered}>➎</Text>   If you
+                                                <Text style={commonStyles.dialogParagraphNumbered}>➎</Text> If you
                                                 have any issues please contact support.{"\n\n"}
 
                                             </>
@@ -182,7 +184,6 @@ export const Dashboard = ({navigation}: DashboardProps) => {
                         </Portal>
                         <SafeAreaView style={styles.mainDashboardView}>
                             <DashboardMain
-                                navigation={navigation}
                                 setSelectedTransaction={setSelectedTransaction}
                                 setStatsDialogVisible={setStatsDialogVisible}
                             />

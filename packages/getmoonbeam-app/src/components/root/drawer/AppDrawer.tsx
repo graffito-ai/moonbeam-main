@@ -73,6 +73,7 @@ import {showClickOnlyBottomSheetState} from "../../../recoil/StoreOfferAtom";
 import Image = Animated.Image;
 import {styles} from "../../../styles/dashboard.module";
 import {Image as ExpoImage} from "expo-image/build/Image";
+import {ReimbursementsController} from "./home/dashboard/reimbursements/ReimbursementsController";
 
 /**
  * AppDrawer component.
@@ -1392,6 +1393,25 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                             <Icon
                                                 size={hp(3)}
                                                 name={'gift'} color={'#F2FF5D'}/>
+                                        ),
+                                        headerShown: drawerHeaderShown
+                                    }}
+                                />
+                                <ApplicationDrawer.Screen
+                                    name={"Reimbursements"}
+                                    component={ReimbursementsController}
+                                    initialParams={{}}
+                                    options={{
+                                        swipeEnabled: drawerSwipeEnabled,
+                                        drawerItemStyle: {
+                                            display: 'none',
+                                            right: wp(2),
+                                            marginBottom: 0
+                                        },
+                                        drawerIcon: () => (
+                                            <Icon
+                                                size={hp(3)}
+                                                name={'cash'} color={'#F2FF5D'}/>
                                         ),
                                         headerShown: drawerHeaderShown
                                     }}

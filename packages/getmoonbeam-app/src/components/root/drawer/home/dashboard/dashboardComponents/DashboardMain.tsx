@@ -10,8 +10,6 @@ import {showTransactionBottomSheetState} from "../../../../../../recoil/Dashboar
 import {customBannerState} from "../../../../../../recoil/CustomBannerAtom";
 import {currentUserInformation} from "../../../../../../recoil/AuthAtom";
 import {MoonbeamTransaction} from "@moonbeam/moonbeam-models";
-import {NativeStackNavigationProp} from "@react-navigation/native-stack";
-import {DashboardControllerStackParamList} from "../../../../../../models/props/DashboardControllerProps";
 
 /**
  * DashboardMain component.
@@ -20,7 +18,6 @@ import {DashboardControllerStackParamList} from "../../../../../../models/props/
  * @constructor constructor for the component.
  */
 export const DashboardMain = (props: {
-    navigation: NativeStackNavigationProp<DashboardControllerStackParamList, 'Dashboard', undefined>,
     setSelectedTransaction: React.Dispatch<React.SetStateAction<MoonbeamTransaction | null>>,
     setStatsDialogVisible: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
@@ -65,7 +62,6 @@ export const DashboardMain = (props: {
                         colors={['#5B5A5A', '#313030']}
                         style={styles.topDashboardView}>
                         <TopDashboard
-                            navigation={props.navigation}
                             currentUserName={currentUserName}
                             setStatsDialogVisible={props.setStatsDialogVisible}
                         />
