@@ -283,7 +283,24 @@ export const styles = StyleSheet.create({
         width: hp(18),
         alignSelf: 'center'
     },
-    cashoutButton: {
+    splashButtonDismiss: {
+        bottom: hp(5),
+        backgroundColor: '#F2FF5D',
+        width: wp(30),
+        height: hp(5),
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignSelf: 'center',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    splashButtonDismissText: {
+        color: '#313030',
+        fontFamily: 'Saira-Medium',
+        fontSize: hp(2.3),
+        marginTop: hp(1)
+    },
+    cashoutButtonEnabled: {
         top: hp(3),
         backgroundColor: '#F2FF5D',
         width: wp(30),
@@ -294,7 +311,24 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
-    cashoutText: {
+    cashoutButtonDisabled: {
+        top: hp(3),
+        backgroundColor: '#D9D9D9',
+        width: wp(30),
+        height: hp(5),
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignSelf: 'center',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    cashoutTextEnabled: {
+        color: '#313030',
+        fontFamily: 'Saira-Medium',
+        fontSize: hp(2.3),
+        marginTop: hp(1)
+    },
+    cashoutTextDisabled: {
         color: '#313030',
         fontFamily: 'Saira-Medium',
         fontSize: hp(2.3),

@@ -1,6 +1,5 @@
 import {atom, selector} from "recoil";
 import {Reimbursement} from "../components/root/drawer/home/dashboard/reimbursements/ReimbursementsSummary";
-import {CardType} from "@moonbeam/moonbeam-models";
 
 /**
  * Atom used to keep track of the state of the reimbursements bottom sheet
@@ -17,18 +16,7 @@ const reimbursementBottomSheetShownState = atom<boolean>({
  */
 const reimbursementDataState = atom<Reimbursement[]>({
     key: "reimbursementDataState",
-    default: [
-        {
-            id: 'd062ba64-e7ab-4ddb-addc-d7424e1a1980',
-            timestamp: 1705280633000,
-            status: 'PROCESSED',
-            amount: 35.98,
-            cardId: 'e8b005d4-77c6-40e8-16b0-08dc113119af',
-            cardLast4: '8999',
-            cardType: CardType.Visa,
-            transactions: []
-        }
-    ]
+    default: []
 });
 
 /**

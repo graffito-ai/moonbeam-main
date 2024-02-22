@@ -17,8 +17,10 @@ import {convertMSToTimeframe} from "../../../../../../utils/Util";
 import {ReimbursementBottomSheet} from "./ReimbursementBottomSheet";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
-    cardChoiceDropdownOpenState, cardChoiceDropdownValueState,
-    pendingReimbursementsDataState, processedReimbursementsDataState,
+    cardChoiceDropdownOpenState,
+    cardChoiceDropdownValueState,
+    pendingReimbursementsDataState,
+    processedReimbursementsDataState,
     reimbursementBottomSheetShownState,
     reimbursementDataState
 } from "../../../../../../recoil/ReimbursementsAtom";
@@ -61,9 +63,10 @@ export const ReimbursementsSummary = ({}: ReimbursementsSummaryProps) => {
     const [, setIsCardChoiceDropdownOpen] = useRecoilState(cardChoiceDropdownOpenState);
     const [, setCardChoiceDropdownValue] = useRecoilState(cardChoiceDropdownValueState);
     const [showReimbursementBottomSheet, setShowReimbursementBottomSheet] = useRecoilState(reimbursementBottomSheetShownState);
-    const [reimbursements, setReimbursements] = useRecoilState(reimbursementDataState);
+    const [reimbursements,] = useRecoilState(reimbursementDataState);
     const pendingReimbursements = useRecoilValue(pendingReimbursementsDataState);
     const processedReimbursements = useRecoilValue(processedReimbursementsDataState);
+
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
      * auth-related functionality for example), as well as any afferent API calls.
@@ -113,11 +116,12 @@ export const ReimbursementsSummary = ({}: ReimbursementsSummaryProps) => {
      *
      * @param type row type to be passed in
      * @param data data to be passed in for the row
+     * @param index number specifying the index of the data element to be rendered
      *
      * @return a {@link React.JSX.Element} or an {@link Array} of {@link React.JSX.Element} representing the
      * React node and/or nodes containing reimbursements data.
      */
-    const renderReimbursementData = useMemo(() => (_type: string | number, data: Reimbursement): React.JSX.Element | React.JSX.Element[] => {
+    const renderReimbursementData = useMemo(() => (_type: string | number, data: Reimbursement, index: number): React.JSX.Element | React.JSX.Element[] => {
         // switch based on the active summary state
         let reimbursementsData: Reimbursement[] = [];
         switch (activeSummaryState) {
@@ -137,7 +141,7 @@ export const ReimbursementsSummary = ({}: ReimbursementsSummaryProps) => {
         if (reimbursementsData !== undefined && reimbursementsData !== null && reimbursementsData.length !== 0) {
             return (
                 <View
-                    style={styles.reimbursementItemView}>
+                    style={[styles.reimbursementItemView, index === reimbursementsData.length - 1 && {marginBottom: hp(10)}]}>
                     <List.Item
                         titleStyle={styles.reimbursementItemTitle}
                         descriptionStyle={styles.reimbursementDescription}
@@ -187,8 +191,8 @@ export const ReimbursementsSummary = ({}: ReimbursementsSummaryProps) => {
                             activeSummaryState === 'all'
                                 ? "You have not Cashed Out yet!"
                                 : (activeSummaryState === 'ongoing'
-                                    ? "No Pending Cashback available!"
-                                    : "No Processed Cashback Available!"
+                                        ? "No Pending Cashback available!"
+                                        : "No Processed Cashback Available!"
                                 )
                         }
                     </Text>
@@ -436,8 +440,8 @@ export const ReimbursementsSummary = ({}: ReimbursementsSummaryProps) => {
                         />
                     </View>
                 }
-                <ReimbursementBottomSheet/>
             </TouchableOpacity>
+            <ReimbursementBottomSheet/>
         </>
     );
 };
