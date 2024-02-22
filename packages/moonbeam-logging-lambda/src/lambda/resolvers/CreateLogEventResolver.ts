@@ -169,7 +169,7 @@ export const createLogEvent = async (sub: string, fieldName: string, createLogEv
 
         // make sure that there is no resource already existent exception, and if there is then just push the event in the log stream
         // @ts-ignore
-        if (err.code && err.code === 'ResourceAlreadyExistsException' && err.message && err.message.contains('The specified log stream already exists')) {
+        if (err && (JSON.stringify(err).includes('ResourceAlreadyExistsException') || JSON.stringify(err).includes('The specified log stream already exists'))) {
             // push the new log event into the stream
             const pushLogEventFlag = await pushLogEvent(dateToday.toISOString(), sub, createLogEventInput, cloudWatchClient, frontendLogGroupName, logStreamName);
 

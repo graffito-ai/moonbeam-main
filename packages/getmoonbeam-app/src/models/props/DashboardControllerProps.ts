@@ -9,5 +9,3 @@ export type DashboardControllerStackParamList = {
 
 // the Dashboard component props, within the Dashboard Controller stack
 export type DashboardProps = NativeStackScreenProps<DashboardControllerStackParamList, 'Dashboard'>;
-
-
