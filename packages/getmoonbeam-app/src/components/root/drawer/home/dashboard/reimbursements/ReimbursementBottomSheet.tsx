@@ -19,6 +19,10 @@ import MoonbeamVisa2 from "../../../../../../../assets/art/moonbeam-visa-2.png";
 import MoonbeamMaster2 from "../../../../../../../assets/art/moonbeam-master-2.png";
 // @ts-ignore
 import MoonbeamPiggyBank from "../../../../../../../assets/art/moonbeam-piggy-bank.png";
+// @ts-ignore
+import MoonbeamErrorImage from "../../../../../../../assets/art/moonbeam-error.png";
+// @ts-ignore
+import MoonbeamCashOutOk from "../../../../../../../assets/art/moonbeam-cash-out-ok.png";
 import {Image as ExpoImage} from "expo-image/build/Image";
 import {styles} from "../../../../../../styles/reimbursementsController.module";
 import {Text, TouchableOpacity, View} from "react-native";
@@ -26,7 +30,8 @@ import {bottomBarNavigationState, bottomTabShownState, drawerNavigationState} fr
 import {currentBalanceState} from "../../../../../../recoil/DashboardAtom";
 import {CardType} from "@moonbeam/moonbeam-models";
 import DropDownPicker from "react-native-dropdown-picker";
-import { Icon } from "react-native-paper";
+import {Icon} from "react-native-paper";
+import {splashStatusState} from "../../../../../../recoil/SplashAtom";
 
 /**
  * Object representing the choice of card to be displayed in the
@@ -51,6 +56,7 @@ export const ReimbursementBottomSheet = () => {
     const bottomSheetRef = useRef(null);
     const [cardChoices, setCardChoices] = useState<CardChoice[]>([]);
     // constants used to keep track of shared states
+    const [, setSplashState] = useRecoilState(splashStatusState);
     const [cardChoiceDropdownOpen, setIsCardChoiceDropdownOpen] = useRecoilState(cardChoiceDropdownOpenState);
     const [cardChoiceDropdownValue, setCardChoiceDropdownValue] = useRecoilState(cardChoiceDropdownValueState);
     const [bottomTabShown, setBottomTabShown] = useRecoilState(bottomTabShownState);
@@ -98,23 +104,6 @@ export const ReimbursementBottomSheet = () => {
                     last4: card["last4"],
                     cardId: card["id"]
                 });
-                newCardChoices.push({
-                    label: `${card["type"]}••••${card["last4"]}`,
-                    icon: () =>
-                        <Icon
-                            size={hp(5)}
-                            source={
-                                card["type"] === CardType.Visa
-                                    ? MoonbeamVisa2
-                                    : MoonbeamMaster2
-                            }
-                            color={'#F2FF5D'}
-                        />,
-                    value: card["id"],
-                    cardType: card["type"] as CardType,
-                    last4: card["last4"],
-                    cardId: card["id"]
-                });
             });
             setCardChoices([...cardChoices, ...newCardChoices]);
         }
@@ -129,9 +118,14 @@ export const ReimbursementBottomSheet = () => {
      * 2) since we have a subscription for any transaction status updates, the front-end related
      * transactions will get updated automatically and the current available balance will be updated
      * accordingly as well.
+     *
+     * @returns a {@link boolean} representing a flag indicating whether the cashing out was successful
+     * or not.
      */
-    const cashOut = async () => {
-
+    const cashOut = async (): Promise<boolean> => {
+        // ToDo: need to get this button action to call a cashout API, and reset available balance and change status of specific transactions
+        // ToDo: add a new cashback as PENDING in the list of reimbursements, close modal and show a pop-up confirming successful reimbursement
+        return false;
     }
 
     // return the component for the DashboardBottomSheet, part of the Dashboard page
@@ -235,23 +229,40 @@ export const ReimbursementBottomSheet = () => {
                                         />
                                     </View>
                                     <TouchableOpacity
-                                        style={styles.cashoutButton}
+                                        disabled={cardChoiceDropdownValue === ""}
+                                        style={cardChoiceDropdownValue === "" ? styles.cashoutButtonDisabled : styles.cashoutButtonEnabled}
                                         onPress={async () => {
-                                            // ToDo: need to get this button action to call a cashout API, and reset available balance and change status of specific transactions
-                                            // ToDo: add a new cashback as PENDING in the list of reimbursements, close modal and show a pop-up confirming successful reimbursement
+                                            if (cardChoiceDropdownValue !== "") {
+                                                // reset the card choice dropdown value and open state
+                                                setCardChoiceDropdownValue("");
+                                                setIsCardChoiceDropdownOpen(false);
 
-                                            // reset the card choice dropdown value and open state
-                                            setCardChoiceDropdownValue("");
-                                            setIsCardChoiceDropdownOpen(false);
+                                                // close the bottom sheet
+                                                setShowReimbursementBottomSheet(false);
 
-                                            // close the bottom sheet
-                                            setShowReimbursementBottomSheet(false);
-
-                                            // execute the cashing out
-                                            await cashOut();
+                                                // execute the cashing out, and display a Splash Screen accordingly
+                                                const cashOutFlag = await cashOut();
+                                                if (cashOutFlag) {
+                                                    setSplashState({
+                                                        splashTitle: `Successfully cashed out!`,
+                                                        splashDescription: `It might take 1-3 business days to see your cashback reflected as statement credit.`,
+                                                        splashButtonText: `Ok`,
+                                                        splashArtSource: MoonbeamCashOutOk
+                                                    });
+                                                } else {
+                                                    setSplashState({
+                                                        splashTitle: `Houston we got a problem!`,
+                                                        splashDescription: `There was an error while cashing out.`,
+                                                        splashButtonText: `Try Again`,
+                                                        splashArtSource: MoonbeamErrorImage
+                                                    });
+                                                }
+                                            }
                                         }}
                                     >
-                                        <Text style={styles.cashoutText}>Cash Out</Text>
+                                        <Text
+                                            style={cardChoiceDropdownValue === "" ? styles.cashoutTextDisabled : styles.cashoutTextEnabled}>Cash
+                                            Out</Text>
                                     </TouchableOpacity>
                                 </View>
                             </>
