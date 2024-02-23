@@ -68,6 +68,7 @@ export const updateTransaction = async (fieldName: string, updateTransactionInpu
 
             // return the updated transaction details
             return {
+                id: updateTransactionInput.id,
                 data: {
                     id: updateTransactionInput.id,
                     timestamp: updateTransactionInput.timestamp,

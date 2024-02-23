@@ -1522,6 +1522,7 @@ export type Subscription = {
   __typename?: 'Subscription';
   createdTransaction?: Maybe<MoonbeamTransactionResponse>;
   updatedMilitaryVerificationStatus?: Maybe<UpdateMilitaryVerificationResponse>;
+  updatedTransaction?: Maybe<MoonbeamUpdatedTransactionResponse>;
 };
 
 
@@ -1531,6 +1532,11 @@ export type SubscriptionCreatedTransactionArgs = {
 
 
 export type SubscriptionUpdatedMilitaryVerificationStatusArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type SubscriptionUpdatedTransactionArgs = {
   id: Scalars['ID'];
 };
 
@@ -2107,6 +2113,13 @@ export type UpdatedMilitaryVerificationStatusSubscriptionVariables = Exact<{
 
 
 export type UpdatedMilitaryVerificationStatusSubscription = { __typename?: 'Subscription', updatedMilitaryVerificationStatus?: { __typename?: 'UpdateMilitaryVerificationResponse', errorType?: MilitaryVerificationErrorType | null, errorMessage?: string | null, id?: string | null, militaryVerificationStatus?: MilitaryVerificationStatusType | null } | null };
+
+export type UpdatedTransactionSubscriptionVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type UpdatedTransactionSubscription = { __typename?: 'Subscription', updatedTransaction?: { __typename?: 'MoonbeamUpdatedTransactionResponse', errorType?: TransactionsErrorType | null, errorMessage?: string | null, id?: string | null, data?: { __typename?: 'MoonbeamUpdatedTransaction', id: string, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, updatedAt: string } | null } | null };
 
 export type CreatedTransactionSubscriptionVariables = Exact<{
   id: Scalars['ID'];

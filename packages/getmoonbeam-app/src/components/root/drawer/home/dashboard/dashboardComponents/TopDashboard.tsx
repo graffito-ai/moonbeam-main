@@ -126,6 +126,11 @@ export const TopDashboard = (props: {
                         }
                     }
 
+                    // for unknown transaction categories, set them to Other
+                    if (transactionCategoryName === undefined || transactionCategoryName === null) {
+                        transactionCategoryName = 'Other';
+                    }
+
                     // set the longest category's name length
                     if (longestCategoryName < transactionCategoryName.length) {
                         longestCategoryName = transactionCategoryName.length;

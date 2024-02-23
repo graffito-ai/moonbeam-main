@@ -29,8 +29,8 @@ import {
     LoggingLevel,
     MilitaryVerificationErrorType,
     MilitaryVerificationStatusType,
-    MoonbeamTransaction,
-    updatedMilitaryVerificationStatus,
+    MoonbeamTransaction, MoonbeamUpdatedTransaction,
+    updatedMilitaryVerificationStatus, updatedTransaction,
 } from "@moonbeam/moonbeam-models";
 import {API, Auth, graphqlOperation} from "aws-amplify";
 import {Observable} from "zen-observable-ts";
@@ -90,6 +90,8 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         const [militaryStatusUpdatesSubscribed, setMilitaryStatusUpdatesSubscribed] = useState<boolean>(false);
         const [, setTransactionCreatedSubscription] = useState<ZenObservable.Subscription | null>(null);
         const [transactionCreatedSubscribed, setTransactionCreatedSubscribed] = useState<boolean>(false);
+        const [, setTransactionUpdatedSubscription] = useState<ZenObservable.Subscription | null>(null);
+        const [transactionUpdatedSubscribed, setTransactionUpdatedSubscribed] = useState<boolean>(false);
         const [userVerified, setUserVerified] = useState<boolean>(false);
         const [cardLinkRetrieved, setCardLinkRetrieved] = useState<boolean>(false);
         const [profilePictureRetrieved, setProfilePictureRetrieved] = useState<boolean>(false);
@@ -163,6 +165,9 @@ export const AppDrawer = ({}: AppDrawerProps) => {
 
                         // subscribe to receiving updates about newly created transactions
                         subscribeTransactionsCreatedUpdates(userInformation["custom:userId"]).then(() => setTransactionCreatedSubscribed(true));
+
+                        // subscribe to receiving updates about newly updated transactions
+                        subscribeTransactionUpdatedUpdates(userInformation["custom:userId"]).then(() => setTransactionUpdatedSubscribed(true));
 
                         /**
                          * we then check whether we should proceed with the creation of a new physical device, or not.
@@ -478,9 +483,93 @@ export const AppDrawer = ({}: AppDrawerProps) => {
             }
         }
 
+        /**
+         * Function used to start subscribing to any new transactions that are updated, made through the
+         * "updateTransaction" mutation, for a specific user id.
+         *
+         * @param userId userID generated through previous steps during the sign-up process
+         * @return a {@link Promise} of a {@link Boolean} representing a flag indicating whether the subscription
+         * was successful or not.
+         */
+        const subscribeTransactionUpdatedUpdates = async (userId: string): Promise<void> => {
+            try {
+                if (!transactionUpdatedSubscribed) {
+                    const updatedTransactionUpdate = await API.graphql(graphqlOperation(updatedTransaction, {id: userId})) as unknown as Observable<any>;
+                    // @ts-ignore
+                    setTransactionUpdatedSubscription(updatedTransactionUpdate.subscribe({
+                        // function triggering on the next transaction updated
+                        next: async ({value}) => {
+                            // check to ensure that there is a value and a valid data block to parse the message from
+                            if (value && value.data && value.data.updatedTransaction) {
+                                // parse the new updated transaction data from the subscription message received
+                                const messageData: MoonbeamUpdatedTransaction = value.data.updatedTransaction.data;
+                                // updating the specific transaction details, accordingly
+                                setTransactionData(latestTransactionData => {
+                                    const newTransactionList: MoonbeamTransaction[] = [];
+                                    latestTransactionData.forEach(transaction => {
+                                        const newTransaction: MoonbeamTransaction = transaction;
+                                        if (newTransaction.id === messageData.id && newTransaction.transactionId === messageData.transactionId) {
+                                            // update the updated at and status values
+                                            newTransactionList.push({
+                                                brandId: newTransaction.brandId,
+                                                cardId: newTransaction.cardId,
+                                                category: newTransaction.category,
+                                                createdAt: newTransaction.createdAt,
+                                                creditedCashbackAmount: newTransaction.creditedCashbackAmount,
+                                                currencyCode: newTransaction.currencyCode,
+                                                id: newTransaction.id,
+                                                memberId: newTransaction.memberId,
+                                                pendingCashbackAmount: newTransaction.pendingCashbackAmount,
+                                                rewardAmount: newTransaction.rewardAmount,
+                                                storeId: newTransaction.storeId,
+                                                timestamp: newTransaction.timestamp,
+                                                totalAmount: newTransaction.totalAmount,
+                                                transactionBrandAddress: newTransaction.transactionBrandAddress,
+                                                transactionBrandLogoUrl: newTransaction.transactionBrandLogoUrl,
+                                                transactionBrandName: newTransaction.transactionBrandName,
+                                                transactionBrandURLAddress: newTransaction.transactionBrandURLAddress,
+                                                transactionId: newTransaction.transactionId,
+                                                transactionIsOnline: newTransaction.transactionIsOnline,
+                                                transactionStatus: messageData.transactionStatus,
+                                                transactionType: newTransaction.transactionType,
+                                                updatedAt: messageData.updatedAt
+                                            })
+                                        } else {
+                                            newTransactionList.push(newTransaction);
+                                        }
+                                    });
+                                    // @link https://legacy.reactjs.org/docs/hooks-reference.html#functional-updates
+                                    return [...newTransactionList];
+                                });
+                            } else {
+                                const message = `Unexpected error while parsing subscription message for transactions updated updates ${JSON.stringify(value)}`;
+                                console.log(message);
+                                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
+                                setModalVisible(true);
+                            }
+                        },
+                        // function triggering in case there are any errors
+                        error: async (error) => {
+                            const message = `Unexpected error while subscribing to transactions updated updates ${JSON.stringify(error)} ${error}`;
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
+                            setModalVisible(true);
+                        }
+                    }));
+                }
+            } catch (error) {
+                const message = `Unexpected error while building a subscription to observe transactions updated updates ${JSON.stringify(error)} ${error}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
+                setModalVisible(true);
+            }
+        }
 
         /**
-         * Function used to start subscribing to any new transactions thar are created, made through the
+         * Function used to start subscribing to any new transactions that are created, made through the
          * "createTransaction" mutation, for a specific user id.
          *
          * @param userId userID generated through previous steps during the sign-up process
