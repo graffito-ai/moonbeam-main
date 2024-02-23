@@ -2,6 +2,52 @@
  * This is a file used to define the all GraphQL mutation constants
  */
 
+// Mutation used to create a new reimbursement for a particular user.
+export const createReimbursement = /* GraphQL */ `
+    mutation CreateReimbursement($createReimbursementInput: CreateReimbursementInput!) {
+        createReimbursement(createReimbursementInput: $createReimbursementInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                timestamp
+                reimbursementId
+                createdAt
+                updatedAt
+                status
+                amount
+                cardId
+                cardLast4
+                cardType
+                transactions {
+                    id
+                    timestamp
+                    transactionId
+                    transactionStatus
+                    transactionType
+                    createdAt
+                    updatedAt
+                    memberId
+                    cardId
+                    brandId
+                    storeId
+                    category
+                    currencyCode
+                    rewardAmount
+                    totalAmount
+                    pendingCashbackAmount
+                    creditedCashbackAmount
+                    transactionBrandName
+                    transactionBrandAddress
+                    transactionBrandLogoUrl
+                    transactionBrandURLAddress
+                    transactionIsOnline
+                }
+            }
+        }
+    }
+`;
+
 // Mutation used to create and/or update a new and/or existing app review for a particular user.
 export const createAppReview = /* GraphQL */ `
     mutation CreateAppReview($createAppReviewInput: CreateAppReviewInput!) {

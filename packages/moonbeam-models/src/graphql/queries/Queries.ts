@@ -2,6 +2,52 @@
  * This is a file used to define the all GraphQL query constants
  */
 
+// Query used to retrieve the reimbursements for a particular user
+export const getReimbursements = /* GraphQL */ `
+    query GetReimbursements($getReimbursementsInput: GetReimbursementsInput!) {
+        getReimbursements(getReimbursementsInput: $getReimbursementsInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                timestamp
+                reimbursementId
+                createdAt
+                updatedAt
+                status
+                amount
+                cardId
+                cardLast4
+                cardType
+                transactions {
+                    id
+                    timestamp
+                    transactionId
+                    transactionStatus
+                    transactionType
+                    createdAt
+                    updatedAt
+                    memberId
+                    cardId
+                    brandId
+                    storeId
+                    category
+                    currencyCode
+                    rewardAmount
+                    totalAmount
+                    pendingCashbackAmount
+                    creditedCashbackAmount
+                    transactionBrandName
+                    transactionBrandAddress
+                    transactionBrandLogoUrl
+                    transactionBrandURLAddress
+                    transactionIsOnline
+                }
+            }
+        }
+    }
+`;
+
 // Query used to retrieve location predictions given an address
 export const getLocationPredictions = /* GraphQL */ `
     query GetLocationPredictions($getLocationPredictionsInput: GetLocationPredictionsInput!) {

@@ -269,6 +269,20 @@ export type CreateReferralInput = {
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
+export type CreateReimbursementInput = {
+  amount: Scalars['Float'];
+  cardId: Scalars['String'];
+  cardLast4: Scalars['String'];
+  cardType: CardType;
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+  id: Scalars['ID'];
+  reimbursementId?: InputMaybe<Scalars['ID']>;
+  status: ReimbursementStatus;
+  timestamp: Scalars['AWSTimestamp'];
+  transactions: Array<InputMaybe<CreateTransactionInput>>;
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
 export type CreateTransactionInput = {
   brandId: Scalars['ID'];
   cardId: Scalars['ID'];
@@ -506,6 +520,10 @@ export type GetOffersInput = {
 
 export type GetReferralsByStatusInput = {
   status: ReferralStatus;
+};
+
+export type GetReimbursementsInput = {
+  id: Scalars['ID'];
 };
 
 export type GetStorageInput = {
@@ -856,6 +874,7 @@ export type Mutation = {
   createNotification: CreateNotificationResponse;
   createNotificationReminder: NotificationReminderResponse;
   createReferral: ReferralResponse;
+  createReimbursement: ReimbursementResponse;
   createTransaction: MoonbeamTransactionResponse;
   createUserAuthSession: UserAuthSessionResponse;
   deleteCard: CardResponse;
@@ -916,6 +935,11 @@ export type MutationCreateNotificationReminderArgs = {
 
 export type MutationCreateReferralArgs = {
   createReferralInput: CreateReferralInput;
+};
+
+
+export type MutationCreateReimbursementArgs = {
+  createReimbursementInput: CreateReimbursementInput;
 };
 
 
@@ -1295,6 +1319,7 @@ export type Query = {
   getOffers: OffersResponse;
   getPremierOffers: OffersResponse;
   getReferralsByStatus: ReferralResponse;
+  getReimbursements: ReimbursementResponse;
   getSeasonalOffers: OffersResponse;
   getStorage: StorageResponse;
   getTransaction: MoonbeamTransactionsResponse;
@@ -1369,6 +1394,11 @@ export type QueryGetPremierOffersArgs = {
 
 export type QueryGetReferralsByStatusArgs = {
   getReferralsByStatusInput: GetReferralsByStatusInput;
+};
+
+
+export type QueryGetReimbursementsArgs = {
+  getReimbursementsInput: GetReimbursementsInput;
 };
 
 
@@ -1454,6 +1484,42 @@ export enum ReferralStatus {
   Pending = 'PENDING',
   Redeemed = 'REDEEMED',
   Valid = 'VALID'
+}
+
+export type Reimbursement = {
+  __typename?: 'Reimbursement';
+  amount: Scalars['Float'];
+  cardId: Scalars['String'];
+  cardLast4: Scalars['String'];
+  cardType: CardType;
+  createdAt: Scalars['AWSDateTime'];
+  id: Scalars['ID'];
+  reimbursementId: Scalars['ID'];
+  status: ReimbursementStatus;
+  timestamp: Scalars['AWSTimestamp'];
+  transactions: Array<Maybe<Transaction>>;
+  updatedAt: Scalars['AWSDateTime'];
+};
+
+export type ReimbursementResponse = {
+  __typename?: 'ReimbursementResponse';
+  data?: Maybe<Array<Maybe<Reimbursement>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<ReimbursementsErrorType>;
+};
+
+export enum ReimbursementStatus {
+  Declined = 'DECLINED',
+  Pending = 'PENDING',
+  Processed = 'PROCESSED',
+  Rejected = 'REJECTED'
+}
+
+export enum ReimbursementsErrorType {
+  DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  ValidationError = 'VALIDATION_ERROR'
 }
 
 export type RemoveCardResponse = {
@@ -1605,6 +1671,8 @@ export enum TransactionsErrorType {
 
 export enum TransactionsStatus {
   Credited = 'CREDITED',
+  Fronted = 'FRONTED',
+  Funded = 'FUNDED',
   Pending = 'PENDING',
   Processed = 'PROCESSED',
   Rejected = 'REJECTED'
@@ -1785,6 +1853,13 @@ export enum UtilitiesErrorType {
   ValidationError = 'VALIDATION_ERROR'
 }
 
+export type CreateReimbursementMutationVariables = Exact<{
+  createReimbursementInput: CreateReimbursementInput;
+}>;
+
+
+export type CreateReimbursementMutation = { __typename?: 'Mutation', createReimbursement: { __typename?: 'ReimbursementResponse', errorMessage?: string | null, errorType?: ReimbursementsErrorType | null, data?: Array<{ __typename?: 'Reimbursement', id: string, timestamp: number, reimbursementId: string, createdAt: string, updatedAt: string, status: ReimbursementStatus, amount: number, cardId: string, cardLast4: string, cardType: CardType, transactions: Array<{ __typename?: 'Transaction', id?: string | null, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt?: string | null, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount?: number | null, totalAmount?: number | null, pendingCashbackAmount?: number | null, creditedCashbackAmount?: number | null, transactionBrandName?: string | null, transactionBrandAddress?: string | null, transactionBrandLogoUrl?: string | null, transactionBrandURLAddress?: string | null, transactionIsOnline?: boolean | null } | null> } | null> | null } };
+
 export type CreateAppReviewMutationVariables = Exact<{
   createAppReviewInput: CreateAppReviewInput;
 }>;
@@ -1924,6 +1999,13 @@ export type UpdateMilitaryVerificationStatusMutationVariables = Exact<{
 
 
 export type UpdateMilitaryVerificationStatusMutation = { __typename?: 'Mutation', updateMilitaryVerificationStatus: { __typename?: 'UpdateMilitaryVerificationResponse', errorType?: MilitaryVerificationErrorType | null, errorMessage?: string | null, id?: string | null, militaryVerificationStatus?: MilitaryVerificationStatusType | null } };
+
+export type GetReimbursementsQueryVariables = Exact<{
+  getReimbursementsInput: GetReimbursementsInput;
+}>;
+
+
+export type GetReimbursementsQuery = { __typename?: 'Query', getReimbursements: { __typename?: 'ReimbursementResponse', errorMessage?: string | null, errorType?: ReimbursementsErrorType | null, data?: Array<{ __typename?: 'Reimbursement', id: string, timestamp: number, reimbursementId: string, createdAt: string, updatedAt: string, status: ReimbursementStatus, amount: number, cardId: string, cardLast4: string, cardType: CardType, transactions: Array<{ __typename?: 'Transaction', id?: string | null, timestamp: number, transactionId: string, transactionStatus: TransactionsStatus, transactionType: TransactionType, createdAt: string, updatedAt?: string | null, memberId: string, cardId: string, brandId: string, storeId: string, category: string, currencyCode: CurrencyCodeType, rewardAmount?: number | null, totalAmount?: number | null, pendingCashbackAmount?: number | null, creditedCashbackAmount?: number | null, transactionBrandName?: string | null, transactionBrandAddress?: string | null, transactionBrandLogoUrl?: string | null, transactionBrandURLAddress?: string | null, transactionIsOnline?: boolean | null } | null> } | null> | null } };
 
 export type GetLocationPredictionsQueryVariables = Exact<{
   getLocationPredictionsInput: GetLocationPredictionsInput;

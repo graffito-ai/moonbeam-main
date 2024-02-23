@@ -9,7 +9,7 @@ import {Divider} from "@rneui/base";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {customBannerState} from "../../../../../../recoil/CustomBannerAtom";
 import {showTransactionBottomSheetState, sortedTransactionDataState} from "../../../../../../recoil/DashboardAtom";
-import {MoonbeamTransaction} from "@moonbeam/moonbeam-models";
+import {MoonbeamTransaction, TransactionsStatus} from "@moonbeam/moonbeam-models";
 import {convertMSToTimeframe} from "../../../../../../utils/Util";
 
 /**
@@ -98,7 +98,16 @@ export const BottomDashboard = (props: {
                                         <Text
                                             style={styles.itemRightDetailTop}>{`+ $ ${transaction.rewardAmount.toFixed(2)}`}</Text>
                                         <Text
-                                            style={styles.itemRightDetailBottom}>{transaction.transactionStatus}</Text>
+                                            style={styles.itemRightDetailBottom}>
+                                            {
+                                                transaction.transactionStatus === TransactionsStatus.Funded
+                                                    ? TransactionsStatus.Processed
+                                                    : (transaction.transactionStatus === TransactionsStatus.Fronted
+                                                            ? TransactionsStatus.Credited
+                                                            : transaction.transactionStatus
+                                                    )
+                                            }
+                                        </Text>
                                     </View>
                                     <View style={styles.rightItemIcon}>
                                         <List.Icon color={'#F2FF5D'} icon="chevron-right"/>

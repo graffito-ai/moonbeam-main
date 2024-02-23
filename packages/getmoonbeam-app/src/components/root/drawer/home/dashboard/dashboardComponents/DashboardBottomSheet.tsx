@@ -5,7 +5,7 @@ import {heightPercentageToDP as hp} from "react-native-responsive-screen";
 import {TransactionsBottomSheet} from "../transactions/TransactionsBottomSheet";
 import {useRecoilState} from "recoil";
 import {showTransactionBottomSheetState} from "../../../../../../recoil/DashboardAtom";
-import {MoonbeamTransaction} from "@moonbeam/moonbeam-models";
+import {MoonbeamTransaction, TransactionsStatus} from "@moonbeam/moonbeam-models";
 import {bottomTabShownState} from "../../../../../../recoil/HomeAtom";
 import {drawerSwipeState} from "../../../../../../recoil/AppDrawerAtom";
 
@@ -90,7 +90,13 @@ export const DashboardBottomSheet = (props: {
                             transactionAmount={props.selectedTransaction.totalAmount.toFixed(2).toString()}
                             transactionDiscountAmount={props.selectedTransaction.rewardAmount.toFixed(2).toString()}
                             transactionTimestamp={props.selectedTransaction.timestamp.toString()}
-                            transactionStatus={props.selectedTransaction.transactionStatus.toString()}
+                            transactionStatus={
+                                props.selectedTransaction.transactionStatus === TransactionsStatus.Funded
+                                    ? TransactionsStatus.Processed.toString()
+                                    : (props.selectedTransaction.transactionStatus === TransactionsStatus.Fronted
+                                        ? TransactionsStatus.Credited.toString()
+                                        : props.selectedTransaction.transactionStatus.toString())
+                            }
                         />
                     }
                 </BottomSheet>

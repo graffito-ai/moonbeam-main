@@ -29,6 +29,7 @@ type Query {
     getMilitaryVerificationInformation(getMilitaryVerificationInformationInput: GetMilitaryVerificationInformationInput!): MilitaryVerificationReportingInformationResponse! @aws_cognito_user_pools @aws_api_key
     getAppReviewEligibility(getAppReviewEligibilityInput: GetAppReviewEligibilityInput!): GetAppReviewEligibilityResponse! @aws_cognito_user_pools
     getLocationPredictions(getLocationPredictionsInput: GetLocationPredictionsInput!): GetLocationPredictionsResponse! @aws_cognito_user_pools @aws_iam
+    getReimbursements(getReimbursementsInput: GetReimbursementsInput!): ReimbursementResponse! @aws_cognito_user_pools
 }
 
 type Mutation {
@@ -52,6 +53,7 @@ type Mutation {
     createLogEvent(createLogEventInput: CreateLogEventInput!): LoggingResponse! @aws_cognito_user_pools @aws_iam
     putMilitaryVerificationReport(putMilitaryVerificationReportInput: PutMilitaryVerificationReportInput!): MilitaryVerificationReportResponse! @aws_cognito_user_pools @aws_api_key
     createAppReview(createAppReviewInput: CreateAppReviewInput!): AppReviewResponse! @aws_cognito_user_pools
+    createReimbursement(createReimbursementInput: CreateReimbursementInput!): ReimbursementResponse! @aws_cognito_user_pools
 }
 
 type Subscription {
@@ -437,7 +439,9 @@ enum TransactionsErrorType {
 enum TransactionsStatus {
     PENDING ## pending  = transaction is a qualifying offer, and it is pending merchant approval and funding
     PROCESSED ## processed = transaction is a qualifying offer, and it has been approved and funded by the merchant
-    CREDITED ## credited = transaction is a qualifying offer, and it has been approved and funded by the merchant, and its cashback credited back to the user
+    FUNDED ## funded = transaction is a qualifying offer, and it has been approved and funded by the merchant, and its cashback credited back to Moonbeam
+    FRONTED ## fronted - transaction is a qualifying offer, and it has been approved and funded by the merchant, and its cashback has not been credited back to Moonbeam, but it has been credited back to the user
+    CREDITED ## credited = transaction is a qualifying offer, and it has been approved and funded by the merchant, its cashback credited back to Moonbeam and also credited back to the user
     REJECTED ## rejected = transaction is a qualifying offer, and it has been rejected for some particular reason
 }
 
@@ -1494,4 +1498,57 @@ input GetLocationPredictionsInput {
 input GeocodeAsyncInput {
     address: String!,
     osType: OSType!
+}
+# graphql/ReimbursementsSchema.graphql
+# Reimbursements Schema File
+enum ReimbursementsErrorType {
+    DUPLICATE_OBJECT_FOUND
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+    NONE_OR_ABSENT
+}
+
+enum ReimbursementStatus {
+    PROCESSED
+    REJECTED
+    DECLINED
+    PENDING
+}
+
+type Reimbursement @aws_cognito_user_pools {
+    id: ID! ## this represents the userID which the reimbursement was made by
+    timestamp: AWSTimestamp! ## this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    reimbursementId: ID! ## this is an internal id for the reimbursements which is used to link with payout systems like Olive, Stripe, etc.
+    createdAt: AWSDateTime! ## this will be the same as the "timestamp" value above, only represented in a date time format
+    updatedAt: AWSDateTime!
+    status: ReimbursementStatus!
+    amount: Float!
+    cardId: String!
+    cardLast4: String!
+    cardType: CardType!
+    transactions: [Transaction]!
+}
+
+input GetReimbursementsInput {
+    id: ID! ## this represents the userID which we are retrieving the reimbursements for
+}
+
+input CreateReimbursementInput {
+    id: ID! ## this represents the userID which the reimbursement was made by
+    timestamp: AWSTimestamp! ## this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    reimbursementId: ID ## this is an internal id for the reimbursements which is used to link with payout systems like Olive, Stripe, etc.
+    createdAt: AWSDateTime ## this will be the same as the "timestamp" value above, only represented in a date time format
+    updatedAt: AWSDateTime
+    status: ReimbursementStatus!
+    amount: Float!
+    cardId: String!
+    cardLast4: String!
+    cardType: CardType!
+    transactions: [CreateTransactionInput]!
+}
+
+type ReimbursementResponse @aws_cognito_user_pools {
+    data: [Reimbursement]
+    errorType: ReimbursementsErrorType
+    errorMessage: String
 }

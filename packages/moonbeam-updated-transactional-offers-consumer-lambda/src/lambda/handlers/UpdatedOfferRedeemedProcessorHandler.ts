@@ -62,18 +62,23 @@ export const processUpdatedOfferRedeemedTransactions = async (event: SQSEvent): 
              * got invoked directly by Olive on card swipe, or by our update transactions workflow, when an ineligible transaction became an eligible offer.
              * - if the updated transaction workflow passes a status in the ["transaction"]["moonbeamTransactionStatus"] , pass that accordingly.
              *
-             * Note: any other statuses such as (PROCESSED, CREDITED or REJECTED) will be updated by the updated transaction workflow accordingly, by
+             * Note: any other statuses such as (PROCESSED, FUNDED, or REJECTED) will be updated by the updated transaction workflow accordingly, by
              * directly calling our AppSync transaction endpoints, instead of going through this flow.
+             *
+             * Note: The CREDITED status is a Moonbeam internal update-only status, that will ONLY get updated when we pay out a customer.
              */
             let moonbeamTransactionStatus: TransactionsStatus | null = null;
             if (requestBodyParsed["data"]["status"] === "rejected") {
                 moonbeamTransactionStatus = TransactionsStatus.Rejected;
             }
-            if (requestBodyParsed["data"]["status"] === "distributed_to_publisher") {
+            if (requestBodyParsed["data"]["status"] === "pending_merchant_funding" ||
+                requestBodyParsed["data"]["status"] === "pending_transfer_to_publisher" ||
+                requestBodyParsed["data"]["status"] === "distributed_to_publisher" ||
+                requestBodyParsed["data"]["status"] === "distributed_to_olive") {
                 moonbeamTransactionStatus = TransactionsStatus.Processed;
             }
             if (requestBodyParsed["data"]["status"] === "distributed_to_member_distributor") {
-                moonbeamTransactionStatus = TransactionsStatus.Credited;
+                moonbeamTransactionStatus = TransactionsStatus.Funded;
             }
             const updatedTransactionEvent: UpdatedTransactionEvent = {
                 id: requestBodyParsed["id"],
@@ -125,17 +130,31 @@ export const processUpdatedOfferRedeemedTransactions = async (event: SQSEvent): 
                             filteredTransaction[0]!.timestamp !== undefined && filteredTransaction[0]!.timestamp !== null &&
                             filteredTransaction[0]!.id != undefined && filteredTransaction[0]!.id != null &&
                             filteredTransaction[0]!.transactionStatus != undefined && filteredTransaction[0]!.transactionStatus != null) {
-                            // internally update this transaction's status accordingly (if needed)
+                            /**
+                             * internally update this transaction's status accordingly (if needed).
+                             *
+                             * Note that we cannot update a transaction's status which has been marked as CREDITED. Once a transaction is marked
+                             * as credited internally, and a person has cashed-out, there is no way we can go back and revert that status.
+                             */
                             let needsToUpdateStatus = false;
                             if (requestBodyParsed["data"]["status"] === "rejected" && filteredTransaction[0]!.transactionStatus !== TransactionsStatus.Rejected) {
                                 needsToUpdateStatus = true;
                             }
-                            if (requestBodyParsed["data"]["status"] === "distributed_to_publisher" && filteredTransaction[0]!.transactionStatus !== TransactionsStatus.Processed) {
+                            if ((requestBodyParsed["data"]["status"] === "pending_merchant_funding" ||
+                                requestBodyParsed["data"]["status"] === "pending_transfer_to_publisher" ||
+                                requestBodyParsed["data"]["status"] === "distributed_to_publisher" ||
+                                requestBodyParsed["data"]["status"] === "distributed_to_olive") &&
+                                filteredTransaction[0]!.transactionStatus !== TransactionsStatus.Processed) {
                                 needsToUpdateStatus = true;
                             }
-                            if (requestBodyParsed["data"]["status"] === "distributed_to_member_distributor" && filteredTransaction[0]!.transactionStatus !== TransactionsStatus.Credited) {
+                            if (requestBodyParsed["data"]["status"] === "distributed_to_member_distributor" && filteredTransaction[0]!.transactionStatus !== TransactionsStatus.Funded) {
                                 needsToUpdateStatus = true;
                             }
+                            if (filteredTransaction[0]!.transactionStatus === TransactionsStatus.Credited) {
+                                needsToUpdateStatus = false;
+                            }
+
+                            // update the transaction status internally accordingly.
                             if (needsToUpdateStatus) {
                                 console.log(`Existent transaction ${updatedTransactionEvent.data.transaction.id}, needs to have its status updated to - ${moonbeamTransactionStatus}`);
                                 const updatedTransactionResponse: MoonbeamUpdatedTransactionResponse = await moonbeamClient.updateTransaction({
