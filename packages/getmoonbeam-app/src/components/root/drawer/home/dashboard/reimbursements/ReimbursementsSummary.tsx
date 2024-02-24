@@ -3,7 +3,6 @@ import {Platform, Text, TouchableOpacity, View} from "react-native";
 import {ReimbursementsSummaryProps} from "../../../../../../models/props/ReimbursementsControllerProps";
 import {styles} from "../../../../../../styles/reimbursementsController.module";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
-import {CardType, Transaction} from "@moonbeam/moonbeam-models";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 // @ts-ignore
 import MoonbeamCashback from '../../../../../../../assets/art/moonbeam-cashback.png';
@@ -22,24 +21,9 @@ import {
     pendingReimbursementsDataState,
     processedReimbursementsDataState,
     reimbursementBottomSheetShownState,
-    reimbursementDataState
+    sortedReimbursementsDataState
 } from "../../../../../../recoil/ReimbursementsAtom";
-
-/**
- * Interface to be used for handling Reimbursements.
- *
- * ToDo: move this to the moonbeam-models package.
- */
-export interface Reimbursement {
-    id: string,
-    timestamp: number,
-    status: 'PENDING' | 'DECLINED' | 'PROCESSED',
-    amount: number,
-    cardId: string,
-    cardLast4: string,
-    cardType: CardType,
-    transactions: Transaction[]
-}
+import {Reimbursement} from "@moonbeam/moonbeam-models";
 
 /**
  * Reimbursements Summary component. This component will be used as the main
@@ -63,7 +47,7 @@ export const ReimbursementsSummary = ({}: ReimbursementsSummaryProps) => {
     const [, setIsCardChoiceDropdownOpen] = useRecoilState(cardChoiceDropdownOpenState);
     const [, setCardChoiceDropdownValue] = useRecoilState(cardChoiceDropdownValueState);
     const [showReimbursementBottomSheet, setShowReimbursementBottomSheet] = useRecoilState(reimbursementBottomSheetShownState);
-    const [reimbursements,] = useRecoilState(reimbursementDataState);
+    const reimbursements = useRecoilValue(sortedReimbursementsDataState);
     const pendingReimbursements = useRecoilValue(pendingReimbursementsDataState);
     const processedReimbursements = useRecoilValue(processedReimbursementsDataState);
 

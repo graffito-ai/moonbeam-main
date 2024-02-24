@@ -3,8 +3,10 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import {heightPercentageToDP as hp} from "react-native-responsive-screen";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
-    cardChoiceDropdownOpenState, cardChoiceDropdownValueState,
-    reimbursementBottomSheetShownState
+    cardChoiceDropdownOpenState,
+    cardChoiceDropdownValueState,
+    isReimbursementsControllerReadyState,
+    reimbursementBottomSheetShownState, reimbursementDataState
 } from "../../../../../../recoil/ReimbursementsAtom";
 import {currentUserInformation} from "../../../../../../recoil/AuthAtom";
 // @ts-ignore
@@ -27,11 +29,12 @@ import {Image as ExpoImage} from "expo-image/build/Image";
 import {styles} from "../../../../../../styles/reimbursementsController.module";
 import {Text, TouchableOpacity, View} from "react-native";
 import {bottomBarNavigationState, bottomTabShownState, drawerNavigationState} from "../../../../../../recoil/HomeAtom";
-import {currentBalanceState} from "../../../../../../recoil/DashboardAtom";
-import {CardType} from "@moonbeam/moonbeam-models";
+import {currentBalanceState, sortedTransactionDataState} from "../../../../../../recoil/DashboardAtom";
+import {CardType, ReimbursementStatus, TransactionsStatus} from "@moonbeam/moonbeam-models";
 import DropDownPicker from "react-native-dropdown-picker";
 import {Icon} from "react-native-paper";
 import {splashStatusState} from "../../../../../../recoil/SplashAtom";
+import {createNewReimbursement} from "../../../../../../utils/AppSync";
 
 /**
  * Object representing the choice of card to be displayed in the
@@ -56,6 +59,9 @@ export const ReimbursementBottomSheet = () => {
     const bottomSheetRef = useRef(null);
     const [cardChoices, setCardChoices] = useState<CardChoice[]>([]);
     // constants used to keep track of shared states
+    const [, setReimbursements] = useRecoilState(reimbursementDataState);
+    const transactions = useRecoilValue(sortedTransactionDataState);
+    const [, setIsReady] = useRecoilState(isReimbursementsControllerReadyState);
     const [, setSplashState] = useRecoilState(splashStatusState);
     const [cardChoiceDropdownOpen, setIsCardChoiceDropdownOpen] = useRecoilState(cardChoiceDropdownOpenState);
     const [cardChoiceDropdownValue, setCardChoiceDropdownValue] = useRecoilState(cardChoiceDropdownValueState);
@@ -107,26 +113,7 @@ export const ReimbursementBottomSheet = () => {
             });
             setCardChoices([...cardChoices, ...newCardChoices]);
         }
-    }, [bottomSheetRef, showReimbursementBottomSheet, cardChoices]);
-
-    /**
-     * Function used to execute the cashing out, by:
-     *
-     * 1) calling our internal API for reimbursements, which will mark the necessary transactions
-     * as CREDITED, and also update the status through Olive.
-     *
-     * 2) since we have a subscription for any transaction status updates, the front-end related
-     * transactions will get updated automatically and the current available balance will be updated
-     * accordingly as well.
-     *
-     * @returns a {@link boolean} representing a flag indicating whether the cashing out was successful
-     * or not.
-     */
-    const cashOut = async (): Promise<boolean> => {
-        // ToDo: need to get this button action to call a cashout API, and reset available balance and change status of specific transactions
-        // ToDo: add a new cashback as PENDING in the list of reimbursements, close modal and show a pop-up confirming successful reimbursement
-        return false;
-    }
+    }, [bottomSheetRef, showReimbursementBottomSheet, cardChoices, cardChoiceDropdownValue]);
 
     // return the component for the DashboardBottomSheet, part of the Dashboard page
     return (
@@ -233,6 +220,9 @@ export const ReimbursementBottomSheet = () => {
                                         style={cardChoiceDropdownValue === "" ? styles.cashoutButtonDisabled : styles.cashoutButtonEnabled}
                                         onPress={async () => {
                                             if (cardChoiceDropdownValue !== "") {
+                                                // show the Reimbursements Controller loader
+                                                setIsReady(false);
+
                                                 // reset the card choice dropdown value and open state
                                                 setCardChoiceDropdownValue("");
                                                 setIsCardChoiceDropdownOpen(false);
@@ -240,29 +230,67 @@ export const ReimbursementBottomSheet = () => {
                                                 // close the bottom sheet
                                                 setShowReimbursementBottomSheet(false);
 
-                                                // execute the cashing out, and display a Splash Screen accordingly
-                                                const cashOutFlag = await cashOut();
-                                                if (cashOutFlag) {
-                                                    setSplashState({
-                                                        splashTitle: `Successfully cashed out!`,
-                                                        splashDescription: `It might take 1-3 business days to see your cashback reflected as statement credit.`,
-                                                        splashButtonText: `Ok`,
-                                                        splashArtSource: MoonbeamCashOutOk
+                                                // retrieve the selected card from the list of card choices that the user pressed
+                                                let selectedCardChoice: CardChoice | null = null;
+                                                cardChoices.forEach(choice => {
+                                                    if (choice.cardId === cardChoiceDropdownValue) {
+                                                        selectedCardChoice = choice;
+                                                    }
+                                                });
+                                                // retrieve the list of transactions mapped to the new reimbursement to be created
+                                                const mappedTransactions = transactions.filter(transaction =>
+                                                    transaction.transactionStatus === TransactionsStatus.Processed || transaction.transactionStatus === TransactionsStatus.Funded
+                                                );
+
+                                                /**
+                                                 * if we could retrieve a valid card choice and we have appropriate mapped transactions,
+                                                 * then we execute the cash-out/reimbursement accordingly
+                                                 */
+                                                if (selectedCardChoice !== null && mappedTransactions.length !== 0) {
+                                                    selectedCardChoice = selectedCardChoice as CardChoice;
+                                                    // execute the cashing out, and display a Splash Screen accordingly
+                                                    const createNewReimbursementPair = await createNewReimbursement({
+                                                        status: ReimbursementStatus.Pending, // ToDO: in the future we will need to see what we do with this status
+                                                        id: userInformation["custom:userId"],
+                                                        cardId: selectedCardChoice.cardId!,
+                                                        cardLast4: selectedCardChoice.last4!.toString(),
+                                                        cardType: selectedCardChoice.cardType,
+                                                        amount: currentBalance,
+                                                        transactions: mappedTransactions
                                                     });
-                                                } else {
-                                                    setSplashState({
-                                                        splashTitle: `Houston we got a problem!`,
-                                                        splashDescription: `There was an error while cashing out.`,
-                                                        splashButtonText: `Try Again`,
-                                                        splashArtSource: MoonbeamErrorImage
-                                                    });
+                                                    if (createNewReimbursementPair[0]) {
+                                                        // add the new reimbursement in the list of reimbursements
+                                                        setReimbursements(oldReimbursements => {
+                                                           return [...oldReimbursements, ...createNewReimbursementPair[1]];
+                                                        });
+
+                                                        // display a successful message
+                                                        setSplashState({
+                                                            splashTitle: `Successfully cashed out!`,
+                                                            splashDescription: `It might take 1-3 business days to see your cashback reflected as statement credit.`,
+                                                            splashButtonText: `Ok`,
+                                                            splashArtSource: MoonbeamCashOutOk
+                                                        });
+                                                    } else {
+                                                        // display an error message
+                                                        setSplashState({
+                                                            splashTitle: `Houston we got a problem!`,
+                                                            splashDescription: `There was an error while cashing out.`,
+                                                            splashButtonText: `Try Again`,
+                                                            splashArtSource: MoonbeamErrorImage
+                                                        });
+                                                    }
                                                 }
+
+                                                // hide the Reimbursements Controller loader
+                                                setIsReady(true);
                                             }
                                         }}
                                     >
                                         <Text
-                                            style={cardChoiceDropdownValue === "" ? styles.cashoutTextDisabled : styles.cashoutTextEnabled}>Cash
-                                            Out</Text>
+                                            style={cardChoiceDropdownValue === "" ? styles.cashoutTextDisabled : styles.cashoutTextEnabled}>
+                                            Cash Out
+                                        </Text>
                                     </TouchableOpacity>
                                 </View>
                             </>

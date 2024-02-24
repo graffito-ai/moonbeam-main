@@ -39,7 +39,7 @@ import {
     UserAuthSessionErrorType,
     UserAuthSessionResponse,
     UserDeviceErrorType,
-    UserDeviceState
+    UserDeviceState, Reimbursement, getReimbursements, CreateReimbursementInput, createReimbursement
 } from "@moonbeam/moonbeam-models";
 import {API, Cache, graphqlOperation} from "aws-amplify";
 import {dynamicSort} from "./Main";
@@ -107,6 +107,96 @@ export const geocodeAsync = async (address: string, osType: OsType): Promise<Loc
         await logEvent(message, LoggingLevel.Error, true);
 
         return results;
+    }
+}
+
+/**
+ * Function used to retrieve the list of pre-existing reimbursements for a user.
+ *
+ * @param createReimbursementsInput the input used to create a reimbursement.
+ *
+ * @returns a {@link Promise} of a pair of:
+ *  - {@link Boolean} representing a flag indicating whether the reimbursement has been successfully created or not
+ *  - {@link Reimbursement} {@link Array} representing the new reimbursement that was created
+ *
+ */
+export const createNewReimbursement = async (createReimbursementsInput: CreateReimbursementInput): Promise<[boolean, Reimbursement[]]> => {
+    try {
+        // call the createReimbursement API to store/create a new reimbursement
+        const reimbursementCreationResult = await API.graphql(graphqlOperation(createReimbursement, {
+            createReimbursementInput: createReimbursementsInput
+        }));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const reimbursementCreationFlag = reimbursementCreationResult ? reimbursementCreationResult.data : null;
+
+        if (reimbursementCreationFlag && reimbursementCreationFlag.createReimbursement.errorMessage === null &&
+            reimbursementCreationFlag.createReimbursement.data !== undefined && reimbursementCreationFlag.createReimbursement.data !== null &&
+            reimbursementCreationFlag.createReimbursement.data.length !== 0) {
+            // return the flag to highlight reimbursement creation success
+            return [true, reimbursementCreationFlag.createReimbursement.data as Reimbursement[]];
+        } else {
+            // log an error and return an appropriate flag to highlight reimbursement creation failure
+            const message = `Error while executing the create reimbursement mutation ${reimbursementCreationFlag.createReimbursement.errorMessage}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, true);
+
+            return [false, []];
+        }
+    } catch (error) {
+        // log an error and return an appropriate flag to highlight reimbursement creation failure
+        const message = `Unexpected error while executing the create reimbursement mutation for: ${createReimbursementsInput.id}, ${JSON.stringify(error)} ${error}`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, true);
+
+        return [false, []];
+    }
+}
+
+/**
+ * Function used to retrieve the list of pre-existing reimbursements for a user.
+ *
+ * @param userId the Moonbeam internal user id use to retrieve reimbursements for.
+ *
+ * @returns a {@link Promise} of an {@link Array} of {@link Reimbursement} representing the list
+ * of pre-existing reimbursements for a particular user.
+ */
+export const retrieveReimbursements = async (userId: string): Promise<Reimbursement[]> => {
+    const result: Reimbursement[] = [];
+    try {
+        // call the getReimbursements API to retrieve pre-existing reimbursements
+        const reimbursementsRetrievalResult = await API.graphql(graphqlOperation(getReimbursements, {
+            getReimbursementsInput: {
+                id: userId,
+                // retrieve the current date and time to filter reimbursements by
+                endDate: new Date().toISOString()
+            }
+        }));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const reimbursementsRetrievalFlag = reimbursementsRetrievalResult ? reimbursementsRetrievalResult.data : null;
+
+        if (reimbursementsRetrievalFlag && reimbursementsRetrievalFlag.getReimbursements.errorMessage === null &&
+            reimbursementsRetrievalFlag.getReimbursements.data !== undefined && reimbursementsRetrievalFlag.getReimbursements.data !== null) {
+            // return the retrieved list of reimbursements accordingly
+            return reimbursementsRetrievalFlag.getReimbursements.data as Reimbursement[];
+        } else {
+            // log an error and return an empty list of reimbursements
+            const message = `Error while executing the get reimbursements query ${reimbursementsRetrievalFlag.getReimbursements.errorMessage}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, true);
+
+            return result;
+        }
+    } catch (error) {
+        // log an error and return an empty list of reimbursements
+        const message = `Unexpected error while executing the get reimbursements query for: ${userId}, ${JSON.stringify(error)} ${error}`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, true);
+
+        return result;
     }
 }
 

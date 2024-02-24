@@ -55,7 +55,7 @@ const currentBalanceState = selector<number>({
     key: 'currentBalanceState',
     get: ({get}) => {
         // @ts-ignore
-        const transactionDataList = get(transactionDataState);
+        const transactionDataList = get(sortedTransactionDataState);
 
         // the pending amounts representing the current balance (to be paid to the user)
         let currentBalance = 0;
@@ -86,7 +86,7 @@ const currentBalanceState = selector<number>({
 const lifetimeSavingsState = selector<number>({
     key: 'lifetimeSavingsState',
     get: ({get}) => {
-        const transactionDataList = get(transactionDataState);
+        const transactionDataList = get(sortedTransactionDataState);
         // the pending + credited amounts representing the lifetime savings balance
         let lifetimeSavingsBalance = 0;
 

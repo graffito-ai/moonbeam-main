@@ -10,18 +10,19 @@ import {LinearGradient} from 'expo-linear-gradient';
 import {Icon} from '@rneui/base';
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {currentBalanceState} from "../../../../../../recoil/DashboardAtom";
-import {Reimbursement, ReimbursementsSummary} from "./ReimbursementsSummary";
+import {ReimbursementsSummary} from "./ReimbursementsSummary";
 import {ReimbursementsProps} from "../../../../../../models/props/AppDrawerProps";
 import {
     cardChoiceDropdownOpenState,
-    cardChoiceDropdownValueState,
+    cardChoiceDropdownValueState, isReimbursementsControllerReadyState,
     reimbursementBottomSheetShownState,
     reimbursementDataState
 } from "../../../../../../recoil/ReimbursementsAtom";
 import {Spinner} from "../../../../../common/Spinner";
-import {CardType} from "@moonbeam/moonbeam-models";
 import {SplashScreen} from "../../../../../common/Splash";
 import {splashStatusState} from "../../../../../../recoil/SplashAtom";
+import {retrieveReimbursements} from "../../../../../../utils/AppSync";
+import {currentUserInformation} from "../../../../../../recoil/AuthAtom";
 
 /**
  * Reimbursements Controller component. This component will be used as the main
@@ -32,9 +33,10 @@ import {splashStatusState} from "../../../../../../recoil/SplashAtom";
 export const ReimbursementsController = ({navigation}: ReimbursementsProps) => {
     // constants used to keep track of local component state
     const [reimbursementsRetrieved, setAreReimbursementsRetrieved] = useState<boolean>(false);
-    const [isReady, setIsReady] = useState<boolean>(false);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
+    const [isReady, setIsReady] = useRecoilState(isReimbursementsControllerReadyState);
+    const [userInformation,] = useRecoilState(currentUserInformation);
     const splashStateReset = useResetRecoilState(splashStatusState);
     const [splashState,] = useRecoilState(splashStatusState);
     const [reimbursements, setReimbursements] = useRecoilState(reimbursementDataState);
@@ -59,8 +61,13 @@ export const ReimbursementsController = ({navigation}: ReimbursementsProps) => {
     useEffect(() => {
         // first retrieve the reimbursements data
         if (!reimbursementsRetrieved) {
-            retrieveReimbursements().then(() => {
+            retrieveReimbursements(userInformation["custom:userId"]).then(retrievedReimbursements => {
+                // set the retrieved reimbursements
+                setReimbursements([...reimbursements, ...retrievedReimbursements]);
+                // set the reimbursements retrieval flag accordingly
                 setAreReimbursementsRetrieved(true);
+                // hide loader after retrieving reimbursements
+                setIsReady(true);
             });
         }
         // do not show the app drawer or bottom bar, and disable and swipe-based navigation for screen
@@ -69,101 +76,8 @@ export const ReimbursementsController = ({navigation}: ReimbursementsProps) => {
             drawerSwipeEnabled && setDrawerSwipeEnabled(false);
             bottomTabShown && setBottomTabShown(false);
         }
-    }, [reimbursementsRetrieved, navigation.getState(), appDrawerHeaderShown,
-        drawerSwipeEnabled, bottomTabShown]);
-
-    /**
-     * Function used to retrieve the reimbursements, by calling our back-end API.
-     */
-    const retrieveReimbursements = async () => {
-        // ToDo: replace this with the actual API call.
-        const newReimbursements: Reimbursement[] = [
-            {
-                id: 'd062ba64-e7ab-4ddb-addc-d7424e1a1980',
-                timestamp: 1705280633000,
-                status: 'PROCESSED',
-                amount: 55.30,
-                cardId: 'e8b005d4-77c6-40e8-16b0-08dc113119af',
-                cardLast4: '3456',
-                cardType: CardType.Mastercard,
-                transactions: []
-            },
-            {
-                id: 'd062ba64-e7ab-4ddb-addc-d7424e1a1980',
-                timestamp: 1705280633000,
-                status: 'PROCESSED',
-                amount: 20.02,
-                cardId: 'e8b005d4-77c6-40e8-16b0-08dc113119af',
-                cardLast4: '8999',
-                cardType: CardType.Visa,
-                transactions: []
-            },
-            {
-                id: 'd062ba64-e7ab-4ddb-addc-d7424e1a1980',
-                timestamp: 1705280633000,
-                status: 'PENDING',
-                amount: 23.09,
-                cardId: 'e8b005d4-77c6-40e8-16b0-08dc113119af',
-                cardLast4: '3456',
-                cardType: CardType.Mastercard,
-                transactions: []
-            },
-            {
-                id: 'd062ba64-e7ab-4ddb-addc-d7424e1a1980',
-                timestamp: 1705280633000,
-                status: 'PROCESSED',
-                amount: 35.98,
-                cardId: 'e8b005d4-77c6-40e8-16b0-08dc113119af',
-                cardLast4: '3456',
-                cardType: CardType.Mastercard,
-                transactions: []
-            },
-            {
-                id: 'd062ba64-e7ab-4ddb-addc-d7424e1a1980',
-                timestamp: 1705280633000,
-                status: 'PENDING',
-                amount: 25.18,
-                cardId: 'e8b005d4-77c6-40e8-16b0-08dc113119af',
-                cardLast4: '8999',
-                cardType: CardType.Visa,
-                transactions: []
-            },
-            {
-                id: 'd062ba64-e7ab-4ddb-addc-d7424e1a1980',
-                timestamp: 1705280633000,
-                status: 'PROCESSED',
-                amount: 35.98,
-                cardId: 'e8b005d4-77c6-40e8-16b0-08dc113119af',
-                cardLast4: '8999',
-                cardType: CardType.Visa,
-                transactions: []
-            },
-            {
-                id: 'd062ba64-e7ab-4ddb-addc-d7424e1a1980',
-                timestamp: 1705280633000,
-                status: 'PENDING',
-                amount: 25.18,
-                cardId: 'e8b005d4-77c6-40e8-16b0-08dc113119af',
-                cardLast4: '8999',
-                cardType: CardType.Visa,
-                transactions: []
-            },
-            {
-                id: 'd062ba64-e7ab-4ddb-addc-d7424e1a1980',
-                timestamp: 1705280633000,
-                status: 'PROCESSED',
-                amount: 35.98,
-                cardId: 'e8b005d4-77c6-40e8-16b0-08dc113119af',
-                cardLast4: '8999',
-                cardType: CardType.Visa,
-                transactions: []
-            }
-        ]
-        setTimeout(() => {
-            setReimbursements([...reimbursements, ...newReimbursements]);
-            setIsReady(true);
-        }, 1000);
-    }
+    }, [reimbursementsRetrieved, navigation.getState(),
+        appDrawerHeaderShown, drawerSwipeEnabled, bottomTabShown]);
 
     /**
      * return the component for the ReimbursementsController page
@@ -174,8 +88,9 @@ export const ReimbursementsController = ({navigation}: ReimbursementsProps) => {
                 !isReady ?
                     <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                     :
-                    <View style={[{flex: 1}, (splashState.splashTitle !== undefined && splashState.splashTitle !== "" && splashState.splashDescription !== undefined &&
-                        splashState.splashDescription !== "" && splashState.splashArtSource !== undefined && splashState.splashArtSource !== "") && {backgroundColor: '#313030'}]}>
+                    <View
+                        style={[{flex: 1}, (splashState.splashTitle !== undefined && splashState.splashTitle !== "" && splashState.splashDescription !== undefined &&
+                            splashState.splashDescription !== "" && splashState.splashArtSource !== undefined && splashState.splashArtSource !== "") && {backgroundColor: '#313030'}]}>
                         {
                             (splashState.splashTitle !== undefined && splashState.splashTitle !== "" && splashState.splashDescription !== undefined &&
                                 splashState.splashDescription !== "" && splashState.splashArtSource !== undefined && splashState.splashArtSource !== "")
