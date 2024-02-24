@@ -278,7 +278,7 @@ export type CreateReimbursementInput = {
   id: Scalars['ID'];
   reimbursementId?: InputMaybe<Scalars['ID']>;
   status: ReimbursementStatus;
-  timestamp: Scalars['AWSTimestamp'];
+  timestamp?: InputMaybe<Scalars['AWSTimestamp']>;
   transactions: Array<InputMaybe<CreateTransactionInput>>;
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
@@ -523,7 +523,9 @@ export type GetReferralsByStatusInput = {
 };
 
 export type GetReimbursementsInput = {
+  endDate: Scalars['AWSDateTime'];
   id: Scalars['ID'];
+  startDate?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
 export type GetStorageInput = {
@@ -1500,6 +1502,18 @@ export type Reimbursement = {
   transactions: Array<Maybe<Transaction>>;
   updatedAt: Scalars['AWSDateTime'];
 };
+
+export type ReimbursementProcessingResponse = {
+  __typename?: 'ReimbursementProcessingResponse';
+  data?: Maybe<ReimbursementProcessingStatus>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<ReimbursementsErrorType>;
+};
+
+export enum ReimbursementProcessingStatus {
+  Failed = 'FAILED',
+  Success = 'SUCCESS'
+}
 
 export type ReimbursementResponse = {
   __typename?: 'ReimbursementResponse';

@@ -14,6 +14,11 @@ enum ReimbursementStatus {
     PENDING
 }
 
+enum ReimbursementProcessingStatus {
+    SUCCESS
+    FAILED
+}
+
 type Reimbursement @aws_cognito_user_pools {
     id: ID! ## this represents the userID which the reimbursement was made by
     timestamp: AWSTimestamp! ## this represents the timestamp, in a Number epoch based format (for sorting purposes)
@@ -30,11 +35,13 @@ type Reimbursement @aws_cognito_user_pools {
 
 input GetReimbursementsInput {
     id: ID! ## this represents the userID which we are retrieving the reimbursements for
+    startDate: AWSDateTime ## the start time to filter reimbursements for
+    endDate: AWSDateTime! ## the end time to filter reimbursements for
 }
 
 input CreateReimbursementInput {
     id: ID! ## this represents the userID which the reimbursement was made by
-    timestamp: AWSTimestamp! ## this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    timestamp: AWSTimestamp ## this represents the timestamp, in a Number epoch based format (for sorting purposes)
     reimbursementId: ID ## this is an internal id for the reimbursements which is used to link with payout systems like Olive, Stripe, etc.
     createdAt: AWSDateTime ## this will be the same as the "timestamp" value above, only represented in a date time format
     updatedAt: AWSDateTime
@@ -48,6 +55,12 @@ input CreateReimbursementInput {
 
 type ReimbursementResponse @aws_cognito_user_pools {
     data: [Reimbursement]
+    errorType: ReimbursementsErrorType
+    errorMessage: String
+}
+
+type ReimbursementProcessingResponse @aws_cognito_user_pools {
+    data: ReimbursementProcessingStatus
     errorType: ReimbursementsErrorType
     errorMessage: String
 }

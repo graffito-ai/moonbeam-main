@@ -164,7 +164,7 @@ export const processUpdatedOfferRedeemedTransactions = async (event: SQSEvent): 
                                     transactionStatus: moonbeamTransactionStatus === null ? TransactionsStatus.Pending : moonbeamTransactionStatus
                                 });
                                 // check to see if the update transaction call was successful or not
-                                if (!updatedTransactionResponse || updatedTransactionResponse.errorType || updatedTransactionResponse.errorType || !updatedTransactionResponse.data) {
+                                if (!updatedTransactionResponse || updatedTransactionResponse.errorType || updatedTransactionResponse.errorMessage || !updatedTransactionResponse.data) {
                                     console.log(`Unexpected error and/or response structure returned from the updateTransaction call ${JSON.stringify(updatedTransactionResponse)}!`);
 
                                     // adds an item failure, for the SQS message which failed processing, as part of the incoming event
