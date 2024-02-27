@@ -234,6 +234,14 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 geoCodeAsyncResolverName: 'geoCodeAsync',
                 getLocationPredictionsResolverName: 'getLocationPredictions'
             },
+            reimbursementsConfig: {
+                reimbursementsFunctionName: "reimbursementsFunction",
+                createReimbursementResolverName: "createReimbursement",
+                getReimbursementsResolverName: "getReimbursements",
+                reimbursementsTableName: "reimbursementsTable",
+                reimbursementsIdGlobalIndex: "reimbursementsIdGlobalIndex",
+                reimbursementsStatusLocalIndex: "reimbursementsStatusLocalIndex"
+            },
             environmentVariables: new Map<string, string>([])
         },
         [`${Stages.PROD}-${Regions.PDX}`]: {
@@ -463,6 +471,14 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 utilitiesFunctionName: 'utilitiesFunction',
                 geoCodeAsyncResolverName: 'geoCodeAsync',
                 getLocationPredictionsResolverName: 'getLocationPredictions'
+            },
+            reimbursementsConfig: {
+                reimbursementsFunctionName: "reimbursementsFunction",
+                createReimbursementResolverName: "createReimbursement",
+                getReimbursementsResolverName: "getReimbursements",
+                reimbursementsTableName: "reimbursementsTable",
+                reimbursementsIdGlobalIndex: "reimbursementsIdGlobalIndex",
+                reimbursementsStatusLocalIndex: "reimbursementsStatusLocalIndex"
             },
             environmentVariables: new Map<string, string>([])
         },

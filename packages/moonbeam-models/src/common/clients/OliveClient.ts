@@ -7,7 +7,8 @@ import {
     GetUserCardLinkingIdInput,
     GetUserCardLinkingIdResponse,
     MemberDetailsResponse,
-    MemberResponse, Offer,
+    MemberResponse,
+    Offer,
     OfferFilter,
     OfferIdResponse,
     OfferRedemptionTypeResponse,
@@ -15,7 +16,11 @@ import {
     OffersErrorType,
     OffersResponse,
     RedemptionType,
-    RemoveCardResponse, SearchOffersInput,
+    ReimbursementProcessingResponse,
+    ReimbursementProcessingStatus,
+    ReimbursementsErrorType,
+    RemoveCardResponse,
+    SearchOffersInput,
     Transaction,
     TransactionResponse,
     TransactionsErrorType,
@@ -1399,6 +1404,130 @@ export class OliveClient extends BaseAPIClient {
             return {
                 errorMessage: errorMessage,
                 errorType: TransactionsErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
+     * Function used to update a transaction by specifying the amount distributed to the member
+     * during a cash-out/reimbursement, given its transaction ID.
+     * (used for reimbursements/cash-out purposes).
+     *
+     * @param transactionId the id of the transaction to be updated
+     * @param distributedToMemberAmount the amount distributed to the member during the cash-out/reimbursement
+     *
+     * @return a {@link Promise} of {@link ReimbursementProcessingResponse} representing a
+     * flag indicating whether the reimbursement process can continue or not.
+     */
+    async updateTransactionStatus(transactionId: string, distributedToMemberAmount: number): Promise<ReimbursementProcessingResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'PUT transactions/{id}/reward Olive API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the PUT transaction status/amount call through the client
+            const [oliveBaseURL, olivePublicKey, olivePrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.OLIVE_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (oliveBaseURL === null || oliveBaseURL.length === 0 ||
+                olivePublicKey === null || olivePublicKey.length === 0 ||
+                olivePrivateKey === null || olivePrivateKey!.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Olive API call!";
+                console.log(errorMessage);
+
+                return {
+                    data: ReimbursementProcessingStatus.Failed,
+                    errorMessage: errorMessage,
+                    errorType: ReimbursementsErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * PUT transactions/{id}/reward
+             * @link https://developer.oliveltd.com/reference/update-reward-status
+             *
+             * build the Olive API request body to be passed in, and perform a GET to it with the appropriate information
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            const requestData = {
+                distributedToMemberAmount: distributedToMemberAmount.toFixed(2)
+            };
+            console.log(`Olive API request Object: ${JSON.stringify(requestData)}`);
+            return axios.put(`${oliveBaseURL}/transactions/${transactionId}/reward`, requestData, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Olive-Key": olivePrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Olive API timed out after 15000ms!'
+            }).then(updateRewardStatusResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(updateRewardStatusResponse.data)}`);
+
+                /**
+                 * if we reached this, then we assume that a 2xx response code was returned.
+                 * for this API, we know that if we return a 204, then the reward status has been updated.
+                 */
+                if (updateRewardStatusResponse.status === 204) {
+                    // return a flag indicating that the reimbursement process may continue accordingly
+                    return {
+                        data: ReimbursementProcessingStatus.Success
+                    }
+                } else {
+                    return {
+                        data: ReimbursementProcessingStatus.Failed,
+                        errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                        errorType: ReimbursementsErrorType.ValidationError
+                    }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Olive API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        data: ReimbursementProcessingStatus.Failed,
+                        errorMessage: errorMessage,
+                        errorType: ReimbursementsErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Olive API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        data: ReimbursementProcessingStatus.Failed,
+                        errorMessage: errorMessage,
+                        errorType: ReimbursementsErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        data: ReimbursementProcessingStatus.Failed,
+                        errorMessage: errorMessage,
+                        errorType: ReimbursementsErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while initiating the transaction reward status update through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                data: ReimbursementProcessingStatus.Failed,
+                errorMessage: errorMessage,
+                errorType: ReimbursementsErrorType.UnexpectedError
             };
         }
     }

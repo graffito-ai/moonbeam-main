@@ -15,7 +15,9 @@ enum TransactionsErrorType {
 enum TransactionsStatus {
     PENDING ## pending  = transaction is a qualifying offer, and it is pending merchant approval and funding
     PROCESSED ## processed = transaction is a qualifying offer, and it has been approved and funded by the merchant
-    CREDITED ## credited = transaction is a qualifying offer, and it has been approved and funded by the merchant, and its cashback credited back to the user
+    FUNDED ## funded = transaction is a qualifying offer, and it has been approved and funded by the merchant, and its cashback credited back to Moonbeam
+    FRONTED ## fronted - transaction is a qualifying offer, and it has been approved and funded by the merchant, and its cashback has not been credited back to Moonbeam, but it has been credited back to the user
+    CREDITED ## credited = transaction is a qualifying offer, and it has been approved and funded by the merchant, its cashback credited back to Moonbeam and also credited back to the user
     REJECTED ## rejected = transaction is a qualifying offer, and it has been rejected for some particular reason
 }
 

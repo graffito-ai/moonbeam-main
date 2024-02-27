@@ -388,3 +388,16 @@ export interface LoggingConfiguration {
     readonly createLogEventResolverName: string;
     readonly frontEndLogGroupName: string;
 }
+
+/**
+ * Interface used to define the configuration for the reimbursements service resolvers
+ * (GraphQL based), and other afferent data stores.
+ */
+export interface ReimbursementsConfiguration {
+    readonly reimbursementsFunctionName: string;
+    readonly createReimbursementResolverName: string;
+    readonly getReimbursementsResolverName: string;
+    readonly reimbursementsTableName: string;
+    readonly reimbursementsIdGlobalIndex: string;
+    readonly reimbursementsStatusLocalIndex: string;
+}

@@ -8,6 +8,20 @@ subscription UpdatedMilitaryVerificationStatus($id: ID!) {
         militaryVerificationStatus
     }
 }
+subscription UpdatedTransaction($id: ID!) {
+    updatedTransaction(id: $id) {
+        errorType
+        errorMessage
+        id
+        data {
+            id
+            timestamp
+            transactionId
+            transactionStatus
+            updatedAt
+        }
+    }
+}
 subscription CreatedTransaction($id: ID!) {
     createdTransaction(id: $id) {
         errorType

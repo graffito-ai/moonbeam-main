@@ -91,7 +91,7 @@ export const styles = StyleSheet.create({
         shadowOffset: {width: -2, height: 8},
         shadowOpacity: 0.75,
         shadowRadius: 12,
-        elevation: 15,
+        elevation: 25,
         height: hp(10),
         flexDirection: 'column'
     },
@@ -198,7 +198,7 @@ export const styles = StyleSheet.create({
         fontSize: hp(1.8),
         color: '#FFFFFF',
         fontFamily: 'Saira-Regular',
-        width: wp(50)
+        width: wp(80)
     },
     reimbursementMoonbeamLogo: {
         height: hp(8),
@@ -220,7 +220,6 @@ export const styles = StyleSheet.create({
         color: '#F2FF5D',
     },
     reimbursementRightDetailBottom: {
-        marginTop: '5%',
         fontSize: hp(1.6),
         fontFamily: 'Raleway-Medium',
         color: '#FFFFFF'

@@ -40,7 +40,7 @@ import {
     OfferRedemptionTypeResponse,
     OffersResponse,
     PutMilitaryVerificationReportInput,
-    ReferralResponse,
+    ReferralResponse, ReimbursementProcessingResponse,
     RemoveCardResponse,
     SearchOffersInput,
     SendEmailNotificationInput,
@@ -792,6 +792,21 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected getTransactionDetails?(transaction: Transaction): Promise<TransactionResponse>;
+
+    /**
+     * Function used to update a transaction by specifying the amount distributed to the member
+     * during a cash-out/reimbursement, given its transaction ID.
+     * (used for reimbursements/cash-out purposes).
+     *
+     * @param transactionId the id of the transaction to be updated
+     * @param distributedToMemberAmount the amount distributed to the member during the cash-out/reimbursement
+     *
+     * @return a {@link Promise} of {@link ReimbursementProcessingResponse} representing a
+     * flag indicating whether the reimbursement process can continue or not.
+     *
+     * @protected
+     */
+    protected updateTransactionStatus?(transactionId: string, distributedToMemberAmount: number): Promise<ReimbursementProcessingResponse>;
 
     /**
      * Function used to retrieve the offer id, obtained from a transaction object, given

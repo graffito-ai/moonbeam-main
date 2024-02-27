@@ -55,13 +55,13 @@ const currentBalanceState = selector<number>({
     key: 'currentBalanceState',
     get: ({get}) => {
         // @ts-ignore
-        const transactionDataList = get(transactionDataState);
+        const transactionDataList = get(sortedTransactionDataState);
 
         // the pending amounts representing the current balance (to be paid to the user)
         let currentBalance = 0;
 
         /**
-         * ONLY look at transactions that are in a PROCESSED state (essentially that were funded
+         * ONLY look at transactions that are in a PROCESSED or FUNDED state (essentially that were funded
          * from our merchants' or Olive's side, and are about to be credited back to the customer)
          *
          * only consider each transaction's reward amount equal to the pending amount that will
@@ -70,7 +70,7 @@ const currentBalanceState = selector<number>({
         transactionDataList
                     .filter((v,i,a)=>a.findIndex(v2=>(v2.transactionId===v.transactionId))===i)
                     .forEach(transaction => {
-                        if (transaction.transactionStatus === TransactionsStatus.Processed) {
+                        if (transaction.transactionStatus === TransactionsStatus.Processed || transaction.transactionStatus === TransactionsStatus.Funded) {
                             currentBalance += Number(transaction.pendingCashbackAmount.toFixed(2));
                         }
         });
@@ -86,12 +86,12 @@ const currentBalanceState = selector<number>({
 const lifetimeSavingsState = selector<number>({
     key: 'lifetimeSavingsState',
     get: ({get}) => {
-        const transactionDataList = get(transactionDataState);
+        const transactionDataList = get(sortedTransactionDataState);
         // the pending + credited amounts representing the lifetime savings balance
         let lifetimeSavingsBalance = 0;
 
         /**
-         * ONLY look at transactions that are in PENDING, PROCESSED or CREDITED state
+         * ONLY look at transactions that are in PENDING, PROCESSED, FUNDED, FRONTED or CREDITED state
          * (do not look at REJECTED).
          *
          * consider the pending and credited amounts for transactions, that will

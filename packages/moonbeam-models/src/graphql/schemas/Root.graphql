@@ -29,6 +29,7 @@ type Query {
     getMilitaryVerificationInformation(getMilitaryVerificationInformationInput: GetMilitaryVerificationInformationInput!): MilitaryVerificationReportingInformationResponse! @aws_cognito_user_pools @aws_api_key
     getAppReviewEligibility(getAppReviewEligibilityInput: GetAppReviewEligibilityInput!): GetAppReviewEligibilityResponse! @aws_cognito_user_pools
     getLocationPredictions(getLocationPredictionsInput: GetLocationPredictionsInput!): GetLocationPredictionsResponse! @aws_cognito_user_pools @aws_iam
+    getReimbursements(getReimbursementsInput: GetReimbursementsInput!): ReimbursementResponse! @aws_cognito_user_pools
 }
 
 type Mutation {
@@ -52,9 +53,11 @@ type Mutation {
     createLogEvent(createLogEventInput: CreateLogEventInput!): LoggingResponse! @aws_cognito_user_pools @aws_iam
     putMilitaryVerificationReport(putMilitaryVerificationReportInput: PutMilitaryVerificationReportInput!): MilitaryVerificationReportResponse! @aws_cognito_user_pools @aws_api_key
     createAppReview(createAppReviewInput: CreateAppReviewInput!): AppReviewResponse! @aws_cognito_user_pools
+    createReimbursement(createReimbursementInput: CreateReimbursementInput!): ReimbursementResponse! @aws_cognito_user_pools
 }
 
 type Subscription {
     updatedMilitaryVerificationStatus(id: ID!): UpdateMilitaryVerificationResponse @aws_cognito_user_pools @aws_subscribe(mutations: ["updateMilitaryVerificationStatus"])
     createdTransaction(id: ID!): MoonbeamTransactionResponse @aws_cognito_user_pools @aws_subscribe(mutations: ["createTransaction"])
+    updatedTransaction(id: ID!): MoonbeamUpdatedTransactionResponse @aws_cognito_user_pools @aws_subscribe(mutations: ["updateTransaction"])
 }

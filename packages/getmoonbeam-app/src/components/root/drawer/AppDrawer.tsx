@@ -30,7 +30,9 @@ import {
     MilitaryVerificationErrorType,
     MilitaryVerificationStatusType,
     MoonbeamTransaction,
+    MoonbeamUpdatedTransaction,
     updatedMilitaryVerificationStatus,
+    updatedTransaction,
 } from "@moonbeam/moonbeam-models";
 import {API, Auth, graphqlOperation} from "aws-amplify";
 import {Observable} from "zen-observable-ts";
@@ -46,14 +48,11 @@ import {commonStyles} from "../../../styles/common.module";
 import {AppWall} from "./home/wall/AppWall";
 import {customBannerState} from "../../../recoil/CustomBannerAtom";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {Avatar, Icon as ReactIcon} from "@rneui/base";
-import {Divider} from "@rneui/base";
+import {Divider, Icon as ReactIcon} from "@rneui/base";
 // @ts-ignore
 import CardLinkingImage from '../../../../assets/art/moonbeam-card-linking.png';
 // @ts-ignore
 import MoonbeamNavigationLogo from '../../../../assets/moonbeam-navigation-logo.png';
-// @ts-ignore
-import MoonbeamProfilePlaceholder from "../../../../assets/art/moonbeam-profile-placeholder.png";
 import {Settings} from "./settings/Settings";
 import {
     showTransactionBottomSheetState,
@@ -70,10 +69,8 @@ import {Referral} from "./home/referrals/Referral";
 import Constants from 'expo-constants';
 import {AppOwnership} from "expo-constants/src/Constants.types";
 import {showClickOnlyBottomSheetState} from "../../../recoil/StoreOfferAtom";
-import Image = Animated.Image;
-import {styles} from "../../../styles/dashboard.module";
-import {Image as ExpoImage} from "expo-image/build/Image";
 import {ReimbursementsController} from "./home/dashboard/reimbursements/ReimbursementsController";
+import Image = Animated.Image;
 
 /**
  * AppDrawer component.
@@ -83,13 +80,14 @@ import {ReimbursementsController} from "./home/dashboard/reimbursements/Reimburs
 export const AppDrawer = ({}: AppDrawerProps) => {
         // constants used to keep track of local component state
         const [isReady, setIsReady] = useState<boolean>(true);
-        const [currentUserTitle, setCurrentUserTitle] = useState<string>("N/A");
         const [modalVisible, setModalVisible] = useState<boolean>(false);
         const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
         const [, setMilitaryStatusUpdatesSubscription] = useState<ZenObservable.Subscription | null>(null);
         const [militaryStatusUpdatesSubscribed, setMilitaryStatusUpdatesSubscribed] = useState<boolean>(false);
         const [, setTransactionCreatedSubscription] = useState<ZenObservable.Subscription | null>(null);
         const [transactionCreatedSubscribed, setTransactionCreatedSubscribed] = useState<boolean>(false);
+        const [, setTransactionUpdatedSubscription] = useState<ZenObservable.Subscription | null>(null);
+        const [transactionUpdatedSubscribed, setTransactionUpdatedSubscribed] = useState<boolean>(false);
         const [userVerified, setUserVerified] = useState<boolean>(false);
         const [cardLinkRetrieved, setCardLinkRetrieved] = useState<boolean>(false);
         const [profilePictureRetrieved, setProfilePictureRetrieved] = useState<boolean>(false);
@@ -104,7 +102,6 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         const [globalCache,] = useRecoilState(globalAmplifyCacheState);
         const [transactionData, setTransactionData] = useRecoilState(transactionDataState);
         const [, setCardLinkingId] = useRecoilState(cardLinkingIdState);
-        const [, setProfilePictureURI] = useRecoilState(profilePictureURIState);
         const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
         const [drawerHeaderShown,] = useRecoilState(appDrawerHeaderShownState);
         const [deviceType, setDeviceType] = useRecoilState(deviceTypeState);
@@ -116,7 +113,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
         const [showTransactionsBottomSheet, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
         const [, setShowWalletBottomSheet] = useRecoilState(showWalletBottomSheetState);
         const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
-        const [profilePictureURI,] = useRecoilState(profilePictureURIState);
+        const [, setProfilePictureURI] = useRecoilState(profilePictureURIState);
 
         /**
          * create a drawer navigator, to be used for our sidebar navigation, which is the main driving
@@ -143,12 +140,6 @@ export const AppDrawer = ({}: AppDrawerProps) => {
 
                 // if a valid use is logged in/ and we have a valid user id
                 if (userInformation["custom:userId"]) {
-                    // check to see if the user information object has been populated accordingly
-                    if (userInformation["given_name"] && userInformation["family_name"] && currentUserTitle === 'N/A') {
-                        //set the title of the user's avatar in the dashboard, based on the user's information
-                        setCurrentUserTitle(`${Array.from(userInformation["given_name"].split(" ")[0])[0] as string}${Array.from(userInformation["family_name"].split(" ")[0])[0] as string}`);
-                    }
-
                     // initial app load
                     (!militaryStatusRetrieved && !cardLinkRetrieved && !profilePictureRetrieved && !transactionsRetrieved)
                     && loadAppData(false).then(([updatedUserInformation, updatedTransactionalData]) => {
@@ -163,6 +154,9 @@ export const AppDrawer = ({}: AppDrawerProps) => {
 
                         // subscribe to receiving updates about newly created transactions
                         subscribeTransactionsCreatedUpdates(userInformation["custom:userId"]).then(() => setTransactionCreatedSubscribed(true));
+
+                        // subscribe to receiving updates about newly updated transactions
+                        subscribeTransactionUpdatedUpdates(userInformation["custom:userId"]).then(() => setTransactionUpdatedSubscribed(true));
 
                         /**
                          * we then check whether we should proceed with the creation of a new physical device, or not.
@@ -207,8 +201,6 @@ export const AppDrawer = ({}: AppDrawerProps) => {
             else {
                 // handle incoming military status changes
                 if (updatedMilitaryStatus !== null) {
-                    console.log(updatedMilitaryStatus);
-                    console.log(userInformation["militaryStatus"]);
                     // load the application data, depending on whether the status was verified or not
                     if (userInformation["militaryStatus"] !== updatedMilitaryStatus && updatedMilitaryStatus === MilitaryVerificationStatusType.Verified) {
                         // set the user military status information accordingly
@@ -478,9 +470,93 @@ export const AppDrawer = ({}: AppDrawerProps) => {
             }
         }
 
+        /**
+         * Function used to start subscribing to any new transactions that are updated, made through the
+         * "updateTransaction" mutation, for a specific user id.
+         *
+         * @param userId userID generated through previous steps during the sign-up process
+         * @return a {@link Promise} of a {@link Boolean} representing a flag indicating whether the subscription
+         * was successful or not.
+         */
+        const subscribeTransactionUpdatedUpdates = async (userId: string): Promise<void> => {
+            try {
+                if (!transactionUpdatedSubscribed) {
+                    const updatedTransactionUpdate = await API.graphql(graphqlOperation(updatedTransaction, {id: userId})) as unknown as Observable<any>;
+                    // @ts-ignore
+                    setTransactionUpdatedSubscription(updatedTransactionUpdate.subscribe({
+                        // function triggering on the next transaction updated
+                        next: async ({value}) => {
+                            // check to ensure that there is a value and a valid data block to parse the message from
+                            if (value && value.data && value.data.updatedTransaction) {
+                                // parse the new updated transaction data from the subscription message received
+                                const messageData: MoonbeamUpdatedTransaction = value.data.updatedTransaction.data;
+                                // updating the specific transaction details, accordingly
+                                setTransactionData(latestTransactionData => {
+                                    const newTransactionList: MoonbeamTransaction[] = [];
+                                    latestTransactionData.forEach(transaction => {
+                                        const newTransaction: MoonbeamTransaction = transaction;
+                                        if (newTransaction.id === messageData.id && newTransaction.transactionId === messageData.transactionId) {
+                                            // update the updated at and status values
+                                            newTransactionList.push({
+                                                brandId: newTransaction.brandId,
+                                                cardId: newTransaction.cardId,
+                                                category: newTransaction.category,
+                                                createdAt: newTransaction.createdAt,
+                                                creditedCashbackAmount: newTransaction.creditedCashbackAmount,
+                                                currencyCode: newTransaction.currencyCode,
+                                                id: newTransaction.id,
+                                                memberId: newTransaction.memberId,
+                                                pendingCashbackAmount: newTransaction.pendingCashbackAmount,
+                                                rewardAmount: newTransaction.rewardAmount,
+                                                storeId: newTransaction.storeId,
+                                                timestamp: newTransaction.timestamp,
+                                                totalAmount: newTransaction.totalAmount,
+                                                transactionBrandAddress: newTransaction.transactionBrandAddress,
+                                                transactionBrandLogoUrl: newTransaction.transactionBrandLogoUrl,
+                                                transactionBrandName: newTransaction.transactionBrandName,
+                                                transactionBrandURLAddress: newTransaction.transactionBrandURLAddress,
+                                                transactionId: newTransaction.transactionId,
+                                                transactionIsOnline: newTransaction.transactionIsOnline,
+                                                transactionStatus: messageData.transactionStatus,
+                                                transactionType: newTransaction.transactionType,
+                                                updatedAt: messageData.updatedAt
+                                            })
+                                        } else {
+                                            newTransactionList.push(newTransaction);
+                                        }
+                                    });
+                                    // @link https://legacy.reactjs.org/docs/hooks-reference.html#functional-updates
+                                    return [...newTransactionList];
+                                });
+                            } else {
+                                const message = `Unexpected error while parsing subscription message for transactions updated updates ${JSON.stringify(value)}`;
+                                console.log(message);
+                                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
+                                setModalVisible(true);
+                            }
+                        },
+                        // function triggering in case there are any errors
+                        error: async (error) => {
+                            const message = `Unexpected error while subscribing to transactions updated updates ${JSON.stringify(error)} ${error}`;
+                            console.log(message);
+                            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
+                            setModalVisible(true);
+                        }
+                    }));
+                }
+            } catch (error) {
+                const message = `Unexpected error while building a subscription to observe transactions updated updates ${JSON.stringify(error)} ${error}`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+
+                setModalVisible(true);
+            }
+        }
 
         /**
-         * Function used to start subscribing to any new transactions thar are created, made through the
+         * Function used to start subscribing to any new transactions that are created, made through the
          * "createTransaction" mutation, for a specific user id.
          *
          * @param userId userID generated through previous steps during the sign-up process
@@ -939,7 +1015,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                     return (<CustomDrawer {...props} />);
                                 }}
                                 initialRouteName={!userVerified ? "AppWall" : "Home"}
-                                screenOptions={({navigation}) => ({
+                                screenOptions={({}) => ({
                                     ...(showTransactionsBottomSheet && {
                                         header: () =>
                                             <>
@@ -965,76 +1041,7 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                                             } : {
                                                                 backgroundColor: '#313030'
                                                             }}
-                                                        >
-                                                            <View
-                                                                pointerEvents={"none"}
-                                                                style={{
-                                                                    height: hp(11),
-                                                                    width: wp(100),
-                                                                    flexDirection: 'column',
-                                                                    opacity: 0.75
-                                                                }}>
-                                                                {
-                                                                    (!profilePictureURI || profilePictureURI === "") ?
-                                                                        <Avatar
-                                                                            {...profilePictureURI && profilePictureURI !== "" && {
-                                                                                source: {
-                                                                                    uri: profilePictureURI,
-                                                                                    cache: 'reload'
-                                                                                }
-                                                                            }
-                                                                            }
-                                                                            avatarStyle={{
-                                                                                resizeMode: 'cover',
-                                                                                borderColor: '#F2FF5D',
-                                                                                borderWidth: hp(0.20),
-                                                                            }}
-                                                                            size={hp(4)}
-                                                                            rounded
-                                                                            title={(!profilePictureURI || profilePictureURI === "") ? currentUserTitle : undefined}
-                                                                            {...(!profilePictureURI || profilePictureURI === "") && {
-                                                                                titleStyle: [
-                                                                                    styles.titleStyle
-                                                                                ]
-                                                                            }}
-                                                                            containerStyle={[styles.avatarStyle, {
-                                                                                alignSelf: 'flex-end',
-                                                                                marginTop: hp(4.9)
-                                                                            }]}
-                                                                            onPress={async () => {
-                                                                                setShowTransactionsBottomSheet(false);
-                                                                                setShowWalletBottomSheet(false);
-                                                                                setShowClickOnlyBottomSheet(false);
-                                                                                navigation.openDrawer();
-                                                                            }}
-                                                                        />
-                                                                        :
-                                                                        <TouchableOpacity
-                                                                            onPress={async () => {
-                                                                                setShowTransactionsBottomSheet(false);
-                                                                                setShowWalletBottomSheet(false);
-                                                                                setShowClickOnlyBottomSheet(false);
-                                                                                navigation.openDrawer();
-                                                                            }}
-                                                                        >
-                                                                            <ExpoImage
-                                                                                style={[styles.profileImage, {
-                                                                                    alignSelf: 'flex-end',
-                                                                                    marginTop: hp(4.9)
-                                                                                }]}
-                                                                                source={{
-                                                                                    uri: profilePictureURI
-                                                                                }}
-                                                                                placeholder={MoonbeamProfilePlaceholder}
-                                                                                placeholderContentFit={'cover'}
-                                                                                contentFit={'cover'}
-                                                                                transition={1000}
-                                                                                cachePolicy={'memory-disk'}
-                                                                            />
-                                                                        </TouchableOpacity>
-                                                                }
-                                                            </View>
-                                                        </View>
+                                                        />
                                                     </TouchableOpacity>
                                                 }
                                             </>
@@ -1044,62 +1051,12 @@ export const AppDrawer = ({}: AppDrawerProps) => {
                                         </>,
                                     headerRight: () =>
                                         <>
-                                            {
-                                                (!profilePictureURI || profilePictureURI === "") ?
-                                                    <Avatar
-                                                        {...profilePictureURI && profilePictureURI !== "" && {
-                                                            source: {
-                                                                uri: profilePictureURI,
-                                                                cache: 'reload'
-                                                            }
-                                                        }
-                                                        }
-                                                        avatarStyle={{
-                                                            resizeMode: 'cover',
-                                                            borderColor: '#F2FF5D',
-                                                            borderWidth: hp(0.20),
-                                                        }}
-                                                        size={hp(4)}
-                                                        rounded
-                                                        title={(!profilePictureURI || profilePictureURI === "") ? currentUserTitle : undefined}
-                                                        {...(!profilePictureURI || profilePictureURI === "") && {
-                                                            titleStyle: [
-                                                                styles.titleStyle
-                                                            ]
-                                                        }}
-                                                        containerStyle={styles.avatarStyle}
-                                                        onPress={async () => {
-                                                            setShowTransactionsBottomSheet(false);
-                                                            setShowWalletBottomSheet(false);
-                                                            setShowClickOnlyBottomSheet(false);
-                                                            navigation.openDrawer();
-                                                        }}
-                                                    />
-                                                    :
-                                                    <TouchableOpacity
-                                                        onPress={async () => {
-                                                            setShowTransactionsBottomSheet(false);
-                                                            setShowWalletBottomSheet(false);
-                                                            setShowClickOnlyBottomSheet(false);
-                                                            navigation.openDrawer();
-                                                        }}
-                                                    >
-                                                        <ExpoImage
-                                                            style={[styles.profileImage]}
-                                                            source={{
-                                                                uri: profilePictureURI
-                                                            }}
-                                                            placeholder={MoonbeamProfilePlaceholder}
-                                                            placeholderContentFit={'cover'}
-                                                            contentFit={'cover'}
-                                                            transition={1000}
-                                                            cachePolicy={'memory-disk'}
-                                                        />
-                                                    </TouchableOpacity>
-                                            }
                                         </>,
                                     headerTitle: () =>
                                         <></>,
+                                    headerRightContainerStyle: {
+                                        marginTop: hp(1.9)
+                                    },
                                     headerStyle: drawerInDashboard ? {
                                         width: wp(100),
                                         backgroundColor: '#5B5A5A',

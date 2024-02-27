@@ -38,7 +38,7 @@ export class AppReviewResolverStack extends Stack {
                 sourcesContent: false, // do not include original source into source map, defaults to true
                 target: 'esnext', // target environment for the generated JavaScript code
             },
-            reservedConcurrentExecutions: 10
+            reservedConcurrentExecutions: 100
         });
         new Alias(this, `${props.appReviewConfig.appReviewFunctionName}-current-version-alias`, {
             aliasName: `${props.appReviewConfig.appReviewFunctionName}-current-version-alias`,

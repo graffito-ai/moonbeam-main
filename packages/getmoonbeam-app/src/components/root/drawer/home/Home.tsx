@@ -71,8 +71,6 @@ export const Home = ({navigation}: HomeProps) => {
                         tabBarStyle: {
                             ...(bottomTabShown && {height: hp(10)}),
                             backgroundColor: '#3b3b3b',
-                            borderTopWidth: hp(0.05),
-                            borderTopColor: 'transparent',
                             shadowColor: 'black',
                             shadowOffset: {width: -2, height: 10},
                             shadowOpacity: 0.95,
@@ -98,7 +96,7 @@ export const Home = ({navigation}: HomeProps) => {
                                                      <Icon
                                                          type={"antdesign"}
                                                          name={'linechart'}
-                                                         size={25}
+                                                         size={hp(3)}
                                                          color={!focused ? 'white' : '#F2FF5D'}
                                                      />
                                                      <Text style={{
@@ -148,8 +146,8 @@ export const Home = ({navigation}: HomeProps) => {
                                                      }}>
                                                          <Icon
                                                              type={"ionicon"}
-                                                             name={navigation.getState().index === 1 ? 'storefront': 'storefront'}
-                                                             size={45}
+                                                             name={navigation.getState().index === 1 ? 'storefront' : 'storefront'}
+                                                             size={hp(5)}
                                                              color={'#3b3b3b'}
                                                          />
                                                      </View>
@@ -173,7 +171,7 @@ export const Home = ({navigation}: HomeProps) => {
                                                      <Icon
                                                          type={"antdesign"}
                                                          name={'creditcard'}
-                                                         size={25}
+                                                         size={hp(3)}
                                                          color={!focused ? 'white' : '#F2FF5D'}
                                                      />
                                                      <Text style={{

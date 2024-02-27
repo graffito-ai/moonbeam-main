@@ -11,7 +11,7 @@ import {
  * GetTransactionResolver resolver
  *
  * @param fieldName name of the resolver path from the AppSync event
- * @param getTransactionInput get transaction input object, used to retrieve transactional information,
+ * @param getTransactionInput get transaction input object, used to retrieve transactional information.
  *
  * @returns {@link Promise} of {@link MoonbeamTransactionResponse}
  */
@@ -116,7 +116,7 @@ export const getTransaction = async (fieldName: string, getTransactionInput: Get
             });
 
 
-            // return the retrieved card linking object
+            // return the retrieved transactional data
             return {
                 data: transactionalData
             }

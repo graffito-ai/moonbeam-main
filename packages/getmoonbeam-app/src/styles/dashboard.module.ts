@@ -21,7 +21,7 @@ export const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     totalSavingsLabel1Text: {
-        fontFamily: 'Changa-Regular',
+        lineHeight: hp(2.70),
         fontSize: hp(2.20),
         width: wp(70),
         textAlign: 'left',
@@ -29,13 +29,12 @@ export const styles = StyleSheet.create({
         textDecorationLine: 'underline'
     },
     totalSavingsLabel2Text: {
-        fontFamily: 'Changa-Bold',
-        fontSize: hp(2.10),
-        width: wp(70),
+        width: wp(50),
+        lineHeight: hp(3.50),
+        fontSize: hp(1.75),
         textAlign: 'left',
-        color: '#F2FF5D',
-        textDecorationLine: 'none',
-        bottom: hp(5)
+        fontFamily: 'Changa-Medium',
+        color: '#F2FF5D'
     },
     topDashboardButtonView: {
         flexDirection: 'column',
@@ -48,7 +47,7 @@ export const styles = StyleSheet.create({
         marginLeft: wp(14),
         height: hp(7),
         width: hp(7),
-        backgroundColor: 'rgba(91,90,90,0.5)',
+        backgroundColor: '#5B5A5A7F',
         shadowColor: 'black',
         shadowOffset: {width: -2, height: 5},
         shadowOpacity: 0.35,
@@ -67,23 +66,28 @@ export const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     topGreetingView: {
-        left: hp(2),
-        width: wp(100)
+        width: wp(100),
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        height: hp(5)
     },
     greetingText: {
+        top: hp(1),
+        alignSelf: 'flex-start',
+        left: hp(2),
         fontFamily: 'Saira-Light',
         fontSize: hp(2.7),
-        width: wp(100),
         textAlign: 'left',
-        color: '#FFFFFF'
+        flexDirection: 'column',
+        color: '#FFFFFF',
     },
     greetingNameText: {
         fontFamily: 'Saira-SemiBold',
-        bottom: hp(1.5),
         fontSize: hp(2.7),
         width: wp(100),
         textAlign: 'left',
-        color: '#FFFFFF'
+        color: '#FFFFFF',
+        alignSelf: 'flex-start'
     },
     imageCover: {
         alignSelf: 'flex-end'
@@ -100,7 +104,6 @@ export const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     profileImage: {
-        top: hp(1.55),
         right: wp(5),
         alignSelf: 'flex-start',
         height: wp(9),
@@ -114,15 +117,14 @@ export const styles = StyleSheet.create({
         top: '75%',
         backgroundColor: '#303030'
     },
-
     bottomView: {
         height: hp(33),
         backgroundColor: '#313030',
         shadowColor: 'black',
-        shadowOffset: {width: -2, height: 5},
-        shadowOpacity: 0.55,
-        shadowRadius: 20,
-        elevation: 15,
+        shadowOffset: {width: -2, height: 10},
+        shadowOpacity: 0.95,
+        shadowRadius: 15,
+        elevation: 20,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
     },
@@ -179,7 +181,6 @@ export const styles = StyleSheet.create({
         color: '#F2FF5D',
     },
     itemRightDetailBottom: {
-        marginTop: '5%',
         fontSize: hp(1.6),
         fontFamily: 'Raleway-Medium',
         color: '#FFFFFF'

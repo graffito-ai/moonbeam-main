@@ -266,7 +266,7 @@ import {logEvent} from "../../utils/AppSync";
 import {LoggingLevel} from "@moonbeam/moonbeam-models";
 import {LinearGradient} from "expo-linear-gradient";
 import {
-    cardChoiceDropdownOpenState, cardChoiceDropdownValueState,
+    cardChoiceDropdownOpenState, cardChoiceDropdownValueState, isReimbursementsControllerReadyState,
     reimbursementBottomSheetShownState,
     reimbursementDataState
 } from "../../recoil/ReimbursementsAtom";
@@ -539,6 +539,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const reimbursementDataStateReset = useResetRecoilState(reimbursementDataState);
     const cardChoiceDropdownOpenStateReset = useResetRecoilState(cardChoiceDropdownOpenState);
     const cardChoiceDropdownValueStateReset = useResetRecoilState(cardChoiceDropdownValueState);
+    const isReimbursementsControllerReadyStateReset = useResetRecoilState(isReimbursementsControllerReadyState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -812,6 +813,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             reimbursementDataStateReset();
             cardChoiceDropdownOpenStateReset();
             cardChoiceDropdownValueStateReset();
+            isReimbursementsControllerReadyStateReset();
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {
                 // import branch

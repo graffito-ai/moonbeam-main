@@ -2,6 +2,7 @@ import {DynamoDBClient, GetItemCommand, UpdateItemCommand} from "@aws-sdk/client
 import {
     MoonbeamUpdatedTransactionResponse,
     TransactionsErrorType,
+    TransactionsStatus,
     UpdateTransactionInput,
 } from "@moonbeam/moonbeam-models";
 
@@ -39,6 +40,18 @@ export const updateTransaction = async (fieldName: string, updateTransactionInpu
 
         // if there is an item retrieved to be updated, then we proceed accordingly. Otherwise, we throw an error.
         if (preExistingTransactionObject && preExistingTransactionObject.Item) {
+            /**
+             *  For incoming FRONTED or CREDITED transaction statuses we know that they are resulted from a cash-out/reimbursement
+             *  action on the front-end. Therefore, only in those cases, we need to update the following properties of a transaction
+             *  as well:
+             * - pendingCashbackAmount:
+             *   this will have to be reduced to 0.00 for each transaction, specifying that there are $0.00 pending to credit for that transaction
+             * - creditedCashbackAmount:
+             *   this will have to be equal to the 'rewardAmount', specifying the amount that has been credited to the end-user
+             */
+            const isCashOutOriginatingTransaction = updateTransactionInput.transactionStatus === TransactionsStatus.Fronted
+                || updateTransactionInput.transactionStatus === TransactionsStatus.Credited;
+
             // update the transaction object based on the passed in object - for now only containing the status details
             await dynamoDbClient.send(new UpdateItemCommand({
                 TableName: process.env.TRANSACTIONS_TABLE!,
@@ -52,7 +65,11 @@ export const updateTransaction = async (fieldName: string, updateTransactionInpu
                 },
                 ExpressionAttributeNames: {
                     "#tstat": "transactionStatus",
-                    "#uat": "updatedAt"
+                    "#uat": "updatedAt",
+                    ...(isCashOutOriginatingTransaction && {
+                        "#pendingCash": "pendingCashbackAmount",
+                        "#creditedCash": "creditedCashbackAmount"
+                    })
                 },
                 ExpressionAttributeValues: {
                     ":stat": {
@@ -60,14 +77,25 @@ export const updateTransaction = async (fieldName: string, updateTransactionInpu
                     },
                     ":at": {
                         S: updateTransactionInput.updatedAt
-                    }
+                    },
+                    ...(isCashOutOriginatingTransaction && {
+                        ":pendingCash": {
+                            N: Number(0.00).toFixed(2).toString()
+                        },
+                        ":creditedCash": {
+                            N: Number(preExistingTransactionObject.Item.rewardAmount.N!).toFixed(2).toString()
+                        }
+                    })
                 },
-                UpdateExpression: "SET #tstat = :stat, #uat = :at",
+                UpdateExpression: isCashOutOriginatingTransaction
+                    ? "SET #tstat = :stat, #uat = :at, #pendingCash = :pendingCash, #creditedCash = :creditedCash"
+                    : "SET #tstat = :stat, #uat = :at",
                 ReturnValues: "UPDATED_NEW"
             }));
 
             // return the updated transaction details
             return {
+                id: updateTransactionInput.id,
                 data: {
                     id: updateTransactionInput.id,
                     timestamp: updateTransactionInput.timestamp,

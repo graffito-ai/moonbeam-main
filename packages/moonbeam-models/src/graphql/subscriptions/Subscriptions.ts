@@ -12,6 +12,24 @@ export const updatedMilitaryVerificationStatus = /* GraphQL */ `
     }
 `;
 
+// Subscription used to subscribe to any transaction updates for a particular user id.
+export const updatedTransaction = /* GraphQL */ `
+    subscription UpdatedTransaction($id: ID!) {
+        updatedTransaction(id: $id) {
+            errorType
+            errorMessage
+            id
+            data {
+                id
+                timestamp
+                transactionId
+                transactionStatus
+                updatedAt
+            }
+        }
+    }
+`;
+
 // Subscription used to subscribe to a transaction creation for a particular user id.
 export const createdTransaction = /* GraphQL */ `
     subscription CreatedTransaction($id: ID!) {

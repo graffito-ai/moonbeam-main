@@ -27,6 +27,7 @@ import {
 } from "../stacks/MilitaryVerificationReportingProducerConsumerStack";
 import {AppReviewResolverStack} from "../stacks/AppReviewResolverStack";
 import {UtilitiesResolverStack} from "../stacks/UtilitiesResolverStack";
+import {ReimbursementsResolverStack} from "../stacks/ReimbursementsResolverStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -158,6 +159,19 @@ export class StageUtils {
                     environmentVariables: stageConfiguration.environmentVariables
                 });
                 cardLinkingStack.addDependency(appSyncStack);
+
+                // create the Reimbursements resolver stack && add it to the CDK app
+                const reimbursementsStack = new ReimbursementsResolverStack(this.app, `moonbeam-reimbursements-resolver-${stageKey}`, {
+                    stackName: `moonbeam-reimbursements-resolver-${stageKey}`,
+                    description: 'This stack will contain all the AppSync related resources needed by the Lambda reimbursements resolver',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    graphqlApiId: appSyncStack.graphqlApiId,
+                    graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
+                    reimbursementsConfig: stageConfiguration.reimbursementsConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                reimbursementsStack.addDependency(appSyncStack);
 
                 // create the Transactions resolver stack && add it to the CDK app
                 const transactionsStack = new TransactionsResolverStack(this.app, `moonbeam-transactions-resolver-${stageKey}`, {

@@ -1,23 +1,31 @@
 import {Stages} from "@moonbeam/moonbeam-models";
 import {
     AmplifyConfiguration,
-    APIGatewayServiceConfiguration, AppReviewConfiguration,
-    AppSyncConfiguration, AppUpgradeConfiguration,
+    APIGatewayServiceConfiguration,
+    AppReviewConfiguration,
+    AppSyncConfiguration,
+    AppUpgradeConfiguration,
     CardLinkingConfiguration,
-    FAQConfiguration, LoggingConfiguration,
+    FAQConfiguration,
+    LoggingConfiguration,
     MilitaryVerificationConfiguration,
-    MilitaryVerificationProducerConsumerConfiguration, MilitaryVerificationReportingProducerConsumerConfiguration,
+    MilitaryVerificationProducerConsumerConfiguration,
+    MilitaryVerificationReportingProducerConsumerConfiguration,
     NotificationReminderConfiguration,
     NotificationReminderProducerConsumerConfiguration,
     NotificationsConfiguration,
     OffersConfiguration,
-    PhysicalDevicesConfiguration, ReferralConfiguration, ReferralProducerConsumerConfiguration,
+    PhysicalDevicesConfiguration,
+    ReferralConfiguration,
+    ReferralProducerConsumerConfiguration,
+    ReimbursementsConfiguration,
     SESConfiguration,
     StorageConfiguration,
     TransactionsConfiguration,
     TransactionsProducerConsumerConfiguration,
     UpdatedTransactionsProducerConsumerConfiguration,
-    UserAuthSessionConfiguration, UtilitiesConfiguration
+    UserAuthSessionConfiguration,
+    UtilitiesConfiguration
 } from "./ServiceConfiguration";
 
 /**
@@ -51,5 +59,6 @@ export interface StageConfiguration {
     readonly appReviewConfig: AppReviewConfiguration;
     readonly referralConfig: ReferralConfiguration;
     readonly loggingConfig: LoggingConfiguration;
+    readonly reimbursementsConfig: ReimbursementsConfiguration;
     readonly environmentVariables: Map<string, string>;
 }

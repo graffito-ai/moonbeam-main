@@ -1,7 +1,7 @@
 import React, {useEffect} from "react";
 import {List, Text} from "react-native-paper";
 import {styles} from "../../../../../../styles/dashboard.module";
-import {ScrollView, View} from "react-native";
+import {Platform, ScrollView, View} from "react-native";
 import {Image as ExpoImage} from "expo-image/build/Image";
 // @ts-ignore
 import MoonbeamStorePlaceholder from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
@@ -9,8 +9,9 @@ import {Divider} from "@rneui/base";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {customBannerState} from "../../../../../../recoil/CustomBannerAtom";
 import {showTransactionBottomSheetState, sortedTransactionDataState} from "../../../../../../recoil/DashboardAtom";
-import {MoonbeamTransaction} from "@moonbeam/moonbeam-models";
+import {MoonbeamTransaction, TransactionsStatus} from "@moonbeam/moonbeam-models";
 import {convertMSToTimeframe} from "../../../../../../utils/Util";
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 /**
  * BottomDashboard component.
@@ -98,7 +99,16 @@ export const BottomDashboard = (props: {
                                         <Text
                                             style={styles.itemRightDetailTop}>{`+ $ ${transaction.rewardAmount.toFixed(2)}`}</Text>
                                         <Text
-                                            style={styles.itemRightDetailBottom}>{transaction.transactionStatus}</Text>
+                                            style={styles.itemRightDetailBottom}>
+                                            {
+                                                transaction.transactionStatus === TransactionsStatus.Funded
+                                                    ? TransactionsStatus.Processed
+                                                    : (transaction.transactionStatus === TransactionsStatus.Fronted
+                                                            ? TransactionsStatus.Credited
+                                                            : transaction.transactionStatus
+                                                    )
+                                            }
+                                        </Text>
                                     </View>
                                     <View style={styles.rightItemIcon}>
                                         <List.Icon color={'#F2FF5D'} icon="chevron-right"/>
@@ -133,7 +143,14 @@ export const BottomDashboard = (props: {
         <>
             {
                 bannerVisible &&
-                <View style={styles.bottomView}>
+                <View style={[styles.bottomView, Platform.OS === 'android' && {
+                    borderTopColor: '#0000000D',
+                    borderLeftColor: '#0000000D',
+                    borderRightColor: '#0000000D',
+                    borderTopWidth: hp(0.65),
+                    borderLeftWidth: hp(0.65),
+                    borderRightWidth: hp(0.65)
+                }]}>
                     <List.Subheader style={styles.subHeaderTitle}>
                         Transactions
                     </List.Subheader>

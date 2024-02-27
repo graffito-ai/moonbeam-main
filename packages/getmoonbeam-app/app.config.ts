@@ -10,7 +10,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
     name: "Moonbeam Finance",
     owner: "moonbeamfin",
     slug: "moonbeam-app",
-    version: "0.0.18",
+    version: "0.0.19",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "dark",
@@ -34,7 +34,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         backgroundColor: "#313030"
     },
     ios: {
-        buildNumber: "5",
+        buildNumber: "2",
         bundleIdentifier: process.env.IOS_BUNDLE_IDENTIFIER,
         supportsTablet: false,
         infoPlist: {
@@ -54,7 +54,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         }
     },
     android: {
-        versionCode: 35,
+        versionCode: 36,
         package: process.env.ANDROID_PACKAGE,
         googleServicesFile: process.env.GOOGLE_SERVICES_JSON,
         softwareKeyboardLayoutMode: "pan",

@@ -5,13 +5,15 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-nativ
 import DashboardBackgroundImage from "../../../../../../../assets/backgrounds/dashboard-background.png";
 import {Animated, ImageBackground, StyleSheet, TouchableOpacity, View} from "react-native";
 import {Text} from "react-native-paper";
-import {Divider, Icon} from "@rneui/base";
+import {Avatar, Divider, Icon} from "@rneui/base";
 import {PieChart} from "react-native-chart-kit";
 import GestureRecognizer from "react-native-swipe-gestures";
 import {commonStyles} from "../../../../../../styles/common.module";
 import {
     currentBalanceState,
     lifetimeSavingsState,
+    showTransactionBottomSheetState,
+    showWalletBottomSheetState,
     sortedTransactionDataState
 } from "../../../../../../recoil/DashboardAtom";
 import {useRecoilState, useRecoilValue} from "recoil";
@@ -19,6 +21,12 @@ import {MerchantCategoryCodes, TransactionsStatus} from "@moonbeam/moonbeam-mode
 import * as _ from "lodash";
 import {FontAwesome} from "@expo/vector-icons";
 import {drawerNavigationState} from "../../../../../../recoil/HomeAtom";
+import {Image as ExpoImage} from "expo-image/build/Image";
+import {profilePictureURIState} from "../../../../../../recoil/AppDrawerAtom";
+import {currentUserInformation} from "../../../../../../recoil/AuthAtom";
+// @ts-ignore
+import MoonbeamProfilePlaceholder from "../../../../../../../assets/art/moonbeam-profile-placeholder.png";
+import {showClickOnlyBottomSheetState} from "../../../../../../recoil/StoreOfferAtom";
 
 /**
  * Interface used to define a savings category object, part of the
@@ -44,16 +52,22 @@ export const TopDashboard = (props: {
     setStatsDialogVisible: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
     // constants used to keep track of local component state
+    const [currentUserTitle, setCurrentUserTitle] = useState<string>("N/A");
     const [scaleAnim] = useState(new Animated.Value(0))
     const [savingsCategories, setSavingsCategories] = useState<SavingsCategory[]>([]);
     const [longestCategoryNameLength, setLongestCategoryNameLength] = useState<number>(0);
     const [pieChartOffset, setPieChartOffset] = useState<number>(0);
     const [stepNumber, setStepNumber] = useState<number>(0);
     // constants used to keep track of shared states
+    const [userInformation,] = useRecoilState(currentUserInformation);
+    const [profilePictureURI,] = useRecoilState(profilePictureURIState);
     const [drawerNavigation,] = useRecoilState(drawerNavigationState);
     const lifetimeSavings = useRecoilValue(lifetimeSavingsState);
     const currentBalance = useRecoilValue(currentBalanceState);
     const sortedTransactionData = useRecoilValue(sortedTransactionDataState);
+    const [showTransactionsBottomSheet, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
+    const [, setShowWalletBottomSheet] = useRecoilState(showWalletBottomSheetState);
+    const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -63,6 +77,11 @@ export const TopDashboard = (props: {
      * included in here.
      */
     useEffect(() => {
+        // check to see if the user information object has been populated accordingly
+        if (userInformation["given_name"] && userInformation["family_name"] && currentUserTitle === 'N/A') {
+            //set the title of the user's avatar in the dashboard, based on the user's information
+            setCurrentUserTitle(`${Array.from(userInformation["given_name"].split(" ")[0])[0] as string}${Array.from(userInformation["family_name"].split(" ")[0])[0] as string}`);
+        }
         // set the offset of the pie chart, according to the length of the longest category name
         if (pieChartOffset === 0 && longestCategoryNameLength !== 0) {
             if (longestCategoryNameLength <= 15) {
@@ -90,7 +109,8 @@ export const TopDashboard = (props: {
                 useNativeDriver: true
             }
         ).start();
-    }, [longestCategoryNameLength, pieChartOffset, savingsCategories]);
+    }, [longestCategoryNameLength, pieChartOffset, savingsCategories, userInformation["custom:userId"],
+        userInformation["given_name"], userInformation["family_name"], currentUserTitle]);
 
     /**
      * Function used to calculate and return the appropriate
@@ -124,6 +144,11 @@ export const TopDashboard = (props: {
                         } else if (transactionCategory >= 3501 && transactionCategory <= 3790) {
                             transactionCategoryName = 'Hotels';
                         }
+                    }
+
+                    // for unknown transaction categories, set them to Other
+                    if (transactionCategoryName === undefined || transactionCategoryName === null) {
+                        transactionCategoryName = 'Other';
                     }
 
                     // set the longest category's name length
@@ -238,7 +263,7 @@ export const TopDashboard = (props: {
      * "water-tank".
      */
     const calculateReimbursementLimit = (): number => {
-        let offset: number = 0;
+        let offset: number;
 
         // calculate offset depending on whether we are past the $20 savings mark or not.
         if (currentBalance === 0) {
@@ -270,14 +295,20 @@ export const TopDashboard = (props: {
                     top: -hp(1)
                 }}>
                     <View style={styles.topGreetingView}>
-                        <Text
-                            style={styles.greetingText}>Hello,
-                            <Text style={styles.greetingNameText}> {props.currentUserName}</Text>
+                        <View style={{
+                            width: wp(55),
+                            flexDirection: 'row',
+                            height: hp(5)
+                        }}>
+                            <Text
+                                style={styles.greetingText}>Hello,
+                                <Text style={styles.greetingNameText}> {props.currentUserName}</Text>
+                            </Text>
                             <Icon
                                 size={hp(2.5)}
                                 style={{
-                                    marginBottom: hp(0.4),
-                                    marginLeft: hp(1.5)
+                                    marginLeft: hp(3),
+                                    top: hp(2),
                                 }}
                                 name={"info"}
                                 color={"#F2FF5D"}
@@ -286,13 +317,81 @@ export const TopDashboard = (props: {
                                     props.setStatsDialogVisible(true);
                                 }}
                             />
-                        </Text>
+                        </View>
+                        <View
+                            pointerEvents={showTransactionsBottomSheet ? "none" : "auto"}
+                            style={[showTransactionsBottomSheet && {
+                                opacity: 0.75
+                            }, {
+                                width: wp(20),
+                                top: (!profilePictureURI || profilePictureURI === "") ? -hp(0.5) : hp(1)
+                            }]}>
+                            {
+                                (!profilePictureURI || profilePictureURI === "") ?
+                                    <Avatar
+                                        {...profilePictureURI && profilePictureURI !== "" && {
+                                            source: {
+                                                uri: profilePictureURI,
+                                                cache: 'reload'
+                                            }
+                                        }
+                                        }
+                                        avatarStyle={{
+                                            resizeMode: 'cover',
+                                            borderColor: '#F2FF5D',
+                                            borderWidth: hp(0.20),
+                                        }}
+                                        size={hp(4)}
+                                        rounded
+                                        title={(!profilePictureURI || profilePictureURI === "") ? currentUserTitle : undefined}
+                                        {...(!profilePictureURI || profilePictureURI === "") && {
+                                            titleStyle: [
+                                                styles.titleStyle
+                                            ]
+                                        }}
+                                        containerStyle={[styles.avatarStyle, {
+                                            alignSelf: 'flex-end'
+                                        }]}
+                                        onPress={async () => {
+                                            setShowTransactionsBottomSheet(false);
+                                            setShowWalletBottomSheet(false);
+                                            setShowClickOnlyBottomSheet(false);
+                                            // @ts-ignore
+                                            drawerNavigation && drawerNavigation.openDrawer();
+                                        }}
+                                    />
+                                    :
+                                    <TouchableOpacity
+                                        onPress={async () => {
+                                            setShowTransactionsBottomSheet(false);
+                                            setShowWalletBottomSheet(false);
+                                            setShowClickOnlyBottomSheet(false);
+                                            // @ts-ignore
+                                            drawerNavigation && drawerNavigation.openDrawer();
+                                        }}
+                                    >
+                                        <ExpoImage
+                                            style={[styles.profileImage, {
+                                                alignSelf: 'flex-end',
+                                            }]}
+                                            source={{
+                                                uri: profilePictureURI
+                                            }}
+                                            placeholder={MoonbeamProfilePlaceholder}
+                                            placeholderContentFit={'cover'}
+                                            contentFit={'cover'}
+                                            transition={1000}
+                                            cachePolicy={'memory-disk'}
+                                        />
+                                    </TouchableOpacity>
+                            }
+                        </View>
                     </View>
                     <Divider
                         color={'#F2FF5DBF'}
                         style={{
                             left: wp(4),
-                            width: wp(87)
+                            width: wp(80)
                         }}/>
                 </View>
                 <GestureRecognizer
@@ -358,7 +457,7 @@ export const TopDashboard = (props: {
                                             textAlign: 'center',
                                             right: wp(20),
                                             bottom: hp(1),
-                                            width: wp(18)
+                                            width: wp(20)
                                         }}>{"$ 20.00\nCashout\nMinimum"}</Text>
                                     </View>
                                     <View style={{
@@ -402,12 +501,13 @@ export const TopDashboard = (props: {
                                     alignSelf: 'flex-start',
                                     left: wp(5),
                                     marginTop: hp(2),
-                                    marginBottom: -hp(15)
+                                    marginBottom: -hp(9.1)
                                 }}>
-                                    <Text style={styles.totalSavingsLabel1Text}>
-                                        {"Total Saved:\n"}
+                                    <Text style={styles.totalSavingsLabel1Text}>{"Total Saved:"}
                                     </Text>
-                                    <Text style={styles.totalSavingsLabel2Text}>
+                                    <Text
+                                        numberOfLines={1}
+                                        style={styles.totalSavingsLabel2Text}>
                                         {`$ ${lifetimeSavings}`}
                                     </Text>
                                 </View>
@@ -457,7 +557,7 @@ export const TopDashboard = (props: {
                     </View>
                 </GestureRecognizer>
                 <View style={styles.topDashboardButtonView}>
-                    <View style={{flexDirection: 'row'}}>
+                    <View style={{flexDirection: 'row', alignSelf: 'center', right: wp(6.5)}}>
                         <TouchableOpacity
                             activeOpacity={0.75}
                             onPress={() => {
