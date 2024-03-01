@@ -13,7 +13,7 @@ import {
     uniqueNearbyOffersListState,
     verticalSectionActiveState
 } from "../../../../../../recoil/StoreOfferAtom";
-import {bottomTabShownState} from "../../../../../../recoil/HomeAtom";
+import {bottomTabNeedsShowingState, bottomTabShownState} from "../../../../../../recoil/HomeAtom";
 import {searchQueryExecute} from "../../../../../../utils/AppSync";
 import {filteredOffersSpinnerShownState} from "../../../../../../recoil/AuthAtom";
 import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
@@ -36,6 +36,7 @@ export const SearchSection = () => {
     const [, setFilteredOffersList] = useRecoilState(filteredOffersListState);
     const [, setFilteredOffersSpinnerShown] = useRecoilState(filteredOffersSpinnerShownState);
     const [currentUserLocation,] = useRecoilState(currentUserLocationState);
+    const [, setBottomTabNeedsShowing] = useRecoilState(bottomTabNeedsShowingState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -92,12 +93,18 @@ export const SearchSection = () => {
 
                                 // reset search query
                                 setSearchQuery("");
+
+                                // show the bottom bar
+                                setBottomTabNeedsShowing(true);
                             }
 
                             if (value === 'vertical') {
                                 setBottomTabShown(true);
                                 setToggleViewPressed(value);
                                 setWhichVerticalSectionActive('online');
+
+                                // show the bottom bar
+                                setBottomTabNeedsShowing(true);
                             }
 
                             if (value === 'map') {

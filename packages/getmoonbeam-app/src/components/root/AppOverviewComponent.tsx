@@ -247,25 +247,35 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
             requestAppTrackingTransparencyPermission().then(_ => {});
         }
 
-        // check if we need to skip on the overview screen
-        !deepLinkingSourced && SecureStore.getItemAsync(`moonbeam-skip-overview`, {
-            requireAuthentication: false // we don't need this to be under authentication, so we can check at login
-        }).then(moonbeamSkipOverviewPreference => {
-            if (moonbeamSkipOverviewPreference !== null && moonbeamSkipOverviewPreference.length !== 0 && moonbeamSkipOverviewPreference === '1') {
-                /**
-                 * navigate to the Authentication component, and set the recoil state accordingly,
-                 * in order to display the right subcomponent for Authentication.
-                 */
-                setAuthScreen('SignIn');
-                navigation.navigate("Authentication", {
-                    marketplaceCache: route.params.marketplaceCache,
-                    cache: route.params.cache,
-                    currentUserLocation: route.params.currentUserLocation,
-                    expoPushToken: route.params.expoPushToken,
-                    onLayoutRootView: route.params.onLayoutRootView
-                });
-            }
-        });
+        /**
+         * We're going to do a try and catch for retrieving items from the Secure Store, since in case
+         * of decryption issues this will cause log in errors.
+         */
+        try {
+            // check if we need to skip on the overview screen
+            !deepLinkingSourced && SecureStore.getItemAsync(`moonbeam-skip-overview`, {
+                requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+            }).then(moonbeamSkipOverviewPreference => {
+                if (moonbeamSkipOverviewPreference !== null && moonbeamSkipOverviewPreference.length !== 0 && moonbeamSkipOverviewPreference === '1') {
+                    /**
+                     * navigate to the Authentication component, and set the recoil state accordingly,
+                     * in order to display the right subcomponent for Authentication.
+                     */
+                    setAuthScreen('SignIn');
+                    navigation.navigate("Authentication", {
+                        marketplaceCache: route.params.marketplaceCache,
+                        cache: route.params.cache,
+                        currentUserLocation: route.params.currentUserLocation,
+                        expoPushToken: route.params.expoPushToken,
+                        onLayoutRootView: route.params.onLayoutRootView
+                    });
+                }
+            });
+        } catch (error) {
+            const message = `Unexpected error while retrieving item \'moonbeam-skip-overview\' from SecureStore`;
+            console.log(message);
+            logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {});
+        }
         if (deferToLogin && !deepLinkingSourced) {
             /**
              * navigate to the Authentication component, and set the recoil state accordingly,

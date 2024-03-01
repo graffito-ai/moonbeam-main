@@ -200,7 +200,9 @@ export const FidelisSection = (props: {
                                                                     addressAsString: physicalLocation
                                                                 });
                                                                 // @ts-ignore
-                                                                props.navigation.navigate('StoreOffer', {});
+                                                                props.navigation.navigate('StoreOffer', {
+                                                                    bottomTabNeedsShowingFlag: true
+                                                                });
                                                             }}
                                                         >
                                                             {/*@ts-ignore*/}
@@ -290,7 +292,9 @@ export const FidelisSection = (props: {
                                                             // set the clicked offer/partner accordingly
                                                             setStoreOfferClicked(data);
                                                             // @ts-ignore
-                                                            props.navigation.navigate('StoreOffer', {});
+                                                            props.navigation.navigate('StoreOffer', {
+                                                                bottomTabNeedsShowingFlag: true
+                                                            });
                                                         }}
                                                     >
                                                         {/*@ts-ignore*/}

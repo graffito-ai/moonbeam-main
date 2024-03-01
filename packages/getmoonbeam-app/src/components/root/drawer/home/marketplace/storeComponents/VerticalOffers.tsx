@@ -309,7 +309,9 @@ export const VerticalOffers = (props: {
                                       addressAsString: physicalLocation
                                   });
                                   // @ts-ignore
-                                  props.navigation.navigate('StoreOffer', {});
+                                  props.navigation.navigate('StoreOffer', {
+                                      bottomTabNeedsShowingFlag: true
+                                  });
                               }}>
                             <Card.Content>
                                 <List.Icon color={'#F2FF5D'}
@@ -363,7 +365,9 @@ export const VerticalOffers = (props: {
                                   // set the clicked offer/partner accordingly
                                   setStoreOfferClicked(data);
                                   // @ts-ignore
-                                  props.navigation.navigate('StoreOffer', {});
+                                  props.navigation.navigate('StoreOffer', {
+                                      bottomTabNeedsShowingFlag: true
+                                  });
                               }}>
                             <Card.Content>
                                 <List.Icon color={'#F2FF5D'}
@@ -536,7 +540,9 @@ export const VerticalOffers = (props: {
                               // set the clicked offer/partner accordingly
                               setStoreOfferClicked(data);
                               // @ts-ignore
-                              props.navigation.navigate('StoreOffer', {});
+                              props.navigation.navigate('StoreOffer', {
+                                  bottomTabNeedsShowingFlag: true
+                              });
                           }}>
                         <Card.Content>
                             <List.Icon color={'#F2FF5D'}
@@ -703,7 +709,9 @@ export const VerticalOffers = (props: {
                                                               // set the clicked offer/partner accordingly
                                                               setStoreOfferClicked(data);
                                                               // @ts-ignore
-                                                              props.navigation.navigate('StoreOffer', {});
+                                                              props.navigation.navigate('StoreOffer', {
+                                                                  bottomTabNeedsShowingFlag: true
+                                                              });
                                                           }
                                                           // for nearby offers
                                                           else {
@@ -718,7 +726,9 @@ export const VerticalOffers = (props: {
                                                                   addressAsString: physicalLocation
                                                               });
                                                               // @ts-ignore
-                                                              props.navigation.navigate('StoreOffer', {});
+                                                              props.navigation.navigate('StoreOffer', {
+                                                                  bottomTabNeedsShowingFlag: true
+                                                              });
                                                           }
                                                           break;
                                                       default:
@@ -802,7 +812,9 @@ export const VerticalOffers = (props: {
                                                           // set the clicked offer/partner accordingly
                                                           setStoreOfferClicked(data);
                                                           // @ts-ignore
-                                                          props.navigation.navigate('StoreOffer', {});
+                                                          props.navigation.navigate('StoreOffer', {
+                                                              bottomTabNeedsShowingFlag: true
+                                                          });
                                                       }
                                                       // for nearby offers
                                                       else {
@@ -817,7 +829,9 @@ export const VerticalOffers = (props: {
                                                               addressAsString: physicalLocation
                                                           });
                                                           // @ts-ignore
-                                                          props.navigation.navigate('StoreOffer', {});
+                                                          props.navigation.navigate('StoreOffer', {
+                                                              bottomTabNeedsShowingFlag: true
+                                                          });
                                                       }
                                                       break;
                                                   default:
@@ -970,7 +984,9 @@ export const VerticalOffers = (props: {
                                   addressAsString: physicalLocation
                               });
                               // @ts-ignore
-                              props.navigation.navigate('StoreOffer', {});
+                              props.navigation.navigate('StoreOffer', {
+                                  bottomTabNeedsShowingFlag: true
+                              });
                           }}>
                         <Card.Content>
                             <List.Icon color={'#F2FF5D'}

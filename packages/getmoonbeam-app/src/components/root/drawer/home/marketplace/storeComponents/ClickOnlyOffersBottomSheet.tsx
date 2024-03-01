@@ -112,7 +112,9 @@ export const ClickOnlyOffersBottomSheet = (props: {
                             onPress={async () => {
                                 // go to the OfferDetails component
                                 // @ts-ignore
-                                props.navigation.navigate('StoreOffer', {});
+                                props.navigation.navigate('StoreOffer', {
+                                    bottomTabNeedsShowingFlag: true
+                                });
                             }}
                         >
                             <Text style={styles.continueButtonContentStyle}>Continue</Text>

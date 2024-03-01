@@ -107,7 +107,12 @@ import {
 } from "../../recoil/AppDrawerAtom";
 import {Spinner} from "./Spinner";
 import {Auth} from "aws-amplify";
-import {bottomBarNavigationState, bottomTabShownState, drawerNavigationState} from "../../recoil/HomeAtom";
+import {
+    bottomBarNavigationState,
+    bottomTabNeedsShowingState,
+    bottomTabShownState,
+    drawerNavigationState
+} from "../../recoil/HomeAtom";
 import {goToProfileSettingsState} from "../../recoil/Settings";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {codeVerificationSheetShown, codeVerifiedState} from "../../recoil/CodeVerificationAtom";
@@ -540,6 +545,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const cardChoiceDropdownOpenStateReset = useResetRecoilState(cardChoiceDropdownOpenState);
     const cardChoiceDropdownValueStateReset = useResetRecoilState(cardChoiceDropdownValueState);
     const isReimbursementsControllerReadyStateReset = useResetRecoilState(isReimbursementsControllerReadyState);
+    const bottomTabNeedsShowingStateReset = useResetRecoilState(bottomTabNeedsShowingState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -814,6 +820,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             cardChoiceDropdownOpenStateReset();
             cardChoiceDropdownValueStateReset();
             isReimbursementsControllerReadyStateReset();
+            bottomTabNeedsShowingStateReset();
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {
                 // import branch

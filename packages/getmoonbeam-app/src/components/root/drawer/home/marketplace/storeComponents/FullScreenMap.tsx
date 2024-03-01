@@ -99,6 +99,7 @@ export const FullScreenMap = (props: {
      */
     useEffect(() => {
         if (bottomTabShown) {
+            console.log('here bitch');
             setBottomTabShown(false);
         }
         if (mapViewRef && mapViewRef.current && currentUserLocation !== null && !mapIsDisplayed) {
@@ -250,7 +251,9 @@ export const FullScreenMap = (props: {
                             addressAsString: physicalLocation
                         });
                         // @ts-ignore
-                        props.navigation.navigate('StoreOffer', {});
+                        props.navigation.navigate('StoreOffer', {
+                            bottomTabNeedsShowingFlag: false
+                        });
                     }}
                     tappable={true}
                     key={uniqueNearbyOffersListForFullScreenMap[i].id}
@@ -274,7 +277,9 @@ export const FullScreenMap = (props: {
                                 addressAsString: physicalLocation
                             });
                             // @ts-ignore
-                            props.navigation.navigate('StoreOffer', {});
+                            props.navigation.navigate('StoreOffer', {
+                                bottomTabNeedsShowingFlag: false
+                            });
                         }}>
                         <View style={styles.toolTipView}>
                             <Image

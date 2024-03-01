@@ -3,7 +3,7 @@ import {Icon} from "@rneui/base";
 import {HomeProps} from "../../../../models/props/AppDrawerProps";
 import {HomeStackParamList} from "../../../../models/props/HomeProps";
 import {useRecoilState} from "recoil";
-import {bottomTabShownState, drawerNavigationState} from "../../../../recoil/HomeAtom";
+import {bottomTabNeedsShowingState, bottomTabShownState, drawerNavigationState} from "../../../../recoil/HomeAtom";
 import {currentUserInformation} from "../../../../recoil/AuthAtom";
 import {MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
 import {Wallet} from "./cards/Wallet";
@@ -13,10 +13,7 @@ import {drawerDashboardState} from "../../../../recoil/AppDrawerAtom";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
 import {Text, TouchableOpacity, View} from "react-native";
-import {
-    filteredByDiscountPressedState,
-    filtersActiveState
-} from "../../../../recoil/StoreOfferAtom";
+import {filteredByDiscountPressedState, filtersActiveState} from "../../../../recoil/StoreOfferAtom";
 
 /**
  * Home component. This is where the bottom bar components will reside, as well
@@ -33,6 +30,7 @@ export const Home = ({navigation}: HomeProps) => {
     const [bottomTabShown,] = useRecoilState(bottomTabShownState);
     const [userInformation,] = useRecoilState(currentUserInformation);
     const [, setIsDrawerInDashboard] = useRecoilState(drawerDashboardState);
+    const [bottomTabNeedsShowing,] = useRecoilState(bottomTabNeedsShowingState);
 
     // create a bottom navigator, to be used for our Home bottom bar navigation
     const HomeTabStack = createBottomTabNavigator<HomeStackParamList>();
@@ -81,7 +79,7 @@ export const Home = ({navigation}: HomeProps) => {
                             shadowRadius: 15,
                             elevation: 20,
                             // ...((toggleViewPressed === 'vertical' && storeOfferClicked === null) && {position: 'relative'}),
-                            ...(!bottomTabShown && {display: 'none'})
+                            ...((!bottomTabShown || !bottomTabNeedsShowing) && {display: 'none'})
                         }
                     })}
                 >

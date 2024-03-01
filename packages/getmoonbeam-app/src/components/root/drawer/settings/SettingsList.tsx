@@ -79,27 +79,50 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
             setCardOptionDescription("Click this button to opt-in to all our sweet discount programs!");
             setCardOptionIcon('credit-card-plus-outline');
         }
-        // retrieve the type of Biometrics available from the SecureStore
-        SecureStore.getItemAsync(`biometrics-type`, {
-            requireAuthentication: false // we don't need this to be under authentication, so we can check at login
-        }).then(biometricsType => {
-            const message = `Type of authentication enabled on device ${biometricsType}`;
-            console.log(message);
-            logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {
-            });
 
-            setBiometricsType('Enhanced Security');
-            // check to see if biometrics are enabled or not
-            SecureStore.getItemAsync(`biometrics-enabled`, {
+        /**
+         * We're going to do a try and catch for retrieving items from the Secure Store, since in case
+         * of decryption issues this will cause log in errors.
+         */
+        try {
+            // retrieve the type of Biometrics available from the SecureStore
+            SecureStore.getItemAsync(`biometrics-type`, {
                 requireAuthentication: false // we don't need this to be under authentication, so we can check at login
-            }).then(biometricsEnabled => {
-                if (biometricsEnabled !== null && biometricsEnabled.length !== 0 && biometricsEnabled !== '0') {
-                    setBiometricsEnabled(true);
-                } else {
+            }).then(biometricsType => {
+                const message = `Type of authentication enabled on device ${biometricsType}`;
+                console.log(message);
+                logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {
+                });
+
+                setBiometricsType('Enhanced Security');
+
+                /**
+                 * We're going to do a try and catch for retrieving items from the Secure Store, since in case
+                 * of decryption issues this will cause log in errors.
+                 */
+                try {
+                    // check to see if biometrics are enabled or not
+                    SecureStore.getItemAsync(`biometrics-enabled`, {
+                        requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                    }).then(biometricsEnabled => {
+                        if (biometricsEnabled !== null && biometricsEnabled.length !== 0 && biometricsEnabled !== '0') {
+                            setBiometricsEnabled(true);
+                        } else {
+                            setBiometricsEnabled(false);
+                        }
+                    });
+                } catch (error) {
                     setBiometricsEnabled(false);
+                    const message = `Unexpected error while retrieving item \'biometrics-enabled\' from SecureStore`;
+                    console.log(message);
+                    logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {});
                 }
             });
-        });
+        } catch (error) {
+            const message = `Unexpected error while retrieving item \'biometrics-type\' from SecureStore`;
+            console.log(message);
+            logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {});
+        }
     }, [goToProfileSettings, userInformation["linkedCard"]]);
 
     /**

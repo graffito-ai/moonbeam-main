@@ -161,10 +161,23 @@ export const SignInComponent = ({navigation}: SignInProps) => {
             // set a loader on button press
             setIsReady(false);
 
-            // we will retrieve the user's biometrics preferences, and check if we should attempt biometric login
-            const biometricsEnabled = await SecureStore.getItemAsync(`biometrics-enabled`, {
-                requireAuthentication: false // we don't need this to be under authentication, so we can check at login
-            });
+
+            /**
+             * We're going to do a try and catch for retrieving items from the Secure Store, since in case
+             * of decryption issues this will cause log in errors.
+             */
+            let biometricsEnabled: string | null = null;
+            try {
+                // we will retrieve the user's biometrics preferences, and check if we should attempt biometric login
+                biometricsEnabled = await SecureStore.getItemAsync(`biometrics-enabled`, {
+                    requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                });
+            } catch (error) {
+                const message = `Unexpected error while retrieving item \'biometrics-enabled\' from SecureStore`;
+                console.log(message);
+                await logEvent(message, LoggingLevel.Warning, userIsAuthenticated);
+            }
+
             if (biometricsEnabled !== null && biometricsEnabled.length !== 0 && biometricsEnabled === '1') {
                 const message = 'Biometric sign-in enabled for device! Attempting to sign-in.';
                 console.log(message);
@@ -180,12 +193,24 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                     console.log(message);
                     await logEvent(message, LoggingLevel.Info, true);
 
-                    const moonbeamUserId = await SecureStore.getItemAsync(`moonbeam-user-id`, {
-                        requireAuthentication: false // we don't need this to be under authentication, so we can check at login
-                    });
-                    const moonbeamUserPass = await SecureStore.getItemAsync(`moonbeam-user-passcode`, {
-                        requireAuthentication: false // we don't need this to be under authentication, so we can check at login
-                    });
+                    /**
+                     * We're going to do a try and catch for retrieving items from the Secure Store, since in case
+                     * of decryption issues this will cause log in errors.
+                     */
+                    let moonbeamUserId: string | null = null;
+                    let moonbeamUserPass: string | null = null;
+                    try {
+                        moonbeamUserId = await SecureStore.getItemAsync(`moonbeam-user-id`, {
+                            requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                        });
+                        moonbeamUserPass = await SecureStore.getItemAsync(`moonbeam-user-passcode`, {
+                            requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                        });
+                    } catch (error) {
+                        const message = `Unexpected error while retrieving item \'moonbeam-user-id\' or \'moonbeam-user-passcode\' from SecureStore`;
+                        console.log(message);
+                        await logEvent(message, LoggingLevel.Warning, userIsAuthenticated);
+                    }
 
                     if (moonbeamUserId !== null && moonbeamUserPass !== null && moonbeamUserId.length !== 0 && moonbeamUserPass.length !== 0) {
                         // use Amplify to sign in the user, given the retrieve Secure Store data.
@@ -295,9 +320,22 @@ export const SignInComponent = ({navigation}: SignInProps) => {
                  * if so, and we have biometrics set up, we will reset biometrics for this new user, so it does
                  * not inherit the other user's settings.
                  */
-                const moonbeamUserId = await SecureStore.getItemAsync(`moonbeam-user-id`, {
-                    requireAuthentication: false // we don't need this to be under authentication, so we can check at login
-                });
+                let moonbeamUserId: string | null = null;
+
+                /**
+                 * We're going to do a try and catch for retrieving items from the Secure Store, since in case
+                 * of decryption issues this will cause log in errors.
+                 */
+                try {
+                    moonbeamUserId = await SecureStore.getItemAsync(`moonbeam-user-id`, {
+                        requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                    });
+                } catch (error) {
+                    const message = `Unexpected error while retrieving item \'moonbeam-user-id\' from SecureStore`;
+                    console.log(message);
+                    await logEvent(message, LoggingLevel.Warning, userIsAuthenticated);
+                }
+
                 if (moonbeamUserId !== null && moonbeamUserId.length !== 0 && moonbeamUserId.trim() !== email.trim()) {
                     const message = 'Inheriting biometrics from old user. Resetting.';
                     console.log(message);

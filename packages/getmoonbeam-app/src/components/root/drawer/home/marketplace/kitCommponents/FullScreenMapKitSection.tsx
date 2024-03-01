@@ -254,7 +254,9 @@ export const FullScreenMapKitSection = (props: {
                                 addressAsString: physicalLocation
                             });
                             // @ts-ignore
-                            props.navigation.navigate('StoreOffer', {});
+                            props.navigation.navigate('StoreOffer', {
+                                bottomTabNeedsShowingFlag: false
+                            });
                         }}
                         tappable={true}
                         key={uniqueNearbyOffersListForFullScreenMap[i].id}
@@ -277,7 +279,9 @@ export const FullScreenMapKitSection = (props: {
                                     addressAsString: physicalLocation
                                 });
                                 // @ts-ignore
-                                props.navigation.navigate('StoreOffer', {});
+                                props.navigation.navigate('StoreOffer', {
+                                    bottomTabNeedsShowingFlag: false
+                                });
                             }}>
                             <View style={styles.toolTipView}>
                                 <Image
@@ -367,7 +371,9 @@ export const FullScreenMapKitSection = (props: {
                                              // go back
                                              setCurrentActiveKit(null);
                                              setBottomTabShown(true);
-                                             storeNavigation && storeNavigation.navigate('Store', {});
+                                             storeNavigation && storeNavigation.navigate('Store', {
+                                                 bottomTabNeedsShowingFlag: false
+                                             });
                                          }
                                      }}>
                             {"Go to App Settings"}

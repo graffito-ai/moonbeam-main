@@ -212,7 +212,9 @@ export const NearbySection = (props: {
                                                             addressAsString: physicalLocation
                                                         });
                                                         // @ts-ignore
-                                                        props.navigation.navigate('StoreOffer', {});
+                                                        props.navigation.navigate('StoreOffer', {
+                                                            bottomTabNeedsShowingFlag: true
+                                                        });
                                                     }}
                                                 >
                                                     {/*@ts-ignore*/}

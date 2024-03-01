@@ -97,7 +97,9 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         policy: "nativeVersion"
     },
     updates: {
-        url: process.env.EAS_UPDATES_URL
+        url: "https://u.expo.dev/c3b0411c-168c-4e25-b525-9499a4277c8f",
+        // url: process.env.EAS_UPDATES_URL,
+        fallbackToCacheTimeout: 5000
     },
     plugins: [
         [

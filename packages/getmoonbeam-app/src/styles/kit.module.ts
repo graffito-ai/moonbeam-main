@@ -177,10 +177,11 @@ export const styles = StyleSheet.create({
     toolTipImagePrice: {
         alignSelf: 'center',
         fontFamily: 'Raleway-ExtraBold',
-        fontSize: wp(3.5),
+        fontSize: wp(2.90),
         textAlign: 'center',
         bottom: hp(0.25),
-        color: '#blue'
+        color: '#313030',
+        width: wp(10.5)
     },
     triangleContainer: {
         justifyContent: 'center',
