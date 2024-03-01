@@ -1162,6 +1162,7 @@ export type Offer = {
 };
 
 export enum OfferAvailability {
+  All = 'all',
   ClientOnly = 'client_only',
   Global = 'global'
 }

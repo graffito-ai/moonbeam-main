@@ -258,7 +258,9 @@ export const OnlineKitSection = (props: {
                                               if (currentActiveKit === OfferCategory.VeteranDay) {
                                                   setStoreOfferClicked(fidelisPartnerList.filter(fidelisPartner => fidelisPartner.brandName === data.brandDba)[0]);
                                                   // @ts-ignore
-                                                  props.navigation.navigate('StoreOffer', {});
+                                                  props.navigation.navigate('StoreOffer', {
+                                                      bottomTabNeedsShowingFlag: false
+                                                  });
                                               } else {
                                                   // for click-only offers do not navigate anywhere, just open the bottom sheet
                                                   if (data.redemptionType === RedemptionType.Click) {
@@ -267,7 +269,9 @@ export const OnlineKitSection = (props: {
                                                   } else {
                                                       setStoreOfferClicked(data);
                                                       // @ts-ignore
-                                                      props.navigation.navigate('StoreOffer', {});
+                                                      props.navigation.navigate('StoreOffer', {
+                                                          bottomTabNeedsShowingFlag: false
+                                                      });
                                                   }
                                               }
                                           }}>
@@ -318,7 +322,9 @@ export const OnlineKitSection = (props: {
                                     if (currentActiveKit === OfferCategory.VeteranDay) {
                                         setStoreOfferClicked(fidelisPartnerList.filter(fidelisPartner => fidelisPartner.brandName === data.brandDba)[0]);
                                         // @ts-ignore
-                                        props.navigation.navigate('StoreOffer', {});
+                                        props.navigation.navigate('StoreOffer', {
+                                            bottomTabNeedsShowingFlag: false
+                                        });
                                     } else {
                                         // for click-only offers do not navigate anywhere, just open the bottom sheet
                                         if (data.redemptionType === RedemptionType.Click) {
@@ -327,7 +333,9 @@ export const OnlineKitSection = (props: {
                                         } else {
                                             setStoreOfferClicked(data);
                                             // @ts-ignore
-                                            props.navigation.navigate('StoreOffer', {});
+                                            props.navigation.navigate('StoreOffer', {
+                                                bottomTabNeedsShowingFlag: false
+                                            });
                                         }
                                     }
                                 }}>

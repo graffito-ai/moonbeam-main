@@ -292,7 +292,9 @@ export const NearbyKitSection = (props: {
                                                   addressAsString: physicalLocation
                                               });
                                               // @ts-ignore
-                                              props.navigation.navigate('StoreOffer', {});
+                                              props.navigation.navigate('StoreOffer', {
+                                                  bottomTabNeedsShowingFlag: false
+                                              });
                                           }}>
                                         <Card.Content>
                                             <List.Icon color={'#F2FF5D'}
@@ -346,7 +348,9 @@ export const NearbyKitSection = (props: {
                                           addressAsString: physicalLocation
                                       });
                                       // @ts-ignore
-                                      props.navigation.navigate('StoreOffer', {});
+                                      props.navigation.navigate('StoreOffer', {
+                                          bottomTabNeedsShowingFlag: false
+                                      });
                                   }}>
                                 <Card.Content>
                                     <List.Icon color={'#F2FF5D'}

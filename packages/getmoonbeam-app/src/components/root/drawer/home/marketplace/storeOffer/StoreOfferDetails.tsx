@@ -22,6 +22,8 @@ import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-s
 // @ts-ignore
 import MoonbeamPinImage from "../../../../../../../assets/pin-shape.png";
 import {bottomTabShownState} from "../../../../../../recoil/HomeAtom";
+import {getDistance} from "geolib";
+import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
 
 /**
  * StoreOfferDetails component.
@@ -34,6 +36,7 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
     const [offerIdExpanded, setOfferIdExpanded] = useState<string | null>(null);
     const [hasOnlineStore, setHasOnlineStore] = useState<boolean>(false);
     // constants used to keep track of shared states
+    const [currentUserLocation,] = useRecoilState(currentUserLocationState);
     const [storeOfferClicked,] = useRecoilState(storeOfferState);
     const [storeOfferPhysicalLocation,] = useRecoilState(storeOfferPhysicalLocationState);
     const [bottomTabShown, setBottomTabShown] = useRecoilState(bottomTabShownState);
@@ -74,10 +77,10 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
     }, [hasOnlineStore, storeOfferPhysicalLocation, bottomTabShown]);
 
     /**
-     * Function used to populate the online offers.
+     * Function used to populate the brand's offers.
      *
      * @return a {@link React.ReactNode} or {@link React.ReactNode[]} representing the
-     * React node and/or nodes, representing the online offers.
+     * React node and/or nodes, representing the brand's offers.
      */
     const populateOffersList = (): React.ReactNode | React.ReactNode[] => {
         let results: React.ReactNode[] = [];
@@ -103,16 +106,48 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                 const participatingLocations: React.ReactNode[] = [];
                 let hasOnlineStoreFlag = false;
                 retrievedPartnerOffer!.storeDetails && retrievedPartnerOffer!.storeDetails!.length !== 0 && retrievedPartnerOffer!.storeDetails!.forEach(store => {
+                    /**
+                     * Calculate the distance from store, since for Fidelis partners we don't get
+                     * incoming distance from Olive.
+                     */
+                    let storeLatitude: number = 0;
+                    let storeLongitude: number = 0;
+
+                    /**
+                     * retrieve store coordinates if applicable
+                     */
+                    if (store !== null && store!.isOnline === false) {
+                        // set the store's coordinates accordingly
+                        storeLatitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
+                        store!.geoLocation!.latitude !== null && store!.geoLocation!.latitude !== undefined
+                            ? store!.geoLocation!.latitude! : 0;
+                        storeLongitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
+                        store!.geoLocation!.longitude !== null && store!.geoLocation!.longitude !== undefined
+                            ? store!.geoLocation!.longitude! : 0;
+                    }
+
+                    // calculate the distance between the location of the store displayed and the user's current location (in miles)
+                    let calculatedDistance = currentUserLocation !== null && storeLatitude !== 0 && storeLongitude !== 0 ? getDistance({
+                        latitude: storeLatitude,
+                        longitude: storeLongitude
+                    }, {
+                        latitude: currentUserLocation.coords.latitude,
+                        longitude: currentUserLocation.coords.longitude
+                    }, 1) : 0;
+                    // the accuracy above is in meters, so we are calculating it up to miles where 1 mile = 1609.34 meters
+                    calculatedDistance = Math.round((calculatedDistance / 1609.34) * 100) / 100
+
                     if (store!.isOnline && !hasOnlineStoreFlag) {
                         hasOnlineStoreFlag = true;
                         participatingLocations.push(<Text>{"• Available Online\n"}</Text>);
                     } else {
-                        // only consider locations within 25 miles, 50 km, or 50,000 meters within user's location.
-                        if (store!.distance && store!.distance! <= 50000) {
-                            // only display the 5 closest locations
-                            if (participatingLocationsNumber <= 4) {
+                        // only consider locations within 50 miles
+                        if (calculatedDistance <= 50) {
+                            // only display the 2 closest locations
+                            if (participatingLocationsNumber <= 1) {
+                                const participatingLocation = `${store!.address1}, ${store!.city}, ${store!.state}, ${store!.postCode}`;
                                 participatingLocations.push(
-                                    <Text>{`• ${store!.address1}, ${store!.city}, ${store!.state}, ${store!.postCode}\n`}</Text>)
+                                    <Text>{`• ${participatingLocation}\n`}</Text>);
                             }
                             participatingLocationsNumber += 1;
                         }
@@ -120,9 +155,9 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                 });
 
                 // also add any additional locations as a number
-                if (participatingLocationsNumber > 4) {
+                if (participatingLocationsNumber >= 2) {
                     participatingLocations.push(
-                        <Text>{`• And ${6 - participatingLocationsNumber} more locations near you!\n`}</Text>)
+                        <Text>{`• And ${participatingLocationsNumber - 2 + 1} more location/s near you!\n`}</Text>)
                 }
 
                 // always display every day offers first
@@ -315,8 +350,9 @@ export const StoreOfferDetails = ({navigation}: StoreOfferDetailsProps) => {
                     if (store!.distance && store!.distance! <= 50000) {
                         // only display the 2 closest locations
                         if (participatingLocationsNumber <= 1) {
+                            const participatingLocation = `${store!.address1}, ${store!.city}, ${store!.state}, ${store!.postCode}`;
                             participatingLocations.push(
-                                <Text>{`• ${store!.address1}, ${store!.city}, ${store!.state}, ${store!.postCode}\n`}</Text>)
+                                <Text>{`• ${participatingLocation}\n`}</Text>);
                         }
                         participatingLocationsNumber += 1;
                     }

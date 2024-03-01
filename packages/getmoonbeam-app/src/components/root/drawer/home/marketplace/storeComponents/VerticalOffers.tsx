@@ -206,14 +206,23 @@ export const VerticalOffers = (props: {
      * @return a {@link React.JSX.Element} or an {@link Array} of {@link React.JSX.Element} representing the
      * React node and/or nodes containing the Fidelis offers.
      */
-    const renderFidelisRowData = useMemo(() => (_type: string | number, data: FidelisPartner, index: number): React.JSX.Element | React.JSX.Element[] => {
+    const renderFidelisRowData = useMemo(() => (_type: string | number, data: FidelisPartner): React.JSX.Element | React.JSX.Element[] => {
+        // results to be returned
+        const results: React.JSX.Element[] = [];
+
         // flag to determine whether there are any offers shown at all - so we can display the empty message otherwise
         let offersShown = false;
 
         // offer listing
         if (props.fidelisPartnerList.length !== 0) {
             offersShown = true;
-            // retrieve appropriate offer for partner (everyday)
+
+            /**
+             * We return a type of card for Fidelis offers nearby (within 50 miles).
+             * DO NOT display Fidelis offers that are not nearby.
+             *
+             * We display all online Fidelis offers.
+             */
             let offer: Offer | null = null;
             for (const matchedOffer of data.offers) {
                 if (matchedOffer!.title!.includes("Military Discount")) {
@@ -221,127 +230,184 @@ export const VerticalOffers = (props: {
                     break;
                 }
             }
-            return offer ? (
-                <>
-                    {
-                        index === 0
-                            ?
-                            <>
-                                <View style={{flexDirection: 'column'}}>
-                                    <Card style={styles.verticalOffersBannerCard}>
-                                        <Card.Content>
-                                            <View style={{flexDirection: 'column', bottom: hp(1)}}>
-                                                <Text style={styles.verticalOfferBannerName}>{'Fidelis Offers'}</Text>
-                                                <Text
-                                                    style={styles.verticalOfferBannerSubtitleName}>{'Preferred partners with better discounts'}</Text>
-                                            </View>
-                                        </Card.Content>
-                                    </Card>
-                                    <Card style={styles.verticalOfferCard}
-                                          onPress={() => {
-                                              // reset any filtered offers
-                                              setNoFilteredOffersToLoad(false);
-                                              setFilteredOffersList([]);
+            const subtitle = offer!.reward!.type! === RewardType.RewardPercent
+                ? `${offer!.reward!.value}% Off`
+                : `$${offer!.reward!.value} Off`;
+            if (offer === null) {
+                return (<></>);
+            } else {
+                /**
+                 * First we determine if this offer is a Fidelis Nearby offer.
+                 *
+                 * Get the physical location of this offer alongside its coordinates.
+                 */
+                let physicalLocation: string = '';
+                let storeLatitude: number = 0;
+                let storeLongitude: number = 0;
 
-                                              // reset search query
-                                              setSearchQuery("");
+                offer && offer.storeDetails !== undefined && offer.storeDetails !== null && offer.storeDetails!.forEach(store => {
+                    /**
+                     * retrieve store coordinates if applicable
+                     */
+                    if (physicalLocation === '' && store !== null && store!.isOnline === false) {
+                        // set the store's coordinates accordingly
+                        storeLatitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
+                        store!.geoLocation!.latitude !== null && store!.geoLocation!.latitude !== undefined
+                            ? store!.geoLocation!.latitude! : 0;
+                        storeLongitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
+                        store!.geoLocation!.longitude !== null && store!.geoLocation!.longitude !== undefined
+                            ? store!.geoLocation!.longitude! : 0;
 
-                                              // set the clicked offer/partner accordingly
-                                              setStoreOfferClicked(data);
-                                              // @ts-ignore
-                                              props.navigation.navigate('StoreOffer', {});
-                                          }}>
-                                        <Card.Content>
-                                            <List.Icon color={'#F2FF5D'}
-                                                       icon="chevron-right"
-                                                       style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
-                                            <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
-                                                <View style={styles.verticalOfferLogoBackground}>
-                                                    <Image
-                                                        style={styles.verticalOfferLogo}
-                                                        source={{
-                                                            uri: offer!.brandLogoSm!,
-                                                        }}
-                                                        placeholder={MoonbeamPlaceholderImage}
-                                                        placeholderContentFit={'contain'}
-                                                        contentFit={'contain'}
-                                                        transition={1000}
-                                                        cachePolicy={'none'}
-                                                    />
-                                                </View>
-                                                <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                                    <Text numberOfLines={2}
-                                                          style={styles.verticalOfferName}>{data.brandName}</Text>
-                                                    <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
-                                                        <Text style={styles.verticalOfferBenefit}>
-                                                            {offer!.reward!.type! === RewardType.RewardPercent
-                                                                ? `${offer!.reward!.value}%`
-                                                                : `$${offer!.reward!.value}`}
-                                                        </Text>
-                                                        {" Off "}
-                                                    </Text>
-                                                </View>
-                                            </View>
-                                        </Card.Content>
-                                    </Card>
-                                </View>
-                            </>
-                            :
-                            <Card style={styles.verticalOfferCard}
-                                  onPress={() => {
-                                      // reset any filtered offers
-                                      setNoFilteredOffersToLoad(false);
-                                      setFilteredOffersList([]);
-
-                                      // reset search query
-                                      setSearchQuery("");
-
-                                      // set the clicked offer/partner accordingly
-                                      setStoreOfferClicked(data);
-                                      // @ts-ignore
-                                      props.navigation.navigate('StoreOffer', {});
-                                  }}>
-                                <Card.Content>
-                                    <List.Icon color={'#F2FF5D'}
-                                               icon="chevron-right"
-                                               style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
-                                    <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
-                                        <View style={styles.verticalOfferLogoBackground}>
-                                            <Image
-                                                style={styles.verticalOfferLogo}
-                                                source={{
-                                                    uri: offer!.brandLogoSm!,
-                                                }}
-                                                placeholder={MoonbeamPlaceholderImage}
-                                                placeholderContentFit={'contain'}
-                                                contentFit={'contain'}
-                                                transition={1000}
-                                                cachePolicy={'none'}
-                                            />
-                                        </View>
-                                        <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                            <Text numberOfLines={2}
-                                                  style={styles.verticalOfferName}>{data.brandName}</Text>
-                                            <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
-                                                <Text style={styles.verticalOfferBenefit}>
-                                                    {offer!.reward!.type! === RewardType.RewardPercent
-                                                        ? `${offer!.reward!.value}%`
-                                                        : `$${offer!.reward!.value}`}
-                                                </Text>
-                                                {" Off "}
-                                            </Text>
-                                        </View>
-                                    </View>
-                                </Card.Content>
-                            </Card>
+                        // Olive needs to get better at displaying the address. For now, we will do this input sanitization
+                        if (store!.address1 !== undefined && store!.address1 !== null && store!.address1!.length !== 0 &&
+                            store!.city !== undefined && store!.city !== null && store!.city!.length !== 0 &&
+                            store!.state !== undefined && store!.state !== null && store!.state!.length !== 0 &&
+                            store!.postCode !== undefined && store!.postCode !== null && store!.postCode!.length !== 0) {
+                            physicalLocation =
+                                (store!.address1!.toLowerCase().includes(store!.city!.toLowerCase())
+                                    && store!.address1!.toLowerCase().includes(store!.state!.toLowerCase())
+                                    && store!.address1!.toLowerCase().includes(store!.postCode!.toLowerCase()))
+                                    ? store!.address1!
+                                    : `${store!.address1!}, ${store!.city!}, ${store!.state!}, ${store!.postCode!}`;
+                        } else {
+                            physicalLocation = store!.address1!;
+                        }
                     }
-                </>
-            ) : <></>
+                });
+
+                // calculate the distance between the location of the store displayed and the user's current location (in miles)
+                let calculatedDistance = currentUserLocation !== null && storeLatitude !== 0 && storeLongitude !== 0 ? getDistance({
+                    latitude: storeLatitude,
+                    longitude: storeLongitude
+                }, {
+                    latitude: currentUserLocation.coords.latitude,
+                    longitude: currentUserLocation.coords.longitude
+                }, 1) : 0;
+                // the accuracy above is in meters, so we are calculating it up to miles where 1 mile = 1609.34 meters
+                calculatedDistance = Math.round((calculatedDistance / 1609.34) * 100) / 100
+
+                // DO NOT display Fidelis offers that are not nearby (within 50 miles)
+                if (physicalLocation !== '' && calculatedDistance <= 50) {
+                    results.push(
+                        <Card style={styles.verticalOfferCard}
+                              onPress={() => {
+                                  // reset any filtered offers
+                                  setNoFilteredOffersToLoad(false);
+                                  setFilteredOffersList([]);
+
+                                  // reset search query
+                                  setSearchQuery("");
+
+                                  // set the clicked offer/partner accordingly
+                                  setStoreOfferClicked(data);
+                                  // set the clicked offer physical location
+                                  setStoreOfferPhysicalLocation({
+                                      latitude: storeLatitude,
+                                      longitude: storeLongitude,
+                                      latitudeDelta: 0,
+                                      longitudeDelta: 0,
+                                      addressAsString: physicalLocation
+                                  });
+                                  // @ts-ignore
+                                  props.navigation.navigate('StoreOffer', {
+                                      bottomTabNeedsShowingFlag: true
+                                  });
+                              }}>
+                            <Card.Content>
+                                <List.Icon color={'#F2FF5D'}
+                                           icon="chevron-right"
+                                           style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
+                                <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
+                                    <View style={styles.verticalOfferLogoBackground}>
+                                        <Image
+                                            style={styles.verticalOfferLogo}
+                                            source={{
+                                                uri: offer.brandLogoSm!,
+                                            }}
+                                            placeholder={MoonbeamPlaceholderImage}
+                                            placeholderContentFit={'contain'}
+                                            contentFit={'contain'}
+                                            transition={1000}
+                                            cachePolicy={'none'}
+                                        />
+                                    </View>
+                                    <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                        <Text numberOfLines={1}
+                                              style={styles.verticalOfferName}>{offer.brandDba}</Text>
+                                        <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
+                                            {"Starting at "}
+                                            <Text style={styles.verticalOfferBenefit}>
+                                                {`${subtitle}`}
+                                            </Text>
+                                        </Text>
+                                        <Text numberOfLines={1} style={styles.verticalOfferDistance}>
+                                            {`${calculatedDistance} miles away`}
+                                        </Text>
+                                    </View>
+                                </View>
+                            </Card.Content>
+                        </Card>
+                    );
+                } else if (physicalLocation !== '' && calculatedDistance > 50) {
+                    // we need this for Android purposes
+                    results.push(<View style={{backgroundColor: 'transparent', width: wp(100), height: hp(0)}}></View>);
+                } else {
+                    results.push(
+                        <Card style={styles.verticalOfferCard}
+                              onPress={() => {
+                                  // reset any filtered offers
+                                  setNoFilteredOffersToLoad(false);
+                                  setFilteredOffersList([]);
+
+                                  // reset search query
+                                  setSearchQuery("");
+
+                                  // set the clicked offer/partner accordingly
+                                  setStoreOfferClicked(data);
+                                  // @ts-ignore
+                                  props.navigation.navigate('StoreOffer', {
+                                      bottomTabNeedsShowingFlag: true
+                                  });
+                              }}>
+                            <Card.Content>
+                                <List.Icon color={'#F2FF5D'}
+                                           icon="chevron-right"
+                                           style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
+                                <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
+                                    <View style={styles.verticalOfferLogoBackground}>
+                                        <Image
+                                            style={styles.verticalOfferLogo}
+                                            source={{
+                                                uri: offer!.brandLogoSm!,
+                                            }}
+                                            placeholder={MoonbeamPlaceholderImage}
+                                            placeholderContentFit={'contain'}
+                                            contentFit={'contain'}
+                                            transition={1000}
+                                            cachePolicy={'none'}
+                                        />
+                                    </View>
+                                    <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                        <Text numberOfLines={2}
+                                              style={styles.verticalOfferName}>{data.brandName}</Text>
+                                        <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
+                                            {"Starting at "}
+                                            <Text style={styles.verticalOfferBenefit}>
+                                                {`${subtitle}`}
+                                            </Text>
+                                        </Text>
+                                    </View>
+                                </View>
+                            </Card.Content>
+                        </Card>
+                    );
+                }
+            }
         }
 
         // filtered no offers to be displayed
         if (!offersShown) {
-            return (
+            results.push(
                 <Card style={styles.verticalOfferCard}>
                     <Card.Content>
                         <View style={{flexDirection: 'row'}}>
@@ -349,10 +415,12 @@ export const VerticalOffers = (props: {
                         </View>
                     </Card.Content>
                 </Card>
-            )
+            );
         }
 
-        return (<></>);
+        return (
+            results
+        );
     }, [props.fidelisPartnerList]);
 
     /**
@@ -365,7 +433,7 @@ export const VerticalOffers = (props: {
      * @return a {@link React.JSX.Element} or an {@link Array} of {@link React.JSX.Element} representing the
      * React node and/or nodes containing the click-only online offers.
      */
-    const renderClickOnlyOnlineRowData = useMemo(() => (_type: string | number, data: Offer, index: number): React.JSX.Element | React.JSX.Element[] => {
+    const renderClickOnlyOnlineRowData = useMemo(() => (_type: string | number, data: Offer): React.JSX.Element | React.JSX.Element[] => {
         // flag to determine whether there are any offers shown at all - so we can display the empty message otherwise
         let offersShown = false;
 
@@ -374,118 +442,53 @@ export const VerticalOffers = (props: {
             offersShown = true;
             return (
                 <>
-                    {
-                        index === 0
-                            ?
-                            <>
-                                <View style={{flexDirection: 'column'}}>
-                                    <Card style={styles.verticalOffersBannerCard}>
-                                        <Card.Content>
-                                            <View style={{flexDirection: 'column', bottom: hp(1)}}>
-                                                <Text style={styles.verticalOfferBannerName}>{'Premier Offers'}</Text>
-                                                <Text
-                                                    style={styles.verticalOfferBannerSubtitleName}>{'Only available in the app'}</Text>
-                                            </View>
-                                        </Card.Content>
-                                    </Card>
-                                    <Card style={styles.verticalOfferCard}
-                                          onPress={() => {
-                                              // reset any filtered offers
-                                              setNoFilteredOffersToLoad(false);
-                                              setFilteredOffersList([]);
+                    <Card style={styles.verticalOfferCard}
+                          onPress={() => {
+                              // reset any filtered offers
+                              setNoFilteredOffersToLoad(false);
+                              setFilteredOffersList([]);
 
-                                              // reset search query
-                                              setSearchQuery("");
+                              // reset search query
+                              setSearchQuery("");
 
-                                              // set the clicked offer/partner accordingly
-                                              setStoreOfferClicked(data);
-                                              // show the click only bottom sheet
-                                              setShowClickOnlyBottomSheet(true);
-                                          }}>
-                                        <Card.Content>
-                                            <List.Icon color={'#F2FF5D'}
-                                                       icon="chevron-right"
-                                                       style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
-                                            <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
-                                                <View style={styles.verticalOfferLogoBackground}>
-                                                    <Image
-                                                        style={styles.verticalOfferLogo}
-                                                        source={{
-                                                            uri: data.brandLogoSm!,
-                                                        }}
-                                                        placeholder={MoonbeamPlaceholderImage}
-                                                        placeholderContentFit={'contain'}
-                                                        contentFit={'contain'}
-                                                        transition={1000}
-                                                        cachePolicy={'none'}
-                                                    />
-                                                </View>
-                                                <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                                    <Text numberOfLines={2}
-                                                          style={styles.verticalOfferName}>{data.brandDba}</Text>
-                                                    <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
-                                                        <Text style={styles.verticalOfferBenefit}>
-                                                            {data.reward!.type! === RewardType.RewardPercent
-                                                                ? `${data.reward!.value}%`
-                                                                : `$${data.reward!.value}`}
-                                                        </Text>
-                                                        {" Off "}
-                                                    </Text>
-                                                </View>
-                                            </View>
-                                        </Card.Content>
-                                    </Card>
+                              // set the clicked offer/partner accordingly
+                              setStoreOfferClicked(data);
+                              // show the click only bottom sheet
+                              setShowClickOnlyBottomSheet(true);
+                          }}>
+                        <Card.Content>
+                            <List.Icon color={'#F2FF5D'}
+                                       icon="chevron-right"
+                                       style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
+                            <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
+                                <View style={styles.verticalOfferLogoBackground}>
+                                    <Image
+                                        style={styles.verticalOfferLogo}
+                                        source={{
+                                            uri: data.brandLogoSm!,
+                                        }}
+                                        placeholder={MoonbeamPlaceholderImage}
+                                        placeholderContentFit={'contain'}
+                                        contentFit={'contain'}
+                                        transition={1000}
+                                        cachePolicy={'none'}
+                                    />
                                 </View>
-                            </>
-                            :
-                            <Card style={styles.verticalOfferCard}
-                                  onPress={() => {
-                                      // reset any filtered offers
-                                      setNoFilteredOffersToLoad(false);
-                                      setFilteredOffersList([]);
-
-                                      // reset search query
-                                      setSearchQuery("");
-
-                                      // set the clicked offer/partner accordingly
-                                      setStoreOfferClicked(data);
-                                      // show the click only bottom sheet
-                                      setShowClickOnlyBottomSheet(true);
-                                  }}>
-                                <Card.Content>
-                                    <List.Icon color={'#F2FF5D'}
-                                               icon="chevron-right"
-                                               style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
-                                    <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
-                                        <View style={styles.verticalOfferLogoBackground}>
-                                            <Image
-                                                style={styles.verticalOfferLogo}
-                                                source={{
-                                                    uri: data.brandLogoSm!,
-                                                }}
-                                                placeholder={MoonbeamPlaceholderImage}
-                                                placeholderContentFit={'contain'}
-                                                contentFit={'contain'}
-                                                transition={1000}
-                                                cachePolicy={'none'}
-                                            />
-                                        </View>
-                                        <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                            <Text numberOfLines={2}
-                                                  style={styles.verticalOfferName}>{data.brandDba}</Text>
-                                            <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
-                                                <Text style={styles.verticalOfferBenefit}>
-                                                    {data.reward!.type! === RewardType.RewardPercent
-                                                        ? `${data.reward!.value}%`
-                                                        : `$${data.reward!.value}`}
-                                                </Text>
-                                                {" Off "}
-                                            </Text>
-                                        </View>
-                                    </View>
-                                </Card.Content>
-                            </Card>
-                    }
+                                <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                    <Text numberOfLines={2}
+                                          style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                    <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
+                                        <Text style={styles.verticalOfferBenefit}>
+                                            {data.reward!.type! === RewardType.RewardPercent
+                                                ? `${data.reward!.value}%`
+                                                : `$${data.reward!.value}`}
+                                        </Text>
+                                        {" Off "}
+                                    </Text>
+                                </View>
+                            </View>
+                        </Card.Content>
+                    </Card>
                 </>
             )
         }
@@ -516,7 +519,7 @@ export const VerticalOffers = (props: {
      * @return a {@link React.JSX.Element} or an {@link Array} of {@link React.JSX.Element} representing the
      * React node and/or nodes containing the online offers.
      */
-    const renderOnlineRowData = useMemo(() => (_type: string | number, data: Offer, index: number): React.JSX.Element | React.JSX.Element[] => {
+    const renderOnlineRowData = useMemo(() => (_type: string | number, data: Offer): React.JSX.Element | React.JSX.Element[] => {
         // flag to determine whether there are any offers shown at all - so we can display the empty message otherwise
         let offersShown = false;
 
@@ -525,118 +528,55 @@ export const VerticalOffers = (props: {
             offersShown = true;
             return (
                 <>
-                    {
-                        index === 0
-                            ?
-                            <>
-                                <View style={{flexDirection: 'column'}}>
-                                    <Card style={styles.verticalOffersBannerCard}>
-                                        <Card.Content>
-                                            <View style={{flexDirection: 'column', bottom: hp(1)}}>
-                                                <Text style={styles.verticalOfferBannerName}>{'Online Offers'}</Text>
-                                                <Text
-                                                    style={styles.verticalOfferBannerSubtitleName}>{'Shop online or through the app'}</Text>
-                                            </View>
-                                        </Card.Content>
-                                    </Card>
-                                    <Card style={styles.verticalOfferCard}
-                                          onPress={() => {
-                                              // reset any filtered offers
-                                              setNoFilteredOffersToLoad(false);
-                                              setFilteredOffersList([]);
+                    <Card style={styles.verticalOfferCard}
+                          onPress={() => {
+                              // reset any filtered offers
+                              setNoFilteredOffersToLoad(false);
+                              setFilteredOffersList([]);
 
-                                              // reset search query
-                                              setSearchQuery("");
+                              // reset search query
+                              setSearchQuery("");
 
-                                              // set the clicked offer/partner accordingly
-                                              setStoreOfferClicked(data);
-                                              // @ts-ignore
-                                              props.navigation.navigate('StoreOffer', {});
-                                          }}>
-                                        <Card.Content>
-                                            <List.Icon color={'#F2FF5D'}
-                                                       icon="chevron-right"
-                                                       style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
-                                            <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
-                                                <View style={styles.verticalOfferLogoBackground}>
-                                                    <Image
-                                                        style={styles.verticalOfferLogo}
-                                                        source={{
-                                                            uri: data.brandLogoSm!,
-                                                        }}
-                                                        placeholder={MoonbeamPlaceholderImage}
-                                                        placeholderContentFit={'contain'}
-                                                        contentFit={'contain'}
-                                                        transition={1000}
-                                                        cachePolicy={'none'}
-                                                    />
-                                                </View>
-                                                <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                                    <Text numberOfLines={2}
-                                                          style={styles.verticalOfferName}>{data.brandDba}</Text>
-                                                    <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
-                                                        <Text style={styles.verticalOfferBenefit}>
-                                                            {data.reward!.type! === RewardType.RewardPercent
-                                                                ? `${data.reward!.value}%`
-                                                                : `$${data.reward!.value}`}
-                                                        </Text>
-                                                        {" Off "}
-                                                    </Text>
-                                                </View>
-                                            </View>
-                                        </Card.Content>
-                                    </Card>
+                              // set the clicked offer/partner accordingly
+                              setStoreOfferClicked(data);
+                              // @ts-ignore
+                              props.navigation.navigate('StoreOffer', {
+                                  bottomTabNeedsShowingFlag: true
+                              });
+                          }}>
+                        <Card.Content>
+                            <List.Icon color={'#F2FF5D'}
+                                       icon="chevron-right"
+                                       style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
+                            <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
+                                <View style={styles.verticalOfferLogoBackground}>
+                                    <Image
+                                        style={styles.verticalOfferLogo}
+                                        source={{
+                                            uri: data.brandLogoSm!,
+                                        }}
+                                        placeholder={MoonbeamPlaceholderImage}
+                                        placeholderContentFit={'contain'}
+                                        contentFit={'contain'}
+                                        transition={1000}
+                                        cachePolicy={'none'}
+                                    />
                                 </View>
-                            </>
-                            :
-                            <Card style={styles.verticalOfferCard}
-                                  onPress={() => {
-                                      // reset any filtered offers
-                                      setNoFilteredOffersToLoad(false);
-                                      setFilteredOffersList([]);
-
-                                      // reset search query
-                                      setSearchQuery("");
-
-                                      // set the clicked offer/partner accordingly
-                                      setStoreOfferClicked(data);
-                                      // @ts-ignore
-                                      props.navigation.navigate('StoreOffer', {});
-                                  }}>
-                                <Card.Content>
-                                    <List.Icon color={'#F2FF5D'}
-                                               icon="chevron-right"
-                                               style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
-                                    <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
-                                        <View style={styles.verticalOfferLogoBackground}>
-                                            <Image
-                                                style={styles.verticalOfferLogo}
-                                                source={{
-                                                    uri: data.brandLogoSm!,
-                                                }}
-                                                placeholder={MoonbeamPlaceholderImage}
-                                                placeholderContentFit={'contain'}
-                                                contentFit={'contain'}
-                                                transition={1000}
-                                                cachePolicy={'none'}
-                                            />
-                                        </View>
-                                        <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                            <Text numberOfLines={2}
-                                                  style={styles.verticalOfferName}>{data.brandDba}</Text>
-                                            <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
-                                                <Text style={styles.verticalOfferBenefit}>
-                                                    {data.reward!.type! === RewardType.RewardPercent
-                                                        ? `${data.reward!.value}%`
-                                                        : `$${data.reward!.value}`}
-                                                </Text>
-                                                {" Off "}
-                                            </Text>
-                                        </View>
-                                    </View>
-                                </Card.Content>
-                            </Card>
-                    }
+                                <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                    <Text numberOfLines={2}
+                                          style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                    <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
+                                        <Text style={styles.verticalOfferBenefit}>
+                                            {data.reward!.type! === RewardType.RewardPercent
+                                                ? `${data.reward!.value}%`
+                                                : `$${data.reward!.value}`}
+                                        </Text>
+                                        {" Off "}
+                                    </Text>
+                                </View>
+                            </View>
+                        </Card.Content>
+                    </Card>
                 </>
             )
         }
@@ -769,7 +709,9 @@ export const VerticalOffers = (props: {
                                                               // set the clicked offer/partner accordingly
                                                               setStoreOfferClicked(data);
                                                               // @ts-ignore
-                                                              props.navigation.navigate('StoreOffer', {});
+                                                              props.navigation.navigate('StoreOffer', {
+                                                                  bottomTabNeedsShowingFlag: true
+                                                              });
                                                           }
                                                           // for nearby offers
                                                           else {
@@ -784,7 +726,9 @@ export const VerticalOffers = (props: {
                                                                   addressAsString: physicalLocation
                                                               });
                                                               // @ts-ignore
-                                                              props.navigation.navigate('StoreOffer', {});
+                                                              props.navigation.navigate('StoreOffer', {
+                                                                  bottomTabNeedsShowingFlag: true
+                                                              });
                                                           }
                                                           break;
                                                       default:
@@ -868,7 +812,9 @@ export const VerticalOffers = (props: {
                                                           // set the clicked offer/partner accordingly
                                                           setStoreOfferClicked(data);
                                                           // @ts-ignore
-                                                          props.navigation.navigate('StoreOffer', {});
+                                                          props.navigation.navigate('StoreOffer', {
+                                                              bottomTabNeedsShowingFlag: true
+                                                          });
                                                       }
                                                       // for nearby offers
                                                       else {
@@ -883,7 +829,9 @@ export const VerticalOffers = (props: {
                                                               addressAsString: physicalLocation
                                                           });
                                                           // @ts-ignore
-                                                          props.navigation.navigate('StoreOffer', {});
+                                                          props.navigation.navigate('StoreOffer', {
+                                                              bottomTabNeedsShowingFlag: true
+                                                          });
                                                       }
                                                       break;
                                                   default:
@@ -958,7 +906,7 @@ export const VerticalOffers = (props: {
      * @return a {@link React.JSX.Element} or an {@link Array} of {@link React.JSX.Element} representing the
      * React node and/or nodes containing the nearby offers.
      */
-    const renderNearbyRowData = useMemo(() => (_type: string | number, data: Offer, index: number): React.JSX.Element | React.JSX.Element[] => {
+    const renderNearbyRowData = useMemo(() => (_type: string | number, data: Offer): React.JSX.Element | React.JSX.Element[] => {
         // flag to determine whether there are any offers shown at all - so we can display the empty message otherwise
         let offersShown = false;
 
@@ -1016,140 +964,66 @@ export const VerticalOffers = (props: {
             offersShown = true;
             return physicalLocation !== '' ? (
                 <>
-                    {
-                        index === 0
-                            ?
-                            <>
-                                <View style={{flexDirection: 'column'}}>
-                                    <Card style={styles.verticalOffersBannerCard}>
-                                        <Card.Content>
-                                            <View style={{flexDirection: 'column', bottom: hp(1)}}>
-                                                <Text style={styles.verticalOfferBannerName}>{'Nearby Offers'}</Text>
-                                                <Text
-                                                    style={styles.verticalOfferBannerSubtitleName}>{'Shop & Dine Nearby'}</Text>
-                                            </View>
-                                        </Card.Content>
-                                    </Card>
-                                    <Card style={styles.verticalOfferCard}
-                                          onPress={() => {
-                                              // reset any filtered offers
-                                              setNoFilteredOffersToLoad(false);
-                                              setFilteredOffersList([]);
+                    <Card style={styles.verticalOfferCard}
+                          onPress={() => {
+                              // reset any filtered offers
+                              setNoFilteredOffersToLoad(false);
+                              setFilteredOffersList([]);
 
-                                              // reset search query
-                                              setSearchQuery("");
+                              // reset search query
+                              setSearchQuery("");
 
-                                              // set the clicked offer/partner accordingly
-                                              setStoreOfferClicked(data);
-                                              // set the clicked offer physical location
-                                              setStoreOfferPhysicalLocation({
-                                                  latitude: storeLatitude,
-                                                  longitude: storeLongitude,
-                                                  latitudeDelta: 0,
-                                                  longitudeDelta: 0,
-                                                  addressAsString: physicalLocation
-                                              });
-                                              // @ts-ignore
-                                              props.navigation.navigate('StoreOffer', {});
-                                          }}>
-                                        <Card.Content>
-                                            <List.Icon color={'#F2FF5D'}
-                                                       icon="chevron-right"
-                                                       style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
-                                            <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
-                                                <View style={styles.verticalOfferLogoBackground}>
-                                                    <Image
-                                                        style={styles.verticalOfferLogo}
-                                                        source={{
-                                                            uri: data.brandLogoSm!,
-                                                        }}
-                                                        placeholder={MoonbeamPlaceholderImage}
-                                                        placeholderContentFit={'contain'}
-                                                        contentFit={'contain'}
-                                                        transition={1000}
-                                                        cachePolicy={'none'}
-                                                    />
-                                                </View>
-                                                <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                                    <Text numberOfLines={1}
-                                                          style={styles.verticalOfferName}>{data.brandDba}</Text>
-                                                    <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
-                                                        <Text style={styles.verticalOfferBenefit}>
-                                                            {data.reward!.type! === RewardType.RewardPercent
-                                                                ? `${data.reward!.value}%`
-                                                                : `$${data.reward!.value}`}
-                                                        </Text>
-                                                        {" Off "}
-                                                    </Text>
-                                                    <Text numberOfLines={1} style={styles.verticalOfferDistance}>
-                                                        {`${calculatedDistance} miles away`}
-                                                    </Text>
-                                                </View>
-                                            </View>
-                                        </Card.Content>
-                                    </Card>
+                              // set the clicked offer/partner accordingly
+                              setStoreOfferClicked(data);
+                              // set the clicked offer physical location
+                              setStoreOfferPhysicalLocation({
+                                  latitude: storeLatitude,
+                                  longitude: storeLongitude,
+                                  latitudeDelta: 0,
+                                  longitudeDelta: 0,
+                                  addressAsString: physicalLocation
+                              });
+                              // @ts-ignore
+                              props.navigation.navigate('StoreOffer', {
+                                  bottomTabNeedsShowingFlag: true
+                              });
+                          }}>
+                        <Card.Content>
+                            <List.Icon color={'#F2FF5D'}
+                                       icon="chevron-right"
+                                       style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
+                            <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
+                                <View style={styles.verticalOfferLogoBackground}>
+                                    <Image
+                                        style={styles.verticalOfferLogo}
+                                        source={{
+                                            uri: data.brandLogoSm!,
+                                        }}
+                                        placeholder={MoonbeamPlaceholderImage}
+                                        placeholderContentFit={'contain'}
+                                        contentFit={'contain'}
+                                        transition={1000}
+                                        cachePolicy={'none'}
+                                    />
                                 </View>
-                            </>
-                            :
-                            <Card style={styles.verticalOfferCard}
-                                  onPress={() => {
-                                      // reset any filtered offers
-                                      setNoFilteredOffersToLoad(false);
-                                      setFilteredOffersList([]);
-
-                                      // reset search query
-                                      setSearchQuery("");
-
-                                      // set the clicked offer/partner accordingly
-                                      setStoreOfferClicked(data);
-                                      // set the clicked offer physical location
-                                      setStoreOfferPhysicalLocation({
-                                          latitude: storeLatitude,
-                                          longitude: storeLongitude,
-                                          latitudeDelta: 0,
-                                          longitudeDelta: 0,
-                                          addressAsString: physicalLocation
-                                      });
-                                      // @ts-ignore
-                                      props.navigation.navigate('StoreOffer', {});
-                                  }}>
-                                <Card.Content>
-                                    <List.Icon color={'#F2FF5D'}
-                                               icon="chevron-right"
-                                               style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
-                                    <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
-                                        <View style={styles.verticalOfferLogoBackground}>
-                                            <Image
-                                                style={styles.verticalOfferLogo}
-                                                source={{
-                                                    uri: data.brandLogoSm!,
-                                                }}
-                                                placeholder={MoonbeamPlaceholderImage}
-                                                placeholderContentFit={'contain'}
-                                                contentFit={'contain'}
-                                                transition={1000}
-                                                cachePolicy={'none'}
-                                            />
-                                        </View>
-                                        <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                            <Text numberOfLines={1}
-                                                  style={styles.verticalOfferName}>{data.brandDba}</Text>
-                                            <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
-                                                <Text style={styles.verticalOfferBenefit}>
-                                                    {data.reward!.type! === RewardType.RewardPercent
-                                                        ? `${data.reward!.value}%`
-                                                        : `$${data.reward!.value}`}
-                                                </Text>
-                                                {" Off "}
-                                            </Text>
-                                            <Text numberOfLines={1} style={styles.verticalOfferDistance}>
-                                                {`${calculatedDistance} miles away`}
-                                            </Text>
-                                        </View>
-                                    </View>
-                                </Card.Content>
-                            </Card>
-                    }
+                                <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                    <Text numberOfLines={1}
+                                          style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                    <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
+                                        <Text style={styles.verticalOfferBenefit}>
+                                            {data.reward!.type! === RewardType.RewardPercent
+                                                ? `${data.reward!.value}%`
+                                                : `$${data.reward!.value}`}
+                                        </Text>
+                                        {" Off "}
+                                    </Text>
+                                    <Text numberOfLines={1} style={styles.verticalOfferDistance}>
+                                        {`${calculatedDistance} miles away`}
+                                    </Text>
+                                </View>
+                            </View>
+                        </Card.Content>
+                    </Card>
                 </>
             ) : <></>;
         }
@@ -1377,6 +1251,16 @@ export const VerticalOffers = (props: {
                                             deDuplicatedClickOnlyOnlineOfferList.length !== 0 && whichVerticalSectionActive === 'click-only-online' &&
                                             clickOnlyOnlineDataProvider !== null && clickOnlyOnlineLayoutProvider !== null &&
                                             <>
+                                                <Card style={styles.verticalOffersBannerCard}>
+                                                    <Card.Content>
+                                                        <View style={{flexDirection: 'column', bottom: hp(1)}}>
+                                                            <Text
+                                                                style={styles.verticalOfferBannerName}>{'Premier Offers'}</Text>
+                                                            <Text
+                                                                style={styles.verticalOfferBannerSubtitleName}>{'Only available in the app'}</Text>
+                                                        </View>
+                                                    </Card.Content>
+                                                </Card>
                                                 <RecyclerListView
                                                     // @ts-ignore
                                                     ref={onlineListView}
@@ -1465,6 +1349,16 @@ export const VerticalOffers = (props: {
                                             deDuplicatedOnlineOfferList.length !== 0 && whichVerticalSectionActive === 'online' &&
                                             onlineDataProvider !== null && onlineLayoutProvider !== null &&
                                             <>
+                                                <Card style={styles.verticalOffersBannerCard}>
+                                                    <Card.Content>
+                                                        <View style={{flexDirection: 'column', bottom: hp(1)}}>
+                                                            <Text
+                                                                style={styles.verticalOfferBannerName}>{'Online Offers'}</Text>
+                                                            <Text
+                                                                style={styles.verticalOfferBannerSubtitleName}>{'Shop online or through the app'}</Text>
+                                                        </View>
+                                                    </Card.Content>
+                                                </Card>
                                                 <RecyclerListView
                                                     // @ts-ignore
                                                     ref={onlineListView}
@@ -1552,109 +1446,134 @@ export const VerticalOffers = (props: {
                                         {
                                             deDuplicatedNearbyOfferList.length !== 0 && whichVerticalSectionActive === 'nearby' &&
                                             nearbyDataProvider !== null && nearbyLayoutProvider !== null &&
-                                            <RecyclerListView
-                                                // @ts-ignore
-                                                ref={nearbyListView}
-                                                style={{flex: 1, height: hp(50), width: wp(100)}}
-                                                layoutProvider={nearbyLayoutProvider!}
-                                                dataProvider={nearbyDataProvider!}
-                                                rowRenderer={renderNearbyRowData}
-                                                isHorizontal={false}
-                                                forceNonDeterministicRendering={true}
-                                                renderFooter={() => {
-                                                    return (
-                                                        verticalListLoading || nearbyLoadingOffers ?
-                                                            <>
-                                                                <View
-                                                                    style={{
-                                                                        width: wp(100),
-                                                                        alignSelf: 'center'
-                                                                    }}/>
-                                                                <Card
-                                                                    style={[styles.loadCard,
-                                                                        {
+                                            <>
+                                                <Card style={styles.verticalOffersBannerCard}>
+                                                    <Card.Content>
+                                                        <View style={{flexDirection: 'column', bottom: hp(1)}}>
+                                                            <Text
+                                                                style={styles.verticalOfferBannerName}>{'Nearby Offers'}</Text>
+                                                            <Text
+                                                                style={styles.verticalOfferBannerSubtitleName}>{'Shop & Dine Nearby'}</Text>
+                                                        </View>
+                                                    </Card.Content>
+                                                </Card>
+                                                <RecyclerListView
+                                                    // @ts-ignore
+                                                    ref={nearbyListView}
+                                                    style={{flex: 1, height: hp(50), width: wp(100)}}
+                                                    layoutProvider={nearbyLayoutProvider!}
+                                                    dataProvider={nearbyDataProvider!}
+                                                    rowRenderer={renderNearbyRowData}
+                                                    isHorizontal={false}
+                                                    forceNonDeterministicRendering={true}
+                                                    renderFooter={() => {
+                                                        return (
+                                                            verticalListLoading || nearbyLoadingOffers ?
+                                                                <>
+                                                                    <View
+                                                                        style={{
                                                                             width: wp(100),
-                                                                            height: hp(10),
-                                                                            bottom: hp(2)
-                                                                        }
-                                                                    ]}>
-                                                                    <Card.Content>
-                                                                        <View style={{flexDirection: 'column'}}>
-                                                                            <View style={{
-                                                                                flexDirection: 'row'
-                                                                            }}>
-                                                                                <View>
-                                                                                    <ActivityIndicator
-                                                                                        style={{
-                                                                                            alignSelf: 'center',
-                                                                                            top: hp(2),
-                                                                                            left: wp(40)
-                                                                                        }}
-                                                                                        animating={true}
-                                                                                        color={'#F2FF5D'}
-                                                                                        size={hp(5)}
-                                                                                    />
+                                                                            alignSelf: 'center'
+                                                                        }}/>
+                                                                    <Card
+                                                                        style={[styles.loadCard,
+                                                                            {
+                                                                                width: wp(100),
+                                                                                height: hp(10),
+                                                                                bottom: hp(2)
+                                                                            }
+                                                                        ]}>
+                                                                        <Card.Content>
+                                                                            <View style={{flexDirection: 'column'}}>
+                                                                                <View style={{
+                                                                                    flexDirection: 'row'
+                                                                                }}>
+                                                                                    <View>
+                                                                                        <ActivityIndicator
+                                                                                            style={{
+                                                                                                alignSelf: 'center',
+                                                                                                top: hp(2),
+                                                                                                left: wp(40)
+                                                                                            }}
+                                                                                            animating={true}
+                                                                                            color={'#F2FF5D'}
+                                                                                            size={hp(5)}
+                                                                                        />
 
+                                                                                    </View>
                                                                                 </View>
                                                                             </View>
-                                                                        </View>
-                                                                    </Card.Content>
-                                                                </Card>
-                                                            </> : <></>
-                                                    )
-                                                }}
-                                                {
-                                                    ...(Platform.OS === 'ios') ?
-                                                        {onEndReachedThreshold: 0} :
-                                                        {onEndReachedThreshold: 1}
-                                                }
-                                                onEndReached={async () => {
-                                                    const errorMessage = `End of list reached. Trying to refresh more items.`;
-                                                    console.log(errorMessage);
-                                                    await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
-
-                                                    // if there are items to load
-                                                    if (!noNearbyOffersToLoad) {
-                                                        // set the loader
-                                                        setNearbyLoadingOffers(true);
-                                                        await loadMoreNearbyOffers();
-                                                    } else {
-                                                        const errorMessage = `Maximum number of nearby offers reached ${deDuplicatedNearbyOfferList.length}`;
+                                                                        </Card.Content>
+                                                                    </Card>
+                                                                </> : <></>
+                                                        )
+                                                    }}
+                                                    {
+                                                        ...(Platform.OS === 'ios') ?
+                                                            {onEndReachedThreshold: 0} :
+                                                            {onEndReachedThreshold: 1}
+                                                    }
+                                                    onEndReached={async () => {
+                                                        const errorMessage = `End of list reached. Trying to refresh more items.`;
                                                         console.log(errorMessage);
                                                         await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
 
-                                                        setNearbyLoadingOffers(false);
-                                                    }
-                                                }}
-                                                scrollViewProps={{
-                                                    pagingEnabled: "true",
-                                                    decelerationRate: "fast",
-                                                    snapToAlignment: "start",
-                                                    persistentScrollbar: false,
-                                                    showsVerticalScrollIndicator: false,
-                                                }}
-                                            />
+                                                        // if there are items to load
+                                                        if (!noNearbyOffersToLoad) {
+                                                            // set the loader
+                                                            setNearbyLoadingOffers(true);
+                                                            await loadMoreNearbyOffers();
+                                                        } else {
+                                                            const errorMessage = `Maximum number of nearby offers reached ${deDuplicatedNearbyOfferList.length}`;
+                                                            console.log(errorMessage);
+                                                            await logEvent(errorMessage, LoggingLevel.Info, userIsAuthenticated);
+
+                                                            setNearbyLoadingOffers(false);
+                                                        }
+                                                    }}
+                                                    scrollViewProps={{
+                                                        pagingEnabled: "true",
+                                                        decelerationRate: "fast",
+                                                        snapToAlignment: "start",
+                                                        persistentScrollbar: false,
+                                                        showsVerticalScrollIndicator: false,
+                                                    }}
+                                                />
+                                            </>
                                         }
                                         {
                                             props.fidelisPartnerList.length !== 0 && whichVerticalSectionActive === 'fidelis' &&
                                             fidelisDataProvider !== null && fidelisLayoutProvider !== null &&
-                                            <RecyclerListView
-                                                style={{flex: 1, height: hp(50), width: wp(100)}}
-                                                layoutProvider={fidelisLayoutProvider!}
-                                                dataProvider={fidelisDataProvider!}
-                                                rowRenderer={renderFidelisRowData}
-                                                isHorizontal={false}
-                                                forceNonDeterministicRendering={true}
-                                                onEndReached={async () => {
-                                                }}
-                                                scrollViewProps={{
-                                                    pagingEnabled: "true",
-                                                    decelerationRate: "fast",
-                                                    snapToAlignment: "start",
-                                                    persistentScrollbar: false,
-                                                    showsVerticalScrollIndicator: false
-                                                }}
-                                            />
+                                            <>
+                                                <Card style={styles.verticalOffersBannerCard}>
+                                                    <Card.Content>
+                                                        <View style={{flexDirection: 'column', bottom: hp(1)}}>
+                                                            <Text
+                                                                style={styles.verticalOfferBannerName}>{'Fidelis Offers'}</Text>
+                                                            <Text
+                                                                style={styles.verticalOfferBannerSubtitleName}>{'Preferred partners with better discounts'}
+                                                            </Text>
+                                                        </View>
+                                                    </Card.Content>
+                                                </Card>
+                                                <RecyclerListView
+                                                    style={{flex: 1, height: hp(50)}}
+                                                    layoutProvider={fidelisLayoutProvider!}
+                                                    dataProvider={fidelisDataProvider!}
+                                                    rowRenderer={renderFidelisRowData}
+                                                    isHorizontal={false}
+                                                    forceNonDeterministicRendering={true}
+                                                    onEndReached={async () => {
+                                                    }}
+                                                    scrollViewProps={{
+                                                        pagingEnabled: "true",
+                                                        decelerationRate: "fast",
+                                                        snapToAlignment: "start",
+                                                        persistentScrollbar: false,
+                                                        showsVerticalScrollIndicator: false
+                                                    }}
+                                                />
+                                            </>
                                         }
                                         {
                                             (deDuplicatedFilteredOfferList.length !== 0 && whichVerticalSectionActive === 'search' &&
@@ -1734,7 +1653,8 @@ export const VerticalOffers = (props: {
                                                                 style={styles.verticalOfferBannerName}>{'Filtered Offers'}</Text>
                                                             <Text
                                                                 style={styles.verticalOfferBannerSubtitleName}>{`Search results for: `}
-                                                                <Text style={styles.verticalOfferBannerSubtitleNameHighlighted}>
+                                                                <Text
+                                                                    style={styles.verticalOfferBannerSubtitleNameHighlighted}>
                                                                     {`\'${searchQuery}\'`}
                                                                 </Text>
                                                             </Text>

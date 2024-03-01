@@ -18,6 +18,7 @@ enum OfferState {
 enum OfferAvailability {
     client_only
     global
+    all
 }
 
 enum OfferReach {

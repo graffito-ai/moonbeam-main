@@ -6,7 +6,9 @@ import {OfferCategory} from "@moonbeam/moonbeam-models";
  */
 export type MarketplaceStackParamList = {
     Store: {},
-    StoreOffer: {},
+    StoreOffer: {
+        bottomTabNeedsShowingFlag: boolean
+    },
     Kit: {
         kitType: OfferCategory
     }

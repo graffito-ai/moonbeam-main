@@ -5,13 +5,17 @@ import {StoreOfferStackParamList} from "../../../../../../models/props/StoreOffe
 import {IconButton} from "react-native-paper";
 import {commonStyles} from "../../../../../../styles/common.module";
 import {useRecoilState} from "recoil";
-import {bottomTabShownState} from "../../../../../../recoil/HomeAtom";
+import {bottomTabNeedsShowingState, bottomTabShownState} from "../../../../../../recoil/HomeAtom";
 import {StoreOfferDetails} from "./StoreOfferDetails";
 import {StoreOfferWebView} from "./StoreOfferWebView";
 import {appDrawerHeaderShownState, customBannerShown, drawerSwipeState} from "../../../../../../recoil/AppDrawerAtom";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {View} from "react-native";
-import {showClickOnlyBottomSheetState, storeNavigationState} from "../../../../../../recoil/StoreOfferAtom";
+import {
+    showClickOnlyBottomSheetState,
+    storeNavigationState,
+    storeOfferState
+} from "../../../../../../recoil/StoreOfferAtom";
 
 /**
  * StoreOffer component.
@@ -19,7 +23,7 @@ import {showClickOnlyBottomSheetState, storeNavigationState} from "../../../../.
  * @param navigation navigation object passed in from the parent navigator.
  * @constructor constructor for the component.
  */
-export const StoreOffer = ({navigation}: StoreOfferProps) => {
+export const StoreOffer = ({route, navigation}: StoreOfferProps) => {
     // constants used to keep track of shared states
     const [, setStoreNavigationState] = useRecoilState(storeNavigationState);
     const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
@@ -27,6 +31,8 @@ export const StoreOffer = ({navigation}: StoreOfferProps) => {
     const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
     const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
     const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
+    const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
+    const [, setBottomTabNeedsShowing] = useRecoilState(bottomTabNeedsShowingState);
 
     // create a native stack navigator, to be used for our StoreOffer navigation
     const Stack = createNativeStackNavigator<StoreOfferStackParamList>();
@@ -74,8 +80,12 @@ export const StoreOffer = ({navigation}: StoreOfferProps) => {
                                 onPress={() => {
                                     // hide the click only bottom sheet
                                     setShowClickOnlyBottomSheet(false);
-                                    // show the bottom bar
+                                    // show the bottom bar only conditionally
                                     setBottomTabShown(true);
+                                    // reset the store offer clicked state
+                                    setStoreOfferClicked(null);
+                                    // set the bottom tab showing flag conditionally
+                                    setBottomTabNeedsShowing(route.params.bottomTabNeedsShowingFlag);
                                     navigation.goBack();
                                 }}
                             />

@@ -62,35 +62,46 @@ export const BiometricsPopUp = () => {
             }
         } else {
             /**
-             * if you're not a first time log in user, but you have to re-opt into setting up your biometrics
-             * use cases include logging into a new account for example.
+             * We're going to do a try and catch for retrieving items from the Secure Store, since in case
+             * of decryption issues this will cause log in errors.
              */
-            SecureStore.getItemAsync(`biometrics-enabled`, {
-                requireAuthentication: false // we don't need this to be under authentication, so we can check at login
-            }).then(async biometricsEnabledPreference => {
-                if (biometricsEnabledPreference === null || biometricsEnabledPreference.length === 0) {
-                    const errorMessage = 'Need to re-prompt existing user, previously logged in to set-up biometrics.';
-                    console.log(errorMessage);
-                    await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
+            try {
+                /**
+                 * if you're not a first time log in user, but you have to re-opt into setting up your biometrics
+                 * use cases include logging into a new account for example.
+                 */
+                SecureStore.getItemAsync(`biometrics-enabled`, {
+                    requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                }).then(async biometricsEnabledPreference => {
+                    if (biometricsEnabledPreference === null || biometricsEnabledPreference.length === 0) {
+                        const errorMessage = 'Need to re-prompt existing user, previously logged in to set-up biometrics.';
+                        console.log(errorMessage);
+                        await logEvent(errorMessage, LoggingLevel.Warning, userIsAuthenticated);
 
-                    // override the existing first time logged in flag in this case, so we can show the biometrics set-up popup
-                    setFirstTimeLoggedIn(true);
-                    setUpBiometricsPopUp().then(_ => {
-                        /**
-                         * we will store the user's credentials in the Expo Secure Store, so we can then access them at a later time,
-                         * in order to allow users to login without inputting them into the app, if they enable biometric login.
-                         */
-                        SecureStore.setItemAsync(`moonbeam-user-id`, moonbeamUserId, {
-                            requireAuthentication: false // we don't need this to be under authentication, so we can check at login
-                        }).then(_ => {
-                            SecureStore.setItemAsync(`moonbeam-user-passcode`, moonbeamUserIdPass, {
+                        // override the existing first time logged in flag in this case, so we can show the biometrics set-up popup
+                        setFirstTimeLoggedIn(true);
+                        setUpBiometricsPopUp().then(_ => {
+                            /**
+                             * we will store the user's credentials in the Expo Secure Store, so we can then access them at a later time,
+                             * in order to allow users to login without inputting them into the app, if they enable biometric login.
+                             */
+                            SecureStore.setItemAsync(`moonbeam-user-id`, moonbeamUserId, {
                                 requireAuthentication: false // we don't need this to be under authentication, so we can check at login
                             }).then(_ => {
+                                SecureStore.setItemAsync(`moonbeam-user-passcode`, moonbeamUserIdPass, {
+                                    requireAuthentication: false // we don't need this to be under authentication, so we can check at login
+                                }).then(_ => {
+                                });
                             });
                         });
-                    });
-                }
-            });
+                    }
+                });
+            } catch (error) {
+                const message = `Unexpected error while retrieving item \'biometrics-enabled\' from SecureStore`;
+                console.log(message);
+                logEvent(message, LoggingLevel.Warning, userIsAuthenticated).then(() => {});
+            }
+
         }
     }, [firstTimeLoggedIn, biometricAvailabilityCheck, enabledBiometric]);
 

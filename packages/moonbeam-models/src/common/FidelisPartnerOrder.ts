@@ -4,6 +4,7 @@
  * (this list needs to always be updated accordingly)
  */
 export const FidelisPartnerOrder: string[] = [
+    'The Hayden',
     'Provengo + Under Armour',
     'Freedom Fatigues',
     'Provengo + Oakley',

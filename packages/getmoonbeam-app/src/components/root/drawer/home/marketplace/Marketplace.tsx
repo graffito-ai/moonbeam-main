@@ -11,7 +11,7 @@ import {Kit} from "./kitCommponents/Kit";
 import {OfferCategory} from "@moonbeam/moonbeam-models";
 import {IconButton} from "react-native-paper";
 import {heightPercentageToDP as hp} from "react-native-responsive-screen";
-import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
+import {bottomTabNeedsShowingState, bottomTabShownState} from "../../../../../recoil/HomeAtom";
 import {
     currentActiveKitState,
     filteredOffersListState,
@@ -54,6 +54,7 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
     const [, setBannerShown] = useRecoilState(customBannerShown);
     const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
     const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
+    const [, setBottomTabNeedsShowing] = useRecoilState(bottomTabNeedsShowingState);
 
     // create a native stack navigator, to be used for our Marketplace navigation
     const Stack = createNativeStackNavigator<MarketplaceStackParamList>();
@@ -147,6 +148,7 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
                                             setNearbyKitListExpanded(false);
                                             setBottomTabShown(true);
                                             setShowClickOnlyBottomSheet(false);
+                                            setBottomTabNeedsShowing(true);
                                             storeNavigation && storeNavigation.navigate('Store', {});
                                         }}
                                     />

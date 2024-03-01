@@ -3,7 +3,7 @@ import {Icon} from "@rneui/base";
 import {HomeProps} from "../../../../models/props/AppDrawerProps";
 import {HomeStackParamList} from "../../../../models/props/HomeProps";
 import {useRecoilState} from "recoil";
-import {bottomTabShownState, drawerNavigationState} from "../../../../recoil/HomeAtom";
+import {bottomTabNeedsShowingState, bottomTabShownState, drawerNavigationState} from "../../../../recoil/HomeAtom";
 import {currentUserInformation} from "../../../../recoil/AuthAtom";
 import {MilitaryVerificationStatusType} from "@moonbeam/moonbeam-models";
 import {Wallet} from "./cards/Wallet";
@@ -30,6 +30,7 @@ export const Home = ({navigation}: HomeProps) => {
     const [bottomTabShown,] = useRecoilState(bottomTabShownState);
     const [userInformation,] = useRecoilState(currentUserInformation);
     const [, setIsDrawerInDashboard] = useRecoilState(drawerDashboardState);
+    const [bottomTabNeedsShowing,] = useRecoilState(bottomTabNeedsShowingState);
 
     // create a bottom navigator, to be used for our Home bottom bar navigation
     const HomeTabStack = createBottomTabNavigator<HomeStackParamList>();
@@ -69,6 +70,7 @@ export const Home = ({navigation}: HomeProps) => {
                         tabBarShowLabel: false,
                         headerShown: false,
                         tabBarStyle: {
+                            // position: 'absolute',
                             ...(bottomTabShown && {height: hp(10)}),
                             backgroundColor: '#3b3b3b',
                             shadowColor: 'black',
@@ -76,7 +78,8 @@ export const Home = ({navigation}: HomeProps) => {
                             shadowOpacity: 0.95,
                             shadowRadius: 15,
                             elevation: 20,
-                            ...(!bottomTabShown && {display: 'none'})
+                            // ...((toggleViewPressed === 'vertical' && storeOfferClicked === null) && {position: 'relative'}),
+                            ...((!bottomTabShown || !bottomTabNeedsShowing) && {display: 'none'})
                         }
                     })}
                 >

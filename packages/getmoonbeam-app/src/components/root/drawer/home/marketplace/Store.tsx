@@ -376,7 +376,7 @@ export const Store = ({navigation}: StoreProps) => {
                     // call the getOffers API
                     const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
                         getOffersInput: {
-                            availability: OfferAvailability.Global,
+                            availability: OfferAvailability.All,
                             countryCode: CountryCode.Us,
                             filterType: OfferFilter.Nearby,
                             offerStates: [OfferState.Active, OfferState.Scheduled],
@@ -489,7 +489,7 @@ export const Store = ({navigation}: StoreProps) => {
                     // call the getOffers API
                     const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
                         getOffersInput: {
-                            availability: OfferAvailability.Global,
+                            availability: OfferAvailability.All,
                             countryCode: CountryCode.Us,
                             filterType: OfferFilter.Nearby,
                             offerStates: [OfferState.Active, OfferState.Scheduled],

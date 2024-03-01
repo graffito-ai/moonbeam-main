@@ -7,13 +7,19 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-nativ
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
 import {useRecoilState} from "recoil";
-import {fidelisPartnerListState, storeOfferState} from "../../../../../../recoil/StoreOfferAtom";
+import {
+    fidelisPartnerListState,
+    storeOfferPhysicalLocationState,
+    storeOfferState
+} from "../../../../../../recoil/StoreOfferAtom";
 import {Image} from 'expo-image';
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 // @ts-ignore
 import MoonbeamVeteranOwnedBadgeImage from "../../../../../../../assets/art/moonbeam-veteran-owned-badge.png";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
+import {getDistance} from "geolib";
+import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
 
 /**
  * FidelisSection component.
@@ -29,8 +35,10 @@ export const FidelisSection = (props: {
     const [dataProvider, setDataProvider] = useState<DataProvider | null>(null);
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
     // constants used to keep track of shared states
+    const [currentUserLocation,] = useRecoilState(currentUserLocationState);
     const [fidelisPartnerList,] = useRecoilState(fidelisPartnerListState);
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
+    const [, setStoreOfferPhysicalLocation] = useRecoilState(storeOfferPhysicalLocationState);
 
     /**
      * Function used to populate the rows containing the Fidelis partners data.
@@ -45,7 +53,12 @@ export const FidelisSection = (props: {
         // @ts-ignore
     const renderRowData = useMemo(() => (type: string | number, data: FidelisPartner, index: number): React.JSX.Element | React.JSX.Element[] => {
             if (fidelisPartnerList !== undefined && fidelisPartnerList !== null && fidelisPartnerList.length !== 0) {
-                // retrieve appropriate offer for partner (everyday)
+                /**
+                 * We return a type of card for Fidelis offers nearby (within 50 miles).
+                 * DO NOT display Fidelis offers that are not nearby.
+                 *
+                 * We display all online Fidelis offers.
+                 */
                 let offer: Offer | null = null;
                 for (const matchedOffer of data.offers) {
                     if (matchedOffer!.title!.includes("Military Discount") || matchedOffer!.title!.includes("Veterans")) {
@@ -56,91 +69,260 @@ export const FidelisSection = (props: {
                 const subtitle = offer!.reward!.type! === RewardType.RewardPercent
                     ? `Starting at ${offer!.reward!.value}% Off`
                     : `Starting at $${offer!.reward!.value} Off`;
-                return offer !== null ? (
-                    <>
-                        <Card
-                            style={styles.featuredPartnerCard}>
-                            <Card.Content>
-                                <View style={{flexDirection: 'column'}}>
-                                    <View style={{
-                                        flexDirection: 'row',
-                                        width: wp(75),
-                                        justifyContent: 'space-between'
-                                    }}>
-                                        <View style={{
-                                            flexDirection: 'column',
-                                            justifyContent: 'space-between',
-                                            right: wp(2)
-                                        }}>
-                                            <Card.Title
-                                                style={{alignSelf: 'flex-start', right: wp(1.5)}}
-                                                title={
-                                                    <Text style={styles.featuredPartnerCardTitle}>
-                                                        {`${data.brandName}\n`}
-                                                        <Text style={styles.featuredPartnerCardSubtitle}>
-                                                            {subtitle}
-                                                        </Text>
-                                                    </Text>
+                if (offer === null) {
+                    return (<></>);
+                } else {
+                    /**
+                     * First we determine if this offer is a Fidelis Nearby offer.
+                     *
+                     * Get the physical location of this offer alongside its coordinates.
+                     */
+                    let physicalLocation: string = '';
+                    let storeLatitude: number = 0;
+                    let storeLongitude: number = 0;
+
+                    offer && offer.storeDetails !== undefined && offer.storeDetails !== null && offer.storeDetails!.forEach(store => {
+                        /**
+                         * retrieve store coordinates if applicable
+                         */
+                        if (physicalLocation === '' && store !== null && store!.isOnline === false) {
+                            // set the store's coordinates accordingly
+                            storeLatitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
+                            store!.geoLocation!.latitude !== null && store!.geoLocation!.latitude !== undefined
+                                ? store!.geoLocation!.latitude! : 0;
+                            storeLongitude = store!.geoLocation !== undefined && store!.geoLocation !== null &&
+                            store!.geoLocation!.longitude !== null && store!.geoLocation!.longitude !== undefined
+                                ? store!.geoLocation!.longitude! : 0;
+
+                            // Olive needs to get better at displaying the address. For now, we will do this input sanitization
+                            if (store!.address1 !== undefined && store!.address1 !== null && store!.address1!.length !== 0 &&
+                                store!.city !== undefined && store!.city !== null && store!.city!.length !== 0 &&
+                                store!.state !== undefined && store!.state !== null && store!.state!.length !== 0 &&
+                                store!.postCode !== undefined && store!.postCode !== null && store!.postCode!.length !== 0) {
+                                physicalLocation =
+                                    (store!.address1!.toLowerCase().includes(store!.city!.toLowerCase())
+                                        && store!.address1!.toLowerCase().includes(store!.state!.toLowerCase())
+                                        && store!.address1!.toLowerCase().includes(store!.postCode!.toLowerCase()))
+                                        ? store!.address1!
+                                        : `${store!.address1!}, ${store!.city!}, ${store!.state!}, ${store!.postCode!}`;
+                            } else {
+                                physicalLocation = store!.address1!;
+                            }
+                        }
+                    });
+
+                    // calculate the distance between the location of the store displayed and the user's current location (in miles)
+                    let calculatedDistance = currentUserLocation !== null && storeLatitude !== 0 && storeLongitude !== 0 ? getDistance({
+                        latitude: storeLatitude,
+                        longitude: storeLongitude
+                    }, {
+                        latitude: currentUserLocation.coords.latitude,
+                        longitude: currentUserLocation.coords.longitude
+                    }, 1) : 0;
+                    // the accuracy above is in meters, so we are calculating it up to miles where 1 mile = 1609.34 meters
+                    calculatedDistance = Math.round((calculatedDistance / 1609.34) * 100) / 100
+
+                    // DO NOT display Fidelis offers that are not nearby (within 50 miles)
+                    if (physicalLocation !== '' && calculatedDistance <= 50) {
+                        return (
+                            <>
+                                <>
+                                    <Card
+                                        style={styles.featuredPartnerCard}>
+                                        <Card.Content>
+                                            <View style={{flexDirection: 'column'}}>
+                                                <View style={{
+                                                    flexDirection: 'row',
+                                                    width: wp(75),
+                                                    justifyContent: 'space-between'
+                                                }}>
+                                                    <View style={{
+                                                        flexDirection: 'column',
+                                                        justifyContent: 'space-between',
+                                                        right: wp(2)
+                                                    }}>
+                                                        <Card.Title
+                                                            style={{alignSelf: 'flex-start', right: wp(1.5)}}
+                                                            title={
+                                                                <Text style={styles.featuredPartnerCardTitle}>
+                                                                    {`${data.brandName}\n`}
+                                                                    <Text style={styles.featuredPartnerCardSubtitle}>
+                                                                        {subtitle}
+                                                                    </Text>
+                                                                </Text>
+                                                            }
+                                                            titleStyle={styles.featuredPartnerCardTitleMain}
+                                                            titleNumberOfLines={10}/>
+                                                        <Paragraph
+                                                            style={styles.featuredPartnerCardParagraph}
+                                                        >
+                                                            {data.offers[0]!.brandStubCopy!}
+                                                        </Paragraph>
+                                                        {
+                                                            calculatedDistance !== 0 &&
+                                                            <Paragraph
+                                                                numberOfLines={1}
+                                                                style={styles.nearbyOfferCardDistanceParagraph}
+                                                            >
+                                                                {`📌 ${calculatedDistance} miles away`}
+                                                            </Paragraph>
+                                                        }
+                                                    </View>
+                                                    <View style={{
+                                                        flexDirection: 'column',
+                                                        justifyContent: 'space-between',
+                                                        left: wp(2)
+                                                    }}>
+                                                        <View style={styles.featuredPartnerCardCoverBackground}>
+                                                            <Image
+                                                                style={styles.featuredPartnerCardCover}
+                                                                source={{
+                                                                    uri: data.offers[0]!.brandLogoSm!
+                                                                }}
+                                                                placeholder={MoonbeamPlaceholderImage}
+                                                                placeholderContentFit={'contain'}
+                                                                contentFit={'contain'}
+                                                                transition={1000}
+                                                                cachePolicy={'memory-disk'}
+                                                            />
+                                                        </View>
+                                                        <TouchableOpacity
+                                                            style={styles.viewOfferButton}
+                                                            onPress={() => {
+                                                                // set the clicked offer/partner accordingly
+                                                                setStoreOfferClicked(data);
+                                                                // set the clicked offer physical location
+                                                                setStoreOfferPhysicalLocation({
+                                                                    latitude: storeLatitude,
+                                                                    longitude: storeLongitude,
+                                                                    latitudeDelta: 0,
+                                                                    longitudeDelta: 0,
+                                                                    addressAsString: physicalLocation
+                                                                });
+                                                                // @ts-ignore
+                                                                props.navigation.navigate('StoreOffer', {
+                                                                    bottomTabNeedsShowingFlag: true
+                                                                });
+                                                            }}
+                                                        >
+                                                            {/*@ts-ignore*/}
+                                                            <Text style={styles.viewOfferButtonContent}>
+                                                                {data.numberOfOffers === 1 ? 'View Offer' : 'View Offers'}
+                                                            </Text>
+                                                        </TouchableOpacity>
+                                                    </View>
+                                                </View>
+                                                {
+                                                    data.veteranOwned &&
+                                                    <Image
+                                                        style={styles.veteranOwnedBadge}
+                                                        source={MoonbeamVeteranOwnedBadgeImage}
+                                                        placeholder={MoonbeamVeteranOwnedBadgeImage}
+                                                        placeholderContentFit={'contain'}
+                                                        contentFit={'contain'}
+                                                        transition={1000}
+                                                        cachePolicy={'memory-disk'}
+                                                    />
                                                 }
-                                                titleStyle={styles.featuredPartnerCardTitleMain}
-                                                titleNumberOfLines={10}/>
-                                            <Paragraph
-                                                style={styles.featuredPartnerCardParagraph}
-                                            >
-                                                {data.offers[0]!.brandStubCopy!}
-                                            </Paragraph>
-                                        </View>
-                                        <View style={{
-                                            flexDirection: 'column',
-                                            justifyContent: 'space-between',
-                                            left: wp(2)
-                                        }}>
-                                            <View style={styles.featuredPartnerCardCoverBackground}>
+                                            </View>
+                                        </Card.Content>
+                                    </Card>
+                                </>
+                            </>
+                        );
+                    } else if (physicalLocation !== '' && calculatedDistance > 50) {
+                        // we need this for Android purposes
+                        return(<View style={{backgroundColor: 'transparent', width: wp(0), height: hp(30)}}></View>);
+                    } else {
+                        return (
+                            <>
+                                <Card
+                                    style={styles.featuredPartnerCard}>
+                                    <Card.Content>
+                                        <View style={{flexDirection: 'column'}}>
+                                            <View style={{
+                                                flexDirection: 'row',
+                                                width: wp(75),
+                                                justifyContent: 'space-between'
+                                            }}>
+                                                <View style={{
+                                                    flexDirection: 'column',
+                                                    justifyContent: 'space-between',
+                                                    right: wp(2)
+                                                }}>
+                                                    <Card.Title
+                                                        style={{alignSelf: 'flex-start', right: wp(1.5)}}
+                                                        title={
+                                                            <Text style={styles.featuredPartnerCardTitle}>
+                                                                {`${data.brandName}\n`}
+                                                                <Text style={styles.featuredPartnerCardSubtitle}>
+                                                                    {subtitle}
+                                                                </Text>
+                                                            </Text>
+                                                        }
+                                                        titleStyle={styles.featuredPartnerCardTitleMain}
+                                                        titleNumberOfLines={10}/>
+                                                    <Paragraph
+                                                        style={styles.featuredPartnerCardParagraph}
+                                                    >
+                                                        {data.offers[0]!.brandStubCopy!}
+                                                    </Paragraph>
+                                                </View>
+                                                <View style={{
+                                                    flexDirection: 'column',
+                                                    justifyContent: 'space-between',
+                                                    left: wp(2)
+                                                }}>
+                                                    <View style={styles.featuredPartnerCardCoverBackground}>
+                                                        <Image
+                                                            style={styles.featuredPartnerCardCover}
+                                                            source={{
+                                                                uri: data.offers[0]!.brandLogoSm!
+                                                            }}
+                                                            placeholder={MoonbeamPlaceholderImage}
+                                                            placeholderContentFit={'contain'}
+                                                            contentFit={'contain'}
+                                                            transition={1000}
+                                                            cachePolicy={'memory-disk'}
+                                                        />
+                                                    </View>
+                                                    <TouchableOpacity
+                                                        style={styles.viewOfferButton}
+                                                        onPress={() => {
+                                                            // set the clicked offer/partner accordingly
+                                                            setStoreOfferClicked(data);
+                                                            // @ts-ignore
+                                                            props.navigation.navigate('StoreOffer', {
+                                                                bottomTabNeedsShowingFlag: true
+                                                            });
+                                                        }}
+                                                    >
+                                                        {/*@ts-ignore*/}
+                                                        <Text style={styles.viewOfferButtonContent}>
+                                                            {data.numberOfOffers === 1 ? 'View Offer' : 'View Offers'}
+                                                        </Text>
+                                                    </TouchableOpacity>
+                                                </View>
+                                            </View>
+                                            {
+                                                data.veteranOwned &&
                                                 <Image
-                                                    style={styles.featuredPartnerCardCover}
-                                                    source={{
-                                                        uri: data.offers[0]!.brandLogoSm!
-                                                    }}
-                                                    placeholder={MoonbeamPlaceholderImage}
+                                                    style={styles.veteranOwnedBadge}
+                                                    source={MoonbeamVeteranOwnedBadgeImage}
+                                                    placeholder={MoonbeamVeteranOwnedBadgeImage}
                                                     placeholderContentFit={'contain'}
                                                     contentFit={'contain'}
                                                     transition={1000}
                                                     cachePolicy={'memory-disk'}
                                                 />
-                                            </View>
-                                            <TouchableOpacity
-                                                style={styles.viewOfferButton}
-                                                onPress={() => {
-                                                    // set the clicked offer/partner accordingly
-                                                    setStoreOfferClicked(data);
-                                                    // @ts-ignore
-                                                    props.navigation.navigate('StoreOffer', {});
-                                                }}
-                                            >
-                                                {/*@ts-ignore*/}
-                                                <Text style={styles.viewOfferButtonContent}>
-                                                    {data.numberOfOffers === 1 ? 'View Offer' : 'View Offers'}
-                                                </Text>
-                                            </TouchableOpacity>
+                                            }
                                         </View>
-                                    </View>
-                                    {
-                                        data.veteranOwned &&
-                                        <Image
-                                            style={styles.veteranOwnedBadge}
-                                            source={MoonbeamVeteranOwnedBadgeImage}
-                                            placeholder={MoonbeamVeteranOwnedBadgeImage}
-                                            placeholderContentFit={'contain'}
-                                            contentFit={'contain'}
-                                            transition={1000}
-                                            cachePolicy={'memory-disk'}
-                                        />
-                                    }
-                                </View>
-                            </Card.Content>
-                        </Card>
-                    </>
-                ) : <></>;
+                                    </Card.Content>
+                                </Card>
+                            </>
+                        );
+                    }
+                }
             } else {
                 return (<></>);
             }

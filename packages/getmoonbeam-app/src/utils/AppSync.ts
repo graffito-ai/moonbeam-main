@@ -795,7 +795,7 @@ export const appUpgradeCheck = async (appUpgradeChecked: boolean, setAppUpgradeC
                 const appInfo = {
                     appId: Platform.OS === 'android' ? 'com.moonbeam.moonbeamfin' : '6450375130', // The App ID from the Play Store or App Store
                     appName: 'Moonbeam Finance', // The App Name
-                    appVersion: '0.0.19', // The targeted App Version to be updated to
+                    appVersion: '0.0.20', // The targeted App Version to be updated to
                     platform: Platform.OS === 'android' ? 'android' : 'ios', // The App Platform
                     environment: envInfo.envName === Stages.DEV ? 'development' : 'production', // App Environment, production, development
                     appLanguage: 'en', // App Language ex: en, es, etc.
@@ -1910,7 +1910,7 @@ export const retrieveOffersNearbyForMap = async (numberOfFailedCalls: number, se
                     // call the getOffers API
                     const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
                         getOffersInput: {
-                            availability: OfferAvailability.Global,
+                            availability: OfferAvailability.All,
                             countryCode: CountryCode.Us,
                             filterType: OfferFilter.Nearby,
                             offerStates: [OfferState.Active, OfferState.Scheduled],
@@ -2038,7 +2038,7 @@ const retrieveOffersNearLocationForMap = async (address: string, totalNumberOfOf
                 // call the getOffers API
                 const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
                     getOffersInput: {
-                        availability: OfferAvailability.Global,
+                        availability: OfferAvailability.All,
                         countryCode: CountryCode.Us,
                         filterType: OfferFilter.Nearby,
                         offerStates: [OfferState.Active, OfferState.Scheduled],
@@ -2160,7 +2160,7 @@ export const retrieveOffersNearby = async (numberOfFailedCalls: number, setNumbe
                     // call the getOffers API
                     const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
                         getOffersInput: {
-                            availability: OfferAvailability.Global,
+                            availability: OfferAvailability.All,
                             countryCode: CountryCode.Us,
                             filterType: OfferFilter.Nearby,
                             offerStates: [OfferState.Active, OfferState.Scheduled],
@@ -2321,7 +2321,7 @@ const retrieveOffersNearLocation = async (address: string, pageNumber: number, s
                     // call the getOffers API
                     const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
                         getOffersInput: {
-                            availability: OfferAvailability.Global,
+                            availability: OfferAvailability.All,
                             countryCode: CountryCode.Us,
                             filterType: OfferFilter.Nearby,
                             offerStates: [OfferState.Active, OfferState.Scheduled],
@@ -2446,7 +2446,7 @@ export const retrieveCategorizedOffersNearby = async (pageNumber: number, setPag
                     // call the getOffers API
                     const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
                         getOffersInput: {
-                            availability: OfferAvailability.Global,
+                            availability: OfferAvailability.All,
                             countryCode: CountryCode.Us,
                             filterType: OfferFilter.CategorizedNearby,
                             offerStates: [OfferState.Active, OfferState.Scheduled],
@@ -2579,7 +2579,7 @@ const retrieveCategorizedOffersNearLocation = async (address: string, pageNumber
                 // call the getOffers API
                 const nearbyOffersResult = await API.graphql(graphqlOperation(getOffers, {
                     getOffersInput: {
-                        availability: OfferAvailability.Global,
+                        availability: OfferAvailability.All,
                         countryCode: CountryCode.Us,
                         filterType: OfferFilter.CategorizedNearby,
                         offerStates: [OfferState.Active, OfferState.Scheduled],

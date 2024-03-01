@@ -3,7 +3,6 @@ import {ActivityIndicator, Card, Paragraph, Portal, Text} from "react-native-pap
 import {styles} from "../../../../../../styles/store.module";
 import {Image, Platform, ScrollView, TouchableOpacity, View} from "react-native";
 import {LoggingLevel, Offer, RewardType} from "@moonbeam/moonbeam-models";
-import {Avatar} from "@rneui/base";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
@@ -213,7 +212,9 @@ export const NearbySection = (props: {
                                                             addressAsString: physicalLocation
                                                         });
                                                         // @ts-ignore
-                                                        props.navigation.navigate('StoreOffer', {});
+                                                        props.navigation.navigate('StoreOffer', {
+                                                            bottomTabNeedsShowingFlag: true
+                                                        });
                                                     }}
                                                 >
                                                     {/*@ts-ignore*/}
@@ -379,11 +380,10 @@ export const NearbySection = (props: {
                                                         size={hp(6)}
                                                     />
                                                 </View>
-                                                <Avatar
-                                                    containerStyle={styles.nearbyLoadingOfferCardCover}
-                                                    imageProps={{
-                                                        resizeMode: 'contain'
-                                                    }}
+                                                <Image
+                                                    style={styles.nearbyLoadingOfferCardCover}
+                                                    resizeMethod={"scale"}
+                                                    resizeMode={"contain"}
                                                     source={MoonbeamOffersLoading}
                                                 />
                                             </Card.Content>

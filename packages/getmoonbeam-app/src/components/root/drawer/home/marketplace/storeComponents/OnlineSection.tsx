@@ -69,7 +69,9 @@ export const OnlineSection = (props: {
                                       // set the clicked offer/partner accordingly
                                       setStoreOfferClicked(data);
                                       // @ts-ignore
-                                      props.navigation.navigate('StoreOffer', {});
+                                      props.navigation.navigate('StoreOffer', {
+                                          bottomTabNeedsShowingFlag: true
+                                      });
                                   }}>
                     <Card style={styles.onlineOfferCard}>
                         <Card.Content>
