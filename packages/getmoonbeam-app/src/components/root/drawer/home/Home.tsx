@@ -13,7 +13,10 @@ import {drawerDashboardState} from "../../../../recoil/AppDrawerAtom";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
 import {Text, TouchableOpacity, View} from "react-native";
-import {filteredByDiscountPressedState, filtersActiveState} from "../../../../recoil/StoreOfferAtom";
+import {
+    filteredByDiscountPressedState,
+    filtersActiveState
+} from "../../../../recoil/StoreOfferAtom";
 
 /**
  * Home component. This is where the bottom bar components will reside, as well
@@ -69,6 +72,7 @@ export const Home = ({navigation}: HomeProps) => {
                         tabBarShowLabel: false,
                         headerShown: false,
                         tabBarStyle: {
+                            // position: 'absolute',
                             ...(bottomTabShown && {height: hp(10)}),
                             backgroundColor: '#3b3b3b',
                             shadowColor: 'black',
@@ -76,6 +80,7 @@ export const Home = ({navigation}: HomeProps) => {
                             shadowOpacity: 0.95,
                             shadowRadius: 15,
                             elevation: 20,
+                            // ...((toggleViewPressed === 'vertical' && storeOfferClicked === null) && {position: 'relative'}),
                             ...(!bottomTabShown && {display: 'none'})
                         }
                     })}

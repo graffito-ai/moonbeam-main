@@ -9,6 +9,7 @@ import {
     MemberDetailsResponse,
     MemberResponse,
     Offer,
+    OfferAvailability,
     OfferFilter,
     OfferIdResponse,
     OfferRedemptionTypeResponse,
@@ -1779,7 +1780,9 @@ export class OliveClient extends BaseAPIClient {
             requestURL += `?loyaltyProgramId=${loyaltyProgramId}`;
             // Olive deprecated the `redemptionType=all` and replaced it with its removal
             requestURL += getOffersInput.redemptionType !== RedemptionType.All ? `&redemptionType=${getOffersInput.redemptionType}` : ``;
-            requestURL += `&availability=${getOffersInput.availability}&countryCode=${getOffersInput.countryCode}&pageSize=${getOffersInput.pageSize}&pageNumber=${pageNumber !== null && pageNumber !== undefined ? pageNumber : getOffersInput.pageNumber}`;
+            // Olive wants us to not pass anything for the `availability=all` parameter/filtering
+            requestURL += getOffersInput.availability !== OfferAvailability.All ? `&availability=${getOffersInput.availability}` : ``;
+            requestURL += `&countryCode=${getOffersInput.countryCode}&pageSize=${getOffersInput.pageSize}&pageNumber=${pageNumber !== null && pageNumber !== undefined ? pageNumber : getOffersInput.pageNumber}`;
             getOffersInput.offerStates.forEach(state => {
                 requestURL += `&offerStates=${state}`;
             })

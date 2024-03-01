@@ -11,7 +11,7 @@ export const commonStyles = StyleSheet.create({
     },
     backButtonDismiss: {
         alignSelf: 'flex-start',
-        bottom: hp(1)
+        top: hp(1)
     },
     container: {
         flex: 1,

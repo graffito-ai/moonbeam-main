@@ -11,7 +11,11 @@ import {StoreOfferWebView} from "./StoreOfferWebView";
 import {appDrawerHeaderShownState, customBannerShown, drawerSwipeState} from "../../../../../../recoil/AppDrawerAtom";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {View} from "react-native";
-import {showClickOnlyBottomSheetState, storeNavigationState} from "../../../../../../recoil/StoreOfferAtom";
+import {
+    showClickOnlyBottomSheetState,
+    storeNavigationState,
+    storeOfferState
+} from "../../../../../../recoil/StoreOfferAtom";
 
 /**
  * StoreOffer component.
@@ -27,6 +31,7 @@ export const StoreOffer = ({navigation}: StoreOfferProps) => {
     const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
     const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
     const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
+    const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
 
     // create a native stack navigator, to be used for our StoreOffer navigation
     const Stack = createNativeStackNavigator<StoreOfferStackParamList>();
@@ -76,6 +81,8 @@ export const StoreOffer = ({navigation}: StoreOfferProps) => {
                                     setShowClickOnlyBottomSheet(false);
                                     // show the bottom bar
                                     setBottomTabShown(true);
+                                    // reset the store offer clicked state
+                                    setStoreOfferClicked(null);
                                     navigation.goBack();
                                 }}
                             />

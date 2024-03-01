@@ -26,6 +26,7 @@ import * as envInfo from "./local-env-info.json";
 import {logEvent} from "./src/utils/AppSync";
 import {LoggingLevel, Stages} from "@moonbeam/moonbeam-models";
 import * as Updates from 'expo-updates';
+import {enableScreens} from "react-native-screens";
 
 // this handler determines how your app handles notifications that come in while the app is foregrounded.
 Notifications.setNotificationHandler({
@@ -264,6 +265,12 @@ export default function App() {
             setIsAppLoaded(true);
             prepare().then(() => {
             });
+        }
+        /**
+         * {@link https://github.com/react-navigation/react-navigation/issues/10432}
+         */
+        if (Platform.OS === "ios") {
+            enableScreens(false);
         }
     }, [currentUserLocation, deviceSetForNotifications]);
 
