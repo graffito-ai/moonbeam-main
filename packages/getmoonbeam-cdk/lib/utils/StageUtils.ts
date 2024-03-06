@@ -28,6 +28,7 @@ import {
 import {AppReviewResolverStack} from "../stacks/AppReviewResolverStack";
 import {UtilitiesResolverStack} from "../stacks/UtilitiesResolverStack";
 import {ReimbursementsResolverStack} from "../stacks/ReimbursementsResolverStack";
+import {ScriptsResolverStack} from "../stacks/ScriptsResolverStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -397,6 +398,17 @@ export class StageUtils {
                     environmentVariables: stageConfiguration.environmentVariables
                 });
                 appReviewResolverStack.addDependency(appSyncStack);
+
+                // create the Scripts resolver stack && add it to the CDK app
+                const scriptsResolverStack = new ScriptsResolverStack(this.app, `moonbeam-scripts-resolver-${stageKey}`, {
+                    stackName: `moonbeam-scripts-resolver-${stageKey}`,
+                    description: 'This stack will contain all the AppSync related resources needed by the Lambda Scripts resolver',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    scriptsConfig: stageConfiguration.scriptsConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                scriptsResolverStack.addDependency(appSyncStack);
 
                 // create the API Gateway Service API stack && add it to the CDK app
                 const apiGatewayStack = new APIGatewayServiceStack(this.app, `moonbeam-api-gateway-${stageKey}`, {

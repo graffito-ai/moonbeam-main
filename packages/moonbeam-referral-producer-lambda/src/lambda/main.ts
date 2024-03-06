@@ -7,10 +7,17 @@ import {triggerReferral} from "./resolvers/ReferralTrigger";
  *
  * @param event EventBridge cron-based event to be passed in the handler
  */
-exports.handler = async (event: EventBridgeEvent<'ReferralEvent', 'ReferralReplay'>): Promise<void> => {
+exports.handler = async (event: EventBridgeEvent<'Scheduled Event', {eventType: 'ReferralEvent'}>): Promise<void> => {
     // information on the event bridge trigger event
-    console.log(`Received new referral schedule cron trigger event, through EventBridge, with event detail [${JSON.stringify(event["detail-type"])}] and event replay [${JSON.stringify(event["replay-name"])}]`);
+    console.log(`Received new referral schedule cron trigger event, through EventBridge, with event detail [${JSON.stringify(event["detail-type"])}] and event type [${event["detail"].eventType}]`);
 
-    // handle the referral triggered event
-    await triggerReferral();
+    // handle the incoming referral triggered event
+    switch (event["detail"].eventType) {
+        case "ReferralEvent":
+            await triggerReferral();
+            break;
+        default:
+            console.log(`Unknown event type received ${event["detail"].eventType}.\nUnable to trigger any referral process!`);
+            break;
+    }
 }

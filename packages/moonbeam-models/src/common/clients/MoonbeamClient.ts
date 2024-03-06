@@ -1626,7 +1626,6 @@ export class MoonbeamClient extends BaseAPIClient {
         }
     }
 
-
     /**
      * Function used to retrieve the list of eligible linked users.
      *

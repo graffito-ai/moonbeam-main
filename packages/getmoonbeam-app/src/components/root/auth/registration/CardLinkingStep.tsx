@@ -96,7 +96,8 @@ export const CardLinkingStep = () => {
             // check to see if there were any errors during the card linking step
             if (!linkingData.data || linkingData.error || !linkingData.success
                 || !linkingData.data.card_type || !linkingData.data.full_name
-                || !linkingData.data.last_four_digits || !linkingData.data.token) {
+                || !linkingData.data.last_four_digits || !linkingData.data.token
+                || !linkingData.data.month || !linkingData.data.year) {
                 // release the loader on button press
                 setIsReady(true);
 
@@ -114,7 +115,7 @@ export const CardLinkingStep = () => {
                  * complete the account creation/member signup linking process.
                  */
                 const [signupCardLinkedMemberResult, errorObject] = await signupCardLinkedMember(userInformation["userId"], linkingData.data.full_name,
-                    cardType, linkingData.data.last_four_digits, linkingData.data.token);
+                    cardType, linkingData.data.last_four_digits, linkingData.data.token, `${linkingData.data.month}/${linkingData.data.year}`);
 
                 // check if there was an error
                 if (errorObject || !signupCardLinkedMemberResult) {
@@ -161,13 +162,14 @@ export const CardLinkingStep = () => {
      * @param cardType the type of the card, auto-detected upon user linking via the enrollment form.
      * @param last4Digits the last 4 digits of the card, inputted by the user, obtained from the card number.
      * @param cardToken the card linking token, generated via the card vault, via the enrollment form.
+     * @param expiration the card's expiration date, inputted by the user.
      *
      * @return a {@link Promise}, containing a pair of a {@link Boolean}, and a {@link {String, CardLinkErrorType}},
      * representing whether the card was successfully linked or not, and implicitly, if it was not, what
      * the error message and code for that error was.
      */
     const signupCardLinkedMember = async (userId: string, cardNickname: string, cardType: CardType,
-                                          last4Digits: string, cardToken: string): Promise<[boolean, [string, CardLinkErrorType]?]> => {
+                                          last4Digits: string, cardToken: string, expiration): Promise<[boolean, [string, CardLinkErrorType]?]> => {
         try {
             // call the internal card linking API
             const cardLinkingResult = await API.graphql(graphqlOperation(createCardLink, {
@@ -177,7 +179,8 @@ export const CardLinkingStep = () => {
                         token: cardToken,
                         type: cardType,
                         name: cardNickname,
-                        last4: last4Digits
+                        last4: last4Digits,
+                        expiration: expiration
                     }
                 }
             }));

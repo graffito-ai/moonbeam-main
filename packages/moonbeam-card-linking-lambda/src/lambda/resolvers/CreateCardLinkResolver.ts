@@ -138,6 +138,9 @@ export const createCardLink = async (fieldName: string, createCardLinkInput: Cre
                                         },
                                         type: {
                                             S: cardLinkedResponse.cards[0]!.type
+                                        },
+                                        expiration: {
+                                            S: cardLinkedResponse.cards[0]!.expiration! // ToDo: this ! needs to be removed once we back-fill all card expiration data accordingly
                                         }
                                     }
                                 }

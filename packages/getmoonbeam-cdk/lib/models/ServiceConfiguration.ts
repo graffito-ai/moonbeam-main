@@ -98,6 +98,7 @@ export interface CardLinkingConfiguration {
     readonly getEligibleLinkedUsersResolverName: string;
     readonly getUsersWithNoCardsResolverName: string;
     readonly getUserCardLinkingIdResolverName: string;
+    readonly updateCardResolverName: string;
 }
 
 /**
@@ -400,4 +401,13 @@ export interface ReimbursementsConfiguration {
     readonly reimbursementsTableName: string;
     readonly reimbursementsIdGlobalIndex: string;
     readonly reimbursementsStatusLocalIndex: string;
+}
+
+/**
+ * Interface used to define the configuration for the scripts service resolver.
+ */
+export interface ScriptsConfiguration {
+    readonly scriptsFunctionName: string;
+    readonly cardExpirationBackFillCronRuleName: string;
+    readonly offerBackFillCronRuleName: string;
 }

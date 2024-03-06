@@ -5,6 +5,9 @@ import {MilitaryVerificationReportingInformationResponse, MoonbeamClient} from "
  * Function used to handle the military verification reporting trigger, by first
  * determining which users have signed up during a particular period of time, and then
  * kick-starting the reporting process for them.
+ *
+ * @returns a {@link Promise} of {@link void}, since the EventBridger
+ * event trigger, will execute a cron job and not return anything.
  */
 export const triggerMilitaryVerificationReport = async (): Promise<void> => {
     try {

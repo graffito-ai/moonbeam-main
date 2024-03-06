@@ -42,6 +42,7 @@ export const getCardLink = async (fieldName: string, getCardLinkInput: GetCardLi
                 for (const retrievedCardData of retrievedData.Item.cards.L!) {
                     // create the new card object from the retrieve card data object
                     const cardObject: Card = {
+                        expiration: retrievedCardData.M!.expiration.S!,
                         last4: retrievedCardData.M!.last4.S!,
                         name: retrievedCardData.M!.name.S!,
                         id: retrievedCardData.M!.id.S!,

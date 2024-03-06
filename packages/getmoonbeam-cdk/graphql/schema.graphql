@@ -33,6 +33,7 @@ type Query {
 }
 
 type Mutation {
+    updateCard(updateCardInput: UpdateCardInput!): EligibleLinkedUsersResponse! @aws_cognito_user_pools @aws_api_key
     addCard(addCardInput: AddCardInput!): CardLinkResponse! @aws_cognito_user_pools
     createFAQ(createFAQInput: CreateFAQInput!): FAQResponse! @aws_cognito_user_pools
     createDevice(createDeviceInput: CreateDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
@@ -312,6 +313,7 @@ type Card @aws_cognito_user_pools {
     type: CardType!
     name: String!
     last4: String!
+    expiration: String
     additionalProgramID: String # not all card will have additional program IDs enrolled to them
 }
 
@@ -342,6 +344,7 @@ input CardInput {
     type: CardType!
     name: String!
     last4: String!
+    expiration: String!
     additionalProgramID: String # not required since cards will mainly only be enrolled into the default program ID for Moonbeam through Olive
 }
 
@@ -361,6 +364,13 @@ input AddCardInput {
 
 input GetCardLinkInput {
     id: ID!
+}
+
+input UpdateCardInput {
+    id: ID!
+    memberId: ID!
+    cardId: ID!
+    updatedAt: AWSDateTime
 }
 
 input DeleteCardInput {

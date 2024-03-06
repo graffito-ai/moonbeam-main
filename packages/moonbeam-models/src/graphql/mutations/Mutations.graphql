@@ -281,6 +281,7 @@ mutation CreateCardLink($createCardLinkInput: CreateCardLinkInput!) {
                 type
                 name
                 last4
+                expiration
                 additionalProgramID
             }
             createdAt
@@ -303,11 +304,23 @@ mutation AddCard($addCardInput: AddCardInput!) {
                 type
                 name
                 last4
+                expiration
                 additionalProgramID
             }
             createdAt
             updatedAt
             status
+        }
+    }
+}
+mutation UpdateCard($updateCardInput: UpdateCardInput!) {
+    updateCard(updateCardInput: $updateCardInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            cardIds
+            memberId
         }
     }
 }

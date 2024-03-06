@@ -94,6 +94,7 @@ export type Card = {
   __typename?: 'Card';
   additionalProgramID?: Maybe<Scalars['String']>;
   applicationID: Scalars['ID'];
+  expiration?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   last4: Scalars['String'];
   name: Scalars['String'];
@@ -104,6 +105,7 @@ export type Card = {
 export type CardInput = {
   additionalProgramID?: InputMaybe<Scalars['String']>;
   applicationID?: InputMaybe<Scalars['ID']>;
+  expiration: Scalars['String'];
   last4: Scalars['String'];
   name: Scalars['String'];
   token: Scalars['String'];
@@ -881,6 +883,7 @@ export type Mutation = {
   createUserAuthSession: UserAuthSessionResponse;
   deleteCard: CardResponse;
   putMilitaryVerificationReport: MilitaryVerificationReportResponse;
+  updateCard: EligibleLinkedUsersResponse;
   updateDevice: UserDeviceResponse;
   updateMilitaryVerificationStatus: UpdateMilitaryVerificationResponse;
   updateNotificationReminder: NotificationReminderResponse;
@@ -962,6 +965,11 @@ export type MutationDeleteCardArgs = {
 
 export type MutationPutMilitaryVerificationReportArgs = {
   putMilitaryVerificationReportInput: PutMilitaryVerificationReportInput;
+};
+
+
+export type MutationUpdateCardArgs = {
+  updateCardInput: UpdateCardInput;
 };
 
 
@@ -1693,6 +1701,13 @@ export enum TransactionsStatus {
   Rejected = 'REJECTED'
 }
 
+export type UpdateCardInput = {
+  cardId: Scalars['ID'];
+  id: Scalars['ID'];
+  memberId: Scalars['ID'];
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
 export type UpdateDeviceInput = {
   deviceState: UserDeviceState;
   id: Scalars['ID'];
@@ -1985,14 +2000,21 @@ export type CreateCardLinkMutationVariables = Exact<{
 }>;
 
 
-export type CreateCardLinkMutation = { __typename?: 'Mutation', createCardLink: { __typename?: 'CardLinkResponse', errorType?: CardLinkErrorType | null, errorMessage?: string | null, data?: { __typename?: 'CardLink', id: string, memberId: string, createdAt: string, updatedAt: string, status: CardLinkingStatus, cards: Array<{ __typename?: 'Card', id: string, applicationID: string, token: string, type: CardType, name: string, last4: string, additionalProgramID?: string | null } | null> } | null } };
+export type CreateCardLinkMutation = { __typename?: 'Mutation', createCardLink: { __typename?: 'CardLinkResponse', errorType?: CardLinkErrorType | null, errorMessage?: string | null, data?: { __typename?: 'CardLink', id: string, memberId: string, createdAt: string, updatedAt: string, status: CardLinkingStatus, cards: Array<{ __typename?: 'Card', id: string, applicationID: string, token: string, type: CardType, name: string, last4: string, expiration?: string | null, additionalProgramID?: string | null } | null> } | null } };
 
 export type AddCardMutationVariables = Exact<{
   addCardInput: AddCardInput;
 }>;
 
 
-export type AddCardMutation = { __typename?: 'Mutation', addCard: { __typename?: 'CardLinkResponse', errorType?: CardLinkErrorType | null, errorMessage?: string | null, data?: { __typename?: 'CardLink', id: string, memberId: string, createdAt: string, updatedAt: string, status: CardLinkingStatus, cards: Array<{ __typename?: 'Card', id: string, applicationID: string, token: string, type: CardType, name: string, last4: string, additionalProgramID?: string | null } | null> } | null } };
+export type AddCardMutation = { __typename?: 'Mutation', addCard: { __typename?: 'CardLinkResponse', errorType?: CardLinkErrorType | null, errorMessage?: string | null, data?: { __typename?: 'CardLink', id: string, memberId: string, createdAt: string, updatedAt: string, status: CardLinkingStatus, cards: Array<{ __typename?: 'Card', id: string, applicationID: string, token: string, type: CardType, name: string, last4: string, expiration?: string | null, additionalProgramID?: string | null } | null> } | null } };
+
+export type UpdateCardMutationVariables = Exact<{
+  updateCardInput: UpdateCardInput;
+}>;
+
+
+export type UpdateCardMutation = { __typename?: 'Mutation', updateCard: { __typename?: 'EligibleLinkedUsersResponse', errorMessage?: string | null, errorType?: CardLinkErrorType | null, data?: Array<{ __typename?: 'EligibleLinkedUser', id: string, cardIds: Array<string | null>, memberId: string } | null> | null } };
 
 export type DeleteCardMutationVariables = Exact<{
   deleteCardInput: DeleteCardInput;
@@ -2178,7 +2200,7 @@ export type GetCardLinkQueryVariables = Exact<{
 }>;
 
 
-export type GetCardLinkQuery = { __typename?: 'Query', getCardLink: { __typename?: 'CardLinkResponse', errorMessage?: string | null, errorType?: CardLinkErrorType | null, data?: { __typename?: 'CardLink', id: string, memberId: string, createdAt: string, updatedAt: string, status: CardLinkingStatus, cards: Array<{ __typename?: 'Card', id: string, applicationID: string, token: string, type: CardType, name: string, last4: string, additionalProgramID?: string | null } | null> } | null } };
+export type GetCardLinkQuery = { __typename?: 'Query', getCardLink: { __typename?: 'CardLinkResponse', errorMessage?: string | null, errorType?: CardLinkErrorType | null, data?: { __typename?: 'CardLink', id: string, memberId: string, createdAt: string, updatedAt: string, status: CardLinkingStatus, cards: Array<{ __typename?: 'Card', id: string, applicationID: string, token: string, type: CardType, name: string, last4: string, expiration?: string | null, additionalProgramID?: string | null } | null> } | null } };
 
 export type GetUsersWithNoCardsQueryVariables = Exact<{ [key: string]: never; }>;
 
