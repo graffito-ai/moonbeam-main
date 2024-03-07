@@ -14,6 +14,9 @@ import {PublishCommand, SNSClient} from "@aws-sdk/client-sns";
  * Function used to handle the daily notification reminder trigger, by first
  * determining whether a notification reminder needs to be sent out, and by
  * kick-starting that process for any applicable users, accordingly.
+ *
+ * @returns a {@link Promise} of {@link void}, since the EventBridger
+ * event trigger, will execute a cron job and not return anything.
  */
 export const triggerNotificationReminder = async (): Promise<void> => {
     try {

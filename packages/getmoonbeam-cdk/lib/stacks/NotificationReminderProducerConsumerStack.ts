@@ -8,6 +8,7 @@ import {SqsSubscription} from "aws-cdk-lib/aws-sns-subscriptions";
 import {EventSourceMapping} from "aws-cdk-lib/aws-lambda";
 import {Rule, Schedule} from "aws-cdk-lib/aws-events";
 import {LambdaFunction} from "aws-cdk-lib/aws-events-targets";
+import * as events from "aws-cdk-lib/aws-events";
 
 /**
  * File used to define the NotificationReminderProducerConsumer stack, used to create all the necessary resources
@@ -67,7 +68,14 @@ export class NotificationReminderProducerConsumerStack extends Stack {
                 minute: '30',
                 hour: '18'
             }),
-            targets: [new LambdaFunction(this.notificationReminderProducerLambda)],
+            targets: [new LambdaFunction(this.notificationReminderProducerLambda, {
+                event: events.RuleTargetInput.fromObject({
+                    ["detail-type"]: 'Scheduled Event',
+                    detail: {
+                        eventType: 'NotificationReminderEvent'
+                    }
+                })
+            })]
         });
 
         // create a new Lambda function to be used as a consumer for notification reminder purposes, acting as the consuming service or consumer

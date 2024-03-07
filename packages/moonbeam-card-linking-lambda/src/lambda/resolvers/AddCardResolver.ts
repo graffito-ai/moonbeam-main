@@ -94,6 +94,7 @@ export const addCard = async (fieldName: string, addCardInput: AddCardInput): Pr
                             last4: preExistingCard.M!.last4.S!,
                             name: preExistingCard.M!.name.S!,
                             token: preExistingCard.M!.token.S!,
+                            expiration: preExistingCard.M!.expiration.S!,
                             type: preExistingCard.M!.type.S! as CardType,
                         })
                     }
@@ -135,6 +136,9 @@ export const addCard = async (fieldName: string, addCardInput: AddCardInput): Pr
                                 },
                                 type: {
                                     S: addCardInput.card.type
+                                },
+                                expiration: {
+                                    S: addCardInput.card.expiration
                                 }
                             }
                         });

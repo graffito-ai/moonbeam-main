@@ -349,6 +349,7 @@ export const createCardLink = /* GraphQL */ `
                     type
                     name
                     last4
+                    expiration
                     additionalProgramID
                 }
                 createdAt
@@ -375,6 +376,7 @@ export const addCard = /* GraphQL */ `
                     type
                     name
                     last4
+                    expiration
                     additionalProgramID
                 }
                 createdAt
@@ -395,6 +397,21 @@ export const deleteCard = /* GraphQL */ `
                 id
                 cardId
                 updatedAt
+            }
+        }
+    }
+`;
+
+// Mutation used to update a member's card details.
+export const updateCard = /* GraphQL */ `
+    mutation UpdateCard($updateCardInput: UpdateCardInput!) {
+        updateCard(updateCardInput: $updateCardInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                cardIds
+                memberId
             }
         }
     }

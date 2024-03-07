@@ -57,7 +57,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 addCardResolverName: 'addCard',
                 getEligibleLinkedUsersResolverName: 'getEligibleLinkedUsers',
                 getUsersWithNoCardsResolverName: 'getUsersWithNoCards',
-                getUserCardLinkingIdResolverName: 'getUserCardLinkingId'
+                getUserCardLinkingIdResolverName: 'getUserCardLinkingId',
+                updateCardResolverName: 'updateCard'
             },
             apiGatewayServiceConfig: {
                 cardLinkingServiceAPIName: 'cardLinkingServiceAPI',
@@ -242,6 +243,11 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 reimbursementsIdGlobalIndex: "reimbursementsIdGlobalIndex",
                 reimbursementsStatusLocalIndex: "reimbursementsStatusLocalIndex"
             },
+            scriptsConfig: {
+                scriptsFunctionName: "scriptsFunction",
+                cardExpirationBackFillCronRuleName: "cardExpirationBackFillRule",
+                offerBackFillCronRuleName: "offerBackFillRule"
+            },
             environmentVariables: new Map<string, string>([])
         },
         [`${Stages.PROD}-${Regions.PDX}`]: {
@@ -295,7 +301,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 addCardResolverName: 'addCard',
                 getEligibleLinkedUsersResolverName: 'getEligibleLinkedUsers',
                 getUsersWithNoCardsResolverName: 'getUsersWithNoCards',
-                getUserCardLinkingIdResolverName: 'getUserCardLinkingId'
+                getUserCardLinkingIdResolverName: 'getUserCardLinkingId',
+                updateCardResolverName: 'updateCard'
             },
             apiGatewayServiceConfig: {
                 cardLinkingServiceAPIName: 'cardLinkingServiceAPI',
@@ -479,6 +486,11 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 reimbursementsTableName: "reimbursementsTable",
                 reimbursementsIdGlobalIndex: "reimbursementsIdGlobalIndex",
                 reimbursementsStatusLocalIndex: "reimbursementsStatusLocalIndex"
+            },
+            scriptsConfig: {
+                scriptsFunctionName: "scriptsFunction",
+                cardExpirationBackFillCronRuleName: "cardExpirationBackFillRule",
+                offerBackFillCronRuleName: "offerBackFillRule"
             },
             environmentVariables: new Map<string, string>([])
         },

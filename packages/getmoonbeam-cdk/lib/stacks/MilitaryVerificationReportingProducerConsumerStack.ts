@@ -8,6 +8,7 @@ import {SqsSubscription} from "aws-cdk-lib/aws-sns-subscriptions";
 import {EventSourceMapping} from "aws-cdk-lib/aws-lambda";
 import {Rule, Schedule} from "aws-cdk-lib/aws-events";
 import {LambdaFunction} from "aws-cdk-lib/aws-events-targets";
+import * as events from "aws-cdk-lib/aws-events";
 
 /**
  * File used to define the MilitaryVerificationReportingProducerConsumerStack stack, used to create all the necessary resources
@@ -78,7 +79,14 @@ export class MilitaryVerificationReportingProducerConsumerStack extends Stack {
                 minute: '00',
                 hour: '*/3'
             }),
-            targets: [new LambdaFunction(this.militaryVerificationReportingProducerLambda)],
+            targets: [new LambdaFunction(this.militaryVerificationReportingProducerLambda, {
+                event: events.RuleTargetInput.fromObject({
+                    ["detail-type"]: 'Scheduled Event',
+                    detail: {
+                        eventType: 'MilitaryVerificationReportingReminderEvent'
+                    }
+                })
+            })]
         });
 
         // create a new Lambda function to be used as a consumer for military verification reporting data, acting as the military verification updates/reporting processor for military verification reporting updates.

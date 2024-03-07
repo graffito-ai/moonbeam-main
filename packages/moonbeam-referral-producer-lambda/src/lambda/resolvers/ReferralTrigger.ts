@@ -5,6 +5,9 @@ import {PublishCommand, SNSClient} from "@aws-sdk/client-sns";
  * Function used to handle the daily referral trigger, by first
  * determining whether there are any referrals that need to be processed, and by
  * kick-starting that process for any applicable users, accordingly.
+ *
+ * @returns a {@link Promise} of {@link void}, since the EventBridger
+ * event trigger, will execute a cron job and not return anything.
  */
 export const triggerReferral = async (): Promise<void> => {
     try {

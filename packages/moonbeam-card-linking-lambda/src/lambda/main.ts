@@ -1,10 +1,16 @@
 import {
     AddCardInput,
     CardLinkErrorType,
-    CardLinkResponse, CardResponse,
+    CardLinkResponse,
+    CardResponse,
     CreateCardLinkInput,
-    DeleteCardInput, EligibleLinkedUsersResponse,
-    GetCardLinkInput, GetUserCardLinkingIdInput, GetUserCardLinkingIdResponse, IneligibleLinkedUsersResponse
+    DeleteCardInput,
+    EligibleLinkedUsersResponse,
+    GetCardLinkInput,
+    GetUserCardLinkingIdInput,
+    GetUserCardLinkingIdResponse,
+    IneligibleLinkedUsersResponse,
+    UpdateCardInput
 } from "@moonbeam/moonbeam-models";
 import {createCardLink} from "./resolvers/CreateCardLinkResolver";
 import { deleteCard } from "./resolvers/DeleteCardResolver";
@@ -13,6 +19,7 @@ import {addCard} from "./resolvers/AddCardResolver";
 import { getEligibleLinkedUsers } from "./resolvers/GetEligibleLinkedUsersResolver";
 import {getUsersWithNoCards} from "./resolvers/GetUsersWithNoCardsResolver";
 import {getUserCardLinkingId} from "./resolvers/GetUserCardLinkingIdResolver";
+import {updateCard} from "./resolvers/UpdateCardResolver";
 
 /**
  * Mapping out the App Sync event type, so we can use it as a type in the Lambda Handler
@@ -26,7 +33,8 @@ type AppSyncEvent = {
         getCardLinkInput: GetCardLinkInput,
         createCardLinkInput: CreateCardLinkInput,
         deleteCardInput: DeleteCardInput,
-        getUserCardLinkingIdInput: GetUserCardLinkingIdInput
+        getUserCardLinkingIdInput: GetUserCardLinkingIdInput,
+        updateCardInput: UpdateCardInput
     },
     identity: {
         sub : string;
@@ -58,6 +66,8 @@ exports.handler = async (event: AppSyncEvent): Promise<CardLinkResponse | CardRe
             return await createCardLink(event.info.fieldName, event.arguments.createCardLinkInput);
         case "deleteCard":
             return await deleteCard(event.info.fieldName, event.arguments.deleteCardInput);
+        case "updateCard":
+            return await updateCard(event.info.fieldName, event.arguments.updateCardInput);
         default:
             const errorMessage = `Unexpected field name: ${event.info.fieldName}`;
             console.log(errorMessage);

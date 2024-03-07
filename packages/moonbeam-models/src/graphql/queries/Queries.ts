@@ -730,6 +730,7 @@ export const getCardLink = /* GraphQL */ `
                     type
                     name
                     last4
+                    expiration
                     additionalProgramID
                 }
                 createdAt

@@ -628,6 +628,7 @@ query GetCardLink($getCardLinkInput: GetCardLinkInput!) {
                 type
                 name
                 last4
+                expiration
                 additionalProgramID
             }
             createdAt

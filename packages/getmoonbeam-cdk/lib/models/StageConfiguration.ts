@@ -18,7 +18,7 @@ import {
     PhysicalDevicesConfiguration,
     ReferralConfiguration,
     ReferralProducerConsumerConfiguration,
-    ReimbursementsConfiguration,
+    ReimbursementsConfiguration, ScriptsConfiguration,
     SESConfiguration,
     StorageConfiguration,
     TransactionsConfiguration,
@@ -60,5 +60,6 @@ export interface StageConfiguration {
     readonly referralConfig: ReferralConfiguration;
     readonly loggingConfig: LoggingConfiguration;
     readonly reimbursementsConfig: ReimbursementsConfiguration;
+    readonly scriptsConfig: ScriptsConfiguration;
     readonly environmentVariables: Map<string, string>;
 }

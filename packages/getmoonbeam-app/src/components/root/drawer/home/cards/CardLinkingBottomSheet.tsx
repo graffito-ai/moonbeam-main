@@ -103,7 +103,8 @@ export const CardLinkingBottomSheet = () => {
             // check to see if there were any errors during the card linking step
             if (!linkingData.data || linkingData.error || !linkingData.success
                 || !linkingData.data.card_type || !linkingData.data.full_name
-                || !linkingData.data.last_four_digits || !linkingData.data.token) {
+                || !linkingData.data.last_four_digits || !linkingData.data.token
+                || !linkingData.data.month || !linkingData.data.year) {
                 // release the loader on button press
                 setIsReady(true);
 
@@ -127,7 +128,7 @@ export const CardLinkingBottomSheet = () => {
                      * add a card to an existing member.
                      */
                     const [addCardResult, errorObject] = await addCardToMember(userInformation["custom:userId"], userInformation["linkedCard"]["memberId"],
-                        linkingData.data.full_name, cardType, linkingData.data.last_four_digits, linkingData.data.token);
+                        linkingData.data.full_name, cardType, linkingData.data.last_four_digits, linkingData.data.token, `${linkingData.data.month}/${linkingData.data.year}`);
 
                     // check if there was an error
                     if (errorObject || !addCardResult) {
@@ -180,7 +181,7 @@ export const CardLinkingBottomSheet = () => {
                      * complete the account creation/member signup linking process.
                      */
                     const [signupCardLinkedMemberResult, errorObject] = await signupCardLinkedMember(userInformation["custom:userId"], linkingData.data.full_name,
-                        cardType, linkingData.data.last_four_digits, linkingData.data.token);
+                        cardType, linkingData.data.last_four_digits, linkingData.data.token, `${linkingData.data.month}/${linkingData.data.year}`);
 
                     // check if there was an error
                     if (errorObject || !signupCardLinkedMemberResult) {
@@ -240,13 +241,14 @@ export const CardLinkingBottomSheet = () => {
      * @param cardType the type of the card, auto-detected upon user linking via the enrollment form.
      * @param last4Digits the last 4 digits of the card, inputted by the user, obtained from the card number.
      * @param cardToken the card linking token, generated via the card vault, via the enrollment form.
+     * @param expiration the card's expiration date, inputted by the user.
      *
      * @return a {@link Promise}, containing a pair of a {@link CardLink}, and a {@link {String, CardLinkErrorType}},
      * representing the card link object if it was successfully added, and implicitly,
      * if it was not, what the error message and code for that error was.
      */
     const addCardToMember = async (userId: string, memberId: string, cardNickname: string, cardType: CardType,
-                                   last4Digits: string, cardToken: string): Promise<[CardLink | null, [string, CardLinkErrorType]?]> => {
+                                   last4Digits: string, cardToken: string, expiration: string): Promise<[CardLink | null, [string, CardLinkErrorType]?]> => {
         try {
             const errorMessage = `Adding a new card to an existing member!`;
             console.log(errorMessage);
@@ -261,7 +263,8 @@ export const CardLinkingBottomSheet = () => {
                         token: cardToken,
                         type: cardType,
                         name: cardNickname,
-                        last4: last4Digits
+                        last4: last4Digits,
+                        expiration: expiration
                     }
                 }
             }));
@@ -297,13 +300,14 @@ export const CardLinkingBottomSheet = () => {
      * @param cardType the type of the card, auto-detected upon user linking via the enrollment form.
      * @param last4Digits the last 4 digits of the card, inputted by the user, obtained from the card number.
      * @param cardToken the card linking token, generated via the card vault, via the enrollment form.
+     * @param expiration the card's expiration date, inputted by the user.
      *
      * @return a {@link Promise}, containing a pair of a {@link CardLink}, and a {@link {String, CardLinkErrorType}},
      * representing the card link object if it was successfully linked, and implicitly,
      * if it was not, what the error message and code for that error was.
      */
     const signupCardLinkedMember = async (userId: string, cardNickname: string, cardType: CardType,
-                                          last4Digits: string, cardToken: string): Promise<[CardLink | null, [string, CardLinkErrorType]?]> => {
+                                          last4Digits: string, cardToken: string, expiration: string): Promise<[CardLink | null, [string, CardLinkErrorType]?]> => {
         try {
             const errorMessage = `Creating new card link as member does not exist!`;
             console.log(errorMessage);
@@ -317,7 +321,8 @@ export const CardLinkingBottomSheet = () => {
                         token: cardToken,
                         type: cardType,
                         name: cardNickname,
-                        last4: last4Digits
+                        last4: last4Digits,
+                        expiration: expiration
                     }
                 }
             }));

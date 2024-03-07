@@ -8,6 +8,7 @@ import {SqsSubscription} from "aws-cdk-lib/aws-sns-subscriptions";
 import {EventSourceMapping} from "aws-cdk-lib/aws-lambda";
 import {Rule, Schedule} from "aws-cdk-lib/aws-events";
 import {LambdaFunction} from "aws-cdk-lib/aws-events-targets";
+import * as events from "aws-cdk-lib/aws-events";
 
 /**
  * File used to define the ReferralProducerConsumerStack stack, used to create all the necessary resources
@@ -67,7 +68,14 @@ export class ReferralProducerConsumerStack extends Stack {
                 minute: '00',
                 hour: '22'
             }),
-            targets: [new LambdaFunction(this.referralProducerLambda)],
+            targets: [new LambdaFunction(this.referralProducerLambda, {
+                event: events.RuleTargetInput.fromObject({
+                    ["detail-type"]: 'Scheduled Event',
+                    detail: {
+                        eventType: 'ReferralEvent'
+                    }
+                })
+            })]
         });
 
         // create a new Lambda function to be used as a consumer for referral data, acting as the referral processor for referrals eligible to be redeemed.

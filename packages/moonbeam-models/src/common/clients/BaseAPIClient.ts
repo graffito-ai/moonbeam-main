@@ -3,7 +3,7 @@ import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {Constants} from "../Constants";
 import {
     AppUpgradeResponse,
-    Card,
+    Card, CardDetailsResponse,
     CardLinkResponse,
     CreateNotificationInput,
     CreateNotificationResponse,
@@ -46,7 +46,7 @@ import {
     SendEmailNotificationInput,
     SendMobilePushNotificationInput,
     Transaction,
-    TransactionResponse,
+    TransactionResponse, UpdateCardInput,
     UpdatedTransactionEvent,
     UpdatedTransactionEventResponse,
     UpdateNotificationReminderInput,
@@ -639,6 +639,29 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected createTransaction?(transaction: MoonbeamTransaction): Promise<MoonbeamTransactionResponse>;
+
+    /**
+     * Function used to retrieve the details of a given card, given its corresponding id.
+     *
+     * @param cardId the id of the card to retrieve the details for
+     *
+     * @return a {link Promise} of {@link CardDetailsResponse} representing the expiration date of
+     * the card to be retrieved.
+     *
+     * @protected
+     */
+    protected getCardDetails?(cardId: string): Promise<CardDetailsResponse>;
+
+    /**
+     * Function used to retrieve the update the details of a given card. This will especially be used
+     * when updating its expiration date.
+     *
+     * @return a {link Promise} of {@link EligibleLinkedUsersResponse} representing the user with the
+     * updated card details.
+     *
+     * @protected
+     */
+    protected updateCardDetails?(updateCardInput: UpdateCardInput): Promise<EligibleLinkedUsersResponse>;
 
     /**
      * Function used to retrieve the list of eligible linked users, to be user during the reimbursements
