@@ -102,6 +102,13 @@ export type Card = {
   type: CardType;
 };
 
+export type CardDetailsResponse = {
+  __typename?: 'CardDetailsResponse';
+  data?: Maybe<Scalars['String']>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<CardLinkErrorType>;
+};
+
 export type CardInput = {
   additionalProgramID?: InputMaybe<Scalars['String']>;
   applicationID?: InputMaybe<Scalars['ID']>;
@@ -1703,6 +1710,7 @@ export enum TransactionsStatus {
 
 export type UpdateCardInput = {
   cardId: Scalars['ID'];
+  expirationDate: Scalars['String'];
   id: Scalars['ID'];
   memberId: Scalars['ID'];
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;

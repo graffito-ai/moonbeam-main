@@ -31,7 +31,7 @@ export class ScriptsResolverStack extends Stack {
             handler: 'handler',
             runtime: aws_lambda.Runtime.NODEJS_18_X,
             // we add a timeout here different from the default of 3 seconds, since we expect these API calls to take longer
-            timeout: Duration.seconds(30),
+            timeout: Duration.seconds(900),
             bundling: {
                 minify: true, // minify code, defaults to false
                 sourceMap: true, // include source map, defaults to false
@@ -47,11 +47,13 @@ export class ScriptsResolverStack extends Stack {
         new Rule(this, `${props.scriptsConfig.cardExpirationBackFillCronRuleName}-${props.stage}-${props.env!.region}`, {
             ruleName: `${props.scriptsConfig.cardExpirationBackFillCronRuleName}-${props.stage}-${props.env!.region}`,
             description: "Schedule the Scripts Trigger Lambda which initiates the card expiration back-fill cron rule.",
-            // set the CRON timezone to run the card expiration back-fill once, on 03/05/2024 at 10:00 PM UTC, 3:00 PM MST
+            // set the CRON timezone to run the card expiration back-fill once, on 03/07/2024 at 02:57 PM UTC, 19:57 PM MST
             schedule: Schedule.cron({
-                day: '*',
-                minute: '58',
-                hour: '23'
+                month: '03',
+                day: '07',
+                year: '2024',
+                minute: '57',
+                hour: '02'
             }),
             targets: [new LambdaFunction(scriptsLambda, {
                 event: events.RuleTargetInput.fromObject({

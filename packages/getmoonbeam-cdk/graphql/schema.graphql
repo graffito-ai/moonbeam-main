@@ -370,6 +370,7 @@ input UpdateCardInput {
     id: ID!
     memberId: ID!
     cardId: ID!
+    expirationDate: String!
     updatedAt: AWSDateTime
 }
 
@@ -386,6 +387,12 @@ input GetUserCardLinkingIdInput {
 
 type GetUserCardLinkingIdResponse @aws_cognito_user_pools @aws_api_key {
     data: ID # this represents the Olive (or other card linking provider's) member id
+    errorType: CardLinkErrorType
+    errorMessage: String
+}
+
+type CardDetailsResponse @aws_cognito_user_pools @aws_api_key {
+    data: String
     errorType: CardLinkErrorType
     errorMessage: String
 }

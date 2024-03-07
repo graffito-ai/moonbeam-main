@@ -55,6 +55,7 @@ export const deleteCard = async (fieldName: string, deleteCardInput: DeleteCardI
                             last4: preExistingCard.M!.last4.S!,
                             name: preExistingCard.M!.name.S!,
                             token: preExistingCard.M!.token.S!,
+                            expiration: preExistingCard.M!.expiration.S!,
                             type: preExistingCard.M!.type.S! as CardType,
                         })
                     }
@@ -96,6 +97,9 @@ export const deleteCard = async (fieldName: string, deleteCardInput: DeleteCardI
                                         },
                                         "type": {
                                             "S": preExistingCard.type
+                                        },
+                                        "expiration": {
+                                            "S": preExistingCard.expiration
                                         }
                                     }
                                 })
