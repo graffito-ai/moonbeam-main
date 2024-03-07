@@ -90,10 +90,16 @@ export const ReimbursementsController = ({navigation}: ReimbursementsProps) => {
                     :
                     <View
                         style={[{flex: 1}, (splashState.splashTitle !== undefined && splashState.splashTitle !== "" && splashState.splashDescription !== undefined &&
-                            splashState.splashDescription !== "" && splashState.splashArtSource !== undefined && splashState.splashArtSource !== "") && {backgroundColor: '#313030'}]}>
+                            splashState.splashDescription !== "" && splashState.splashArtSource !== undefined && splashState.splashArtSource !== "" &&
+                            (splashState.splashTitle === `Successfully cashed out!` || splashState.splashTitle === `Houston we got a problem!`) &&
+                            (splashState.splashDescription === `It might take 1-3 business days to see your cashback reflected as statement credit.` ||
+                            splashState.splashDescription === `There was an error while cashing out.`)) && {backgroundColor: '#313030'}]}>
                         {
                             (splashState.splashTitle !== undefined && splashState.splashTitle !== "" && splashState.splashDescription !== undefined &&
-                                splashState.splashDescription !== "" && splashState.splashArtSource !== undefined && splashState.splashArtSource !== "")
+                                splashState.splashDescription !== "" && splashState.splashArtSource !== undefined && splashState.splashArtSource !== "" &&
+                                (splashState.splashTitle === `Successfully cashed out!` || splashState.splashTitle === `Houston we got a problem!`) &&
+                                (splashState.splashDescription === `It might take 1-3 business days to see your cashback reflected as statement credit.` ||
+                                    splashState.splashDescription === `There was an error while cashing out.`))
                                 ?
                                 <>
                                     <SplashScreen

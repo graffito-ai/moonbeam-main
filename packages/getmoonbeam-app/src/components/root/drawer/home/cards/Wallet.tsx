@@ -74,13 +74,13 @@ export const Wallet = ({navigation}: CardsProps) => {
     const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
     const [, setBannerState] = useRecoilState(customBannerState);
-    const [, setBannerShown] = useRecoilState(customBannerShown);
+    const [bannerShown, setBannerShown] = useRecoilState(customBannerShown);
     const [appDrawerHeaderShown, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
     const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
     const [splashState, setSplashState] = useRecoilState(splashStatusState);
     const [cardLinkingBottomSheet, setCardLinkingBottomSheet] = useRecoilState(cardLinkingBottomSheetState);
-    const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
+    const [drawerSwipeEnabled, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
     const [showBottomSheet, setShowBottomSheet] = useRecoilState(showWalletBottomSheetState);
 
     /**
@@ -109,9 +109,9 @@ export const Wallet = ({navigation}: CardsProps) => {
 
         // set the app drawer status accordingly, custom banner visibility and drawer swipe actions accordingly
         if (navigation.getState().index === 2) {
-            setAppDrawerHeaderShown(false);
-            setBannerShown(false);
-            setDrawerSwipeEnabled(false);
+            appDrawerHeaderShown && setAppDrawerHeaderShown(false);
+            bannerShown && setBannerShown(false);
+            drawerSwipeEnabled && setDrawerSwipeEnabled(false);
         }
         // manipulate the card linking success splash screen, with an external action coming from the Olive enrollment form
         if (cardLinkingBottomSheet) {

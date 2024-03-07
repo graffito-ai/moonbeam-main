@@ -20,12 +20,12 @@ import {showClickOnlyBottomSheetState} from "../../../../../recoil/StoreOfferAto
 export const DashboardController = ({navigation}: DashboardHomeProps) => {
         // constants used to keep track of shared states
         const [, setBottomBarNavigation] = useRecoilState(bottomBarNavigationState);
-        const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
-        const [, setBannerShown] = useRecoilState(customBannerShown);
-        const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
-        const [, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
-        const [, setShowWalletBottomSheet] = useRecoilState(showWalletBottomSheetState);
-        const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
+        const [appDrawerHeaderShown, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
+        const [bannerShown, setBannerShown] = useRecoilState(customBannerShown);
+        const [drawerSwipeEnabled, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
+        const [showTransactionsBottomSheet, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
+        const [showWalletBottomSheet, setShowWalletBottomSheet] = useRecoilState(showWalletBottomSheetState);
+        const [showClickOnlyBottomSheet, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
 
         // create a native stack navigator, to be used for our Dashboard Controller application navigation
         const DashboardStack = createNativeStackNavigator<DashboardControllerStackParamList>();
@@ -42,12 +42,12 @@ export const DashboardController = ({navigation}: DashboardHomeProps) => {
             setBottomBarNavigation(navigation);
             // set the app drawer status accordingly,custom banner visibility and drawer swipe actions accordingly
             if (navigation.getState().index === 0) {
-                setAppDrawerHeaderShown(true)
-                setBannerShown(true);
-                setDrawerSwipeEnabled(true);
-                setShowTransactionsBottomSheet(false);
-                setShowClickOnlyBottomSheet(false);
-                setShowWalletBottomSheet(false);
+                !appDrawerHeaderShown && setAppDrawerHeaderShown(true)
+                !bannerShown && setBannerShown(true);
+                !drawerSwipeEnabled && setDrawerSwipeEnabled(true);
+                showTransactionsBottomSheet && setShowTransactionsBottomSheet(false);
+                showClickOnlyBottomSheet && setShowClickOnlyBottomSheet(false);
+                showWalletBottomSheet && setShowWalletBottomSheet(false);
             }
         }, [navigation.getState()]);
 
