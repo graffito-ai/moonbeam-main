@@ -11,7 +11,11 @@ import {Kit} from "./kitCommponents/Kit";
 import {OfferCategory} from "@moonbeam/moonbeam-models";
 import {IconButton} from "react-native-paper";
 import {heightPercentageToDP as hp} from "react-native-responsive-screen";
-import {bottomTabNeedsShowingState, bottomTabShownState} from "../../../../../recoil/HomeAtom";
+import {
+    bottomTabNeedsShowingState,
+    bottomTabShownState,
+    comingFromMarketplaceState
+} from "../../../../../recoil/HomeAtom";
 import {
     currentActiveKitState,
     filteredOffersListState,
@@ -27,6 +31,7 @@ import {
 import {moonbeamKits} from "./storeComponents/KitsSection";
 import {styles} from "../../../../../styles/store.module";
 import {ImageBackground} from 'expo-image';
+import {SafeAreaProvider} from "react-native-safe-area-context";
 
 /**
  * Marketplace component.
@@ -55,6 +60,7 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
     const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
     const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
     const [, setBottomTabNeedsShowing] = useRecoilState(bottomTabNeedsShowingState);
+    const [comingFromMarketplace, setComingFromMarketplace] = useRecoilState(comingFromMarketplaceState);
 
     // create a native stack navigator, to be used for our Marketplace navigation
     const Stack = createNativeStackNavigator<MarketplaceStackParamList>();
@@ -78,6 +84,9 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
 
             // reset the view to the default horizontal one
             setToggleViewPressed('horizontal');
+
+            // set the marketplace navigation flag accordingly
+            !comingFromMarketplace && setComingFromMarketplace(true);
         }
         // set the app drawer status accordingly ,custom banner visibility and drawer swipe actions accordingly
         if (navigation.getState().index === 1) {
@@ -93,11 +102,11 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
                 setKitTitle(filteredKits[0].secondaryTitle.toString());
             }
         }
-    }, [navigation.getState(), currentActiveKit]);
+    }, [navigation.getState(), currentActiveKit, comingFromMarketplace]);
 
     // return the component for the Marketplace page
     return (
-        <View style={{flex: 1, backgroundColor: '#313030'}}>
+        <SafeAreaProvider style={{flex: 1, backgroundColor: '#313030'}}>
             <Stack.Navigator
                 initialRouteName={"Store"}
                 screenOptions={{
@@ -198,6 +207,6 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
                     }}
                 />
             </Stack.Navigator>
-        </View>
+        </SafeAreaProvider>
     );
 };

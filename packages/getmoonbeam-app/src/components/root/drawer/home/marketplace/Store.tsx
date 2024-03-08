@@ -709,8 +709,8 @@ export const Store = ({navigation}: StoreProps) => {
             // release the loader on button press
             !isReady && setIsReady(true);
         }
-    }, [fidelisPartnerList, onlineOfferList, clickOnlyOnlineOfferList, marketplaceCache,
-        showClickOnlyBottomSheet, bottomSheetRef, navigation.getState()]);
+    }, [fidelisPartnerList, onlineOfferList, clickOnlyOnlineOfferList,
+        marketplaceCache, showClickOnlyBottomSheet, bottomSheetRef, navigation.getState()]);
 
     // return the component for the Store page
     return (

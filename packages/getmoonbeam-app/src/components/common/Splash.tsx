@@ -233,7 +233,7 @@ import {faqListState} from "../../recoil/FaqAtom";
 import {
     bottomBarNavigationState,
     bottomTabNeedsShowingState,
-    bottomTabShownState,
+    bottomTabShownState, comingFromMarketplaceState,
     drawerNavigationState
 } from "../../recoil/HomeAtom";
 import {
@@ -531,6 +531,7 @@ export const SplashScreen = (props: {
     const cardChoiceDropdownValueStateReset = useResetRecoilState(cardChoiceDropdownValueState);
     const isReimbursementsControllerReadyStateReset = useResetRecoilState(isReimbursementsControllerReadyState);
     const bottomTabNeedsShowingStateReset = useResetRecoilState(bottomTabNeedsShowingState);
+    const comingFromMarketplaceStateReset = useResetRecoilState(comingFromMarketplaceState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -789,6 +790,7 @@ export const SplashScreen = (props: {
             cardChoiceDropdownValueStateReset();
             isReimbursementsControllerReadyStateReset();
             bottomTabNeedsShowingStateReset();
+            comingFromMarketplaceStateReset();
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {
                 // import branch

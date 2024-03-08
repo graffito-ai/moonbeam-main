@@ -36,11 +36,20 @@ const bottomTabNeedsShowingState = atom<boolean>({
     default: true
 });
 
+/**
+ * Atom used to keep track of whether we are navigating from the Marketplace or not.
+ */
+const comingFromMarketplaceState = atom<boolean>({
+    key: "comingFromMarketplaceState",
+    default: false
+});
+
 
 /**
  * Export all atoms and/or selectors
  */
 export {
+    comingFromMarketplaceState,
     bottomTabNeedsShowingState,
     bottomTabShownState,
     bottomBarNavigationState,

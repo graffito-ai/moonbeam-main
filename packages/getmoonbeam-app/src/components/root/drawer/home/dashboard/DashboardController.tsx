@@ -9,6 +9,7 @@ import {showTransactionBottomSheetState, showWalletBottomSheetState} from "../..
 import {bottomBarNavigationState} from "../../../../../recoil/HomeAtom";
 import {View} from "react-native";
 import {showClickOnlyBottomSheetState} from "../../../../../recoil/StoreOfferAtom";
+import {SafeAreaProvider} from "react-native-safe-area-context";
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -56,7 +57,7 @@ export const DashboardController = ({navigation}: DashboardHomeProps) => {
          */
         return (
             <>
-                <View style={{flex: 1, backgroundColor: '#313030'}}>
+                <SafeAreaProvider style={{flex: 1, backgroundColor: '#313030'}}>
                     <DashboardStack.Navigator
                         initialRouteName={'Dashboard'}
                         screenOptions={{
@@ -70,7 +71,7 @@ export const DashboardController = ({navigation}: DashboardHomeProps) => {
                             initialParams={{}}
                         />
                     </DashboardStack.Navigator>
-                </View>
+                </SafeAreaProvider>
             </>
         );
     }

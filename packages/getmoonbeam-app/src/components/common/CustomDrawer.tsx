@@ -110,7 +110,7 @@ import {Auth} from "aws-amplify";
 import {
     bottomBarNavigationState,
     bottomTabNeedsShowingState,
-    bottomTabShownState,
+    bottomTabShownState, comingFromMarketplaceState,
     drawerNavigationState
 } from "../../recoil/HomeAtom";
 import {goToProfileSettingsState} from "../../recoil/Settings";
@@ -546,6 +546,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const cardChoiceDropdownValueStateReset = useResetRecoilState(cardChoiceDropdownValueState);
     const isReimbursementsControllerReadyStateReset = useResetRecoilState(isReimbursementsControllerReadyState);
     const bottomTabNeedsShowingStateReset = useResetRecoilState(bottomTabNeedsShowingState);
+    const comingFromMarketplaceStateReset = useResetRecoilState(comingFromMarketplaceState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -821,6 +822,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             cardChoiceDropdownValueStateReset();
             isReimbursementsControllerReadyStateReset();
             bottomTabNeedsShowingStateReset();
+            comingFromMarketplaceStateReset();
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {
                 // import branch
