@@ -99,7 +99,6 @@ export const FullScreenMap = (props: {
      */
     useEffect(() => {
         if (bottomTabShown) {
-            console.log('here bitch');
             setBottomTabShown(false);
         }
         if (mapViewRef && mapViewRef.current && currentUserLocation !== null && !mapIsDisplayed) {

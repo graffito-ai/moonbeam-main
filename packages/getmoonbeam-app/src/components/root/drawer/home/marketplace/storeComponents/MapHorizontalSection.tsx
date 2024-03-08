@@ -1,9 +1,9 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {styles} from "../../../../../../styles/store.module";
-import {Platform, StyleSheet, TouchableOpacity, View} from "react-native";
+import {Platform, TouchableOpacity, View} from "react-native";
 import {useRecoilState, useRecoilValue} from "recoil";
 import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
-import {Marker, PROVIDER_GOOGLE, Region} from "react-native-maps";
+import MapView, {Marker, PROVIDER_GOOGLE, Region} from "react-native-maps";
 import * as Location from "expo-location";
 import {LocationObject} from "expo-location";
 import {
@@ -19,11 +19,11 @@ import {Portal, Text} from "react-native-paper";
 import {LoggingLevel, RewardType} from "@moonbeam/moonbeam-models";
 // @ts-ignore
 import MoonbeamPinImage from "../../../../../../../assets/pin-shape.png";
-import MapView from "react-native-map-clustering";
 import {Spinner} from "../../../../../common/Spinner";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 import {logEvent} from "../../../../../../utils/AppSync";
+import {SafeAreaView} from "react-native-safe-area-context";
 
 /**
  * MapHorizontalSection component.
@@ -219,7 +219,7 @@ export const MapHorizontalSection = () => {
     // return the component for the MapHorizontalSection page
     return (
         <>
-            <View style={styles.mapHorizontalView}>
+            <SafeAreaView style={styles.mapHorizontalView}>
                 {
                     currentUserLocation !== null &&
                     <View style={styles.mapHorizontalMapView}>
@@ -238,10 +238,10 @@ export const MapHorizontalSection = () => {
                                             setToggleViewPressed('map');
                                         }}
                                         initialRegion={currentMapRegion}
-                                        clusteringEnabled={true}
-                                        clusterColor={'#313030'}
-                                        clusterFontFamily={'Raleway-Medium'}
-                                        clusterTextColor={'#F2FF5D'}
+                                        // clusteringEnabled={true}
+                                        // clusterColor={'#313030'}
+                                        // clusterFontFamily={'Raleway-Medium'}
+                                        // clusterTextColor={'#F2FF5D'}
                                         provider={PROVIDER_GOOGLE}
                                         userInterfaceStyle={'light'}
                                         ref={mapViewRef}
@@ -269,10 +269,10 @@ export const MapHorizontalSection = () => {
                                         setToggleViewPressed('map');
                                     }}
                                     initialRegion={currentMapRegion}
-                                    clusteringEnabled={true}
-                                    clusterColor={'#313030'}
-                                    clusterFontFamily={'Raleway-Medium'}
-                                    clusterTextColor={'#F2FF5D'}
+                                    // clusteringEnabled={true}
+                                    // clusterColor={'#313030'}
+                                    // clusterFontFamily={'Raleway-Medium'}
+                                    // clusterTextColor={'#F2FF5D'}
                                     provider={PROVIDER_GOOGLE}
                                     userInterfaceStyle={'light'}
                                     ref={mapViewRef}
@@ -284,7 +284,7 @@ export const MapHorizontalSection = () => {
                                     scrollEnabled={false}
                                     zoomEnabled={false}
                                     style={[
-                                        StyleSheet.absoluteFillObject,
+                                        {height: '100%', width: '100%'},
                                         {borderRadius: 10}]}
                                 >
                                     {
@@ -295,7 +295,7 @@ export const MapHorizontalSection = () => {
                         </Portal.Host>
                     </View>
                 }
-            </View>
+            </SafeAreaView>
         </>
     );
 };

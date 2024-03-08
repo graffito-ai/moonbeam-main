@@ -115,6 +115,7 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF'
     },
     walletTextView: {
+        top: hp(2),
         flexDirection: 'column',
         marginTop: hp(4)
     },

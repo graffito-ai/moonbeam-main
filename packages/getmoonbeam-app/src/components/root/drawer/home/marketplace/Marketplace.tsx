@@ -27,6 +27,7 @@ import {
 import {moonbeamKits} from "./storeComponents/KitsSection";
 import {styles} from "../../../../../styles/store.module";
 import {ImageBackground} from 'expo-image';
+import {SafeAreaProvider} from "react-native-safe-area-context";
 
 /**
  * Marketplace component.
@@ -97,7 +98,7 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
 
     // return the component for the Marketplace page
     return (
-        <View style={{flex: 1, backgroundColor: '#313030'}}>
+        <SafeAreaProvider style={{flex: 1, backgroundColor: '#313030'}}>
             <Stack.Navigator
                 initialRouteName={"Store"}
                 screenOptions={{
@@ -198,6 +199,6 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
                     }}
                 />
             </Stack.Navigator>
-        </View>
+        </SafeAreaProvider>
     );
 };

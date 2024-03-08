@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Image, SafeAreaView, TouchableOpacity, View} from "react-native";
+import {Image, TouchableOpacity, View} from "react-native";
 import {CardsProps} from "../../../../../models/props/HomeProps";
 import {IconButton, List, Text} from "react-native-paper";
 import {useRecoilState} from "recoil";
@@ -46,6 +46,7 @@ import {commonStyles} from "../../../../../styles/common.module";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {logEvent} from "../../../../../utils/AppSync";
 import CardsWallet from 'react-native-wallet-cards';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 // interface to keep track of the type of card to be selected
 export interface SelectedCard {
@@ -74,13 +75,13 @@ export const Wallet = ({navigation}: CardsProps) => {
     const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
     const [, setBannerState] = useRecoilState(customBannerState);
-    const [, setBannerShown] = useRecoilState(customBannerShown);
+    const [bannerShown, setBannerShown] = useRecoilState(customBannerShown);
     const [appDrawerHeaderShown, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
     const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
     const [splashState, setSplashState] = useRecoilState(splashStatusState);
     const [cardLinkingBottomSheet, setCardLinkingBottomSheet] = useRecoilState(cardLinkingBottomSheetState);
-    const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
+    const [drawerSwipeEnabled, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
     const [showBottomSheet, setShowBottomSheet] = useRecoilState(showWalletBottomSheetState);
 
     /**
@@ -109,9 +110,9 @@ export const Wallet = ({navigation}: CardsProps) => {
 
         // set the app drawer status accordingly, custom banner visibility and drawer swipe actions accordingly
         if (navigation.getState().index === 2) {
-            setAppDrawerHeaderShown(false);
-            setBannerShown(false);
-            setDrawerSwipeEnabled(false);
+            appDrawerHeaderShown && setAppDrawerHeaderShown(false);
+            bannerShown && setBannerShown(false);
+            drawerSwipeEnabled && setDrawerSwipeEnabled(false);
         }
         // manipulate the card linking success splash screen, with an external action coming from the Olive enrollment form
         if (cardLinkingBottomSheet) {
@@ -566,7 +567,7 @@ export const Wallet = ({navigation}: CardsProps) => {
             {!isReady ?
                 <Spinner loadingSpinnerShown={loadingSpinnerShown} setLoadingSpinnerShown={setLoadingSpinnerShown}/>
                 :
-                <SafeAreaView style={styles.walletView}>
+                <SafeAreaProvider style={styles.walletView}>
                     <TouchableOpacity
                         activeOpacity={1}
                         disabled={!showBottomSheet}
@@ -584,7 +585,7 @@ export const Wallet = ({navigation}: CardsProps) => {
                                     <SplashScreen splashTitle={splashState.splashTitle}
                                                   splashDescription={splashState.splashDescription}
                                                   splashButtonText={splashState.splashButtonText}
-                                                  //@ts-ignore
+                                        //@ts-ignore
                                                   splashArtSource={splashState.splashArtSource}
                                     />
                                     :
@@ -784,7 +785,7 @@ export const Wallet = ({navigation}: CardsProps) => {
                             }
                         </BottomSheet>
                     }
-                </SafeAreaView>
+                </SafeAreaProvider>
             }
         </>
     );

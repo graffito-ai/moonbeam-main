@@ -69,9 +69,10 @@ import {KitsSection} from "./storeComponents/KitsSection";
 import {FullScreenMap} from "./storeComponents/FullScreenMap";
 import {ClickOnlyOnlineSection} from "./storeComponents/ClickOnlyOnlineSection";
 import BottomSheet from "@gorhom/bottom-sheet";
-import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
+import {bottomTabShownState, comingFromMarketplaceState} from "../../../../../recoil/HomeAtom";
 import {ClickOnlyOffersBottomSheet} from "./storeComponents/ClickOnlyOffersBottomSheet";
 import {geocodeAsync, logEvent} from "../../../../../utils/AppSync";
+import {SafeAreaProvider} from "react-native-safe-area-context";
 
 /**
  * Store component.
@@ -114,6 +115,7 @@ export const Store = ({navigation}: StoreProps) => {
     const [showClickOnlyBottomSheet, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
     const bottomSheetRef = useRef(null);
     const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
+    const [comingFromMarketplace, setComingFromMarketplace] = useRecoilState(comingFromMarketplaceState);
 
     /**
      * Function used to retrieve the list of preferred (Fidelis) partners
@@ -596,40 +598,39 @@ export const Store = ({navigation}: StoreProps) => {
                             keyboardShouldPersistTaps={'handled'}
                             showsHorizontalScrollIndicator={false}
                         >
-                            <>
-                                <View style={styles.horizontalScrollView}>
-                                    <ClickOnlyOnlineSection
-                                        retrieveClickOnlineOffersList={retrieveClickOnlyOnlineOffersList}
-                                    />
-                                    <KitsSection
+                            <SafeAreaProvider style={styles.horizontalScrollView}>
+                                <ClickOnlyOnlineSection
+                                    retrieveClickOnlineOffersList={retrieveClickOnlyOnlineOffersList}
+                                />
+                                <KitsSection
+                                    navigation={navigation}
+                                />
+                                <FidelisSection
+                                    navigation={navigation}
+                                    areNearbyOffersReady={areNearbyOffersReady}
+                                />
+                                {
+                                    !withoutMapRender &&
+                                    <NearbySection
                                         navigation={navigation}
-                                    />
-                                    <FidelisSection
-                                        navigation={navigation}
+                                        offersNearUserLocationFlag={offersNearUserLocationFlag}
+                                        retrieveNearbyOffersList={retrieveNearbyOffersList}
+                                        retrieveOffersNearLocation={retrieveOffersNearLocation}
                                         areNearbyOffersReady={areNearbyOffersReady}
+                                        setPermissionsInstructionsCustomMessage={setPermissionsInstructionsCustomMessage}
+                                        setPermissionsModalCustomMessage={setPermissionsModalCustomMessage}
+                                        setPermissionsModalVisible={setPermissionsModalVisible}
                                     />
-                                    {
-                                        !withoutMapRender &&
-                                        <NearbySection
-                                            navigation={navigation}
-                                            offersNearUserLocationFlag={offersNearUserLocationFlag}
-                                            retrieveNearbyOffersList={retrieveNearbyOffersList}
-                                            retrieveOffersNearLocation={retrieveOffersNearLocation}
-                                            areNearbyOffersReady={areNearbyOffersReady}
-                                            setPermissionsInstructionsCustomMessage={setPermissionsInstructionsCustomMessage}
-                                            setPermissionsModalCustomMessage={setPermissionsModalCustomMessage}
-                                            setPermissionsModalVisible={setPermissionsModalVisible}
-                                        />
-                                    }
-                                    <OnlineSection
-                                        navigation={navigation}
-                                        retrieveOnlineOffersList={retrieveOnlineOffersList}
-                                        areNearbyOffersReady={areNearbyOffersReady}
-                                        locationServicesButton={locationServicesButton}
-                                    />
-                                </View>
-                            </>
-                        </ScrollView> :
+                                }
+                                <OnlineSection
+                                    navigation={navigation}
+                                    retrieveOnlineOffersList={retrieveOnlineOffersList}
+                                    areNearbyOffersReady={areNearbyOffersReady}
+                                    locationServicesButton={locationServicesButton}
+                                />
+                            </SafeAreaProvider>
+                        </ScrollView>
+                        :
                         toggleViewPressed === 'vertical'
                             ?
                             <Portal.Host>
@@ -709,8 +710,10 @@ export const Store = ({navigation}: StoreProps) => {
             // release the loader on button press
             !isReady && setIsReady(true);
         }
-    }, [fidelisPartnerList, onlineOfferList, clickOnlyOnlineOfferList, marketplaceCache,
-        showClickOnlyBottomSheet, bottomSheetRef, navigation.getState()]);
+        // avoid the bounciness level in the Wallet and Dashboard
+        !comingFromMarketplace && setComingFromMarketplace(true);
+    }, [fidelisPartnerList, onlineOfferList, clickOnlyOnlineOfferList, comingFromMarketplace,
+        marketplaceCache, showClickOnlyBottomSheet, bottomSheetRef, navigation.getState()]);
 
     // return the component for the Store page
     return (
@@ -793,75 +796,77 @@ export const Store = ({navigation}: StoreProps) => {
                                 </Dialog.Actions>
                             </Dialog>
                         </Portal>
-                        <KeyboardAwareScrollView
-                            scrollEnabled={false}
-                            showsVerticalScrollIndicator={false}
-                            enableAutomaticScroll={(Platform.OS === 'ios')}
-                            contentContainerStyle={commonStyles.rowContainer}
-                            keyboardShouldPersistTaps={whichVerticalSectionActive === 'search' && !noFilteredOffersToLoad ? 'always' : 'handled'}
-                        >
-                            <View style={[styles.mainView]}>
-                                <TouchableOpacity
-                                    activeOpacity={1}
-                                    disabled={!showClickOnlyBottomSheet}
-                                    onPress={() => setShowClickOnlyBottomSheet(false)}
-                                >
-                                    <View
-                                        {...showClickOnlyBottomSheet && {pointerEvents: "none"}}
-                                        {...showClickOnlyBottomSheet && {
-                                            style: {backgroundColor: 'transparent', opacity: 0.3}
+                        <SafeAreaProvider>
+                            <KeyboardAwareScrollView
+                                scrollEnabled={false}
+                                showsVerticalScrollIndicator={false}
+                                enableAutomaticScroll={(Platform.OS === 'ios')}
+                                contentContainerStyle={commonStyles.rowContainer}
+                                keyboardShouldPersistTaps={whichVerticalSectionActive === 'search' && !noFilteredOffersToLoad ? 'always' : 'handled'}
+                            >
+                                <View style={[styles.mainView]}>
+                                    <TouchableOpacity
+                                        activeOpacity={1}
+                                        disabled={!showClickOnlyBottomSheet}
+                                        onPress={() => setShowClickOnlyBottomSheet(false)}
+                                    >
+                                        <View
+                                            {...showClickOnlyBottomSheet && {pointerEvents: "none"}}
+                                            {...showClickOnlyBottomSheet && {
+                                                style: {backgroundColor: 'transparent', opacity: 0.3}
+                                            }}
+                                        >
+                                            <SearchSection/>
+                                            <View style={{
+                                                height: hp(1),
+                                                backgroundColor: '#313030'
+                                            }}/>
+                                        </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={{flex: 1, flexGrow: 1}}
+                                        activeOpacity={1}
+                                        disabled={!showClickOnlyBottomSheet}
+                                        onPress={() => setShowClickOnlyBottomSheet(false)}
+                                    >
+                                        {
+                                            <View {...showClickOnlyBottomSheet && {pointerEvents: "none"}}
+                                                  {...showClickOnlyBottomSheet ? {
+                                                      style: {
+                                                          backgroundColor: 'transparent',
+                                                          opacity: 0.3,
+                                                          height: '100%',
+                                                          width: '100%'
+                                                      }
+                                                  } : {style: {display: 'none'}}}>
+                                                {retrieveStoreContents(true)}
+                                            </View>
+                                        }
+                                        {retrieveStoreContents(false)}
+                                    </TouchableOpacity>
+                                </View>
+                                {
+                                    showClickOnlyBottomSheet &&
+                                    <BottomSheet
+                                        handleIndicatorStyle={{backgroundColor: '#F2FF5D'}}
+                                        ref={bottomSheetRef}
+                                        backgroundStyle={{backgroundColor: '#5B5A5A'}}
+                                        enablePanDownToClose={true}
+                                        index={showClickOnlyBottomSheet ? 0 : -1}
+                                        snapPoints={[hp(55), hp(55)]}
+                                        onChange={(index) => {
+                                            setShowClickOnlyBottomSheet(index !== -1);
                                         }}
                                     >
-                                        <SearchSection/>
-                                        <View style={{
-                                            height: hp(1),
-                                            backgroundColor: '#313030'
-                                        }}/>
-                                    </View>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={{flex: 1, flexGrow: 1}}
-                                    activeOpacity={1}
-                                    disabled={!showClickOnlyBottomSheet}
-                                    onPress={() => setShowClickOnlyBottomSheet(false)}
-                                >
-                                    {
-                                        <View {...showClickOnlyBottomSheet && {pointerEvents: "none"}}
-                                              {...showClickOnlyBottomSheet ? {
-                                                  style: {
-                                                      backgroundColor: 'transparent',
-                                                      opacity: 0.3,
-                                                      height: '100%',
-                                                      width: '100%'
-                                                  }
-                                              } : {style: {display: 'none'}}}>
-                                            {retrieveStoreContents(true)}
-                                        </View>
-                                    }
-                                    {retrieveStoreContents(false)}
-                                </TouchableOpacity>
-                            </View>
-                            {
-                                showClickOnlyBottomSheet &&
-                                <BottomSheet
-                                    handleIndicatorStyle={{backgroundColor: '#F2FF5D'}}
-                                    ref={bottomSheetRef}
-                                    backgroundStyle={{backgroundColor: '#5B5A5A'}}
-                                    enablePanDownToClose={true}
-                                    index={showClickOnlyBottomSheet ? 0 : -1}
-                                    snapPoints={[hp(55), hp(55)]}
-                                    onChange={(index) => {
-                                        setShowClickOnlyBottomSheet(index !== -1);
-                                    }}
-                                >
-                                    {
-                                        <ClickOnlyOffersBottomSheet
-                                            navigation={navigation}
-                                        />
-                                    }
-                                </BottomSheet>
-                            }
-                        </KeyboardAwareScrollView>
+                                        {
+                                            <ClickOnlyOffersBottomSheet
+                                                navigation={navigation}
+                                            />
+                                        }
+                                    </BottomSheet>
+                                }
+                            </KeyboardAwareScrollView>
+                        </SafeAreaProvider>
                     </>
             }
         </>

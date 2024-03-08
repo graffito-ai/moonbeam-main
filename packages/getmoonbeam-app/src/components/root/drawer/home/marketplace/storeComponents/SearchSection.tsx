@@ -13,7 +13,10 @@ import {
     uniqueNearbyOffersListState,
     verticalSectionActiveState
 } from "../../../../../../recoil/StoreOfferAtom";
-import {bottomTabNeedsShowingState, bottomTabShownState} from "../../../../../../recoil/HomeAtom";
+import {
+    bottomTabNeedsShowingState,
+    bottomTabShownState,
+} from "../../../../../../recoil/HomeAtom";
 import {searchQueryExecute} from "../../../../../../utils/AppSync";
 import {filteredOffersSpinnerShownState} from "../../../../../../recoil/AuthAtom";
 import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
@@ -25,7 +28,7 @@ import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
  */
 export const SearchSection = () => {
     // constants used to keep track of shared states
-    const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
+    const [bottomTabShown, setBottomTabShown] = useRecoilState(bottomTabShownState);
     const deDupedNearbyOfferList = useRecoilValue(uniqueNearbyOffersListState);
     const [toggleViewPressed, setToggleViewPressed] = useRecoilState(toggleViewPressedState);
     const [searchQuery, setSearchQuery] = useRecoilState(searchQueryState);
@@ -36,7 +39,7 @@ export const SearchSection = () => {
     const [, setFilteredOffersList] = useRecoilState(filteredOffersListState);
     const [, setFilteredOffersSpinnerShown] = useRecoilState(filteredOffersSpinnerShownState);
     const [currentUserLocation,] = useRecoilState(currentUserLocationState);
-    const [, setBottomTabNeedsShowing] = useRecoilState(bottomTabNeedsShowingState);
+    const [bottomTabNeedsShowing, setBottomTabNeedsShowing] = useRecoilState(bottomTabNeedsShowingState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -83,7 +86,7 @@ export const SearchSection = () => {
                             Keyboard.dismiss();
 
                             if (value === 'horizontal') {
-                                setBottomTabShown(true);
+                                !bottomTabShown && setBottomTabShown(true);
                                 setToggleViewPressed(value);
                                 setWhichVerticalSectionActive(null);
 
@@ -95,7 +98,7 @@ export const SearchSection = () => {
                                 setSearchQuery("");
 
                                 // show the bottom bar
-                                setBottomTabNeedsShowing(true);
+                                !bottomTabNeedsShowing && setBottomTabNeedsShowing(true);
                             }
 
                             if (value === 'vertical') {

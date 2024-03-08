@@ -7,8 +7,8 @@ import {DashboardControllerStackParamList} from "../../../../../models/props/Das
 import {Dashboard} from "./dashboardComponents/Dashboard";
 import {showTransactionBottomSheetState, showWalletBottomSheetState} from "../../../../../recoil/DashboardAtom";
 import {bottomBarNavigationState} from "../../../../../recoil/HomeAtom";
-import {View} from "react-native";
 import {showClickOnlyBottomSheetState} from "../../../../../recoil/StoreOfferAtom";
+import {SafeAreaProvider} from "react-native-safe-area-context";
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -20,12 +20,12 @@ import {showClickOnlyBottomSheetState} from "../../../../../recoil/StoreOfferAto
 export const DashboardController = ({navigation}: DashboardHomeProps) => {
         // constants used to keep track of shared states
         const [, setBottomBarNavigation] = useRecoilState(bottomBarNavigationState);
-        const [, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
-        const [, setBannerShown] = useRecoilState(customBannerShown);
-        const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
-        const [, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
-        const [, setShowWalletBottomSheet] = useRecoilState(showWalletBottomSheetState);
-        const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
+        const [appDrawerHeaderShown, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
+        const [bannerShown, setBannerShown] = useRecoilState(customBannerShown);
+        const [drawerSwipeEnabled, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
+        const [showTransactionsBottomSheet, setShowTransactionsBottomSheet] = useRecoilState(showTransactionBottomSheetState);
+        const [showWalletBottomSheet, setShowWalletBottomSheet] = useRecoilState(showWalletBottomSheetState);
+        const [showClickOnlyBottomSheet, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
 
         // create a native stack navigator, to be used for our Dashboard Controller application navigation
         const DashboardStack = createNativeStackNavigator<DashboardControllerStackParamList>();
@@ -42,12 +42,12 @@ export const DashboardController = ({navigation}: DashboardHomeProps) => {
             setBottomBarNavigation(navigation);
             // set the app drawer status accordingly,custom banner visibility and drawer swipe actions accordingly
             if (navigation.getState().index === 0) {
-                setAppDrawerHeaderShown(true)
-                setBannerShown(true);
-                setDrawerSwipeEnabled(true);
-                setShowTransactionsBottomSheet(false);
-                setShowClickOnlyBottomSheet(false);
-                setShowWalletBottomSheet(false);
+                !appDrawerHeaderShown && setAppDrawerHeaderShown(true);
+                !bannerShown && setBannerShown(true);
+                !drawerSwipeEnabled && setDrawerSwipeEnabled(true);
+                showTransactionsBottomSheet && setShowTransactionsBottomSheet(false);
+                showClickOnlyBottomSheet && setShowClickOnlyBottomSheet(false);
+                showWalletBottomSheet && setShowWalletBottomSheet(false);
             }
         }, [navigation.getState()]);
 
@@ -56,11 +56,13 @@ export const DashboardController = ({navigation}: DashboardHomeProps) => {
          */
         return (
             <>
-                <View style={{flex: 1, backgroundColor: '#313030'}}>
+                <SafeAreaProvider style={{flex: 1, backgroundColor: '#313030'}}>
                     <DashboardStack.Navigator
                         initialRouteName={'Dashboard'}
                         screenOptions={{
-                            headerShown: false,
+                            header: () => {
+                                return (<></>)
+                            },
                             gestureEnabled: false
                         }}
                     >
@@ -70,7 +72,7 @@ export const DashboardController = ({navigation}: DashboardHomeProps) => {
                             initialParams={{}}
                         />
                     </DashboardStack.Navigator>
-                </View>
+                </SafeAreaProvider>
             </>
         );
     }

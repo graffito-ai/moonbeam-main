@@ -58,6 +58,7 @@ export const ReimbursementBottomSheet = () => {
     // constants used to keep track of local component state
     const bottomSheetRef = useRef(null);
     const [cardChoices, setCardChoices] = useState<CardChoice[]>([]);
+    const [cardChoicesPopulated, setCardChoicesPopulated] = useState<boolean>(false);
     // constants used to keep track of shared states
     const [, setReimbursements] = useRecoilState(reimbursementDataState);
     const transactions = useRecoilValue(sortedTransactionDataState);
@@ -88,9 +89,14 @@ export const ReimbursementBottomSheet = () => {
         if (showReimbursementBottomSheet && bottomSheetRef) {
             // @ts-ignore
             bottomSheetRef.current?.expand?.();
+
+            // used for updating cards in real time when opening up bottom sheet
+            if (userInformation["linkedCard"]["cards"].length !== cardChoices.length) {
+                setCardChoicesPopulated(false);
+            }
         }
         // populate the card choice items, accordingly
-        if (cardChoices.length === 0 && userInformation["linkedCard"] && userInformation["linkedCard"]["cards"] && userInformation["linkedCard"]["cards"].length > 0) {
+        if (userInformation["linkedCard"] && userInformation["linkedCard"]["cards"] && userInformation["linkedCard"]["cards"].length > 0 && !cardChoicesPopulated) {
             let newCardChoices: CardChoice[] = [];
             userInformation["linkedCard"]["cards"].forEach(card => {
                 newCardChoices.push({
@@ -111,9 +117,10 @@ export const ReimbursementBottomSheet = () => {
                     cardId: card["id"]
                 });
             });
-            setCardChoices([...cardChoices, ...newCardChoices]);
+            setCardChoices(newCardChoices);
+            setCardChoicesPopulated(true);
         }
-    }, [bottomSheetRef, showReimbursementBottomSheet, cardChoices, cardChoiceDropdownValue]);
+    }, [bottomSheetRef, showReimbursementBottomSheet, cardChoices, cardChoicesPopulated, cardChoiceDropdownValue]);
 
     // return the component for the DashboardBottomSheet, part of the Dashboard page
     return (

@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import {SafeAreaView} from "react-native";
 import {Dialog, Portal, Text} from "react-native-paper";
 import {styles} from "../../../../../../styles/dashboard.module";
 import {useRecoilState} from "recoil";
@@ -18,6 +17,7 @@ import * as StoreReview from 'expo-store-review';
 import {createOrUpdateAppReviewRecord, getAppReviewEligibilityCheck, logEvent} from "../../../../../../utils/AppSync";
 import {DashboardMain} from "./DashboardMain";
 import {DashboardBottomSheet} from "./DashboardBottomSheet";
+import {SafeAreaView} from 'react-native';
 
 /**
  * DashboardController component. This component will be used as the dashboard for the application,
@@ -45,6 +45,7 @@ export const Dashboard = () => {
      * included in here.
      */
     useEffect(() => {
+        // avoid bounciness coming from the marketplace
         if (userInformation["custom:userId"]) {
             // if we have a global app url that we opened the app from, act accordingly
             if (appUrl) {
