@@ -65,7 +65,7 @@ import {DocumentsViewer} from "../../common/DocumentsViewer";
 import {Support} from "./support/Support";
 import {createPhysicalDevice, logEvent, proceedWithDeviceCreation, retrieveCardLinkingId} from "../../../utils/AppSync";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
-import {Referral} from "./home/referrals/Referral";
+import {Referral} from "./home/dashboard/referrals/Referral";
 import Constants from 'expo-constants';
 import {AppOwnership} from "expo-constants/src/Constants.types";
 import {showClickOnlyBottomSheetState} from "../../../recoil/StoreOfferAtom";

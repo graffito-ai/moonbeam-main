@@ -18,10 +18,11 @@ import {Marketplace} from "./marketplace/Marketplace";
 import {drawerDashboardState} from "../../../../recoil/AppDrawerAtom";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
-import {Text, TouchableOpacity, View} from "react-native";
+import {Text, View} from "react-native";
 import {filteredByDiscountPressedState, filtersActiveState} from "../../../../recoil/StoreOfferAtom";
 import {Spinner} from "../../../common/Spinner";
 import {SafeAreaProvider} from "react-native-safe-area-context";
+import {Services} from "./services/Services";
 
 /**
  * Home component. This is where the bottom bar components will reside, as well
@@ -110,7 +111,8 @@ export const Home = ({navigation}: HomeProps) => {
                                              options={{
                                                  tabBarIcon: ({focused}) => (
                                                      <View style={{
-                                                         left: wp(3),
+                                                         left: wp(1),
+                                                         right: wp(1),
                                                          alignItems: 'center',
                                                          justifyContent: 'center',
                                                          top: hp(0.5),
@@ -119,7 +121,7 @@ export const Home = ({navigation}: HomeProps) => {
                                                      }}>
                                                          <Icon
                                                              type={"antdesign"}
-                                                             name={'linechart'}
+                                                             name={!focused ? 'linechart' : 'areachart'}
                                                              size={hp(3)}
                                                              color={!focused ? 'white' : '#F2FF5D'}
                                                          />
@@ -136,47 +138,146 @@ export const Home = ({navigation}: HomeProps) => {
                                                  )
                                              }}
                         />
+                        <HomeTabStack.Screen name="Services"
+                                             component={Services}
+                                             initialParams={{}}
+                                             options={({}) => ({
+                                                 tabBarIcon: ({focused}) => (
+                                                     <View style={{
+                                                         left: wp(1),
+                                                         right: wp(1),
+                                                         alignItems: 'center',
+                                                         justifyContent: 'center',
+                                                         top: hp(0.55),
+                                                         width: wp(15),
+                                                         height: hp(6)
+                                                     }}>
+                                                         <Icon
+                                                             type={"ionicon"}
+                                                             name={!focused ? 'pricetags-outline' : 'pricetags'}
+                                                             size={hp(3)}
+                                                             color={!focused ? 'white' : '#F2FF5D'}
+                                                         />
+                                                         <Text style={{
+                                                             top: hp(0.5),
+                                                             fontFamily: 'Raleway-Bold',
+                                                             fontSize: hp(1.6),
+                                                             color: !focused ? 'white' : '#F2FF5D',
+                                                             textAlign: 'center'
+                                                         }}>
+                                                             {'Services'}
+                                                         </Text>
+                                                     </View>
+                                                 )
+                                                 // tabBarButton: ({}) => (
+                                                 //     <TouchableOpacity
+                                                 //         activeOpacity={0.90}
+                                                 //         onPress={() => {
+                                                 //             // navigate to the Marketplace
+                                                 //             navigation.navigate('Marketplace', {});
+                                                 //         }}
+                                                 //         style={{
+                                                 //             zIndex: 10000,
+                                                 //             justifyContent: 'center',
+                                                 //             alignContent: 'center',
+                                                 //             shadowColor: 'black',
+                                                 //             shadowOffset: {width: -2, height: 10},
+                                                 //             shadowOpacity: 0.65,
+                                                 //             shadowRadius: 15,
+                                                 //             elevation: 20,
+                                                 //             borderRadius: 10,
+                                                 //             bottom: hp(2.5)
+                                                 //         }}>
+                                                 //         <View style={{
+                                                 //             right: wp(5),
+                                                 //             width: hp(8),
+                                                 //             height: hp(8),
+                                                 //             borderRadius: 50,
+                                                 //             backgroundColor: '#F2FF5D',
+                                                 //             justifyContent: 'center',
+                                                 //             alignItems: 'center',
+                                                 //             alignContent: 'center'
+                                                 //         }}>
+                                                 //             <Icon
+                                                 //                 type={"ionicon"}
+                                                 //                 name={navigation.getState().index === 1 ? 'storefront' : 'storefront'}
+                                                 //                 size={hp(5)}
+                                                 //                 color={'#3b3b3b'}
+                                                 //             />
+                                                 //         </View>
+                                                 //     </TouchableOpacity>
+                                                 // )
+                                             })}
+                        />
                         <HomeTabStack.Screen name="Marketplace"
                                              component={Marketplace}
                                              initialParams={{}}
-                                             options={({navigation}) => ({
-                                                 tabBarButton: ({}) => (
-                                                     <TouchableOpacity
-                                                         activeOpacity={0.90}
-                                                         onPress={() => {
-                                                             // navigate to the Marketplace
-                                                             navigation.navigate('Marketplace', {});
-                                                         }}
-                                                         style={{
-                                                             zIndex: 10000,
-                                                             justifyContent: 'center',
-                                                             alignContent: 'center',
-                                                             shadowColor: 'black',
-                                                             shadowOffset: {width: -2, height: 10},
-                                                             shadowOpacity: 0.65,
-                                                             shadowRadius: 15,
-                                                             elevation: 20,
-                                                             borderRadius: 10,
-                                                             bottom: hp(2.5)
+                                             options={({}) => ({
+                                                 tabBarIcon: ({focused}) => (
+                                                     <View style={{
+                                                         left: wp(1),
+                                                         right: wp(1),
+                                                         alignItems: 'center',
+                                                         justifyContent: 'center',
+                                                         top: hp(0.56),
+                                                         width: wp(15),
+                                                         height: hp(6)
+                                                     }}>
+                                                         <Icon
+                                                             type={"ionicon"}
+                                                             name={!focused ? 'storefront-outline' : 'storefront'}
+                                                             size={hp(3)}
+                                                             color={!focused ? 'white' : '#F2FF5D'}
+                                                         />
+                                                         <Text style={{
+                                                             top: hp(0.5),
+                                                             fontFamily: 'Raleway-Bold',
+                                                             fontSize: hp(1.6),
+                                                             color: !focused ? 'white' : '#F2FF5D',
+                                                             textAlign: 'center'
                                                          }}>
-                                                         <View style={{
-                                                             width: hp(8),
-                                                             height: hp(8),
-                                                             borderRadius: 50,
-                                                             backgroundColor: '#F2FF5D',
-                                                             justifyContent: 'center',
-                                                             alignItems: 'center',
-                                                             alignContent: 'center'
-                                                         }}>
-                                                             <Icon
-                                                                 type={"ionicon"}
-                                                                 name={navigation.getState().index === 1 ? 'storefront' : 'storefront'}
-                                                                 size={hp(5)}
-                                                                 color={'#3b3b3b'}
-                                                             />
-                                                         </View>
-                                                     </TouchableOpacity>
+                                                             {'Offers'}
+                                                         </Text>
+                                                     </View>
                                                  )
+                                                 // tabBarButton: ({}) => (
+                                                 //     <TouchableOpacity
+                                                 //         activeOpacity={0.90}
+                                                 //         onPress={() => {
+                                                 //             // navigate to the Marketplace
+                                                 //             navigation.navigate('Marketplace', {});
+                                                 //         }}
+                                                 //         style={{
+                                                 //             zIndex: 10000,
+                                                 //             justifyContent: 'center',
+                                                 //             alignContent: 'center',
+                                                 //             shadowColor: 'black',
+                                                 //             shadowOffset: {width: -2, height: 10},
+                                                 //             shadowOpacity: 0.65,
+                                                 //             shadowRadius: 15,
+                                                 //             elevation: 20,
+                                                 //             borderRadius: 10,
+                                                 //             bottom: hp(2.5)
+                                                 //         }}>
+                                                 //         <View style={{
+                                                 //             left: wp(5),
+                                                 //             width: hp(8),
+                                                 //             height: hp(8),
+                                                 //             borderRadius: 50,
+                                                 //             backgroundColor: '#F2FF5D',
+                                                 //             justifyContent: 'center',
+                                                 //             alignItems: 'center',
+                                                 //             alignContent: 'center'
+                                                 //         }}>
+                                                 //             <Icon
+                                                 //                 type={"ionicon"}
+                                                 //                 name={navigation.getState().index === 1 ? 'storefront' : 'storefront'}
+                                                 //                 size={hp(5)}
+                                                 //                 color={'#3b3b3b'}
+                                                 //             />
+                                                 //         </View>
+                                                 //     </TouchableOpacity>
+                                                 // )
                                              })}
                         />
                         <HomeTabStack.Screen name="Cards"
@@ -185,16 +286,17 @@ export const Home = ({navigation}: HomeProps) => {
                                              options={{
                                                  tabBarIcon: ({focused}) => (
                                                      <View style={{
-                                                         right: wp(3),
+                                                         left: wp(1),
+                                                         right: wp(2),
                                                          alignItems: 'center',
                                                          justifyContent: 'center',
-                                                         top: hp(0.5),
+                                                         top: hp(0.6),
                                                          width: wp(15),
                                                          height: hp(6)
                                                      }}>
                                                          <Icon
-                                                             type={"antdesign"}
-                                                             name={'creditcard'}
+                                                             type={"ionicon"}
+                                                             name={!focused ? 'card-outline' : 'card'}
                                                              size={hp(3)}
                                                              color={!focused ? 'white' : '#F2FF5D'}
                                                          />
