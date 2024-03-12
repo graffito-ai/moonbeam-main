@@ -261,6 +261,34 @@ export const getFAQs = /* GraphQL */ `
     }
 `;
 
+// Query used to retrieve all the Service partner organizations
+export const getServicePartners = /* GraphQL */ `
+    query GetServicePartners {
+        getServicePartners {
+            errorMessage
+            errorType
+            data {
+                id
+                createdAt
+                updatedAt
+                name
+                description
+                isOnline
+                logoUrl
+                addressLine
+                city
+                state
+                zipCode
+                website
+                services {
+                    title
+                    description
+                }
+            }
+        }
+    }  
+`;
+
 // Query used to retrieve all the Fidelis partner offers, filtered by brand/partner (so we can display them as featured in the store)
 export const getFidelisPartners = /* GraphQL */ `
     query GetFidelisPartners {

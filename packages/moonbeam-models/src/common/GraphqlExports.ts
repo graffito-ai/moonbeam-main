@@ -270,6 +270,22 @@ export type CreateNotificationResponse = {
   id?: Maybe<Scalars['ID']>;
 };
 
+export type CreatePartnerInput = {
+  addressLine: Scalars['String'];
+  city: Scalars['String'];
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+  description: Scalars['String'];
+  id?: InputMaybe<Scalars['ID']>;
+  isOnline: Scalars['Boolean'];
+  logoUrl: Scalars['String'];
+  name: Scalars['String'];
+  services: Array<InputMaybe<ServiceInput>>;
+  state: Scalars['String'];
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+  website: Scalars['String'];
+  zipCode: Scalars['String'];
+};
+
 export type CreateReferralInput = {
   campaignCode: MarketingCampaignCode;
   createdAt?: InputMaybe<Scalars['AWSDateTime']>;
@@ -886,6 +902,7 @@ export type Mutation = {
   createNotificationReminder: NotificationReminderResponse;
   createReferral: ReferralResponse;
   createReimbursement: ReimbursementResponse;
+  createServicePartner: PartnerResponse;
   createTransaction: MoonbeamTransactionResponse;
   createUserAuthSession: UserAuthSessionResponse;
   deleteCard: CardResponse;
@@ -952,6 +969,11 @@ export type MutationCreateReferralArgs = {
 
 export type MutationCreateReimbursementArgs = {
   createReimbursementInput: CreateReimbursementInput;
+};
+
+
+export type MutationCreateServicePartnerArgs = {
+  createPartnerInput: CreatePartnerInput;
 };
 
 
@@ -1286,6 +1308,30 @@ export type OffersResponse = {
   errorType?: Maybe<OffersErrorType>;
 };
 
+export type Partner = {
+  __typename?: 'Partner';
+  addressLine: Scalars['String'];
+  city: Scalars['String'];
+  createdAt: Scalars['AWSDateTime'];
+  description: Scalars['String'];
+  id: Scalars['ID'];
+  isOnline: Scalars['Boolean'];
+  logoUrl: Scalars['String'];
+  name: Scalars['String'];
+  services: Array<Maybe<Service>>;
+  state: Scalars['String'];
+  updatedAt: Scalars['AWSDateTime'];
+  website: Scalars['String'];
+  zipCode: Scalars['String'];
+};
+
+export type PartnerResponse = {
+  __typename?: 'PartnerResponse';
+  data?: Maybe<Array<Maybe<Partner>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<ServicesErrorType>;
+};
+
 export type PushDevice = {
   __typename?: 'PushDevice';
   deviceState: UserDeviceState;
@@ -1339,6 +1385,7 @@ export type Query = {
   getReferralsByStatus: ReferralResponse;
   getReimbursements: ReimbursementResponse;
   getSeasonalOffers: OffersResponse;
+  getServicePartners: PartnerResponse;
   getStorage: StorageResponse;
   getTransaction: MoonbeamTransactionsResponse;
   getTransactionByStatus: MoonbeamTransactionsByStatusResponse;
@@ -1598,6 +1645,24 @@ export type SendMobilePushNotificationInput = {
   merchantName?: InputMaybe<Scalars['String']>;
   pendingCashback?: InputMaybe<Scalars['Float']>;
 };
+
+export type Service = {
+  __typename?: 'Service';
+  description: Scalars['String'];
+  title: Scalars['String'];
+};
+
+export type ServiceInput = {
+  description: Scalars['String'];
+  title: Scalars['String'];
+};
+
+export enum ServicesErrorType {
+  DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  ValidationError = 'VALIDATION_ERROR'
+}
 
 export enum StorageErrorType {
   DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
@@ -1891,6 +1956,13 @@ export enum UtilitiesErrorType {
   ValidationError = 'VALIDATION_ERROR'
 }
 
+export type CreateServicePartnerMutationVariables = Exact<{
+  createPartnerInput: CreatePartnerInput;
+}>;
+
+
+export type CreateServicePartnerMutation = { __typename?: 'Mutation', createServicePartner: { __typename?: 'PartnerResponse', errorMessage?: string | null, errorType?: ServicesErrorType | null, data?: Array<{ __typename?: 'Partner', id: string, createdAt: string, updatedAt: string, name: string, description: string, isOnline: boolean, logoUrl: string, addressLine: string, city: string, state: string, zipCode: string, website: string, services: Array<{ __typename?: 'Service', title: string, description: string } | null> } | null> | null } };
+
 export type CreateReimbursementMutationVariables = Exact<{
   createReimbursementInput: CreateReimbursementInput;
 }>;
@@ -2134,6 +2206,11 @@ export type GetFaQsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetFaQsQuery = { __typename?: 'Query', getFAQs: { __typename?: 'FAQResponse', errorMessage?: string | null, errorType?: FaqErrorType | null, data?: Array<{ __typename?: 'FAQ', id: string, title: string, createdAt: string, updatedAt: string, facts: Array<{ __typename?: 'Fact', description: string, linkableKeyword?: string | null, linkLocation?: string | null, type: FactType } | null> } | null> | null } };
+
+export type GetServicePartnersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetServicePartnersQuery = { __typename?: 'Query', getServicePartners: { __typename?: 'PartnerResponse', errorMessage?: string | null, errorType?: ServicesErrorType | null, data?: Array<{ __typename?: 'Partner', id: string, createdAt: string, updatedAt: string, name: string, description: string, isOnline: boolean, logoUrl: string, addressLine: string, city: string, state: string, zipCode: string, website: string, services: Array<{ __typename?: 'Service', title: string, description: string } | null> } | null> | null } };
 
 export type GetFidelisPartnersQueryVariables = Exact<{ [key: string]: never; }>;
 

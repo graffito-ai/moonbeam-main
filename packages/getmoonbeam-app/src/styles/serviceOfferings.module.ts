@@ -24,6 +24,18 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between'
     },
+    activeTileLeft: {
+        backgroundColor: '#F2FF5D',
+        width: wp(46),
+        height: hp(6.5),
+        alignSelf: 'flex-end',
+        left: wp(2),
+        borderRadius: 30,
+        borderWidth: hp(0.07),
+        borderColor: '#F2FF5D',
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
     inactiveTileLeft: {
         backgroundColor: 'transparent',
         width: wp(46),
@@ -33,6 +45,18 @@ export const styles = StyleSheet.create({
         borderRadius: 30,
         borderWidth: hp(0.07),
         borderColor: 'white',
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+    activeTileRight: {
+        backgroundColor: '#F2FF5D',
+        width: wp(46),
+        height: hp(6.5),
+        alignSelf: 'flex-end',
+        right: wp(2),
+        borderRadius: 30,
+        borderWidth: hp(0.07),
+        borderColor: '#F2FF5D',
         flexDirection: 'row',
         justifyContent: 'space-between'
     },
@@ -60,12 +84,26 @@ export const styles = StyleSheet.create({
         width: wp(12),
         left: wp(6)
     },
+    activeTileTextLeft: {
+        alignSelf: 'center',
+        fontSize: hp(1.80),
+        right: wp(3.5),
+        fontFamily: 'Raleway-Bold',
+        color: '#313030'
+    },
     inactiveTileTextLeft: {
         alignSelf: 'center',
         fontSize: hp(1.80),
         right: wp(3.5),
         fontFamily: 'Raleway-Bold',
         color: 'white'
+    },
+    activeTileTextRight: {
+        alignSelf: 'center',
+        fontSize: hp(1.80),
+        right: wp(7.5),
+        fontFamily: 'Raleway-Bold',
+        color: '#313030'
     },
     inactiveTileTextRight: {
         alignSelf: 'center',

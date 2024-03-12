@@ -8,6 +8,7 @@ type Query {
     getPremierOffers(getOffersInput: GetOffersInput!): OffersResponse! @aws_cognito_user_pools
     getSeasonalOffers(getOffersInput: GetOffersInput!): OffersResponse! @aws_cognito_user_pools
     getFidelisPartners: FidelisPartnerResponse! @aws_cognito_user_pools
+    getServicePartners: PartnerResponse! @aws_cognito_user_pools
     getDevicesForUser(getDevicesForUserInput: GetDevicesForUserInput!): UserDevicesResponse! @aws_cognito_user_pools @aws_api_key
     getDevice(getDeviceInput: GetDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     getDeviceByToken(getDeviceByTokenInput: GetDeviceByTokenInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
@@ -33,6 +34,7 @@ type Query {
 }
 
 type Mutation {
+    createServicePartner(createPartnerInput: CreatePartnerInput!): PartnerResponse! @aws_cognito_user_pools
     updateCard(updateCardInput: UpdateCardInput!): EligibleLinkedUsersResponse! @aws_cognito_user_pools @aws_api_key
     addCard(addCardInput: AddCardInput!): CardLinkResponse! @aws_cognito_user_pools
     createFAQ(createFAQInput: CreateFAQInput!): FAQResponse! @aws_cognito_user_pools
@@ -1582,4 +1584,60 @@ type ReimbursementProcessingResponse @aws_cognito_user_pools {
     data: ReimbursementProcessingStatus
     errorType: ReimbursementsErrorType
     errorMessage: String
+}
+# graphql/ServicesSchema.graphql
+# Services Schema File
+enum ServicesErrorType {
+    DUPLICATE_OBJECT_FOUND
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+}
+
+type Service @aws_cognito_user_pools {
+    title: String!
+    description: String!
+}
+
+type Partner @aws_cognito_user_pools {
+    id: ID!
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+    name: String!
+    description: String!
+    isOnline: Boolean!
+    logoUrl: String!
+    addressLine: String!
+    city: String!
+    state: String!
+    zipCode: String!
+    website: String!
+    services: [Service]!
+}
+
+type PartnerResponse @aws_cognito_user_pools {
+    data: [Partner]
+    errorType: ServicesErrorType
+    errorMessage: String
+}
+
+input ServiceInput {
+    title: String!
+    description: String!
+}
+
+input CreatePartnerInput {
+    id: ID
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+    name: String!
+    description: String!
+    isOnline: Boolean!
+    logoUrl: String!
+    addressLine: String!
+    city: String!
+    state: String!
+    zipCode: String!
+    website: String!
+    services: [ServiceInput]!
 }

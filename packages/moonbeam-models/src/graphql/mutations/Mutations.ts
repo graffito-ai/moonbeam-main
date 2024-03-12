@@ -2,6 +2,34 @@
  * This is a file used to define the all GraphQL mutation constants
  */
 
+// Mutation used to create a new service partner.
+export const createServicePartner = /* GraphQL */ `
+    mutation CreateServicePartner($createPartnerInput: CreatePartnerInput!) {
+        createServicePartner(createPartnerInput: $createPartnerInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                createdAt
+                updatedAt
+                name
+                description
+                isOnline
+                logoUrl
+                addressLine
+                city
+                state
+                zipCode
+                website
+                services {
+                    title
+                    description
+                }
+            }
+        }
+    }
+`;
+
 // Mutation used to create a new reimbursement for a particular user.
 export const createReimbursement = /* GraphQL */ `
     mutation CreateReimbursement($createReimbursementInput: CreateReimbursementInput!) {

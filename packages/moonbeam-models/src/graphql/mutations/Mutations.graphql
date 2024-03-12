@@ -1,5 +1,29 @@
 # graphql/Mutations.graphql
 # Mutations Schema File
+mutation CreateServicePartner($createPartnerInput: CreatePartnerInput!) {
+    createServicePartner(createPartnerInput: $createPartnerInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            createdAt
+            updatedAt
+            name
+            description
+            isOnline
+            logoUrl
+            addressLine
+            city
+            state
+            zipCode
+            website
+            services {
+                title
+                description
+            }
+        }
+    }
+}
 mutation CreateReimbursement($createReimbursementInput: CreateReimbursementInput!) {
     createReimbursement(createReimbursementInput: $createReimbursementInput) {
         errorMessage

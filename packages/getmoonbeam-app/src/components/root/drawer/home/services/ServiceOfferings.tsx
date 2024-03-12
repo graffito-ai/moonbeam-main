@@ -11,7 +11,7 @@ import MoonbeamOrganizations from "../../../../../../assets/art/moonbeam-organiz
 // @ts-ignore
 import MoonbeamEvents from "../../../../../../assets/art/moonbeam-events.png";
 import {Text} from "react-native-paper";
-import {View} from 'react-native';
+import {TouchableOpacity, View} from 'react-native';
 
 /**
  * ServiceOfferings component.
@@ -60,29 +60,38 @@ export const ServiceOfferings = ({}: ServiceOfferingsProps) => {
                         />
                     </View>
                     <View style={styles.topActiveTileSection}>
-                        <View style={styles.inactiveTileLeft}>
+                        <TouchableOpacity
+                            onPress={() => {
+                                activeSection !== "organizations" && setActiveSection("organizations");
+                                activeSection === "organizations" && setActiveSection("all");
+                            }}
+                            style={activeSection === "organizations" ? styles.activeTileLeft : styles.inactiveTileLeft}>
                             <ExpoImage
                                 style={styles.inactiveTileImageLeft}
                                 source={MoonbeamOrganizations}
                                 contentFit={'contain'}
                                 cachePolicy={'memory-disk'}
                             />
-                            <Text style={styles.inactiveTileTextLeft}>
+                            <Text style={activeSection === "organizations" ? styles.activeTileTextLeft : styles.inactiveTileTextLeft}>
                                 Organizations
                             </Text>
-
-                        </View>
-                        <View style={styles.inactiveTileRight}>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => {
+                                activeSection !== "events" && setActiveSection("events");
+                                activeSection === "events" && setActiveSection("all");
+                            }}
+                            style={activeSection === "events" ? styles.activeTileRight : styles.inactiveTileRight}>
                             <ExpoImage
                                 style={styles.inactiveTileImageRight}
                                 source={MoonbeamEvents}
                                 contentFit={'contain'}
                                 cachePolicy={'memory-disk'}
                             />
-                            <Text style={styles.inactiveTileTextRight}>
+                            <Text style={activeSection === "events" ? styles.activeTileTextRight : styles.inactiveTileTextRight}>
                                 Calendar
                             </Text>
-                        </View>
+                        </TouchableOpacity>
                     </View>
                 </LinearGradient>
             </View>

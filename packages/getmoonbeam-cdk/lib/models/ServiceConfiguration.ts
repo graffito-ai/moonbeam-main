@@ -70,6 +70,19 @@ export interface ReferralConfiguration {
 }
 
 /**
+ * Interface used to define the configuration for the service partners service resolvers (GraphQL based),
+ * and other afferent data stores.
+ */
+export interface ServicePartnersConfiguration {
+    readonly servicePartnersFunctionName: string;
+    readonly servicePartnersTableName: string;
+    readonly servicesPartnersCreateTimeGlobalIndex: string;
+    readonly createServicePartnerResolverName: string;
+    readonly getServicePartnersResolverName: string;
+}
+
+
+/**
  * Interface used to define the configuration for the Military verification service resolvers
  * (GraphQL based), and other afferent data stores.
  */

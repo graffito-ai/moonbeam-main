@@ -287,12 +287,13 @@ export const Home = ({navigation}: HomeProps) => {
                                                  tabBarIcon: ({focused}) => (
                                                      <View style={{
                                                          left: wp(1),
-                                                         right: wp(2),
+                                                         right: wp(1),
                                                          alignItems: 'center',
                                                          justifyContent: 'center',
-                                                         top: hp(0.6),
+                                                         top: hp(0.65),
                                                          width: wp(15),
-                                                         height: hp(6)
+                                                         height: hp(6),
+                                                         flexDirection: 'column'
                                                      }}>
                                                          <Icon
                                                              type={"ionicon"}

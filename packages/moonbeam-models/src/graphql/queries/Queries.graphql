@@ -201,6 +201,30 @@ query GetFAQs {
         }
     }
 }
+query GetServicePartners {
+    getServicePartners {
+        errorMessage
+        errorType
+        data {
+            id
+            createdAt
+            updatedAt
+            name
+            description
+            isOnline
+            logoUrl
+            addressLine
+            city
+            state
+            zipCode
+            website
+            services {
+                title
+                description
+            }
+        }
+    }
+}
 query GetFidelisPartners {
     getFidelisPartners {
         errorMessage

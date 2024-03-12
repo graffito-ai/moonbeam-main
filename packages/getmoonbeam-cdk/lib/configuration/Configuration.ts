@@ -243,6 +243,13 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 reimbursementsIdGlobalIndex: "reimbursementsIdGlobalIndex",
                 reimbursementsStatusLocalIndex: "reimbursementsStatusLocalIndex"
             },
+            servicePartnersConfig: {
+                servicePartnersFunctionName: "servicePartnersFunction",
+                servicePartnersTableName: "servicePartnersTable",
+                servicesPartnersCreateTimeGlobalIndex: "servicesPartnersCreateTimeGlobalIndex",
+                createServicePartnerResolverName: "createServicePartner",
+                getServicePartnersResolverName: "getServicePartners"
+            },
             scriptsConfig: {
                 scriptsFunctionName: "scriptsFunction",
                 cardExpirationBackFillCronRuleName: "cardExpirationBackFillRule",
@@ -486,6 +493,13 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 reimbursementsTableName: "reimbursementsTable",
                 reimbursementsIdGlobalIndex: "reimbursementsIdGlobalIndex",
                 reimbursementsStatusLocalIndex: "reimbursementsStatusLocalIndex"
+            },
+            servicePartnersConfig: {
+                servicePartnersFunctionName: "servicePartnersFunction",
+                servicePartnersTableName: "servicePartnersTable",
+                servicesPartnersCreateTimeGlobalIndex: "servicesPartnersCreateTimeGlobalIndex",
+                createServicePartnerResolverName: "createServicePartner",
+                getServicePartnersResolverName: "getServicePartners"
             },
             scriptsConfig: {
                 scriptsFunctionName: "scriptsFunction",

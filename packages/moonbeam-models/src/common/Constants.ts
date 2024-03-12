@@ -88,6 +88,8 @@ export namespace Constants {
         export const REIMBURSEMENTS_ID_GLOBAL_INDEX: string = 'REIMBURSEMENTS_ID_GLOBAL_INDEX';
         export const REIMBURSEMENTS_STATUS_LOCAL_INDEX: string = 'REIMBURSEMENTS_STATUS_LOCAL_INDEX';
         export const MILITARY_VERIFICATION_STATUS_GLOBAL_INDEX: string = 'MILITARY_VERIFICATION_STATUS_GLOBAL_INDEX';
+        export const SERVICES_PARTNERS_TABLE: string = 'SERVICES_PARTNERS_TABLE';
+        export const SERVICES_PARTNERS_CREATE_TIME_GLOBAL_INDEX: string = 'SERVICES_PARTNERS_CREATE_TIME_GLOBAL_INDEX';
         export const ENV_NAME: string = 'ENV_NAME';
         export const ACCOUNT_LINKS: string = 'ACCOUNT_LINKS';
         export const AWS_REGION: string = 'AWS_REGION';

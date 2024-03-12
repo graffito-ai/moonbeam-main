@@ -14,7 +14,7 @@ import {
     GetDevicesForUserInput, GetLocationPredictionsInput, GetLocationPredictionsResponse,
     GetMilitaryVerificationInformationInput,
     GetOffersInput,
-    GetReferralsByStatusInput,
+    GetReferralsByStatusInput, GetStorageInput,
     GetTransactionByStatusInput,
     GetTransactionInput,
     GetUserCardLinkingIdInput,
@@ -44,7 +44,7 @@ import {
     RemoveCardResponse,
     SearchOffersInput,
     SendEmailNotificationInput,
-    SendMobilePushNotificationInput,
+    SendMobilePushNotificationInput, StorageResponse,
     Transaction,
     TransactionResponse, UpdateCardInput,
     UpdatedTransactionEvent,
@@ -328,10 +328,22 @@ export abstract class BaseAPIClient {
     }
 
     /**
+     * Function used to retrieve a file's URL from storage via CloudFront and S3.
+     *
+     * @param getStorageInput input passed in, which will be used in returning the appropriate
+     * URL for a given file.
+     *
+     * @returns a  {@link StorageResponse}, representing the retrieved chose file's URL.
+     *
+     * @protected
+     */
+    protected getStorageFileUrl?(getStorageInput: GetStorageInput): Promise<StorageResponse>;
+
+    /**
      * Function used to retrieve location predictions, for a location to be passed in.
      *
-     * @param getLocationPredictionsInput input passed in,
-     * which we will be used in returning location predictions
+     * @param getLocationPredictionsInput input passed in, which will be used in returning
+     * location predictions
      *
      * @returns a {@link GetLocationPredictionsResponse}, representing the retrieved location predictions
      * to be returned.
