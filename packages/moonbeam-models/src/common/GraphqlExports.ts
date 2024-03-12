@@ -441,6 +441,7 @@ export enum FileAccessLevel {
 }
 
 export enum FileType {
+  Logofiles = 'LOGOFILES',
   Main = 'MAIN'
 }
 

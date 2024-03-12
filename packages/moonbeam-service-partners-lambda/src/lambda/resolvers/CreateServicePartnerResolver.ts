@@ -1,4 +1,12 @@
-import {CreatePartnerInput, Partner, PartnerResponse, ServicesErrorType} from "@moonbeam/moonbeam-models";
+import {
+    CreatePartnerInput,
+    FileAccessLevel,
+    FileType,
+    MoonbeamClient,
+    Partner,
+    PartnerResponse,
+    ServicesErrorType
+} from "@moonbeam/moonbeam-models";
 import {DynamoDBClient, GetItemCommand, PutItemCommand} from "@aws-sdk/client-dynamodb";
 import {v4 as uuidv4} from 'uuid';
 
@@ -59,8 +67,16 @@ export const createServicePartner = async (fieldName: string, createPartnerInput
                 errorType: ServicesErrorType.DuplicateObjectFound
             }
         } else {
-            // retrieve the logo URL served through CloudFront and S3, by calling the getStorage internal AppSync Query accordingly
+            // initialize the Moonbeam client used for making appropriate API calls
+            const moonbeamClient = new MoonbeamClient(process.env.ENV_NAME!, region);
 
+            // retrieve the logo URL served through CloudFront and S3, by calling the getStorage internal AppSync Query accordingly
+            // moonbeamClient.getStorageFileUrl({
+            //     level: FileAccessLevel.Public,
+            //     type: FileType.Main,
+            //     name: "terms-and-conditions.pdf",
+            //     expires: false
+            // });
 
             // create the services array, obtained from the input
             const services: any[] = [];

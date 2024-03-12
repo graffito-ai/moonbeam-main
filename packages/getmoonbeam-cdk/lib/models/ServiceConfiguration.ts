@@ -42,13 +42,22 @@ export interface AppSyncConfiguration {
  */
 export interface StorageConfiguration {
     readonly publicFilesBucketName: string;
-    readonly mainFilesBucketName: string;
     readonly militaryVerificationReportingBucketName: string;
+
+    readonly mainFilesBucketName: string;
     readonly mainFilesCloudFrontDistributionName: string;
     readonly mainFilesCloudFrontTrustedPublicKeyName: string;
     readonly mainFilesCloudFrontTrustedKeyGroupName: string;
     readonly mainFilesCloudFrontAccessIdentityName: string;
     readonly mainFilesCloudFrontCachePolicyName: string;
+
+    readonly logoFilesBucketName: string;
+    readonly logoFilesCloudFrontDistributionName: string;
+    readonly logoFilesCloudFrontTrustedPublicKeyName: string;
+    readonly logoFilesCloudFrontTrustedKeyGroupName: string;
+    readonly logoFilesCloudFrontAccessIdentityName: string;
+    readonly logoFilesCloudFrontCachePolicyName: string;
+
     readonly storageFunctionName: string;
     readonly getResolverName: string;
     readonly putMilitaryVerificationReportResolverName: string;
