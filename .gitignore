@@ -54,6 +54,7 @@ packages/moonbeam-updated-transactions-producer-lambda/lib
 packages/moonbeam-user-auth-session-lambda/lib
 packages/moonbeam-scripts-lambda/lib
 packages/moonbeam-service-partners-lambda/lib
+packages/moonbeam-events-lambda/lib
 packages/getmoonbeam-cdk/*.jsg
 packages/getmoonbeam-cdk/*.d.ts
 packages/getmoonbeam-app/amplify/**/*
