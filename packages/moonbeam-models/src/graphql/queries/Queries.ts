@@ -269,6 +269,7 @@ export const getServicePartners = /* GraphQL */ `
             errorType
             data {
                 id
+                status
                 createdAt
                 updatedAt
                 name

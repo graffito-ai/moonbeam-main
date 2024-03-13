@@ -10,6 +10,7 @@ export const createServicePartner = /* GraphQL */ `
             errorType
             data {
                 id
+                status
                 createdAt
                 updatedAt
                 name

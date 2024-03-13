@@ -1,4 +1,4 @@
-import {Partner, PartnerResponse, Service, ServicesErrorType} from "@moonbeam/moonbeam-models";
+import {Partner, PartnerResponse, Service, ServicePartnerStatus, ServicesErrorType} from "@moonbeam/moonbeam-models";
 import {AttributeValue, DynamoDBClient, QueryCommand} from "@aws-sdk/client-dynamodb";
 
 /**
@@ -26,7 +26,7 @@ export const getServicePartners = async (fieldName: string): Promise<PartnerResp
         do {
             /**
              * retrieve all service partners, given the global secondary index allowing us to query all partners by their
-             * createdAt date.
+             * createdAt date, only for those partners that are ACTIVE.
              *
              * Limit of 1 MB per paginated response data (in our case 5,700 items). An average size for an Item is about 133 bytes, which means that we won't
              * need to do pagination here, since we actually retrieve all users in a looped format, and we account for paginated responses. Even if the item size
@@ -41,14 +41,21 @@ export const getServicePartners = async (fieldName: string): Promise<PartnerResp
                 ...(exclusiveStartKey && {ExclusiveStartKey: exclusiveStartKey}),
                 Limit: 5700, // 5,700 * 133 bytes = 758,100 bytes = 0.7581 MB (leave a margin of error here up to 1 MB)
                 ExpressionAttributeNames: {
+                    '#stat': 'status',
                     '#cAt': 'createdAt'
                 },
                 ExpressionAttributeValues: {
-                    ":cAt": {
+                    ':stat': {
+                        S: ServicePartnerStatus.Active
+                    },
+                    ':start': {
+                        S: new Date(new Date().setFullYear(1979)).toISOString()
+                    },
+                    ":end": {
                         S: new Date().toISOString()
                     }
                 },
-                KeyConditionExpression: '#cAt <= :cAt'
+                KeyConditionExpression: '#stat = :stat AND #cAt BETWEEN :start AND :end'
             }));
 
             exclusiveStartKey = retrievedData.LastEvaluatedKey;
@@ -78,6 +85,7 @@ export const getServicePartners = async (fieldName: string): Promise<PartnerResp
                     createdAt: partnerResult.createdAt.S!,
                     description: partnerResult.description.S!,
                     id: partnerResult.id.S!,
+                    status: ServicePartnerStatus.Active,
                     isOnline: partnerResult.isOnline.BOOL!,
                     logoUrl: partnerResult.logoUrl.S!,
                     name: partnerResult.name.S!,

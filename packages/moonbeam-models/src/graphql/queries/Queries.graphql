@@ -207,6 +207,7 @@ query GetServicePartners {
         errorType
         data {
             id
+            status
             createdAt
             updatedAt
             name

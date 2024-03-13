@@ -7,6 +7,11 @@ enum ServicesErrorType {
     UNEXPECTED_ERROR
 }
 
+enum ServicePartnerStatus {
+    ACTIVE
+    INACTIVE
+}
+
 type Service @aws_cognito_user_pools {
     title: String!
     description: String!
@@ -14,6 +19,7 @@ type Service @aws_cognito_user_pools {
 
 type Partner @aws_cognito_user_pools {
     id: ID!
+    status: ServicePartnerStatus!
     createdAt: AWSDateTime!
     updatedAt: AWSDateTime!
     name: String!
@@ -41,12 +47,13 @@ input ServiceInput {
 
 input CreatePartnerInput {
     id: ID
+    status: ServicePartnerStatus
     createdAt: AWSDateTime
     updatedAt: AWSDateTime
     name: String!
     description: String!
     isOnline: Boolean!
-    logoUrl: String!
+    logoUrl: String
     addressLine: String!
     city: String!
     state: String!

@@ -6,6 +6,7 @@ mutation CreateServicePartner($createPartnerInput: CreatePartnerInput!) {
         errorType
         data {
             id
+            status
             createdAt
             updatedAt
             name

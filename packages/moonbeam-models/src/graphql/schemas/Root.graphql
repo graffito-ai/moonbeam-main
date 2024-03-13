@@ -15,7 +15,7 @@ type Query {
     getTransaction(getTransactionInput: GetTransactionInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools @aws_api_key
     getTransactionByStatus(getTransactionByStatusInput: GetTransactionByStatusInput!): MoonbeamTransactionsByStatusResponse! @aws_cognito_user_pools @aws_api_key
     getCardLink(getCardLinkInput: GetCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
-    getStorage(getStorageInput: GetStorageInput!): StorageResponse! @aws_cognito_user_pools
+    getStorage(getStorageInput: GetStorageInput!): StorageResponse! @aws_cognito_user_pools @aws_api_key
     getFilesForUser(getFilesForUserInput: GetFilesForUserInput!): FilesForUserResponse! @aws_cognito_user_pools
     getMilitaryVerificationStatus(getMilitaryVerificationInput: GetMilitaryVerificationInput!): GetMilitaryVerificationResponse! @aws_cognito_user_pools
     getEligibleLinkedUsers: EligibleLinkedUsersResponse! @aws_cognito_user_pools @aws_api_key

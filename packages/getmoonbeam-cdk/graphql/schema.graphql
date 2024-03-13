@@ -15,7 +15,7 @@ type Query {
     getTransaction(getTransactionInput: GetTransactionInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools @aws_api_key
     getTransactionByStatus(getTransactionByStatusInput: GetTransactionByStatusInput!): MoonbeamTransactionsByStatusResponse! @aws_cognito_user_pools @aws_api_key
     getCardLink(getCardLinkInput: GetCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
-    getStorage(getStorageInput: GetStorageInput!): StorageResponse! @aws_cognito_user_pools
+    getStorage(getStorageInput: GetStorageInput!): StorageResponse! @aws_cognito_user_pools @aws_api_key
     getFilesForUser(getFilesForUserInput: GetFilesForUserInput!): FilesForUserResponse! @aws_cognito_user_pools
     getMilitaryVerificationStatus(getMilitaryVerificationInput: GetMilitaryVerificationInput!): GetMilitaryVerificationResponse! @aws_cognito_user_pools
     getEligibleLinkedUsers: EligibleLinkedUsersResponse! @aws_cognito_user_pools @aws_api_key
@@ -94,11 +94,11 @@ enum FileType {
     LOGOFILES
 }
 
-type File @aws_cognito_user_pools {
+type File @aws_cognito_user_pools @aws_api_key {
     url: String!
 }
 
-type StorageResponse @aws_cognito_user_pools {
+type StorageResponse @aws_cognito_user_pools @aws_api_key {
     data: File
     errorType: StorageErrorType
     errorMessage: String
@@ -1594,6 +1594,11 @@ enum ServicesErrorType {
     UNEXPECTED_ERROR
 }
 
+enum ServicePartnerStatus {
+    ACTIVE
+    INACTIVE
+}
+
 type Service @aws_cognito_user_pools {
     title: String!
     description: String!
@@ -1601,6 +1606,7 @@ type Service @aws_cognito_user_pools {
 
 type Partner @aws_cognito_user_pools {
     id: ID!
+    status: ServicePartnerStatus!
     createdAt: AWSDateTime!
     updatedAt: AWSDateTime!
     name: String!
@@ -1628,12 +1634,13 @@ input ServiceInput {
 
 input CreatePartnerInput {
     id: ID
+    status: ServicePartnerStatus
     createdAt: AWSDateTime
     updatedAt: AWSDateTime
     name: String!
     description: String!
     isOnline: Boolean!
-    logoUrl: String!
+    logoUrl: String
     addressLine: String!
     city: String!
     state: String!

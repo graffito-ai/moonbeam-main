@@ -73,13 +73,18 @@ export class ServicesResolverStack extends Stack {
             },
         });
         /**
-         * creates a global secondary index for the table, so we can retrieve service partners, sorted by their creation date.
+         * creates a global secondary index for the table, so we can retrieve service partners, sorted by their creation date,
+         * given their activation status
          * {@link https://www.dynamodbguide.com/key-concepts/}
          * {@link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html}
          */
         servicePartnersTable.addGlobalSecondaryIndex({
             indexName: `${props.servicePartnersConfig.servicesPartnersCreateTimeGlobalIndex}-${props.stage}-${props.env!.region}`,
             partitionKey: {
+                name: 'status',
+                type: aws_dynamodb.AttributeType.STRING
+            },
+            sortKey: {
                 name: 'createdAt',
                 type: aws_dynamodb.AttributeType.STRING
             }
@@ -119,6 +124,33 @@ export class ServicesResolverStack extends Stack {
                     // this ARN is retrieved post secret creation
                     ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:moonbeam-internal-secret-pair-dev-us-west-2-vgMpp2"] : [],
                     ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:moonbeam-internal-secret-pair-prod-us-west-2-9xP6tj"] : []
+                ]
+            })
+        );
+        // enable the Lambda function to access the AppSync mutations and queries
+        servicePartnersLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "appsync:GraphQL"
+                ],
+                resources: [
+                    // this ARN is retrieved post GraphQL API creation
+                    ...props.stage === Stages.DEV ? ["arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Mutation/*"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Mutation/*"] : []
+                ]
+            })
+        );
+        servicePartnersLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "appsync:GraphQL"
+                ],
+                resources: [
+                    // this ARN is retrieved post GraphQL API creation
+                    ...props.stage === Stages.DEV ? [ "arn:aws:appsync:us-west-2:963863720257:apis/pkr6ygyik5bqjigb6nd57jl2cm/types/Query/*"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:appsync:us-west-2:251312580862:apis/p3a4pwssi5dejox33pvznpvz4u/types/Query/*"] : []
                 ]
             })
         );
