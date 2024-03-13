@@ -5,7 +5,7 @@ import {
     AppReviewConfiguration,
     AppSyncConfiguration,
     AppUpgradeConfiguration,
-    CardLinkingConfiguration,
+    CardLinkingConfiguration, EventsConfiguration,
     FAQConfiguration,
     LoggingConfiguration,
     MilitaryVerificationConfiguration,
@@ -59,6 +59,7 @@ export interface StageConfiguration {
     readonly appReviewConfig: AppReviewConfiguration;
     readonly referralConfig: ReferralConfiguration;
     readonly servicePartnersConfig: ServicePartnersConfiguration;
+    readonly eventsConfig: EventsConfiguration;
     readonly loggingConfig: LoggingConfiguration;
     readonly reimbursementsConfig: ReimbursementsConfiguration;
     readonly scriptsConfig: ScriptsConfiguration;

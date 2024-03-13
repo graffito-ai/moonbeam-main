@@ -247,7 +247,7 @@ export class GoogleMapsClient extends BaseAPIClient {
                 };
             }
 
-// depending on the OSType passed in, build headers as well as keys accordingly
+            // depending on the OSType passed in, build headers as well as keys accordingly
             let googleMapsAPIsPrivateKey: string = "";
             let headers: any = {};
             if (geocodeAsyncInput.osType === OsType.Ios) {

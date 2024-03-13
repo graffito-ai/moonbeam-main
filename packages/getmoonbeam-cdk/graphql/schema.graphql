@@ -9,6 +9,7 @@ type Query {
     getSeasonalOffers(getOffersInput: GetOffersInput!): OffersResponse! @aws_cognito_user_pools
     getFidelisPartners: FidelisPartnerResponse! @aws_cognito_user_pools
     getServicePartners: PartnerResponse! @aws_cognito_user_pools
+    getEventSeries: EventSeriesResponse! @aws_cognito_user_pools @aws_api_key
     getDevicesForUser(getDevicesForUserInput: GetDevicesForUserInput!): UserDevicesResponse! @aws_cognito_user_pools @aws_api_key
     getDevice(getDeviceInput: GetDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     getDeviceByToken(getDeviceByTokenInput: GetDeviceByTokenInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
@@ -34,6 +35,7 @@ type Query {
 }
 
 type Mutation {
+    createEventSeries(createEventSeriesInput: CreateEventSeriesInput!): EventSeriesResponse! @aws_cognito_user_pools @aws_api_key
     createServicePartner(createPartnerInput: CreatePartnerInput!): PartnerResponse! @aws_cognito_user_pools
     updateCard(updateCardInput: UpdateCardInput!): EligibleLinkedUsersResponse! @aws_cognito_user_pools @aws_api_key
     addCard(addCardInput: AddCardInput!): CardLinkResponse! @aws_cognito_user_pools
@@ -1647,4 +1649,61 @@ input CreatePartnerInput {
     zipCode: String!
     website: String!
     services: [ServiceInput]!
+}
+# graphql/EventsSchema.graphql
+# Events Schema File
+enum EventsErrorType {
+    DUPLICATE_OBJECT_FOUND
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+}
+
+enum EventSeriesStatus {
+    ACTIVE
+    INACTIVE
+}
+
+type EventDateTime @aws_cognito_user_pools @aws_api_key {
+    timezone: String!
+    startsAtLocal: AWSDateTime!
+    startsAtUTC: AWSDateTime!
+}
+
+type Event @aws_cognito_user_pools @aws_api_key {
+    id: ID!
+    externalEventID: ID!
+    description: String!
+    eventLogoUrlSm: String!
+    eventLogoUrlBg: String!
+    startTime: EventDateTime!
+    endTime: EventDateTime!
+    registrationUrl: String!
+}
+
+type EventSeries @aws_cognito_user_pools @aws_api_key {
+    id: ID!
+    externalSeriesID: ID!
+    externalOrgID: ID!
+    name: String!
+    description: String!
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+    events: [Event]!
+    seriesLogoUrlSm: String!
+    seriesLogoUrlBg: String!
+    status: EventSeriesStatus!
+}
+
+type EventSeriesResponse @aws_cognito_user_pools @aws_api_key {
+    data: EventSeries
+    errorType: EventsErrorType
+    errorMessage: String
+}
+
+input CreateEventSeriesInput {
+    externalSeriesID: ID!
+    name: String!
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
 }

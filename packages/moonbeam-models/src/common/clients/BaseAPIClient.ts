@@ -4,11 +4,11 @@ import {Constants} from "../Constants";
 import {
     AppUpgradeResponse,
     Card, CardDetailsResponse,
-    CardLinkResponse,
+    CardLinkResponse, CreateEventSeriesInput,
     CreateNotificationInput,
     CreateNotificationResponse,
     EligibleLinkedUsersResponse,
-    EmailFromCognitoResponse,
+    EmailFromCognitoResponse, EventSeriesResponse,
     GeocodeAsyncInput,
     GeocodeAsyncResponse,
     GetDevicesForUserInput, GetLocationPredictionsInput, GetLocationPredictionsResponse,
@@ -142,6 +142,8 @@ export abstract class BaseAPIClient {
                         return [clientPairAsJson[Constants.AWSPairConstants.GOOGLE_MAPS_APIS_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.GOOGLE_MAPS_APIS_IOS_KEY],
                             clientPairAsJson[Constants.AWSPairConstants.GOOGLE_MAPS_APIS_ANDROID_KEY], clientPairAsJson[Constants.AWSPairConstants.GOOGLE_MAPS_ANDROID_SHA],
                             clientPairAsJson[Constants.AWSPairConstants.GOOGLE_MAPS_APIS_KEY]];
+                    case Constants.AWSPairConstants.EVENTBRITE_SECRET_NAME:
+                        return [clientPairAsJson[Constants.AWSPairConstants.EVENTBRITE_BASE_URL], clientPairAsJson[Constants.AWSPairConstants.EVENTBRITE_API_KEY]];
                     case Constants.AWSPairConstants.COURIER_INTERNAL_SECRET_NAME:
                         // return the appropriate secrets, depending on the type of notification passed in
                         if (!notificationType) {
@@ -326,6 +328,20 @@ export abstract class BaseAPIClient {
             throw new Error(errorMessage);
         }
     }
+
+    /**
+     * Function used to create a new event series for a particular organization, by extracting
+     * the appropriate events information from EventBrite.
+     *
+     * @param createEventSeriesInput input passed in, which will be used in creating a new event series
+     * and implicitly filling in the appropriate missing information via the EventBrite API call.
+     *
+     * @returns a {@link EventSeriesResponse}, representing the newly created event series to be stored,
+     * obtained from the EventBrite API call, alongside with the information passed in.
+     *
+     * @protected
+     */
+    protected createEventSeriesForOrganization?(createEventSeriesInput: CreateEventSeriesInput): Promise<EventSeriesResponse>;
 
     /**
      * Function used to retrieve a file's URL from storage via CloudFront and S3.

@@ -194,6 +194,13 @@ export type CreateDeviceInput = {
   tokenId: Scalars['ID'];
 };
 
+export type CreateEventSeriesInput = {
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+  externalSeriesID: Scalars['ID'];
+  name: Scalars['String'];
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
 export type CreateFaqInput = {
   createdAt?: InputMaybe<Scalars['AWSDateTime']>;
   facts: Array<InputMaybe<FactInput>>;
@@ -371,6 +378,59 @@ export type EmailFromCognitoResponse = {
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<NotificationsErrorType>;
 };
+
+export type Event = {
+  __typename?: 'Event';
+  description: Scalars['String'];
+  endTime: EventDateTime;
+  eventLogoUrlBg: Scalars['String'];
+  eventLogoUrlSm: Scalars['String'];
+  externalEventID: Scalars['ID'];
+  id: Scalars['ID'];
+  registrationUrl: Scalars['String'];
+  startTime: EventDateTime;
+};
+
+export type EventDateTime = {
+  __typename?: 'EventDateTime';
+  startsAtLocal: Scalars['AWSDateTime'];
+  startsAtUTC: Scalars['AWSDateTime'];
+  timezone: Scalars['String'];
+};
+
+export type EventSeries = {
+  __typename?: 'EventSeries';
+  createdAt: Scalars['AWSDateTime'];
+  description: Scalars['String'];
+  events: Array<Maybe<Event>>;
+  externalOrgID: Scalars['ID'];
+  externalSeriesID: Scalars['ID'];
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  seriesLogoUrlBg: Scalars['String'];
+  seriesLogoUrlSm: Scalars['String'];
+  status: EventSeriesStatus;
+  updatedAt: Scalars['AWSDateTime'];
+};
+
+export type EventSeriesResponse = {
+  __typename?: 'EventSeriesResponse';
+  data?: Maybe<EventSeries>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<EventsErrorType>;
+};
+
+export enum EventSeriesStatus {
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE'
+}
+
+export enum EventsErrorType {
+  DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  ValidationError = 'VALIDATION_ERROR'
+}
 
 export type Faq = {
   __typename?: 'FAQ';
@@ -897,6 +957,7 @@ export type Mutation = {
   createAppReview: AppReviewResponse;
   createCardLink: CardLinkResponse;
   createDevice: UserDeviceResponse;
+  createEventSeries: EventSeriesResponse;
   createFAQ: FaqResponse;
   createLogEvent: LoggingResponse;
   createMilitaryVerification: CreateMilitaryVerificationResponse;
@@ -936,6 +997,11 @@ export type MutationCreateCardLinkArgs = {
 
 export type MutationCreateDeviceArgs = {
   createDeviceInput: CreateDeviceInput;
+};
+
+
+export type MutationCreateEventSeriesArgs = {
+  createEventSeriesInput: CreateEventSeriesInput;
 };
 
 
@@ -1376,6 +1442,7 @@ export type Query = {
   getDeviceByToken: UserDeviceResponse;
   getDevicesForUser: UserDevicesResponse;
   getEligibleLinkedUsers: EligibleLinkedUsersResponse;
+  getEventSeries: EventSeriesResponse;
   getFAQs: FaqResponse;
   getFidelisPartners: FidelisPartnerResponse;
   getFilesForUser: FilesForUserResponse;
@@ -1964,6 +2031,13 @@ export enum UtilitiesErrorType {
   ValidationError = 'VALIDATION_ERROR'
 }
 
+export type CreateEventSeriesMutationVariables = Exact<{
+  createEventSeriesInput: CreateEventSeriesInput;
+}>;
+
+
+export type CreateEventSeriesMutation = { __typename?: 'Mutation', createEventSeries: { __typename?: 'EventSeriesResponse', errorMessage?: string | null, errorType?: EventsErrorType | null, data?: { __typename?: 'EventSeries', id: string, externalSeriesID: string, externalOrgID: string, name: string, description: string, createdAt: string, updatedAt: string, seriesLogoUrlSm: string, seriesLogoUrlBg: string, status: EventSeriesStatus, events: Array<{ __typename?: 'Event', id: string, externalEventID: string, description: string, eventLogoUrlSm: string, eventLogoUrlBg: string, registrationUrl: string, startTime: { __typename?: 'EventDateTime', timezone: string, startsAtLocal: string, startsAtUTC: string }, endTime: { __typename?: 'EventDateTime', timezone: string, startsAtLocal: string, startsAtUTC: string } } | null> } | null } };
+
 export type CreateServicePartnerMutationVariables = Exact<{
   createPartnerInput: CreatePartnerInput;
 }>;
@@ -2214,6 +2288,11 @@ export type GetFaQsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetFaQsQuery = { __typename?: 'Query', getFAQs: { __typename?: 'FAQResponse', errorMessage?: string | null, errorType?: FaqErrorType | null, data?: Array<{ __typename?: 'FAQ', id: string, title: string, createdAt: string, updatedAt: string, facts: Array<{ __typename?: 'Fact', description: string, linkableKeyword?: string | null, linkLocation?: string | null, type: FactType } | null> } | null> | null } };
+
+export type GetEventSeriesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetEventSeriesQuery = { __typename?: 'Query', getEventSeries: { __typename?: 'EventSeriesResponse', errorMessage?: string | null, errorType?: EventsErrorType | null, data?: { __typename?: 'EventSeries', id: string, externalSeriesID: string, externalOrgID: string, name: string, description: string, createdAt: string, updatedAt: string, seriesLogoUrlSm: string, seriesLogoUrlBg: string, status: EventSeriesStatus, events: Array<{ __typename?: 'Event', id: string, externalEventID: string, description: string, eventLogoUrlSm: string, eventLogoUrlBg: string, registrationUrl: string, startTime: { __typename?: 'EventDateTime', timezone: string, startsAtLocal: string, startsAtUTC: string }, endTime: { __typename?: 'EventDateTime', timezone: string, startsAtLocal: string, startsAtUTC: string } } | null> } | null } };
 
 export type GetServicePartnersQueryVariables = Exact<{ [key: string]: never; }>;
 

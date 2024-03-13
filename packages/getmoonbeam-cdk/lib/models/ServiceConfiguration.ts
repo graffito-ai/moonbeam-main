@@ -79,6 +79,18 @@ export interface ReferralConfiguration {
 }
 
 /**
+ * Interface used to define the configuration for the event service resolvers (GraphQL based), and
+ * other afferent data stores.
+ */
+export interface EventsConfiguration {
+    readonly eventsFunctionName: string;
+    readonly eventSeriesTableName: string;
+    readonly eventSeriesCreateTimeGlobalIndex: string;
+    readonly createEventSeriesResolverName: string;
+    readonly getEventSeriesResolverName: string;
+}
+
+/**
  * Interface used to define the configuration for the service partners service resolvers (GraphQL based),
  * and other afferent data stores.
  */

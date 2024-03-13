@@ -37,7 +37,7 @@ export class ServicesResolverStack extends Stack {
                 sourcesContent: false, // do not include original source into source map, defaults to true
                 target: 'esnext', // target environment for the generated JavaScript code
             },
-            reservedConcurrentExecutions: 100
+            reservedConcurrentExecutions: 50
         });
         new Alias(this, `${props.servicePartnersConfig.servicePartnersFunctionName}-current-version-alias`, {
             aliasName: `${props.servicePartnersConfig.servicePartnersFunctionName}-current-version-alias`,

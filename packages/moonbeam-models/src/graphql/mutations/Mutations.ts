@@ -2,6 +2,46 @@
  * This is a file used to define the all GraphQL mutation constants
  */
 
+// Mutation used to create a new Event Series for a particular partner organization
+export const createEventSeries = /* GraphQL */ `
+    mutation CreateEventSeries($createEventSeriesInput: CreateEventSeriesInput!) {
+        createEventSeries(createEventSeriesInput: $createEventSeriesInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                externalSeriesID
+                externalOrgID
+                name
+                description
+                createdAt
+                updatedAt
+                events {
+                    id
+                    externalEventID
+                    description
+                    eventLogoUrlSm
+                    eventLogoUrlBg
+                    startTime {
+                        timezone
+                        startsAtLocal
+                        startsAtUTC
+                    }
+                    endTime {
+                        timezone
+                        startsAtLocal
+                        startsAtUTC
+                    }
+                    registrationUrl
+                }
+                seriesLogoUrlSm
+                seriesLogoUrlBg
+                status
+            }
+        }
+    }
+`;
+
 // Mutation used to create a new service partner.
 export const createServicePartner = /* GraphQL */ `
     mutation CreateServicePartner($createPartnerInput: CreatePartnerInput!) {

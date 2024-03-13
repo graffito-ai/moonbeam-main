@@ -259,6 +259,13 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 createServicePartnerResolverName: "createServicePartner",
                 getServicePartnersResolverName: "getServicePartners"
             },
+            eventsConfig: {
+                eventsFunctionName: "eventsFunction",
+                eventSeriesTableName: "eventsSeriesTable",
+                eventSeriesCreateTimeGlobalIndex: "eventSeriesCreateTimeGlobalIndex",
+                createEventSeriesResolverName: "createEventSeries",
+                getEventSeriesResolverName: "getEventSeries"
+            },
             scriptsConfig: {
                 scriptsFunctionName: "scriptsFunction",
                 cardExpirationBackFillCronRuleName: "cardExpirationBackFillRule",
@@ -518,6 +525,13 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 servicesPartnersCreateTimeGlobalIndex: "servicesPartnersCreateTimeGlobalIndex",
                 createServicePartnerResolverName: "createServicePartner",
                 getServicePartnersResolverName: "getServicePartners"
+            },
+            eventsConfig: {
+                eventsFunctionName: "eventsFunction",
+                eventSeriesTableName: "eventsSeriesTable",
+                eventSeriesCreateTimeGlobalIndex: "eventSeriesCreateTimeGlobalIndex",
+                createEventSeriesResolverName: "createEventSeries",
+                getEventSeriesResolverName: "getEventSeries"
             },
             scriptsConfig: {
                 scriptsFunctionName: "scriptsFunction",

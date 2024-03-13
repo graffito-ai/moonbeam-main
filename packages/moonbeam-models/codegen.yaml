@@ -20,6 +20,7 @@ schema:
   - ./src/graphql/schemas/UtilitiesSchema.graphql
   - ./src/graphql/schemas/ReimbursementsSchema.graphql
   - ./src/graphql/schemas/ServicesSchema.graphql
+  - ./src/graphql/schemas/EventsSchema.graphql
 documents:
   - ./src/graphql/queries/Queries.graphql
   - ./src/graphql/mutations/Mutations.graphql

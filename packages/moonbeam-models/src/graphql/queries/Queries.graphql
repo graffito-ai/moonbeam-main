@@ -201,6 +201,42 @@ query GetFAQs {
         }
     }
 }
+query GetEventSeries {
+    getEventSeries {
+        errorMessage
+        errorType
+        data {
+            id
+            externalSeriesID
+            externalOrgID
+            name
+            description
+            createdAt
+            updatedAt
+            events {
+                id
+                externalEventID
+                description
+                eventLogoUrlSm
+                eventLogoUrlBg
+                startTime {
+                    timezone
+                    startsAtLocal
+                    startsAtUTC
+                }
+                endTime {
+                    timezone
+                    startsAtLocal
+                    startsAtUTC
+                }
+                registrationUrl
+            }
+            seriesLogoUrlSm
+            seriesLogoUrlBg
+            status
+        }
+    }
+}
 query GetServicePartners {
     getServicePartners {
         errorMessage

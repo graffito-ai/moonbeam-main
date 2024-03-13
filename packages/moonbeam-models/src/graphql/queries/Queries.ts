@@ -261,6 +261,46 @@ export const getFAQs = /* GraphQL */ `
     }
 `;
 
+// Query used to retrieve all Event Series for various partner organizations
+export const getEventSeries = /* GraphQL */ `
+    query GetEventSeries {
+        getEventSeries {
+            errorMessage
+            errorType
+            data {
+                id
+                externalSeriesID
+                externalOrgID
+                name
+                description
+                createdAt
+                updatedAt
+                events {
+                    id
+                    externalEventID
+                    description
+                    eventLogoUrlSm
+                    eventLogoUrlBg
+                    startTime {
+                        timezone
+                        startsAtLocal
+                        startsAtUTC
+                    }
+                    endTime {
+                        timezone
+                        startsAtLocal
+                        startsAtUTC
+                    }
+                    registrationUrl
+                }
+                seriesLogoUrlSm
+                seriesLogoUrlBg
+                status
+            }
+        }
+    }
+`;
+
 // Query used to retrieve all the Service partner organizations
 export const getServicePartners = /* GraphQL */ `
     query GetServicePartners {

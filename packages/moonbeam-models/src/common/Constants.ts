@@ -96,6 +96,8 @@ export namespace Constants {
         export const MILITARY_VERIFICATION_STATUS_GLOBAL_INDEX: string = 'MILITARY_VERIFICATION_STATUS_GLOBAL_INDEX';
         export const SERVICES_PARTNERS_TABLE: string = 'SERVICES_PARTNERS_TABLE';
         export const SERVICES_PARTNERS_CREATE_TIME_GLOBAL_INDEX: string = 'SERVICES_PARTNERS_CREATE_TIME_GLOBAL_INDEX';
+        export const EVENT_SERIES_TABLE: string = 'EVENT_SERIES_TABLE';
+        export const EVENT_SERIES_CREATE_TIME_GLOBAL_INDEX: string = 'EVENT_SERIES_CREATE_TIME_GLOBAL_INDEX';
         export const ENV_NAME: string = 'ENV_NAME';
         export const ACCOUNT_LINKS: string = 'ACCOUNT_LINKS';
         export const AWS_REGION: string = 'AWS_REGION';
@@ -179,6 +181,10 @@ export namespace Constants {
         export const MOONBEAM_INTERNAL_BASE_URL = `MOONBEAM_INTERNAL_BASE_URL`;
         export const MOONBEAM_INTERNAL_REST_BASE_URL = `MOONBEAM_INTERNAL_REST_BASE_URL`;
         export const MOONBEAM_INTERNAL_REST_API_KEY = `MOONBEAM_INTERNAL_REST_API_KEY`;
+
+        export const EVENTBRITE_SECRET_NAME = `eventbrite-secret-pair`;
+        export const EVENTBRITE_API_KEY = `EVENTBRITE-API-KEY`;
+        export const EVENTBRITE_BASE_URL = `EVENTBRITE-BASE-URL`;
 
         export const QUANDIS_SECRET_NAME = `quandis-secret-pair`;
         export const QUANDIS_API_KEY = `QUANDIS-API-KEY`;
