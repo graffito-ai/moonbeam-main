@@ -30,6 +30,7 @@ import {UtilitiesResolverStack} from "../stacks/UtilitiesResolverStack";
 import {ReimbursementsResolverStack} from "../stacks/ReimbursementsResolverStack";
 import {ScriptsResolverStack} from "../stacks/ScriptsResolverStack";
 import {ServicesResolverStack} from "../stacks/ServicesResolverStack";
+import {EventsResolverStack} from "../stacks/EventsResolverStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -385,6 +386,19 @@ export class StageUtils {
                     environmentVariables: stageConfiguration.environmentVariables
                 });
                 servicesResolverStack.addDependency(appSyncStack);
+
+                // create the Events resolver stack && add it to the CDK app
+                const eventsResolverStack = new EventsResolverStack(this.app, `moonbeam-events-resolver-${stageKey}`, {
+                    stackName: `moonbeam-events-resolver-${stageKey}`,
+                    description: 'This stack will contain all the AppSync related resources needed by the Lambda Events resolver',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    graphqlApiId: appSyncStack.graphqlApiId,
+                    graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
+                    eventsConfig: stageConfiguration.eventsConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                eventsResolverStack.addDependency(appSyncStack);
 
                 // create the Logging resolver stack && add it to the CDK app
                 const loggingResolverStack = new LoggingResolverStack(this.app, `moonbeam-logging-resolver-${stageKey}`,

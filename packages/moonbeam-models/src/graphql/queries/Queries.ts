@@ -272,6 +272,7 @@ export const getEventSeries = /* GraphQL */ `
                 externalSeriesID
                 externalOrgID
                 name
+                title
                 description
                 createdAt
                 updatedAt
@@ -279,6 +280,7 @@ export const getEventSeries = /* GraphQL */ `
                     id
                     externalEventID
                     description
+                    title
                     eventLogoUrlSm
                     eventLogoUrlBg
                     startTime {

@@ -210,12 +210,14 @@ query GetEventSeries {
             externalSeriesID
             externalOrgID
             name
+            title
             description
             createdAt
             updatedAt
             events {
                 id
                 externalEventID
+                title
                 description
                 eventLogoUrlSm
                 eventLogoUrlBg
