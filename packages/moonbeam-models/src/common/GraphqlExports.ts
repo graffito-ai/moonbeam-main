@@ -382,20 +382,20 @@ export type EmailFromCognitoResponse = {
 export type Event = {
   __typename?: 'Event';
   description: Scalars['String'];
-  endTime: EventDateTime;
+  endTime: EventEndDateTime;
   eventLogoUrlBg: Scalars['String'];
   eventLogoUrlSm: Scalars['String'];
   externalEventID: Scalars['ID'];
   id: Scalars['ID'];
   registrationUrl: Scalars['String'];
-  startTime: EventDateTime;
+  startTime: EventStartDateTime;
   title: Scalars['String'];
 };
 
-export type EventDateTime = {
-  __typename?: 'EventDateTime';
-  startsAtLocal: Scalars['AWSDateTime'];
-  startsAtUTC: Scalars['AWSDateTime'];
+export type EventEndDateTime = {
+  __typename?: 'EventEndDateTime';
+  endsAtLocal: Scalars['AWSDateTime'];
+  endsAtUTC: Scalars['AWSDateTime'];
   timezone: Scalars['String'];
 };
 
@@ -426,6 +426,13 @@ export enum EventSeriesStatus {
   Active = 'ACTIVE',
   Inactive = 'INACTIVE'
 }
+
+export type EventStartDateTime = {
+  __typename?: 'EventStartDateTime';
+  startsAtLocal: Scalars['AWSDateTime'];
+  startsAtUTC: Scalars['AWSDateTime'];
+  timezone: Scalars['String'];
+};
 
 export enum EventsErrorType {
   DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
@@ -2038,7 +2045,7 @@ export type CreateEventSeriesMutationVariables = Exact<{
 }>;
 
 
-export type CreateEventSeriesMutation = { __typename?: 'Mutation', createEventSeries: { __typename?: 'EventSeriesResponse', errorMessage?: string | null, errorType?: EventsErrorType | null, data?: Array<{ __typename?: 'EventSeries', id: string, externalSeriesID: string, externalOrgID: string, name: string, title: string, description: string, createdAt: string, updatedAt: string, seriesLogoUrlSm: string, seriesLogoUrlBg: string, status: EventSeriesStatus, events: Array<{ __typename?: 'Event', id: string, externalEventID: string, title: string, description: string, eventLogoUrlSm: string, eventLogoUrlBg: string, registrationUrl: string, startTime: { __typename?: 'EventDateTime', timezone: string, startsAtLocal: string, startsAtUTC: string }, endTime: { __typename?: 'EventDateTime', timezone: string, startsAtLocal: string, startsAtUTC: string } } | null> } | null> | null } };
+export type CreateEventSeriesMutation = { __typename?: 'Mutation', createEventSeries: { __typename?: 'EventSeriesResponse', errorMessage?: string | null, errorType?: EventsErrorType | null, data?: Array<{ __typename?: 'EventSeries', id: string, externalSeriesID: string, externalOrgID: string, name: string, title: string, description: string, createdAt: string, updatedAt: string, seriesLogoUrlSm: string, seriesLogoUrlBg: string, status: EventSeriesStatus, events: Array<{ __typename?: 'Event', id: string, externalEventID: string, title: string, description: string, eventLogoUrlSm: string, eventLogoUrlBg: string, registrationUrl: string, startTime: { __typename?: 'EventStartDateTime', timezone: string, startsAtLocal: string, startsAtUTC: string }, endTime: { __typename?: 'EventEndDateTime', timezone: string, endsAtLocal: string, endsAtUTC: string } } | null> } | null> | null } };
 
 export type CreateServicePartnerMutationVariables = Exact<{
   createPartnerInput: CreatePartnerInput;
@@ -2294,7 +2301,7 @@ export type GetFaQsQuery = { __typename?: 'Query', getFAQs: { __typename?: 'FAQR
 export type GetEventSeriesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetEventSeriesQuery = { __typename?: 'Query', getEventSeries: { __typename?: 'EventSeriesResponse', errorMessage?: string | null, errorType?: EventsErrorType | null, data?: Array<{ __typename?: 'EventSeries', id: string, externalSeriesID: string, externalOrgID: string, name: string, title: string, description: string, createdAt: string, updatedAt: string, seriesLogoUrlSm: string, seriesLogoUrlBg: string, status: EventSeriesStatus, events: Array<{ __typename?: 'Event', id: string, externalEventID: string, title: string, description: string, eventLogoUrlSm: string, eventLogoUrlBg: string, registrationUrl: string, startTime: { __typename?: 'EventDateTime', timezone: string, startsAtLocal: string, startsAtUTC: string }, endTime: { __typename?: 'EventDateTime', timezone: string, startsAtLocal: string, startsAtUTC: string } } | null> } | null> | null } };
+export type GetEventSeriesQuery = { __typename?: 'Query', getEventSeries: { __typename?: 'EventSeriesResponse', errorMessage?: string | null, errorType?: EventsErrorType | null, data?: Array<{ __typename?: 'EventSeries', id: string, externalSeriesID: string, externalOrgID: string, name: string, title: string, description: string, createdAt: string, updatedAt: string, seriesLogoUrlSm: string, seriesLogoUrlBg: string, status: EventSeriesStatus, events: Array<{ __typename?: 'Event', id: string, externalEventID: string, title: string, description: string, eventLogoUrlSm: string, eventLogoUrlBg: string, registrationUrl: string, startTime: { __typename?: 'EventStartDateTime', timezone: string, startsAtLocal: string, startsAtUTC: string }, endTime: { __typename?: 'EventEndDateTime', timezone: string, endsAtLocal: string, endsAtUTC: string } } | null> } | null> | null } };
 
 export type GetServicePartnersQueryVariables = Exact<{ [key: string]: never; }>;
 

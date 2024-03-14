@@ -28,8 +28,8 @@ export const getServicePartners = async (fieldName: string): Promise<PartnerResp
              * retrieve all service partners, given the global secondary index allowing us to query all partners by their
              * createdAt date, only for those partners that are ACTIVE.
              *
-             * Limit of 1 MB per paginated response data (in our case 5,700 items). An average size for an Item is about 133 bytes, which means that we won't
-             * need to do pagination here, since we actually retrieve all users in a looped format, and we account for paginated responses. Even if the item size
+             * Limit of 1 MB per paginated response data (in our case 500 items). An average size for an Item is about 1544 bytes, which means that we won't
+             * need to do pagination here, since we actually retrieve all service partners in a looped format, and we account for paginated responses. Even if the item size
              * increases we loop the query command depending on the last evaluated key, so we're ok not to do pagination.
              *
              * @link {https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.Pagination.html}
@@ -39,7 +39,7 @@ export const getServicePartners = async (fieldName: string): Promise<PartnerResp
                 TableName: process.env.SERVICES_PARTNERS_TABLE!,
                 IndexName: `${process.env.SERVICES_PARTNERS_CREATE_TIME_GLOBAL_INDEX!}-${process.env.ENV_NAME!}-${region}`,
                 ...(exclusiveStartKey && {ExclusiveStartKey: exclusiveStartKey}),
-                Limit: 5700, // 5,700 * 133 bytes = 758,100 bytes = 0.7581 MB (leave a margin of error here up to 1 MB)
+                Limit: 500, // 500 * 1,544 bytes = 772,000 bytes = 0.772 MB (leave a margin of error here up to 1 MB)
                 ExpressionAttributeNames: {
                     '#stat': 'status',
                     '#cAt': 'createdAt'

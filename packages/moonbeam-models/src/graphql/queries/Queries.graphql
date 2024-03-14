@@ -228,8 +228,8 @@ query GetEventSeries {
                 }
                 endTime {
                     timezone
-                    startsAtLocal
-                    startsAtUTC
+                    endsAtLocal
+                    endsAtUTC
                 }
                 registrationUrl
             }

@@ -133,10 +133,10 @@ export const createEventSeries = async (fieldName: string, createEventSeriesInpu
                                         endTime: {
                                             M: {
                                                 endsAtLocal: {
-                                                    S: event.endTime.startsAtLocal
+                                                    S: event.endTime.endsAtLocal
                                                 },
-                                                startsAtUTC: {
-                                                    S: event.endTime.startsAtUTC
+                                                endsAtUTC: {
+                                                    S: event.endTime.endsAtUTC
                                                 },
                                                 timezone: {
                                                     S: event.endTime.timezone

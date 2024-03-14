@@ -1,5 +1,6 @@
 import {CreateEventSeriesInput, EventSeriesResponse, EventsErrorType} from "@moonbeam/moonbeam-models";
 import { createEventSeries } from "./resolvers/CreateEventSeriesResolver";
+import { getEventSeries } from "./resolvers/GetEventSeriesResolver";
 
 /**
  * Mapping out the App Sync event type, so we can use it as a type in the Lambda Handler
@@ -27,6 +28,8 @@ type AppSyncEvent = {
 exports.handler = async (event: AppSyncEvent): Promise<EventSeriesResponse> => {
     console.log(`Received new Events/Event Series event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
+        case "getEventSeries":
+            return await getEventSeries(event.info.fieldName);
         case "createEventSeries":
             return await createEventSeries(event.info.fieldName, event.arguments.createEventSeriesInput);
         default:

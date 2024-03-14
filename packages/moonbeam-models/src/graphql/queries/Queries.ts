@@ -290,8 +290,8 @@ export const getEventSeries = /* GraphQL */ `
                     }
                     endTime {
                         timezone
-                        startsAtLocal
-                        startsAtUTC
+                        endsAtLocal
+                        endsAtUTC
                     }
                     registrationUrl
                 }

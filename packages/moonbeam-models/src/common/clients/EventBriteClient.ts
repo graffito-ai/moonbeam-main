@@ -161,8 +161,8 @@ export class EventBriteClient extends BaseAPIClient {
                                             },
                                             endTime: {
                                                 timezone: returnedEvent["end"]["timezone"],
-                                                startsAtLocal: new Date(returnedEvent["end"]["local"]).toISOString(),
-                                                startsAtUTC: new Date(returnedEvent["end"]["utc"]).toISOString()
+                                                endsAtLocal: new Date(returnedEvent["end"]["local"]).toISOString(),
+                                                endsAtUTC: new Date(returnedEvent["end"]["utc"]).toISOString()
                                             }
                                         }
                                         // add the newly created event in the list of events to be returned with the Event Series

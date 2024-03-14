@@ -1664,10 +1664,16 @@ enum EventSeriesStatus {
     INACTIVE
 }
 
-type EventDateTime @aws_cognito_user_pools @aws_api_key {
+type EventStartDateTime @aws_cognito_user_pools @aws_api_key {
     timezone: String!
     startsAtLocal: AWSDateTime!
     startsAtUTC: AWSDateTime!
+}
+
+type EventEndDateTime @aws_cognito_user_pools @aws_api_key {
+    timezone: String!
+    endsAtLocal: AWSDateTime!
+    endsAtUTC: AWSDateTime!
 }
 
 type Event @aws_cognito_user_pools @aws_api_key {
@@ -1677,8 +1683,8 @@ type Event @aws_cognito_user_pools @aws_api_key {
     description: String!
     eventLogoUrlSm: String!
     eventLogoUrlBg: String!
-    startTime: EventDateTime!
-    endTime: EventDateTime!
+    startTime: EventStartDateTime!
+    endTime: EventEndDateTime!
     registrationUrl: String!
 }
 

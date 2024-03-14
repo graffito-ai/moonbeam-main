@@ -27,8 +27,8 @@ mutation CreateEventSeries($createEventSeriesInput: CreateEventSeriesInput!) {
                 }
                 endTime {
                     timezone
-                    startsAtLocal
-                    startsAtUTC
+                    endsAtLocal
+                    endsAtUTC
                 }
                 registrationUrl
             }
