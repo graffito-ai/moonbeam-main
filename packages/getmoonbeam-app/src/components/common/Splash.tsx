@@ -264,6 +264,7 @@ import {
     reimbursementBottomSheetShownState,
     reimbursementDataState
 } from "../../recoil/ReimbursementsAtom";
+import {eventSeriesDataState, servicePartnersDataState} from "../../recoil/ServicesAtom";
 
 /**
  * import branch only if the app is not running in Expo Go (so we can actually run the application without Branch for
@@ -532,6 +533,8 @@ export const SplashScreen = (props: {
     const isReimbursementsControllerReadyStateReset = useResetRecoilState(isReimbursementsControllerReadyState);
     const bottomTabNeedsShowingStateReset = useResetRecoilState(bottomTabNeedsShowingState);
     const comingFromMarketplaceStateReset = useResetRecoilState(comingFromMarketplaceState);
+    const servicePartnersDataStateReset = useResetRecoilState(servicePartnersDataState);
+    const eventSeriesDataStateReset = useResetRecoilState(eventSeriesDataState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -791,6 +794,8 @@ export const SplashScreen = (props: {
             isReimbursementsControllerReadyStateReset();
             bottomTabNeedsShowingStateReset();
             comingFromMarketplaceStateReset();
+            servicePartnersDataStateReset();
+            eventSeriesDataStateReset();
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {
                 // import branch

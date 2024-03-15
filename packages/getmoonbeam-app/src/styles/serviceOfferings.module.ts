@@ -135,4 +135,40 @@ export const styles = StyleSheet.create({
         fontFamily: 'Raleway-Regular',
         color: '#FFFFFF'
     },
+    servicePartnerItemView: {
+        width: wp(80),
+        height: hp(40),
+        backgroundColor: '#313030',
+        shadowColor: 'black',
+        shadowOffset: {width: -2, height: 10},
+        shadowOpacity: 0.95,
+        shadowRadius: 15,
+        elevation: 20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20
+    },
+
+    noServicePartnersView: {
+        top: hp(4),
+        height: hp(40),
+        width: wp(100),
+        alignSelf: 'center',
+        flexDirection: 'column',
+        justifyContent: 'center'
+    },
+    noServicePartnersImage: {
+        right: wp(4),
+        height: hp(35),
+        width: hp(25),
+        alignSelf: 'center'
+    },
+    noServicePartnersText: {
+        alignSelf: 'center',
+        top: hp(2),
+        width: wp(100),
+        textAlign: 'center',
+        fontFamily: 'Raleway-Bold',
+        fontSize: hp(2.25),
+        color: '#F2FF5D'
+    },
 });

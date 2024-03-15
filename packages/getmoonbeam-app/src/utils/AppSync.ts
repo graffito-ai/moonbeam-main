@@ -1,21 +1,26 @@
 import {
-    CountryCode, createAppReview,
-    createDevice, createLogEvent,
+    CountryCode,
+    createAppReview,
+    createDevice,
+    createLogEvent,
     createNotification,
     CreateNotificationInput,
     createReferral,
     createUserAuthSession,
-    FidelisPartner, geoCodeAsync,
+    FidelisPartner,
+    geoCodeAsync,
     getAppReviewEligibility,
     getAppUpgradeCredentials,
     getDeviceByToken,
-    getFidelisPartners, GetLocationPredictionsResponse,
+    getFidelisPartners,
+    GetLocationPredictionsResponse,
     getOffers,
     getPremierOffers,
     getSeasonalOffers,
     getUserAuthSession,
     getUserCardLinkingId,
-    getUserFromReferral, LocationPredictionType,
+    getUserFromReferral,
+    LocationPredictionType,
     getLocationPredictions,
     LoggingLevel,
     MarketingCampaignCode,
@@ -25,7 +30,9 @@ import {
     OfferCategory,
     OfferFilter,
     OfferSeasonalType,
-    OfferState, OfferStore, OsType,
+    OfferState,
+    OfferStore,
+    OsType,
     PushDevice,
     RedemptionType,
     Referral,
@@ -39,7 +46,14 @@ import {
     UserAuthSessionErrorType,
     UserAuthSessionResponse,
     UserDeviceErrorType,
-    UserDeviceState, Reimbursement, getReimbursements, CreateReimbursementInput, createReimbursement
+    UserDeviceState,
+    Reimbursement,
+    getReimbursements,
+    CreateReimbursementInput,
+    createReimbursement,
+    EventSeries,
+    getEventSeries,
+    Partner, getServicePartners
 } from "@moonbeam/moonbeam-models";
 import {API, Cache, graphqlOperation} from "aws-amplify";
 import {dynamicSort} from "./Main";
@@ -193,6 +207,82 @@ export const retrieveReimbursements = async (userId: string): Promise<Reimbursem
     } catch (error) {
         // log an error and return an empty list of reimbursements
         const message = `Unexpected error while executing the get reimbursements query for: ${userId}, ${JSON.stringify(error)} ${error}`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, true);
+
+        return result;
+    }
+}
+
+/**
+ * Function used to retrieve the list of all the Organizations that we Partnered with.
+ *
+ * @returns a {@link Promise} of an {@link Array} of {@link Partner} representing the list
+ * of Service Partner Organizations.
+ */
+export const retrieveServicePartners = async (): Promise<Partner[]> => {
+    const result: Partner[] = [];
+    try {
+        // call the getServicePartners API to retrieve event series for partner organizations
+        const servicePartnersRetrievalResult = await API.graphql(graphqlOperation(getServicePartners));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const servicePartnersRetrievalFlag = servicePartnersRetrievalResult ? servicePartnersRetrievalResult.data : null;
+
+        if (servicePartnersRetrievalFlag && servicePartnersRetrievalFlag.getServicePartners.errorMessage === null &&
+            servicePartnersRetrievalFlag.getServicePartners.data !== undefined && servicePartnersRetrievalFlag.getServicePartners.data !== null) {
+            // return the retrieved list of service partners accordingly
+            return servicePartnersRetrievalFlag.getServicePartners.data as Partner[];
+        } else {
+            // log an error and return an empty list of service partners
+            const message = `Error while executing the get service partners query ${servicePartnersRetrievalFlag.getServicePartners.errorMessage}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, true);
+
+            return result;
+        }
+    } catch (error) {
+        // log an error and return an empty list of event series
+        const message = `Unexpected error while executing the get service partners query ${JSON.stringify(error)} ${error}`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, true);
+
+        return result;
+    }
+}
+
+/**
+ * Function used to retrieve the list of all the Event Series for our Partner Organizations.
+ *
+ * @returns a {@link Promise} of an {@link Array} of {@link EventSeries} representing the list
+ * of Event Series for our partner organizations.
+ */
+export const retrieveEventSeries = async (): Promise<EventSeries[]> => {
+    const result: EventSeries[] = [];
+    try {
+        // call the getEventSeries API to retrieve event series for partner organizations
+        const eventSeriesRetrievalResult = await API.graphql(graphqlOperation(getEventSeries));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const eventSeriesRetrievalFlag = eventSeriesRetrievalResult ? eventSeriesRetrievalResult.data : null;
+
+        if (eventSeriesRetrievalFlag && eventSeriesRetrievalFlag.getEventSeries.errorMessage === null &&
+            eventSeriesRetrievalFlag.getEventSeries.data !== undefined && eventSeriesRetrievalFlag.getEventSeries.data !== null) {
+            // return the retrieved list of event series accordingly
+            return eventSeriesRetrievalFlag.getEventSeries.data as EventSeries[];
+        } else {
+            // log an error and return an empty list of event series
+            const message = `Error while executing the get event series query ${eventSeriesRetrievalFlag.getEventSeries.errorMessage}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, true);
+
+            return result;
+        }
+    } catch (error) {
+        // log an error and return an empty list of event series
+        const message = `Unexpected error while executing the get event series query ${JSON.stringify(error)} ${error}`;
         console.log(message);
         await logEvent(message, LoggingLevel.Error, true);
 

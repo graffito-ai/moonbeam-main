@@ -7,6 +7,7 @@ import {useRecoilState} from "recoil";
 import {appDrawerHeaderShownState, customBannerShown, drawerSwipeState} from "../../../../../recoil/AppDrawerAtom";
 import {ServiceOfferings} from "./ServiceOfferings";
 import {ServiceOfferingDetails} from "./ServiceOfferingDetails";
+import {EventSeriesDetails} from "./EventSeriesDetails";
 
 /**
  * Services component.
@@ -59,6 +60,11 @@ export const Services = ({navigation}: ServicesProps) => {
                 <Stack.Screen
                     name="ServiceOfferingDetails"
                     component={ServiceOfferingDetails}
+                    initialParams={{}}
+                />
+                <Stack.Screen
+                    name="EventSeriesDetails"
+                    component={EventSeriesDetails}
                     initialParams={{}}
                 />
             </Stack.Navigator>
