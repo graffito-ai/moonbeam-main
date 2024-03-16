@@ -11,7 +11,6 @@ import {EventSeriesDetails} from "./EventSeriesDetails";
 import {retrieveEventSeries, retrieveServicePartners} from "../../../../../utils/AppSync";
 import {eventSeriesDataState, servicePartnersDataState} from "../../../../../recoil/ServicesAtom";
 import {Spinner} from "../../../../common/Spinner";
-import {bottomTabShownState} from "../../../../../recoil/HomeAtom";
 
 /**
  * Services component.
@@ -25,7 +24,6 @@ export const Services = ({navigation}: ServicesProps) => {
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [serviceDataLoaded, setIsServiceDataLoaded] = useState<boolean>(false);
     // constants used to keep track of shared states
-    const [bottomTabShown, setBottomTabShown] = useRecoilState(bottomTabShownState);
     const [appDrawerHeaderShown, setAppDrawerHeaderShown] = useRecoilState(appDrawerHeaderShownState);
     const [drawerSwipeEnabled, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
     const [bannerShown, setBannerShown] = useRecoilState(customBannerShown);
@@ -43,14 +41,6 @@ export const Services = ({navigation}: ServicesProps) => {
      * included in here.
      */
     useEffect(() => {
-        // make sure we hide the bottom bar if the screen is not ready to be loaded
-        if (!isReady) {
-            bottomTabShown && setBottomTabShown(false);
-        }
-        if (isReady) {
-            !bottomTabShown && setBottomTabShown(true);
-        }
-
         // load the service data, if needed
         if (!serviceDataLoaded) {
             setIsServiceDataLoaded(true);
@@ -65,7 +55,7 @@ export const Services = ({navigation}: ServicesProps) => {
             bannerShown && setBannerShown(false);
             drawerSwipeEnabled && setDrawerSwipeEnabled(false);
         }
-    }, [isReady, bottomTabShown, serviceDataLoaded, navigation.getState()]);
+    }, [serviceDataLoaded, navigation.getState()]);
 
     /**
      * Function used to retrieve the services and events data accordingly.

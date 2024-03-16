@@ -158,8 +158,6 @@ export const styles = StyleSheet.create({
         fontSize: hp(2.00),
         color: '#F2FF5D'
     },
-
-
     noServicePartnersView: {
         top: hp(4),
         height: hp(40),
@@ -188,12 +186,23 @@ export const styles = StyleSheet.create({
         fontSize: hp(2.25),
         color: '#F2FF5D'
     },
-    sectionText: {
+    sectionTextTop: {
         alignSelf: 'flex-start',
         left: wp(5),
         top: hp(1),
         marginBottom: hp(5),
-        width: wp(100),
+        width: wp(45),
+        textAlign: 'left',
+        fontSize: hp(2.50),
+        fontFamily: 'Saira-SemiBold',
+        color: '#FFFFFF'
+    },
+    sectionTextBottom: {
+        alignSelf: 'flex-start',
+        left: wp(5),
+        top: hp(1),
+        marginBottom: hp(5),
+        width: wp(90),
         textAlign: 'left',
         fontSize: hp(2.50),
         fontFamily: 'Saira-SemiBold',
@@ -303,5 +312,94 @@ export const styles = StyleSheet.create({
         alignSelf: 'center',
         textAlign: 'center',
         color: '#F2FF5D'
+    },
+    seeAllUpcomingEventsButton: {
+        top: hp(1.90),
+        left: wp(38),
+        fontSize: hp(1.75),
+        fontFamily: 'Raleway-Bold',
+        color: '#F2FF5D',
+        textDecorationLine: 'underline',
+        alignSelf: 'flex-end'
+    },
+    calendarEventCardItemView: {
+        alignSelf: 'flex-start',
+        width: wp(95),
+        height: hp(20),
+        flexDirection: 'column'
+    },
+    calendarEventContentView: {
+        width: wp(95),
+        height: hp(15.5),
+        bottom: hp(2),
+        flexDirection: 'row'
+    },
+    calendarEventsGroupingTitle: {
+        alignSelf: 'flex-start',
+        left: wp(3),
+        top: hp(1),
+        marginBottom: hp(3),
+        width: wp(45),
+        textAlign: 'left',
+        fontSize: hp(2.25),
+        fontFamily: 'Saira-Bold',
+        color: '#FFFFFF'
+    },
+    calendarEventImageBackground: {
+        backgroundColor: '#FFFFFF',
+        width: wp(26),
+        height: wp(26),
+        borderRadius: 20,
+        alignSelf: 'center',
+        borderColor: 'transparent',
+        borderWidth: hp(0.2),
+        left: hp(1)
+    },
+    calendarEventImage: {
+        width: wp(25),
+        height: wp(25),
+        alignSelf: 'center',
+        borderRadius: 20
+    },
+    calendarEventInformationView: {
+        width: wp(61),
+        height: wp(30),
+        alignSelf: 'center',
+        left: wp(3),
+        flexDirection: 'column'
+    },
+    calendarEventsInformationTitle: {
+        alignSelf: 'flex-start',
+        left: wp(3),
+        top: hp(1),
+        width: wp(25),
+        textAlign: 'left',
+        fontSize: hp(1.85),
+        fontFamily: 'Saira-Bold',
+        color: '#F2FF5D'
+    },
+    calendarEventsInformationSubTitle: {
+        alignSelf: 'flex-start',
+        left: wp(3),
+        top: hp(0.25),
+        width: wp(20),
+        textAlign: 'left',
+        fontSize: hp(1.65),
+        fontFamily: 'Saira-Bold',
+        color: '#F2FF5D'
+    },
+    calendarEventsInformationEventName: {
+        alignSelf: 'flex-start',
+        left: wp(3),
+        top: hp(1),
+        width: wp(45),
+        textAlign: 'left',
+        fontSize: hp(2),
+        fontFamily: 'Raleway-SemiBold',
+        color: '#FFFFFF'
+    },
+    calendarEventsRightIcon: {
+        left: wp(1),
+        top: hp(5)
     },
 });

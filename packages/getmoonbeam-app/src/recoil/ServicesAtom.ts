@@ -21,7 +21,7 @@ const eventSeriesDataState = atom<EventSeries[]>({
  * A selector used to keep track of any updates to the sortedUpcomingEventsDataState, and sort that
  * list according to the createdAt time, in descending order.
  */
-const sortedUpcomingEventsDataState = selector<Event[]>({
+const sortedUpcomingEventsDataState = selector<(Event & {eventGroup: boolean})[]>({
     key: 'sortedUpcomingEventsDataState',
     get: ({get}) => {
         const eventSeriesDataList = get(sortedEventSeriesDataState);
@@ -37,10 +37,41 @@ const sortedUpcomingEventsDataState = selector<Event[]>({
                 }
             });
         });
-        // sort the service partners by their creation date and ensure that there are no duplicates
-        return allEventsToFilter
-            .filter(event => Date.parse(new Date().toISOString()) < Date.parse(new Date(event.startTime.startsAtUTC).toISOString()))
-            .sort((a, b) => Date.parse(new Date(a.startTime.startsAtUTC).toISOString()) - Date.parse(new Date(b.startTime.startsAtUTC).toISOString()));
+        const allEventsToFilterWithFlag: (Event & {eventGroup: boolean})[] = [];
+        let index: number = 0;
+        let lastGroupEventDate: string = "";
+
+        /**
+         * Sort the upcoming events by their creation date and ensure that there are no duplicates.
+         * Add a flag specifying whether the event is the start of an event grouping (events on the same
+         * date), or not.
+         */
+        allEventsToFilter
+            .filter(event => Date.parse(new Date().toISOString()) <= Date.parse(new Date(event.startTime.startsAtUTC).toISOString()))
+            .sort((a, b) => Date.parse(new Date(a.startTime.startsAtUTC).toISOString()) - Date.parse(new Date(b.startTime.startsAtUTC).toISOString())).forEach(event => {
+            const currentEventDate = new Date(event.startTime.startsAtUTC).toLocaleDateString([], {
+                weekday: "short",
+                month: "short",
+                day: "numeric"
+            });
+            // for the first index we always want to start a new group
+            if (index === 0) {
+                allEventsToFilterWithFlag.push({
+                    ...event,
+                    eventGroup: true
+                });
+            } else {
+                allEventsToFilterWithFlag.push({
+                    ...event,
+                    eventGroup: lastGroupEventDate.trim() !== currentEventDate.trim()
+                });
+            }
+            index +=1;
+            lastGroupEventDate = currentEventDate;
+        });
+
+        // return the sorted upcoming events
+        return allEventsToFilterWithFlag;
     }
 });
 

@@ -18,20 +18,19 @@ import {Card, Paragraph, Text} from "react-native-paper";
 import {Platform, ScrollView, TouchableOpacity, View} from 'react-native';
 import {useRecoilValue} from "recoil";
 import {
-    sortedEventSeriesDataState,
     sortedServicePartnersDataState,
     sortedUpcomingEventsDataState
 } from "../../../../../recoil/ServicesAtom";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
-import {Partner, Event} from "@moonbeam/moonbeam-models";
+import {Event, Partner} from "@moonbeam/moonbeam-models";
 // @ts-ignore
 import MoonbeamNoServicePartners from '../../../../../../assets/art/moonbeam-no-service-partners.png';
 // @ts-ignore
 import MoonbeamNoEvents from '../../../../../../assets/art/moonbeam-no-events.png';
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../assets/art/moonbeam-store-placeholder.png";
-import {Image} from "expo-image";
+import {Icon} from "@rneui/base";
 
 /**
  * ServiceOfferings component.
@@ -43,17 +42,18 @@ export const ServiceOfferings = ({}: ServiceOfferingsProps) => {
     // constants used to keep track of local component state
     const servicePartnerListView = useRef();
     const upcomingEventsListView = useRef();
+    const calendarEventsListView = useRef();
     const [activeSection, setActiveSection] = useState<'organizations' | 'events' | 'all'>('all');
     const [servicePartnersDataProvider, setServicePartnersDataProvider] = useState<DataProvider | null>(null);
     const [servicePartnersLayoutProvider, setServicePartnersLayoutProvider] = useState<LayoutProvider | null>(null);
-    const [eventSeriesDataProvider, setEventSeriesDataProvider] = useState<DataProvider | null>(null);
-    const [eventSeriesLayoutProvider, setEventSeriesLayoutProvider] = useState<LayoutProvider | null>(null);
     const [upcomingEventsDataProvider, setUpcomingEventsDataProvider] = useState<DataProvider | null>(null);
     const [upcomingEventsLayoutProvider, setUpcomingEventsLayoutProvider] = useState<LayoutProvider | null>(null);
+    const [calendarEventsDataProvider, setCalendarEventsDataProvider] = useState<DataProvider | null>(null);
+    const [calendarEventsLayoutProvider, setCalendarEventsLayoutProvider] = useState<LayoutProvider | null>(null);
     // constants used to keep track of shared states
     const sortedUpcomingEvents = useRecoilValue(sortedUpcomingEventsDataState);
     const sortedServicePartners = useRecoilValue(sortedServicePartnersDataState);
-    const sortedEventSeries = useRecoilValue(sortedEventSeriesDataState);
+
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
      * auth-related functionality for example), as well as any afferent API calls.
@@ -63,23 +63,28 @@ export const ServiceOfferings = ({}: ServiceOfferingsProps) => {
      */
     useEffect(() => {
         // populate the service partners and event series data provider and list view
-        if (eventSeriesDataProvider === null && eventSeriesLayoutProvider === null && servicePartnersDataProvider === null && servicePartnersLayoutProvider === null &&
-            sortedServicePartners !== undefined && sortedEventSeries !== undefined && sortedEventSeries !== null && sortedServicePartners !== null) {
-            // event series data
-            setEventSeriesDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(sortedEventSeries));
-            setEventSeriesLayoutProvider(new LayoutProvider(
-                _ => 0,
-                (_, dim) => {
-                    dim.width = wp(100);
-                    dim.height = hp(30);
-                }
+        if (servicePartnersDataProvider === null && servicePartnersLayoutProvider === null &&
+            upcomingEventsDataProvider === null && upcomingEventsLayoutProvider === null && calendarEventsDataProvider === null && calendarEventsLayoutProvider === null &&
+            sortedServicePartners !== undefined && sortedServicePartners !== null && sortedUpcomingEvents !== null) {
+            // upcoming events data
+            setUpcomingEventsDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(
+                // only display up to 6 events in this section, the rest go in the calendar
+                sortedUpcomingEvents.length > 6
+                    ? sortedUpcomingEvents.slice(0, 5)
+                    : sortedUpcomingEvents
             ));
-            // upcoming event series data
-            setUpcomingEventsDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(sortedUpcomingEvents));
             setUpcomingEventsLayoutProvider(new LayoutProvider(
                 _ => 0,
                 (_, dim) => {
                     dim.width = wp(40);
+                    dim.height = hp(30);
+                }
+            ));
+            setCalendarEventsDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(sortedUpcomingEvents));
+            setCalendarEventsLayoutProvider(new LayoutProvider(
+                _ => 0,
+                (_, dim) => {
+                    dim.width = wp(100);
                     dim.height = hp(30);
                 }
             ));
@@ -93,10 +98,10 @@ export const ServiceOfferings = ({}: ServiceOfferingsProps) => {
                 }
             ));
         }
-    }, [sortedEventSeries, sortedServicePartners, sortedUpcomingEvents,
+    }, [sortedServicePartners, sortedUpcomingEvents,
         servicePartnersDataProvider, servicePartnersLayoutProvider,
-        eventSeriesDataProvider, eventSeriesLayoutProvider,
-        upcomingEventsDataProvider, upcomingEventsLayoutProvider
+        upcomingEventsDataProvider, upcomingEventsLayoutProvider,
+        calendarEventsDataProvider, calendarEventsLayoutProvider
     ]);
 
     /**
@@ -161,6 +166,89 @@ export const ServiceOfferings = ({}: ServiceOfferingsProps) => {
         }
     }, [sortedServicePartners]);
 
+    /**
+     * Function used to populate the rows containing Events data for the Calendar.
+     *
+     * @param type row type to be passed in
+     * @param data data to be passed in for the row
+     * @param index number specifying the index of the data element to be rendered
+     *
+     * @return a {@link React.JSX.Element} or an {@link Array} of {@link React.JSX.Element} representing the
+     * React node and/or nodes containing Events data for the Calendar.
+     */
+    const renderCalendarData = useMemo(() => (_type: string | number, data: (Event & {eventGroup: boolean}), index: number): React.JSX.Element | React.JSX.Element[] => {
+        // return the Events data for the Calendar or an appropriate message instead
+        if (sortedUpcomingEvents !== undefined && sortedUpcomingEvents !== null && sortedUpcomingEvents.length !== 0) {
+            return (
+                <View style={{flexDirection: 'column'}}>
+                    {
+                        data.eventGroup ?
+                            <Text
+                                style={[styles.calendarEventsGroupingTitle, index !== 0 && {marginTop: -hp(5)}]}>
+                                {new Date(data.startTime.startsAtUTC).toLocaleDateString([], {
+                                    weekday: "short",
+                                    month: "short",
+                                    day: "numeric"
+                                })}
+                            </Text> :
+                            <Text style={{marginTop: -hp(7)}}>
+
+                            </Text>
+                    }
+                    <TouchableOpacity style={styles.calendarEventCardItemView}>
+                        <View style={[styles.calendarEventContentView]}>
+                            <View style={styles.calendarEventImageBackground}>
+                                <ExpoImage
+                                    style={styles.calendarEventImage}
+                                    source={{uri: data.eventLogoUrlSm}}
+                                    placeholder={MoonbeamPlaceholderImage}
+                                    placeholderContentFit={'contain'}
+                                    contentFit={'cover'}
+                                    transition={1000}
+                                    cachePolicy={'memory-disk'}
+                                />
+                            </View>
+                            <View style={styles.calendarEventInformationView}>
+                                <Text
+                                    numberOfLines={1}
+                                    style={styles.calendarEventsInformationTitle}>
+                                    {new Date(data.startTime.startsAtUTC).toLocaleDateString([], {
+                                        weekday: "short",
+                                        month: "short",
+                                        day: "numeric"
+                                    })}
+                                </Text>
+                                <Text
+                                    numberOfLines={1}
+                                    style={styles.calendarEventsInformationSubTitle}>
+                                    {new Date(data.startTime.startsAtUTC).toLocaleTimeString([], {
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        hourCycle: 'h12'
+                                    })}
+                                </Text>
+                                <Text
+                                    numberOfLines={2}
+                                    style={styles.calendarEventsInformationEventName}>
+                                    {data.title}
+                                </Text>
+                            </View>
+                            <Icon name="chevron-right"
+                                  type={'material-community'}
+                                  style={styles.calendarEventsRightIcon}
+                                  size={hp(4)}
+                                  color={'#F2FF5D'}/>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+            );
+        } else {
+            return (
+                <></>
+            );
+        }
+    }, [sortedUpcomingEvents]);
+
 
     /**
      * Function used to populate the rows containing the upcoming Event-related data.
@@ -172,7 +260,7 @@ export const ServiceOfferings = ({}: ServiceOfferingsProps) => {
      * @return a {@link React.JSX.Element} or an {@link Array} of {@link React.JSX.Element} representing the
      * React node and/or nodes containing upcoming Event-related data.
      */
-    const renderUpcomingEventsData = useMemo(() => (_type: string | number, data: Event, index: number): React.JSX.Element | React.JSX.Element[] => {
+    const renderUpcomingEventsData = useMemo(() => (_type: string | number, data: (Event & {eventGroup: boolean}), index: number): React.JSX.Element | React.JSX.Element[] => {
         // return the upcoming Event data or an appropriate message instead
         if (sortedUpcomingEvents !== undefined && sortedUpcomingEvents !== null && sortedUpcomingEvents.length !== 0) {
             return (
@@ -187,7 +275,7 @@ export const ServiceOfferings = ({}: ServiceOfferingsProps) => {
                         <Card.Content>
                             <View style={{flexDirection: 'column'}}>
                                 <View style={styles.upcomingEventCardCoverBackground}>
-                                    <Image
+                                    <ExpoImage
                                         style={styles.upcomingEventCardCover}
                                         source={{
                                             uri: data.eventLogoUrlSm
@@ -309,7 +397,7 @@ export const ServiceOfferings = ({}: ServiceOfferingsProps) => {
                     showsVerticalScrollIndicator={false}
                 >
                     {
-                        eventSeriesLayoutProvider !== null && eventSeriesDataProvider !== null && activeSection === "events" && sortedEventSeries.length === 0 &&
+                        calendarEventsLayoutProvider !== null && calendarEventsDataProvider !== null && activeSection === "events" && sortedUpcomingEvents.length === 0 &&
                         <View
                             style={styles.noServicePartnersView}>
                             <ExpoImage
@@ -325,6 +413,37 @@ export const ServiceOfferings = ({}: ServiceOfferingsProps) => {
                                 }
                             </Text>
                         </View>
+                    }
+                    {
+                        calendarEventsLayoutProvider !== null && calendarEventsDataProvider !== null && activeSection === "events" && sortedUpcomingEvents.length > 0 &&
+                        <>
+                            <RecyclerListView
+                                // @ts-ignore
+                                ref={calendarEventsListView}
+                                style={{
+                                    top: hp(2),
+                                    height: sortedUpcomingEvents.length * hp(20),
+                                    width: wp(100)
+                                }}
+                                layoutProvider={calendarEventsLayoutProvider!}
+                                dataProvider={calendarEventsDataProvider!}
+                                rowRenderer={renderCalendarData}
+                                isHorizontal={false}
+                                forceNonDeterministicRendering={true}
+                                {
+                                    ...(Platform.OS === 'ios') ?
+                                        {onEndReachedThreshold: 0} :
+                                        {onEndReachedThreshold: 1}
+                                }
+                                scrollViewProps={{
+                                    pagingEnabled: "true",
+                                    decelerationRate: "fast",
+                                    snapToAlignment: "start",
+                                    persistentScrollbar: false,
+                                    showsVerticalScrollIndicator: false,
+                                }}
+                            />
+                        </>
                     }
                     {
                         servicePartnersLayoutProvider !== null && servicePartnersDataProvider !== null && activeSection === "organizations" && sortedServicePartners.length === 0 &&
@@ -350,7 +469,7 @@ export const ServiceOfferings = ({}: ServiceOfferingsProps) => {
                             <View
                                 style={{top: hp(2)}}>
                                 <View style={{flexDirection: 'column'}}>
-                                    <Text style={styles.sectionText}>Veteran Service Organizations</Text>
+                                    <Text style={styles.sectionTextBottom}>Veteran Service Organizations</Text>
                                 </View>
                                 <RecyclerListView
                                     // @ts-ignore
@@ -393,7 +512,7 @@ export const ServiceOfferings = ({}: ServiceOfferingsProps) => {
                                     <>
                                         <View style={{top: hp(2)}}>
                                             <View style={{flexDirection: 'column'}}>
-                                                <Text style={styles.sectionText}>Upcoming Events</Text>
+                                                <Text style={styles.sectionTextTop}>Upcoming Events</Text>
                                             </View>
                                             <View
                                                 style={styles.noElementsAllView}>
@@ -415,14 +534,22 @@ export const ServiceOfferings = ({}: ServiceOfferingsProps) => {
                                     :
                                     <>
                                         <View style={{top: hp(2)}}>
-                                            <View style={{flexDirection: 'column'}}>
-                                                <Text style={styles.sectionText}>Upcoming Events</Text>
+                                            <View style={{flexDirection: 'row', width: wp(100)}}>
+                                                <Text style={styles.sectionTextTop}>Upcoming Events</Text>
+                                                <TouchableOpacity onPress={() => {
+                                                    // set the Calendar section as the one being active
+                                                    setActiveSection("events");
+                                                }}>
+                                                    <Text style={styles.seeAllUpcomingEventsButton}>
+                                                        See All
+                                                    </Text>
+                                                </TouchableOpacity>
                                             </View>
                                             <RecyclerListView
                                                 // @ts-ignore
                                                 ref={upcomingEventsListView}
                                                 style={{
-                                                    height: hp(23),
+                                                    height: hp(25),
                                                     width: wp(100),
                                                     bottom: hp(4)
                                                 }}
@@ -439,7 +566,7 @@ export const ServiceOfferings = ({}: ServiceOfferingsProps) => {
                                                 scrollViewProps={{
                                                     pagingEnabled: "true",
                                                     decelerationRate: "fast",
-                                                    snapToInterval: Platform.OS === 'android' ?  wp(33) * 3 : wp(33),
+                                                    snapToInterval: Platform.OS === 'android' ? wp(33) * 3 : wp(33),
                                                     snapToAlignment: "center",
                                                     persistentScrollbar: false,
                                                     showsHorizontalScrollIndicator: false
@@ -455,7 +582,8 @@ export const ServiceOfferings = ({}: ServiceOfferingsProps) => {
                                         <View
                                             style={sortedUpcomingEvents.length > 0 ? {bottom: hp(3)} : {top: hp(2)}}>
                                             <View style={{flexDirection: 'column'}}>
-                                                <Text style={styles.sectionText}>Veteran Service Organizations</Text>
+                                                <Text style={styles.sectionTextBottom}>Veteran Service
+                                                    Organizations</Text>
                                             </View>
                                             <View
                                                 style={styles.noElementsAllView}>
@@ -479,7 +607,8 @@ export const ServiceOfferings = ({}: ServiceOfferingsProps) => {
                                         <View
                                             style={sortedUpcomingEvents.length > 0 ? {bottom: hp(3)} : {top: hp(2)}}>
                                             <View style={{flexDirection: 'column'}}>
-                                                <Text style={styles.sectionText}>Veteran Service Organizations</Text>
+                                                <Text style={styles.sectionTextBottom}>Veteran Service
+                                                    Organizations</Text>
                                             </View>
                                             <RecyclerListView
                                                 // @ts-ignore
