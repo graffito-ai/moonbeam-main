@@ -315,6 +315,7 @@ export const getServicePartners = /* GraphQL */ `
                 createdAt
                 updatedAt
                 name
+                shortDescription
                 description
                 isOnline
                 logoUrl

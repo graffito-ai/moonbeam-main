@@ -135,18 +135,30 @@ export const styles = StyleSheet.create({
         fontFamily: 'Raleway-Regular',
         color: '#FFFFFF'
     },
-    servicePartnerItemView: {
-        width: wp(80),
-        height: hp(40),
-        backgroundColor: '#313030',
-        shadowColor: 'black',
-        shadowOffset: {width: -2, height: 10},
-        shadowOpacity: 0.95,
-        shadowRadius: 15,
-        elevation: 20,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20
+
+    noElementsAllView: {
+        bottom: hp(1),
+        height: hp(10),
+        width: wp(100),
+        alignSelf: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-between'
     },
+    noElementsEventSeriesImage: {
+        height: hp(9),
+        width: hp(13),
+        alignSelf: 'flex-start'
+    },
+    noElementsText: {
+        bottom: hp(0.5),
+        alignSelf: 'center',
+        right: wp(25),
+        textAlign: 'center',
+        fontFamily: 'Raleway-Bold',
+        fontSize: hp(2.00),
+        color: '#F2FF5D'
+    },
+
 
     noServicePartnersView: {
         top: hp(4),
@@ -162,6 +174,11 @@ export const styles = StyleSheet.create({
         width: hp(25),
         alignSelf: 'center'
     },
+    noEventSeriesImage: {
+        height: hp(35),
+        width: hp(25),
+        alignSelf: 'center'
+    },
     noServicePartnersText: {
         alignSelf: 'center',
         top: hp(2),
@@ -169,6 +186,122 @@ export const styles = StyleSheet.create({
         textAlign: 'center',
         fontFamily: 'Raleway-Bold',
         fontSize: hp(2.25),
+        color: '#F2FF5D'
+    },
+    sectionText: {
+        alignSelf: 'flex-start',
+        left: wp(5),
+        top: hp(1),
+        marginBottom: hp(5),
+        width: wp(100),
+        textAlign: 'left',
+        fontSize: hp(2.50),
+        fontFamily: 'Saira-SemiBold',
+        color: '#FFFFFF'
+    },
+    servicePartnerCardItemView: {
+        alignSelf: 'center',
+        width: wp(95),
+        height: hp(27),
+        top: hp(2),
+        left: wp(3),
+        backgroundColor: '#5B5A5A',
+        shadowColor: 'black',
+        shadowOffset: {width: -2, height: 10},
+        shadowOpacity: 0.95,
+        shadowRadius: 15,
+        elevation: 20,
+        borderRadius: 20,
+        flexDirection: 'column'
+    },
+    servicePartnerCardImage: {
+        alignSelf: 'flex-start',
+        top: hp(1.5),
+        left: wp(5),
+        height: hp(12),
+        width: wp(50),
+        borderTopRightRadius: 20
+    },
+    servicePartnerCardTitle: {
+        fontFamily: 'Raleway-Medium',
+        fontSize: hp(2.25),
+        width: wp(40),
+        lineHeight: hp(2.4),
+        alignSelf: 'flex-start',
+        textAlign: 'left',
+        left: wp(5),
+        top: hp(3),
+        color: '#F2FF5D'
+    },
+    servicePartnerCardParagraph: {
+        top: hp(1),
+        left: wp(5),
+        fontFamily: 'Raleway-Bold',
+        width: wp(46),
+        fontSize: hp(1.5),
+        lineHeight: hp(2),
+        color: '#FFFFFF'
+    },
+    viewServicePartnerButton: {
+        top: hp(1),
+        left: wp(12),
+        alignSelf: 'flex-end',
+        backgroundColor: '#F2FF5D',
+        width: wp(25),
+        height: hp(4),
+        borderRadius: 5
+    },
+    viewServicePartnerButtonContent: {
+        color: '#313030',
+        fontFamily: 'Changa-Medium',
+        fontSize: hp(1.6),
+        marginTop: hp(0.5),
+        alignItems: 'center',
+        alignSelf: 'center'
+    },
+
+    upcomingEventCard: {
+        right: wp(2),
+        backgroundColor: 'transparent',
+        width: wp(33),
+        height: hp(25),
+        shadowColor: 'transparent',
+        shadowOffset: {width: -2, height: 1},
+        shadowOpacity: 0.6,
+        shadowRadius: 2,
+        elevation: 15
+    },
+    upcomingEventCardCoverBackground: {
+        backgroundColor: '#FFFFFF',
+        width: wp(21),
+        height: wp(21),
+        borderRadius: 70,
+        alignSelf: 'center',
+        borderColor: 'transparent',
+        borderWidth: hp(0.2)
+    },
+    upcomingEventCardCover: {
+        width: wp(20),
+        height: wp(20),
+        borderRadius: 70,
+        alignSelf: 'center'
+    },
+    upcomingEventCardTitle: {
+        top: hp(0.5),
+        fontFamily: 'Raleway-Bold',
+        fontSize: hp(1.75),
+        lineHeight: hp(2.2),
+        width: wp(25),
+        alignSelf: 'center',
+        textAlign: 'center',
+        color: '#FFFFFF'
+    },
+    upcomingEventCardSubtitle: {
+        top: hp(0.5),
+        fontSize: hp(1.65),
+        fontFamily: 'Raleway-Bold',
+        alignSelf: 'center',
+        textAlign: 'center',
         color: '#F2FF5D'
     },
 });

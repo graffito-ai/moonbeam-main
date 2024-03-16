@@ -83,6 +83,7 @@ export const getServicePartners = async (fieldName: string): Promise<PartnerResp
                     addressLine: partnerResult.addressLine.S!,
                     city: partnerResult.city.S!,
                     createdAt: partnerResult.createdAt.S!,
+                    shortDescription: partnerResult.shortDescription.S!,
                     description: partnerResult.description.S!,
                     id: partnerResult.id.S!,
                     status: ServicePartnerStatus.Active,

@@ -23,6 +23,7 @@ type Partner @aws_cognito_user_pools {
     createdAt: AWSDateTime!
     updatedAt: AWSDateTime!
     name: String!
+    shortDescription: String!
     description: String!
     isOnline: Boolean!
     logoUrl: String!
@@ -51,6 +52,7 @@ input CreatePartnerInput {
     createdAt: AWSDateTime
     updatedAt: AWSDateTime
     name: String!
+    shortDescription: String!
     description: String!
     isOnline: Boolean!
     logoUrl: String

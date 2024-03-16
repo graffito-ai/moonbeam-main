@@ -56,6 +56,7 @@ export const createServicePartner = /* GraphQL */ `
                 createdAt
                 updatedAt
                 name
+                shortDescription
                 description
                 isOnline
                 logoUrl

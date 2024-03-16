@@ -130,6 +130,9 @@ export const createServicePartner = async (fieldName: string, createPartnerInput
                         name: {
                             S: createPartnerInput.name
                         },
+                        shortDescription: {
+                            S: createPartnerInput.shortDescription
+                        },
                         description: {
                             S: createPartnerInput.description
                         },
