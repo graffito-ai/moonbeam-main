@@ -275,7 +275,12 @@ import {
     reimbursementBottomSheetShownState,
     reimbursementDataState
 } from "../../recoil/ReimbursementsAtom";
-import {eventSeriesDataState, servicePartnersDataState} from "../../recoil/ServicesAtom";
+import {
+    calendarEventState,
+    eventSeriesDataState,
+    servicePartnersDataState,
+    servicePartnerState
+} from "../../recoil/ServicesAtom";
 
 /**
  * import branch only if the app is not running in Expo Go (so we can actually run the application without Branch for
@@ -550,6 +555,8 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const comingFromMarketplaceStateReset = useResetRecoilState(comingFromMarketplaceState);
     const servicePartnersDataStateReset = useResetRecoilState(servicePartnersDataState);
     const eventSeriesDataStateReset = useResetRecoilState(eventSeriesDataState);
+    const servicePartnerStateReset = useResetRecoilState(servicePartnerState);
+    const calendarEventStateReset = useResetRecoilState(calendarEventState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -828,6 +835,8 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             comingFromMarketplaceStateReset();
             servicePartnersDataStateReset();
             eventSeriesDataStateReset();
+            servicePartnerStateReset();
+            calendarEventStateReset();
 
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {

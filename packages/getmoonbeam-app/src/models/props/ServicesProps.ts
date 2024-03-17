@@ -5,13 +5,13 @@ import type {NativeStackScreenProps} from '@react-navigation/native-stack';
  */
 export type ServicesStackParamList = {
     ServiceOfferings: {},
-    ServiceOfferingDetails: {},
-    EventSeriesDetails: {}
+    ServicePartner: {},
+    EventSeries: {}
 };
 
 // the ServiceOfferings component props, within the Services stack
 export type ServiceOfferingsProps = NativeStackScreenProps<ServicesStackParamList, 'ServiceOfferings'>;
-// the ServiceOfferingDetails component props, within the Services stack
-export type ServiceOfferingDetailsProps = NativeStackScreenProps<ServicesStackParamList, 'ServiceOfferingDetails'>;
-// the EventSeriesDetails component props, within the Services stack
-export type EventSeriesDetailsProps = NativeStackScreenProps<ServicesStackParamList, 'EventSeriesDetails'>;
+// the ServicePartner component props, within the Services stack
+export type ServicePartnerProps = NativeStackScreenProps<ServicesStackParamList, 'ServicePartner'>;
+// the EventSeries component props, within the Services stack
+export type EventSeriesProps = NativeStackScreenProps<ServicesStackParamList, 'EventSeries'>;

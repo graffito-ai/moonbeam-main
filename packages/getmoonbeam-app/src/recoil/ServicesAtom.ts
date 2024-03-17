@@ -1,4 +1,4 @@
-import {EventSeries, Partner, Event} from "@moonbeam/moonbeam-models";
+import {Event, EventSeries, Partner} from "@moonbeam/moonbeam-models";
 import {atom, selector} from "recoil";
 
 /**
@@ -18,10 +18,29 @@ const eventSeriesDataState = atom<EventSeries[]>({
 });
 
 /**
+ * Atom used to keep track of the Service Partner state, to be used for displaying a Service
+ * Partner detailed page.
+ */
+const servicePartnerState = atom<Partner | null>({
+    key: "servicePartnerState",
+    default: null
+});
+
+/**
+ * Atom used to keep track of the Calendar Event state, to be used for displaying an Event Series'
+ * detailed page.
+ */
+const calendarEventState = atom<(Event & { eventGroup: boolean }) | null>({
+    key: "calendarEventState",
+    default: null
+});
+
+
+/**
  * A selector used to keep track of any updates to the sortedUpcomingEventsDataState, and sort that
  * list according to the createdAt time, in descending order.
  */
-const sortedUpcomingEventsDataState = selector<(Event & {eventGroup: boolean})[]>({
+const sortedUpcomingEventsDataState = selector<(Event & { eventGroup: boolean })[]>({
     key: 'sortedUpcomingEventsDataState',
     get: ({get}) => {
         const eventSeriesDataList = get(sortedEventSeriesDataState);
@@ -37,7 +56,7 @@ const sortedUpcomingEventsDataState = selector<(Event & {eventGroup: boolean})[]
                 }
             });
         });
-        const allEventsToFilterWithFlag: (Event & {eventGroup: boolean})[] = [];
+        const allEventsToFilterWithFlag: (Event & { eventGroup: boolean })[] = [];
         let index: number = 0;
         let lastGroupEventDate: string = "";
 
@@ -66,7 +85,7 @@ const sortedUpcomingEventsDataState = selector<(Event & {eventGroup: boolean})[]
                     eventGroup: lastGroupEventDate.trim() !== currentEventDate.trim()
                 });
             }
-            index +=1;
+            index += 1;
             lastGroupEventDate = currentEventDate;
         });
 
@@ -109,6 +128,8 @@ const sortedEventSeriesDataState = selector<EventSeries[]>({
  * Export all atoms and/or selectors
  */
 export {
+    servicePartnerState,
+    calendarEventState,
     sortedUpcomingEventsDataState,
     sortedServicePartnersDataState,
     sortedEventSeriesDataState,

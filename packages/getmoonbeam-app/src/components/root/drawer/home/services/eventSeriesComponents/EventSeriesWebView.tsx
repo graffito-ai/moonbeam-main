@@ -1,14 +1,14 @@
 import React, {useEffect} from 'react';
 import {SafeAreaProvider} from "react-native-safe-area-context";
-import {EventSeriesDetailsProps} from "../../../../../models/props/ServicesProps";
+import {EventSeriesWebViewProps} from "../../../../../../models/props/EventSeriesProps";
 
 /**
- * EventSeriesDetails component.
+ * EventSeriesWebView component.
  *
  * @param navigation navigation object passed in from the parent navigator.
  * @constructor constructor for the component.
  */
-export const EventSeriesDetails = ({}: EventSeriesDetailsProps) => {
+export const EventSeriesWebView = ({}: EventSeriesWebViewProps) => {
     // constants used to keep track of local component state
 
     // constants used to keep track of shared states
@@ -23,7 +23,7 @@ export const EventSeriesDetails = ({}: EventSeriesDetailsProps) => {
     useEffect(() => {
     }, []);
 
-    // return the component for the EventSeriesDetails page
+    // return the component for the EventSeriesWebView page
     return (
         <SafeAreaProvider style={{flex: 1, backgroundColor: '#313030'}}>
 

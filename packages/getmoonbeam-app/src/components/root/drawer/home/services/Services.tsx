@@ -6,11 +6,11 @@ import {ServicesStackParamList} from "../../../../../models/props/ServicesProps"
 import {useRecoilState} from "recoil";
 import {appDrawerHeaderShownState, customBannerShown, drawerSwipeState} from "../../../../../recoil/AppDrawerAtom";
 import {ServiceOfferings} from "./ServiceOfferings";
-import {ServiceOfferingDetails} from "./ServiceOfferingDetails";
-import {EventSeriesDetails} from "./EventSeriesDetails";
 import {retrieveEventSeries, retrieveServicePartners} from "../../../../../utils/AppSync";
 import {eventSeriesDataState, servicePartnersDataState} from "../../../../../recoil/ServicesAtom";
 import {Spinner} from "../../../../common/Spinner";
+import {ServicePartner} from "./partnerComponents/ServicePartner";
+import {EventSeries} from "./eventSeriesComponents/EventSeries";
 
 /**
  * Services component.
@@ -99,13 +99,13 @@ export const Services = ({navigation}: ServicesProps) => {
                                 initialParams={{}}
                             />
                             <Stack.Screen
-                                name="ServiceOfferingDetails"
-                                component={ServiceOfferingDetails}
+                                name="ServicePartner"
+                                component={ServicePartner}
                                 initialParams={{}}
                             />
                             <Stack.Screen
-                                name="EventSeriesDetails"
-                                component={EventSeriesDetails}
+                                name="EventSeries"
+                                component={EventSeries}
                                 initialParams={{}}
                             />
                         </Stack.Navigator>

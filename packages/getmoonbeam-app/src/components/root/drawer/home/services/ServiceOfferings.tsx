@@ -16,8 +16,10 @@ import MoonbeamOrganizationsSelected from "../../../../../../assets/art/moonbeam
 import MoonbeamEventsSelected from "../../../../../../assets/art/moonbeam-events-selected.png";
 import {Card, Paragraph, Text} from "react-native-paper";
 import {Platform, ScrollView, TouchableOpacity, View} from 'react-native';
-import {useRecoilValue} from "recoil";
+import {useRecoilState, useRecoilValue} from "recoil";
 import {
+    calendarEventState,
+    servicePartnerState,
     sortedServicePartnersDataState,
     sortedUpcomingEventsDataState
 } from "../../../../../recoil/ServicesAtom";
@@ -38,7 +40,7 @@ import {Icon} from "@rneui/base";
  * @param navigation navigation object passed in from the parent navigator.
  * @constructor constructor for the component.
  */
-export const ServiceOfferings = ({}: ServiceOfferingsProps) => {
+export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
     // constants used to keep track of local component state
     const servicePartnerListView = useRef();
     const upcomingEventsListView = useRef();
@@ -53,6 +55,8 @@ export const ServiceOfferings = ({}: ServiceOfferingsProps) => {
     // constants used to keep track of shared states
     const sortedUpcomingEvents = useRecoilValue(sortedUpcomingEventsDataState);
     const sortedServicePartners = useRecoilValue(sortedServicePartnersDataState);
+    const [, setServicePartner] = useRecoilState(servicePartnerState);
+    const [, setCalendarEvent] = useRecoilState(calendarEventState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -143,16 +147,14 @@ export const ServiceOfferings = ({}: ServiceOfferingsProps) => {
                             <TouchableOpacity
                                 style={styles.viewServicePartnerButton}
                                 onPress={() => {
-                                    // set the clicked offer/partner accordingly
-                                    // setStoreOfferClicked(data);
-                                    // @ts-ignore
-                                    // props.navigation.navigate('StoreOffer', {
-                                    //     bottomTabNeedsShowingFlag: true
-                                    // });
+                                    // set the clicked partner accordingly
+                                    setServicePartner(data);
+                                    // navigate to the appropriate Service Partner/Offering screen
+                                    navigation.navigate('ServicePartner', {});
                                 }}
                             >
                                 <Text style={styles.viewServicePartnerButtonContent}>
-                                    {'View Services'}
+                                    {'Services'}
                                 </Text>
                             </TouchableOpacity>
                         </View>
@@ -191,11 +193,17 @@ export const ServiceOfferings = ({}: ServiceOfferingsProps) => {
                                     day: "numeric"
                                 })}
                             </Text> :
-                            <Text style={{marginTop: -hp(7)}}>
-
-                            </Text>
+                            <Text style={{marginTop: -hp(7)}}>{""}</Text>
                     }
-                    <TouchableOpacity style={styles.calendarEventCardItemView}>
+                    <TouchableOpacity
+                        style={styles.calendarEventCardItemView}
+                        onPress={() => {
+                            // set the clicked event accordingly
+                            setCalendarEvent(data);
+                            // navigate to the appropriate Event/Event Series screen
+                            navigation.navigate('EventSeries', {});
+                        }}
+                    >
                         <View style={[styles.calendarEventContentView]}>
                             <View style={styles.calendarEventImageBackground}>
                                 <ExpoImage
@@ -266,10 +274,10 @@ export const ServiceOfferings = ({}: ServiceOfferingsProps) => {
             return (
                 <TouchableOpacity style={{left: '3%'}}
                                   onPress={() => {
-                                      // set the clicked offer/partner accordingly
-                                      // setStoreOfferClicked(data);
-                                      // show the click only bottom sheet
-                                      // setShowClickOnlyBottomSheet(true);
+                                      // set the clicked event accordingly
+                                      setCalendarEvent(data);
+                                      // navigate to the appropriate Event/Event Series screen
+                                      navigation.navigate('EventSeries', {});
                                   }}>
                     <Card style={styles.upcomingEventCard}>
                         <Card.Content>

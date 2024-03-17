@@ -1,14 +1,14 @@
 import React, {useEffect} from 'react';
 import {SafeAreaProvider} from "react-native-safe-area-context";
-import {ServiceOfferingDetailsProps} from "../../../../../models/props/ServicesProps";
+import {ServicePartnerWebViewProps} from "../../../../../../models/props/ServicePartnerProps";
 
 /**
- * ServiceOfferings component.
+ * ServicePartnerWebView component.
  *
  * @param navigation navigation object passed in from the parent navigator.
  * @constructor constructor for the component.
  */
-export const ServiceOfferingDetails = ({}: ServiceOfferingDetailsProps) => {
+export const ServicePartnerWebView = ({}: ServicePartnerWebViewProps) => {
     // constants used to keep track of local component state
 
     // constants used to keep track of shared states
@@ -21,9 +21,10 @@ export const ServiceOfferingDetails = ({}: ServiceOfferingDetailsProps) => {
      * included in here.
      */
     useEffect(() => {
+
     }, []);
 
-    // return the component for the ServiceOfferingDetails page
+    // return the component for the ServicePartnerWebView page
     return (
         <SafeAreaProvider style={{flex: 1, backgroundColor: '#313030'}}>
 
