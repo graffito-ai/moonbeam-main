@@ -621,7 +621,7 @@ export const styles = StyleSheet.create({
     },
     featuredPartnerCardParagraph: {
         top: hp(1),
-        left: wp(2),
+        left: wp(1.5),
         fontFamily: 'Raleway-Bold',
         width: wp(50),
         fontSize: hp(1.5),
