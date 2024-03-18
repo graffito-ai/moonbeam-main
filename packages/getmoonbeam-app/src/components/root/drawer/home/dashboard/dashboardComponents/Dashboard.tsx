@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Dialog, Portal, Text} from "react-native-paper";
 import {styles} from "../../../../../../styles/dashboard.module";
 import {useRecoilState} from "recoil";
-import {appUrlState, currentUserInformation} from "../../../../../../recoil/AuthAtom";
+import {appUrlState, currentUserInformation, userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 import {Spinner} from "../../../../../common/Spinner";
 // @ts-ignore
 import DashboardBackgroundImage from "../../../../../../../assets/backgrounds/dashboard-background.png";
@@ -34,6 +34,7 @@ export const Dashboard = () => {
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     const [selectedTransaction, setSelectedTransaction] = useState<MoonbeamTransaction | null>(null);
     // constants used to keep track of shared states
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [appUrl,] = useRecoilState(appUrlState);
     const [userInformation,] = useRecoilState(currentUserInformation);
 
@@ -61,8 +62,7 @@ export const Dashboard = () => {
                         if (appReviewEligibilityCheck) {
                             const message = `User ${userInformation["custom:userId"]} is ELIGIBLE to be shown the App Review modal, proceeding!`;
                             console.log(message);
-                            logEvent(message, LoggingLevel.Info).then(() => {
-                            });
+                            logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {});
 
                             StoreReview.isAvailableAsync().then((availabilityFlag) => {
                                 // if the platform has the capabilities for store review
@@ -80,7 +80,7 @@ export const Dashboard = () => {
                                                         ? `Successfully processed App Review record for user ${userInformation["custom:userId"]}!`
                                                         : `Failed to process App Review record for user ${userInformation["custom:userId"]}!`
                                                     console.log(message);
-                                                    logEvent(message, appReviewRecordCreationOrUpdateCheck ? LoggingLevel.Info : LoggingLevel.Error).then(() => {
+                                                    logEvent(message, appReviewRecordCreationOrUpdateCheck ? LoggingLevel.Info : LoggingLevel.Error, userIsAuthenticated).then(() => {
                                                     });
                                                 });
                                             });
@@ -91,8 +91,7 @@ export const Dashboard = () => {
                         } else {
                             const message = `User ${userInformation["custom:userId"]} is NOT ELIGIBLE to be shown the App Review modal, skipping!`;
                             console.log(message);
-                            logEvent(message, LoggingLevel.Info).then(() => {
-                            });
+                            logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {});
                         }
                     });
                 }

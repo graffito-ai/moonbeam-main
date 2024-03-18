@@ -292,6 +292,7 @@ export const SplashScreen = (props: {
     splashDismissButton?: boolean
 }) => {
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [marketplaceCache,] = useRecoilState(marketplaceAmplifyCacheState);
     const [cache,] = useRecoilState(globalAmplifyCacheState);
     const [mainRootNavigation,] = useRecoilState(mainRootNavigationState);
@@ -844,7 +845,7 @@ export const SplashScreen = (props: {
         } catch (error) {
             const message = `error while signing out: , ${error}`;
             console.log(message);
-            await logEvent(message, LoggingLevel.Error, true);
+            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
         }
     }
 

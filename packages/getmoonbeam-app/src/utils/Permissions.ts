@@ -11,7 +11,7 @@ export const requestAppTrackingTransparencyPermission = async () => {
         if (status !== 'granted') {
             const message = 'Permission to track your data not granted!';
             console.log(message);
-            await logEvent(message, LoggingLevel.Info, true);
+            await logEvent(message, LoggingLevel.Info, false);
         }
     }, 1500);
 }

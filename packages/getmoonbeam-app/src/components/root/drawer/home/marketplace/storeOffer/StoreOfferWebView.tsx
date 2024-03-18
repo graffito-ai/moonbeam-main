@@ -71,7 +71,6 @@ export const StoreOfferWebView = ({navigation}: StoreOfferWebViewProps) => {
                 }
             }
         }
-        console.log(initialOfferWebsite);
         logEvent(initialOfferWebsite, LoggingLevel.Info, userIsAuthenticated).then(() => {});
     }, [storeOfferClicked, cardLinkingId, offerWebsiteRetrieved]);
 

@@ -287,10 +287,10 @@ export const Home = ({navigation}: HomeProps) => {
                                                  tabBarIcon: ({focused}) => (
                                                      <View style={{
                                                          left: wp(1),
-                                                         right: wp(1),
+                                                         marginRight: wp(3),
                                                          alignItems: 'center',
                                                          justifyContent: 'center',
-                                                         top: hp(0.65),
+                                                         top: hp(0.43),
                                                          width: wp(15),
                                                          height: hp(6),
                                                          flexDirection: 'column'
@@ -298,7 +298,7 @@ export const Home = ({navigation}: HomeProps) => {
                                                          <Icon
                                                              type={"ionicon"}
                                                              name={!focused ? 'card-outline' : 'card'}
-                                                             size={hp(3)}
+                                                             size={hp(3.35)}
                                                              color={!focused ? 'white' : '#F2FF5D'}
                                                          />
                                                          <Text style={{

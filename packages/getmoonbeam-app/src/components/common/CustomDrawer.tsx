@@ -302,6 +302,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const [isReady,] = useState<boolean>(true);
     const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(true);
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [marketplaceCache,] = useRecoilState(marketplaceAmplifyCacheState);
     const [cache,] = useRecoilState(globalAmplifyCacheState);
     const [, setGoToProfileSettings] = useRecoilState(goToProfileSettingsState);
@@ -877,7 +878,7 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
         } catch (error) {
             const message = `error while signing out: , ${error}`;
             console.log(message);
-            await logEvent(message, LoggingLevel.Error, true);
+            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
         }
     }
 

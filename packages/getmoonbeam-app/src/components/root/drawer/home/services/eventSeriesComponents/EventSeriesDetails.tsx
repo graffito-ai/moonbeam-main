@@ -27,7 +27,7 @@ import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
  * @param navigation navigation object passed in from the parent navigator.
  * @constructor constructor for the component.
  */
-export const EventSeriesDetails = ({}: EventSeriesDetailsProps) => {
+export const EventSeriesDetails = ({navigation}: EventSeriesDetailsProps) => {
     // constants used to keep track of local component state
     const eventOccurrencesListView = useRef();
     const [eventOccurrencesDataProvider, setEventOccurrencesDataProvider] = useState<DataProvider | null>(null);
@@ -284,7 +284,8 @@ export const EventSeriesDetails = ({}: EventSeriesDetailsProps) => {
                     <TouchableOpacity
                         style={styles.eventRegistrationButton}
                         onPress={async () => {
-
+                            // go to the Events Web View component
+                            navigation.navigate("EventSeriesWebView", {});
                         }}
                     >
                         <Text style={styles.eventRegistrationButtonContent}>Register</Text>

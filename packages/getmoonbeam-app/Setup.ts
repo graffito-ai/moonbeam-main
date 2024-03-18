@@ -30,7 +30,7 @@ export const initialize = () => {
         default:
             const errorMessage = `Invalid environment passed in from Amplify ${envInfo.envName}`;
             console.log(errorMessage);
-            logEvent(errorMessage, LoggingLevel.Error, true).then(() => {});
+            logEvent(errorMessage, LoggingLevel.Error, false).then(() => {});
             throw new Error(`Invalid environment passed in from Amplify ${envInfo.envName}`);
     }
 

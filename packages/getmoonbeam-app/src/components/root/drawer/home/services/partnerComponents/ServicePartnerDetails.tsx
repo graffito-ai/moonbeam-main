@@ -18,7 +18,7 @@ import {Icon} from "@rneui/base";
  * @param navigation navigation object passed in from the parent navigator.
  * @constructor constructor for the component.
  */
-export const ServicePartnerDetails = ({}: ServicePartnerDetailsProps) => {
+export const ServicePartnerDetails = ({navigation}: ServicePartnerDetailsProps) => {
     // constants used to keep track of local component state
     const [activeSelectionState, setActiveSelectionState] = useState<'about' | 'services'>('about');
     // constants used to keep track of shared states
@@ -184,7 +184,8 @@ export const ServicePartnerDetails = ({}: ServicePartnerDetailsProps) => {
             <TouchableOpacity
                 style={styles.partnerWebsiteButton}
                 onPress={async () => {
-
+                    // go to the Service Partner Web View component
+                    navigation.navigate("ServicePartnerWebView", {});
                 }}
             >
                 <Text style={styles.partnerWebsiteButtonContent}>Visit Website</Text>

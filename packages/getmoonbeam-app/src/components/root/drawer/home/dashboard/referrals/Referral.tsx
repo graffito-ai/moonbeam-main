@@ -148,11 +148,11 @@ export const Referral = ({navigation}: ReferralProps) => {
             if (error.message !== null && error.message !== undefined && (error.message.includes('A resource with this identifier already exists.') || (error.message !== null && error.message !== undefined && error.code.includes('DuplicateResourceError')))) {
                 return `https://app.moonbeam.vet/${referralCode}`;
             } else {
-                const message = `Error while generating a referral code for the user`;
-                console.log(message);
-                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+                const message = `Error while generating referral code`;
+                console.log(`${message} ${error} ${JSON.stringify(error)}`);
+                await logEvent(`${message} ${error} ${JSON.stringify(error)}`, LoggingLevel.Error, userIsAuthenticated);
 
-                return `Error while generating referral code`;
+                return message;
             }
         }
     }
