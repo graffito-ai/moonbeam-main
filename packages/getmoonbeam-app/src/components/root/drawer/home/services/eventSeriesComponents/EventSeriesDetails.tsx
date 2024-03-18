@@ -1,8 +1,12 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {SafeAreaProvider} from "react-native-safe-area-context";
 import {EventSeriesDetailsProps} from "../../../../../../models/props/EventSeriesProps";
 import {useRecoilState, useRecoilValue} from "recoil";
-import {calendarEventState, sortedEventSeriesDataState} from "../../../../../../recoil/ServicesAtom";
+import {
+    calendarEventState,
+    eventToRegisterState,
+    sortedEventSeriesDataState
+} from "../../../../../../recoil/ServicesAtom";
 import {styles} from "../../../../../../styles/eventSeriesDetails.module";
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
@@ -11,10 +15,11 @@ import MoonbeamCalendarCircleImage from "../../../../../../../assets/art/moonbea
 // @ts-ignore
 import MoonbeamLocationCircleImage from "../../../../../../../assets/art/moonbeam-location-circle.png";
 import {Image, ImageBackground} from "expo-image";
-import {Text, TouchableOpacity, View} from 'react-native';
+import {Platform, Text, TouchableOpacity, View} from 'react-native';
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
-import { EventSeries } from '@moonbeam/moonbeam-models';
+import {Event, EventSeries} from '@moonbeam/moonbeam-models';
 import {Divider} from "@rneui/base";
+import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
 
 /**
  * EventSeriesDetails component.
@@ -24,9 +29,13 @@ import {Divider} from "@rneui/base";
  */
 export const EventSeriesDetails = ({}: EventSeriesDetailsProps) => {
     // constants used to keep track of local component state
+    const eventOccurrencesListView = useRef();
+    const [eventOccurrencesDataProvider, setEventOccurrencesDataProvider] = useState<DataProvider | null>(null);
+    const [eventOccurrencesLayoutProvider, setEventOccurrencesLayoutProvider] = useState<LayoutProvider | null>(null);
     const [eventSeriesMatched, setEventSeriesMatched] = useState<boolean>(false);
     const [eventSeries, setEventSeries] = useState<EventSeries | null>(null);
     // constants used to keep track of shared states
+    const [eventToRegister, setEventToRegister] = useRecoilState(eventToRegisterState);
     const [calendarEvent,] = useRecoilState(calendarEventState);
     const sortedEventSeries = useRecoilValue(sortedEventSeriesDataState);
 
@@ -39,18 +48,107 @@ export const EventSeriesDetails = ({}: EventSeriesDetailsProps) => {
      */
     useEffect(() => {
         // attempt to find the event in the list of sorted event series
-        if (!eventSeriesMatched) {
+        if (!eventSeriesMatched && eventOccurrencesDataProvider === null && eventOccurrencesLayoutProvider === null) {
             setEventSeriesMatched(true);
             sortedEventSeries.forEach(eventSeries => {
                 eventSeries !== null && eventSeries.events !== null && eventSeries.events.length !== 0 && eventSeries!.events!.forEach(event => {
                     if (event !== null && event.id === calendarEvent!.id!) {
                         setEventSeries(eventSeries);
-
+                        // event series event occurrences data
+                        if (eventSeries.events && eventSeries.events.length !== 0) {
+                            setEventOccurrencesDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(eventSeries.events!));
+                            setEventOccurrencesLayoutProvider(new LayoutProvider(
+                                _ => 0,
+                                (_, dim) => {
+                                    dim.width = wp(7);
+                                    dim.height = hp(7);
+                                }
+                            ));
+                        }
                     }
                 });
             });
         }
-    }, [eventSeriesMatched]);
+    }, [eventSeriesMatched, eventOccurrencesLayoutProvider, eventOccurrencesDataProvider]);
+
+    /**
+     * Function used to populate the rows containing the Event occurrences data.
+     *
+     * @param type row type to be passed in
+     * @param data data to be passed in for the row
+     *
+     * @return a {@link React.JSX.Element} or an {@link Array} of {@link React.JSX.Element} representing the
+     * React node and/or nodes containing Event occurrences data.
+     */
+    const renderEventOccurrencesData = useMemo(() => (_type: string | number, data: Event): React.JSX.Element | React.JSX.Element[] => {
+        /**
+         * return the upcoming Event occurrences data or an appropriate message instead.
+         * Make sure to render only future events.
+         *
+         */
+        if (eventSeries && eventSeries.events && eventSeries.events.length !== 0 && Date.parse(new Date().toISOString()) <= Date.parse(new Date(data.startTime.startsAtUTC).toISOString())) {
+            return (
+                <TouchableOpacity
+                    style={eventToRegister !== null && eventToRegister.id === data.id ? styles.eventOccurrenceViewActive : styles.eventOccurrenceViewInactive}
+                    onPress={() => {
+                        // set the event to register to accordingly
+                        setEventToRegister(data);
+                        setEventOccurrencesDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(eventSeries.events!));
+                        setEventOccurrencesLayoutProvider(new LayoutProvider(
+                            _ => 0,
+                            (_, dim) => {
+                                dim.width = wp(7);
+                                dim.height = hp(7);
+                            }
+                        ));
+                    }}
+                >
+                    <Text
+                        numberOfLines={1}
+                        style={styles.eventOccurrenceDay}>
+                        {new Date(data.startTime.startsAtUTC).toLocaleDateString([], {
+                            weekday: "long"
+                        })}
+                    </Text>
+                    <Divider
+                        style={styles.eventOccurrenceDivider}
+                        width={hp(0.25)}
+                        color={'#394fa6'}
+                        orientation={'horizontal'}
+                    />
+                    <Text
+                        numberOfLines={1}
+                        style={styles.eventOccurrenceMonth}>
+                        {new Date(data.startTime.startsAtUTC).toLocaleDateString([], {
+                            month: "long"
+                        })}
+                    </Text>
+                    <View style={eventToRegister !== null && eventToRegister.id === data.id ? styles.eventOccurrenceDateViewActive : styles.eventOccurrenceDateViewInactive}>
+                        <Text
+                            numberOfLines={1}
+                            style={eventToRegister !== null && eventToRegister.id === data.id ? styles.eventOccurrenceDateActive : styles.eventOccurrenceDateInactive}>
+                            {new Date(data.startTime.startsAtUTC).toLocaleDateString([], {
+                                day: "numeric"
+                            })}
+                        </Text>
+                    </View>
+                    <Text
+                        numberOfLines={1}
+                        style={styles.eventOccurrenceTime}>
+                        {new Date(data.startTime.startsAtUTC).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hourCycle: 'h12'
+                        })}
+                    </Text>
+                </TouchableOpacity>
+            );
+        } else {
+            return (
+                <></>
+            );
+        }
+    }, [eventToRegister, eventSeries, sortedEventSeries]);
 
     // return the component for the EventSeriesDetails page
     return (
@@ -152,17 +250,35 @@ export const EventSeriesDetails = ({}: EventSeriesDetailsProps) => {
                                 {calendarEvent!.description!}
                             </Text>
                         </View>
-                        <View style={{
-                            top: hp(10),
-                            height: hp(20),
-                            width: wp(100)
-                        }}>
-                            <Text
-                                numberOfLines={1}
-                                style={styles.calendarEventSectionTitle}>
-                                Event Occurrences
-                            </Text>
-
+                        <Text
+                            numberOfLines={1}
+                            style={[styles.calendarEventSectionTitle, {top: hp(11)}]}>
+                            Event Occurrences
+                        </Text>
+                        <View style={styles.eventOccurrencesView}>
+                            <RecyclerListView
+                                // @ts-ignore
+                                ref={eventOccurrencesListView}
+                                style={{top: hp(1), left: wp(1)}}
+                                layoutProvider={eventOccurrencesLayoutProvider!}
+                                dataProvider={eventOccurrencesDataProvider!}
+                                rowRenderer={renderEventOccurrencesData}
+                                isHorizontal={true}
+                                forceNonDeterministicRendering={true}
+                                {
+                                    ...(Platform.OS === 'ios') ?
+                                        {onEndReachedThreshold: 0} :
+                                        {onEndReachedThreshold: 1}
+                                }
+                                scrollViewProps={{
+                                    pagingEnabled: "true",
+                                    decelerationRate: "fast",
+                                    snapToInterval: Platform.OS === 'android' ? wp(10) * 3 : wp(7.5),
+                                    snapToAlignment: "center",
+                                    persistentScrollbar: false,
+                                    showsHorizontalScrollIndicator: false
+                                }}
+                            />
                         </View>
                     </View>
                     <TouchableOpacity

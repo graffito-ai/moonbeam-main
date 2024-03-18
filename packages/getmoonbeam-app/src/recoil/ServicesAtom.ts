@@ -35,6 +35,11 @@ const calendarEventState = atom<(Event & { eventGroup: boolean }) | null>({
     default: null
 });
 
+const eventToRegisterState = atom<Event | null>({
+    key: "eventToRegisterState",
+    default: null
+});
+
 
 /**
  * A selector used to keep track of any updates to the sortedUpcomingEventsDataState, and sort that
@@ -128,6 +133,7 @@ const sortedEventSeriesDataState = selector<EventSeries[]>({
  * Export all atoms and/or selectors
  */
 export {
+    eventToRegisterState,
     servicePartnerState,
     calendarEventState,
     sortedUpcomingEventsDataState,

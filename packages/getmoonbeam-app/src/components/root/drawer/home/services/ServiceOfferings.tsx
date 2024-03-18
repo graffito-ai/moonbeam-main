@@ -18,7 +18,7 @@ import {Card, Paragraph, Text} from "react-native-paper";
 import {Platform, ScrollView, TouchableOpacity, View} from 'react-native';
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
-    calendarEventState,
+    calendarEventState, eventToRegisterState,
     servicePartnerState,
     sortedServicePartnersDataState,
     sortedUpcomingEventsDataState
@@ -57,6 +57,7 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
     const sortedServicePartners = useRecoilValue(sortedServicePartnersDataState);
     const [, setServicePartner] = useRecoilState(servicePartnerState);
     const [, setCalendarEvent] = useRecoilState(calendarEventState);
+    const [, setEventToRegister] = useRecoilState(eventToRegisterState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -200,6 +201,18 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
                         onPress={() => {
                             // set the clicked event accordingly
                             setCalendarEvent(data);
+                            // set the event to register accordingly
+                            setEventToRegister({
+                                description: data.description,
+                                endTime: data.endTime,
+                                eventLogoUrlBg: data.eventLogoUrlBg,
+                                eventLogoUrlSm: data.eventLogoUrlSm,
+                                externalEventID: data.externalEventID,
+                                id: data.id,
+                                registrationUrl: data.registrationUrl,
+                                startTime: data.startTime,
+                                title: data.title
+                            });
                             // navigate to the appropriate Event/Event Series screen
                             navigation.navigate('EventSeries', {});
                         }}
@@ -257,7 +270,6 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
         }
     }, [sortedUpcomingEvents]);
 
-
     /**
      * Function used to populate the rows containing the upcoming Event-related data.
      *
@@ -276,6 +288,18 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
                                   onPress={() => {
                                       // set the clicked event accordingly
                                       setCalendarEvent(data);
+                                      // set the event to register accordingly
+                                      setEventToRegister({
+                                          description: data.description,
+                                          endTime: data.endTime,
+                                          eventLogoUrlBg: data.eventLogoUrlBg,
+                                          eventLogoUrlSm: data.eventLogoUrlSm,
+                                          externalEventID: data.externalEventID,
+                                          id: data.id,
+                                          registrationUrl: data.registrationUrl,
+                                          startTime: data.startTime,
+                                          title: data.title
+                                      });
                                       // navigate to the appropriate Event/Event Series screen
                                       navigation.navigate('EventSeries', {});
                                   }}>

@@ -5,7 +5,7 @@ import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {IconButton} from "react-native-paper";
 import {useRecoilState} from "recoil";
 import {bottomTabShownState} from "../../../../../../recoil/HomeAtom";
-import {calendarEventState} from "../../../../../../recoil/ServicesAtom";
+import {calendarEventState, eventToRegisterState} from "../../../../../../recoil/ServicesAtom";
 import {EventSeriesStackParamList} from "../../../../../../models/props/EventSeriesProps";
 import {EventSeriesDetails} from "./EventSeriesDetails";
 import {EventSeriesWebView} from "./EventSeriesWebView";
@@ -21,6 +21,7 @@ export const EventSeries = ({navigation}: EventSeriesProps) => {
     // constants used to keep track of local component state
 
     // constants used to keep track of shared states
+    const [, setEventToRegister] = useRecoilState(eventToRegisterState);
     const [, setCalendarEvent] = useRecoilState(calendarEventState);
     const [bottomTabShown, setBottomTabShown] = useRecoilState(bottomTabShownState);
 
@@ -72,6 +73,8 @@ export const EventSeries = ({navigation}: EventSeriesProps) => {
                                     setBottomTabShown(true);
                                     // reset the calendar event clicked state
                                     setCalendarEvent(null);
+                                    // reset the event to register state
+                                    setEventToRegister(null);
                                     // go back to the previous screen which led us here
                                     navigation.goBack();
                                 }}

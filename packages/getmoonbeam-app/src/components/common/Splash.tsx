@@ -266,7 +266,7 @@ import {
 } from "../../recoil/ReimbursementsAtom";
 import {
     calendarEventState,
-    eventSeriesDataState,
+    eventSeriesDataState, eventToRegisterState,
     servicePartnersDataState,
     servicePartnerState
 } from "../../recoil/ServicesAtom";
@@ -542,6 +542,7 @@ export const SplashScreen = (props: {
     const eventSeriesDataStateReset = useResetRecoilState(eventSeriesDataState);
     const servicePartnerStateReset = useResetRecoilState(servicePartnerState);
     const calendarEventStateReset = useResetRecoilState(calendarEventState);
+    const eventToRegisterStateReset = useResetRecoilState(eventToRegisterState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -805,6 +806,7 @@ export const SplashScreen = (props: {
             eventSeriesDataStateReset();
             servicePartnerStateReset();
             calendarEventStateReset();
+            eventToRegisterStateReset();
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {
                 // import branch

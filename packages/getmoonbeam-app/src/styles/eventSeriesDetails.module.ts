@@ -5,7 +5,7 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-nativ
 export const styles = StyleSheet.create({
     topSectionView: {
         alignSelf: 'center',
-        height: hp(30),
+        height: hp(27),
         width: wp(100),
     },
     topSectionBackground: {
@@ -111,5 +111,102 @@ export const styles = StyleSheet.create({
         height: hp(7.5),
         width: wp(74),
         flexDirection: 'column'
-    }
+    },
+    eventOccurrencesView: {
+        top: hp(11),
+        height: hp(20),
+        width: wp(100),
+        flexDirection: 'row'
+    },
+    eventOccurrenceViewInactive: {
+        marginLeft: wp(2.5),
+        alignSelf: 'center',
+        height: hp(17),
+        width: wp(30),
+        backgroundColor: '#e7e7e7',
+        borderRadius: 20,
+        borderWidth: hp(0.35),
+        borderColor: '#394fa6',
+        flexDirection: 'column'
+    },
+    eventOccurrenceViewActive: {
+        marginLeft: wp(2.5),
+        alignSelf: 'center',
+        height: hp(17),
+        width: wp(30),
+        backgroundColor: '#e7e7e7',
+        borderRadius: 20,
+        borderWidth: hp(0.35),
+        borderColor: '#F2FF5D',
+        flexDirection: 'column'
+    },
+    eventOccurrenceDay: {
+        fontFamily: 'Raleway-Bold',
+        fontSize: hp(1.90),
+        color: '#313030',
+        textAlign: 'center',
+        alignSelf: 'center',
+        top: hp(0.5),
+        width: wp(25)
+    },
+    eventOccurrenceDivider: {
+        top: hp(1.15),
+        width: wp(15),
+        alignSelf: 'center'
+    },
+    eventOccurrenceMonth: {
+        fontFamily: 'Raleway-SemiBold',
+        fontSize: hp(1.90),
+        color: '#313030',
+        textAlign: 'center',
+        alignSelf: 'center',
+        top: hp(1.50),
+        width: wp(25)
+    },
+    eventOccurrenceDateViewInactive: {
+        height: hp(7),
+        width: hp(7),
+        borderRadius: 50,
+        backgroundColor: '#9fa3b6',
+        alignSelf: 'center',
+        top: hp(2),
+        flexDirection: 'column'
+    },
+    eventOccurrenceDateViewActive: {
+        height: hp(7),
+        width: hp(7),
+        borderRadius: 50,
+        backgroundColor: '#F2FF5D',
+        alignSelf: 'center',
+        top: hp(2),
+        flexDirection: 'column'
+    },
+
+    eventOccurrenceDateInactive: {
+        fontFamily: 'Raleway-Bold',
+        fontSize: hp(2.50),
+        color: '#313030',
+        textAlign: 'center',
+        alignSelf: 'center',
+        top: hp(1.90),
+        width: wp(25)
+    },
+    eventOccurrenceDateActive: {
+        fontFamily: 'Raleway-Bold',
+        fontSize: hp(2.50),
+        color: '#313030',
+        textAlign: 'center',
+        alignSelf: 'center',
+        top: hp(1.90),
+        width: wp(25)
+    },
+    eventOccurrenceTime: {
+        fontFamily: 'Raleway-SemiBold',
+        fontSize: hp(1.90),
+        color: '#313030',
+        textAlign: 'center',
+        alignSelf: 'center',
+        top: hp(2),
+        width: wp(25)
+    },
 });
