@@ -194,6 +194,13 @@ export type CreateDeviceInput = {
   tokenId: Scalars['ID'];
 };
 
+export type CreateEventSeriesInput = {
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+  externalSeriesID?: InputMaybe<Scalars['ID']>;
+  name: Scalars['String'];
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+};
+
 export type CreateFaqInput = {
   createdAt?: InputMaybe<Scalars['AWSDateTime']>;
   facts: Array<InputMaybe<FactInput>>;
@@ -268,6 +275,24 @@ export type CreateNotificationResponse = {
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<NotificationsErrorType>;
   id?: Maybe<Scalars['ID']>;
+};
+
+export type CreatePartnerInput = {
+  addressLine: Scalars['String'];
+  city: Scalars['String'];
+  createdAt?: InputMaybe<Scalars['AWSDateTime']>;
+  description: Scalars['String'];
+  id?: InputMaybe<Scalars['ID']>;
+  isOnline: Scalars['Boolean'];
+  logoUrl?: InputMaybe<Scalars['String']>;
+  name: Scalars['String'];
+  services: Array<InputMaybe<ServiceInput>>;
+  shortDescription: Scalars['String'];
+  state: Scalars['String'];
+  status?: InputMaybe<ServicePartnerStatus>;
+  updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
+  website: Scalars['String'];
+  zipCode: Scalars['String'];
 };
 
 export type CreateReferralInput = {
@@ -355,6 +380,68 @@ export type EmailFromCognitoResponse = {
   errorType?: Maybe<NotificationsErrorType>;
 };
 
+export type Event = {
+  __typename?: 'Event';
+  description: Scalars['String'];
+  endTime: EventEndDateTime;
+  eventLogoUrlBg: Scalars['String'];
+  eventLogoUrlSm: Scalars['String'];
+  externalEventID: Scalars['ID'];
+  id: Scalars['ID'];
+  registrationUrl: Scalars['String'];
+  startTime: EventStartDateTime;
+  title: Scalars['String'];
+};
+
+export type EventEndDateTime = {
+  __typename?: 'EventEndDateTime';
+  endsAtLocal: Scalars['AWSDateTime'];
+  endsAtUTC: Scalars['AWSDateTime'];
+  timezone: Scalars['String'];
+};
+
+export type EventSeries = {
+  __typename?: 'EventSeries';
+  createdAt: Scalars['AWSDateTime'];
+  description: Scalars['String'];
+  events: Array<Maybe<Event>>;
+  externalOrgID: Scalars['ID'];
+  externalSeriesID: Scalars['ID'];
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  seriesLogoUrlBg: Scalars['String'];
+  seriesLogoUrlSm: Scalars['String'];
+  status: EventSeriesStatus;
+  title: Scalars['String'];
+  updatedAt: Scalars['AWSDateTime'];
+};
+
+export type EventSeriesResponse = {
+  __typename?: 'EventSeriesResponse';
+  data?: Maybe<Array<Maybe<EventSeries>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<EventsErrorType>;
+};
+
+export enum EventSeriesStatus {
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE'
+}
+
+export type EventStartDateTime = {
+  __typename?: 'EventStartDateTime';
+  startsAtLocal: Scalars['AWSDateTime'];
+  startsAtUTC: Scalars['AWSDateTime'];
+  timezone: Scalars['String'];
+};
+
+export enum EventsErrorType {
+  DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  ValidationError = 'VALIDATION_ERROR'
+}
+
 export type Faq = {
   __typename?: 'FAQ';
   createdAt: Scalars['AWSDateTime'];
@@ -425,6 +512,7 @@ export enum FileAccessLevel {
 }
 
 export enum FileType {
+  Logofiles = 'LOGOFILES',
   Main = 'MAIN'
 }
 
@@ -879,6 +967,7 @@ export type Mutation = {
   createAppReview: AppReviewResponse;
   createCardLink: CardLinkResponse;
   createDevice: UserDeviceResponse;
+  createEventSeries: EventSeriesResponse;
   createFAQ: FaqResponse;
   createLogEvent: LoggingResponse;
   createMilitaryVerification: CreateMilitaryVerificationResponse;
@@ -886,6 +975,7 @@ export type Mutation = {
   createNotificationReminder: NotificationReminderResponse;
   createReferral: ReferralResponse;
   createReimbursement: ReimbursementResponse;
+  createServicePartner: PartnerResponse;
   createTransaction: MoonbeamTransactionResponse;
   createUserAuthSession: UserAuthSessionResponse;
   deleteCard: CardResponse;
@@ -917,6 +1007,11 @@ export type MutationCreateCardLinkArgs = {
 
 export type MutationCreateDeviceArgs = {
   createDeviceInput: CreateDeviceInput;
+};
+
+
+export type MutationCreateEventSeriesArgs = {
+  createEventSeriesInput: CreateEventSeriesInput;
 };
 
 
@@ -952,6 +1047,11 @@ export type MutationCreateReferralArgs = {
 
 export type MutationCreateReimbursementArgs = {
   createReimbursementInput: CreateReimbursementInput;
+};
+
+
+export type MutationCreateServicePartnerArgs = {
+  createPartnerInput: CreatePartnerInput;
 };
 
 
@@ -1286,6 +1386,32 @@ export type OffersResponse = {
   errorType?: Maybe<OffersErrorType>;
 };
 
+export type Partner = {
+  __typename?: 'Partner';
+  addressLine: Scalars['String'];
+  city: Scalars['String'];
+  createdAt: Scalars['AWSDateTime'];
+  description: Scalars['String'];
+  id: Scalars['ID'];
+  isOnline: Scalars['Boolean'];
+  logoUrl: Scalars['String'];
+  name: Scalars['String'];
+  services: Array<Maybe<Service>>;
+  shortDescription: Scalars['String'];
+  state: Scalars['String'];
+  status: ServicePartnerStatus;
+  updatedAt: Scalars['AWSDateTime'];
+  website: Scalars['String'];
+  zipCode: Scalars['String'];
+};
+
+export type PartnerResponse = {
+  __typename?: 'PartnerResponse';
+  data?: Maybe<Array<Maybe<Partner>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<ServicesErrorType>;
+};
+
 export type PushDevice = {
   __typename?: 'PushDevice';
   deviceState: UserDeviceState;
@@ -1327,6 +1453,7 @@ export type Query = {
   getDeviceByToken: UserDeviceResponse;
   getDevicesForUser: UserDevicesResponse;
   getEligibleLinkedUsers: EligibleLinkedUsersResponse;
+  getEventSeries: EventSeriesResponse;
   getFAQs: FaqResponse;
   getFidelisPartners: FidelisPartnerResponse;
   getFilesForUser: FilesForUserResponse;
@@ -1339,6 +1466,7 @@ export type Query = {
   getReferralsByStatus: ReferralResponse;
   getReimbursements: ReimbursementResponse;
   getSeasonalOffers: OffersResponse;
+  getServicePartners: PartnerResponse;
   getStorage: StorageResponse;
   getTransaction: MoonbeamTransactionsResponse;
   getTransactionByStatus: MoonbeamTransactionsByStatusResponse;
@@ -1598,6 +1726,29 @@ export type SendMobilePushNotificationInput = {
   merchantName?: InputMaybe<Scalars['String']>;
   pendingCashback?: InputMaybe<Scalars['Float']>;
 };
+
+export type Service = {
+  __typename?: 'Service';
+  description: Scalars['String'];
+  title: Scalars['String'];
+};
+
+export type ServiceInput = {
+  description: Scalars['String'];
+  title: Scalars['String'];
+};
+
+export enum ServicePartnerStatus {
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE'
+}
+
+export enum ServicesErrorType {
+  DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
+  NoneOrAbsent = 'NONE_OR_ABSENT',
+  UnexpectedError = 'UNEXPECTED_ERROR',
+  ValidationError = 'VALIDATION_ERROR'
+}
 
 export enum StorageErrorType {
   DuplicateObjectFound = 'DUPLICATE_OBJECT_FOUND',
@@ -1891,6 +2042,20 @@ export enum UtilitiesErrorType {
   ValidationError = 'VALIDATION_ERROR'
 }
 
+export type CreateEventSeriesMutationVariables = Exact<{
+  createEventSeriesInput: CreateEventSeriesInput;
+}>;
+
+
+export type CreateEventSeriesMutation = { __typename?: 'Mutation', createEventSeries: { __typename?: 'EventSeriesResponse', errorMessage?: string | null, errorType?: EventsErrorType | null, data?: Array<{ __typename?: 'EventSeries', id: string, externalSeriesID: string, externalOrgID: string, name: string, title: string, description: string, createdAt: string, updatedAt: string, seriesLogoUrlSm: string, seriesLogoUrlBg: string, status: EventSeriesStatus, events: Array<{ __typename?: 'Event', id: string, externalEventID: string, title: string, description: string, eventLogoUrlSm: string, eventLogoUrlBg: string, registrationUrl: string, startTime: { __typename?: 'EventStartDateTime', timezone: string, startsAtLocal: string, startsAtUTC: string }, endTime: { __typename?: 'EventEndDateTime', timezone: string, endsAtLocal: string, endsAtUTC: string } } | null> } | null> | null } };
+
+export type CreateServicePartnerMutationVariables = Exact<{
+  createPartnerInput: CreatePartnerInput;
+}>;
+
+
+export type CreateServicePartnerMutation = { __typename?: 'Mutation', createServicePartner: { __typename?: 'PartnerResponse', errorMessage?: string | null, errorType?: ServicesErrorType | null, data?: Array<{ __typename?: 'Partner', id: string, status: ServicePartnerStatus, createdAt: string, updatedAt: string, name: string, shortDescription: string, description: string, isOnline: boolean, logoUrl: string, addressLine: string, city: string, state: string, zipCode: string, website: string, services: Array<{ __typename?: 'Service', title: string, description: string } | null> } | null> | null } };
+
 export type CreateReimbursementMutationVariables = Exact<{
   createReimbursementInput: CreateReimbursementInput;
 }>;
@@ -2134,6 +2299,16 @@ export type GetFaQsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetFaQsQuery = { __typename?: 'Query', getFAQs: { __typename?: 'FAQResponse', errorMessage?: string | null, errorType?: FaqErrorType | null, data?: Array<{ __typename?: 'FAQ', id: string, title: string, createdAt: string, updatedAt: string, facts: Array<{ __typename?: 'Fact', description: string, linkableKeyword?: string | null, linkLocation?: string | null, type: FactType } | null> } | null> | null } };
+
+export type GetEventSeriesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetEventSeriesQuery = { __typename?: 'Query', getEventSeries: { __typename?: 'EventSeriesResponse', errorMessage?: string | null, errorType?: EventsErrorType | null, data?: Array<{ __typename?: 'EventSeries', id: string, externalSeriesID: string, externalOrgID: string, name: string, title: string, description: string, createdAt: string, updatedAt: string, seriesLogoUrlSm: string, seriesLogoUrlBg: string, status: EventSeriesStatus, events: Array<{ __typename?: 'Event', id: string, externalEventID: string, title: string, description: string, eventLogoUrlSm: string, eventLogoUrlBg: string, registrationUrl: string, startTime: { __typename?: 'EventStartDateTime', timezone: string, startsAtLocal: string, startsAtUTC: string }, endTime: { __typename?: 'EventEndDateTime', timezone: string, endsAtLocal: string, endsAtUTC: string } } | null> } | null> | null } };
+
+export type GetServicePartnersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetServicePartnersQuery = { __typename?: 'Query', getServicePartners: { __typename?: 'PartnerResponse', errorMessage?: string | null, errorType?: ServicesErrorType | null, data?: Array<{ __typename?: 'Partner', id: string, status: ServicePartnerStatus, createdAt: string, updatedAt: string, name: string, shortDescription: string, description: string, isOnline: boolean, logoUrl: string, addressLine: string, city: string, state: string, zipCode: string, website: string, services: Array<{ __typename?: 'Service', title: string, description: string } | null> } | null> | null } };
 
 export type GetFidelisPartnersQueryVariables = Exact<{ [key: string]: never; }>;
 

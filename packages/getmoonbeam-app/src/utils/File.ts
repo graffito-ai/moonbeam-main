@@ -37,7 +37,7 @@ export const uploadFile = async (uri: string, privacyFlag: boolean, optionalFile
             if (result && result.key) {
                 const message = `File ${fileName} uploaded successfully!`;
                 console.log(message);
-                await logEvent(message, LoggingLevel.Info, true);
+                await logEvent(message, LoggingLevel.Info, false);
 
                 // delete the file from local storage given its URI, before returning
                 notCached !== undefined && notCached && await FileSystem.deleteAsync(fileInfo.uri);
@@ -46,19 +46,19 @@ export const uploadFile = async (uri: string, privacyFlag: boolean, optionalFile
             }
             const message = `File ${fileName} did not upload successfully!`;
             console.log(message);
-            await logEvent(message, LoggingLevel.Error, true);
+            await logEvent(message, LoggingLevel.Error, false);
 
             return [false, fileName];
         }
         const message = `File ${fileName} to upload does not exist!`;
         console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
+        await logEvent(message, LoggingLevel.Error, false);
 
         return [false, fileName];
     } catch (error) {
         const message = `Unexpected error while uploading file: ${error}`;
         console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
+        await logEvent(message, LoggingLevel.Error, false);
 
         return [false, null];
     }
@@ -93,7 +93,7 @@ export const fetchFile = async (name: string, privacyFlag: boolean, expires: boo
         if (!cached && fileInfo.exists) {
             const message = 'Removing pre-existing file from storage, given caching flag!';
             console.log(message);
-            await logEvent(message, LoggingLevel.Info, true);
+            await logEvent(message, LoggingLevel.Info, false);
 
             await FileSystem.deleteAsync(fileUri);
         }
@@ -103,7 +103,7 @@ export const fetchFile = async (name: string, privacyFlag: boolean, expires: boo
         if (!cached || !fileInfo.exists) {
             const message = `${name} isn't cached locally. Downloading...`;
             console.log(message);
-            await logEvent(message, LoggingLevel.Info, true);
+            await logEvent(message, LoggingLevel.Info, false);
 
             // perform the query to fetch a file
             const fetchFileResult = await API.graphql(graphqlOperation(getStorage, {
@@ -129,14 +129,14 @@ export const fetchFile = async (name: string, privacyFlag: boolean, expires: boo
             } else {
                 const message = `Unexpected error while fetching file ${name} ${JSON.stringify(fetchFileResult)}`;
                 console.log(message);
-                await logEvent(message, LoggingLevel.Error, true);
+                await logEvent(message, LoggingLevel.Error, false);
 
                 return [false, null];
             }
         } else {
             const message = `${name} is cached locally.`;
             console.log(message);
-            await logEvent(message, LoggingLevel.Info, true);
+            await logEvent(message, LoggingLevel.Info, false);
 
             // file exists, just return the locally cached URI
             return [true, fileUri];
@@ -144,7 +144,7 @@ export const fetchFile = async (name: string, privacyFlag: boolean, expires: boo
     } catch (error) {
         const message = `Unexpected error while fetching file: ${error}`;
         console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
+        await logEvent(message, LoggingLevel.Error, false);
 
         return [false, null];
     }

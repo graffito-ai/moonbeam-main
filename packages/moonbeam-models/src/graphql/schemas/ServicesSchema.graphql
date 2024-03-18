@@ -1,0 +1,65 @@
+# graphql/ServicesSchema.graphql
+# Services Schema File
+enum ServicesErrorType {
+    DUPLICATE_OBJECT_FOUND
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+}
+
+enum ServicePartnerStatus {
+    ACTIVE
+    INACTIVE
+}
+
+type Service @aws_cognito_user_pools {
+    title: String!
+    description: String!
+}
+
+type Partner @aws_cognito_user_pools {
+    id: ID!
+    status: ServicePartnerStatus!
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+    name: String!
+    shortDescription: String!
+    description: String!
+    isOnline: Boolean!
+    logoUrl: String!
+    addressLine: String!
+    city: String!
+    state: String!
+    zipCode: String!
+    website: String!
+    services: [Service]!
+}
+
+type PartnerResponse @aws_cognito_user_pools {
+    data: [Partner]
+    errorType: ServicesErrorType
+    errorMessage: String
+}
+
+input ServiceInput {
+    title: String!
+    description: String!
+}
+
+input CreatePartnerInput {
+    id: ID
+    status: ServicePartnerStatus
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+    name: String!
+    shortDescription: String!
+    description: String!
+    isOnline: Boolean!
+    logoUrl: String
+    addressLine: String!
+    city: String!
+    state: String!
+    zipCode: String!
+    website: String!
+    services: [ServiceInput]!
+}

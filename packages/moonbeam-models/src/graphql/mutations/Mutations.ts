@@ -2,6 +2,78 @@
  * This is a file used to define the all GraphQL mutation constants
  */
 
+// Mutation used to create a new Event Series for a particular partner organization
+export const createEventSeries = /* GraphQL */ `
+    mutation CreateEventSeries($createEventSeriesInput: CreateEventSeriesInput!) {
+        createEventSeries(createEventSeriesInput: $createEventSeriesInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                externalSeriesID
+                externalOrgID
+                name
+                title
+                description
+                createdAt
+                updatedAt
+                events {
+                    id
+                    externalEventID
+                    description
+                    title
+                    eventLogoUrlSm
+                    eventLogoUrlBg
+                    startTime {
+                        timezone
+                        startsAtLocal
+                        startsAtUTC
+                    }
+                    endTime {
+                        timezone
+                        endsAtLocal
+                        endsAtUTC
+                    }
+                    registrationUrl
+                }
+                seriesLogoUrlSm
+                seriesLogoUrlBg
+                status
+            }
+        }
+    }
+`;
+
+// Mutation used to create a new service partner.
+export const createServicePartner = /* GraphQL */ `
+    mutation CreateServicePartner($createPartnerInput: CreatePartnerInput!) {
+        createServicePartner(createPartnerInput: $createPartnerInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                status
+                createdAt
+                updatedAt
+                name
+                shortDescription
+                description
+                isOnline
+                logoUrl
+                addressLine
+                city
+                state
+                zipCode
+                website
+                services {
+                    title
+                    description
+                }
+            }
+        }
+    }
+`;
+
 // Mutation used to create a new reimbursement for a particular user.
 export const createReimbursement = /* GraphQL */ `
     mutation CreateReimbursement($createReimbursementInput: CreateReimbursementInput!) {

@@ -42,13 +42,22 @@ export interface AppSyncConfiguration {
  */
 export interface StorageConfiguration {
     readonly publicFilesBucketName: string;
-    readonly mainFilesBucketName: string;
     readonly militaryVerificationReportingBucketName: string;
+
+    readonly mainFilesBucketName: string;
     readonly mainFilesCloudFrontDistributionName: string;
     readonly mainFilesCloudFrontTrustedPublicKeyName: string;
     readonly mainFilesCloudFrontTrustedKeyGroupName: string;
     readonly mainFilesCloudFrontAccessIdentityName: string;
     readonly mainFilesCloudFrontCachePolicyName: string;
+
+    readonly logoFilesBucketName: string;
+    readonly logoFilesCloudFrontDistributionName: string;
+    readonly logoFilesCloudFrontTrustedPublicKeyName: string;
+    readonly logoFilesCloudFrontTrustedKeyGroupName: string;
+    readonly logoFilesCloudFrontAccessIdentityName: string;
+    readonly logoFilesCloudFrontCachePolicyName: string;
+
     readonly storageFunctionName: string;
     readonly getResolverName: string;
     readonly putMilitaryVerificationReportResolverName: string;
@@ -68,6 +77,31 @@ export interface ReferralConfiguration {
     readonly createReferralResolverName: string;
     readonly updateReferralResolverName: string;
 }
+
+/**
+ * Interface used to define the configuration for the event service resolvers (GraphQL based), and
+ * other afferent data stores.
+ */
+export interface EventsConfiguration {
+    readonly eventsFunctionName: string;
+    readonly eventSeriesTableName: string;
+    readonly eventSeriesCreateTimeGlobalIndex: string;
+    readonly createEventSeriesResolverName: string;
+    readonly getEventSeriesResolverName: string;
+}
+
+/**
+ * Interface used to define the configuration for the service partners service resolvers (GraphQL based),
+ * and other afferent data stores.
+ */
+export interface ServicePartnersConfiguration {
+    readonly servicePartnersFunctionName: string;
+    readonly servicePartnersTableName: string;
+    readonly servicesPartnersCreateTimeGlobalIndex: string;
+    readonly createServicePartnerResolverName: string;
+    readonly getServicePartnersResolverName: string;
+}
+
 
 /**
  * Interface used to define the configuration for the Military verification service resolvers

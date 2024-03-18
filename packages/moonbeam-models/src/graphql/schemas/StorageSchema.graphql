@@ -25,14 +25,14 @@ enum FileAccessLevel {
 # read from, and implicitly, the CloudFront distribution that we read from.
 enum FileType {
     MAIN
-    # TBD on more file types, depending on whether we want to have additional buckets or not
+    LOGOFILES
 }
 
-type File @aws_cognito_user_pools {
+type File @aws_cognito_user_pools @aws_api_key {
     url: String!
 }
 
-type StorageResponse @aws_cognito_user_pools {
+type StorageResponse @aws_cognito_user_pools @aws_api_key {
     data: File
     errorType: StorageErrorType
     errorMessage: String

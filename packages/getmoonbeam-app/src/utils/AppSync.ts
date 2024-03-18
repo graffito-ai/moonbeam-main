@@ -1,21 +1,26 @@
 import {
-    CountryCode, createAppReview,
-    createDevice, createLogEvent,
+    CountryCode,
+    createAppReview,
+    createDevice,
+    createLogEvent,
     createNotification,
     CreateNotificationInput,
     createReferral,
     createUserAuthSession,
-    FidelisPartner, geoCodeAsync,
+    FidelisPartner,
+    geoCodeAsync,
     getAppReviewEligibility,
     getAppUpgradeCredentials,
     getDeviceByToken,
-    getFidelisPartners, GetLocationPredictionsResponse,
+    getFidelisPartners,
+    GetLocationPredictionsResponse,
     getOffers,
     getPremierOffers,
     getSeasonalOffers,
     getUserAuthSession,
     getUserCardLinkingId,
-    getUserFromReferral, LocationPredictionType,
+    getUserFromReferral,
+    LocationPredictionType,
     getLocationPredictions,
     LoggingLevel,
     MarketingCampaignCode,
@@ -25,7 +30,9 @@ import {
     OfferCategory,
     OfferFilter,
     OfferSeasonalType,
-    OfferState, OfferStore, OsType,
+    OfferState,
+    OfferStore,
+    OsType,
     PushDevice,
     RedemptionType,
     Referral,
@@ -39,7 +46,14 @@ import {
     UserAuthSessionErrorType,
     UserAuthSessionResponse,
     UserDeviceErrorType,
-    UserDeviceState, Reimbursement, getReimbursements, CreateReimbursementInput, createReimbursement
+    UserDeviceState,
+    Reimbursement,
+    getReimbursements,
+    CreateReimbursementInput,
+    createReimbursement,
+    EventSeries,
+    getEventSeries,
+    Partner, getServicePartners
 } from "@moonbeam/moonbeam-models";
 import {API, Cache, graphqlOperation} from "aws-amplify";
 import {dynamicSort} from "./Main";
@@ -96,7 +110,7 @@ export const geocodeAsync = async (address: string, osType: OsType): Promise<Loc
             // return that the results and print an error in case there was an error while executing the address geocoding
             const message = `Error while executing the geoCoding query ${responseGeoCodeAsyncLocations.geoCodeAsync.errorMessage}`;
             console.log(message);
-            await logEvent(message, LoggingLevel.Error, true);
+            await logEvent(message, LoggingLevel.Error, false);
 
             return results;
         }
@@ -104,7 +118,7 @@ export const geocodeAsync = async (address: string, osType: OsType): Promise<Loc
         // return that the results and print an error in case there was an unexpected error while attempting to geocode address
         const message = `Unexpected error while geoCoding ${sanitizedAddress}, ${JSON.stringify(error)} ${error}`;
         console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
+        await logEvent(message, LoggingLevel.Error, false);
 
         return results;
     }
@@ -193,6 +207,82 @@ export const retrieveReimbursements = async (userId: string): Promise<Reimbursem
     } catch (error) {
         // log an error and return an empty list of reimbursements
         const message = `Unexpected error while executing the get reimbursements query for: ${userId}, ${JSON.stringify(error)} ${error}`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, true);
+
+        return result;
+    }
+}
+
+/**
+ * Function used to retrieve the list of all the Organizations that we Partnered with.
+ *
+ * @returns a {@link Promise} of an {@link Array} of {@link Partner} representing the list
+ * of Service Partner Organizations.
+ */
+export const retrieveServicePartners = async (): Promise<Partner[]> => {
+    const result: Partner[] = [];
+    try {
+        // call the getServicePartners API to retrieve event series for partner organizations
+        const servicePartnersRetrievalResult = await API.graphql(graphqlOperation(getServicePartners));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const servicePartnersRetrievalFlag = servicePartnersRetrievalResult ? servicePartnersRetrievalResult.data : null;
+
+        if (servicePartnersRetrievalFlag && servicePartnersRetrievalFlag.getServicePartners.errorMessage === null &&
+            servicePartnersRetrievalFlag.getServicePartners.data !== undefined && servicePartnersRetrievalFlag.getServicePartners.data !== null) {
+            // return the retrieved list of service partners accordingly
+            return servicePartnersRetrievalFlag.getServicePartners.data as Partner[];
+        } else {
+            // log an error and return an empty list of service partners
+            const message = `Error while executing the get service partners query ${servicePartnersRetrievalFlag.getServicePartners.errorMessage}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, true);
+
+            return result;
+        }
+    } catch (error) {
+        // log an error and return an empty list of event series
+        const message = `Unexpected error while executing the get service partners query ${JSON.stringify(error)} ${error}`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, true);
+
+        return result;
+    }
+}
+
+/**
+ * Function used to retrieve the list of all the Event Series for our Partner Organizations.
+ *
+ * @returns a {@link Promise} of an {@link Array} of {@link EventSeries} representing the list
+ * of Event Series for our partner organizations.
+ */
+export const retrieveEventSeries = async (): Promise<EventSeries[]> => {
+    const result: EventSeries[] = [];
+    try {
+        // call the getEventSeries API to retrieve event series for partner organizations
+        const eventSeriesRetrievalResult = await API.graphql(graphqlOperation(getEventSeries));
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const eventSeriesRetrievalFlag = eventSeriesRetrievalResult ? eventSeriesRetrievalResult.data : null;
+
+        if (eventSeriesRetrievalFlag && eventSeriesRetrievalFlag.getEventSeries.errorMessage === null &&
+            eventSeriesRetrievalFlag.getEventSeries.data !== undefined && eventSeriesRetrievalFlag.getEventSeries.data !== null) {
+            // return the retrieved list of event series accordingly
+            return eventSeriesRetrievalFlag.getEventSeries.data as EventSeries[];
+        } else {
+            // log an error and return an empty list of event series
+            const message = `Error while executing the get event series query ${eventSeriesRetrievalFlag.getEventSeries.errorMessage}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, true);
+
+            return result;
+        }
+    } catch (error) {
+        // log an error and return an empty list of event series
+        const message = `Unexpected error while executing the get event series query ${JSON.stringify(error)} ${error}`;
         console.log(message);
         await logEvent(message, LoggingLevel.Error, true);
 
@@ -629,7 +719,7 @@ export const searchAddressPredictions = async (address: string, osType: OsType):
             // if there was an error while retrieving location predictions, just return an empty result
             const message = `Error while retrieving location predictions for ${address} ${responseData.createLogEvent.errorMessage}`;
             console.log(message);
-            await logEvent(message, LoggingLevel.Error, true);
+            await logEvent(message, LoggingLevel.Error, false);
 
             return {
                 data: []
@@ -639,7 +729,7 @@ export const searchAddressPredictions = async (address: string, osType: OsType):
         // if there was an error while attempting to retrieve location predictions, just return an empty result
         const message = `Unexpected error while attempting to retrieved location predictions for ${address} ${JSON.stringify(error)} ${error}`;
         console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
+        await logEvent(message, LoggingLevel.Error, false);
 
         return {
             data: []
@@ -652,17 +742,17 @@ export const searchAddressPredictions = async (address: string, osType: OsType):
  *
  * @param message representing the message to the log event
  * @param level logging level
- * @param unauthenticated optional flag to highlight whether the user is unauthenticated
+ * @param authenticated optional flag to highlight whether the user is authenticated
  * or not
  * @returns a {@link Promise} of {@link void} since we do not need to return anything
  */
-export const logEvent = async (message: string, level: LoggingLevel, unauthenticated?: boolean): Promise<void> => {
+export const logEvent = async (message: string, level: LoggingLevel, authenticated?: boolean): Promise<void> => {
     try {
         // the result obtained from the createLogEvent call
         let logEventResult;
 
         //  Execute the createLogEvent call depending on whether the user is unauthenticated or not
-        if (unauthenticated === undefined || !unauthenticated) {
+        if (authenticated !== undefined && authenticated) {
             // call the createLogEvent API
             logEventResult = await API.graphql(graphqlOperation(createLogEvent, {
                 createLogEventInput: {
@@ -670,7 +760,7 @@ export const logEvent = async (message: string, level: LoggingLevel, unauthentic
                     logLevel: level
                 }
             }));
-        } else {
+        } else if (authenticated === undefined || !authenticated) {
             // only our IAM user from the Amplify App will have access to use this
             logEventResult = await API.graphql({
                 query: createLogEvent,
@@ -696,7 +786,7 @@ export const logEvent = async (message: string, level: LoggingLevel, unauthentic
             // if there was an error while logging an event, just console.log it accordingly
             const message = `Error while logging event ${responseData.createLogEvent.errorMessage}`;
             console.log(message);
-            await logEvent(message, LoggingLevel.Error, true);
+            await logEvent(message, LoggingLevel.Error, false);
 
             return;
         }
@@ -704,7 +794,7 @@ export const logEvent = async (message: string, level: LoggingLevel, unauthentic
     } catch (error) {
         const message = `Unexpected error while logging event ${JSON.stringify(error)} ${error}`;
         console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
+        await logEvent(message, LoggingLevel.Error, false);
 
         return;
     }
@@ -795,7 +885,7 @@ export const appUpgradeCheck = async (appUpgradeChecked: boolean, setAppUpgradeC
                 const appInfo = {
                     appId: Platform.OS === 'android' ? 'com.moonbeam.moonbeamfin' : '6450375130', // The App ID from the Play Store or App Store
                     appName: 'Moonbeam Finance', // The App Name
-                    appVersion: '0.0.21', // The targeted App Version to be updated to
+                    appVersion: '0.0.22', // The targeted App Version to be updated to
                     platform: Platform.OS === 'android' ? 'android' : 'ios', // The App Platform
                     environment: envInfo.envName === Stages.DEV ? 'development' : 'production', // App Environment, production, development
                     appLanguage: 'en', // App Language ex: en, es, etc.
@@ -815,12 +905,12 @@ export const appUpgradeCheck = async (appUpgradeChecked: boolean, setAppUpgradeC
             } else {
                 const errorMessage = `Unexpected error while creating retrieving the App Storage API Key through the getAppUpgradeCredentials API ${JSON.stringify(appUpgradeCredentialsResponseData)}`;
                 console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Error, true);
+                await logEvent(errorMessage, LoggingLevel.Error, false);
             }
         } catch (error) {
             const errorMessage = `Unexpected error while checking the App Upgrade version ${error} ${JSON.stringify(error)}`;
             console.log(errorMessage);
-            await logEvent(errorMessage, LoggingLevel.Error, true);
+            await logEvent(errorMessage, LoggingLevel.Error, false);
         }
     }
 }
@@ -965,7 +1055,7 @@ export const updateUserAuthStat = async (userId: string): Promise<UserAuthSessio
             } else {
                 const errorMessage = `Unexpected error while updating existing user session through the updateUserAuthSession API ${JSON.stringify(updateUserAuthSessionResponseData)}`;
                 console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Error, true);
+                await logEvent(errorMessage, LoggingLevel.Error, false);
 
                 return {
                     errorMessage: errorMessage,
@@ -997,7 +1087,7 @@ export const updateUserAuthStat = async (userId: string): Promise<UserAuthSessio
                 } else {
                     const errorMessage = `Unexpected error while creating existing user session through the createUserAuthSession API ${JSON.stringify(createUserAuthSessionResponseData)}`;
                     console.log(errorMessage);
-                    await logEvent(errorMessage, LoggingLevel.Error, true);
+                    await logEvent(errorMessage, LoggingLevel.Error, false);
 
                     return {
                         errorMessage: errorMessage,
@@ -1009,7 +1099,7 @@ export const updateUserAuthStat = async (userId: string): Promise<UserAuthSessio
                     getUserAuthSessionResponseData.getUserAuthSession.errorMessage !== null) {
                     const errorMessage = `Unexpected error while retrieving existing user session through the getUserAuthSession API ${getUserAuthSessionResponseData.getUserAuthSession.errorMessage}`;
                     console.log(errorMessage);
-                    await logEvent(errorMessage, LoggingLevel.Error, true);
+                    await logEvent(errorMessage, LoggingLevel.Error, false);
                 }
 
                 return {
@@ -1021,7 +1111,7 @@ export const updateUserAuthStat = async (userId: string): Promise<UserAuthSessio
     } catch (error) {
         const errorMessage = `Unexpected error while updating user auth stat ${error} ${JSON.stringify(error)}`;
         console.log(errorMessage);
-        await logEvent(errorMessage, LoggingLevel.Error, true);
+        await logEvent(errorMessage, LoggingLevel.Error, false);
 
         return {
             errorMessage: errorMessage,
@@ -1057,14 +1147,14 @@ export const sendNotification = async (createNotificationInput: CreateNotificati
         } else {
             const errorMessage = `Unexpected error while creating a notification through the create notification API ${JSON.stringify(responseData)}`;
             console.log(errorMessage);
-            await logEvent(errorMessage, LoggingLevel.Error, true);
+            await logEvent(errorMessage, LoggingLevel.Error, false);
 
             return false;
         }
     } catch (error) {
         const errorMessage = `Unexpected error while sending a notification with details ${JSON.stringify(createNotificationInput)} ${error}`;
         console.log(errorMessage);
-        await logEvent(errorMessage, LoggingLevel.Error, true);
+        await logEvent(errorMessage, LoggingLevel.Error, false);
 
         return false;
     }
@@ -1102,7 +1192,7 @@ export const proceedWithDeviceCreation = async (userId: string, tokenId: string)
             if (pushDevice.id === userId) {
                 const errorMessage = `Device already associated to user!`;
                 console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Info, true);
+                await logEvent(errorMessage, LoggingLevel.Info, false);
 
                 return false;
             } else {
@@ -1134,14 +1224,14 @@ export const proceedWithDeviceCreation = async (userId: string, tokenId: string)
                     } else {
                         const errorMessage = `Unexpected error while updating the physical device ${JSON.stringify(updateDeviceResult)}`;
                         console.log(errorMessage);
-                        await logEvent(errorMessage, LoggingLevel.Warning, true);
+                        await logEvent(errorMessage, LoggingLevel.Warning, false);
 
                         return false;
                     }
                 } else {
                     const errorMessage = `Physical device association is older than existing one. Skipping.`;
                     console.log(errorMessage);
-                    await logEvent(errorMessage, LoggingLevel.Warning, true);
+                    await logEvent(errorMessage, LoggingLevel.Warning, false);
 
                     return false;
                 }
@@ -1154,13 +1244,13 @@ export const proceedWithDeviceCreation = async (userId: string, tokenId: string)
             if (responseData.getDeviceByToken.errorMessage !== null && responseData.getDeviceByToken.errorType === UserDeviceErrorType.NoneOrAbsent) {
                 const errorMessage = `No physical devices with ${tokenId} found!`;
                 console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Warning, true);
+                await logEvent(errorMessage, LoggingLevel.Warning, false);
 
                 return true;
             } else {
                 const errorMessage = `Unexpected error while creating retrieving physical device by token ${JSON.stringify(getDeviceByTokenResult)}`;
                 console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Error, true);
+                await logEvent(errorMessage, LoggingLevel.Error, false);
 
                 return false;
             }
@@ -1168,7 +1258,7 @@ export const proceedWithDeviceCreation = async (userId: string, tokenId: string)
     } catch (error) {
         const errorMessage = `Unexpected error while attempting to retrieve physical device by token ${JSON.stringify(error)} ${error}`;
         console.log(errorMessage);
-        await logEvent(errorMessage, LoggingLevel.Error, true);
+        await logEvent(errorMessage, LoggingLevel.Error, false);
 
         return false;
     }
@@ -1204,14 +1294,14 @@ export const createPhysicalDevice = async (userId: string, tokenId: string): Pro
         } else {
             const errorMessage = `Unexpected error while creating a new physical device for user ${JSON.stringify(createDeviceResult)}`;
             console.log(errorMessage);
-            await logEvent(errorMessage, LoggingLevel.Error, true);
+            await logEvent(errorMessage, LoggingLevel.Error, false);
 
             return false;
         }
     } catch (error) {
         const errorMessage = `Unexpected error while attempting to create a new physical device for user ${JSON.stringify(error)} ${error}`;
         console.log(errorMessage);
-        await logEvent(errorMessage, LoggingLevel.Error, true);
+        await logEvent(errorMessage, LoggingLevel.Error, false);
 
         return false;
     }
@@ -1275,7 +1365,7 @@ export const retrievePremierClickOnlyOnlineOffersList = async (numberOfFailedCal
                     } else {
                         const message = `No premier click-only online offers to display ${JSON.stringify(premierClickOnlyOnlineOffersResult)}, retry count ${retryCount}`;
                         console.log(message);
-                        await logEvent(message, LoggingLevel.Warning, true);
+                        await logEvent(message, LoggingLevel.Warning, false);
 
                         retryCount -= 1;
                     }
@@ -1284,7 +1374,7 @@ export const retrievePremierClickOnlyOnlineOffersList = async (numberOfFailedCal
                 if (responseData && responseData.getPremierOffers.errorMessage !== null) {
                     const message = `Unexpected error while retrieving premier click-only online offers ${responseData.getPremierOffers.errorMessage}`;
                     console.log(message);
-                    await logEvent(message, LoggingLevel.Error, true);
+                    await logEvent(message, LoggingLevel.Error, false);
                 }
 
                 setNumberOfFailedCalls(numberOfFailedCalls + 1);
@@ -1293,7 +1383,7 @@ export const retrievePremierClickOnlyOnlineOffersList = async (numberOfFailedCal
         } catch (error) {
             const message = `Unexpected error while attempting to retrieve premier click-only online offers ${JSON.stringify(error)} ${error}`;
             console.log(message);
-            await logEvent(message, LoggingLevel.Error, true);
+            await logEvent(message, LoggingLevel.Error, false);
 
             setNumberOfFailedCalls(numberOfFailedCalls + 1);
             retryCount -= 1;
@@ -1361,7 +1451,7 @@ export const retrievePremierOnlineOffersList = async (numberOfFailedCalls: numbe
                     } else {
                         const message = `No premier online offers to display ${JSON.stringify(premierOnlineOffersResult)}, retry count ${retryCount}`;
                         console.log(message);
-                        await logEvent(message, LoggingLevel.Warning, true);
+                        await logEvent(message, LoggingLevel.Warning, false);
 
                         retryCount -= 1;
                     }
@@ -1370,7 +1460,7 @@ export const retrievePremierOnlineOffersList = async (numberOfFailedCalls: numbe
                 if (responseData && responseData.getPremierOffers.errorMessage !== null) {
                     const message = `Unexpected error while retrieving premier online offers ${responseData.getPremierOffers.errorMessage}`;
                     console.log(message);
-                    await logEvent(message, LoggingLevel.Error, true);
+                    await logEvent(message, LoggingLevel.Error, false);
                 }
 
                 setNumberOfFailedCalls(numberOfFailedCalls + 1);
@@ -1379,7 +1469,7 @@ export const retrievePremierOnlineOffersList = async (numberOfFailedCalls: numbe
         } catch (error) {
             const message = `Unexpected error while attempting to retrieve premier online offers ${JSON.stringify(error)} ${error}`;
             console.log(message);
-            await logEvent(message, LoggingLevel.Error, true);
+            await logEvent(message, LoggingLevel.Error, false);
 
             setNumberOfFailedCalls(numberOfFailedCalls + 1);
             retryCount -= 1;
@@ -1466,7 +1556,7 @@ export const retrieveCategorizedOnlineOffersList = async (totalNumberOfOffersAva
                 } else {
                     const errorMessage = `No categorized online offers to display for category ${offerCategory} ${JSON.stringify(onlineOffersResult)}`;
                     console.log(errorMessage);
-                    await logEvent(errorMessage, LoggingLevel.Warning, true);
+                    await logEvent(errorMessage, LoggingLevel.Warning, false);
 
                     retryCount -= 1;
                 }
@@ -1474,7 +1564,7 @@ export const retrieveCategorizedOnlineOffersList = async (totalNumberOfOffersAva
                 if (responseData && responseData[`${offerProperty}`].errorMessage !== null) {
                     const errorMessage = `Unexpected error while retrieving categorized online offers for category ${offerCategory} ${responseData[`${offerProperty}`].errorMessage}`;
                     console.log(errorMessage);
-                    await logEvent(errorMessage, LoggingLevel.Error, true);
+                    await logEvent(errorMessage, LoggingLevel.Error, false);
                 }
 
                 retryCount -= 1;
@@ -1482,7 +1572,7 @@ export const retrieveCategorizedOnlineOffersList = async (totalNumberOfOffersAva
         } catch (error) {
             const errorMessage = `Unexpected error while attempting to retrieve categorized online offers for category ${offerCategory} ${JSON.stringify(error)} ${error}`;
             console.log(errorMessage);
-            await logEvent(errorMessage, LoggingLevel.Error, true);
+            await logEvent(errorMessage, LoggingLevel.Error, false);
 
             retryCount -= 1;
         }
@@ -1554,7 +1644,7 @@ export const retrieveClickOnlyOnlineOffersList = async (numberOfFailedCalls: num
                 } else {
                     const message = `No click-only online offers to display ${JSON.stringify(clickOnlyOnlineOffersResult)}`;
                     console.log(message);
-                    await logEvent(message, LoggingLevel.Info, true);
+                    await logEvent(message, LoggingLevel.Info, false);
 
                     retryCount -= 1;
                 }
@@ -1562,7 +1652,7 @@ export const retrieveClickOnlyOnlineOffersList = async (numberOfFailedCalls: num
                 if (responseData && responseData.getOffers.errorMessage !== null) {
                     const errorMessage = `Unexpected error while retrieving click-only online offers ${responseData.getOffers.errorMessage}`;
                     console.log(errorMessage);
-                    await logEvent(errorMessage, LoggingLevel.Error, true);
+                    await logEvent(errorMessage, LoggingLevel.Error, false);
                 }
 
                 setNumberOfFailedCalls(numberOfFailedCalls + 1);
@@ -1571,7 +1661,7 @@ export const retrieveClickOnlyOnlineOffersList = async (numberOfFailedCalls: num
         } catch (error) {
             const errorMessage = `Unexpected error while attempting to retrieve click-only online offers ${JSON.stringify(error)} ${error}`;
             console.log(errorMessage);
-            await logEvent(errorMessage, LoggingLevel.Error, true);
+            await logEvent(errorMessage, LoggingLevel.Error, false);
 
             setNumberOfFailedCalls(numberOfFailedCalls + 1);
             retryCount -= 1;
@@ -1644,7 +1734,7 @@ export const retrieveOnlineOffersList = async (numberOfFailedCalls: number, setN
                 } else {
                     const message = `No online offers to display ${JSON.stringify(onlineOffersResult)}`;
                     console.log(message);
-                    await logEvent(message, LoggingLevel.Warning, true);
+                    await logEvent(message, LoggingLevel.Warning, false);
 
                     retryCount -= 1;
                 }
@@ -1652,7 +1742,7 @@ export const retrieveOnlineOffersList = async (numberOfFailedCalls: number, setN
                 if (responseData && responseData.getOffers.errorMessage === null !== null) {
                     const message = `Unexpected error while retrieving online offers ${responseData.getOffers.errorMessage}`;
                     console.log(message);
-                    await logEvent(message, LoggingLevel.Error, true);
+                    await logEvent(message, LoggingLevel.Error, false);
                 }
 
                 setNumberOfFailedCalls(numberOfFailedCalls + 1);
@@ -1661,7 +1751,7 @@ export const retrieveOnlineOffersList = async (numberOfFailedCalls: number, setN
         } catch (error) {
             const message = `Unexpected error while attempting to retrieve online offers ${JSON.stringify(error)} ${error}`;
             console.log(message);
-            await logEvent(message, LoggingLevel.Error, true);
+            await logEvent(message, LoggingLevel.Error, false);
 
             setNumberOfFailedCalls(numberOfFailedCalls + 1);
             retryCount -= 1;
@@ -1706,7 +1796,7 @@ export const retrieveFidelisPartnerList = async (): Promise<FidelisPartner[]> =>
                 } else {
                     const errorMessage = `No Fidelis partners to display ${JSON.stringify(fidelisPartnersResult)}`;
                     console.log(errorMessage);
-                    await logEvent(errorMessage, LoggingLevel.Error, true);
+                    await logEvent(errorMessage, LoggingLevel.Error, false);
 
                     retryCount -= 1;
                 }
@@ -1714,7 +1804,7 @@ export const retrieveFidelisPartnerList = async (): Promise<FidelisPartner[]> =>
                 if (responseData && responseData.getFidelisPartners.errorMessage !== null) {
                     const errorMessage = `Unexpected error while retrieving Fidelis partner offers ${responseData.getFidelisPartners.errorMessage}`;
                     console.log(errorMessage);
-                    await logEvent(errorMessage, LoggingLevel.Error, true);
+                    await logEvent(errorMessage, LoggingLevel.Error, false);
                 }
 
                 retryCount -= 1;
@@ -1722,7 +1812,7 @@ export const retrieveFidelisPartnerList = async (): Promise<FidelisPartner[]> =>
         } catch (error) {
             const errorMessage = `Unexpected error while attempting to retrieve the Fidelis partner offers ${JSON.stringify(error)} ${error}`;
             console.log(errorMessage);
-            await logEvent(errorMessage, LoggingLevel.Error, true);
+            await logEvent(errorMessage, LoggingLevel.Error, false);
 
             retryCount -= 1;
         }
@@ -1759,7 +1849,7 @@ export const retrievePremierOffersNearby = async (numberOfFailedCalls: number, s
             if (foregroundPermissionStatus.status !== 'granted') {
                 const errorMessage = `Permission to access location was not granted!`;
                 console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Warning, true);
+                await logEvent(errorMessage, LoggingLevel.Warning, false);
 
                 nearbyOffers = null;
                 retryCount = 0;
@@ -1814,7 +1904,7 @@ export const retrievePremierOffersNearby = async (numberOfFailedCalls: number, s
                             } else {
                                 const errorMessage = `No premier nearby offers to display ${JSON.stringify(premierNearbyOffersResult)}, retry count ${retryCount}`;
                                 console.log(errorMessage);
-                                await logEvent(errorMessage, LoggingLevel.Warning, true);
+                                await logEvent(errorMessage, LoggingLevel.Warning, false);
 
                                 nearbyOffers = [];
                                 retryCount -= 1;
@@ -1824,7 +1914,7 @@ export const retrievePremierOffersNearby = async (numberOfFailedCalls: number, s
                         if (responseData && responseData.getPremierOffers.errorMessage !== null) {
                             const errorMessage = `Unexpected error while retrieving premier nearby offers ${responseData.getPremierOffers.errorMessage}`;
                             console.log(errorMessage);
-                            await logEvent(errorMessage, LoggingLevel.Error, true);
+                            await logEvent(errorMessage, LoggingLevel.Error, false);
                         }
 
                         setNumberOfFailedCalls(numberOfFailedCalls + 1);
@@ -1834,7 +1924,7 @@ export const retrievePremierOffersNearby = async (numberOfFailedCalls: number, s
                 } else {
                     const errorMessage = `Unable to retrieve the current user's location coordinates!`;
                     console.log(errorMessage);
-                    await logEvent(errorMessage, LoggingLevel.Error, true);
+                    await logEvent(errorMessage, LoggingLevel.Error, false);
 
                     setNumberOfFailedCalls(numberOfFailedCalls + 1);
                     nearbyOffers = null;
@@ -1844,7 +1934,7 @@ export const retrievePremierOffersNearby = async (numberOfFailedCalls: number, s
         } catch (error) {
             const errorMessage = `Unexpected error while attempting to retrieve premier nearby offers ${JSON.stringify(error)} ${error}`;
             console.log(errorMessage);
-            await logEvent(errorMessage, LoggingLevel.Error, true);
+            await logEvent(errorMessage, LoggingLevel.Error, false);
 
             setNumberOfFailedCalls(numberOfFailedCalls + 1);
             nearbyOffers = null;
@@ -1895,7 +1985,7 @@ export const retrieveOffersNearbyForMap = async (numberOfFailedCalls: number, se
             if (foregroundPermissionStatus.status !== 'granted') {
                 const message = `Permission to access location was not granted!`;
                 console.log(message);
-                await logEvent(message, LoggingLevel.Warning, true);
+                await logEvent(message, LoggingLevel.Warning, false);
 
                 nearbyOffers = null;
                 retryCount = 0;
@@ -1943,7 +2033,7 @@ export const retrieveOffersNearbyForMap = async (numberOfFailedCalls: number, se
                         } else {
                             const message = `No nearby offers to display for main horizontal map ${JSON.stringify(nearbyOffersResult)}`;
                             console.log(message);
-                            await logEvent(message, LoggingLevel.Info, true);
+                            await logEvent(message, LoggingLevel.Info, false);
 
                             // fall back to offers near their home address
                             nearbyOffers = userInformation["address"] && userInformation["address"]["formatted"]
@@ -1956,7 +2046,7 @@ export const retrieveOffersNearbyForMap = async (numberOfFailedCalls: number, se
                         if (responseData && responseData.getOffers.errorMessage !== null) {
                             const message = `Unexpected error while retrieving nearby offers for main horizontal map ${responseData.getOffers.errorMessage}`;
                             console.log(message);
-                            await logEvent(message, LoggingLevel.Error, true);
+                            await logEvent(message, LoggingLevel.Error, false);
                         }
 
                         setNumberOfFailedCalls(numberOfFailedCalls + 1);
@@ -1965,7 +2055,7 @@ export const retrieveOffersNearbyForMap = async (numberOfFailedCalls: number, se
                 } else {
                     const message = `Unable to retrieve the current user's location coordinates!`;
                     console.log(message);
-                    await logEvent(message, LoggingLevel.Error, true);
+                    await logEvent(message, LoggingLevel.Error, false);
 
                     setNumberOfFailedCalls(numberOfFailedCalls + 1);
                     retryCount -= 1;
@@ -1974,7 +2064,7 @@ export const retrieveOffersNearbyForMap = async (numberOfFailedCalls: number, se
         } catch (error) {
             const message = `Unexpected error while attempting to retrieve nearby offers for main horizontal map ${JSON.stringify(error)} ${error}`;
             console.log(message);
-            await logEvent(message, LoggingLevel.Error, true);
+            await logEvent(message, LoggingLevel.Error, false);
 
             setNumberOfFailedCalls(numberOfFailedCalls + 1);
 
@@ -2031,7 +2121,7 @@ const retrieveOffersNearLocationForMap = async (address: string, totalNumberOfOf
             if (!geoLocation) {
                 const message = `Unable to retrieve user's home location's geolocation ${address}`;
                 console.log(message);
-                await logEvent(message, LoggingLevel.Error, true);
+                await logEvent(message, LoggingLevel.Error, false);
 
                 retryCount = 0;
             } else {
@@ -2071,7 +2161,7 @@ const retrieveOffersNearLocationForMap = async (address: string, totalNumberOfOf
                     } else {
                         const message = `No offers near user's home location to display for main horizontal map ${JSON.stringify(nearbyOffersResult)}`;
                         console.log(message);
-                        await logEvent(message, LoggingLevel.Warning, true);
+                        await logEvent(message, LoggingLevel.Warning, false);
 
                         retryCount -= 1;
                     }
@@ -2079,7 +2169,7 @@ const retrieveOffersNearLocationForMap = async (address: string, totalNumberOfOf
                     if (responseData && responseData.getOffers.errorMessage !== null) {
                         const message = `Unexpected error while retrieving offers near user's home location for main horizontal map ${responseData.getOffers.errorMessage}`;
                         console.log(message);
-                        await logEvent(message, LoggingLevel.Error, true);
+                        await logEvent(message, LoggingLevel.Error, false);
                     }
 
                     retryCount -= 1;
@@ -2088,7 +2178,7 @@ const retrieveOffersNearLocationForMap = async (address: string, totalNumberOfOf
         } catch (error) {
             const message = `Unexpected error while attempting to retrieve offers near user's home location for main horizontal map ${JSON.stringify(error)} ${error}`;
             console.log(message);
-            await logEvent(message, LoggingLevel.Error, true);
+            await logEvent(message, LoggingLevel.Error, false);
 
             retryCount -= 1;
         }
@@ -2145,7 +2235,7 @@ export const retrieveOffersNearby = async (numberOfFailedCalls: number, setNumbe
             if (foregroundPermissionStatus.status !== 'granted') {
                 const message = `Permission to access location was not granted!`;
                 console.log(message);
-                await logEvent(message, LoggingLevel.Info, true);
+                await logEvent(message, LoggingLevel.Info, false);
 
                 retryCount = 0;
                 nearbyOffers = null;
@@ -2197,7 +2287,7 @@ export const retrieveOffersNearby = async (numberOfFailedCalls: number, setNumbe
                         } else {
                             const message = `No nearby offers to display ${JSON.stringify(nearbyOffersResult)}`;
                             console.log(message);
-                            await logEvent(message, LoggingLevel.Info, true);
+                            await logEvent(message, LoggingLevel.Info, false);
 
                             // fall back to offers near their home address
                             retryCount -= 1;
@@ -2211,7 +2301,7 @@ export const retrieveOffersNearby = async (numberOfFailedCalls: number, setNumbe
                         if (responseData && responseData.getOffers.errorMessage !== null) {
                             const errorMessage = `Unexpected error while retrieving nearby offers ${responseData.getOffers.errorMessage}`;
                             console.log(errorMessage);
-                            await logEvent(errorMessage, LoggingLevel.Error, true);
+                            await logEvent(errorMessage, LoggingLevel.Error, false);
                         }
 
                         setNumberOfFailedCalls(numberOfFailedCalls + 1);
@@ -2220,7 +2310,7 @@ export const retrieveOffersNearby = async (numberOfFailedCalls: number, setNumbe
                 } else {
                     const errorMessage = `Unable to retrieve the current user's location coordinates!`;
                     console.log(errorMessage);
-                    await logEvent(errorMessage, LoggingLevel.Error, true);
+                    await logEvent(errorMessage, LoggingLevel.Error, false);
 
                     setNumberOfFailedCalls(numberOfFailedCalls + 1);
                     retryCount -= 1;
@@ -2229,7 +2319,7 @@ export const retrieveOffersNearby = async (numberOfFailedCalls: number, setNumbe
         } catch (error) {
             const errorMessage = `Unexpected error while attempting to retrieve nearby offers ${JSON.stringify(error)} ${error}`;
             console.log(errorMessage);
-            await logEvent(errorMessage, LoggingLevel.Error, true);
+            await logEvent(errorMessage, LoggingLevel.Error, false);
 
             setNumberOfFailedCalls(numberOfFailedCalls + 1);
 
@@ -2290,7 +2380,7 @@ const retrieveOffersNearLocation = async (address: string, pageNumber: number, s
             if (pageNumber === 1 && marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-offerNearUserHome`) !== null) {
                 const message = 'offers near user home are cached';
                 console.log(message);
-                await logEvent(message, LoggingLevel.Info, true);
+                await logEvent(message, LoggingLevel.Info, false);
 
                 // increase the page number, if needed
                 setPageNumber(pageNumber + 1);
@@ -2303,7 +2393,7 @@ const retrieveOffersNearLocation = async (address: string, pageNumber: number, s
             } else {
                 const message = 'offers near user home are not cached, or page number is not 1';
                 console.log(message);
-                await logEvent(message, LoggingLevel.Info, true);
+                await logEvent(message, LoggingLevel.Info, false);
 
                 // first retrieve the necessary geolocation information based on the user's home address
                 const geoLocationArray = await geocodeAsync(address, Platform.OS === 'ios' ? OsType.Ios : OsType.Android);
@@ -2314,7 +2404,7 @@ const retrieveOffersNearLocation = async (address: string, pageNumber: number, s
                 if (!geoLocation) {
                     const message = `Unable to retrieve user's home location's geolocation ${address}`;
                     console.log(message);
-                    await logEvent(message, LoggingLevel.Warning, true);
+                    await logEvent(message, LoggingLevel.Warning, false);
 
                     retryCount = 0;
                 } else {
@@ -2365,7 +2455,7 @@ const retrieveOffersNearLocation = async (address: string, pageNumber: number, s
                         } else {
                             const message = `No offers near user's home location to display ${JSON.stringify(nearbyOffersResult)}`;
                             console.log(message);
-                            await logEvent(message, LoggingLevel.Info, true);
+                            await logEvent(message, LoggingLevel.Info, false);
 
                             retryCount -= 1;
                         }
@@ -2373,7 +2463,7 @@ const retrieveOffersNearLocation = async (address: string, pageNumber: number, s
                         if (responseData && responseData.getOffers.errorMessage !== null) {
                             const errorMessage = `Unexpected error while retrieving offers near user's home location ${responseData.getOffers.errorMessage}`;
                             console.log(errorMessage);
-                            await logEvent(errorMessage, LoggingLevel.Error, true);
+                            await logEvent(errorMessage, LoggingLevel.Error, false);
                         }
 
                         retryCount -= 1;
@@ -2383,7 +2473,7 @@ const retrieveOffersNearLocation = async (address: string, pageNumber: number, s
         } catch (error) {
             const errorMessage = `Unexpected error while attempting to retrieve offers near user's home location ${JSON.stringify(error)} ${error}`;
             console.log(errorMessage);
-            await logEvent(errorMessage, LoggingLevel.Error, true);
+            await logEvent(errorMessage, LoggingLevel.Error, false);
 
             retryCount -= 1;
         }
@@ -2431,7 +2521,7 @@ export const retrieveCategorizedOffersNearby = async (pageNumber: number, setPag
             if (foregroundPermissionStatus.status !== 'granted') {
                 const errorMessage = `Permission to access location was not granted!`;
                 console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Warning, true);
+                await logEvent(errorMessage, LoggingLevel.Warning, false);
 
                 retryCount = 0;
                 nearbyOffers = null;
@@ -2482,7 +2572,7 @@ export const retrieveCategorizedOffersNearby = async (pageNumber: number, setPag
                         } else {
                             const errorMessage = `No nearby categorized offers to display for category ${offerCategory} ${JSON.stringify(nearbyOffersResult)}`;
                             console.log(errorMessage);
-                            await logEvent(errorMessage, LoggingLevel.Warning, true);
+                            await logEvent(errorMessage, LoggingLevel.Warning, false);
 
 
                             // fall back to offers near their home address
@@ -2497,7 +2587,7 @@ export const retrieveCategorizedOffersNearby = async (pageNumber: number, setPag
                         if (responseData && responseData.getOffers.errorMessage !== null) {
                             const errorMessage = `Unexpected error while retrieving nearby categorized offers for category ${offerCategory} ${responseData.getOffers.errorMessage}`;
                             console.log(errorMessage);
-                            await logEvent(errorMessage, LoggingLevel.Error, true);
+                            await logEvent(errorMessage, LoggingLevel.Error, false);
                         }
 
                         retryCount -= 1;
@@ -2505,7 +2595,7 @@ export const retrieveCategorizedOffersNearby = async (pageNumber: number, setPag
                 } else {
                     const errorMessage = `Unable to retrieve the current user's location coordinates!`;
                     console.log(errorMessage);
-                    await logEvent(errorMessage, LoggingLevel.Error, true);
+                    await logEvent(errorMessage, LoggingLevel.Error, false);
 
                     retryCount -= 1;
                 }
@@ -2513,7 +2603,7 @@ export const retrieveCategorizedOffersNearby = async (pageNumber: number, setPag
         } catch (error) {
             const errorMessage = `Unexpected error while attempting to retrieve categorized nearby offers for category ${offerCategory} ${JSON.stringify(error)} ${error}`;
             console.log(errorMessage);
-            await logEvent(errorMessage, LoggingLevel.Error, true);
+            await logEvent(errorMessage, LoggingLevel.Error, false);
 
             // @ts-ignore
             if (!error.code && (error.code !== 'ERR_LOCATION_INFO_PLIST' || error.code !== 'E_LOCATION_UNAVAILABLE')) {
@@ -2572,7 +2662,7 @@ const retrieveCategorizedOffersNearLocation = async (address: string, pageNumber
             if (!geoLocation) {
                 const errorMessage = `Unable to retrieve user's home location's geolocation ${address}`;
                 console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Error, true);
+                await logEvent(errorMessage, LoggingLevel.Error, false);
 
                 retryCount = 0;
             } else {
@@ -2619,7 +2709,7 @@ const retrieveCategorizedOffersNearLocation = async (address: string, pageNumber
                     } else {
                         const errorMessage = `No offers near user's home location to display ${JSON.stringify(nearbyOffersResult)}`;
                         console.log(errorMessage);
-                        await logEvent(errorMessage, LoggingLevel.Warning, true);
+                        await logEvent(errorMessage, LoggingLevel.Warning, false);
 
                         retryCount -= 1;
                     }
@@ -2627,7 +2717,7 @@ const retrieveCategorizedOffersNearLocation = async (address: string, pageNumber
                     if (responseData && responseData.getOffers.errorMessage !== null) {
                         const errorMessage = `Unexpected error while retrieving offers near user's home location ${responseData.getOffers.errorMessage}`;
                         console.log(errorMessage);
-                        await logEvent(errorMessage, LoggingLevel.Error, true);
+                        await logEvent(errorMessage, LoggingLevel.Error, false);
                     }
 
                     retryCount -= 1;
@@ -2636,7 +2726,7 @@ const retrieveCategorizedOffersNearLocation = async (address: string, pageNumber
         } catch (error) {
             const errorMessage = `Unexpected error while attempting to retrieve offers near user's home location ${JSON.stringify(error)} ${error}`;
             console.log(errorMessage);
-            await logEvent(errorMessage, LoggingLevel.Error, true);
+            await logEvent(errorMessage, LoggingLevel.Error, false);
 
             retryCount -= 1;
         }

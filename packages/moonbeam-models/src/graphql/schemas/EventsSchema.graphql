@@ -1,0 +1,65 @@
+# graphql/EventsSchema.graphql
+# Events Schema File
+enum EventsErrorType {
+    DUPLICATE_OBJECT_FOUND
+    NONE_OR_ABSENT
+    VALIDATION_ERROR
+    UNEXPECTED_ERROR
+}
+
+enum EventSeriesStatus {
+    ACTIVE
+    INACTIVE
+}
+
+type EventStartDateTime @aws_cognito_user_pools @aws_api_key {
+    timezone: String!
+    startsAtLocal: AWSDateTime!
+    startsAtUTC: AWSDateTime!
+}
+
+type EventEndDateTime @aws_cognito_user_pools @aws_api_key {
+    timezone: String!
+    endsAtLocal: AWSDateTime!
+    endsAtUTC: AWSDateTime!
+}
+
+type Event @aws_cognito_user_pools @aws_api_key {
+    id: ID!
+    externalEventID: ID!
+    title: String!
+    description: String!
+    eventLogoUrlSm: String!
+    eventLogoUrlBg: String!
+    startTime: EventStartDateTime!
+    endTime: EventEndDateTime!
+    registrationUrl: String!
+}
+
+type EventSeries @aws_cognito_user_pools @aws_api_key {
+    id: ID!
+    externalSeriesID: ID!
+    externalOrgID: ID!
+    name: String!
+    title: String!
+    description: String!
+    createdAt: AWSDateTime!
+    updatedAt: AWSDateTime!
+    events: [Event]!
+    seriesLogoUrlSm: String!
+    seriesLogoUrlBg: String!
+    status: EventSeriesStatus!
+}
+
+type EventSeriesResponse @aws_cognito_user_pools @aws_api_key {
+    data: [EventSeries]
+    errorType: EventsErrorType
+    errorMessage: String
+}
+
+input CreateEventSeriesInput {
+    name: String!
+    externalSeriesID: ID
+    createdAt: AWSDateTime
+    updatedAt: AWSDateTime
+}

@@ -1,21 +1,21 @@
 import React, {useEffect, useState} from "react";
-import {ReferralProps} from "../../../../../models/props/AppDrawerProps";
+import {ReferralProps} from "../../../../../../models/props/AppDrawerProps";
 import {useRecoilState} from "recoil";
-import {appDrawerHeaderShownState, drawerDashboardState, drawerSwipeState} from "../../../../../recoil/AppDrawerAtom";
+import {appDrawerHeaderShownState, drawerDashboardState, drawerSwipeState} from "../../../../../../recoil/AppDrawerAtom";
 import {Platform, Share, Text, TouchableOpacity, View} from "react-native";
 import {Icon} from "@rneui/base";
 import {heightPercentageToDP as hp} from "react-native-responsive-screen";
-import {styles} from "../../../../../styles/referral.module";
+import {styles} from "../../../../../../styles/referral.module";
 import {Image} from 'expo-image';
 // @ts-ignore
-import MoonbeamContentReferral from "../../../../../../assets/art/moonbeam-referral-gifts.png";
-import {currentUserInformation, userIsAuthenticatedState} from "../../../../../recoil/AuthAtom";
+import MoonbeamContentReferral from "../../../../../../../assets/art/moonbeam-referral-gifts.png";
+import {currentUserInformation, userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 import * as crc32 from 'crc-32';
-import {branchRootUniversalObjectState} from "../../../../../recoil/BranchAtom";
-import * as envInfo from "./../../../../../../local-env-info.json";
+import {branchRootUniversalObjectState} from "../../../../../../recoil/BranchAtom";
+import * as envInfo from "../../../../../../../local-env-info.json";
 import {LoggingLevel, MarketingCampaignCode} from "@moonbeam/moonbeam-models";
 import * as Clipboard from 'expo-clipboard';
-import {logEvent} from "../../../../../utils/AppSync";
+import {logEvent} from "../../../../../../utils/AppSync";
 
 /**
  * Referral component.
@@ -148,11 +148,11 @@ export const Referral = ({navigation}: ReferralProps) => {
             if (error.message !== null && error.message !== undefined && (error.message.includes('A resource with this identifier already exists.') || (error.message !== null && error.message !== undefined && error.code.includes('DuplicateResourceError')))) {
                 return `https://app.moonbeam.vet/${referralCode}`;
             } else {
-                const message = `Error while generating a referral code for the user`;
-                console.log(message);
-                await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
+                const message = `Error while generating referral code`;
+                console.log(`${message} ${error} ${JSON.stringify(error)}`);
+                await logEvent(`${message} ${error} ${JSON.stringify(error)}`, LoggingLevel.Error, userIsAuthenticated);
 
-                return `Error while generating referral code`;
+                return message;
             }
         }
     }

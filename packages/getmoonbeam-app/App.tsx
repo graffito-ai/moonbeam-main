@@ -59,7 +59,7 @@ async function onFetchUpdateAsync(): Promise<void> {
     } catch (error) {
         const errorMessage = `Error fetching latest Expo update: ${error}`;
         console.log(errorMessage);
-        await logEvent(errorMessage, LoggingLevel.Error, true);
+        await logEvent(errorMessage, LoggingLevel.Error, false);
     }
 }
 
@@ -87,7 +87,7 @@ async function registerForPushNotificationsAsync(): Promise<ExpoPushToken> {
         if (finalStatus !== 'granted') {
             const errorMessage = 'Failed to get push token for push notification!';
             console.log(errorMessage);
-            await logEvent(errorMessage, LoggingLevel.Error, true);
+            await logEvent(errorMessage, LoggingLevel.Error, false);
             return token;
         }
         token = (
@@ -97,11 +97,11 @@ async function registerForPushNotificationsAsync(): Promise<ExpoPushToken> {
         );
         const message = 'Device set up for notifications';
         console.log(message);
-        await logEvent(message, LoggingLevel.Info, true);
+        await logEvent(message, LoggingLevel.Info, false);
     } else {
         const errorMessage = 'Must use physical device for Push Notifications';
         console.log(errorMessage);
-        await logEvent(errorMessage, LoggingLevel.Error, true);
+        await logEvent(errorMessage, LoggingLevel.Error, false);
     }
     // further configure the push notification for Android only
     if (Platform.OS === 'android') {
@@ -246,7 +246,7 @@ export default function App() {
                     if (foregroundPermissionStatus.status !== 'granted') {
                         const errorMessage = `Permission to access location was not granted!`;
                         console.log(errorMessage);
-                        logEvent(errorMessage, LoggingLevel.Warning, true).then(() => {
+                        logEvent(errorMessage, LoggingLevel.Warning, false).then(() => {
                         });
 
                         setCurrentUserLocation(null);

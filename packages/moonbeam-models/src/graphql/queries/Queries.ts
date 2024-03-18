@@ -261,6 +261,78 @@ export const getFAQs = /* GraphQL */ `
     }
 `;
 
+// Query used to retrieve all Event Series for various partner organizations
+export const getEventSeries = /* GraphQL */ `
+    query GetEventSeries {
+        getEventSeries {
+            errorMessage
+            errorType
+            data {
+                id
+                externalSeriesID
+                externalOrgID
+                name
+                title
+                description
+                createdAt
+                updatedAt
+                events {
+                    id
+                    externalEventID
+                    description
+                    title
+                    eventLogoUrlSm
+                    eventLogoUrlBg
+                    startTime {
+                        timezone
+                        startsAtLocal
+                        startsAtUTC
+                    }
+                    endTime {
+                        timezone
+                        endsAtLocal
+                        endsAtUTC
+                    }
+                    registrationUrl
+                }
+                seriesLogoUrlSm
+                seriesLogoUrlBg
+                status
+            }
+        }
+    }
+`;
+
+// Query used to retrieve all the Service partner organizations
+export const getServicePartners = /* GraphQL */ `
+    query GetServicePartners {
+        getServicePartners {
+            errorMessage
+            errorType
+            data {
+                id
+                status
+                createdAt
+                updatedAt
+                name
+                shortDescription
+                description
+                isOnline
+                logoUrl
+                addressLine
+                city
+                state
+                zipCode
+                website
+                services {
+                    title
+                    description
+                }
+            }
+        }
+    }  
+`;
+
 // Query used to retrieve all the Fidelis partner offers, filtered by brand/partner (so we can display them as featured in the store)
 export const getFidelisPartners = /* GraphQL */ `
     query GetFidelisPartners {

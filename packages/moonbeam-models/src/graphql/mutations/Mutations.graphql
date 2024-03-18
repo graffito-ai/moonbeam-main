@@ -1,5 +1,69 @@
 # graphql/Mutations.graphql
 # Mutations Schema File
+mutation CreateEventSeries($createEventSeriesInput: CreateEventSeriesInput!) {
+    createEventSeries(createEventSeriesInput: $createEventSeriesInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            externalSeriesID
+            externalOrgID
+            name
+            title
+            description
+            createdAt
+            updatedAt
+            events {
+                id
+                externalEventID
+                title
+                description
+                eventLogoUrlSm
+                eventLogoUrlBg
+                startTime {
+                    timezone
+                    startsAtLocal
+                    startsAtUTC
+                }
+                endTime {
+                    timezone
+                    endsAtLocal
+                    endsAtUTC
+                }
+                registrationUrl
+            }
+            seriesLogoUrlSm
+            seriesLogoUrlBg
+            status
+        }
+    }
+}
+mutation CreateServicePartner($createPartnerInput: CreatePartnerInput!) {
+    createServicePartner(createPartnerInput: $createPartnerInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            status
+            createdAt
+            updatedAt
+            name
+            shortDescription
+            description
+            isOnline
+            logoUrl
+            addressLine
+            city
+            state
+            zipCode
+            website
+            services {
+                title
+                description
+            }
+        }
+    }
+}
 mutation CreateReimbursement($createReimbursementInput: CreateReimbursementInput!) {
     createReimbursement(createReimbursementInput: $createReimbursementInput) {
         errorMessage

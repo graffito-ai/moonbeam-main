@@ -154,6 +154,7 @@ export const FidelisSection = (props: {
                                                             titleStyle={styles.featuredPartnerCardTitleMain}
                                                             titleNumberOfLines={10}/>
                                                         <Paragraph
+                                                            numberOfLines={6}
                                                             style={styles.featuredPartnerCardParagraph}
                                                         >
                                                             {data.offers[0]!.brandStubCopy!}
@@ -232,7 +233,7 @@ export const FidelisSection = (props: {
                         );
                     } else if (physicalLocation !== '' && calculatedDistance > 50) {
                         // we need this for Android purposes
-                        return(<View style={{backgroundColor: 'transparent', width: wp(0), height: hp(30)}}></View>);
+                        return (<View style={{backgroundColor: 'transparent', width: wp(0), height: hp(30)}}></View>);
                     } else {
                         return (
                             <>

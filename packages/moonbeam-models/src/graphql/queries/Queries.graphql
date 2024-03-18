@@ -201,6 +201,70 @@ query GetFAQs {
         }
     }
 }
+query GetEventSeries {
+    getEventSeries {
+        errorMessage
+        errorType
+        data {
+            id
+            externalSeriesID
+            externalOrgID
+            name
+            title
+            description
+            createdAt
+            updatedAt
+            events {
+                id
+                externalEventID
+                title
+                description
+                eventLogoUrlSm
+                eventLogoUrlBg
+                startTime {
+                    timezone
+                    startsAtLocal
+                    startsAtUTC
+                }
+                endTime {
+                    timezone
+                    endsAtLocal
+                    endsAtUTC
+                }
+                registrationUrl
+            }
+            seriesLogoUrlSm
+            seriesLogoUrlBg
+            status
+        }
+    }
+}
+query GetServicePartners {
+    getServicePartners {
+        errorMessage
+        errorType
+        data {
+            id
+            status
+            createdAt
+            updatedAt
+            name
+            shortDescription
+            description
+            isOnline
+            logoUrl
+            addressLine
+            city
+            state
+            zipCode
+            website
+            services {
+                title
+                description
+            }
+        }
+    }
+}
 query GetFidelisPartners {
     getFidelisPartners {
         errorMessage

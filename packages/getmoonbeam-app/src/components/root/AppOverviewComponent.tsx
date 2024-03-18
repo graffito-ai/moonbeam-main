@@ -72,7 +72,7 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
             // navigate to your desired screen
             const message = `incoming notification and/or notification response received`;
             console.log(message);
-            logEvent(message, LoggingLevel.Info, true).then(() => {
+            logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {
             });
 
             // filter incoming notification action, and set the app url accordingly
@@ -89,7 +89,7 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
             // Do something with the notification
             const message = `Incoming push notification received`;
             console.log(message);
-            logEvent(message, LoggingLevel.Info, true).then(() => {
+            logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {
             });
         });
         // This listener is fired whenever a user taps on or interacts with a notification (works when an app is foregrounded, backgrounded, or killed).
@@ -97,7 +97,7 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
             // Do something with the notification/response
             const message = `Incoming notification interaction response received`;
             console.log(message);
-            logEvent(message, LoggingLevel.Info, true).then(() => {
+            logEvent(message, LoggingLevel.Info, userIsAuthenticated).then(() => {
             });
 
             // filter incoming notification action, and set the app url accordingly
@@ -129,7 +129,7 @@ export const AppOverviewComponent = ({route, navigation}: AppOverviewProps) => {
         }).catch(err => {
             const errorMessage = `An error occurred while observing initial url ${err}`;
             console.log(errorMessage);
-            logEvent(errorMessage, LoggingLevel.Error, true).then(() => {});
+            logEvent(errorMessage, LoggingLevel.Error, userIsAuthenticated).then(() => {});
         });
         Linking.addEventListener('url', async (urlObject) => {
             if (urlObject && urlObject.url) {

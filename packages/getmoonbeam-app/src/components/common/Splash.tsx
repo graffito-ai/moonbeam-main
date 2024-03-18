@@ -264,6 +264,12 @@ import {
     reimbursementBottomSheetShownState,
     reimbursementDataState
 } from "../../recoil/ReimbursementsAtom";
+import {
+    calendarEventState,
+    eventSeriesDataState, eventToRegisterState,
+    servicePartnersDataState,
+    servicePartnerState
+} from "../../recoil/ServicesAtom";
 
 /**
  * import branch only if the app is not running in Expo Go (so we can actually run the application without Branch for
@@ -286,6 +292,7 @@ export const SplashScreen = (props: {
     splashDismissButton?: boolean
 }) => {
     // constants used to keep track of shared states
+    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [marketplaceCache,] = useRecoilState(marketplaceAmplifyCacheState);
     const [cache,] = useRecoilState(globalAmplifyCacheState);
     const [mainRootNavigation,] = useRecoilState(mainRootNavigationState);
@@ -532,6 +539,11 @@ export const SplashScreen = (props: {
     const isReimbursementsControllerReadyStateReset = useResetRecoilState(isReimbursementsControllerReadyState);
     const bottomTabNeedsShowingStateReset = useResetRecoilState(bottomTabNeedsShowingState);
     const comingFromMarketplaceStateReset = useResetRecoilState(comingFromMarketplaceState);
+    const servicePartnersDataStateReset = useResetRecoilState(servicePartnersDataState);
+    const eventSeriesDataStateReset = useResetRecoilState(eventSeriesDataState);
+    const servicePartnerStateReset = useResetRecoilState(servicePartnerState);
+    const calendarEventStateReset = useResetRecoilState(calendarEventState);
+    const eventToRegisterStateReset = useResetRecoilState(eventToRegisterState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -791,6 +803,11 @@ export const SplashScreen = (props: {
             isReimbursementsControllerReadyStateReset();
             bottomTabNeedsShowingStateReset();
             comingFromMarketplaceStateReset();
+            servicePartnersDataStateReset();
+            eventSeriesDataStateReset();
+            servicePartnerStateReset();
+            calendarEventStateReset();
+            eventToRegisterStateReset();
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {
                 // import branch
@@ -828,7 +845,7 @@ export const SplashScreen = (props: {
         } catch (error) {
             const message = `error while signing out: , ${error}`;
             console.log(message);
-            await logEvent(message, LoggingLevel.Error, true);
+            await logEvent(message, LoggingLevel.Error, userIsAuthenticated);
         }
     }
 

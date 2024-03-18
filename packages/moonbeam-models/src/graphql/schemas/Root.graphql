@@ -8,13 +8,15 @@ type Query {
     getPremierOffers(getOffersInput: GetOffersInput!): OffersResponse! @aws_cognito_user_pools
     getSeasonalOffers(getOffersInput: GetOffersInput!): OffersResponse! @aws_cognito_user_pools
     getFidelisPartners: FidelisPartnerResponse! @aws_cognito_user_pools
+    getServicePartners: PartnerResponse! @aws_cognito_user_pools
+    getEventSeries: EventSeriesResponse! @aws_cognito_user_pools @aws_api_key
     getDevicesForUser(getDevicesForUserInput: GetDevicesForUserInput!): UserDevicesResponse! @aws_cognito_user_pools @aws_api_key
     getDevice(getDeviceInput: GetDeviceInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     getDeviceByToken(getDeviceByTokenInput: GetDeviceByTokenInput!): UserDeviceResponse! @aws_cognito_user_pools @aws_api_key
     getTransaction(getTransactionInput: GetTransactionInput!): MoonbeamTransactionsResponse! @aws_cognito_user_pools @aws_api_key
     getTransactionByStatus(getTransactionByStatusInput: GetTransactionByStatusInput!): MoonbeamTransactionsByStatusResponse! @aws_cognito_user_pools @aws_api_key
     getCardLink(getCardLinkInput: GetCardLinkInput!): CardLinkResponse! @aws_cognito_user_pools
-    getStorage(getStorageInput: GetStorageInput!): StorageResponse! @aws_cognito_user_pools
+    getStorage(getStorageInput: GetStorageInput!): StorageResponse! @aws_cognito_user_pools @aws_api_key
     getFilesForUser(getFilesForUserInput: GetFilesForUserInput!): FilesForUserResponse! @aws_cognito_user_pools
     getMilitaryVerificationStatus(getMilitaryVerificationInput: GetMilitaryVerificationInput!): GetMilitaryVerificationResponse! @aws_cognito_user_pools
     getEligibleLinkedUsers: EligibleLinkedUsersResponse! @aws_cognito_user_pools @aws_api_key
@@ -33,6 +35,8 @@ type Query {
 }
 
 type Mutation {
+    createEventSeries(createEventSeriesInput: CreateEventSeriesInput!): EventSeriesResponse! @aws_cognito_user_pools @aws_api_key
+    createServicePartner(createPartnerInput: CreatePartnerInput!): PartnerResponse! @aws_cognito_user_pools
     updateCard(updateCardInput: UpdateCardInput!): EligibleLinkedUsersResponse! @aws_cognito_user_pools @aws_api_key
     addCard(addCardInput: AddCardInput!): CardLinkResponse! @aws_cognito_user_pools
     createFAQ(createFAQInput: CreateFAQInput!): FAQResponse! @aws_cognito_user_pools

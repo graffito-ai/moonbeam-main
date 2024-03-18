@@ -65,7 +65,7 @@ export const initializeBranch = async (userInformation: any): Promise<Object | n
     } catch (error) {
         const errorMessage = `Unexpected error while initializing the Branch.IO Universal Object, for OS ${Platform.OS} ${error} ${JSON.stringify(error)}`;
         console.log(errorMessage);
-        await logEvent(errorMessage, LoggingLevel.Error, true);
+        await logEvent(errorMessage, LoggingLevel.Error, false);
 
         return null;
     }

@@ -38,11 +38,17 @@ export namespace Constants {
     }
     // Storage related constants
     export namespace StorageConstants {
-        export const MOONBEAM_MAIN_FILES_KEY_PAIR_ID: string = 'MOONBEAM_MAIN_FILES_KEY_PAIR_ID';
-        export const MOONBEAM_MAIN_FILES_CLOUDFRONT_DISTRIBUTION: string = 'MOONBEAM_MAIN_FILES_CLOUDFRONT_DISTRIBUTION';
         export const MOONBEAM_PUBLIC_FILES_BUCKET_NAME: string = 'moonbeam-public-files-bucket';
         export const MOONBEAM_MILITARY_VERIFICATION_REPORTING_BUCKET_NAME: string = 'moonbeam-military-verification-reporting-bucket';
+
+        export const MOONBEAM_MAIN_FILES_KEY_PAIR_ID: string = 'MOONBEAM_MAIN_FILES_KEY_PAIR_ID';
+        export const MOONBEAM_MAIN_FILES_CLOUDFRONT_DISTRIBUTION: string = 'MOONBEAM_MAIN_FILES_CLOUDFRONT_DISTRIBUTION';
         export const MOONBEAM_MAIN_FILES_BUCKET_NAME: string = 'moonbeam-files-bucket';
+
+        export const MOONBEAM_LOGO_FILES_KEY_PAIR_ID: string = 'MOONBEAM_LOGO_FILES_KEY_PAIR_ID';
+        export const MOONBEAM_LOGO_FILES_CLOUDFRONT_DISTRIBUTION: string = 'MOONBEAM_LOGO_FILES_CLOUDFRONT_DISTRIBUTION';
+        export const MOONBEAM_LOGO_FILES_BUCKET_NAME: string = 'moonbeam-logo-files-bucket';
+
         export const AWS_S3_BUCKET_REGION: string = 'aws_user_files_s3_bucket_region';
         export const AWS_S3_BUCKET: string = 'aws_user_files_s3_bucket';
     }
@@ -88,6 +94,10 @@ export namespace Constants {
         export const REIMBURSEMENTS_ID_GLOBAL_INDEX: string = 'REIMBURSEMENTS_ID_GLOBAL_INDEX';
         export const REIMBURSEMENTS_STATUS_LOCAL_INDEX: string = 'REIMBURSEMENTS_STATUS_LOCAL_INDEX';
         export const MILITARY_VERIFICATION_STATUS_GLOBAL_INDEX: string = 'MILITARY_VERIFICATION_STATUS_GLOBAL_INDEX';
+        export const SERVICES_PARTNERS_TABLE: string = 'SERVICES_PARTNERS_TABLE';
+        export const SERVICES_PARTNERS_CREATE_TIME_GLOBAL_INDEX: string = 'SERVICES_PARTNERS_CREATE_TIME_GLOBAL_INDEX';
+        export const EVENT_SERIES_TABLE: string = 'EVENT_SERIES_TABLE';
+        export const EVENT_SERIES_CREATE_TIME_GLOBAL_INDEX: string = 'EVENT_SERIES_CREATE_TIME_GLOBAL_INDEX';
         export const ENV_NAME: string = 'ENV_NAME';
         export const ACCOUNT_LINKS: string = 'ACCOUNT_LINKS';
         export const AWS_REGION: string = 'AWS_REGION';
@@ -165,11 +175,16 @@ export namespace Constants {
         export const NEW_USER_SIGNUP_NOTIFICATION_TEMPLATE_ID = `NEW_USER_SIGNUP_NOTIFICATION_TEMPLATE_ID`;
 
         export const MAIN_FILES_CLOUDFRONT_DISTRIBUTION_SECRET_NAME = `main-files-cloudfront-pair`;
+        export const LOGO_FILES_CLOUDFRONT_DISTRIBUTION_SECRET_NAME = `logo-files-cloudfront-pair`;
         export const MOONBEAM_INTERNAL_SECRET_NAME = `moonbeam-internal-secret-pair`;
         export const MOONBEAM_INTERNAL_API_KEY = `MOONBEAM_INTERNAL_API_KEY`;
         export const MOONBEAM_INTERNAL_BASE_URL = `MOONBEAM_INTERNAL_BASE_URL`;
         export const MOONBEAM_INTERNAL_REST_BASE_URL = `MOONBEAM_INTERNAL_REST_BASE_URL`;
         export const MOONBEAM_INTERNAL_REST_API_KEY = `MOONBEAM_INTERNAL_REST_API_KEY`;
+
+        export const EVENTBRITE_SECRET_NAME = `eventbrite-secret-pair`;
+        export const EVENTBRITE_API_KEY = `EVENTBRITE-API-KEY`;
+        export const EVENTBRITE_BASE_URL = `EVENTBRITE-BASE-URL`;
 
         export const QUANDIS_SECRET_NAME = `quandis-secret-pair`;
         export const QUANDIS_API_KEY = `QUANDIS-API-KEY`;

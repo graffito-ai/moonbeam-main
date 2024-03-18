@@ -65,7 +65,10 @@ export const setCommitLintConfig = (
                     'moonbeam-transactions-producer-lambda',
                     'moonbeam-updated-transactional-offers-consumer-lambda',
                     'moonbeam-updated-transactions-producer-lambda',
-                    'moonbeam-user-auth-session-lambda'
+                    'moonbeam-user-auth-session-lambda',
+                    'moonbeam-utilities-lambda',
+                    'moonbeam-scripts-lambda',
+                    'moonbeam-service-partners-lambda'
                 ]
             ],
             'subject-case': [

@@ -26,13 +26,22 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             },
             storageConfig: {
                 publicFilesBucketName: Constants.StorageConstants.MOONBEAM_PUBLIC_FILES_BUCKET_NAME,
-                mainFilesBucketName: Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME,
                 militaryVerificationReportingBucketName: Constants.StorageConstants.MOONBEAM_MILITARY_VERIFICATION_REPORTING_BUCKET_NAME,
+
+                mainFilesBucketName: Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME,
                 mainFilesCloudFrontDistributionName: `cloudfront-distribution-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
                 mainFilesCloudFrontTrustedPublicKeyName: `cloudfront-public-key-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
                 mainFilesCloudFrontTrustedKeyGroupName: `cloudfront-key-group-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
                 mainFilesCloudFrontAccessIdentityName: `cloudfront-access-identity-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
                 mainFilesCloudFrontCachePolicyName: `cloudfront-cache-policy-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
+
+                logoFilesBucketName: Constants.StorageConstants.MOONBEAM_LOGO_FILES_BUCKET_NAME,
+                logoFilesCloudFrontDistributionName: `cloudfront-distribution-${Constants.StorageConstants.MOONBEAM_LOGO_FILES_BUCKET_NAME}`,
+                logoFilesCloudFrontTrustedPublicKeyName: `cloudfront-public-key-${Constants.StorageConstants.MOONBEAM_LOGO_FILES_BUCKET_NAME}`,
+                logoFilesCloudFrontTrustedKeyGroupName: `cloudfront-key-group-${Constants.StorageConstants.MOONBEAM_LOGO_FILES_BUCKET_NAME}`,
+                logoFilesCloudFrontAccessIdentityName: `cloudfront-access-identity-${Constants.StorageConstants.MOONBEAM_LOGO_FILES_BUCKET_NAME}`,
+                logoFilesCloudFrontCachePolicyName: `cloudfront-cache-policy-${Constants.StorageConstants.MOONBEAM_LOGO_FILES_BUCKET_NAME}`,
+
                 storageFunctionName: 'storageLambdaFunction',
                 getResolverName: 'getStorage',
                 putMilitaryVerificationReportResolverName: 'putMilitaryVerificationReport',
@@ -243,6 +252,20 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 reimbursementsIdGlobalIndex: "reimbursementsIdGlobalIndex",
                 reimbursementsStatusLocalIndex: "reimbursementsStatusLocalIndex"
             },
+            servicePartnersConfig: {
+                servicePartnersFunctionName: "servicePartnersFunction",
+                servicePartnersTableName: "servicePartnersTable",
+                servicesPartnersCreateTimeGlobalIndex: "servicesPartnersCreateTimeGlobalIndex",
+                createServicePartnerResolverName: "createServicePartner",
+                getServicePartnersResolverName: "getServicePartners"
+            },
+            eventsConfig: {
+                eventsFunctionName: "eventsFunction",
+                eventSeriesTableName: "eventsSeriesTable",
+                eventSeriesCreateTimeGlobalIndex: "eventSeriesCreateTimeGlobalIndex",
+                createEventSeriesResolverName: "createEventSeries",
+                getEventSeriesResolverName: "getEventSeries"
+            },
             scriptsConfig: {
                 scriptsFunctionName: "scriptsFunction",
                 cardExpirationBackFillCronRuleName: "cardExpirationBackFillRule",
@@ -270,13 +293,22 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             },
             storageConfig: {
                 publicFilesBucketName: Constants.StorageConstants.MOONBEAM_PUBLIC_FILES_BUCKET_NAME,
-                mainFilesBucketName: Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME,
                 militaryVerificationReportingBucketName: Constants.StorageConstants.MOONBEAM_MILITARY_VERIFICATION_REPORTING_BUCKET_NAME,
+
+                mainFilesBucketName: Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME,
                 mainFilesCloudFrontDistributionName: `cloudfront-distribution-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
                 mainFilesCloudFrontTrustedPublicKeyName: `cloudfront-public-key-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
                 mainFilesCloudFrontTrustedKeyGroupName: `cloudfront-key-group-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
                 mainFilesCloudFrontAccessIdentityName: `cloudfront-access-identity-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
                 mainFilesCloudFrontCachePolicyName: `cloudfront-cache-policy-${Constants.StorageConstants.MOONBEAM_MAIN_FILES_BUCKET_NAME}`,
+
+                logoFilesBucketName: Constants.StorageConstants.MOONBEAM_LOGO_FILES_BUCKET_NAME,
+                logoFilesCloudFrontDistributionName: `cloudfront-distribution-${Constants.StorageConstants.MOONBEAM_LOGO_FILES_BUCKET_NAME}`,
+                logoFilesCloudFrontTrustedPublicKeyName: `cloudfront-public-key-${Constants.StorageConstants.MOONBEAM_LOGO_FILES_BUCKET_NAME}`,
+                logoFilesCloudFrontTrustedKeyGroupName: `cloudfront-key-group-${Constants.StorageConstants.MOONBEAM_LOGO_FILES_BUCKET_NAME}`,
+                logoFilesCloudFrontAccessIdentityName: `cloudfront-access-identity-${Constants.StorageConstants.MOONBEAM_LOGO_FILES_BUCKET_NAME}`,
+                logoFilesCloudFrontCachePolicyName: `cloudfront-cache-policy-${Constants.StorageConstants.MOONBEAM_LOGO_FILES_BUCKET_NAME}`,
+
                 storageFunctionName: 'storageLambdaFunction',
                 getResolverName: 'getStorage',
                 putMilitaryVerificationReportResolverName: 'putMilitaryVerificationReport',
@@ -486,6 +518,20 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 reimbursementsTableName: "reimbursementsTable",
                 reimbursementsIdGlobalIndex: "reimbursementsIdGlobalIndex",
                 reimbursementsStatusLocalIndex: "reimbursementsStatusLocalIndex"
+            },
+            servicePartnersConfig: {
+                servicePartnersFunctionName: "servicePartnersFunction",
+                servicePartnersTableName: "servicePartnersTable",
+                servicesPartnersCreateTimeGlobalIndex: "servicesPartnersCreateTimeGlobalIndex",
+                createServicePartnerResolverName: "createServicePartner",
+                getServicePartnersResolverName: "getServicePartners"
+            },
+            eventsConfig: {
+                eventsFunctionName: "eventsFunction",
+                eventSeriesTableName: "eventsSeriesTable",
+                eventSeriesCreateTimeGlobalIndex: "eventSeriesCreateTimeGlobalIndex",
+                createEventSeriesResolverName: "createEventSeries",
+                getEventSeriesResolverName: "getEventSeries"
             },
             scriptsConfig: {
                 scriptsFunctionName: "scriptsFunction",
