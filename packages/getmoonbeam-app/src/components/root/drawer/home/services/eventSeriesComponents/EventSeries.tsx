@@ -10,6 +10,7 @@ import {EventSeriesStackParamList} from "../../../../../../models/props/EventSer
 import {EventSeriesDetails} from "./EventSeriesDetails";
 import {EventSeriesWebView} from "./EventSeriesWebView";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
+import {Platform} from "react-native";
 
 /**
  * EventSeries component.
@@ -65,9 +66,11 @@ export const EventSeries = ({navigation}: EventSeriesProps) => {
                                 icon="close"
                                 iconColor={"#F2FF5D"}
                                 size={hp(4)}
-                                style={{
+                                style={[{
                                     right: wp(4)
-                                }}
+                                }, Platform.OS === 'android' && {
+                                    top: hp(2.5)
+                                }]}
                                 onPress={() => {
                                     // show the bottom bar
                                     setBottomTabShown(true);

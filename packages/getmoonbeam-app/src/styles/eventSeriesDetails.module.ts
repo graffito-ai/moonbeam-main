@@ -125,7 +125,7 @@ export const styles = StyleSheet.create({
         width: wp(30),
         backgroundColor: '#e7e7e7',
         borderRadius: 20,
-        borderWidth: hp(0.35),
+        borderWidth: hp(0.15),
         borderColor: '#394fa6',
         flexDirection: 'column'
     },
@@ -136,7 +136,7 @@ export const styles = StyleSheet.create({
         width: wp(30),
         backgroundColor: '#e7e7e7',
         borderRadius: 20,
-        borderWidth: hp(0.35),
+        borderWidth: hp(0.15),
         borderColor: '#F2FF5D',
         flexDirection: 'column'
     },
@@ -146,11 +146,13 @@ export const styles = StyleSheet.create({
         color: '#313030',
         textAlign: 'center',
         alignSelf: 'center',
-        top: hp(0.5),
+        position: 'absolute',
+        top: '0.5%',
         width: wp(25)
     },
     eventOccurrenceDivider: {
-        top: hp(1.15),
+        position: 'absolute',
+        top: '18%',
         width: wp(15),
         alignSelf: 'center'
     },
@@ -160,7 +162,8 @@ export const styles = StyleSheet.create({
         color: '#313030',
         textAlign: 'center',
         alignSelf: 'center',
-        top: hp(1.50),
+        position: 'absolute',
+        top: '20%',
         width: wp(25)
     },
     eventOccurrenceDateViewInactive: {
@@ -169,7 +172,8 @@ export const styles = StyleSheet.create({
         borderRadius: 50,
         backgroundColor: '#9fa3b6',
         alignSelf: 'center',
-        top: hp(2),
+        position: 'absolute',
+        top: '40%',
         flexDirection: 'column'
     },
     eventOccurrenceDateViewActive: {
@@ -178,10 +182,10 @@ export const styles = StyleSheet.create({
         borderRadius: 50,
         backgroundColor: '#F2FF5D',
         alignSelf: 'center',
-        top: hp(2),
+        position: 'absolute',
+        top: '40%',
         flexDirection: 'column'
     },
-
     eventOccurrenceDateInactive: {
         fontFamily: 'Raleway-Bold',
         fontSize: hp(2.50),
@@ -206,7 +210,8 @@ export const styles = StyleSheet.create({
         color: '#313030',
         textAlign: 'center',
         alignSelf: 'center',
-        top: hp(2),
+        position: 'absolute',
+        bottom: '0.5%',
         width: wp(25)
     },
 });

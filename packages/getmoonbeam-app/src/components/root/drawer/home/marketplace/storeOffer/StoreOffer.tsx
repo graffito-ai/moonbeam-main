@@ -10,7 +10,7 @@ import {StoreOfferDetails} from "./StoreOfferDetails";
 import {StoreOfferWebView} from "./StoreOfferWebView";
 import {appDrawerHeaderShownState, customBannerShown, drawerSwipeState} from "../../../../../../recoil/AppDrawerAtom";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
-import {View} from "react-native";
+import {Platform, View} from "react-native";
 import {
     showClickOnlyBottomSheetState,
     storeNavigationState,
@@ -76,7 +76,7 @@ export const StoreOffer = ({route, navigation}: StoreOfferProps) => {
                                 icon="close"
                                 iconColor={"#F2FF5D"}
                                 size={hp(4)}
-                                style={commonStyles.backButtonDismiss}
+                                style={[commonStyles.backButtonDismiss, Platform.OS === 'android' && {top: hp(2.5)}]}
                                 onPress={() => {
                                     // hide the click only bottom sheet
                                     setShowClickOnlyBottomSheet(false);

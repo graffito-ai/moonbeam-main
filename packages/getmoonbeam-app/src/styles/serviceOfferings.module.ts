@@ -8,11 +8,16 @@ export const styles = StyleSheet.create({
         width: wp(100),
         flexDirection: 'column',
         backgroundColor: '#5B5A5A',
+        // shadowColor: 'black',
+        // shadowOffset: {width: -2, height: 10},
+        // shadowOpacity: 0.35,
+        // shadowRadius: 12,
+        // elevation: 15,
         shadowColor: 'black',
-        shadowOffset: {width: -2, height: 10},
-        shadowOpacity: 0.35,
-        shadowRadius: 12,
-        elevation: 15
+        shadowOffset: {width: -2, height: 5},
+        shadowOpacity: 0.55,
+        shadowRadius: 5,
+        elevation: 6
     },
     topTitleSection: {
         flexDirection: 'row'
@@ -213,13 +218,12 @@ export const styles = StyleSheet.create({
         width: wp(95),
         height: hp(27),
         top: hp(2),
-        left: wp(3),
         backgroundColor: '#5B5A5A',
         shadowColor: 'black',
-        shadowOffset: {width: -2, height: 10},
-        shadowOpacity: 0.95,
-        shadowRadius: 15,
-        elevation: 20,
+        shadowOffset: {width: -2, height: 5},
+        shadowOpacity: 0.65,
+        shadowRadius: 5,
+        elevation: 4,
         borderRadius: 20,
         flexDirection: 'column'
     },
@@ -306,7 +310,7 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF'
     },
     upcomingEventCardSubtitle: {
-        top: hp(0.5),
+        lineHeight: hp(2),
         fontSize: hp(1.65),
         fontFamily: 'Raleway-Bold',
         alignSelf: 'center',

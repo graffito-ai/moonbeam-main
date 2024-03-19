@@ -4,13 +4,14 @@ import {ServicePartnerProps} from "../../../../../../models/props/ServicesProps"
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {ServicePartnerStackParamList} from "../../../../../../models/props/ServicePartnerProps";
 import {IconButton} from "react-native-paper";
-import {heightPercentageToDP as hp} from "react-native-responsive-screen";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from "react-native-responsive-screen";
 import {commonStyles} from "../../../../../../styles/common.module";
 import {useRecoilState} from "recoil";
 import {bottomTabShownState} from "../../../../../../recoil/HomeAtom";
 import {servicePartnerState} from "../../../../../../recoil/ServicesAtom";
 import {ServicePartnerDetails} from "./ServicePartnerDetails";
 import {ServicePartnerWebView} from "./ServicePartnerWebView";
+import { Platform } from 'react-native';
 
 /**
  * ServicePartner component.
@@ -65,7 +66,11 @@ export const ServicePartner = ({navigation}: ServicePartnerProps) => {
                                 icon="close"
                                 iconColor={"#F2FF5D"}
                                 size={hp(4)}
-                                style={commonStyles.backButtonDismiss}
+                                style={[commonStyles.backButtonDismiss, Platform.OS === 'android' && {
+                                    alignSelf: 'flex-start',
+                                    left: wp(1),
+                                    top: hp(2.5)
+                                }]}
                                 onPress={() => {
                                     // show the bottom bar
                                     setBottomTabShown(true);

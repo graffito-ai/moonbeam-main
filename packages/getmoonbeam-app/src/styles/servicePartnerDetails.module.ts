@@ -12,7 +12,7 @@ export const styles = StyleSheet.create({
     topCurvedView: {
         borderRadius: wp(100),
         width: wp(100) * 2,
-        height: hp(100),
+        height: wp(100) * 2,
         marginLeft: -(wp(100) / 2),
         position: 'absolute',
         bottom: 0,
@@ -24,7 +24,8 @@ export const styles = StyleSheet.create({
         width: wp(60),
         flexDirection: 'column',
         alignSelf: 'center',
-        top: hp(4)
+        position: 'absolute',
+        bottom: 0,
     },
     topCurvedViewLogoContent: {
         height: hp(10),
@@ -43,8 +44,8 @@ export const styles = StyleSheet.create({
     },
     brandLogo: {
         alignSelf: 'center',
-        width: wp(40),
-        height: wp(40)
+        width: hp(24),
+        height: hp(22)
     },
     partnerWebsiteButton: {
         position: 'absolute',

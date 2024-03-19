@@ -142,6 +142,7 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
                         </View>
                         <View style={{flexDirection: 'row'}}>
                             <Paragraph
+                                numberOfLines={5}
                                 style={styles.servicePartnerCardParagraph}
                             >
                                 {data.shortDescription}
@@ -648,8 +649,9 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
                                                 ref={servicePartnerListView}
                                                 style={{
                                                     width: wp(100),
-                                                    height: hp(33),
-                                                    bottom: hp(4)
+                                                    height: hp(40),
+                                                    bottom: hp(4),
+                                                    paddingLeft: wp(3),
                                                 }}
                                                 layoutProvider={servicePartnersLayoutProvider!}
                                                 dataProvider={servicePartnersDataProvider!}
