@@ -443,7 +443,7 @@ export class FieldValidator {
             default:
                 const errorMessage = `Unexpected field name! ${fieldName}`;
                 console.log(errorMessage);
-                logEvent(errorMessage, LoggingLevel.Error, true).then(() => {});
+                logEvent(errorMessage, LoggingLevel.Error, false).then(() => {});
         }
     };
 }

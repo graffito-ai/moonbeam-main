@@ -92,9 +92,9 @@ export const styles = StyleSheet.create({
         color: '#F2FF5D',
         fontFamily: 'Saira-Medium',
         fontSize: hp(2.1),
-        width: wp(60),
+        width: wp(65),
+        height: hp(6.8),
         top: hp(0.75),
-        left: wp(3),
         textAlign: 'center'
     },
     referralCodeIcon: {

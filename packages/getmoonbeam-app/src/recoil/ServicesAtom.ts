@@ -100,6 +100,27 @@ const sortedUpcomingEventsDataState = selector<(Event & { eventGroup: boolean })
 });
 
 /**
+ * A selector used to keep track of how many groups of events we have (used for display purposes.
+ */
+const numberOfEventGroupsState = selector<number>({
+    key: 'numberOfEventGroupsState',
+    get: ({get}) => {
+        const sortedUpcomingEvents = get(sortedUpcomingEventsDataState);
+
+        // get the number of groups
+        let numberOfEventGroups = 0;
+        sortedUpcomingEvents.forEach(sortedUpcomingEvent => {
+            if (sortedUpcomingEvent.eventGroup) {
+                numberOfEventGroups += 1;
+            }
+        })
+
+        // return the number of event groups
+        return numberOfEventGroups;
+    }
+});
+
+/**
  * A selector used to keep track of any updates to the servicePartnersDataState, and sort that
  * list according to the createdAt time, in descending order.
  */
@@ -133,6 +154,7 @@ const sortedEventSeriesDataState = selector<EventSeries[]>({
  * Export all atoms and/or selectors
  */
 export {
+    numberOfEventGroupsState,
     eventToRegisterState,
     servicePartnerState,
     calendarEventState,

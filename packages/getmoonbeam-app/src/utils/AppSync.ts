@@ -154,7 +154,7 @@ export const createNewReimbursement = async (createReimbursementsInput: CreateRe
             // log an error and return an appropriate flag to highlight reimbursement creation failure
             const message = `Error while executing the create reimbursement mutation ${reimbursementCreationFlag.createReimbursement.errorMessage}`;
             console.log(message);
-            await logEvent(message, LoggingLevel.Error, true);
+            await logEvent(message, LoggingLevel.Error, false);
 
             return [false, []];
         }
@@ -162,7 +162,7 @@ export const createNewReimbursement = async (createReimbursementsInput: CreateRe
         // log an error and return an appropriate flag to highlight reimbursement creation failure
         const message = `Unexpected error while executing the create reimbursement mutation for: ${createReimbursementsInput.id}, ${JSON.stringify(error)} ${error}`;
         console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
+        await logEvent(message, LoggingLevel.Error, false);
 
         return [false, []];
     }
@@ -200,7 +200,7 @@ export const retrieveReimbursements = async (userId: string): Promise<Reimbursem
             // log an error and return an empty list of reimbursements
             const message = `Error while executing the get reimbursements query ${reimbursementsRetrievalFlag.getReimbursements.errorMessage}`;
             console.log(message);
-            await logEvent(message, LoggingLevel.Error, true);
+            await logEvent(message, LoggingLevel.Error, false);
 
             return result;
         }
@@ -208,7 +208,7 @@ export const retrieveReimbursements = async (userId: string): Promise<Reimbursem
         // log an error and return an empty list of reimbursements
         const message = `Unexpected error while executing the get reimbursements query for: ${userId}, ${JSON.stringify(error)} ${error}`;
         console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
+        await logEvent(message, LoggingLevel.Error, false);
 
         return result;
     }
@@ -238,7 +238,7 @@ export const retrieveServicePartners = async (): Promise<Partner[]> => {
             // log an error and return an empty list of service partners
             const message = `Error while executing the get service partners query ${servicePartnersRetrievalFlag.getServicePartners.errorMessage}`;
             console.log(message);
-            await logEvent(message, LoggingLevel.Error, true);
+            await logEvent(message, LoggingLevel.Error, false);
 
             return result;
         }
@@ -246,7 +246,7 @@ export const retrieveServicePartners = async (): Promise<Partner[]> => {
         // log an error and return an empty list of event series
         const message = `Unexpected error while executing the get service partners query ${JSON.stringify(error)} ${error}`;
         console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
+        await logEvent(message, LoggingLevel.Error, false);
 
         return result;
     }
@@ -276,7 +276,7 @@ export const retrieveEventSeries = async (): Promise<EventSeries[]> => {
             // log an error and return an empty list of event series
             const message = `Error while executing the get event series query ${eventSeriesRetrievalFlag.getEventSeries.errorMessage}`;
             console.log(message);
-            await logEvent(message, LoggingLevel.Error, true);
+            await logEvent(message, LoggingLevel.Error, false);
 
             return result;
         }
@@ -284,7 +284,7 @@ export const retrieveEventSeries = async (): Promise<EventSeries[]> => {
         // log an error and return an empty list of event series
         const message = `Unexpected error while executing the get event series query ${JSON.stringify(error)} ${error}`;
         console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
+        await logEvent(message, LoggingLevel.Error, false);
 
         return result;
     }
@@ -320,7 +320,7 @@ export const getAppReviewEligibilityCheck = async (userId: string): Promise<bool
             // return that the user is not eligible for an App Review, if there has been an error while checking
             const message = `Error while executing the get app review eligibility check query ${responseEligibilityFlag.getAppReviewEligibility.errorMessage}`;
             console.log(message);
-            await logEvent(message, LoggingLevel.Error, true);
+            await logEvent(message, LoggingLevel.Error, false);
 
             return false;
         }
@@ -328,7 +328,7 @@ export const getAppReviewEligibilityCheck = async (userId: string): Promise<bool
         // return that the user is not eligible for an App Review, if there has been an unexpected error while checking
         const message = `Unexpected error while executing the get app review eligibility check query for: ${userId}, ${JSON.stringify(error)} ${error}`;
         console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
+        await logEvent(message, LoggingLevel.Error, false);
 
         return false;
     }
@@ -369,7 +369,7 @@ export const createOrUpdateAppReviewRecord = async (userId: string): Promise<boo
             // return false when an error occurs during creation/update
             const message = `Error while executing the create/update app review eligibility check mutation ${responseAppReview.createAppReview.errorMessage}`;
             console.log(message);
-            await logEvent(message, LoggingLevel.Error, true);
+            await logEvent(message, LoggingLevel.Error, false);
 
             return false;
         }
@@ -377,7 +377,7 @@ export const createOrUpdateAppReviewRecord = async (userId: string): Promise<boo
         // return false when an unexpected error occurs during creation/update
         const message = `Unexpected error while executing the create/update app review eligibility check mutation for: ${userId}, ${JSON.stringify(error)} ${error}`;
         console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
+        await logEvent(message, LoggingLevel.Error, false);
 
         return false;
     }
@@ -409,7 +409,7 @@ export const searchQueryExecute = async (searchQuery: string, latitude?: number,
     } catch (error) {
         const message = `Unexpected error while executing the search query for: \'${searchQuery}\', ${JSON.stringify(error)} ${error}`;
         console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
+        await logEvent(message, LoggingLevel.Error, false);
 
         return [];
     }
@@ -536,7 +536,7 @@ const searchNearbyOffers = async (searchQuery: string, latitude: number, longitu
                 // if there was an error while logging an event, just console.log it accordingly
                 const message = `Error while executing nearby search query ${responseNearbyData.searchOffers.errorMessage}`;
                 console.log(message);
-                await logEvent(message, LoggingLevel.Error, true);
+                await logEvent(message, LoggingLevel.Error, false);
 
                 return nearbyOffers;
             }
@@ -544,7 +544,7 @@ const searchNearbyOffers = async (searchQuery: string, latitude: number, longitu
     } catch (error) {
         const message = `Unexpected error while executing the search query for nearby offers for: \'${searchQuery}\', ${JSON.stringify(error)} ${error}`;
         console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
+        await logEvent(message, LoggingLevel.Error, false);
 
         return nearbyOffers;
     }
@@ -666,7 +666,7 @@ const searchOnlineOffers = async (searchQuery: string): Promise<Offer[]> => {
                 // if there was an error while logging an event, just console.log it accordingly
                 const message = `Error while executing non-nearby search query ${responseWithoutNearbyData.searchOffers.errorMessage}`;
                 console.log(message);
-                await logEvent(message, LoggingLevel.Error, true);
+                await logEvent(message, LoggingLevel.Error, false);
 
                 return onlineOffers;
             }
@@ -674,7 +674,7 @@ const searchOnlineOffers = async (searchQuery: string): Promise<Offer[]> => {
     } catch (error) {
         const message = `Unexpected error while executing the search query for online offers for: \'${searchQuery}\', ${JSON.stringify(error)} ${error}`;
         console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
+        await logEvent(message, LoggingLevel.Error, false);
 
         return onlineOffers;
     }
@@ -834,7 +834,7 @@ export const retrieveCardLinkingId = async (userId: string): Promise<string> => 
                 if (responseData && responseData.getUserCardLinkingId.errorMessage !== null) {
                     const message = `Unexpected error while retrieving user's card linking id through the API ${responseData.getUserCardLinkingId.errorMessage}`;
                     console.log(message);
-                    await logEvent(message, LoggingLevel.Error, true);
+                    await logEvent(message, LoggingLevel.Error, false);
                 }
 
                 // if there are any errors, just set it as an empty string
@@ -844,7 +844,7 @@ export const retrieveCardLinkingId = async (userId: string): Promise<string> => 
     } catch (error) {
         const message = `Unexpected error while attempting to retrieve user's card linking id ${JSON.stringify(error)} ${error}`;
         console.log(message);
-        await logEvent(message, LoggingLevel.Error, true);
+        await logEvent(message, LoggingLevel.Error, false);
 
         return '';
     }
@@ -974,7 +974,7 @@ export const processUserReferral = async (referralCode: string, toId: string, ca
                 // throw an error if creation of a referral through the createReferral API failed
                 const errorMessage = `Unexpected error while creating a new referral through the createReferral API ${JSON.stringify(createReferralResult)}`;
                 console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Error, true);
+                await logEvent(errorMessage, LoggingLevel.Error, false);
 
                 return {
                     errorMessage: errorMessage,
@@ -986,7 +986,7 @@ export const processUserReferral = async (referralCode: string, toId: string, ca
             if (userFromReferralData !== null && userFromReferralData !== undefined && userFromReferralData.getUserFromReferral.errorMessage !== null) {
                 const errorMessage = `Unexpected error while retrieving existing user id through the getUserFromReferral API ${userFromReferralData.getUserFromReferral.errorMessage}`;
                 console.log(errorMessage);
-                await logEvent(errorMessage, LoggingLevel.Error, true);
+                await logEvent(errorMessage, LoggingLevel.Error, false);
             }
 
             return {
@@ -997,7 +997,7 @@ export const processUserReferral = async (referralCode: string, toId: string, ca
     } catch (error) {
         const errorMessage = `Unexpected error while processing user referral ${error} ${JSON.stringify(error)}`;
         console.log(errorMessage);
-        await logEvent(errorMessage, LoggingLevel.Error, true);
+        await logEvent(errorMessage, LoggingLevel.Error, false);
 
         return {
             errorMessage: errorMessage,

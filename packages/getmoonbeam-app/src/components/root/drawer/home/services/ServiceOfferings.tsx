@@ -18,7 +18,7 @@ import {Card, Paragraph, Text} from "react-native-paper";
 import {Platform, ScrollView, TouchableOpacity, View} from 'react-native';
 import {useRecoilState, useRecoilValue} from "recoil";
 import {
-    calendarEventState, eventToRegisterState,
+    calendarEventState, eventToRegisterState, numberOfEventGroupsState,
     servicePartnerState,
     sortedServicePartnersDataState,
     sortedUpcomingEventsDataState
@@ -54,6 +54,7 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
     const [calendarEventsLayoutProvider, setCalendarEventsLayoutProvider] = useState<LayoutProvider | null>(null);
     // constants used to keep track of shared states
     const sortedUpcomingEvents = useRecoilValue(sortedUpcomingEventsDataState);
+    const numberOfEventGroups = useRecoilValue(numberOfEventGroupsState);
     const sortedServicePartners = useRecoilValue(sortedServicePartnersDataState);
     const [, setServicePartner] = useRecoilState(servicePartnerState);
     const [, setCalendarEvent] = useRecoilState(calendarEventState);
@@ -179,7 +180,7 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
      * @return a {@link React.JSX.Element} or an {@link Array} of {@link React.JSX.Element} representing the
      * React node and/or nodes containing Events data for the Calendar.
      */
-    const renderCalendarData = useMemo(() => (_type: string | number, data: (Event & {eventGroup: boolean}), index: number): React.JSX.Element | React.JSX.Element[] => {
+    const renderCalendarData = useMemo(() => (_type: string | number, data: (Event & { eventGroup: boolean }), index: number): React.JSX.Element | React.JSX.Element[] => {
         // return the Events data for the Calendar or an appropriate message instead
         if (sortedUpcomingEvents !== undefined && sortedUpcomingEvents !== null && sortedUpcomingEvents.length !== 0) {
             return (
@@ -280,7 +281,7 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
      * @return a {@link React.JSX.Element} or an {@link Array} of {@link React.JSX.Element} representing the
      * React node and/or nodes containing upcoming Event-related data.
      */
-    const renderUpcomingEventsData = useMemo(() => (_type: string | number, data: (Event & {eventGroup: boolean}), index: number): React.JSX.Element | React.JSX.Element[] => {
+    const renderUpcomingEventsData = useMemo(() => (_type: string | number, data: (Event & { eventGroup: boolean }), index: number): React.JSX.Element | React.JSX.Element[] => {
         // return the upcoming Event data or an appropriate message instead
         if (sortedUpcomingEvents !== undefined && sortedUpcomingEvents !== null && sortedUpcomingEvents.length !== 0) {
             return (
@@ -453,9 +454,9 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
                                 // @ts-ignore
                                 ref={calendarEventsListView}
                                 style={{
-                                    top: hp(2),
-                                    height: sortedUpcomingEvents.length * hp(20),
-                                    width: wp(100)
+                                    paddingTop: hp(2),
+                                    flex: 1,
+                                    height: sortedUpcomingEvents.length * hp(20) + numberOfEventGroups/2 * hp(2)
                                 }}
                                 layoutProvider={calendarEventsLayoutProvider!}
                                 dataProvider={calendarEventsDataProvider!}

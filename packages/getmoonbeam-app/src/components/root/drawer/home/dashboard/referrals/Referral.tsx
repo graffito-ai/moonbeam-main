@@ -130,7 +130,14 @@ export const Referral = ({navigation}: ReferralProps) => {
         try {
             // @ts-ignore
             let {url} = await branchUniversalRootObject.generateShortUrl({
-                alias: `${referralCode}`,
+                /**
+                 * The alias will be different from the referral code because Branch has issues with the same alias being used and generated all over.
+                 *
+                 * Even though we are supposed to be able to catch same aliases being generated in the catch block below, we had an issue where Branch
+                 * would throw network errors instead of specifying a DuplicateResourceError, so we opted to use the timestamp as the unique identifier
+                 * of each referral code, since we rely on the referralCode from the tags instead, and that will always be the same.
+                 */
+                alias: `${userInformation["family_name"].toUpperCase()}-${userInformation["given_name"].charAt(0).toUpperCase()}-${Date.parse(new Date().toISOString())}`,
                 campaign: campaignMarketingCode,
                 feature: 'referrals',
                 channel: `in-app`,
@@ -237,7 +244,9 @@ export const Referral = ({navigation}: ReferralProps) => {
                                             subject: 'Moonbeam | Automatic Discounts Platform',
                                         })
                                     } catch (error) {
-                                        console.error(`Error sharing referral code ${error}`);
+                                        const errorMessage = `Error sharing referral code ${error}`
+                                        console.error(errorMessage);
+                                        await logEvent(`${errorMessage} ${error} ${JSON.stringify(error)}`, LoggingLevel.Error, userIsAuthenticated);
                                     }
                                 }
                             }

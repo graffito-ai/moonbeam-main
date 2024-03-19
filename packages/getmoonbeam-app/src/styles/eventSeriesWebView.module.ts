@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
         backgroundColor: '#313030',
     },
     webViewNavbar: {
-        height: hp(8),
+        height: hp(10),
         width: wp(100),
         backgroundColor: '#313030',
         flexDirection: 'row'
