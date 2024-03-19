@@ -219,7 +219,7 @@ export const MapHorizontalSection = () => {
     // return the component for the MapHorizontalSection page
     return (
         <>
-            <SafeAreaView style={styles.mapHorizontalView}>
+            <SafeAreaView style={[styles.mapHorizontalView, Platform.OS === 'android' && {top: -hp(2)}]}>
                 {
                     currentUserLocation !== null &&
                     <View style={styles.mapHorizontalMapView}>
