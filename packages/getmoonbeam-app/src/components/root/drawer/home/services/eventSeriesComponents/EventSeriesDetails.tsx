@@ -20,6 +20,7 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-nativ
 import {Event, EventSeries} from '@moonbeam/moonbeam-models';
 import {Divider} from "@rneui/base";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
+import {ActivityIndicator, Portal} from "react-native-paper";
 
 /**
  * EventSeriesDetails component.
@@ -30,6 +31,7 @@ import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
 export const EventSeriesDetails = ({navigation}: EventSeriesDetailsProps) => {
     // constants used to keep track of local component state
     const eventOccurrencesListView = useRef();
+    const [loadingSpinnerShown, setLoadingSpinnerShown] = useState<boolean>(false);
     const [eventOccurrencesDataProvider, setEventOccurrencesDataProvider] = useState<DataProvider | null>(null);
     const [eventOccurrencesLayoutProvider, setEventOccurrencesLayoutProvider] = useState<LayoutProvider | null>(null);
     const [eventSeriesMatched, setEventSeriesMatched] = useState<boolean>(false);
@@ -91,6 +93,9 @@ export const EventSeriesDetails = ({navigation}: EventSeriesDetailsProps) => {
                 <TouchableOpacity
                     style={eventToRegister !== null && eventToRegister.id === data.id ? styles.eventOccurrenceViewActive : styles.eventOccurrenceViewInactive}
                     onPress={() => {
+                        // show the loader so the glitching effect disappears
+                        setLoadingSpinnerShown(true);
+
                         // set the event to register to accordingly
                         setEventToRegister(data);
                         setEventOccurrencesDataProvider(new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(eventSeries.events!));
@@ -101,6 +106,11 @@ export const EventSeriesDetails = ({navigation}: EventSeriesDetailsProps) => {
                                 dim.height = hp(7);
                             }
                         ));
+
+                        // after half a second, show the event occurrence list
+                        setTimeout(() => {
+                            setLoadingSpinnerShown(false);
+                        }, 500);
                     }}
                 >
                     <Text
@@ -123,7 +133,8 @@ export const EventSeriesDetails = ({navigation}: EventSeriesDetailsProps) => {
                             month: "long"
                         })}
                     </Text>
-                    <View style={eventToRegister !== null && eventToRegister.id === data.id ? styles.eventOccurrenceDateViewActive : styles.eventOccurrenceDateViewInactive}>
+                    <View
+                        style={eventToRegister !== null && eventToRegister.id === data.id ? styles.eventOccurrenceDateViewActive : styles.eventOccurrenceDateViewInactive}>
                         <Text
                             numberOfLines={1}
                             style={eventToRegister !== null && eventToRegister.id === data.id ? styles.eventOccurrenceDateActive : styles.eventOccurrenceDateInactive}>
@@ -256,29 +267,48 @@ export const EventSeriesDetails = ({navigation}: EventSeriesDetailsProps) => {
                             Event Occurrences
                         </Text>
                         <View style={styles.eventOccurrencesView}>
-                            <RecyclerListView
-                                // @ts-ignore
-                                ref={eventOccurrencesListView}
-                                style={{top: hp(1), left: wp(1)}}
-                                layoutProvider={eventOccurrencesLayoutProvider!}
-                                dataProvider={eventOccurrencesDataProvider!}
-                                rowRenderer={renderEventOccurrencesData}
-                                isHorizontal={true}
-                                forceNonDeterministicRendering={true}
-                                {
-                                    ...(Platform.OS === 'ios') ?
-                                        {onEndReachedThreshold: 0} :
-                                        {onEndReachedThreshold: 1}
-                                }
-                                scrollViewProps={{
-                                    pagingEnabled: "true",
-                                    decelerationRate: "fast",
-                                    snapToInterval: Platform.OS === 'android' ? wp(10) * 3 : wp(7.5),
-                                    snapToAlignment: "center",
-                                    persistentScrollbar: false,
-                                    showsHorizontalScrollIndicator: false
-                                }}
-                            />
+                            {
+                                !loadingSpinnerShown &&
+                                <RecyclerListView
+                                    // @ts-ignore
+                                    ref={eventOccurrencesListView}
+                                    style={{top: hp(1), left: wp(1)}}
+                                    layoutProvider={eventOccurrencesLayoutProvider!}
+                                    dataProvider={eventOccurrencesDataProvider!}
+                                    rowRenderer={renderEventOccurrencesData}
+                                    isHorizontal={true}
+                                    forceNonDeterministicRendering={true}
+                                    {
+                                        ...(Platform.OS === 'ios') ?
+                                            {onEndReachedThreshold: 0} :
+                                            {onEndReachedThreshold: 1}
+                                    }
+                                    scrollViewProps={{
+                                        pagingEnabled: "true",
+                                        decelerationRate: "fast",
+                                        snapToInterval: Platform.OS === 'android' ? wp(10) * 3 : wp(7.5),
+                                        snapToAlignment: "center",
+                                        persistentScrollbar: false,
+                                        showsHorizontalScrollIndicator: false
+                                    }}
+                                />
+                            }
+                            {
+                                loadingSpinnerShown &&
+                                <Portal.Host>
+                                    <View style={{
+                                        top: hp(6),
+                                        height: hp(6),
+                                        width: wp(100),
+                                        alignItems: 'center',
+                                        alignContent: 'center'
+                                    }}>
+                                        <ActivityIndicator
+                                            animating={loadingSpinnerShown} color={'#F2FF5D'}
+                                            size={wp(10)}/>
+                                    </View>
+                                </Portal.Host>
+                            }
                         </View>
                     </View>
                     <TouchableOpacity

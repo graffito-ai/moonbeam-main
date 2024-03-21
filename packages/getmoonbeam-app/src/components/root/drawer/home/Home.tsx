@@ -16,9 +16,8 @@ import {Wallet} from "./cards/Wallet";
 import {DashboardController} from "./dashboard/DashboardController";
 import {Marketplace} from "./marketplace/Marketplace";
 import {drawerDashboardState} from "../../../../recoil/AppDrawerAtom";
-import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
+import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
-import {Text, View} from "react-native";
 import {filteredByDiscountPressedState, filtersActiveState} from "../../../../recoil/StoreOfferAtom";
 import {Spinner} from "../../../common/Spinner";
 import {SafeAreaProvider} from "react-native-safe-area-context";
@@ -110,31 +109,37 @@ export const Home = ({navigation}: HomeProps) => {
                                              initialParams={{}}
                                              options={{
                                                  tabBarIcon: ({focused}) => (
-                                                     <View style={{
-                                                         left: wp(1),
-                                                         right: wp(1),
-                                                         alignItems: 'center',
-                                                         justifyContent: 'center',
-                                                         top: hp(0.5),
-                                                         width: wp(15),
-                                                         height: hp(6)
-                                                     }}>
-                                                         <Icon
-                                                             type={"antdesign"}
-                                                             name={!focused ? 'linechart' : 'areachart'}
-                                                             size={hp(3)}
-                                                             color={!focused ? 'white' : '#F2FF5D'}
-                                                         />
-                                                         <Text style={{
-                                                             top: hp(0.5),
-                                                             fontFamily: 'Raleway-Bold',
-                                                             fontSize: hp(1.6),
-                                                             color: !focused ? 'white' : '#F2FF5D',
-                                                             textAlign: 'center'
-                                                         }}>
-                                                             {'Home'}
-                                                         </Text>
-                                                     </View>
+                                                     <Icon
+                                                         type={"antdesign"}
+                                                         name={!focused ? 'linechart' : 'areachart'}
+                                                         size={hp(3.5)}
+                                                         color={!focused ? 'white' : '#F2FF5D'}
+                                                     />
+                                                     // <View style={{
+                                                     //     left: wp(1),
+                                                     //     right: wp(1),
+                                                     //     alignItems: 'center',
+                                                     //     justifyContent: 'center',
+                                                     //     top: hp(0.5),
+                                                     //     width: wp(15),
+                                                     //     height: hp(6)
+                                                     // }}>
+                                                     //     <Icon
+                                                     //         type={"antdesign"}
+                                                     //         name={!focused ? 'linechart' : 'areachart'}
+                                                     //         size={hp(3)}
+                                                     //         color={!focused ? 'white' : '#F2FF5D'}
+                                                     //     />
+                                                     //     <Text style={{
+                                                     //         top: hp(0.5),
+                                                     //         fontFamily: 'Raleway-Bold',
+                                                     //         fontSize: hp(1.6),
+                                                     //         color: !focused ? 'white' : '#F2FF5D',
+                                                     //         textAlign: 'center'
+                                                     //     }}>
+                                                     //         {'Home'}
+                                                     //     </Text>
+                                                     // </View>
                                                  )
                                              }}
                         />
@@ -143,31 +148,37 @@ export const Home = ({navigation}: HomeProps) => {
                                              initialParams={{}}
                                              options={({}) => ({
                                                  tabBarIcon: ({focused}) => (
-                                                     <View style={{
-                                                         left: wp(1),
-                                                         right: wp(1),
-                                                         alignItems: 'center',
-                                                         justifyContent: 'center',
-                                                         top: hp(0.55),
-                                                         width: wp(15),
-                                                         height: hp(6)
-                                                     }}>
-                                                         <Icon
-                                                             type={"ionicon"}
-                                                             name={!focused ? 'pricetags-outline' : 'pricetags'}
-                                                             size={hp(3)}
-                                                             color={!focused ? 'white' : '#F2FF5D'}
-                                                         />
-                                                         <Text style={{
-                                                             top: hp(0.5),
-                                                             fontFamily: 'Raleway-Bold',
-                                                             fontSize: hp(1.6),
-                                                             color: !focused ? 'white' : '#F2FF5D',
-                                                             textAlign: 'center'
-                                                         }}>
-                                                             {'Services'}
-                                                         </Text>
-                                                     </View>
+                                                     <Icon
+                                                         type={"ionicon"}
+                                                         name={!focused ? 'pricetags-outline' : 'pricetags'}
+                                                         size={hp(3.5)}
+                                                         color={!focused ? 'white' : '#F2FF5D'}
+                                                     />
+                                                     // <View style={{
+                                                     //     left: wp(1),
+                                                     //     right: wp(1),
+                                                     //     alignItems: 'center',
+                                                     //     justifyContent: 'center',
+                                                     //     top: hp(0.55),
+                                                     //     width: wp(15),
+                                                     //     height: hp(6)
+                                                     // }}>
+                                                     //     <Icon
+                                                     //         type={"ionicon"}
+                                                     //         name={!focused ? 'pricetags-outline' : 'pricetags'}
+                                                     //         size={hp(3)}
+                                                     //         color={!focused ? 'white' : '#F2FF5D'}
+                                                     //     />
+                                                     //     <Text style={{
+                                                     //         top: hp(0.5),
+                                                     //         fontFamily: 'Raleway-Bold',
+                                                     //         fontSize: hp(1.6),
+                                                     //         color: !focused ? 'white' : '#F2FF5D',
+                                                     //         textAlign: 'center'
+                                                     //     }}>
+                                                     //         {'Services'}
+                                                     //     </Text>
+                                                     // </View>
                                                  )
                                                  // tabBarButton: ({}) => (
                                                  //     <TouchableOpacity
@@ -214,31 +225,37 @@ export const Home = ({navigation}: HomeProps) => {
                                              initialParams={{}}
                                              options={({}) => ({
                                                  tabBarIcon: ({focused}) => (
-                                                     <View style={{
-                                                         left: wp(1),
-                                                         right: wp(1),
-                                                         alignItems: 'center',
-                                                         justifyContent: 'center',
-                                                         top: hp(0.56),
-                                                         width: wp(15),
-                                                         height: hp(6)
-                                                     }}>
-                                                         <Icon
-                                                             type={"ionicon"}
-                                                             name={!focused ? 'storefront-outline' : 'storefront'}
-                                                             size={hp(3)}
-                                                             color={!focused ? 'white' : '#F2FF5D'}
-                                                         />
-                                                         <Text style={{
-                                                             top: hp(0.5),
-                                                             fontFamily: 'Raleway-Bold',
-                                                             fontSize: hp(1.6),
-                                                             color: !focused ? 'white' : '#F2FF5D',
-                                                             textAlign: 'center'
-                                                         }}>
-                                                             {'Offers'}
-                                                         </Text>
-                                                     </View>
+                                                     <Icon
+                                                         type={"ionicon"}
+                                                         name={!focused ? 'storefront-outline' : 'storefront'}
+                                                         size={hp(3.5)}
+                                                         color={!focused ? 'white' : '#F2FF5D'}
+                                                     />
+                                                     // <View style={{
+                                                     //     left: wp(1),
+                                                     //     right: wp(1),
+                                                     //     alignItems: 'center',
+                                                     //     justifyContent: 'center',
+                                                     //     top: hp(0.56),
+                                                     //     width: wp(15),
+                                                     //     height: hp(6)
+                                                     // }}>
+                                                     //     <Icon
+                                                     //         type={"ionicon"}
+                                                     //         name={!focused ? 'storefront-outline' : 'storefront'}
+                                                     //         size={hp(3)}
+                                                     //         color={!focused ? 'white' : '#F2FF5D'}
+                                                     //     />
+                                                     //     <Text style={{
+                                                     //         top: hp(0.5),
+                                                     //         fontFamily: 'Raleway-Bold',
+                                                     //         fontSize: hp(1.6),
+                                                     //         color: !focused ? 'white' : '#F2FF5D',
+                                                     //         textAlign: 'center'
+                                                     //     }}>
+                                                     //         {'Offers'}
+                                                     //     </Text>
+                                                     // </View>
                                                  )
                                                  // tabBarButton: ({}) => (
                                                  //     <TouchableOpacity
@@ -285,32 +302,38 @@ export const Home = ({navigation}: HomeProps) => {
                                              initialParams={{}}
                                              options={{
                                                  tabBarIcon: ({focused}) => (
-                                                     <View style={{
-                                                         left: wp(1),
-                                                         marginRight: wp(3),
-                                                         alignItems: 'center',
-                                                         justifyContent: 'center',
-                                                         top: hp(0.43),
-                                                         width: wp(15),
-                                                         height: hp(6),
-                                                         flexDirection: 'column'
-                                                     }}>
-                                                         <Icon
-                                                             type={"ionicon"}
-                                                             name={!focused ? 'card-outline' : 'card'}
-                                                             size={hp(3.35)}
-                                                             color={!focused ? 'white' : '#F2FF5D'}
-                                                         />
-                                                         <Text style={{
-                                                             top: hp(0.5),
-                                                             fontFamily: 'Raleway-Bold',
-                                                             fontSize: hp(1.6),
-                                                             color: !focused ? 'white' : '#F2FF5D',
-                                                             textAlign: 'center'
-                                                         }}>
-                                                             {'Wallet'}
-                                                         </Text>
-                                                     </View>
+                                                     <Icon
+                                                         type={"ionicon"}
+                                                         name={!focused ? 'card-outline' : 'card'}
+                                                         size={hp(3.5)}
+                                                         color={!focused ? 'white' : '#F2FF5D'}
+                                                     />
+                                                     // <View style={{
+                                                     //     left: wp(1),
+                                                     //     marginRight: wp(3),
+                                                     //     alignItems: 'center',
+                                                     //     justifyContent: 'center',
+                                                     //     top: hp(0.43),
+                                                     //     width: wp(15),
+                                                     //     height: hp(6),
+                                                     //     flexDirection: 'column'
+                                                     // }}>
+                                                     //     <Icon
+                                                     //         type={"ionicon"}
+                                                     //         name={!focused ? 'card-outline' : 'card'}
+                                                     //         size={hp(3.35)}
+                                                     //         color={!focused ? 'white' : '#F2FF5D'}
+                                                     //     />
+                                                     //     <Text style={{
+                                                     //         top: hp(0.5),
+                                                     //         fontFamily: 'Raleway-Bold',
+                                                     //         fontSize: hp(1.6),
+                                                     //         color: !focused ? 'white' : '#F2FF5D',
+                                                     //         textAlign: 'center'
+                                                     //     }}>
+                                                     //         {'Wallet'}
+                                                     //     </Text>
+                                                     // </View>
                                                  )
                                              }}
                         />

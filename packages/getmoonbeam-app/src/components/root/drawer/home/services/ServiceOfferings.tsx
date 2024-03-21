@@ -423,46 +423,94 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
                         </View>
                     </LinearGradient>
                 </View>
-                <ScrollView
-                    style={{
-                        flex: 1
-                    }}
-                    horizontal={false}
-                    showsVerticalScrollIndicator={false}
-                >
-                    {
-                        calendarEventsLayoutProvider !== null && calendarEventsDataProvider !== null && activeSection === "events" && sortedUpcomingEvents.length === 0 &&
+                {
+                    calendarEventsLayoutProvider !== null && calendarEventsDataProvider !== null && activeSection === "events" && sortedUpcomingEvents.length > 0 &&
+                    <>
+                        <RecyclerListView
+                            // @ts-ignore
+                            ref={calendarEventsListView}
+                            style={{
+                                paddingTop: hp(2),
+                                flex: 1,
+                                height: sortedUpcomingEvents.length * hp(20) + numberOfEventGroups / 2 * hp(2)
+                            }}
+                            layoutProvider={calendarEventsLayoutProvider!}
+                            dataProvider={calendarEventsDataProvider!}
+                            rowRenderer={renderCalendarData}
+                            isHorizontal={false}
+                            forceNonDeterministicRendering={true}
+                            {
+                                ...(Platform.OS === 'ios') ?
+                                    {onEndReachedThreshold: 0} :
+                                    {onEndReachedThreshold: 1}
+                            }
+                            scrollViewProps={{
+                                pagingEnabled: "true",
+                                decelerationRate: "fast",
+                                snapToAlignment: "start",
+                                persistentScrollbar: false,
+                                showsVerticalScrollIndicator: false,
+                            }}
+                        />
+                    </>
+                }
+                {
+                    calendarEventsLayoutProvider !== null && calendarEventsDataProvider !== null && activeSection === "events" && sortedUpcomingEvents.length === 0 &&
+                    <View
+                        style={styles.noServicePartnersView}>
+                        <ExpoImage
+                            style={styles.noEventSeriesImage}
+                            source={MoonbeamNoEvents}
+                            contentFit={'contain'}
+                            transition={1000}
+                            cachePolicy={'memory-disk'}
+                        />
+                        <Text style={styles.noServicePartnersText}>
+                            {
+                                "No Events on the Calendar"
+                            }
+                        </Text>
+                    </View>
+                }
+                {
+                    servicePartnersLayoutProvider !== null && servicePartnersDataProvider !== null && activeSection === "organizations" && sortedServicePartners.length === 0 &&
+                    <View
+                        style={styles.noServicePartnersView}>
+                        <ExpoImage
+                            style={styles.noServicePartnersImage}
+                            source={MoonbeamNoServicePartners}
+                            contentFit={'contain'}
+                            transition={1000}
+                            cachePolicy={'memory-disk'}
+                        />
+                        <Text style={styles.noServicePartnersText}>
+                            {
+                                "No Service Partners Available"
+                            }
+                        </Text>
+                    </View>
+                }
+                {
+                    servicePartnersLayoutProvider !== null && servicePartnersDataProvider !== null && activeSection === "organizations" && sortedServicePartners.length > 0 &&
+                    <>
                         <View
-                            style={styles.noServicePartnersView}>
-                            <ExpoImage
-                                style={styles.noEventSeriesImage}
-                                source={MoonbeamNoEvents}
-                                contentFit={'contain'}
-                                transition={1000}
-                                cachePolicy={'memory-disk'}
-                            />
-                            <Text style={styles.noServicePartnersText}>
-                                {
-                                    "No Events on the Calendar"
-                                }
-                            </Text>
-                        </View>
-                    }
-                    {
-                        calendarEventsLayoutProvider !== null && calendarEventsDataProvider !== null && activeSection === "events" && sortedUpcomingEvents.length > 0 &&
-                        <>
+                            style={{top: hp(2)}}>
+                            <View style={{flexDirection: 'column'}}>
+                                <Text style={styles.sectionTextBottom}>Veteran Service Organizations</Text>
+                            </View>
                             <RecyclerListView
                                 // @ts-ignore
-                                ref={calendarEventsListView}
+                                ref={servicePartnerListView}
                                 style={{
-                                    paddingTop: hp(2),
-                                    flex: 1,
-                                    height: sortedUpcomingEvents.length * hp(20) + numberOfEventGroups/2 * hp(2)
+                                    width: wp(100),
+                                    height: hp(33),
+                                    bottom: hp(4),
+                                    paddingLeft: wp(3)
                                 }}
-                                layoutProvider={calendarEventsLayoutProvider!}
-                                dataProvider={calendarEventsDataProvider!}
-                                rowRenderer={renderCalendarData}
-                                isHorizontal={false}
+                                layoutProvider={servicePartnersLayoutProvider!}
+                                dataProvider={servicePartnersDataProvider!}
+                                rowRenderer={renderServicePartnerData}
+                                isHorizontal={true}
                                 forceNonDeterministicRendering={true}
                                 {
                                     ...(Platform.OS === 'ios') ?
@@ -472,73 +520,26 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
                                 scrollViewProps={{
                                     pagingEnabled: "true",
                                     decelerationRate: "fast",
-                                    snapToAlignment: "start",
+                                    snapToInterval: Platform.OS === 'android' ? wp(33) * 3 : wp(33),
+                                    snapToAlignment: "center",
                                     persistentScrollbar: false,
-                                    showsVerticalScrollIndicator: false,
+                                    showsHorizontalScrollIndicator: false
                                 }}
                             />
-                        </>
-                    }
-                    {
-                        servicePartnersLayoutProvider !== null && servicePartnersDataProvider !== null && activeSection === "organizations" && sortedServicePartners.length === 0 &&
-                        <View
-                            style={styles.noServicePartnersView}>
-                            <ExpoImage
-                                style={styles.noServicePartnersImage}
-                                source={MoonbeamNoServicePartners}
-                                contentFit={'contain'}
-                                transition={1000}
-                                cachePolicy={'memory-disk'}
-                            />
-                            <Text style={styles.noServicePartnersText}>
-                                {
-                                    "No Service Partners Available"
-                                }
-                            </Text>
                         </View>
-                    }
-                    {
-                        servicePartnersLayoutProvider !== null && servicePartnersDataProvider !== null && activeSection === "organizations" && sortedServicePartners.length > 0 &&
-                        <>
-                            <View
-                                style={{top: hp(2)}}>
-                                <View style={{flexDirection: 'column'}}>
-                                    <Text style={styles.sectionTextBottom}>Veteran Service Organizations</Text>
-                                </View>
-                                <RecyclerListView
-                                    // @ts-ignore
-                                    ref={servicePartnerListView}
-                                    style={{
-                                        width: wp(100),
-                                        height: hp(33),
-                                        bottom: hp(4)
-                                    }}
-                                    layoutProvider={servicePartnersLayoutProvider!}
-                                    dataProvider={servicePartnersDataProvider!}
-                                    rowRenderer={renderServicePartnerData}
-                                    isHorizontal={true}
-                                    forceNonDeterministicRendering={true}
-                                    {
-                                        ...(Platform.OS === 'ios') ?
-                                            {onEndReachedThreshold: 0} :
-                                            {onEndReachedThreshold: 1}
-                                    }
-                                    scrollViewProps={{
-                                        pagingEnabled: "true",
-                                        decelerationRate: "fast",
-                                        snapToInterval: Platform.OS === 'android' ? wp(33) * 3 : wp(33),
-                                        snapToAlignment: "center",
-                                        persistentScrollbar: false,
-                                        showsHorizontalScrollIndicator: false
-                                    }}
-                                />
-                            </View>
-                        </>
-                    }
-                    {
-                        servicePartnersLayoutProvider !== null && servicePartnersDataProvider !== null &&
-                        upcomingEventsLayoutProvider !== null && upcomingEventsDataProvider !== null &&
-                        activeSection === "all" &&
+                    </>
+                }
+                {
+                    servicePartnersLayoutProvider !== null && servicePartnersDataProvider !== null &&
+                    upcomingEventsLayoutProvider !== null && upcomingEventsDataProvider !== null &&
+                    activeSection === "all" &&
+                    <ScrollView
+                        style={{
+                            flex: 1
+                        }}
+                        horizontal={false}
+                        showsVerticalScrollIndicator={false}
+                    >
                         <>
                             {
                                 sortedUpcomingEvents.length === 0
@@ -651,7 +652,7 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
                                                     width: wp(100),
                                                     height: hp(40),
                                                     bottom: hp(4),
-                                                    paddingLeft: wp(3),
+                                                    paddingLeft: wp(3)
                                                 }}
                                                 layoutProvider={servicePartnersLayoutProvider!}
                                                 dataProvider={servicePartnersDataProvider!}
@@ -676,8 +677,8 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
                                     </>
                             }
                         </>
-                    }
-                </ScrollView>
+                    </ScrollView>
+                }
             </SafeAreaProvider>
         </>
     );
