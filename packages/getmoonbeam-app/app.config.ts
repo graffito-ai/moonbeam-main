@@ -128,10 +128,11 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         [
             "expo-location",
             {
+                "locationAlwaysPermission": "$(PRODUCT_NAME) will always have access to your location, in order to provide you with accurate military offers nearby. Please note that any location information will be stored according to our Privacy Policy and Terms and Conditions, which are presented during account registration, and can also be accessed in the Documents section of our app.",
                 "locationAlwaysAndWhenInUsePermission": "$(PRODUCT_NAME) will always have access to your location, in order to provide you with accurate military offers nearby. Please note that any location information will be stored according to our Privacy Policy and Terms and Conditions, which are presented during account registration, and can also be accessed in the Documents section of our app.",
                 "locationWhenInUsePermission": "$(PRODUCT_NAME) will access your location while using the app, in order to provide you with accurate military offers nearby. Please note that any location information will be stored according to our Privacy Policy and Terms and Conditions, which are presented during account registration, and can also be accessed in the Documents section of our app.",
-                "isIosBackgroundLocationEnabled": false,
-                "isAndroidBackgroundLocationEnabled": false
+                "isIosBackgroundLocationEnabled": true,
+                "isAndroidBackgroundLocationEnabled": true
             }
         ],
         [

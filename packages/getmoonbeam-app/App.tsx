@@ -27,6 +27,28 @@ import {logEvent} from "./src/utils/AppSync";
 import {LoggingLevel, Stages} from "@moonbeam/moonbeam-models";
 import * as Updates from 'expo-updates';
 import {enableScreens} from "react-native-screens";
+import * as TaskManager from "expo-task-manager";
+import {watchLocationAsync} from "./src/utils/Permissions";
+
+// name of the task to register for receiving location updates in real time
+export const LOCATION_TASK_NAME = "LOCATION_UPDATES_SUBSCRIPTION_TASK";
+
+// Task definition for the task used for receiving location updates in real time
+TaskManager.defineTask(LOCATION_TASK_NAME, ({ data, error }) => {
+    if (error) {
+        const errorMessage = `Error while receiving location updates ${error.message}`;
+        console.log(errorMessage);
+        logEvent(errorMessage, LoggingLevel.Warning, false).then(() => {
+        });
+        return;
+    }
+    if (data) {
+        // @ts-ignore
+        const { locations } = data;
+        // do something with the locations captured in the background
+        console.log(locations)
+    }
+});
 
 // this handler determines how your app handles notifications that come in while the app is foregrounded.
 Notifications.setNotificationHandler({
@@ -244,7 +266,7 @@ export default function App() {
                 if (currentUserLocation === null) {
                     const foregroundPermissionStatus = await Location.requestForegroundPermissionsAsync();
                     if (foregroundPermissionStatus.status !== 'granted') {
-                        const errorMessage = `Permission to access location was not granted!`;
+                        const errorMessage = `Permission to access Foreground Location was not granted!`;
                         console.log(errorMessage);
                         logEvent(errorMessage, LoggingLevel.Warning, false).then(() => {
                         });
@@ -254,6 +276,18 @@ export default function App() {
                         const lastKnownPositionAsync: LocationObject | null = await Location.getLastKnownPositionAsync();
                         setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getCurrentPositionAsync());
                     }
+                }
+
+                // ask for the user's permission to track background location
+                const backgroundPermissionStatus = await Location.requestBackgroundPermissionsAsync();
+                if (backgroundPermissionStatus.status !== 'granted') {
+                    const errorMessage = `Permission to access Background Location was not granted!`;
+                    console.log(errorMessage);
+                    logEvent(errorMessage, LoggingLevel.Warning, false).then(() => {
+                    });
+                } else {
+                    // at this point we know we can track their location updates
+                    watchLocationAsync(LOCATION_TASK_NAME).then(() => {});
                 }
 
                 // tell the application to render
