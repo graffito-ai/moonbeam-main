@@ -38,6 +38,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         bundleIdentifier: process.env.IOS_BUNDLE_IDENTIFIER,
         supportsTablet: false,
         infoPlist: {
+            "UIBackgroundModes": ["location", "fetch", "remote-notification"],
             "NSFaceIDUsageDescription": "$(PRODUCT_NAME) will access and use Face ID, in order to allow you to easily authenticate, either for the purposes of accessing your account, or for various protected account-related functionalities. Please note that Moonbeam will not store any of your biometric information.",
             "NSUserTrackingUsageDescription": "$(PRODUCT_NAME) will collect data, such as your Precise Location and Physical Address, that can be used for tracking you or your device. This data, will enable us to provide you with more personalized military offers.",
             "NSContactsUsageDescription": "$(PRODUCT_NAME) will access your contacts, in order to automatically add our support information in your list of contacts, for ease of access. Please note that Moonbeam will not store any of your contact information.",

@@ -2,6 +2,8 @@ import {requestTrackingPermissionsAsync} from "expo-tracking-transparency";
 import {logEvent} from "./AppSync";
 import {LoggingLevel} from "@moonbeam/moonbeam-models";
 import * as Location from 'expo-location';
+import {LocationActivityType} from 'expo-location';
+import * as TaskManager from "expo-task-manager";
 
 /**
  * Function used to add the necessary app tracking transparency permissions,
@@ -19,15 +21,20 @@ export const requestAppTrackingTransparencyPermission = async () => {
 }
 
 /**
- * Function used to start receiving location updates in the background, once the user
- * has provided appropriate foreground and background location permissions.
- *
- * @param taskName the name of the task to be passed in, that the user subscribed to
- * in order to receive location updates.
+ * Function used to start receiving location updates in the background.
  */
-export const watchLocationAsync = async (taskName: string): Promise<void> => {
-    return await Location.startLocationUpdatesAsync(taskName, {
-        distanceInterval: 1000,
-        timeInterval: 10000
+export const receiveBackgroundLocationUpdates = async (taskName: string): Promise<void> => {
+    const isBackgroundUpdatesTaskRegistered = await TaskManager.isTaskRegisteredAsync(taskName);
+    // if the task is already registered, unregister it first before registering it again
+    if (isBackgroundUpdatesTaskRegistered) {
+        await Location.stopLocationUpdatesAsync(taskName);
+    }
+    // used for registering a task in the App.tsx that will capture the Location updates subscription.
+    await Location.startLocationUpdatesAsync(taskName, {
+        accuracy: Location.Accuracy.Highest,
+        distanceInterval: 15, // minimum change (in meters) between updates
+        timeInterval: 3000, // only Android
+        pausesUpdatesAutomatically: true, // only iOS
+        activityType: LocationActivityType.AutomotiveNavigation, // needed for pausesUpdatesAutomatically
     });
 };
