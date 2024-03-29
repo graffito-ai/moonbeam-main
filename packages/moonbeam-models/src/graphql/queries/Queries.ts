@@ -328,6 +328,8 @@ export const getServicePartners = /* GraphQL */ `
                     title
                     description
                 }
+                email
+                phoneNumber
             }
         }
     }  

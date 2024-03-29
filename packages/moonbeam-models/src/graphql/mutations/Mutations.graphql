@@ -61,6 +61,8 @@ mutation CreateServicePartner($createPartnerInput: CreatePartnerInput!) {
                 title
                 description
             }
+            email
+            phoneNumber
         }
     }
 }

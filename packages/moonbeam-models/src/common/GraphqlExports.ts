@@ -282,10 +282,12 @@ export type CreatePartnerInput = {
   city: Scalars['String'];
   createdAt?: InputMaybe<Scalars['AWSDateTime']>;
   description: Scalars['String'];
+  email?: InputMaybe<Scalars['String']>;
   id?: InputMaybe<Scalars['ID']>;
   isOnline: Scalars['Boolean'];
   logoUrl?: InputMaybe<Scalars['String']>;
   name: Scalars['String'];
+  phoneNumber?: InputMaybe<Scalars['String']>;
   services: Array<InputMaybe<ServiceInput>>;
   shortDescription: Scalars['String'];
   state: Scalars['String'];
@@ -1392,10 +1394,12 @@ export type Partner = {
   city: Scalars['String'];
   createdAt: Scalars['AWSDateTime'];
   description: Scalars['String'];
+  email?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   isOnline: Scalars['Boolean'];
   logoUrl: Scalars['String'];
   name: Scalars['String'];
+  phoneNumber?: Maybe<Scalars['String']>;
   services: Array<Maybe<Service>>;
   shortDescription: Scalars['String'];
   state: Scalars['String'];
@@ -2054,7 +2058,7 @@ export type CreateServicePartnerMutationVariables = Exact<{
 }>;
 
 
-export type CreateServicePartnerMutation = { __typename?: 'Mutation', createServicePartner: { __typename?: 'PartnerResponse', errorMessage?: string | null, errorType?: ServicesErrorType | null, data?: Array<{ __typename?: 'Partner', id: string, status: ServicePartnerStatus, createdAt: string, updatedAt: string, name: string, shortDescription: string, description: string, isOnline: boolean, logoUrl: string, addressLine: string, city: string, state: string, zipCode: string, website: string, services: Array<{ __typename?: 'Service', title: string, description: string } | null> } | null> | null } };
+export type CreateServicePartnerMutation = { __typename?: 'Mutation', createServicePartner: { __typename?: 'PartnerResponse', errorMessage?: string | null, errorType?: ServicesErrorType | null, data?: Array<{ __typename?: 'Partner', id: string, status: ServicePartnerStatus, createdAt: string, updatedAt: string, name: string, shortDescription: string, description: string, isOnline: boolean, logoUrl: string, addressLine: string, city: string, state: string, zipCode: string, website: string, email?: string | null, phoneNumber?: string | null, services: Array<{ __typename?: 'Service', title: string, description: string } | null> } | null> | null } };
 
 export type CreateReimbursementMutationVariables = Exact<{
   createReimbursementInput: CreateReimbursementInput;
@@ -2308,7 +2312,7 @@ export type GetEventSeriesQuery = { __typename?: 'Query', getEventSeries: { __ty
 export type GetServicePartnersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetServicePartnersQuery = { __typename?: 'Query', getServicePartners: { __typename?: 'PartnerResponse', errorMessage?: string | null, errorType?: ServicesErrorType | null, data?: Array<{ __typename?: 'Partner', id: string, status: ServicePartnerStatus, createdAt: string, updatedAt: string, name: string, shortDescription: string, description: string, isOnline: boolean, logoUrl: string, addressLine: string, city: string, state: string, zipCode: string, website: string, services: Array<{ __typename?: 'Service', title: string, description: string } | null> } | null> | null } };
+export type GetServicePartnersQuery = { __typename?: 'Query', getServicePartners: { __typename?: 'PartnerResponse', errorMessage?: string | null, errorType?: ServicesErrorType | null, data?: Array<{ __typename?: 'Partner', id: string, status: ServicePartnerStatus, createdAt: string, updatedAt: string, name: string, shortDescription: string, description: string, isOnline: boolean, logoUrl: string, addressLine: string, city: string, state: string, zipCode: string, website: string, email?: string | null, phoneNumber?: string | null, services: Array<{ __typename?: 'Service', title: string, description: string } | null> } | null> | null } };
 
 export type GetFidelisPartnersQueryVariables = Exact<{ [key: string]: never; }>;
 

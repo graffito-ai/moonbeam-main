@@ -215,7 +215,7 @@ export const styles = StyleSheet.create({
     },
     servicePartnerCardItemView: {
         alignSelf: 'center',
-        width: wp(95),
+        width: wp(93),
         height: hp(27),
         top: hp(2),
         backgroundColor: '#5B5A5A',

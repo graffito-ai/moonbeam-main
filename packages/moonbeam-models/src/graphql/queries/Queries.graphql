@@ -262,6 +262,8 @@ query GetServicePartners {
                 title
                 description
             }
+            email
+            phoneNumber
         }
     }
 }

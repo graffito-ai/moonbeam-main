@@ -14,7 +14,7 @@ export const EventSeriesByOrganization: Map<string, string[]> = new Map<string, 
             "768462390697", // Travel Benefits
             "776282059537", // EmpowerEd: SAVE Training
             "770774957647", // Let's Talk About It: Taking Action
-            "764059140457", // Mindset Reset
+            "764059140457", // Lunch and Learn Networking Hour
             "769808005467", // Real Talk: Life & Love with PTSD
             "759078011767", // I'm Write About This: Monthly Journaling
             "763531452127", // Write as Rain
@@ -33,6 +33,9 @@ export const EventSeriesByOrganization: Map<string, string[]> = new Map<string, 
             "853801351827", // Communication Boot Camp
             "852414985167", // Youth Mental Health First Aid & Taking Action
             "846462150077", // Side Hustles and Cost-Saving Strategies
-        ]
+            "862474322917", // Nurturing Relationships
+            "859718620537", // Let's Talk About it: Coaching into Care
+            "859106539787", // My Journey: Spouse Mental Health & Trauma
+    ]
     ]
 ]);

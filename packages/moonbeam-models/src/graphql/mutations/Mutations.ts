@@ -69,6 +69,8 @@ export const createServicePartner = /* GraphQL */ `
                     title
                     description
                 }
+                email
+                phoneNumber
             }
         }
     }

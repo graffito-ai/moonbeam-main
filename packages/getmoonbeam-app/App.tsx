@@ -59,6 +59,7 @@ let timeToSendForegroundUpdate = 0;
 
 // Task definition for the task used for receiving background location updates from the Background Fetch task
 TaskManager.defineTask(LOCATION_BACKGROUND_FETCH_TASK_NAME, async () => {
+    // @ts-ignore
     const location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Highest,
         distanceInterval: 0, // minimum change (in meters) between updates
@@ -66,6 +67,7 @@ TaskManager.defineTask(LOCATION_BACKGROUND_FETCH_TASK_NAME, async () => {
     });
 
     // store the location captured
+    // @ts-ignore
     let pushToken: ExpoPushToken = {
         type: 'expo',
         data: ''
@@ -75,10 +77,10 @@ TaskManager.defineTask(LOCATION_BACKGROUND_FETCH_TASK_NAME, async () => {
             projectId: Constants.expoConfig && Constants.expoConfig.extra ? Constants.expoConfig.extra.eas.projectId : '',
         });
     }
-    console.log(`Incoming background fetch location update received: ${JSON.stringify({
-        token: pushToken,
-        location: JSON.stringify(location)
-    })}`);
+    // {
+    //     token: pushToken,
+    //         location: JSON.stringify(locations)
+    // }
 
     // Return the successful result type here
     return BackgroundFetch.BackgroundFetchResult.NewData;
@@ -105,6 +107,7 @@ TaskManager.defineTask(LOCATION_BACKGROUND_UPDATES_TASK, async ({data, error}) =
         const timeToSend = currentTime - timeToSendBackgroundUpdate;
         if (timeToSend > 5000) {
             // store the location captured
+            // @ts-ignore
             let pushToken: ExpoPushToken = {
                 type: 'expo',
                 data: ''
@@ -114,10 +117,10 @@ TaskManager.defineTask(LOCATION_BACKGROUND_UPDATES_TASK, async ({data, error}) =
                     projectId: Constants.expoConfig && Constants.expoConfig.extra ? Constants.expoConfig.extra.eas.projectId : '',
                 });
             }
-            console.log(`Incoming Background location update received: ${JSON.stringify({
-                token: pushToken,
-                location: JSON.stringify(locations)
-            })}`);
+            // {
+            //     token: pushToken,
+            //         location: JSON.stringify(locations)
+            // }
 
             timeToSendBackgroundUpdate = currentTime;
         }
@@ -272,6 +275,7 @@ export default function App() {
                     accuracy: Location.Accuracy.Highest,
                     distanceInterval: 0, // minimum change (in meters) between updates
                     timeInterval: 3000, // only Android
+                    // @ts-ignore
                 }, async location => {
                     /**
                      * calculate the time between this update and the next one
@@ -281,12 +285,13 @@ export default function App() {
                     const timeToSend = currentTime - timeToSendForegroundUpdate;
                     if (timeToSend > 5000) {
                         // store the location captured
-                        console.log(`Incoming Foreground location update received: ${JSON.stringify({
-                            token: await Notifications.getExpoPushTokenAsync({
-                                projectId: Constants.expoConfig && Constants.expoConfig.extra ? Constants.expoConfig.extra.eas.projectId : '',
-                            }),
-                            location: JSON.stringify(location)
-                        })}`);
+                        // {
+                        //     token: await Notifications.getExpoPushTokenAsync({
+                        //         projectId: Constants.expoConfig && Constants.expoConfig.extra ? Constants.expoConfig.extra.eas.projectId : '',
+                        //     }),
+                        //     location: JSON.stringify(locations)
+                        // }
+
                         timeToSendForegroundUpdate = currentTime;
                     }
                 });

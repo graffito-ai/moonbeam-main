@@ -1622,6 +1622,8 @@ type Partner @aws_cognito_user_pools {
     zipCode: String!
     website: String!
     services: [Service]!
+    email: String
+    phoneNumber: String
 }
 
 type PartnerResponse @aws_cognito_user_pools {
@@ -1651,6 +1653,8 @@ input CreatePartnerInput {
     zipCode: String!
     website: String!
     services: [ServiceInput]!
+    email: String
+    phoneNumber: String
 }
 # graphql/EventsSchema.graphql
 # Events Schema File
