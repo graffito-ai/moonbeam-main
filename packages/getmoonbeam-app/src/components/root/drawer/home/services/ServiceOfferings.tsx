@@ -157,7 +157,7 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
                                 }}
                             >
                                 <Text style={styles.viewServicePartnerButtonContent}>
-                                    {'Services'}
+                                    {'Organization'}
                                 </Text>
                             </TouchableOpacity>
                         </View>
@@ -375,7 +375,7 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
                             <Text style={styles.mainTitle}>
                                 {"Discover\n"}
                                 <Text style={styles.mainSubtitle}>
-                                    Organizations and Events for military service members and family!
+                                    Organizations and Events for the Military Community!
                                 </Text>
                             </Text>
                             <ExpoImage
@@ -496,7 +496,7 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
                         <View
                             style={{top: hp(2)}}>
                             <View style={{flexDirection: 'column'}}>
-                                <Text style={styles.sectionTextBottom}>Veteran Service Organizations</Text>
+                                <Text style={styles.sectionTextBottom}>Veteran Non-Profit Organizations</Text>
                             </View>
                             <RecyclerListView
                                 // @ts-ignore
@@ -617,8 +617,7 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
                                         <View
                                             style={sortedUpcomingEvents.length > 0 ? {bottom: hp(3)} : {top: hp(2)}}>
                                             <View style={{flexDirection: 'column'}}>
-                                                <Text style={styles.sectionTextBottom}>Veteran Service
-                                                    Organizations</Text>
+                                                <Text style={styles.sectionTextBottom}>Veteran Non-Profit Organizations</Text>
                                             </View>
                                             <View
                                                 style={styles.noElementsAllView}>
@@ -642,8 +641,7 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
                                         <View
                                             style={sortedUpcomingEvents.length > 0 ? {bottom: hp(3)} : {top: hp(2)}}>
                                             <View style={{flexDirection: 'column'}}>
-                                                <Text style={styles.sectionTextBottom}>Veteran Service
-                                                    Organizations</Text>
+                                                <Text style={styles.sectionTextBottom}>Veteran Non-Profit Organizations</Text>
                                             </View>
                                             <RecyclerListView
                                                 // @ts-ignore

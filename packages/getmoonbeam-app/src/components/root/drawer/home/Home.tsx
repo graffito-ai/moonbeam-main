@@ -149,8 +149,8 @@ export const Home = ({navigation}: HomeProps) => {
                                              options={({}) => ({
                                                  tabBarIcon: ({focused}) => (
                                                      <Icon
-                                                         type={"ionicon"}
-                                                         name={!focused ? 'pricetags-outline' : 'pricetags'}
+                                                         type={!focused ? "font-awesome" : "font-awesome-5"}
+                                                         name={!focused ? 'handshake-o' : 'handshake'}
                                                          size={hp(3.5)}
                                                          color={!focused ? 'white' : '#F2FF5D'}
                                                      />
