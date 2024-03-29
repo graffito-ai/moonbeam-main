@@ -28,13 +28,23 @@ export const receiveBackgroundLocationUpdates = async (taskName: string): Promis
     // if the task is already registered, unregister it first before registering it again
     if (isBackgroundUpdatesTaskRegistered) {
         await Location.stopLocationUpdatesAsync(taskName);
+
+        // used for registering a task in the App.tsx that will capture the Location updates subscription.
+        await Location.startLocationUpdatesAsync(taskName, {
+            accuracy: Location.Accuracy.Highest,
+            distanceInterval: 0, // minimum change (in meters) between updates
+            timeInterval: 3000, // only Android
+            pausesUpdatesAutomatically: true, // only iOS
+            activityType: LocationActivityType.AutomotiveNavigation, // needed for pausesUpdatesAutomatically
+        });
+    } else {
+        // used for registering a task in the App.tsx that will capture the Location updates subscription.
+        await Location.startLocationUpdatesAsync(taskName, {
+            accuracy: Location.Accuracy.Highest,
+            distanceInterval: 0, // minimum change (in meters) between updates
+            timeInterval: 3000, // only Android
+            pausesUpdatesAutomatically: true, // only iOS
+            activityType: LocationActivityType.AutomotiveNavigation, // needed for pausesUpdatesAutomatically
+        });
     }
-    // used for registering a task in the App.tsx that will capture the Location updates subscription.
-    await Location.startLocationUpdatesAsync(taskName, {
-        accuracy: Location.Accuracy.Highest,
-        distanceInterval: 15, // minimum change (in meters) between updates
-        timeInterval: 3000, // only Android
-        pausesUpdatesAutomatically: true, // only iOS
-        activityType: LocationActivityType.AutomotiveNavigation, // needed for pausesUpdatesAutomatically
-    });
 };

@@ -29,14 +29,7 @@ import * as Updates from 'expo-updates';
 import {enableScreens} from "react-native-screens";
 import * as TaskManager from "expo-task-manager";
 import * as BackgroundFetch from 'expo-background-fetch';
-import {AppOwnership} from "expo-constants/src/Constants.types";
-import {receiveBackgroundLocationUpdates} from "./src/utils/Permissions";
-
-/**
- * import branch only if the app is not running in Expo Go (so we can actually run the application without Branch for
- * Expo Go), for easier testing purposes.
- */
-const isRunningInExpoGo = Constants.appOwnership === AppOwnership.Expo;
+import {receiveBackgroundLocationUpdates} from './src/utils/Permissions';
 
 /**
  * name of the task to register for receiving periodic background updates for location
@@ -68,28 +61,41 @@ let timeToSendForegroundUpdate = 0;
 TaskManager.defineTask(LOCATION_BACKGROUND_FETCH_TASK_NAME, async () => {
     const location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Highest,
-        distanceInterval: 15, // minimum change (in meters) between updates
+        distanceInterval: 0, // minimum change (in meters) between updates
         timeInterval: 3000, // only Android
     });
 
     // store the location captured
-    console.log(`Incoming background fetch location update received: ${JSON.stringify(location)}`);
+    let pushToken: ExpoPushToken = {
+        type: 'expo',
+        data: ''
+    };
+    if (envInfo.envName !== Stages.DEV) {
+        pushToken = await Notifications.getExpoPushTokenAsync({
+            projectId: Constants.expoConfig && Constants.expoConfig.extra ? Constants.expoConfig.extra.eas.projectId : '',
+        });
+    }
+    console.log(`Incoming background fetch location update received: ${JSON.stringify({
+        token: pushToken,
+        location: JSON.stringify(location)
+    })}`);
 
     // Return the successful result type here
     return BackgroundFetch.BackgroundFetchResult.NewData;
 });
 
 // Task definition for the task used for receiving foreground location updates from the Background Fetch task
-TaskManager.defineTask(LOCATION_BACKGROUND_UPDATES_TASK, ({ data, error }) => {
+TaskManager.defineTask(LOCATION_BACKGROUND_UPDATES_TASK, async ({data, error}) => {
     if (error) {
         const errorMessage = `Error while receiving Background location updates ${error.message}`;
         console.log(errorMessage);
-        logEvent(errorMessage, LoggingLevel.Warning, false).then(() => {});
+        logEvent(errorMessage, LoggingLevel.Warning, false).then(() => {
+        });
         return;
     }
     if (data) {
         // @ts-ignore
-        const { locations } = data;
+        const {locations} = data;
 
         /**
          * calculate the time between this update and the next one
@@ -99,7 +105,20 @@ TaskManager.defineTask(LOCATION_BACKGROUND_UPDATES_TASK, ({ data, error }) => {
         const timeToSend = currentTime - timeToSendBackgroundUpdate;
         if (timeToSend > 5000) {
             // store the location captured
-            console.log(`Incoming Background location update received: ${locations}`);
+            let pushToken: ExpoPushToken = {
+                type: 'expo',
+                data: ''
+            };
+            if (envInfo.envName !== Stages.DEV) {
+                pushToken = await Notifications.getExpoPushTokenAsync({
+                    projectId: Constants.expoConfig && Constants.expoConfig.extra ? Constants.expoConfig.extra.eas.projectId : '',
+                });
+            }
+            console.log(`Incoming Background location update received: ${JSON.stringify({
+                token: pushToken,
+                location: JSON.stringify(locations)
+            })}`);
+
             timeToSendBackgroundUpdate = currentTime;
         }
     }
@@ -249,11 +268,11 @@ export default function App() {
                 setCurrentUserLocation(lastKnownPositionAsync !== null ? lastKnownPositionAsync : await Location.getCurrentPositionAsync());
 
                 // subscribe to receiving location updates when app is in the Foreground
-                await Location.watchPositionAsync( {
+                await Location.watchPositionAsync({
                     accuracy: Location.Accuracy.Highest,
-                    distanceInterval: 15, // minimum change (in meters) between updates
+                    distanceInterval: 0, // minimum change (in meters) between updates
                     timeInterval: 3000, // only Android
-                }, location => {
+                }, async location => {
                     /**
                      * calculate the time between this update and the next one
                      * to ensure that we do not send updates more often than every 5 seconds.
@@ -262,7 +281,12 @@ export default function App() {
                     const timeToSend = currentTime - timeToSendForegroundUpdate;
                     if (timeToSend > 5000) {
                         // store the location captured
-                        console.log(`Incoming Foreground location update received: ${location}`);
+                        console.log(`Incoming Foreground location update received: ${JSON.stringify({
+                            token: await Notifications.getExpoPushTokenAsync({
+                                projectId: Constants.expoConfig && Constants.expoConfig.extra ? Constants.expoConfig.extra.eas.projectId : '',
+                            }),
+                            location: JSON.stringify(location)
+                        })}`);
                         timeToSendForegroundUpdate = currentTime;
                     }
                 });
@@ -270,24 +294,24 @@ export default function App() {
         }
 
         // ask for the user's permission to track background location
-        if (!isRunningInExpoGo) {
-            const backgroundPermissionStatus = await Location.requestBackgroundPermissionsAsync();
-            if (backgroundPermissionStatus.status !== 'granted') {
-                const errorMessage = `Permission to access Background Location was not granted!`;
-                console.log(errorMessage);
-                logEvent(errorMessage, LoggingLevel.Warning, false).then(() => {
-                });
-            } else {
-                const errorMessage = `Permission to access Background Location was granted!`;
-                console.log(errorMessage);
-                logEvent(errorMessage, LoggingLevel.Info, false).then(() => {});
+        const backgroundPermissionStatus = await Location.requestBackgroundPermissionsAsync();
+        if (backgroundPermissionStatus.status !== 'granted') {
+            const errorMessage = `Permission to access Background Location was not granted!`;
+            console.log(errorMessage);
+            logEvent(errorMessage, LoggingLevel.Warning, false).then(() => {
+            });
+        } else {
+            const errorMessage = `Permission to access Background Location was granted!`;
+            console.log(errorMessage);
+            logEvent(errorMessage, LoggingLevel.Info, false).then(() => {
+            });
 
-                // startup/register the background location fetch task
-                startupBackgroundFetchLocationTask().then(() => {});
-
+            // startup/register the background location fetch task
+            startupBackgroundFetchLocationTask().then(() => {
                 // startups/register the background location subscription task
-                receiveBackgroundLocationUpdates(LOCATION_BACKGROUND_UPDATES_TASK).then(() => {});
-            }
+                receiveBackgroundLocationUpdates(LOCATION_BACKGROUND_UPDATES_TASK).then(() => {
+                });
+            });
         }
     }
 
@@ -299,14 +323,24 @@ export default function App() {
         const isBackgroundFetchTaskRegistered = await TaskManager.isTaskRegisteredAsync(LOCATION_BACKGROUND_FETCH_TASK_NAME);
         // if the task is already registered, unregister it first before registering it again
         if (isBackgroundFetchTaskRegistered) {
-            BackgroundFetch.unregisterTaskAsync(LOCATION_BACKGROUND_FETCH_TASK_NAME);
+            BackgroundFetch.unregisterTaskAsync(LOCATION_BACKGROUND_FETCH_TASK_NAME).then(() => {
+                // register the fetch of the Background location through BackgroundFetch
+                BackgroundFetch.registerTaskAsync(LOCATION_BACKGROUND_FETCH_TASK_NAME, {
+                    minimumInterval: 30, // do this every 15 minutes
+                    stopOnTerminate: false, // android only,
+                    startOnBoot: true, // android only
+                }).then(() => {
+                });
+            });
+        } else {
+            // register the fetch of the Background location through BackgroundFetch
+            BackgroundFetch.registerTaskAsync(LOCATION_BACKGROUND_FETCH_TASK_NAME, {
+                minimumInterval: 30, // do this every 15 minutes
+                stopOnTerminate: false, // android only,
+                startOnBoot: true, // android only
+            }).then(() => {
+            });
         }
-        // register the fetch of the Background location through BackgroundFetch
-        BackgroundFetch.registerTaskAsync(LOCATION_BACKGROUND_FETCH_TASK_NAME, {
-            minimumInterval: 30, // do this every 15 minutes
-            stopOnTerminate: false, // android only,
-            startOnBoot: true, // android only
-        }).then(() => {});
     }
 
     /**
@@ -401,10 +435,10 @@ export default function App() {
                 await Image.clearMemoryCache();
 
                 // trigger the location permissions and configure them for receiving location updates
-                triggerLocationPermissions().then(() => {});
-
-                // tell the application to render
-                setAppIsReady(true);
+                triggerLocationPermissions().then(() => {
+                    // tell the application to render
+                    setAppIsReady(true);
+                });
             }
         }
         // prepare the app
@@ -424,7 +458,8 @@ export default function App() {
             // whenever we exit the app, we want to unregister the location subscription tasks
             TaskManager.isTaskRegisteredAsync(LOCATION_BACKGROUND_UPDATES_TASK).then(isBackgroundLocationSubscriptionTaskRegistered => {
                 isBackgroundLocationSubscriptionTaskRegistered &&
-                TaskManager.unregisterTaskAsync(LOCATION_BACKGROUND_UPDATES_TASK).then(() => {});
+                TaskManager.unregisterTaskAsync(LOCATION_BACKGROUND_UPDATES_TASK).then(() => {
+                });
             });
         };
     }, [currentUserLocation, deviceSetForNotifications]);
