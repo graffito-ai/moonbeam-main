@@ -68,7 +68,9 @@ export const setCommitLintConfig = (
                     'moonbeam-user-auth-session-lambda',
                     'moonbeam-utilities-lambda',
                     'moonbeam-scripts-lambda',
-                    'moonbeam-service-partners-lambda'
+                    'moonbeam-service-partners-lambda',
+                    'moonbeam-location-reminders-consumer-lambda',
+                    'moonbeam-location-reminders-producer-lambda'
                 ]
             ],
             'subject-case': [

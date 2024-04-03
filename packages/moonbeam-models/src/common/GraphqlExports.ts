@@ -209,6 +209,12 @@ export type CreateFaqInput = {
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
+export type CreateLocationBasedOfferReminderInput = {
+  expoPushToken: Array<InputMaybe<Scalars['String']>>;
+  latitude: Scalars['String'];
+  longitude: Scalars['String'];
+};
+
 export type CreateLogEventInput = {
   logLevel: LoggingLevel;
   message: Scalars['String'];
@@ -674,6 +680,13 @@ export type Location = {
   longitude: Scalars['Float'];
 };
 
+export type LocationBasedOfferReminderResponse = {
+  __typename?: 'LocationBasedOfferReminderResponse';
+  data?: Maybe<NotificationStatus>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<NotificationsErrorType>;
+};
+
 export type LocationPredictionType = {
   __typename?: 'LocationPredictionType';
   address_components?: Maybe<Scalars['String']>;
@@ -971,6 +984,7 @@ export type Mutation = {
   createDevice: UserDeviceResponse;
   createEventSeries: EventSeriesResponse;
   createFAQ: FaqResponse;
+  createLocationBasedOfferReminder: LocationBasedOfferReminderResponse;
   createLogEvent: LoggingResponse;
   createMilitaryVerification: CreateMilitaryVerificationResponse;
   createNotification: CreateNotificationResponse;
@@ -1019,6 +1033,11 @@ export type MutationCreateEventSeriesArgs = {
 
 export type MutationCreateFaqArgs = {
   createFAQInput: CreateFaqInput;
+};
+
+
+export type MutationCreateLocationBasedOfferReminderArgs = {
+  createLocationBasedOfferReminderInput: CreateLocationBasedOfferReminderInput;
 };
 
 
@@ -1179,6 +1198,7 @@ export enum NotificationReminderStatus {
 export enum NotificationReminderType {
   CardLinkingReminder = 'CARD_LINKING_REMINDER',
   FeedbackTemplate_1Reminder = 'FEEDBACK_TEMPLATE_1_REMINDER',
+  LocationBasedOfferReminder = 'LOCATION_BASED_OFFER_REMINDER',
   MultipleCardFeatureReminder = 'MULTIPLE_CARD_FEATURE_REMINDER',
   NewMapFeatureReminder = 'NEW_MAP_FEATURE_REMINDER',
   ReferralTemplate_1Reminder = 'REFERRAL_TEMPLATE_1_REMINDER',
@@ -1209,6 +1229,7 @@ export enum NotificationType {
   ExpirationLinkedCardNotice = 'EXPIRATION_LINKED_CARD_NOTICE',
   ExpiredLinkedCard = 'EXPIRED_LINKED_CARD',
   FeedbackTemplate_1Reminder = 'FEEDBACK_TEMPLATE_1_REMINDER',
+  LocationBasedOfferReminder = 'LOCATION_BASED_OFFER_REMINDER',
   MarketingRelated = 'MARKETING_RELATED',
   MilitaryStatusChangedPendingToRejected = 'MILITARY_STATUS_CHANGED_PENDING_TO_REJECTED',
   MilitaryStatusChangedPendingToVerified = 'MILITARY_STATUS_CHANGED_PENDING_TO_VERIFIED',
@@ -2045,6 +2066,13 @@ export enum UtilitiesErrorType {
   UnexpectedError = 'UNEXPECTED_ERROR',
   ValidationError = 'VALIDATION_ERROR'
 }
+
+export type CreateLocationBasedOfferReminderMutationVariables = Exact<{
+  createLocationBasedOfferReminderInput: CreateLocationBasedOfferReminderInput;
+}>;
+
+
+export type CreateLocationBasedOfferReminderMutation = { __typename?: 'Mutation', createLocationBasedOfferReminder: { __typename?: 'LocationBasedOfferReminderResponse', errorMessage?: string | null, errorType?: NotificationsErrorType | null, data?: NotificationStatus | null } };
 
 export type CreateEventSeriesMutationVariables = Exact<{
   createEventSeriesInput: CreateEventSeriesInput;

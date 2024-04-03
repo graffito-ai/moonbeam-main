@@ -1,5 +1,12 @@
 # graphql/Mutations.graphql
 # Mutations Schema File
+mutation CreateLocationBasedOfferReminder($createLocationBasedOfferReminderInput: CreateLocationBasedOfferReminderInput!) {
+    createLocationBasedOfferReminder(createLocationBasedOfferReminderInput: $createLocationBasedOfferReminderInput) {
+        errorMessage
+        errorType
+        data
+    }
+}
 mutation CreateEventSeries($createEventSeriesInput: CreateEventSeriesInput!) {
     createEventSeries(createEventSeriesInput: $createEventSeriesInput) {
         errorMessage

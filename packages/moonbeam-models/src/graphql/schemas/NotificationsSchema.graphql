@@ -29,6 +29,7 @@ enum NotificationType {
     MULTIPLE_CARD_FEATURE_REMINDER
     SPOUSE_FEATURE_REMINDER
     FEEDBACK_TEMPLATE_1_REMINDER
+    LOCATION_BASED_OFFER_REMINDER
 }
 
 enum NotificationChannelType {
@@ -108,4 +109,16 @@ type EmailFromCognitoResponse @aws_cognito_user_pools @aws_api_key {
     data: String
     errorType: NotificationsErrorType
     errorMessage: String
+}
+
+type LocationBasedOfferReminderResponse @aws_cognito_user_pools @aws_api_key {
+    data: NotificationStatus
+    errorType: NotificationsErrorType
+    errorMessage: String
+}
+
+input CreateLocationBasedOfferReminderInput {
+    expoPushToken: [String]!
+    latitude: String!
+    longitude: String!
 }

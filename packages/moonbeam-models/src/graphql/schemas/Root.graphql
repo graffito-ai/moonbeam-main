@@ -35,6 +35,7 @@ type Query {
 }
 
 type Mutation {
+    createLocationBasedOfferReminder(createLocationBasedOfferReminderInput: CreateLocationBasedOfferReminderInput!): LocationBasedOfferReminderResponse! @aws_cognito_user_pools @aws_api_key
     createEventSeries(createEventSeriesInput: CreateEventSeriesInput!): EventSeriesResponse! @aws_cognito_user_pools @aws_api_key
     createServicePartner(createPartnerInput: CreatePartnerInput!): PartnerResponse! @aws_cognito_user_pools
     updateCard(updateCardInput: UpdateCardInput!): EligibleLinkedUsersResponse! @aws_cognito_user_pools @aws_api_key

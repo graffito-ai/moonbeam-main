@@ -2,6 +2,17 @@
  * This is a file used to define the all GraphQL mutation constants
  */
 
+// Mutation used to create a new notification based on an incoming location update
+export const createLocationBasedOfferReminder = /* GraphQL */ `
+    mutation CreateLocationBasedOfferReminder($createLocationBasedOfferReminderInput: CreateLocationBasedOfferReminderInput!) {
+        createLocationBasedOfferReminder(createLocationBasedOfferReminderInput: $createLocationBasedOfferReminderInput) {
+            errorMessage
+            errorType
+            data
+        }
+    }
+`;
+
 // Mutation used to create a new Event Series for a particular partner organization
 export const createEventSeries = /* GraphQL */ `
     mutation CreateEventSeries($createEventSeriesInput: CreateEventSeriesInput!) {

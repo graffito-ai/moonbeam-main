@@ -35,6 +35,7 @@ type Query {
 }
 
 type Mutation {
+    createLocationBasedOfferReminder(createLocationBasedOfferReminderInput: CreateLocationBasedOfferReminderInput!): LocationBasedOfferReminderResponse! @aws_cognito_user_pools @aws_api_key
     createEventSeries(createEventSeriesInput: CreateEventSeriesInput!): EventSeriesResponse! @aws_cognito_user_pools @aws_api_key
     createServicePartner(createPartnerInput: CreatePartnerInput!): PartnerResponse! @aws_cognito_user_pools
     updateCard(updateCardInput: UpdateCardInput!): EligibleLinkedUsersResponse! @aws_cognito_user_pools @aws_api_key
@@ -738,6 +739,7 @@ enum NotificationType {
     MULTIPLE_CARD_FEATURE_REMINDER
     SPOUSE_FEATURE_REMINDER
     FEEDBACK_TEMPLATE_1_REMINDER
+    LOCATION_BASED_OFFER_REMINDER
 }
 
 enum NotificationChannelType {
@@ -817,6 +819,18 @@ type EmailFromCognitoResponse @aws_cognito_user_pools @aws_api_key {
     data: String
     errorType: NotificationsErrorType
     errorMessage: String
+}
+
+type LocationBasedOfferReminderResponse @aws_cognito_user_pools @aws_api_key {
+    data: NotificationStatus
+    errorType: NotificationsErrorType
+    errorMessage: String
+}
+
+input CreateLocationBasedOfferReminderInput {
+    expoPushToken: [String]!
+    latitude: String!
+    longitude: String!
 }
 # graphql/PhysicalDevicesSchema.graphql
 # Physical Devices Schema File
@@ -1197,6 +1211,7 @@ enum NotificationReminderType {
     MULTIPLE_CARD_FEATURE_REMINDER
     SPOUSE_FEATURE_REMINDER
     FEEDBACK_TEMPLATE_1_REMINDER
+    LOCATION_BASED_OFFER_REMINDER
 }
 
 enum NotificationReminderStatus {

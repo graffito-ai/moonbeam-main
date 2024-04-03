@@ -131,6 +131,18 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     updatedTransactionalOffersProcessingEventSourceMapping: 'updateTransactionalOffersProcessingEventSourceMapping'
                 }
             },
+            locationBasedReminderProducerConsumerConfig: {
+                locationBasedReminderProducerFunctionName: 'locationBasedReminderProducerFunction',
+                locationBasedReminderConsumerFunctionName: 'locationBasedReminderConsumerFunction',
+                acknowledgeLocationUpdateResolverName: 'acknowledgeLocationUpdateResolver',
+                locationBasedReminderFanOutConfig: {
+                    locationBasedReminderProcessingTopicName: 'locationBasedReminderProcessingTopic',
+                    locationBasedReminderProcessingTopicDLQName: 'locationBasedReminderProcessingTopicDLQ',
+                    locationBasedReminderProcessingQueueName: 'locationBasedReminderProcessingQueue',
+                    locationBasedReminderProcessingDLQName: 'locationBasedReminderProcessingDLQ',
+                    locationBasedReminderProcessingEventSourceMapping: 'locationBasedReminderProcessingEventSourceMapping'
+                }
+            },
             transactionsConfig: {
                 transactionsFunctionName: 'transactionsLambdaFunction',
                 transactionsTableName: 'transactionsTable',
@@ -384,6 +396,18 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     updatedTransactionalOffersProcessingQueueName: 'updatedTransactionalOffersProcessingQueue',
                     updatedTransactionalOffersProcessingDLQName: 'updateTransactionalOffersProcessingDLQ',
                     updatedTransactionalOffersProcessingEventSourceMapping: 'updateTransactionalOffersProcessingEventSourceMapping'
+                }
+            },
+            locationBasedReminderProducerConsumerConfig: {
+                locationBasedReminderProducerFunctionName: 'locationBasedReminderProducerFunction',
+                locationBasedReminderConsumerFunctionName: 'locationBasedReminderConsumerFunction',
+                acknowledgeLocationUpdateResolverName: 'acknowledgeLocationUpdateResolver',
+                locationBasedReminderFanOutConfig: {
+                    locationBasedReminderProcessingTopicName: 'locationBasedReminderProcessingTopic',
+                    locationBasedReminderProcessingTopicDLQName: 'locationBasedReminderProcessingTopicDLQ',
+                    locationBasedReminderProcessingQueueName: 'locationBasedReminderProcessingQueue',
+                    locationBasedReminderProcessingDLQName: 'locationBasedReminderProcessingDLQ',
+                    locationBasedReminderProcessingEventSourceMapping: 'locationBasedReminderProcessingEventSourceMapping'
                 }
             },
             notificationReminderProducerConsumerConfig: {
