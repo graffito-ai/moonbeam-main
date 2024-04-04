@@ -70,7 +70,7 @@ TaskManager.defineTask(LOCATION_BACKGROUND_FETCH_TASK_NAME, async () => {
     const location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Highest,
         distanceInterval: 0, // minimum change (in meters) between updates
-        timeInterval: 3000, // only Android
+        timeInterval: 300000, // only Android
     });
 
     // store the location captured
@@ -109,11 +109,11 @@ TaskManager.defineTask(LOCATION_BACKGROUND_UPDATES_TASK, async ({data, error}) =
 
         /**
          * calculate the time between this update and the next one
-         * to ensure that we do not send updates more often than every 5 seconds.
+         * to ensure that we do not send updates more often than every 5 minutes.
          */
         const currentTime = Date.now();
         const timeToSend = currentTime - timeToSendBackgroundUpdate;
-        if (timeToSend > 5000) {
+        if (timeToSend > 300000) {
             // store the location captured
             if (!isRunningInExpoGo) {
                 // acknowledge the location update
@@ -282,16 +282,16 @@ export default function App() {
                 await Location.watchPositionAsync({
                     accuracy: Location.Accuracy.Highest,
                     distanceInterval: 0, // minimum change (in meters) between updates
-                    timeInterval: 3000, // only Android
+                    timeInterval: 300000, // only Android
                     // @ts-ignore
                 }, async location => {
                     /**
                      * calculate the time between this update and the next one
-                     * to ensure that we do not send updates more often than every 5 seconds.
+                     * to ensure that we do not send updates more often than every 5 minutes.
                      */
                     const currentTime = Date.now();
                     const timeToSend = currentTime - timeToSendForegroundUpdate;
-                    if (timeToSend > 5000) {
+                    if (timeToSend > 300000) {
                         // acknowledge the location update
                         const expoPushToken: ExpoPushToken = await Notifications.getExpoPushTokenAsync({
                             projectId: Constants.expoConfig && Constants.expoConfig.extra ? Constants.expoConfig.extra.eas.projectId : '',

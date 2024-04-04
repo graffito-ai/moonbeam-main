@@ -33,7 +33,7 @@ export const receiveBackgroundLocationUpdates = async (taskName: string): Promis
         await Location.startLocationUpdatesAsync(taskName, {
             accuracy: Location.Accuracy.Highest,
             distanceInterval: 0, // minimum change (in meters) between updates
-            timeInterval: 3000, // only Android
+            timeInterval: 300000, // only Android
             pausesUpdatesAutomatically: true, // only iOS
             activityType: LocationActivityType.AutomotiveNavigation, // needed for pausesUpdatesAutomatically
         });
@@ -42,7 +42,7 @@ export const receiveBackgroundLocationUpdates = async (taskName: string): Promis
         await Location.startLocationUpdatesAsync(taskName, {
             accuracy: Location.Accuracy.Highest,
             distanceInterval: 0, // minimum change (in meters) between updates
-            timeInterval: 3000, // only Android
+            timeInterval: 300000, // only Android
             pausesUpdatesAutomatically: true, // only iOS
             activityType: LocationActivityType.AutomotiveNavigation, // needed for pausesUpdatesAutomatically
         });
