@@ -10,7 +10,7 @@ import {AttributeValue, DynamoDBClient, QueryCommand} from "@aws-sdk/client-dyna
 /**
  * GetReferralsByStatus resolver
  *
- * @param getReferralsByStatusInput the input needed to create a new referral
+ * @param getReferralsByStatusInput the input needed to retrieve a referral by its status
  * @param fieldName name of the resolver path from the AppSync event
  * @returns {@link Promise} of {@link ReferralResponse}
  */
@@ -24,7 +24,7 @@ export const getReferralsByStatus = async (fieldName: string, getReferralsByStat
 
         /**
          * the data to be retrieved from the Query Command
-         * the eligible user Items returned from the Query Command, all aggregated together
+         * the referral Items returned from the Query Command, all aggregated together
          * the last evaluated key, to help with the pagination of results
          */
         let result: Record<string, AttributeValue>[] = [];
@@ -35,7 +35,7 @@ export const getReferralsByStatus = async (fieldName: string, getReferralsByStat
              * retrieve all referrals by status, given the global secondary index, as well as the status to be queried by
              *
              * Limit of 1 MB per paginated response data (in our case 5,700 items). An average size for an Item is about 133 bytes, which means that we won't
-             * need to do pagination here, since we actually retrieve all users in a looped format, and we account for
+             * need to do pagination here, since we actually retrieve all referrals in a looped format, and we account for
              * paginated responses.
              *
              * @link {https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.Pagination.html}

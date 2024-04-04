@@ -76,7 +76,10 @@ export const ServicePartnerDetails = ({navigation}: ServicePartnerDetailsProps) 
                     style={styles.topCurvedView}/>
                 <View style={styles.topCurvedViewContent}>
                     <Image
-                        style={styles.brandLogo}
+                        style={[styles.brandLogo, servicePartner!.name === `Chimney Trail Foundation` && {
+                            width: hp(17),
+                            height: hp(22)
+                        }]}
                         // @ts-ignore
                         source={{uri: servicePartner!.logoUrl!}}
                         placeholder={MoonbeamPlaceholderImage}
@@ -92,7 +95,11 @@ export const ServicePartnerDetails = ({navigation}: ServicePartnerDetailsProps) 
                               color={'#F2FF5D'}
                               style={{alignSelf: 'center'}}
                         />
-                        <Text style={styles.topCurvedViewLogoText}>{`${servicePartner!.city}, ${servicePartner!.state}`}</Text>
+                        <Text style={styles.topCurvedViewLogoText}>{
+                            servicePartner!.isOnline
+                                ? `Online`
+                                : `${servicePartner!.city}, ${servicePartner!.state}`
+                        }</Text>
                     </View>
                 </View>
             </View>
@@ -148,29 +155,43 @@ export const ServicePartnerDetails = ({navigation}: ServicePartnerDetailsProps) 
                                 {servicePartner!.description!}
                             </Text>
                         </View>
-                        <View style={styles.partnerContentAboutSectionView}>
-                            <Text
-                                numberOfLines={1}
-                                style={styles.partnerContentSectionTitle}>
-                                Address
-                            </Text>
-                            <Text
-                                numberOfLines={2}
-                                style={styles.partnerContentSectionContent}>
-                                {`${servicePartner!.addressLine!}, ${servicePartner!.city!}, ${servicePartner!.state!}, ${servicePartner!.zipCode!}`}
-                            </Text>
-                        </View>
+                        {
+                            !servicePartner!.isOnline &&
+                            <View style={styles.partnerContentAboutSectionView}>
+                                <Text
+                                    numberOfLines={1}
+                                    style={styles.partnerContentSectionTitle}>
+                                    Address
+                                </Text>
+                                <Text
+                                    numberOfLines={2}
+                                    style={styles.partnerContentSectionContent}>
+                                    {servicePartner!.isOnline
+                                        ? `Online Only`
+                                        : `${servicePartner!.addressLine!}, ${servicePartner!.city!}, ${servicePartner!.state!}, ${servicePartner!.zipCode!}`
+                                    }
+                                </Text>
+                            </View>
+                        }
                         <View style={styles.partnerContentAboutSectionView}>
                             <Text
                                 numberOfLines={1}
                                 style={styles.partnerContentSectionTitle}>
                                 Contact
                             </Text>
-                            <Text
-                                numberOfLines={2}
-                                style={styles.partnerContentSectionContent}>
-                                {`${servicePartner!.website!}`}
-                            </Text>
+                            {
+                                servicePartner!.email !== undefined && servicePartner!.email!.length !== 0 &&
+                                <Text
+                                    numberOfLines={2}
+                                    style={styles.partnerContentSectionContent}>
+                                    {`${servicePartner!.email!}`}
+                                </Text>
+                            }
+                            {/*<Text*/}
+                            {/*    numberOfLines={2}*/}
+                            {/*    style={styles.partnerContentSectionContent}>*/}
+                            {/*    {`${servicePartner!.website!}`}*/}
+                            {/*</Text>*/}
                         </View>
                     </>
                 }

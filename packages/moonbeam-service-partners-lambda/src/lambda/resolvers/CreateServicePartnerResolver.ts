@@ -159,7 +159,17 @@ export const createServicePartner = async (fieldName: string, createPartnerInput
                         },
                         services: {
                             L: services
-                        }
+                        },
+                        ...(createPartnerInput.email && {
+                            email: {
+                                S: createPartnerInput.email!
+                            }
+                        }),
+                        ...(createPartnerInput.phoneNumber && {
+                            phoneNumber: {
+                                S: createPartnerInput.phoneNumber!
+                            }
+                        }),
                     }
                 }));
 

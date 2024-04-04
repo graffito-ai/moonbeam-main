@@ -209,6 +209,12 @@ export type CreateFaqInput = {
   updatedAt?: InputMaybe<Scalars['AWSDateTime']>;
 };
 
+export type CreateLocationBasedOfferReminderInput = {
+  expoPushToken: Array<InputMaybe<Scalars['String']>>;
+  latitude: Scalars['String'];
+  longitude: Scalars['String'];
+};
+
 export type CreateLogEventInput = {
   logLevel: LoggingLevel;
   message: Scalars['String'];
@@ -282,10 +288,12 @@ export type CreatePartnerInput = {
   city: Scalars['String'];
   createdAt?: InputMaybe<Scalars['AWSDateTime']>;
   description: Scalars['String'];
+  email?: InputMaybe<Scalars['String']>;
   id?: InputMaybe<Scalars['ID']>;
   isOnline: Scalars['Boolean'];
   logoUrl?: InputMaybe<Scalars['String']>;
   name: Scalars['String'];
+  phoneNumber?: InputMaybe<Scalars['String']>;
   services: Array<InputMaybe<ServiceInput>>;
   shortDescription: Scalars['String'];
   state: Scalars['String'];
@@ -598,6 +606,18 @@ export type GetMilitaryVerificationResponse = {
   errorType?: Maybe<MilitaryVerificationErrorType>;
 };
 
+export type GetNotificationByTypeInput = {
+  endDate: Scalars['AWSDateTime'];
+  type: NotificationType;
+};
+
+export type GetNotificationByTypeResponse = {
+  __typename?: 'GetNotificationByTypeResponse';
+  data?: Maybe<Array<Maybe<Notification>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<NotificationsErrorType>;
+};
+
 export type GetOffersInput = {
   availability: OfferAvailability;
   brandName?: InputMaybe<Scalars['String']>;
@@ -670,6 +690,13 @@ export type Location = {
   __typename?: 'Location';
   latitude: Scalars['Float'];
   longitude: Scalars['Float'];
+};
+
+export type LocationBasedOfferReminderResponse = {
+  __typename?: 'LocationBasedOfferReminderResponse';
+  data?: Maybe<NotificationStatus>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<NotificationsErrorType>;
 };
 
 export type LocationPredictionType = {
@@ -963,6 +990,7 @@ export type MoonbeamUpdatedTransactionResponse = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  acknowledgeLocationUpdate: LocationBasedOfferReminderResponse;
   addCard: CardLinkResponse;
   createAppReview: AppReviewResponse;
   createCardLink: CardLinkResponse;
@@ -987,6 +1015,11 @@ export type Mutation = {
   updateReferral: ReferralResponse;
   updateTransaction: MoonbeamUpdatedTransactionResponse;
   updateUserAuthSession: UserAuthSessionResponse;
+};
+
+
+export type MutationAcknowledgeLocationUpdateArgs = {
+  createLocationBasedOfferReminderInput: CreateLocationBasedOfferReminderInput;
 };
 
 
@@ -1177,6 +1210,7 @@ export enum NotificationReminderStatus {
 export enum NotificationReminderType {
   CardLinkingReminder = 'CARD_LINKING_REMINDER',
   FeedbackTemplate_1Reminder = 'FEEDBACK_TEMPLATE_1_REMINDER',
+  LocationBasedOfferReminder = 'LOCATION_BASED_OFFER_REMINDER',
   MultipleCardFeatureReminder = 'MULTIPLE_CARD_FEATURE_REMINDER',
   NewMapFeatureReminder = 'NEW_MAP_FEATURE_REMINDER',
   ReferralTemplate_1Reminder = 'REFERRAL_TEMPLATE_1_REMINDER',
@@ -1207,6 +1241,7 @@ export enum NotificationType {
   ExpirationLinkedCardNotice = 'EXPIRATION_LINKED_CARD_NOTICE',
   ExpiredLinkedCard = 'EXPIRED_LINKED_CARD',
   FeedbackTemplate_1Reminder = 'FEEDBACK_TEMPLATE_1_REMINDER',
+  LocationBasedOfferReminder = 'LOCATION_BASED_OFFER_REMINDER',
   MarketingRelated = 'MARKETING_RELATED',
   MilitaryStatusChangedPendingToRejected = 'MILITARY_STATUS_CHANGED_PENDING_TO_REJECTED',
   MilitaryStatusChangedPendingToVerified = 'MILITARY_STATUS_CHANGED_PENDING_TO_VERIFIED',
@@ -1392,10 +1427,12 @@ export type Partner = {
   city: Scalars['String'];
   createdAt: Scalars['AWSDateTime'];
   description: Scalars['String'];
+  email?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   isOnline: Scalars['Boolean'];
   logoUrl: Scalars['String'];
   name: Scalars['String'];
+  phoneNumber?: Maybe<Scalars['String']>;
   services: Array<Maybe<Service>>;
   shortDescription: Scalars['String'];
   state: Scalars['String'];
@@ -1460,6 +1497,7 @@ export type Query = {
   getLocationPredictions: GetLocationPredictionsResponse;
   getMilitaryVerificationInformation: MilitaryVerificationReportingInformationResponse;
   getMilitaryVerificationStatus: GetMilitaryVerificationResponse;
+  getNotificationByType?: Maybe<GetNotificationByTypeResponse>;
   getNotificationReminders: NotificationReminderResponse;
   getOffers: OffersResponse;
   getPremierOffers: OffersResponse;
@@ -1525,6 +1563,11 @@ export type QueryGetMilitaryVerificationInformationArgs = {
 
 export type QueryGetMilitaryVerificationStatusArgs = {
   getMilitaryVerificationInput: GetMilitaryVerificationInput;
+};
+
+
+export type QueryGetNotificationByTypeArgs = {
+  getNotificationByTypeInput: GetNotificationByTypeInput;
 };
 
 
@@ -2042,6 +2085,13 @@ export enum UtilitiesErrorType {
   ValidationError = 'VALIDATION_ERROR'
 }
 
+export type AcknowledgeLocationUpdateMutationVariables = Exact<{
+  createLocationBasedOfferReminderInput: CreateLocationBasedOfferReminderInput;
+}>;
+
+
+export type AcknowledgeLocationUpdateMutation = { __typename?: 'Mutation', acknowledgeLocationUpdate: { __typename?: 'LocationBasedOfferReminderResponse', errorMessage?: string | null, errorType?: NotificationsErrorType | null, data?: NotificationStatus | null } };
+
 export type CreateEventSeriesMutationVariables = Exact<{
   createEventSeriesInput: CreateEventSeriesInput;
 }>;
@@ -2054,7 +2104,7 @@ export type CreateServicePartnerMutationVariables = Exact<{
 }>;
 
 
-export type CreateServicePartnerMutation = { __typename?: 'Mutation', createServicePartner: { __typename?: 'PartnerResponse', errorMessage?: string | null, errorType?: ServicesErrorType | null, data?: Array<{ __typename?: 'Partner', id: string, status: ServicePartnerStatus, createdAt: string, updatedAt: string, name: string, shortDescription: string, description: string, isOnline: boolean, logoUrl: string, addressLine: string, city: string, state: string, zipCode: string, website: string, services: Array<{ __typename?: 'Service', title: string, description: string } | null> } | null> | null } };
+export type CreateServicePartnerMutation = { __typename?: 'Mutation', createServicePartner: { __typename?: 'PartnerResponse', errorMessage?: string | null, errorType?: ServicesErrorType | null, data?: Array<{ __typename?: 'Partner', id: string, status: ServicePartnerStatus, createdAt: string, updatedAt: string, name: string, shortDescription: string, description: string, isOnline: boolean, logoUrl: string, addressLine: string, city: string, state: string, zipCode: string, website: string, email?: string | null, phoneNumber?: string | null, services: Array<{ __typename?: 'Service', title: string, description: string } | null> } | null> | null } };
 
 export type CreateReimbursementMutationVariables = Exact<{
   createReimbursementInput: CreateReimbursementInput;
@@ -2210,6 +2260,13 @@ export type UpdateMilitaryVerificationStatusMutationVariables = Exact<{
 
 export type UpdateMilitaryVerificationStatusMutation = { __typename?: 'Mutation', updateMilitaryVerificationStatus: { __typename?: 'UpdateMilitaryVerificationResponse', errorType?: MilitaryVerificationErrorType | null, errorMessage?: string | null, id?: string | null, militaryVerificationStatus?: MilitaryVerificationStatusType | null } };
 
+export type GetNotificationByTypeQueryVariables = Exact<{
+  getNotificationByTypeInput: GetNotificationByTypeInput;
+}>;
+
+
+export type GetNotificationByTypeQuery = { __typename?: 'Query', getNotificationByType?: { __typename?: 'GetNotificationByTypeResponse', errorMessage?: string | null, errorType?: NotificationsErrorType | null, data?: Array<{ __typename?: 'Notification', id: string, timestamp: number, notificationId: string, emailDestination?: string | null, userFullName?: string | null, type: NotificationType, channelType: NotificationChannelType, status: NotificationStatus, expoPushTokens?: Array<string | null> | null, pendingCashback?: number | null, merchantName?: string | null, actionUrl?: string | null, createdAt: string, updatedAt: string } | null> | null } | null };
+
 export type GetReimbursementsQueryVariables = Exact<{
   getReimbursementsInput: GetReimbursementsInput;
 }>;
@@ -2308,7 +2365,7 @@ export type GetEventSeriesQuery = { __typename?: 'Query', getEventSeries: { __ty
 export type GetServicePartnersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetServicePartnersQuery = { __typename?: 'Query', getServicePartners: { __typename?: 'PartnerResponse', errorMessage?: string | null, errorType?: ServicesErrorType | null, data?: Array<{ __typename?: 'Partner', id: string, status: ServicePartnerStatus, createdAt: string, updatedAt: string, name: string, shortDescription: string, description: string, isOnline: boolean, logoUrl: string, addressLine: string, city: string, state: string, zipCode: string, website: string, services: Array<{ __typename?: 'Service', title: string, description: string } | null> } | null> | null } };
+export type GetServicePartnersQuery = { __typename?: 'Query', getServicePartners: { __typename?: 'PartnerResponse', errorMessage?: string | null, errorType?: ServicesErrorType | null, data?: Array<{ __typename?: 'Partner', id: string, status: ServicePartnerStatus, createdAt: string, updatedAt: string, name: string, shortDescription: string, description: string, isOnline: boolean, logoUrl: string, addressLine: string, city: string, state: string, zipCode: string, website: string, email?: string | null, phoneNumber?: string | null, services: Array<{ __typename?: 'Service', title: string, description: string } | null> } | null> | null } };
 
 export type GetFidelisPartnersQueryVariables = Exact<{ [key: string]: never; }>;
 

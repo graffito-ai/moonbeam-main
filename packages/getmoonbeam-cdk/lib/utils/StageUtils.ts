@@ -31,6 +31,7 @@ import {ReimbursementsResolverStack} from "../stacks/ReimbursementsResolverStack
 import {ScriptsResolverStack} from "../stacks/ScriptsResolverStack";
 import {ServicesResolverStack} from "../stacks/ServicesResolverStack";
 import {EventsResolverStack} from "../stacks/EventsResolverStack";
+import {LocationBasedReminderProducerConsumerStack} from "../stacks/LocationBasedReminderProducerConsumerStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -360,6 +361,20 @@ export class StageUtils {
                     environmentVariables: stageConfiguration.environmentVariables
                 });
                 referralProducerConsumerStack.addDependency(appSyncStack);
+
+                // create the Location Based Reminder Producer Consumer stack && add it to the CDK app
+                const locationBasedReminderProducerConsumerStack = new LocationBasedReminderProducerConsumerStack(this.app, `moonbeam-location-based-reminder-producer-consumer-${stageKey}`,
+                    amplifyStack.authenticatedRole, amplifyStack.unauthenticatedRole, {
+                        stackName: `moonbeam-location-based-reminder-producer-consumer-${stageKey}`,
+                        description: 'This stack will contain all the AppSync related resources needed for the location based reminder consumers, as well as producers',
+                        env: stageEnv,
+                        stage: stageConfiguration.stage,
+                        graphqlApiId: appSyncStack.graphqlApiId,
+                        graphqlApiName: stageConfiguration.appSyncConfig.graphqlApiName,
+                        locationBasedReminderProducerConsumerConfig: stageConfiguration.locationBasedReminderProducerConsumerConfig,
+                        environmentVariables: stageConfiguration.environmentVariables
+                    });
+                locationBasedReminderProducerConsumerStack.addDependency(appSyncStack);
 
                 // create the Referral resolver stack && add it to the CDK app
                 const referralResolverStack = new ReferralResolverStack(this.app, `moonbeam-referral-resolver-${stageKey}`, {

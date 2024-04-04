@@ -1,5 +1,27 @@
 # graphql/Queries.graphql
 # Queries Schema File
+query GetNotificationByType($getNotificationByTypeInput: GetNotificationByTypeInput!) {
+    getNotificationByType(getNotificationByTypeInput: $getNotificationByTypeInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            timestamp
+            notificationId
+            emailDestination
+            userFullName
+            type
+            channelType
+            status
+            expoPushTokens
+            pendingCashback
+            merchantName
+            actionUrl
+            createdAt
+            updatedAt
+        }
+    }
+}
 query GetReimbursements($getReimbursementsInput: GetReimbursementsInput!) {
     getReimbursements(getReimbursementsInput: $getReimbursementsInput) {
         errorMessage
@@ -262,6 +284,8 @@ query GetServicePartners {
                 title
                 description
             }
+            email
+            phoneNumber
         }
     }
 }

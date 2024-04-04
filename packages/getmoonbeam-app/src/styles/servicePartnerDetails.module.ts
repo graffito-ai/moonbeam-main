@@ -126,6 +126,7 @@ export const styles = StyleSheet.create({
         textAlign: 'left',
         alignSelf: 'flex-start',
         left: wp(7),
-        width: wp(90)
+        width: wp(90),
+        marginBottom: hp(1)
     },
 });

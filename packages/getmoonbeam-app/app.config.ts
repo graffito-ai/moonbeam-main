@@ -10,7 +10,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
     name: "Moonbeam Finance",
     owner: "moonbeamfin",
     slug: "moonbeam-app",
-    version: "0.0.22",
+    version: "0.0.23",
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "dark",
@@ -34,10 +34,11 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         backgroundColor: "#313030"
     },
     ios: {
-        buildNumber: "2",
+        buildNumber: "1",
         bundleIdentifier: process.env.IOS_BUNDLE_IDENTIFIER,
         supportsTablet: false,
         infoPlist: {
+            "UIBackgroundModes": ["location", "fetch", "remote-notification"],
             "NSFaceIDUsageDescription": "$(PRODUCT_NAME) will access and use Face ID, in order to allow you to easily authenticate, either for the purposes of accessing your account, or for various protected account-related functionalities. Please note that Moonbeam will not store any of your biometric information.",
             "NSUserTrackingUsageDescription": "$(PRODUCT_NAME) will collect data, such as your Precise Location and Physical Address, that can be used for tracking you or your device. This data, will enable us to provide you with more personalized military offers.",
             "NSContactsUsageDescription": "$(PRODUCT_NAME) will access your contacts, in order to automatically add our support information in your list of contacts, for ease of access. Please note that Moonbeam will not store any of your contact information.",
@@ -54,7 +55,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         }
     },
     android: {
-        versionCode: 39,
+        versionCode: 40,
         package: process.env.ANDROID_PACKAGE,
         googleServicesFile: process.env.GOOGLE_SERVICES_JSON,
         softwareKeyboardLayoutMode: "pan",
@@ -128,10 +129,11 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         [
             "expo-location",
             {
+                "locationAlwaysPermission": "$(PRODUCT_NAME) will always have access to your location, in order to provide you with accurate military offers nearby. Please note that any location information will be stored according to our Privacy Policy and Terms and Conditions, which are presented during account registration, and can also be accessed in the Documents section of our app.",
                 "locationAlwaysAndWhenInUsePermission": "$(PRODUCT_NAME) will always have access to your location, in order to provide you with accurate military offers nearby. Please note that any location information will be stored according to our Privacy Policy and Terms and Conditions, which are presented during account registration, and can also be accessed in the Documents section of our app.",
                 "locationWhenInUsePermission": "$(PRODUCT_NAME) will access your location while using the app, in order to provide you with accurate military offers nearby. Please note that any location information will be stored according to our Privacy Policy and Terms and Conditions, which are presented during account registration, and can also be accessed in the Documents section of our app.",
-                "isIosBackgroundLocationEnabled": false,
-                "isAndroidBackgroundLocationEnabled": false
+                "isIosBackgroundLocationEnabled": true,
+                "isAndroidBackgroundLocationEnabled": true
             }
         ],
         [

@@ -235,16 +235,21 @@ export const EventSeriesDetails = ({navigation}: EventSeriesDetailsProps) => {
                                     color={'#F2FF5D'}
                                     orientation={'vertical'}
                                 />
-                                <View style={styles.calendarEventDetailsText}>
+                                <View style={(calendarEvent!.externalEventID! === '764059140457' || calendarEvent!.externalEventID! === '863060756957')
+                                    ? styles.calendarEventDetailsTextBottom
+                                    : styles.calendarEventDetailsText}>
                                     <Text
                                         numberOfLines={1}
                                         style={styles.calendarEventDetailTextTop}>
                                         {`${eventSeries.name}`}
                                     </Text>
                                     <Text
-                                        numberOfLines={1}
+                                        numberOfLines={2}
                                         style={styles.calendarEventDetailTextBottom}>
-                                        {"Online"}
+                                        {(calendarEvent!.externalEventID! === '764059140457' || calendarEvent!.externalEventID! === '863060756957')
+                                            ? "1801 North Hampton Road DeSoto, TX 75115"
+                                            : "Online"
+                                        }
                                     </Text>
                                 </View>
                             </View>

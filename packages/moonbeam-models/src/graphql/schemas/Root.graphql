@@ -32,9 +32,11 @@ type Query {
     getAppReviewEligibility(getAppReviewEligibilityInput: GetAppReviewEligibilityInput!): GetAppReviewEligibilityResponse! @aws_cognito_user_pools
     getLocationPredictions(getLocationPredictionsInput: GetLocationPredictionsInput!): GetLocationPredictionsResponse! @aws_cognito_user_pools @aws_iam
     getReimbursements(getReimbursementsInput: GetReimbursementsInput!): ReimbursementResponse! @aws_cognito_user_pools
+    getNotificationByType(getNotificationByTypeInput: GetNotificationByTypeInput!): GetNotificationByTypeResponse @aws_cognito_user_pools @aws_api_key
 }
 
 type Mutation {
+    acknowledgeLocationUpdate(createLocationBasedOfferReminderInput: CreateLocationBasedOfferReminderInput!): LocationBasedOfferReminderResponse! @aws_cognito_user_pools @aws_iam
     createEventSeries(createEventSeriesInput: CreateEventSeriesInput!): EventSeriesResponse! @aws_cognito_user_pools @aws_api_key
     createServicePartner(createPartnerInput: CreatePartnerInput!): PartnerResponse! @aws_cognito_user_pools
     updateCard(updateCardInput: UpdateCardInput!): EligibleLinkedUsersResponse! @aws_cognito_user_pools @aws_api_key

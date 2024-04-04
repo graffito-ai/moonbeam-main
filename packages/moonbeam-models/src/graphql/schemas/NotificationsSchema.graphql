@@ -29,6 +29,7 @@ enum NotificationType {
     MULTIPLE_CARD_FEATURE_REMINDER
     SPOUSE_FEATURE_REMINDER
     FEEDBACK_TEMPLATE_1_REMINDER
+    LOCATION_BASED_OFFER_REMINDER
 }
 
 enum NotificationChannelType {
@@ -103,9 +104,32 @@ type CreateNotificationResponse @aws_cognito_user_pools @aws_api_key {
     errorMessage: String
 }
 
+type GetNotificationByTypeResponse @aws_cognito_user_pools @aws_api_key {
+    data: [Notification]
+    errorType: NotificationsErrorType
+    errorMessage: String
+}
+
 # this input is specific for sending email notifications and will be used outside of any AppSync related queries and/or mutations
 type EmailFromCognitoResponse @aws_cognito_user_pools @aws_api_key {
     data: String
     errorType: NotificationsErrorType
     errorMessage: String
+}
+
+type LocationBasedOfferReminderResponse @aws_cognito_user_pools @aws_iam {
+    data: NotificationStatus
+    errorType: NotificationsErrorType
+    errorMessage: String
+}
+
+input CreateLocationBasedOfferReminderInput {
+    expoPushToken: [String]!
+    latitude: String!
+    longitude: String!
+}
+
+input GetNotificationByTypeInput {
+    type: NotificationType!
+    endDate: AWSDateTime! ## the start time to filter notifications for
 }

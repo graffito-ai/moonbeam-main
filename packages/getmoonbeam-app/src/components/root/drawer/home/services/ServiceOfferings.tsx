@@ -120,11 +120,15 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
      * @return a {@link React.JSX.Element} or an {@link Array} of {@link React.JSX.Element} representing the
      * React node and/or nodes containing Service Partner data.
      */
-    const renderServicePartnerData = useMemo(() => (_type: string | number, data: Partner): React.JSX.Element | React.JSX.Element[] => {
+    const renderServicePartnerData = useMemo(() => (_type: string | number, data: Partner, index: number): React.JSX.Element | React.JSX.Element[] => {
         // return the service partner data or an appropriate message instead
         if (sortedServicePartners !== undefined && sortedServicePartners !== null && sortedServicePartners.length !== 0) {
             return (
-                <View style={styles.servicePartnerCardItemView}>
+                <View style={[
+                    styles.servicePartnerCardItemView,
+                    index !== 0 && {marginLeft: wp(2)},
+                    index === sortedServicePartners.length - 1 &&  {marginRight: wp(5)}
+                ]}>
                     <View style={{flexDirection: 'column'}}>
                         <View style={{flexDirection: 'row'}}>
                             <Text style={styles.servicePartnerCardTitle}>
@@ -375,7 +379,7 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
                             <Text style={styles.mainTitle}>
                                 {"Discover\n"}
                                 <Text style={styles.mainSubtitle}>
-                                    Organizations and Events for military service members and family!
+                                    Organizations and Events for the Military Community!
                                 </Text>
                             </Text>
                             <ExpoImage
@@ -496,7 +500,7 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
                         <View
                             style={{top: hp(2)}}>
                             <View style={{flexDirection: 'column'}}>
-                                <Text style={styles.sectionTextBottom}>Veteran Service Organizations</Text>
+                                <Text style={styles.sectionTextBottom}>Veteran Non-Profit Organizations</Text>
                             </View>
                             <RecyclerListView
                                 // @ts-ignore
@@ -617,8 +621,7 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
                                         <View
                                             style={sortedUpcomingEvents.length > 0 ? {bottom: hp(3)} : {top: hp(2)}}>
                                             <View style={{flexDirection: 'column'}}>
-                                                <Text style={styles.sectionTextBottom}>Veteran Service
-                                                    Organizations</Text>
+                                                <Text style={styles.sectionTextBottom}>Veteran Non-Profit Organizations</Text>
                                             </View>
                                             <View
                                                 style={styles.noElementsAllView}>
@@ -642,8 +645,7 @@ export const ServiceOfferings = ({navigation}: ServiceOfferingsProps) => {
                                         <View
                                             style={sortedUpcomingEvents.length > 0 ? {bottom: hp(3)} : {top: hp(2)}}>
                                             <View style={{flexDirection: 'column'}}>
-                                                <Text style={styles.sectionTextBottom}>Veteran Service
-                                                    Organizations</Text>
+                                                <Text style={styles.sectionTextBottom}>Veteran Non-Profit Organizations</Text>
                                             </View>
                                             <RecyclerListView
                                                 // @ts-ignore

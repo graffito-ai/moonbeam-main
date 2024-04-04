@@ -6,7 +6,7 @@ import {
     AppSyncConfiguration,
     AppUpgradeConfiguration,
     CardLinkingConfiguration, EventsConfiguration,
-    FAQConfiguration,
+    FAQConfiguration, LocationBasedReminderProducerConsumerConfiguration,
     LoggingConfiguration,
     MilitaryVerificationConfiguration,
     MilitaryVerificationProducerConsumerConfiguration,
@@ -45,6 +45,7 @@ export interface StageConfiguration {
     readonly referralProducerConsumerConfig: ReferralProducerConsumerConfiguration;
     readonly transactionsProducerConsumerConfig: TransactionsProducerConsumerConfiguration;
     readonly militaryVerificationProducerConsumerConfig: MilitaryVerificationProducerConsumerConfiguration;
+    readonly locationBasedReminderProducerConsumerConfig: LocationBasedReminderProducerConsumerConfiguration;
     readonly militaryVerificationReportingProducerConsumerConfig: MilitaryVerificationReportingProducerConsumerConfiguration;
     readonly updatedTransactionsProducerConsumerConfig: UpdatedTransactionsProducerConsumerConfiguration;
     readonly transactionsConfig: TransactionsConfiguration;

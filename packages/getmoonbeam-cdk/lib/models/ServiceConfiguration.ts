@@ -270,6 +270,29 @@ export interface MilitaryVerificationProducerConsumerConfiguration {
 }
 
 /**
+ * Interface used to define the configuration for the location-based notification fan-out pattern, composed
+ * of an event-based process, driven by SNS and SQS, used for location-based notification updates.
+ */
+export interface LocationBasedReminderFanOutConfiguration {
+    readonly locationBasedReminderProcessingTopicName: string;
+    readonly locationBasedReminderProcessingQueueName: string;
+    readonly locationBasedReminderProcessingDLQName: string;
+    readonly locationBasedReminderProcessingTopicDLQName: string;
+    readonly locationBasedReminderProcessingEventSourceMapping: string;
+}
+
+/**
+ * Interface used to define all the resources for the producer and consumers, taking advantage
+ * of the async location updates data, used for location-based notification updates.
+ */
+export interface LocationBasedReminderProducerConsumerConfiguration {
+    readonly locationBasedReminderProducerFunctionName: string;
+    readonly acknowledgeLocationUpdateResolverName: string;
+    readonly locationBasedReminderConsumerFunctionName: string;
+    readonly locationBasedReminderFanOutConfig: LocationBasedReminderFanOutConfiguration;
+}
+
+/**
  * Interface used to define the configuration for the military verifications-related fan-out pattern, composed
  * of an event-based process, driven by SNS and SQS, used for military verification reporting.
  */
@@ -314,10 +337,12 @@ export interface TransactionsConfiguration {
 export interface NotificationsConfiguration {
     readonly notificationsFunctionName: string;
     readonly createNotificationResolverName: string;
+    readonly getNotificationByTypeResolverName: string;
     readonly notificationsTableName: string;
     readonly notificationsChannelTypeLocalIndex: string;
     readonly notificationsTypeLocalIndex: string;
     readonly notificationsStatusLocalIndex: string;
+    readonly notificationsTypeAndTimeGlobalIndex: string;
 }
 
 /**

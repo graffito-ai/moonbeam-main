@@ -119,7 +119,7 @@ export const styles = StyleSheet.create({
     },
     servicesPhoto: {
         top: hp(3.5),
-        right: wp(7),
+        right: wp(3.5),
         height: hp(18),
         width: wp(40),
         alignSelf: 'center'
@@ -130,7 +130,7 @@ export const styles = StyleSheet.create({
         alignSelf: 'flex-start',
         fontSize: hp(4.5),
         fontFamily: 'Saira-SemiBold',
-        width: wp(70),
+        width: wp(65),
         color: '#FFFFFF',
     },
     mainSubtitle: {
@@ -215,7 +215,7 @@ export const styles = StyleSheet.create({
     },
     servicePartnerCardItemView: {
         alignSelf: 'center',
-        width: wp(95),
+        width: wp(93),
         height: hp(27),
         top: hp(2),
         backgroundColor: '#5B5A5A',

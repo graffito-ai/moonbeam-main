@@ -112,6 +112,13 @@ export const styles = StyleSheet.create({
         width: wp(74),
         flexDirection: 'column'
     },
+    calendarEventDetailsTextBottom: {
+        bottom: hp(0.5),
+        left: wp(11.5),
+        height: hp(7.5),
+        width: wp(74),
+        flexDirection: 'column'
+    },
     eventOccurrencesView: {
         top: hp(11),
         height: hp(20),

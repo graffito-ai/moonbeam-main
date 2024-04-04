@@ -2,26 +2,34 @@ import {
     CountryCode,
     createAppReview,
     createDevice,
+    CreateLocationBasedOfferReminderInput,
     createLogEvent,
     createNotification,
     CreateNotificationInput,
     createReferral,
+    createReimbursement,
+    CreateReimbursementInput,
     createUserAuthSession,
+    EventSeries,
     FidelisPartner,
     geoCodeAsync,
     getAppReviewEligibility,
     getAppUpgradeCredentials,
     getDeviceByToken,
+    getEventSeries,
     getFidelisPartners,
+    getLocationPredictions,
     GetLocationPredictionsResponse,
     getOffers,
     getPremierOffers,
+    getReimbursements,
     getSeasonalOffers,
+    getServicePartners,
     getUserAuthSession,
     getUserCardLinkingId,
     getUserFromReferral,
+    acknowledgeLocationUpdate,
     LocationPredictionType,
-    getLocationPredictions,
     LoggingLevel,
     MarketingCampaignCode,
     MilitaryVerificationErrorType,
@@ -33,11 +41,13 @@ import {
     OfferState,
     OfferStore,
     OsType,
+    Partner,
     PushDevice,
     RedemptionType,
     Referral,
     ReferralErrorType,
     ReferralResponse,
+    Reimbursement,
     searchOffers,
     Stages,
     updateDevice,
@@ -46,14 +56,7 @@ import {
     UserAuthSessionErrorType,
     UserAuthSessionResponse,
     UserDeviceErrorType,
-    UserDeviceState,
-    Reimbursement,
-    getReimbursements,
-    CreateReimbursementInput,
-    createReimbursement,
-    EventSeries,
-    getEventSeries,
-    Partner, getServicePartners
+    UserDeviceState
 } from "@moonbeam/moonbeam-models";
 import {API, Cache, graphqlOperation} from "aws-amplify";
 import {dynamicSort} from "./Main";
@@ -123,6 +126,53 @@ export const geocodeAsync = async (address: string, osType: OsType): Promise<Loc
         return results;
     }
 }
+
+/**
+ * Function used to trigger the location-updated acknowledgment.
+ *
+ * @param createLocationBasedOfferReminderInput the input used to create a reimbursement.
+ *
+ * @returns a {@link Promise} of a {@link Boolean} representing whether the new location
+ * update was acknowledged or not.
+ */
+export const triggerLocationUpdateAcknowledgment = async (createLocationBasedOfferReminderInput: CreateLocationBasedOfferReminderInput): Promise<boolean> => {
+    try {
+        // call the acknowledgeLocationUpdate API to acknowledge the location update
+        const locationUpdateAcknowledgementResult = await API.graphql({
+            query: acknowledgeLocationUpdate,
+            variables: {
+                createLocationBasedOfferReminderInput: createLocationBasedOfferReminderInput
+            },
+            authMode: 'AWS_IAM'
+        });
+
+        // retrieve the data block from the response
+        // @ts-ignore
+        const locationUpdateAcknowledgment = locationUpdateAcknowledgementResult ? locationUpdateAcknowledgementResult.data : null;
+
+        if (locationUpdateAcknowledgment && locationUpdateAcknowledgment.acknowledgeLocationUpdate.errorMessage === null &&
+            locationUpdateAcknowledgment.acknowledgeLocationUpdate.data !== undefined && locationUpdateAcknowledgment.acknowledgeLocationUpdate.data !== null &&
+            locationUpdateAcknowledgment.acknowledgeLocationUpdate.data.length !== 0) {
+            // return the flag to highlight the successful location update acknowledgment
+            return true;
+        } else {
+            // log an error and return an appropriate flag to highlight the failed location update acknowledgment
+            const message = `Error while executing the create reimbursement mutation ${locationUpdateAcknowledgment.acknowledgeLocationUpdate.errorMessage}`;
+            console.log(message);
+            await logEvent(message, LoggingLevel.Error, false);
+
+            return false;
+        }
+    } catch (error) {
+        // log an error and return an appropriate flag to highlight the failed location update acknowledgment
+        const message = `Unexpected error while executing the acknowledge location update mutation for: ${createLocationBasedOfferReminderInput.expoPushToken}, ${JSON.stringify(error)} ${error}`;
+        console.log(message);
+        await logEvent(message, LoggingLevel.Error, false);
+
+        return false;
+    }
+}
+
 
 /**
  * Function used to retrieve the list of pre-existing reimbursements for a user.

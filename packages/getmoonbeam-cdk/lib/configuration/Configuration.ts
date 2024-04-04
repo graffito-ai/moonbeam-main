@@ -131,6 +131,18 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     updatedTransactionalOffersProcessingEventSourceMapping: 'updateTransactionalOffersProcessingEventSourceMapping'
                 }
             },
+            locationBasedReminderProducerConsumerConfig: {
+                locationBasedReminderProducerFunctionName: 'locationBasedReminderProducerFunction',
+                locationBasedReminderConsumerFunctionName: 'locationBasedReminderConsumerFunction',
+                acknowledgeLocationUpdateResolverName: 'acknowledgeLocationUpdate',
+                locationBasedReminderFanOutConfig: {
+                    locationBasedReminderProcessingTopicName: 'locationBasedReminderProcessingTopic',
+                    locationBasedReminderProcessingTopicDLQName: 'locationBasedReminderProcessingTopicDLQ',
+                    locationBasedReminderProcessingQueueName: 'locationBasedReminderProcessingQueue',
+                    locationBasedReminderProcessingDLQName: 'locationBasedReminderProcessingDLQ',
+                    locationBasedReminderProcessingEventSourceMapping: 'locationBasedReminderProcessingEventSourceMapping'
+                }
+            },
             transactionsConfig: {
                 transactionsFunctionName: 'transactionsLambdaFunction',
                 transactionsTableName: 'transactionsTable',
@@ -145,9 +157,11 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 notificationsFunctionName: 'notificationsLambdaFunction',
                 notificationsTableName: 'notificationsTable',
                 createNotificationResolverName: 'createNotification',
+                getNotificationByTypeResolverName: 'getNotificationByType',
                 notificationsChannelTypeLocalIndex: 'notificationsChannelTypeLocalIndex',
                 notificationsTypeLocalIndex: 'notificationsTypeLocalIndex',
-                notificationsStatusLocalIndex: 'notificationsStatusLocalIndex'
+                notificationsStatusLocalIndex: 'notificationsStatusLocalIndex',
+                notificationsTypeAndTimeGlobalIndex: 'notificationsTypeAndTimeGlobalIndex'
             },
             physicalDevicesConfig: {
                 devicesFunctionName: 'devicesLambdaFunction',
@@ -386,6 +400,18 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     updatedTransactionalOffersProcessingEventSourceMapping: 'updateTransactionalOffersProcessingEventSourceMapping'
                 }
             },
+            locationBasedReminderProducerConsumerConfig: {
+                locationBasedReminderProducerFunctionName: 'locationBasedReminderProducerFunction',
+                locationBasedReminderConsumerFunctionName: 'locationBasedReminderConsumerFunction',
+                acknowledgeLocationUpdateResolverName: 'acknowledgeLocationUpdate',
+                locationBasedReminderFanOutConfig: {
+                    locationBasedReminderProcessingTopicName: 'locationBasedReminderProcessingTopic',
+                    locationBasedReminderProcessingTopicDLQName: 'locationBasedReminderProcessingTopicDLQ',
+                    locationBasedReminderProcessingQueueName: 'locationBasedReminderProcessingQueue',
+                    locationBasedReminderProcessingDLQName: 'locationBasedReminderProcessingDLQ',
+                    locationBasedReminderProcessingEventSourceMapping: 'locationBasedReminderProcessingEventSourceMapping'
+                }
+            },
             notificationReminderProducerConsumerConfig: {
                 notificationReminderProducerFunctionName: 'notificationReminderProducerLambdaFunction',
                 notificationReminderConsumerFunctionName: 'notificationReminderConsumerLambdaFunction',
@@ -412,9 +438,11 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 notificationsFunctionName: 'notificationsLambdaFunction',
                 notificationsTableName: 'notificationsTable',
                 createNotificationResolverName: 'createNotification',
+                getNotificationByTypeResolverName: 'getNotificationByType',
                 notificationsChannelTypeLocalIndex: 'notificationsChannelTypeLocalIndex',
                 notificationsTypeLocalIndex: 'notificationsTypeLocalIndex',
-                notificationsStatusLocalIndex: 'notificationsStatusLocalIndex'
+                notificationsStatusLocalIndex: 'notificationsStatusLocalIndex',
+                notificationsTypeAndTimeGlobalIndex: 'notificationsTypeAndTimeGlobalIndex'
             },
             physicalDevicesConfig: {
                 devicesFunctionName: 'devicesLambdaFunction',

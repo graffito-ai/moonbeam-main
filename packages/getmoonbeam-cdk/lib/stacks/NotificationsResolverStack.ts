@@ -61,6 +61,10 @@ export class NotificationsResolverStack extends Stack {
             typeName: "Mutation",
             fieldName: `${props.notificationsConfig.createNotificationResolverName}`
         });
+        notificationsLambdaSource.createResolver(`${props.notificationsConfig.getNotificationByTypeResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Query",
+            fieldName: `${props.notificationsConfig.getNotificationByTypeResolverName}`
+        });
 
         // create a new table to be used for Notifications purposes
         const notificationsTable = new aws_dynamodb.Table(this, `${props.notificationsConfig.notificationsTableName}-${props.stage}-${props.env!.region}`, {
@@ -122,6 +126,23 @@ export class NotificationsResolverStack extends Stack {
                 type: aws_dynamodb.AttributeType.STRING
             }
         });
+        /**
+         * creates a global secondary index for the table, so we can retrieve notifications, sorted by their creation date,
+         * given their type
+         * {@link https://www.dynamodbguide.com/key-concepts/}
+         * {@link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html}
+         */
+        notificationsTable.addGlobalSecondaryIndex({
+            indexName: `${props.notificationsConfig.notificationsTypeAndTimeGlobalIndex}-${props.stage}-${props.env!.region}`,
+            partitionKey: {
+                name: 'type',
+                type: aws_dynamodb.AttributeType.STRING
+            },
+            sortKey: {
+                name: 'createdAt',
+                type: aws_dynamodb.AttributeType.STRING
+            }
+        });
 
         // enable the Lambda function to access the DynamoDB table (using IAM)
         notificationsTable.grantFullAccess(notificationsLambda);
@@ -143,7 +164,8 @@ export class NotificationsResolverStack extends Stack {
                         `${notificationsTable.tableArn}`,
                         `${notificationsTable.tableArn}/index/${props.notificationsConfig.notificationsChannelTypeLocalIndex}-${props.stage}-${props.env!.region}`,
                         `${notificationsTable.tableArn}/index/${props.notificationsConfig.notificationsStatusLocalIndex}-${props.stage}-${props.env!.region}`,
-                        `${notificationsTable.tableArn}/index/${props.notificationsConfig.notificationsTypeLocalIndex}-${props.stage}-${props.env!.region}`
+                        `${notificationsTable.tableArn}/index/${props.notificationsConfig.notificationsTypeLocalIndex}-${props.stage}-${props.env!.region}`,
+                        `${notificationsTable.tableArn}/index/${props.notificationsConfig.notificationsTypeAndTimeGlobalIndex}-${props.stage}-${props.env!.region}`,
                     ]
                 }
             )
@@ -168,6 +190,7 @@ export class NotificationsResolverStack extends Stack {
         notificationsLambda.addEnvironment(`${Constants.MoonbeamConstants.NOTIFICATIONS_CHANNEL_TYPE_LOCAL_INDEX}`, props.notificationsConfig.notificationsChannelTypeLocalIndex);
         notificationsLambda.addEnvironment(`${Constants.MoonbeamConstants.NOTIFICATIONS_TYPE_LOCAL_INDEX}`, props.notificationsConfig.notificationsTypeLocalIndex);
         notificationsLambda.addEnvironment(`${Constants.MoonbeamConstants.NOTIFICATIONS_STATUS_LOCAL_INDEX}`, props.notificationsConfig.notificationsStatusLocalIndex);
+        notificationsLambda.addEnvironment(`${Constants.MoonbeamConstants.NOTIFICATIONS_TYPE_AND_TIME_GLOBAL_INDEX}`, props.notificationsConfig.notificationsTypeAndTimeGlobalIndex);
         notificationsLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
     }
 }

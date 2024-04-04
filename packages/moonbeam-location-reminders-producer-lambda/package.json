@@ -1,10 +1,10 @@
 {
-  "name": "@moonbeam/moonbeam-military-verification-notification-producer-lambda",
+  "name": "@moonbeam/moonbeam-location-reminders-producer-lambda",
   "version": "1.0.0",
-  "description": "This sub-package represents the Lambda function, used for webhook military verification updates related purposes, acting as the acknowledgment service, or producer.",
+  "description": "This sub-package represents the Lambda function, used for Location Based updates related purposes, as a producer/acknowledgement service.",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
-  "repository": "https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/packages/moonbeam-military-verification-notification-producer-lambda/package.json/browse",
+  "repository": "https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/packages/moonbeam-location-reminders-producer-lambda/package.json/browse",
   "author": "Marius Acsinte <marius@moonbeam.vet>",
   "license": "Moonbeam Inc. Proprietary Code License <https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/LICENSE/browse>",
   "scripts": {
@@ -16,7 +16,9 @@
     "@aws-sdk/client-sns": "^3.363.0",
     "@moonbeam/moonbeam-models": "1.0.0",
     "@moonbeam/moonbeam-tsconfig": "1.0.0",
-    "@types/aws-lambda": "^8.10.119"
+    "@types/aws-lambda": "^8.10.119",
+    "uuid": "^9.0.0"
   },
   "private": true
 }
+

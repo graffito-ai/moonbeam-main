@@ -1,0 +1,22 @@
+{
+  "name": "@moonbeam/moonbeam-location-reminders-consumer-lambda",
+  "version": "1.0.0",
+  "description": "This sub-package represents the Lambda function, used for Location Based updates related purposes, as a consumer/processing service.",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "repository": "https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/packages/moonbeam-location-reminders-consumer-lambda/package.json/browse",
+  "author": "Marius Acsinte <marius@moonbeam.vet>",
+  "license": "Moonbeam Inc. Proprietary Code License <https://codecatalyst.aws/spaces/Moonbeam/projects/MoonbeamApp/source-repositories/moonbeam-main/commits/refs/heads/main/--/LICENSE/browse>",
+  "scripts": {
+    "build": "rm -rf ./lib && tsc",
+    "clean": "rm -rf build/ lib/ node_modules/"
+  },
+  "dependencies": {
+    "@aws-sdk/types": "^3.272.0",
+    "@moonbeam/moonbeam-models": "*",
+    "@moonbeam/moonbeam-tsconfig": "*",
+    "@types/aws-lambda": "^8.10.119",
+    "uuid": "^9.0.0"
+  },
+  "private": true
+}

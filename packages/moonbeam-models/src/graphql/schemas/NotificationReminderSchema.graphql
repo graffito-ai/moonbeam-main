@@ -20,6 +20,7 @@ enum NotificationReminderType {
     MULTIPLE_CARD_FEATURE_REMINDER
     SPOUSE_FEATURE_REMINDER
     FEEDBACK_TEMPLATE_1_REMINDER
+    LOCATION_BASED_OFFER_REMINDER
 }
 
 enum NotificationReminderStatus {

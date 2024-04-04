@@ -94,7 +94,13 @@ export const getServicePartners = async (fieldName: string): Promise<PartnerResp
                     state: partnerResult.state.S!,
                     updatedAt: partnerResult.updatedAt.S!,
                     website: partnerResult.website.S!,
-                    zipCode: partnerResult.zipCode.S!
+                    zipCode: partnerResult.zipCode.S!,
+                    ...(partnerResult.email && partnerResult.email.S! && {
+                        email: partnerResult.email.S!
+                    }),
+                    ...(partnerResult.phoneNumber && partnerResult.phoneNumber.S! && {
+                        phoneNumber: partnerResult.phoneNumber.S!
+                    }),
                 };
                 partnerData.push(servicePartner);
             });
