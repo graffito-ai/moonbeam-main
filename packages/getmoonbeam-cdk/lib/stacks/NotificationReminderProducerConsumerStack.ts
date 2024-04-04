@@ -63,10 +63,15 @@ export class NotificationReminderProducerConsumerStack extends Stack {
             ruleName: `${props.notificationReminderProducerConsumerConfig.notificationReminderCronRuleName}-${props.stage}-${props.env!.region}`,
             description: "Schedule the Notification Reminder Trigger Lambda which initiates the notification reminder Lambda/process daily, at 6:30PM UTC",
             // set the CRON timezone to the UTC time to match 6:30 PM UTC, 11:30 AM MST
+            // schedule: Schedule.cron({
+            //     day: '*',
+            //     minute: '30',
+            //     hour: '18'
+            // }),
             schedule: Schedule.cron({
                 day: '*',
-                minute: '30',
-                hour: '18'
+                minute: '13',
+                hour: '23'
             }),
             targets: [new LambdaFunction(this.notificationReminderProducerLambda, {
                 event: events.RuleTargetInput.fromObject({

@@ -9,11 +9,13 @@ import {styles} from "../../../../../../styles/referral.module";
 import {Image} from 'expo-image';
 // @ts-ignore
 import MoonbeamContentReferral from "../../../../../../../assets/art/moonbeam-referral-gifts.png";
+// @ts-ignore
+import MoonbeamContentSAReferral from "../../../../../../../assets/art/moonbeam-content-sa-referral.png";
 import {currentUserInformation, userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 import * as crc32 from 'crc-32';
 import {branchRootUniversalObjectState} from "../../../../../../recoil/BranchAtom";
 import * as envInfo from "../../../../../../../local-env-info.json";
-import {LoggingLevel, MarketingCampaignCode} from "@moonbeam/moonbeam-models";
+import {LoggingLevel, MarketingCampaignCode, ZipCodesByGeo} from "@moonbeam/moonbeam-models";
 import * as Clipboard from 'expo-clipboard';
 import {logEvent} from "../../../../../../utils/AppSync";
 
@@ -29,6 +31,8 @@ export const Referral = ({navigation}: ReferralProps) => {
     const [userReferralLink, setUserReferralLink] = useState<string>("");
     const [nextDrawingDate, setNextDrawingDate] = useState<string>("");
     const [userReferralCode, setUserReferralCode] = useState<string>("");
+    const [isSanAntonioPromo, setIsSanAntonioPromo] = useState<boolean>(false);
+    const [isSanAntonioPromoChecked, setIsSanAntonioPromoChecked] = useState<boolean>(false);
     // constants used to keep track of shared states
     const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
     const [,setDrawerInDashboard] = useRecoilState(drawerDashboardState);
@@ -45,32 +49,62 @@ export const Referral = ({navigation}: ReferralProps) => {
      * included in here.
      */
     useEffect(() => {
-        // generate the next drawing date
-        nextDrawingDate.length === 0 && getNextDrawingDate();
+        // check whether we are showing our San Antonio promotion or not
+        if (!isSanAntonioPromoChecked) {
+            setIsSanAntonioPromoChecked(true);
+            setIsSanAntonioPromo(checkIfSanAntonioPromo());
+        }
+        // only execute this once we know whether a user is eligible for the SA promo or not
+        if (isSanAntonioPromoChecked) {
+            // generate the next drawing date
+            nextDrawingDate.length === 0 && getNextDrawingDate();
 
-        // generate the referral link for the user
-        campaignMarketingCode !== "" && (userReferralLink === undefined || userReferralLink.length === 0) &&
-        generateUserReferralLink(campaignMarketingCode).then(referralLink => {
-            setUserReferralLink(referralLink);
-        });
+            // generate the referral link for the user
+            campaignMarketingCode !== "" && (userReferralLink === undefined || userReferralLink.length === 0) &&
+            generateUserReferralLink(campaignMarketingCode).then(referralLink => {
+                setUserReferralLink(referralLink);
+            });
 
-        // generate a referral code that will be appended everywhere in the referral links and will be used to track the user during the referral process
-        (userReferralCode === undefined || userReferralCode.length === 0) &&
-        setUserReferralCode(
-            crc32.str(userInformation["custom:userId"]).toString().includes('-')
-                ? `${userInformation["family_name"].toUpperCase()}-${userInformation["given_name"].charAt(0).toUpperCase()}-${crc32.str(userInformation["custom:userId"]).toString().split('-')[1]}`
-                : `${userInformation["family_name"].toUpperCase()}-${userInformation["given_name"].charAt(0).toUpperCase()}-${crc32.str(userInformation["custom:userId"]).toString()}`
-        );
+            // generate a referral code that will be appended everywhere in the referral links and will be used to track the user during the referral process
+            (userReferralCode === undefined || userReferralCode.length === 0) &&
+            setUserReferralCode(
+                crc32.str(userInformation["custom:userId"]).toString().includes('-')
+                    ? `${userInformation["family_name"].toUpperCase()}-${userInformation["given_name"].charAt(0).toUpperCase()}-${crc32.str(userInformation["custom:userId"]).toString().split('-')[1]}`
+                    : `${userInformation["family_name"].toUpperCase()}-${userInformation["given_name"].charAt(0).toUpperCase()}-${crc32.str(userInformation["custom:userId"]).toString()}`
+            );
+        }
 
         // do not show the app drawer, and disable and swipe-based navigation for screen
         if (navigation.getState().index === 4) {
             appDrawerHeaderShown && setAppDrawerHeaderShown(false);
             drawerSwipeEnabled && setDrawerSwipeEnabled(false);
         }
-    }, [campaignMarketingCode, nextDrawingDate, userReferralCode, userReferralLink,
-        appDrawerHeaderShown, drawerSwipeEnabled, navigation.getState()
+    }, [
+        campaignMarketingCode, nextDrawingDate, userReferralCode, userReferralLink,
+        appDrawerHeaderShown, drawerSwipeEnabled, navigation.getState(),
+        isSanAntonioPromoChecked
     ]);
 
+    /**
+     * Function used to check whether the current user is eligible for the San Antonio
+     * promotion by checking whether their zip code matches the geolocation that we're
+     * looking for.
+     *
+     * @returns a {@link Boolean} flag representing whether the user is eligible for this
+     * promotion or not.
+     *
+     */
+    const checkIfSanAntonioPromo = (): boolean => {
+        let isEligible: boolean = false;
+        if (userInformation["address"] && userInformation["address"]["formatted"]) {
+            ZipCodesByGeo.get("San Antonio")!.forEach(zipCode => {
+                if (zipCode !== null && userInformation["address"]["formatted"].includes(zipCode)) {
+                    isEligible = true;
+                }
+            });
+        }
+        return isEligible;
+    }
 
     /**
      * Function used to get the next date for our raffle drawing
@@ -138,13 +172,13 @@ export const Referral = ({navigation}: ReferralProps) => {
                  * of each referral code, since we rely on the referralCode from the tags instead, and that will always be the same.
                  */
                 alias: `${userInformation["family_name"].toUpperCase()}-${userInformation["given_name"].charAt(0).toUpperCase()}-${Date.parse(new Date().toISOString())}`,
-                campaign: campaignMarketingCode,
+                campaign: isSanAntonioPromo ? "SANANTONIOREF1" : campaignMarketingCode,
                 feature: 'referrals',
                 channel: `in-app`,
                 stage: envInfo.envName,
                 tags: [
                     `${referralCode}`,
-                    campaignMarketingCode
+                    isSanAntonioPromo ? "SANANTONIOREF1" : campaignMarketingCode
                 ]
             });
 
@@ -185,20 +219,32 @@ export const Referral = ({navigation}: ReferralProps) => {
                 <View style={styles.contentView}>
                     <Image
                         style={styles.referralMainImage}
-                        source={MoonbeamContentReferral}
+                        source={isSanAntonioPromo ? MoonbeamContentSAReferral : MoonbeamContentReferral}
                         placeholderContentFit={'contain'}
                         contentFit={'contain'}
                         cachePolicy={'memory-disk'}
                     />
                     <View style={styles.referralContentMessageView}>
                         <Text style={styles.referralContentMessageTitle}>
-                            {"Win a $100\nAmazon Gift Card"}
+                            {
+                                isSanAntonioPromo ?
+                                    "Receive $5\n for every San Antonio referral"
+                                    : "Win a $100\nAmazon Gift Card"
+                            }
                         </Text>
-                        <Text style={styles.referralContentMessageTitleValidity}>
-                            {`Next drawing on ${nextDrawingDate}`}
-                        </Text>
+                        {
+                            !isSanAntonioPromo &&
+                            <Text style={styles.referralContentMessageTitleValidity}>
+                                {`Next drawing on ${nextDrawingDate}`}
+                            </Text>
+                        }
                         <Text style={styles.referralContentMessageSubtitle}>
-                            {"Share your member code with your friends. Once they sign up for an account and link a card, you will both earn a chance at winning a $100 gift card.\n\n"}
+                            {
+                                isSanAntonioPromo
+                                    ? "Share your member code with your San Antonio friends. Once they sign up for an account and link a card, you will earn $5 in Moonbeam credit.\n\n"
+                                    : "Share your member code with your friends. Once they sign up for an account and link a card, you will both earn a chance at winning a $100 gift card.\n\n"
+                            }
+
                         </Text>
                     </View>
                     {
