@@ -195,6 +195,18 @@ query GetAllUsersForNotificationReminders {
         }
     }
 }
+query GetUsersByGeographyForNotificationReminders($getUsersByGeographicalLocationInput: GetUsersByGeographicalLocationInput!) {
+    getUsersByGeographyForNotificationReminders(getUsersByGeographicalLocationInput: $getUsersByGeographicalLocationInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            email
+            firstName
+            lastName
+        }
+    }
+}
 query GeoCodeAsync($geocodeAsyncInput: GeocodeAsyncInput!) {
     geoCodeAsync(geocodeAsyncInput: $geocodeAsyncInput) {
         errorMessage

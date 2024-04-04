@@ -406,6 +406,7 @@ export interface NotificationReminderConfiguration {
     readonly notificationReminderTableName: string;
     readonly createNotificationReminderResolverName: string;
     readonly getNotificationRemindersResolverName: string;
+    readonly getUsersByGeographyForNotificationRemindersResolverName: string;
     readonly updateNotificationReminderResolverName: string;
     readonly getAllUsersForNotificationRemindersResolverName: string;
 }

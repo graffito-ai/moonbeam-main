@@ -18,7 +18,7 @@ import {
     GetTransactionByStatusInput,
     GetTransactionInput,
     GetUserCardLinkingIdInput,
-    GetUserCardLinkingIdResponse,
+    GetUserCardLinkingIdResponse, GetUsersByGeographicalLocationInput,
     IneligibleLinkedUsersResponse,
     MemberDetailsResponse,
     MemberResponse,
@@ -521,15 +521,14 @@ export abstract class BaseAPIClient {
      * Function used to get all the users used to deliver notification reminders to,
      * sorted by a particular location.
      *
-     * @param city city for the users to be sorted by
-     * @param state state for the users to be sorted by
+     * @param getUsersByGeographicalLocationInput the geolocation input that we filter users by
      *
      * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
      * user ID, first, last name and email, sorted by a particular location (city & state combination).
      *
      * @protected
      */
-    protected getUsersByGeographyForNotificationReminders?(city: string, state: string): Promise<UserForNotificationReminderResponse>;
+    protected getUsersByGeographyForNotificationReminders?(getUsersByGeographicalLocationInput :GetUsersByGeographicalLocationInput): Promise<UserForNotificationReminderResponse>;
 
     /**
      * Function used to get a user's email, given certain filters to be passed in.

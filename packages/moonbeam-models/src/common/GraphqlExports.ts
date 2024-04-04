@@ -679,6 +679,10 @@ export type GetUserCardLinkingIdResponse = {
   errorType?: Maybe<CardLinkErrorType>;
 };
 
+export type GetUsersByGeographicalLocationInput = {
+  zipCodes: Array<InputMaybe<Scalars['String']>>;
+};
+
 export type IneligibleLinkedUsersResponse = {
   __typename?: 'IneligibleLinkedUsersResponse';
   data?: Maybe<Array<Maybe<RetrieveUserDetailsForNotifications>>>;
@@ -1513,6 +1517,7 @@ export type Query = {
   getUserAuthSession: UserAuthSessionResponse;
   getUserCardLinkingId: GetUserCardLinkingIdResponse;
   getUserFromReferral: UserFromReferralResponse;
+  getUsersByGeographyForNotificationReminders: UserForNotificationReminderResponse;
   getUsersWithNoCards: IneligibleLinkedUsersResponse;
   searchOffers: OffersResponse;
 };
@@ -1625,6 +1630,11 @@ export type QueryGetUserCardLinkingIdArgs = {
 
 export type QueryGetUserFromReferralArgs = {
   userFromReferralInput: UserFromReferralInput;
+};
+
+
+export type QueryGetUsersByGeographyForNotificationRemindersArgs = {
+  getUsersByGeographicalLocationInput: GetUsersByGeographicalLocationInput;
 };
 
 
@@ -2346,6 +2356,13 @@ export type GetAllUsersForNotificationRemindersQueryVariables = Exact<{ [key: st
 
 
 export type GetAllUsersForNotificationRemindersQuery = { __typename?: 'Query', getAllUsersForNotificationReminders: { __typename?: 'UserForNotificationReminderResponse', errorMessage?: string | null, errorType?: NotificationReminderErrorType | null, data?: Array<{ __typename?: 'RetrieveUserDetailsForNotifications', id: string, email: string, firstName: string, lastName: string } | null> | null } };
+
+export type GetUsersByGeographyForNotificationRemindersQueryVariables = Exact<{
+  getUsersByGeographicalLocationInput: GetUsersByGeographicalLocationInput;
+}>;
+
+
+export type GetUsersByGeographyForNotificationRemindersQuery = { __typename?: 'Query', getUsersByGeographyForNotificationReminders: { __typename?: 'UserForNotificationReminderResponse', errorMessage?: string | null, errorType?: NotificationReminderErrorType | null, data?: Array<{ __typename?: 'RetrieveUserDetailsForNotifications', id: string, email: string, firstName: string, lastName: string } | null> | null } };
 
 export type GeoCodeAsyncQueryVariables = Exact<{
   geocodeAsyncInput: GeocodeAsyncInput;

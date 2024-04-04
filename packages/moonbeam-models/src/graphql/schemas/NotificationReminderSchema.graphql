@@ -93,4 +93,7 @@ input UpdateNotificationReminderInput {
     updatedAt: AWSDateTime
 }
 
+input GetUsersByGeographicalLocationInput {
+    zipCodes: [String]!
+}
 

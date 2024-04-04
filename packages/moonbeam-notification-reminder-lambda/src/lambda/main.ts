@@ -1,5 +1,5 @@
 import {
-    CreateNotificationReminderInput,
+    CreateNotificationReminderInput, GetUsersByGeographicalLocationInput,
     NotificationReminderErrorType,
     NotificationReminderResponse, UpdateNotificationReminderInput, UserForNotificationReminderResponse
 } from "@moonbeam/moonbeam-models";
@@ -7,6 +7,9 @@ import {createNotificationReminder} from "./resolvers/CreateNotificationReminder
 import { getAllUsersForNotificationReminders } from "./resolvers/GetAllUsersForNotificationRemindersResolver";
 import {getNotificationReminders} from "./resolvers/GetNotificationReminderResolver";
 import { updateNotificationReminder } from "./resolvers/UpdateNotificationReminderResolver";
+import {
+    getUsersByGeographyForNotificationReminders
+} from "./resolvers/GetUsersByGeographyForNotificationRemindersResolver";
 
 /**
  * Mapping out the App Sync event type, so we can use it as a type in the Lambda Handler
@@ -17,7 +20,8 @@ type AppSyncEvent = {
     },
     arguments: {
         createNotificationReminderInput: CreateNotificationReminderInput
-        updateNotificationReminderInput: UpdateNotificationReminderInput
+        updateNotificationReminderInput: UpdateNotificationReminderInput,
+        getUsersByGeographicalLocationInput: GetUsersByGeographicalLocationInput
     },
     identity: {
         sub: string;
@@ -39,6 +43,8 @@ exports.handler = async (event: AppSyncEvent): Promise<NotificationReminderRespo
             return await getNotificationReminders(event.info.fieldName);
         case 'getAllUsersForNotificationReminders':
             return await getAllUsersForNotificationReminders(event.info.fieldName);
+        case 'getUsersByGeographyForNotificationReminders':
+            return await getUsersByGeographyForNotificationReminders(event.info.fieldName, event.arguments.getUsersByGeographicalLocationInput);
         case "createNotificationReminder":
             return await createNotificationReminder(event.info.fieldName, event.arguments.createNotificationReminderInput);
         case "updateNotificationReminder":

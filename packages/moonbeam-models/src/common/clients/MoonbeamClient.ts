@@ -13,6 +13,7 @@ import {
     GetReferralsByStatusInput, GetStorageInput,
     GetTransactionByStatusInput,
     GetTransactionInput,
+    GetUsersByGeographicalLocationInput,
     IneligibleLinkedUsersResponse,
     MilitaryVerificationErrorType,
     MilitaryVerificationNotificationUpdate,
@@ -979,13 +980,12 @@ export class MoonbeamClient extends BaseAPIClient {
      * Function used to get all the users used to deliver notification reminders to,
      * sorted by a particular location.
      *
-     * @param city city for the users to be sorted by
-     * @param state state for the users to be sorted by
+     * @param getUsersByGeographicalLocationInput the geolocation input that we filter users by
      *
      * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
      * user ID, first, last name and email, sorted by a particular location (city & state combination).
      */
-    async getUsersByGeographyForNotificationReminders(city: string, state: string): Promise<UserForNotificationReminderResponse> {
+    async getUsersByGeographyForNotificationReminders(getUsersByGeographicalLocationInput: GetUsersByGeographicalLocationInput): Promise<UserForNotificationReminderResponse> {
         // easily identifiable API endpoint information
         const endpointInfo = '/listUsers for getUsersByGeographyForNotificationReminders Cognito SDK call';
 
@@ -1059,54 +1059,43 @@ export class MoonbeamClient extends BaseAPIClient {
                 // loop through the list of users obtained through command, and return their emails and custom user IDs
                 const userDetailsForNotificationReminder: RetrieveUserDetailsForNotifications[] = [];
                 userResults.forEach(cognitoUser => {
-                    console.log(`Retrieved new geolocation based cognito user with attributes: ${JSON.stringify(cognitoUser.Attributes)}`);
-
-                    if (cognitoUser.Attributes !== undefined && cognitoUser.Attributes!.length === 4 &&
+                    if (cognitoUser.Attributes !== undefined && cognitoUser.Attributes!.length === 5 &&
                         cognitoUser.Attributes![0] !== undefined && cognitoUser.Attributes![0].Value!.length !== 0 &&
                         cognitoUser.Attributes![1] !== undefined && cognitoUser.Attributes![1].Value!.length !== 0 &&
                         cognitoUser.Attributes![2] !== undefined && cognitoUser.Attributes![2].Value!.length !== 0 &&
                         cognitoUser.Attributes![3] !== undefined && cognitoUser.Attributes![3].Value!.length !== 0 &&
                         cognitoUser.Attributes![4] !== undefined && cognitoUser.Attributes![4].Value!.length !== 0) {
                         // make sure that the users retrieved are residing in the city and state provided in the input
-                        if (cognitoUser.Attributes![4].Value!.includes(city) && cognitoUser.Attributes![4].Value!.includes(state)) {
-                            // push the new user details in the user details array to be returned
-                            userDetailsForNotificationReminder.push({
-                                id: cognitoUser.Attributes![3].Value!,
-                                email: cognitoUser.Attributes![2].Value!,
-                                firstName: cognitoUser.Attributes![0].Value!,
-                                lastName: cognitoUser.Attributes![1].Value!,
-                            });
-                        }
+                        getUsersByGeographicalLocationInput.zipCodes.forEach(zipCode => {
+                            if (zipCode !== null && cognitoUser.Attributes![0].Value!.includes(zipCode)) {
+                                // push the new user details in the user details array to be returned
+                                userDetailsForNotificationReminder.push({
+                                    id: cognitoUser.Attributes![4].Value!,
+                                    email: cognitoUser.Attributes![3].Value!,
+                                    firstName: cognitoUser.Attributes![1].Value!,
+                                    lastName: cognitoUser.Attributes![2].Value!,
+                                });
+                            }
+                        });
                     }
                 });
-                // ensure that the size of the list of user details to be returned, matches the number of users retrieved through the List Users Command
-                if (userDetailsForNotificationReminder.length === userResults.length) {
-                    // return the results appropriately
-                    return {
-                        data: userDetailsForNotificationReminder
-                    }
-                } else {
-                    const errorMessage = `User detail list length does not match the retrieved user list`;
-                    console.log(`${errorMessage}`);
 
-                    return {
-                        data: null,
-                        errorType: NotificationReminderErrorType.ValidationError,
-                        errorMessage: errorMessage
-                    };
+                // return the user details results
+                return {
+                    data: userDetailsForNotificationReminder
                 }
             } else {
-                const errorMessage = `Invalid/Empty user list array, obtained while calling the get List Users Cognito command`;
+                const errorMessage = `Empty user list array, obtained while calling the get List Users Cognito command`;
                 console.log(`${errorMessage}`);
 
                 return {
-                    data: null,
-                    errorType: NotificationReminderErrorType.ValidationError,
+                    data: [],
+                    errorType: NotificationReminderErrorType.NoneOrAbsent,
                     errorMessage: errorMessage
                 };
             }
         } catch (err) {
-            const errorMessage = `Unexpected error while retrieving users by their custom location ${city}, ${state} from Cognito through ${endpointInfo}`;
+            const errorMessage = `Unexpected error while retrieving users by their custom location ${JSON.stringify(getUsersByGeographicalLocationInput.zipCodes)} from Cognito through ${endpointInfo}`;
             console.log(`${errorMessage} ${err}`);
 
             return {

@@ -251,6 +251,22 @@ export const getAllUsersForNotificationReminders = /* GraphQL */ `
     }
 `;
 
+// Query used to retrieve all Users for Notification Reminders sorted by a geographical location
+export const getUsersByGeographyForNotificationReminders = /* GraphQL */ `
+    query GetUsersByGeographyForNotificationReminders($getUsersByGeographicalLocationInput: GetUsersByGeographicalLocationInput!) {
+        getUsersByGeographyForNotificationReminders(getUsersByGeographicalLocationInput: $getUsersByGeographicalLocationInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                email
+                firstName
+                lastName
+            }
+        }
+    }
+`;
+
 // Query used to GeoCode and address using Google's APIs
 export const geoCodeAsync = /* GraphQL */ `
     query GeoCodeAsync($geocodeAsyncInput: GeocodeAsyncInput!) {
