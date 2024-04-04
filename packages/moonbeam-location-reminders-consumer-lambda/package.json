@@ -15,7 +15,8 @@
     "@aws-sdk/types": "^3.272.0",
     "@moonbeam/moonbeam-models": "*",
     "@moonbeam/moonbeam-tsconfig": "*",
-    "@types/aws-lambda": "^8.10.119"
+    "@types/aws-lambda": "^8.10.119",
+    "uuid": "^9.0.0"
   },
   "private": true
 }

@@ -12,7 +12,7 @@ import {
     GeocodeAsyncInput,
     GeocodeAsyncResponse,
     GetDevicesForUserInput, GetLocationPredictionsInput, GetLocationPredictionsResponse,
-    GetMilitaryVerificationInformationInput,
+    GetMilitaryVerificationInformationInput, GetNotificationByTypeInput, GetNotificationByTypeResponse,
     GetOffersInput,
     GetReferralsByStatusInput, GetStorageInput,
     GetTransactionByStatusInput,
@@ -159,6 +159,10 @@ export abstract class BaseAPIClient {
                                     return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
                                         clientPairAsJson[Constants.AWSPairConstants.NEW_QUALIFYING_OFFER_NOTIFICATION_AUTH_TOKEN],
                                         clientPairAsJson[Constants.AWSPairConstants.NEW_QUALIFYING_OFFER_NOTIFICATION_TEMPLATE_ID]];
+                                case NotificationType.LocationBasedOfferReminder:
+                                    return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                        clientPairAsJson[Constants.AWSPairConstants.PUSH_LOCATION_BASED_UPDATE_NOTIFICATION_AUTH_TOKEN],
+                                        clientPairAsJson[Constants.AWSPairConstants.PUSH_LOCATION_BASED_UPDATE_NOTIFICATION_TEMPLATE_ID]];
                                 case NotificationType.MilitaryStatusChangedPendingToRejected:
                                     if (channelType !== undefined) {
                                         return channelType === NotificationChannelType.Email
@@ -328,6 +332,18 @@ export abstract class BaseAPIClient {
             throw new Error(errorMessage);
         }
     }
+
+    /**
+     * Function used to get the notifications by their type, sorted by a particular date/time.
+     *
+     * @param getNotificationByTypeInput input passed in, which will be used in retrieving the notifications
+     * by type appropriately.
+     *
+     * @returns a {@link GetNotificationByTypeResponse}, representing the filtered notifications, if any applicable.
+     *
+     * @protected
+     */
+    protected getNotificationByType?(getNotificationByTypeInput: GetNotificationByTypeInput): Promise<GetNotificationByTypeResponse>;
 
     /**
      * Function used to create a new event series for a particular organization, by extracting

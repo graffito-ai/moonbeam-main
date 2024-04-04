@@ -3,9 +3,9 @@
  */
 
 // Mutation used to create a new notification based on an incoming location update
-export const createLocationBasedOfferReminder = /* GraphQL */ `
-    mutation CreateLocationBasedOfferReminder($createLocationBasedOfferReminderInput: CreateLocationBasedOfferReminderInput!) {
-        createLocationBasedOfferReminder(createLocationBasedOfferReminderInput: $createLocationBasedOfferReminderInput) {
+export const acknowledgeLocationUpdate = /* GraphQL */ `
+    mutation AcknowledgeLocationUpdate($createLocationBasedOfferReminderInput: CreateLocationBasedOfferReminderInput!) {
+        acknowledgeLocationUpdate(createLocationBasedOfferReminderInput: $createLocationBasedOfferReminderInput) {
             errorMessage
             errorType
             data

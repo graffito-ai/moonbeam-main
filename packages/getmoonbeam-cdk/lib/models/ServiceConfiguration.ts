@@ -337,10 +337,12 @@ export interface TransactionsConfiguration {
 export interface NotificationsConfiguration {
     readonly notificationsFunctionName: string;
     readonly createNotificationResolverName: string;
+    readonly getNotificationByTypeResolverName: string;
     readonly notificationsTableName: string;
     readonly notificationsChannelTypeLocalIndex: string;
     readonly notificationsTypeLocalIndex: string;
     readonly notificationsStatusLocalIndex: string;
+    readonly notificationsTypeAndTimeGlobalIndex: string;
 }
 
 /**

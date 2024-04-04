@@ -606,6 +606,18 @@ export type GetMilitaryVerificationResponse = {
   errorType?: Maybe<MilitaryVerificationErrorType>;
 };
 
+export type GetNotificationByTypeInput = {
+  endDate: Scalars['AWSDateTime'];
+  type: NotificationType;
+};
+
+export type GetNotificationByTypeResponse = {
+  __typename?: 'GetNotificationByTypeResponse';
+  data?: Maybe<Array<Maybe<Notification>>>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<NotificationsErrorType>;
+};
+
 export type GetOffersInput = {
   availability: OfferAvailability;
   brandName?: InputMaybe<Scalars['String']>;
@@ -978,13 +990,13 @@ export type MoonbeamUpdatedTransactionResponse = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  acknowledgeLocationUpdate: LocationBasedOfferReminderResponse;
   addCard: CardLinkResponse;
   createAppReview: AppReviewResponse;
   createCardLink: CardLinkResponse;
   createDevice: UserDeviceResponse;
   createEventSeries: EventSeriesResponse;
   createFAQ: FaqResponse;
-  createLocationBasedOfferReminder: LocationBasedOfferReminderResponse;
   createLogEvent: LoggingResponse;
   createMilitaryVerification: CreateMilitaryVerificationResponse;
   createNotification: CreateNotificationResponse;
@@ -1003,6 +1015,11 @@ export type Mutation = {
   updateReferral: ReferralResponse;
   updateTransaction: MoonbeamUpdatedTransactionResponse;
   updateUserAuthSession: UserAuthSessionResponse;
+};
+
+
+export type MutationAcknowledgeLocationUpdateArgs = {
+  createLocationBasedOfferReminderInput: CreateLocationBasedOfferReminderInput;
 };
 
 
@@ -1033,11 +1050,6 @@ export type MutationCreateEventSeriesArgs = {
 
 export type MutationCreateFaqArgs = {
   createFAQInput: CreateFaqInput;
-};
-
-
-export type MutationCreateLocationBasedOfferReminderArgs = {
-  createLocationBasedOfferReminderInput: CreateLocationBasedOfferReminderInput;
 };
 
 
@@ -1485,6 +1497,7 @@ export type Query = {
   getLocationPredictions: GetLocationPredictionsResponse;
   getMilitaryVerificationInformation: MilitaryVerificationReportingInformationResponse;
   getMilitaryVerificationStatus: GetMilitaryVerificationResponse;
+  getNotificationByType?: Maybe<GetNotificationByTypeResponse>;
   getNotificationReminders: NotificationReminderResponse;
   getOffers: OffersResponse;
   getPremierOffers: OffersResponse;
@@ -1550,6 +1563,11 @@ export type QueryGetMilitaryVerificationInformationArgs = {
 
 export type QueryGetMilitaryVerificationStatusArgs = {
   getMilitaryVerificationInput: GetMilitaryVerificationInput;
+};
+
+
+export type QueryGetNotificationByTypeArgs = {
+  getNotificationByTypeInput: GetNotificationByTypeInput;
 };
 
 
@@ -2067,12 +2085,12 @@ export enum UtilitiesErrorType {
   ValidationError = 'VALIDATION_ERROR'
 }
 
-export type CreateLocationBasedOfferReminderMutationVariables = Exact<{
+export type AcknowledgeLocationUpdateMutationVariables = Exact<{
   createLocationBasedOfferReminderInput: CreateLocationBasedOfferReminderInput;
 }>;
 
 
-export type CreateLocationBasedOfferReminderMutation = { __typename?: 'Mutation', createLocationBasedOfferReminder: { __typename?: 'LocationBasedOfferReminderResponse', errorMessage?: string | null, errorType?: NotificationsErrorType | null, data?: NotificationStatus | null } };
+export type AcknowledgeLocationUpdateMutation = { __typename?: 'Mutation', acknowledgeLocationUpdate: { __typename?: 'LocationBasedOfferReminderResponse', errorMessage?: string | null, errorType?: NotificationsErrorType | null, data?: NotificationStatus | null } };
 
 export type CreateEventSeriesMutationVariables = Exact<{
   createEventSeriesInput: CreateEventSeriesInput;
@@ -2241,6 +2259,13 @@ export type UpdateMilitaryVerificationStatusMutationVariables = Exact<{
 
 
 export type UpdateMilitaryVerificationStatusMutation = { __typename?: 'Mutation', updateMilitaryVerificationStatus: { __typename?: 'UpdateMilitaryVerificationResponse', errorType?: MilitaryVerificationErrorType | null, errorMessage?: string | null, id?: string | null, militaryVerificationStatus?: MilitaryVerificationStatusType | null } };
+
+export type GetNotificationByTypeQueryVariables = Exact<{
+  getNotificationByTypeInput: GetNotificationByTypeInput;
+}>;
+
+
+export type GetNotificationByTypeQuery = { __typename?: 'Query', getNotificationByType?: { __typename?: 'GetNotificationByTypeResponse', errorMessage?: string | null, errorType?: NotificationsErrorType | null, data?: Array<{ __typename?: 'Notification', id: string, timestamp: number, notificationId: string, emailDestination?: string | null, userFullName?: string | null, type: NotificationType, channelType: NotificationChannelType, status: NotificationStatus, expoPushTokens?: Array<string | null> | null, pendingCashback?: number | null, merchantName?: string | null, actionUrl?: string | null, createdAt: string, updatedAt: string } | null> | null } | null };
 
 export type GetReimbursementsQueryVariables = Exact<{
   getReimbursementsInput: GetReimbursementsInput;

@@ -31,7 +31,7 @@ type AppSyncEvent = {
 exports.handler = async (event: AppSyncEvent): Promise<LocationBasedOfferReminderResponse> => {
     console.log(`Received new location update event for operation [${event.info.fieldName}], with arguments ${JSON.stringify(event.arguments)}`);
     switch (event.info.fieldName) {
-        case "getReferralsByStatus":
+        case "acknowledgeLocationUpdate":
             return await acknowledgeLocationUpdate(event.info.fieldName, event.arguments.createLocationBasedOfferReminderInput);
         default:
             const errorMessage = `Unexpected field name: ${event.info.fieldName}`;

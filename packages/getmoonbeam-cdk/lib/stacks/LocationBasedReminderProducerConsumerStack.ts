@@ -147,6 +147,21 @@ export class LocationBasedReminderProducerConsumerStack extends Stack {
                 ]
             })
         );
+        // enable the Lambda function the retrieval of the Olive API secrets
+        this.locationBasedReminderConsumerLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "secretsmanager:GetSecretValue"
+                ],
+                resources: [
+                    // this ARN is retrieved post secret creation
+                    ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:olive-secret-pair-dev-us-west-2-OTgCOk"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:olive-secret-pair-prod-us-west-2-gIvRt8"] : []
+                ]
+            })
+        );
+
         // enable the Lambda function to access the AppSync mutations and queries
         this.locationBasedReminderConsumerLambda.addToRolePolicy(
             new PolicyStatement({

@@ -2,6 +2,32 @@
  * This is a file used to define the all GraphQL query constants
  */
 
+// Query used to retrieve notifications sorted by their creation date, given their type
+export const getNotificationByType = /* GraphQL */ `
+    query GetNotificationByType($getNotificationByTypeInput: GetNotificationByTypeInput!) {
+        getNotificationByType(getNotificationByTypeInput: $getNotificationByTypeInput) {
+            errorMessage
+            errorType
+            data {
+                id
+                timestamp
+                notificationId
+                emailDestination
+                userFullName
+                type
+                channelType
+                status
+                expoPushTokens
+                pendingCashback
+                merchantName
+                actionUrl
+                createdAt
+                updatedAt
+            }
+        }
+    }
+`;
+
 // Query used to retrieve the reimbursements for a particular user
 export const getReimbursements = /* GraphQL */ `
     query GetReimbursements($getReimbursementsInput: GetReimbursementsInput!) {

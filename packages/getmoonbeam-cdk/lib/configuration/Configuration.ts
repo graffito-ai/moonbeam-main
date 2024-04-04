@@ -134,7 +134,7 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             locationBasedReminderProducerConsumerConfig: {
                 locationBasedReminderProducerFunctionName: 'locationBasedReminderProducerFunction',
                 locationBasedReminderConsumerFunctionName: 'locationBasedReminderConsumerFunction',
-                acknowledgeLocationUpdateResolverName: 'acknowledgeLocationUpdateResolver',
+                acknowledgeLocationUpdateResolverName: 'acknowledgeLocationUpdate',
                 locationBasedReminderFanOutConfig: {
                     locationBasedReminderProcessingTopicName: 'locationBasedReminderProcessingTopic',
                     locationBasedReminderProcessingTopicDLQName: 'locationBasedReminderProcessingTopicDLQ',
@@ -157,9 +157,11 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 notificationsFunctionName: 'notificationsLambdaFunction',
                 notificationsTableName: 'notificationsTable',
                 createNotificationResolverName: 'createNotification',
+                getNotificationByTypeResolverName: 'getNotificationByType',
                 notificationsChannelTypeLocalIndex: 'notificationsChannelTypeLocalIndex',
                 notificationsTypeLocalIndex: 'notificationsTypeLocalIndex',
-                notificationsStatusLocalIndex: 'notificationsStatusLocalIndex'
+                notificationsStatusLocalIndex: 'notificationsStatusLocalIndex',
+                notificationsTypeAndTimeGlobalIndex: 'notificationsTypeAndTimeGlobalIndex'
             },
             physicalDevicesConfig: {
                 devicesFunctionName: 'devicesLambdaFunction',
@@ -401,7 +403,7 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
             locationBasedReminderProducerConsumerConfig: {
                 locationBasedReminderProducerFunctionName: 'locationBasedReminderProducerFunction',
                 locationBasedReminderConsumerFunctionName: 'locationBasedReminderConsumerFunction',
-                acknowledgeLocationUpdateResolverName: 'acknowledgeLocationUpdateResolver',
+                acknowledgeLocationUpdateResolverName: 'acknowledgeLocationUpdate',
                 locationBasedReminderFanOutConfig: {
                     locationBasedReminderProcessingTopicName: 'locationBasedReminderProcessingTopic',
                     locationBasedReminderProcessingTopicDLQName: 'locationBasedReminderProcessingTopicDLQ',
@@ -436,9 +438,11 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 notificationsFunctionName: 'notificationsLambdaFunction',
                 notificationsTableName: 'notificationsTable',
                 createNotificationResolverName: 'createNotification',
+                getNotificationByTypeResolverName: 'getNotificationByType',
                 notificationsChannelTypeLocalIndex: 'notificationsChannelTypeLocalIndex',
                 notificationsTypeLocalIndex: 'notificationsTypeLocalIndex',
-                notificationsStatusLocalIndex: 'notificationsStatusLocalIndex'
+                notificationsStatusLocalIndex: 'notificationsStatusLocalIndex',
+                notificationsTypeAndTimeGlobalIndex: 'notificationsTypeAndTimeGlobalIndex'
             },
             physicalDevicesConfig: {
                 devicesFunctionName: 'devicesLambdaFunction',

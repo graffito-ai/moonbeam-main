@@ -9,7 +9,7 @@ import {
     EligibleLinkedUsersResponse,
     EmailFromCognitoResponse, File,
     GetDevicesForUserInput,
-    GetMilitaryVerificationInformationInput,
+    GetMilitaryVerificationInformationInput, GetNotificationByTypeInput, GetNotificationByTypeResponse,
     GetReferralsByStatusInput, GetStorageInput,
     GetTransactionByStatusInput,
     GetTransactionInput,
@@ -64,7 +64,8 @@ import {
     getTransaction,
     getTransactionByStatus,
     getUsersWithNoCards,
-    getStorage
+    getStorage,
+    getNotificationByType
 } from "../../graphql/queries/Queries";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {
@@ -89,6 +90,131 @@ export class MoonbeamClient extends BaseAPIClient {
      */
     constructor(environment: string, region: string) {
         super(region, environment);
+    }
+
+    /**
+     * Function used to get the notifications by their type, sorted by a particular date/time.
+     *
+     * @param getNotificationByTypeInput input passed in, which will be used in retrieving the notifications
+     * by type appropriately.
+     *
+     * @returns a {@link GetNotificationByTypeResponse}, representing the filtered notifications, if any applicable.
+     */
+    async getNotificationByType(getNotificationByTypeInput: GetNotificationByTypeInput): Promise<GetNotificationByTypeResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'getNotificationByType Query Moonbeam GraphQL API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the storage file URL retrieval call through the client
+            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
+                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: NotificationsErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * getNotificationByType Query
+             *
+             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
+             * with the appropriate information.
+             *
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.post(`${moonbeamBaseURL}`, {
+                query: getNotificationByType,
+                variables: {
+                    getNotificationByTypeInput: getNotificationByTypeInput
+                }
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": moonbeamPrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
+            }).then(getNotificationByTypeResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(getNotificationByTypeResponse.data)}`);
+
+                // retrieve the data block from the response
+                const responseData = (getNotificationByTypeResponse && getNotificationByTypeResponse.data)
+                    ? getNotificationByTypeResponse.data.data
+                    : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.getNotificationByType.errorMessage === null) {
+                    // returned the successfully retrieved file URL from storage
+                    return {
+                        data: responseData.getNotificationByType.data as Notification[]
+                    }
+                } else {
+                    return responseData ?
+                        // return the error message and type, from the original AppSync call
+                        {
+                            errorMessage: responseData.getNotificationByType.errorMessage,
+                            errorType: responseData.getNotificationByType.errorType
+                        } :
+                        // return the error response indicating an invalid structure returned
+                        {
+                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                            errorType: NotificationsErrorType.ValidationError
+                        }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: NotificationsErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: NotificationsErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: NotificationsErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while retrieving notifications by type through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: NotificationsErrorType.UnexpectedError
+            };
+        }
     }
 
     /**
