@@ -976,8 +976,149 @@ export class MoonbeamClient extends BaseAPIClient {
     }
 
     /**
-     * Function used to get all the users used to delivered
-     * notification reminders to.
+     * Function used to get all the users used to deliver notification reminders to,
+     * sorted by a particular location.
+     *
+     * @param city city for the users to be sorted by
+     * @param state state for the users to be sorted by
+     *
+     * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
+     * user ID, first, last name and email, sorted by a particular location (city & state combination).
+     */
+    async getUsersByGeographyForNotificationReminders(city: string, state: string): Promise<UserForNotificationReminderResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = '/listUsers for getUsersByGeographyForNotificationReminders Cognito SDK call';
+
+        try {
+            // retrieve the Cognito access key, secret key and user pool id, needed in order to retrieve all users sorted by location, through the Cognito Identity provider client
+            const [cognitoAccessKeyId, cognitoSecretKey, cognitoUserPoolId] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME,
+                undefined,
+                undefined,
+                undefined,
+                true);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (cognitoAccessKeyId === null || cognitoAccessKeyId.length === 0 ||
+                cognitoSecretKey === null || cognitoSecretKey.length === 0 ||
+                cognitoUserPoolId === null || (cognitoUserPoolId && cognitoUserPoolId.length === 0)) {
+                const errorMessage = "Invalid Secrets obtained for Cognito SDK call call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: NotificationReminderErrorType.UnexpectedError
+                };
+            }
+
+            // initialize the Cognito Identity Provider client using the credentials obtained above
+            const cognitoIdentityProviderClient = new CognitoIdentityProviderClient({
+                region: this.region,
+                credentials: {
+                    accessKeyId: cognitoAccessKeyId,
+                    secretAccessKey: cognitoSecretKey
+                }
+            });
+
+            /**
+             * execute thew List Users command, without any filters, in order to retrieve a user's email, address
+             * and their custom user ID, from their attributes.
+             *
+             * These results are going to be paginated, so we will limit the page size to 60 users (maximum allowed through this
+             * call), and keep track of the number of pages and lack thereof, through a flag.
+             */
+            const userResults: UserType[] = [];
+            let lastPaginationToken: string | undefined;
+            let input: ListUsersCommandInput = {
+                UserPoolId: cognitoUserPoolId,
+                AttributesToGet: ['given_name', 'family_name', 'email', 'custom:userId', 'address'],
+                Limit: 60,
+            };
+            // keep getting users and updating the results array for users retrieved, until we run out of users to retrieve
+            do {
+                // execute the List Users command, given the input provided above
+                const listUsersResponse: ListUsersCommandOutput = await cognitoIdentityProviderClient.send(
+                    new ListUsersCommand(input)
+                );
+
+                /**
+                 * check whether the List Users Command has a valid response/ valid list of users to be returned,
+                 * and if so add in the resulting list accordingly.
+                 */
+                listUsersResponse.$metadata !== null && listUsersResponse.$metadata.httpStatusCode !== null &&
+                listUsersResponse.$metadata.httpStatusCode !== undefined && listUsersResponse.$metadata.httpStatusCode === 200 &&
+                listUsersResponse.Users !== null && listUsersResponse.Users !== undefined && listUsersResponse.Users!.length !== 0 &&
+                userResults.push(...listUsersResponse.Users);
+
+                // get the last pagination token from the retrieved output, and set the next input command's pagination token according to that
+                lastPaginationToken = listUsersResponse.PaginationToken;
+                input.PaginationToken = lastPaginationToken;
+            } while (typeof lastPaginationToken !== undefined && typeof lastPaginationToken !== 'undefined' && lastPaginationToken !== undefined);
+
+            // check for a valid response list, obtained from the Cognito List Users Command call
+            if (userResults.length !== 0) {
+                // loop through the list of users obtained through command, and return their emails and custom user IDs
+                const userDetailsForNotificationReminder: RetrieveUserDetailsForNotifications[] = [];
+                userResults.forEach(cognitoUser => {
+                    console.log(`Retrieved new geolocation based cognito user with attributes: ${JSON.stringify(cognitoUser.Attributes)}`);
+
+                    if (cognitoUser.Attributes !== undefined && cognitoUser.Attributes!.length === 4 &&
+                        cognitoUser.Attributes![0] !== undefined && cognitoUser.Attributes![0].Value!.length !== 0 &&
+                        cognitoUser.Attributes![1] !== undefined && cognitoUser.Attributes![1].Value!.length !== 0 &&
+                        cognitoUser.Attributes![2] !== undefined && cognitoUser.Attributes![2].Value!.length !== 0 &&
+                        cognitoUser.Attributes![3] !== undefined && cognitoUser.Attributes![3].Value!.length !== 0 &&
+                        cognitoUser.Attributes![4] !== undefined && cognitoUser.Attributes![4].Value!.length !== 0) {
+                        // make sure that the users retrieved are residing in the city and state provided in the input
+                        if (cognitoUser.Attributes![4].Value!.includes(city) && cognitoUser.Attributes![4].Value!.includes(state)) {
+                            // push the new user details in the user details array to be returned
+                            userDetailsForNotificationReminder.push({
+                                id: cognitoUser.Attributes![3].Value!,
+                                email: cognitoUser.Attributes![2].Value!,
+                                firstName: cognitoUser.Attributes![0].Value!,
+                                lastName: cognitoUser.Attributes![1].Value!,
+                            });
+                        }
+                    }
+                });
+                // ensure that the size of the list of user details to be returned, matches the number of users retrieved through the List Users Command
+                if (userDetailsForNotificationReminder.length === userResults.length) {
+                    // return the results appropriately
+                    return {
+                        data: userDetailsForNotificationReminder
+                    }
+                } else {
+                    const errorMessage = `User detail list length does not match the retrieved user list`;
+                    console.log(`${errorMessage}`);
+
+                    return {
+                        data: null,
+                        errorType: NotificationReminderErrorType.ValidationError,
+                        errorMessage: errorMessage
+                    };
+                }
+            } else {
+                const errorMessage = `Invalid/Empty user list array, obtained while calling the get List Users Cognito command`;
+                console.log(`${errorMessage}`);
+
+                return {
+                    data: null,
+                    errorType: NotificationReminderErrorType.ValidationError,
+                    errorMessage: errorMessage
+                };
+            }
+        } catch (err) {
+            const errorMessage = `Unexpected error while retrieving users by their custom location ${city}, ${state} from Cognito through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                data: null,
+                errorType: NotificationReminderErrorType.UnexpectedError,
+                errorMessage: errorMessage
+            };
+        }
+    }
+
+    /**
+     * Function used to get all the users used to deliver notification reminders to.
      *
      * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
      * user ID, first, last name and email.
