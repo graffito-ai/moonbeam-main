@@ -283,6 +283,20 @@ export abstract class BaseAPIClient {
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_MULTIPLE_CARDS_FEATURE_REMINDER_AUTH_TOKEN],
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_MULTIPLE_CARDS_FEATURE_REMINDER_TEMPLATE_ID]];
                                     }
+                                case NotificationType.SanAntonioReferralTemplate_1Reminder:
+                                    if (channelType !== undefined) {
+                                        return channelType === NotificationChannelType.Email
+                                            ? [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER_TEMPLATE_ID]]
+                                            : [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER_TEMPLATE_ID]];
+                                    } else {
+                                        return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER_AUTH_TOKEN],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER_TEMPLATE_ID]];
+                                    }
                                 case NotificationType.SpouseFeatureReminder:
                                     return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
                                         clientPairAsJson[Constants.AWSPairConstants.SPOUSE_FEATURE_REMINDER_AUTH_TOKEN],

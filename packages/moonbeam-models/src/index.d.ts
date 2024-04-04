@@ -22,3 +22,4 @@ export * from './common/FidelisPartnerOrder';
 export * from './common/FidelisVeteranOwnedPartners';
 export * from './common/PremierOnlineOfferOrder';
 export * from './common/PremierClickOnlineOfferOrder';
+export * from './common/ZipCodesByGeo';
