@@ -47,6 +47,9 @@ export const triggerNotificationReminder = async (): Promise<void> => {
          *    - SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER, call the getUsersByGeographyForNotificationReminders AppSync Query API, in order to
          *    get all the users in San Antonio to send notification reminders to.
          *
+         *    - REIMBURSEMENTS_REMINDER, call the getAllUsersEligibleForReimbursements AppSync Query API, in order to get all the PROCESSED and FUNDED transactions
+         *    for a particular user, and determine whether that user is eligible for a notification based on their balance.
+         *
          * 3) For each applicable user from step 2) drop a message into the appropriate SNS topic.
          *
          * 4) Once all users have been notified, then update the card linking reminder accordingly,

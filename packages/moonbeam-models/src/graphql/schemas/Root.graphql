@@ -23,6 +23,7 @@ type Query {
     getUsersWithNoCards: IneligibleLinkedUsersResponse! @aws_cognito_user_pools @aws_api_key
     getNotificationReminders: NotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
     getAllUsersForNotificationReminders: UserForNotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
+    getAllUsersEligibleForReimbursements: UserForNotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
     getUsersByGeographyForNotificationReminders(getUsersByGeographicalLocationInput :GetUsersByGeographicalLocationInput!): UserForNotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
     getUserAuthSession(getUserAuthSessionInput: GetUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
     getAppUpgradeCredentials: AppUpgradeResponse! @aws_cognito_user_pools

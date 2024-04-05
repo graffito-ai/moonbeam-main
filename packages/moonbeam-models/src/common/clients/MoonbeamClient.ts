@@ -7,10 +7,14 @@ import {
     CreateTransactionInput,
     EligibleLinkedUser,
     EligibleLinkedUsersResponse,
-    EmailFromCognitoResponse, File,
+    EmailFromCognitoResponse,
+    File,
     GetDevicesForUserInput,
-    GetMilitaryVerificationInformationInput, GetNotificationByTypeInput, GetNotificationByTypeResponse,
-    GetReferralsByStatusInput, GetStorageInput,
+    GetMilitaryVerificationInformationInput,
+    GetNotificationByTypeInput,
+    GetNotificationByTypeResponse,
+    GetReferralsByStatusInput,
+    GetStorageInput,
     GetTransactionByStatusInput,
     GetTransactionInput,
     GetUsersByGeographicalLocationInput,
@@ -19,7 +23,8 @@ import {
     MilitaryVerificationNotificationUpdate,
     MilitaryVerificationReportingErrorType,
     MilitaryVerificationReportingInformation,
-    MilitaryVerificationReportingInformationResponse, MilitaryVerificationReportResponse,
+    MilitaryVerificationReportingInformationResponse,
+    MilitaryVerificationReportResponse,
     MoonbeamTransaction,
     MoonbeamTransactionByStatus,
     MoonbeamTransactionResponse,
@@ -32,12 +37,17 @@ import {
     NotificationReminderErrorType,
     NotificationReminderResponse,
     NotificationsErrorType,
-    PushDevice, PutMilitaryVerificationReportInput,
+    PushDevice,
+    PutMilitaryVerificationReportInput,
     Referral,
     ReferralErrorType,
     ReferralResponse,
-    RetrieveUserDetailsForNotifications, StorageErrorType, StorageResponse,
-    TransactionsErrorType, UpdateCardInput,
+    RetrieveUserDetailsForNotifications,
+    StorageErrorType,
+    StorageResponse,
+    TransactionsErrorType,
+    TransactionsStatus,
+    UpdateCardInput,
     UpdatedTransactionEvent,
     UpdateNotificationReminderInput,
     UpdateReferralInput,
@@ -50,23 +60,23 @@ import axios from "axios";
 import {
     createNotification,
     createTransaction,
+    putMilitaryVerificationReport,
+    updateCard,
     updateNotificationReminder,
     updateReferral,
-    updateTransaction,
-    putMilitaryVerificationReport,
-    updateCard
+    updateTransaction
 } from "../../graphql/mutations/Mutations";
 import {
     getDevicesForUser,
     getEligibleLinkedUsers,
     getMilitaryVerificationInformation,
+    getNotificationByType,
     getNotificationReminders,
     getReferralsByStatus,
+    getStorage,
     getTransaction,
     getTransactionByStatus,
-    getUsersWithNoCards,
-    getStorage,
-    getNotificationByType
+    getUsersWithNoCards
 } from "../../graphql/queries/Queries";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {
@@ -1096,6 +1106,111 @@ export class MoonbeamClient extends BaseAPIClient {
             }
         } catch (err) {
             const errorMessage = `Unexpected error while retrieving users by their custom location ${JSON.stringify(getUsersByGeographicalLocationInput.zipCodes)} from Cognito through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                data: null,
+                errorType: NotificationReminderErrorType.UnexpectedError,
+                errorMessage: errorMessage
+            };
+        }
+    }
+
+    /**
+     * Function used to get all the users eligible for reimbursements.
+     *
+     * @returns a {@link UserForNotificationReminderResponse}, representing each individual eligible users'
+     * user ID, first, last name and email.
+     */
+    async getAllUsersEligibleForReimbursements(): Promise<UserForNotificationReminderResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = '/getAllUsersEligibleForReimbursements call';
+
+        try {
+            // first we will attempt to call the /getAllUsersForNotificationReminders, in order to capture all users.
+            const allUsersEligibleForReimbursementsResponse: UserForNotificationReminderResponse = await this.getAllUsersForNotificationReminders();
+
+            // check to see if the user retrieval was successful or not
+            if (allUsersEligibleForReimbursementsResponse && !allUsersEligibleForReimbursementsResponse.errorMessage && !allUsersEligibleForReimbursementsResponse.errorType &&
+                allUsersEligibleForReimbursementsResponse.data !== undefined && allUsersEligibleForReimbursementsResponse.data !== null && allUsersEligibleForReimbursementsResponse.data.length !== 0) {
+                // for each user in the list of users, call the getTransactionByStatus AppSync API in order to see if they are eligible for a reimbursement
+                const usersToNotify: RetrieveUserDetailsForNotifications[] = [];
+                for (const eligibleUser of allUsersEligibleForReimbursementsResponse.data) {
+                    if (eligibleUser !== null) {
+                        // flag to represent the user's reimbursement eligibility
+                        let eligibleForReimbursementNotification: boolean = false;
+
+                        // first retrieve the PROCESSED transactions
+                        const processedTransactionsResponse: MoonbeamTransactionsByStatusResponse = await this.getTransactionByStatus({
+                            id: eligibleUser.id,
+                            status: TransactionsStatus.Processed
+                        });
+                        // check to see if the call was successful and if we have any PROCESSED transactions
+                        if (processedTransactionsResponse && !processedTransactionsResponse.errorMessage && !processedTransactionsResponse.errorType &&
+                            processedTransactionsResponse.data !== undefined && processedTransactionsResponse.data !== null) {
+                            eligibleForReimbursementNotification = true;
+                        } else {
+                            console.log(`PROCESSED transactions call for user ${eligibleUser.id} call failed`);
+                            eligibleForReimbursementNotification = false;
+                        }
+
+                        // retrieve the FUNDED transactions
+                        const fundedTransactionsResponse: MoonbeamTransactionsByStatusResponse = await this.getTransactionByStatus({
+                            id: eligibleUser.id,
+                            status: TransactionsStatus.Funded
+                        });
+
+                        // check to see if the call was successful and if we have any FUNDED transactions
+                        if (fundedTransactionsResponse && !fundedTransactionsResponse.errorMessage && !fundedTransactionsResponse.errorType &&
+                            fundedTransactionsResponse.data !== undefined && fundedTransactionsResponse.data !== null) {
+                            eligibleForReimbursementNotification = true;
+                        } else {
+                            console.log(`FUNDED transactions call for user ${eligibleUser.id} call failed`);
+                            eligibleForReimbursementNotification = false;
+                        }
+
+                        /**
+                         * at this point if the flag above is true, then we know we must have a valid list of 0 or more PROCESSED and/or FUNDED transactions.
+                         * Loop through all these transactions and see if their total pendingCashbackAmount is $20 or more. If so add them in the list, otherwise
+                         * do not.
+                         */
+                        if (eligibleForReimbursementNotification) {
+                            let pendingCashbackAmount = 0.00;
+                            // loop through PROCESSED transactions and add up
+                            processedTransactionsResponse.data!.forEach(processedTransaction => {
+                                if (processedTransaction !== null) {
+                                    pendingCashbackAmount += processedTransaction.pendingCashbackAmount;
+                                }
+                            });
+
+                            // loop through FUNDED transactions and add up
+                            fundedTransactionsResponse.data!.forEach(fundedTransaction => {
+                                if (fundedTransaction !== null) {
+                                    pendingCashbackAmount += fundedTransaction.pendingCashbackAmount;
+                                }
+                            });
+                            if (pendingCashbackAmount >= 20.00) {
+                                usersToNotify.push(eligibleUser);
+                            }
+                        }
+                    }
+                }
+                // return all eligible users for reimbursements, needing to get notified.
+                return {
+                    data: usersToNotify
+                }
+            } else {
+                const errorMessage = `Error while retrieving all users!`;
+                console.log(`${errorMessage}`);
+
+                return {
+                    data: null,
+                    errorType: NotificationReminderErrorType.ValidationError,
+                    errorMessage: errorMessage
+                };
+            }
+        } catch (err) {
+            const errorMessage = `Unexpected error while retrieving all users eligible for reimbursements, through ${endpointInfo}`;
             console.log(`${errorMessage} ${err}`);
 
             return {

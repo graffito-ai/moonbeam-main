@@ -71,6 +71,10 @@ export class TransactionsResolverStack extends Stack {
             typeName: "Query",
             fieldName: `${props.transactionsConfig.getTransactionByStatusResolverName}`
         });
+        transactionsLambdaSource.createResolver(`${props.transactionsConfig.getAllUsersEligibleForReimbursementsResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Query",
+            fieldName: `${props.transactionsConfig.getAllUsersEligibleForReimbursementsResolverName}`
+        });
 
         // create a new table to be used for Transactions purposes
         const transactionsTable = new aws_dynamodb.Table(this, `${props.transactionsConfig.transactionsTableName}-${props.stage}-${props.env!.region}`, {

@@ -521,6 +521,16 @@ export abstract class BaseAPIClient {
     protected retrieveContactInformationForUser?(contactInformationInput: MilitaryVerificationReportingInformation): Promise<MilitaryVerificationReportingInformationResponse>;
 
     /**
+     * Function used to get all the users eligible for reimbursements.
+     *
+     * @returns a {@link UserForNotificationReminderResponse}, representing each individual eligible users'
+     * user ID, first, last name and email.
+     *
+     * @protected
+     */
+    protected getAllUsersEligibleForReimbursements?(): Promise<UserForNotificationReminderResponse>;
+
+    /**
      * Function used to get all the users used to delivered
      * notification reminders to.
      *

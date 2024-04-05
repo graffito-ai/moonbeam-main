@@ -195,6 +195,18 @@ query GetAllUsersForNotificationReminders {
         }
     }
 }
+query GetAllUsersEligibleForReimbursements {
+    getAllUsersEligibleForReimbursements {
+        errorMessage
+        errorType
+        data {
+            id
+            email
+            firstName
+            lastName
+        }
+    }
+}
 query GetUsersByGeographyForNotificationReminders($getUsersByGeographicalLocationInput: GetUsersByGeographicalLocationInput!) {
     getUsersByGeographyForNotificationReminders(getUsersByGeographicalLocationInput: $getUsersByGeographicalLocationInput) {
         errorMessage
