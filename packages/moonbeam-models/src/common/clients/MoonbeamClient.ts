@@ -7,18 +7,24 @@ import {
     CreateTransactionInput,
     EligibleLinkedUser,
     EligibleLinkedUsersResponse,
-    EmailFromCognitoResponse, File,
+    EmailFromCognitoResponse,
+    File,
     GetDevicesForUserInput,
-    GetMilitaryVerificationInformationInput, GetNotificationByTypeInput, GetNotificationByTypeResponse,
-    GetReferralsByStatusInput, GetStorageInput,
+    GetMilitaryVerificationInformationInput,
+    GetNotificationByTypeInput,
+    GetNotificationByTypeResponse,
+    GetReferralsByStatusInput,
+    GetStorageInput,
     GetTransactionByStatusInput,
     GetTransactionInput,
+    GetUsersByGeographicalLocationInput,
     IneligibleLinkedUsersResponse,
     MilitaryVerificationErrorType,
     MilitaryVerificationNotificationUpdate,
     MilitaryVerificationReportingErrorType,
     MilitaryVerificationReportingInformation,
-    MilitaryVerificationReportingInformationResponse, MilitaryVerificationReportResponse,
+    MilitaryVerificationReportingInformationResponse,
+    MilitaryVerificationReportResponse,
     MoonbeamTransaction,
     MoonbeamTransactionByStatus,
     MoonbeamTransactionResponse,
@@ -31,12 +37,16 @@ import {
     NotificationReminderErrorType,
     NotificationReminderResponse,
     NotificationsErrorType,
-    PushDevice, PutMilitaryVerificationReportInput,
+    PushDevice,
+    PutMilitaryVerificationReportInput,
     Referral,
     ReferralErrorType,
     ReferralResponse,
-    RetrieveUserDetailsForNotifications, StorageErrorType, StorageResponse,
-    TransactionsErrorType, UpdateCardInput,
+    RetrieveUserDetailsForNotifications,
+    StorageErrorType,
+    StorageResponse,
+    TransactionsErrorType,
+    UpdateCardInput,
     UpdatedTransactionEvent,
     UpdateNotificationReminderInput,
     UpdateReferralInput,
@@ -49,23 +59,25 @@ import axios from "axios";
 import {
     createNotification,
     createTransaction,
+    putMilitaryVerificationReport,
+    updateCard,
     updateNotificationReminder,
     updateReferral,
-    updateTransaction,
-    putMilitaryVerificationReport,
-    updateCard
+    updateTransaction
 } from "../../graphql/mutations/Mutations";
 import {
     getDevicesForUser,
     getEligibleLinkedUsers,
     getMilitaryVerificationInformation,
+    getNotificationByType,
     getNotificationReminders,
     getReferralsByStatus,
+    getStorage,
     getTransaction,
     getTransactionByStatus,
     getUsersWithNoCards,
-    getStorage,
-    getNotificationByType
+    getAllUsersEligibleForReimbursements,
+    getAllUsersIneligibleForReimbursements
 } from "../../graphql/queries/Queries";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {
@@ -976,8 +988,375 @@ export class MoonbeamClient extends BaseAPIClient {
     }
 
     /**
-     * Function used to get all the users used to delivered
-     * notification reminders to.
+     * Function used to get all the users used to deliver notification reminders to,
+     * sorted by a particular location.
+     *
+     * @param getUsersByGeographicalLocationInput the geolocation input that we filter users by
+     *
+     * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
+     * user ID, first, last name and email, sorted by a particular location (city & state combination).
+     */
+    async getUsersByGeographyForNotificationReminders(getUsersByGeographicalLocationInput: GetUsersByGeographicalLocationInput): Promise<UserForNotificationReminderResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = '/listUsers for getUsersByGeographyForNotificationReminders Cognito SDK call';
+
+        try {
+            // retrieve the Cognito access key, secret key and user pool id, needed in order to retrieve all users sorted by location, through the Cognito Identity provider client
+            const [cognitoAccessKeyId, cognitoSecretKey, cognitoUserPoolId] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME,
+                undefined,
+                undefined,
+                undefined,
+                true);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (cognitoAccessKeyId === null || cognitoAccessKeyId.length === 0 ||
+                cognitoSecretKey === null || cognitoSecretKey.length === 0 ||
+                cognitoUserPoolId === null || (cognitoUserPoolId && cognitoUserPoolId.length === 0)) {
+                const errorMessage = "Invalid Secrets obtained for Cognito SDK call call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: NotificationReminderErrorType.UnexpectedError
+                };
+            }
+
+            // initialize the Cognito Identity Provider client using the credentials obtained above
+            const cognitoIdentityProviderClient = new CognitoIdentityProviderClient({
+                region: this.region,
+                credentials: {
+                    accessKeyId: cognitoAccessKeyId,
+                    secretAccessKey: cognitoSecretKey
+                }
+            });
+
+            /**
+             * execute thew List Users command, without any filters, in order to retrieve a user's email, address
+             * and their custom user ID, from their attributes.
+             *
+             * These results are going to be paginated, so we will limit the page size to 60 users (maximum allowed through this
+             * call), and keep track of the number of pages and lack thereof, through a flag.
+             */
+            const userResults: UserType[] = [];
+            let lastPaginationToken: string | undefined;
+            let input: ListUsersCommandInput = {
+                UserPoolId: cognitoUserPoolId,
+                AttributesToGet: ['given_name', 'family_name', 'email', 'custom:userId', 'address'],
+                Limit: 60,
+            };
+            // keep getting users and updating the results array for users retrieved, until we run out of users to retrieve
+            do {
+                // execute the List Users command, given the input provided above
+                const listUsersResponse: ListUsersCommandOutput = await cognitoIdentityProviderClient.send(
+                    new ListUsersCommand(input)
+                );
+
+                /**
+                 * check whether the List Users Command has a valid response/ valid list of users to be returned,
+                 * and if so add in the resulting list accordingly.
+                 */
+                listUsersResponse.$metadata !== null && listUsersResponse.$metadata.httpStatusCode !== null &&
+                listUsersResponse.$metadata.httpStatusCode !== undefined && listUsersResponse.$metadata.httpStatusCode === 200 &&
+                listUsersResponse.Users !== null && listUsersResponse.Users !== undefined && listUsersResponse.Users!.length !== 0 &&
+                userResults.push(...listUsersResponse.Users);
+
+                // get the last pagination token from the retrieved output, and set the next input command's pagination token according to that
+                lastPaginationToken = listUsersResponse.PaginationToken;
+                input.PaginationToken = lastPaginationToken;
+            } while (typeof lastPaginationToken !== undefined && typeof lastPaginationToken !== 'undefined' && lastPaginationToken !== undefined);
+
+            // check for a valid response list, obtained from the Cognito List Users Command call
+            if (userResults.length !== 0) {
+                // loop through the list of users obtained through command, and return their emails and custom user IDs
+                const userDetailsForNotificationReminder: RetrieveUserDetailsForNotifications[] = [];
+                userResults.forEach(cognitoUser => {
+                    if (cognitoUser.Attributes !== undefined && cognitoUser.Attributes!.length === 5 &&
+                        cognitoUser.Attributes![0] !== undefined && cognitoUser.Attributes![0].Value!.length !== 0 &&
+                        cognitoUser.Attributes![1] !== undefined && cognitoUser.Attributes![1].Value!.length !== 0 &&
+                        cognitoUser.Attributes![2] !== undefined && cognitoUser.Attributes![2].Value!.length !== 0 &&
+                        cognitoUser.Attributes![3] !== undefined && cognitoUser.Attributes![3].Value!.length !== 0 &&
+                        cognitoUser.Attributes![4] !== undefined && cognitoUser.Attributes![4].Value!.length !== 0) {
+                        // make sure that the users retrieved are residing in the city and state provided in the input
+                        getUsersByGeographicalLocationInput.zipCodes.forEach(zipCode => {
+                            if (zipCode !== null && cognitoUser.Attributes![0].Value!.includes(zipCode)) {
+                                // push the new user details in the user details array to be returned
+                                userDetailsForNotificationReminder.push({
+                                    id: cognitoUser.Attributes![4].Value!,
+                                    email: cognitoUser.Attributes![3].Value!,
+                                    firstName: cognitoUser.Attributes![1].Value!,
+                                    lastName: cognitoUser.Attributes![2].Value!,
+                                });
+                            }
+                        });
+                    }
+                });
+
+                // return the user details results
+                return {
+                    data: userDetailsForNotificationReminder
+                }
+            } else {
+                const errorMessage = `Empty user list array, obtained while calling the get List Users Cognito command`;
+                console.log(`${errorMessage}`);
+
+                return {
+                    data: [],
+                    errorType: NotificationReminderErrorType.NoneOrAbsent,
+                    errorMessage: errorMessage
+                };
+            }
+        } catch (err) {
+            const errorMessage = `Unexpected error while retrieving users by their custom location ${JSON.stringify(getUsersByGeographicalLocationInput.zipCodes)} from Cognito through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                data: null,
+                errorType: NotificationReminderErrorType.UnexpectedError,
+                errorMessage: errorMessage
+            };
+        }
+    }
+
+    /**
+     * Function used to get all the users ineligible for a reimbursement.
+     *
+     * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
+     * user ID, first, last name and email.
+     *
+     * @protected
+     */
+    async getAllUsersIneligibleForReimbursements(): Promise<UserForNotificationReminderResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'getAllUsersIneligibleForReimbursements Query Moonbeam GraphQL API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the get all users ineligible for reimbursements retrieval call through the client
+            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
+                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: NotificationReminderErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * getAllUsersIneligibleForReimbursements Query
+             *
+             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
+             * with the appropriate information.
+             *
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.post(`${moonbeamBaseURL}`, {
+                query: getAllUsersIneligibleForReimbursements,
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": moonbeamPrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
+            }).then(getAllUsersIneligibleForReimbursementsResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(getAllUsersIneligibleForReimbursementsResponse.data)}`);
+
+                // retrieve the data block from the response
+                const responseData = (getAllUsersIneligibleForReimbursementsResponse && getAllUsersIneligibleForReimbursementsResponse.data) ? getAllUsersIneligibleForReimbursementsResponse.data.data : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.getAllUsersIneligibleForReimbursements.errorMessage === null) {
+                    // returned the successfully retrieved users
+                    return {
+                        data: responseData.getAllUsersIneligibleForReimbursements.data as RetrieveUserDetailsForNotifications[]
+                    }
+                } else {
+                    return responseData ?
+                        // return the error message and type, from the original AppSync call
+                        {
+                            errorMessage: responseData.getAllUsersIneligibleForReimbursements.errorMessage,
+                            errorType: responseData.getAllUsersIneligibleForReimbursements.errorType
+                        } :
+                        // return the error response indicating an invalid structure returned
+                        {
+                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                            errorType: NotificationReminderErrorType.ValidationError
+                        }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: NotificationReminderErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: NotificationReminderErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: NotificationReminderErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while retrieving users ineligible for reimbursements by status through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: NotificationReminderErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
+     * Function used to get all the users eligible for a reimbursement.
+     *
+     * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
+     * user ID, first, last name and email.
+     */
+    async getAllUsersEligibleForReimbursements(): Promise<UserForNotificationReminderResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'getAllUsersEligibleForReimbursements Query Moonbeam GraphQL API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the get all users eligible for reimbursements retrieval call through the client
+            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
+                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: NotificationReminderErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * getAllUsersEligibleForReimbursements Query
+             *
+             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
+             * with the appropriate information.
+             *
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.post(`${moonbeamBaseURL}`, {
+                query: getAllUsersEligibleForReimbursements,
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": moonbeamPrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
+            }).then(getAllUsersEligibleForReimbursementsResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(getAllUsersEligibleForReimbursementsResponse.data)}`);
+
+                // retrieve the data block from the response
+                const responseData = (getAllUsersEligibleForReimbursementsResponse && getAllUsersEligibleForReimbursementsResponse.data) ? getAllUsersEligibleForReimbursementsResponse.data.data : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.getAllUsersEligibleForReimbursements.errorMessage === null) {
+                    // returned the successfully retrieved users
+                    return {
+                        data: responseData.getAllUsersEligibleForReimbursements.data as RetrieveUserDetailsForNotifications[]
+                    }
+                } else {
+                    return responseData ?
+                        // return the error message and type, from the original AppSync call
+                        {
+                            errorMessage: responseData.getAllUsersEligibleForReimbursements.errorMessage,
+                            errorType: responseData.getAllUsersEligibleForReimbursements.errorType
+                        } :
+                        // return the error response indicating an invalid structure returned
+                        {
+                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                            errorType: NotificationReminderErrorType.ValidationError
+                        }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: NotificationReminderErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: NotificationReminderErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: NotificationReminderErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while retrieving users eligible for reimbursements by status through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: NotificationReminderErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
+     * Function used to get all the users used to deliver notification reminders to.
      *
      * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
      * user ID, first, last name and email.

@@ -679,6 +679,10 @@ export type GetUserCardLinkingIdResponse = {
   errorType?: Maybe<CardLinkErrorType>;
 };
 
+export type GetUsersByGeographicalLocationInput = {
+  zipCodes: Array<InputMaybe<Scalars['String']>>;
+};
+
 export type IneligibleLinkedUsersResponse = {
   __typename?: 'IneligibleLinkedUsersResponse';
   data?: Maybe<Array<Maybe<RetrieveUserDetailsForNotifications>>>;
@@ -1217,6 +1221,9 @@ export enum NotificationReminderType {
   ReferralTemplate_2Reminder = 'REFERRAL_TEMPLATE_2_REMINDER',
   ReferralTemplate_3Reminder = 'REFERRAL_TEMPLATE_3_REMINDER',
   ReferralTemplateLaunch = 'REFERRAL_TEMPLATE_LAUNCH',
+  ReimbursementsReminder = 'REIMBURSEMENTS_REMINDER',
+  SanAntonioReferralTemplate_1Reminder = 'SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER',
+  SpendingTemplate_1Reminder = 'SPENDING_TEMPLATE_1_REMINDER',
   SpouseFeatureReminder = 'SPOUSE_FEATURE_REMINDER',
   VeteransDayTemplate_1Reminder = 'VETERANS_DAY_TEMPLATE_1_REMINDER',
   VeteransDayTemplate_2Reminder = 'VETERANS_DAY_TEMPLATE_2_REMINDER',
@@ -1254,6 +1261,9 @@ export enum NotificationType {
   ReferralTemplate_2Reminder = 'REFERRAL_TEMPLATE_2_REMINDER',
   ReferralTemplate_3Reminder = 'REFERRAL_TEMPLATE_3_REMINDER',
   ReferralTemplateLaunch = 'REFERRAL_TEMPLATE_LAUNCH',
+  ReimbursementsReminder = 'REIMBURSEMENTS_REMINDER',
+  SanAntonioReferralTemplate_1Reminder = 'SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER',
+  SpendingTemplate_1Reminder = 'SPENDING_TEMPLATE_1_REMINDER',
   SpouseFeatureReminder = 'SPOUSE_FEATURE_REMINDER',
   VeteransDayTemplate_1Reminder = 'VETERANS_DAY_TEMPLATE_1_REMINDER',
   VeteransDayTemplate_2Reminder = 'VETERANS_DAY_TEMPLATE_2_REMINDER',
@@ -1482,7 +1492,9 @@ export type PutMilitaryVerificationReportInput = {
 export type Query = {
   __typename?: 'Query';
   geoCodeAsync: GeocodeAsyncResponse;
+  getAllUsersEligibleForReimbursements: UserForNotificationReminderResponse;
   getAllUsersForNotificationReminders: UserForNotificationReminderResponse;
+  getAllUsersIneligibleForReimbursements: UserForNotificationReminderResponse;
   getAppReviewEligibility: GetAppReviewEligibilityResponse;
   getAppUpgradeCredentials: AppUpgradeResponse;
   getCardLink: CardLinkResponse;
@@ -1511,6 +1523,7 @@ export type Query = {
   getUserAuthSession: UserAuthSessionResponse;
   getUserCardLinkingId: GetUserCardLinkingIdResponse;
   getUserFromReferral: UserFromReferralResponse;
+  getUsersByGeographyForNotificationReminders: UserForNotificationReminderResponse;
   getUsersWithNoCards: IneligibleLinkedUsersResponse;
   searchOffers: OffersResponse;
 };
@@ -1623,6 +1636,11 @@ export type QueryGetUserCardLinkingIdArgs = {
 
 export type QueryGetUserFromReferralArgs = {
   userFromReferralInput: UserFromReferralInput;
+};
+
+
+export type QueryGetUsersByGeographyForNotificationRemindersArgs = {
+  getUsersByGeographicalLocationInput: GetUsersByGeographicalLocationInput;
 };
 
 
@@ -2344,6 +2362,23 @@ export type GetAllUsersForNotificationRemindersQueryVariables = Exact<{ [key: st
 
 
 export type GetAllUsersForNotificationRemindersQuery = { __typename?: 'Query', getAllUsersForNotificationReminders: { __typename?: 'UserForNotificationReminderResponse', errorMessage?: string | null, errorType?: NotificationReminderErrorType | null, data?: Array<{ __typename?: 'RetrieveUserDetailsForNotifications', id: string, email: string, firstName: string, lastName: string } | null> | null } };
+
+export type GetAllUsersEligibleForReimbursementsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllUsersEligibleForReimbursementsQuery = { __typename?: 'Query', getAllUsersEligibleForReimbursements: { __typename?: 'UserForNotificationReminderResponse', errorMessage?: string | null, errorType?: NotificationReminderErrorType | null, data?: Array<{ __typename?: 'RetrieveUserDetailsForNotifications', id: string, email: string, firstName: string, lastName: string } | null> | null } };
+
+export type GetAllUsersIneligibleForReimbursementsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllUsersIneligibleForReimbursementsQuery = { __typename?: 'Query', getAllUsersIneligibleForReimbursements: { __typename?: 'UserForNotificationReminderResponse', errorMessage?: string | null, errorType?: NotificationReminderErrorType | null, data?: Array<{ __typename?: 'RetrieveUserDetailsForNotifications', id: string, email: string, firstName: string, lastName: string } | null> | null } };
+
+export type GetUsersByGeographyForNotificationRemindersQueryVariables = Exact<{
+  getUsersByGeographicalLocationInput: GetUsersByGeographicalLocationInput;
+}>;
+
+
+export type GetUsersByGeographyForNotificationRemindersQuery = { __typename?: 'Query', getUsersByGeographyForNotificationReminders: { __typename?: 'UserForNotificationReminderResponse', errorMessage?: string | null, errorType?: NotificationReminderErrorType | null, data?: Array<{ __typename?: 'RetrieveUserDetailsForNotifications', id: string, email: string, firstName: string, lastName: string } | null> | null } };
 
 export type GeoCodeAsyncQueryVariables = Exact<{
   geocodeAsyncInput: GeocodeAsyncInput;

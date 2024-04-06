@@ -23,6 +23,9 @@ type Query {
     getUsersWithNoCards: IneligibleLinkedUsersResponse! @aws_cognito_user_pools @aws_api_key
     getNotificationReminders: NotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
     getAllUsersForNotificationReminders: UserForNotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
+    getAllUsersEligibleForReimbursements: UserForNotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
+    getAllUsersIneligibleForReimbursements: UserForNotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
+    getUsersByGeographyForNotificationReminders(getUsersByGeographicalLocationInput :GetUsersByGeographicalLocationInput!): UserForNotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
     getUserAuthSession(getUserAuthSessionInput: GetUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
     getAppUpgradeCredentials: AppUpgradeResponse! @aws_cognito_user_pools
     getReferralsByStatus(getReferralsByStatusInput: GetReferralsByStatusInput!): ReferralResponse! @aws_cognito_user_pools @aws_api_key
@@ -741,6 +744,9 @@ enum NotificationType {
     SPOUSE_FEATURE_REMINDER
     FEEDBACK_TEMPLATE_1_REMINDER
     LOCATION_BASED_OFFER_REMINDER
+    SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER
+    REIMBURSEMENTS_REMINDER
+    SPENDING_TEMPLATE_1_REMINDER
 }
 
 enum NotificationChannelType {
@@ -1224,6 +1230,9 @@ enum NotificationReminderType {
     SPOUSE_FEATURE_REMINDER
     FEEDBACK_TEMPLATE_1_REMINDER
     LOCATION_BASED_OFFER_REMINDER
+    SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER
+    REIMBURSEMENTS_REMINDER
+    SPENDING_TEMPLATE_1_REMINDER
 }
 
 enum NotificationReminderStatus {
@@ -1295,6 +1304,9 @@ input UpdateNotificationReminderInput {
     updatedAt: AWSDateTime
 }
 
+input GetUsersByGeographicalLocationInput {
+    zipCodes: [String]!
+}
 
 # graphql/AppUpgradeSchema.graphql
 # App Upgrade Schema File

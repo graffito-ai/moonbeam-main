@@ -325,9 +325,12 @@ export interface TransactionsConfiguration {
     readonly getTransactionResolverName: string;
     readonly getTransactionByStatusResolverName: string;
     readonly updateTransactionResolverName: string;
+    readonly getAllUsersEligibleForReimbursementsResolverName: string;
+    readonly getAllUsersIneligibleForReimbursementsResolverName: string;
     readonly transactionsTableName: string;
     readonly transactionsIdGlobalIndex: string;
     readonly transactionsStatusLocalIndex: string;
+    readonly transactionStatusGlobalIndex: string;
 }
 
 /**
@@ -406,6 +409,7 @@ export interface NotificationReminderConfiguration {
     readonly notificationReminderTableName: string;
     readonly createNotificationReminderResolverName: string;
     readonly getNotificationRemindersResolverName: string;
+    readonly getUsersByGeographyForNotificationRemindersResolverName: string;
     readonly updateNotificationReminderResolverName: string;
     readonly getAllUsersForNotificationRemindersResolverName: string;
 }

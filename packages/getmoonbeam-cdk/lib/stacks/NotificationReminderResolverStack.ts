@@ -2,7 +2,7 @@ import {aws_appsync, aws_dynamodb, aws_lambda, aws_lambda_nodejs, Duration, Stac
 import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
 import path from "path";
-import {Constants} from "@moonbeam/moonbeam-models";
+import {Constants, Stages} from "@moonbeam/moonbeam-models";
 import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
 import {Alias} from "aws-cdk-lib/aws-lambda";
 
@@ -71,6 +71,10 @@ export class NotificationReminderResolverStack extends Stack {
             typeName: "Query",
             fieldName: `${props.notificationReminderConfig.getAllUsersForNotificationRemindersResolverName}`
         });
+        notificationReminderLambdaSource.createResolver(`${props.notificationReminderConfig.getUsersByGeographyForNotificationRemindersResolverName}-${props.stage}-${props.env!.region}`, {
+            typeName: "Query",
+            fieldName: `${props.notificationReminderConfig.getUsersByGeographyForNotificationRemindersResolverName}`
+        });
 
         // create a new table to be used for Notification Reminder purposes
         const notificationReminderTable = new aws_dynamodb.Table(this, `${props.notificationReminderConfig.notificationReminderTableName}-${props.stage}-${props.env!.region}`, {
@@ -103,6 +107,21 @@ export class NotificationReminderResolverStack extends Stack {
                 }
             )
         );
+        // enable the Lambda function the retrieval of the Moonbeam internal API secrets
+        notificationReminderLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "secretsmanager:GetSecretValue"
+                ],
+                resources: [
+                    // this ARN is retrieved post secret creation
+                    ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:moonbeam-internal-secret-pair-dev-us-west-2-vgMpp2"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:moonbeam-internal-secret-pair-prod-us-west-2-9xP6tj"] : []
+                ]
+            })
+        );
+
         // Create environment variables that we will use in the function code
         notificationReminderLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
         notificationReminderLambda.addEnvironment(`${Constants.MoonbeamConstants.NOTIFICATION_REMINDER_TABLE}`, notificationReminderTable.tableName);

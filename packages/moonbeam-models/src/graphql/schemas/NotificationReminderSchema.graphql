@@ -21,6 +21,9 @@ enum NotificationReminderType {
     SPOUSE_FEATURE_REMINDER
     FEEDBACK_TEMPLATE_1_REMINDER
     LOCATION_BASED_OFFER_REMINDER
+    SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER
+    REIMBURSEMENTS_REMINDER
+    SPENDING_TEMPLATE_1_REMINDER
 }
 
 enum NotificationReminderStatus {
@@ -92,4 +95,7 @@ input UpdateNotificationReminderInput {
     updatedAt: AWSDateTime
 }
 
+input GetUsersByGeographicalLocationInput {
+    zipCodes: [String]!
+}
 

@@ -118,6 +118,15 @@ export const createNotification = async (fieldName: string, createNotificationIn
                 case NotificationType.MultipleCardFeatureReminder:
                     return standardEmailAndPushNotification(createNotificationInput, courierClient, dynamoDbClient,
                         NotificationType.MultipleCardFeatureReminder);
+                case NotificationType.SanAntonioReferralTemplate_1Reminder:
+                    return standardEmailAndPushNotification(createNotificationInput, courierClient, dynamoDbClient,
+                        NotificationType.SanAntonioReferralTemplate_1Reminder);
+                case NotificationType.ReimbursementsReminder:
+                    return standardEmailAndPushNotification(createNotificationInput, courierClient, dynamoDbClient,
+                        NotificationType.ReimbursementsReminder);
+                case NotificationType.SpendingTemplate_1Reminder:
+                    return standardPushNotification(createNotificationInput, courierClient, dynamoDbClient,
+                        NotificationType.SpendingTemplate_1Reminder);
                 case NotificationType.SpouseFeatureReminder:
                     return standardEmailNotification(createNotificationInput, courierClient, dynamoDbClient,
                         NotificationType.SpouseFeatureReminder);

@@ -148,9 +148,12 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 transactionsTableName: 'transactionsTable',
                 transactionsIdGlobalIndex: 'transactionsIdGlobalIndex',
                 transactionsStatusLocalIndex: 'transactionsStatusLocalIndex',
+                transactionStatusGlobalIndex: 'transactionStatusGlobalIndex',
                 createTransactionResolverName: 'createTransaction',
                 getTransactionResolverName: 'getTransaction',
                 getTransactionByStatusResolverName: 'getTransactionByStatus',
+                getAllUsersEligibleForReimbursementsResolverName: 'getAllUsersEligibleForReimbursements',
+                getAllUsersIneligibleForReimbursementsResolverName: 'getAllUsersIneligibleForReimbursements',
                 updateTransactionResolverName: 'updateTransaction'
             },
             notificationsConfig: {
@@ -227,7 +230,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 createNotificationReminderResolverName: 'createNotificationReminder',
                 getNotificationRemindersResolverName: 'getNotificationReminders',
                 updateNotificationReminderResolverName: 'updateNotificationReminder',
-                getAllUsersForNotificationRemindersResolverName: 'getAllUsersForNotificationReminders'
+                getAllUsersForNotificationRemindersResolverName: 'getAllUsersForNotificationReminders',
+                getUsersByGeographyForNotificationRemindersResolverName: 'getUsersByGeographyForNotificationReminders'
             },
             appUpgradeConfig: {
                 appUpgradeFunctionName: 'appUpgradeFunction',
@@ -429,9 +433,12 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 transactionsTableName: 'transactionsTable',
                 transactionsIdGlobalIndex: 'transactionsIdGlobalIndex',
                 transactionsStatusLocalIndex: 'transactionsStatusLocalIndex',
+                transactionStatusGlobalIndex: 'transactionStatusGlobalIndex',
                 createTransactionResolverName: 'createTransaction',
                 getTransactionResolverName: 'getTransaction',
                 getTransactionByStatusResolverName: 'getTransactionByStatus',
+                getAllUsersEligibleForReimbursementsResolverName: 'getAllUsersEligibleForReimbursements',
+                getAllUsersIneligibleForReimbursementsResolverName: 'getAllUsersIneligibleForReimbursements',
                 updateTransactionResolverName: 'updateTransaction'
             },
             notificationsConfig: {
@@ -508,7 +515,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 createNotificationReminderResolverName: 'createNotificationReminder',
                 getNotificationRemindersResolverName: 'getNotificationReminders',
                 updateNotificationReminderResolverName: 'updateNotificationReminder',
-                getAllUsersForNotificationRemindersResolverName: 'getAllUsersForNotificationReminders'
+                getAllUsersForNotificationRemindersResolverName: 'getAllUsersForNotificationReminders',
+                getUsersByGeographyForNotificationRemindersResolverName: 'getUsersByGeographyForNotificationReminders'
             },
             appUpgradeConfig: {
                 appUpgradeFunctionName: 'appUpgradeFunction',

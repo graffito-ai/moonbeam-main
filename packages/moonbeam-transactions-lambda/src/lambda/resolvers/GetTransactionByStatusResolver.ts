@@ -34,7 +34,7 @@ export const getTransactionByStatus = async (fieldName: string, getTransactionBy
 
         do {
             /**
-             * retrieve all the transactions with a specific status, given the global secondary index
+             * retrieve all the transactions with a specific status, given the local secondary index
              *
              * Limit of 1 MB per paginated response data (in our case 3,800 items). An average size for an Item is about 111 bytes, which means that we won't
              * need to do pagination here, since we actually retrieve all transactions in a looped format, and we account for paginated responses.

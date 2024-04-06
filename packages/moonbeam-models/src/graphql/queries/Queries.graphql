@@ -195,6 +195,42 @@ query GetAllUsersForNotificationReminders {
         }
     }
 }
+query GetAllUsersEligibleForReimbursements {
+    getAllUsersEligibleForReimbursements {
+        errorMessage
+        errorType
+        data {
+            id
+            email
+            firstName
+            lastName
+        }
+    }
+}
+query GetAllUsersIneligibleForReimbursements {
+    getAllUsersIneligibleForReimbursements {
+        errorMessage
+        errorType
+        data {
+            id
+            email
+            firstName
+            lastName
+        }
+    }
+}
+query GetUsersByGeographyForNotificationReminders($getUsersByGeographicalLocationInput: GetUsersByGeographicalLocationInput!) {
+    getUsersByGeographyForNotificationReminders(getUsersByGeographicalLocationInput: $getUsersByGeographicalLocationInput) {
+        errorMessage
+        errorType
+        data {
+            id
+            email
+            firstName
+            lastName
+        }
+    }
+}
 query GeoCodeAsync($geocodeAsyncInput: GeocodeAsyncInput!) {
     geoCodeAsync(geocodeAsyncInput: $geocodeAsyncInput) {
         errorMessage

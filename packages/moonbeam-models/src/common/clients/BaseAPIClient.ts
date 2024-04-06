@@ -18,7 +18,7 @@ import {
     GetTransactionByStatusInput,
     GetTransactionInput,
     GetUserCardLinkingIdInput,
-    GetUserCardLinkingIdResponse,
+    GetUserCardLinkingIdResponse, GetUsersByGeographicalLocationInput,
     IneligibleLinkedUsersResponse,
     MemberDetailsResponse,
     MemberResponse,
@@ -283,6 +283,38 @@ export abstract class BaseAPIClient {
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_MULTIPLE_CARDS_FEATURE_REMINDER_AUTH_TOKEN],
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_MULTIPLE_CARDS_FEATURE_REMINDER_TEMPLATE_ID]];
                                     }
+                                case NotificationType.SanAntonioReferralTemplate_1Reminder:
+                                    if (channelType !== undefined) {
+                                        return channelType === NotificationChannelType.Email
+                                            ? [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER_TEMPLATE_ID]]
+                                            : [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER_TEMPLATE_ID]];
+                                    } else {
+                                        return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER_AUTH_TOKEN],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER_TEMPLATE_ID]];
+                                    }
+                                case NotificationType.ReimbursementsReminder:
+                                    if (channelType !== undefined) {
+                                        return channelType === NotificationChannelType.Email
+                                            ? [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_REIMBURSEMENTS_REMINDER_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_REIMBURSEMENTS_REMINDER_TEMPLATE_ID]]
+                                            : [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_REIMBURSEMENTS_REMINDER_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_REIMBURSEMENTS_REMINDER_TEMPLATE_ID]];
+                                    } else {
+                                        return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_REIMBURSEMENTS_REMINDER_AUTH_TOKEN],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_REIMBURSEMENTS_REMINDER_TEMPLATE_ID]];
+                                    }
+                                case NotificationType.SpendingTemplate_1Reminder:
+                                    return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                        clientPairAsJson[Constants.AWSPairConstants.PUSH_SPENDING_REMINDER_TEMPLATE_1_AUTH_TOKEN],
+                                        clientPairAsJson[Constants.AWSPairConstants.PUSH_SPENDING_REMINDER_TEMPLATE_1_TEMPLATE_ID]];
                                 case NotificationType.SpouseFeatureReminder:
                                     return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
                                         clientPairAsJson[Constants.AWSPairConstants.SPOUSE_FEATURE_REMINDER_AUTH_TOKEN],
@@ -507,6 +539,26 @@ export abstract class BaseAPIClient {
     protected retrieveContactInformationForUser?(contactInformationInput: MilitaryVerificationReportingInformation): Promise<MilitaryVerificationReportingInformationResponse>;
 
     /**
+     * Function used to get all the users eligible for a reimbursement.
+     *
+     * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
+     * user ID, first, last name and email.
+     *
+     * @protected
+     */
+    protected getAllUsersEligibleForReimbursements?(): Promise<UserForNotificationReminderResponse>;
+
+    /**
+     * Function used to get all the users ineligible for a reimbursement.
+     *
+     * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
+     * user ID, first, last name and email.
+     *
+     * @protected
+     */
+    protected getAllUsersIneligibleForReimbursements?(): Promise<UserForNotificationReminderResponse>;
+
+    /**
      * Function used to get all the users used to delivered
      * notification reminders to.
      *
@@ -516,6 +568,19 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected getAllUsersForNotificationReminders?(): Promise<UserForNotificationReminderResponse>;
+
+    /**
+     * Function used to get all the users used to deliver notification reminders to,
+     * sorted by a particular location.
+     *
+     * @param getUsersByGeographicalLocationInput the geolocation input that we filter users by
+     *
+     * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
+     * user ID, first, last name and email, sorted by a particular location (city & state combination).
+     *
+     * @protected
+     */
+    protected getUsersByGeographyForNotificationReminders?(getUsersByGeographicalLocationInput :GetUsersByGeographicalLocationInput): Promise<UserForNotificationReminderResponse>;
 
     /**
      * Function used to get a user's email, given certain filters to be passed in.
