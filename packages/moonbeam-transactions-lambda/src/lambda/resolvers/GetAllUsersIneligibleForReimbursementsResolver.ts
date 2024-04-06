@@ -3,20 +3,20 @@ import {
     MoonbeamTransactionByStatus,
     MoonbeamTransactionsByStatusResponse,
     NotificationReminderErrorType,
+    RetrieveUserDetailsForNotifications,
     TransactionsErrorType,
     TransactionsStatus,
     UserForNotificationReminderResponse
 } from "@moonbeam/moonbeam-models";
 import {AttributeValue, DynamoDBClient, QueryCommand} from "@aws-sdk/client-dynamodb";
-import {RetrieveUserDetailsForNotifications} from "@moonbeam/moonbeam-models";
 
 /**
- * GetAllUsersEligibleForReimbursements resolver
+ * GetAllUsersIneligibleForReimbursements resolver
  *
  * @param fieldName name of the resolver path from the AppSync event
  * @returns {@link Promise} of {@link UserForNotificationReminderResponse}
  */
-export const getAllUsersEligibleForReimbursements = async (fieldName: string): Promise<UserForNotificationReminderResponse> => {
+export const getAllUsersIneligibleForReimbursements = async (fieldName: string): Promise<UserForNotificationReminderResponse> => {
     try {
         // retrieving the current function region
         const region = process.env.AWS_REGION!;
@@ -33,8 +33,8 @@ export const getAllUsersEligibleForReimbursements = async (fieldName: string): P
         if (usersForNotificationReminderResponse && !usersForNotificationReminderResponse.errorMessage && !usersForNotificationReminderResponse.errorType &&
             usersForNotificationReminderResponse.data && usersForNotificationReminderResponse.data.length !== 0) {
             // flags to indicate whether there are any processed or funded transactions in the DB
-            let processedTransactionsAvailable: boolean = false;
-            let fundedTransactionsAvailable: boolean = false;
+            let processedTransactionsAvailable: boolean;
+            let fundedTransactionsAvailable: boolean;
             // array of PROCESSED and FUNDED transactions
             let processedTransactions: MoonbeamTransactionByStatus[] = [];
             let fundedTransactions: MoonbeamTransactionByStatus[] = [];
@@ -66,13 +66,26 @@ export const getAllUsersEligibleForReimbursements = async (fieldName: string): P
 
             /**
              * at this point if either flag above is true, then we know we must have a valid list of 0 or more PROCESSED and/or FUNDED transactions.
-             * Loop through all these transactions and see if their total pendingCashbackAmount is $20 or more. If so add them in the list, otherwise
+             *
+             * 1) If we have no PROCESSED and FUNDED transactions, then all users all eligible.
+             * 2) Otherwise, loop through all these transactions and see if their total pendingCashbackAmount less than $20. If so add them in the list, otherwise
              * do not.
              */
-            const usersToNotify: RetrieveUserDetailsForNotifications[] = [];
-            for (const eligibleUser of usersForNotificationReminderResponse.data) {
-                if (eligibleUser !== null) {
-                    if (processedTransactionsAvailable || fundedTransactionsAvailable) {
+            if (!processedTransactionsAvailable && !fundedTransactionsAvailable) {
+                // 1) If we have no PROCESSED and FUNDED transactions then all users all eligible.
+                console.log(`All users ineligible for reimbursements`);
+                // return all users as ineligible users
+                return {
+                    data: usersForNotificationReminderResponse.data!
+                }
+            } else {
+                const usersToNotify: RetrieveUserDetailsForNotifications[] = [];
+                for (const eligibleUser of usersForNotificationReminderResponse.data) {
+                    if (eligibleUser !== null) {
+                        /**
+                         * 2) Otherwise, loop through all these transactions and see if their total pendingCashbackAmount less than $20. If so add them in the list, otherwise
+                         * do not.
+                         */
                         let pendingCashbackAmount = 0.00;
                         // loop through PROCESSED transactions and add up
                         const processedTransactionsForUser = processedTransactions.filter(processedTransaction => processedTransaction !== null && processedTransaction.id === eligibleUser.id);
@@ -88,15 +101,15 @@ export const getAllUsersEligibleForReimbursements = async (fieldName: string): P
                                 pendingCashbackAmount += fundedTransaction.pendingCashbackAmount;
                             }
                         });
-                        if (pendingCashbackAmount >= 20.00) {
+                        if (pendingCashbackAmount <= 20.00) {
                             usersToNotify.push(eligibleUser);
                         }
                     }
                 }
-            }
-            // return all eligible users for reimbursements, needing to get notified.
-            return {
-                data: usersToNotify
+                // return all ineligible users for reimbursements, needing to get notified.
+                return {
+                    data: usersToNotify
+                }
             }
         } else {
             const errorMessage = `Retrieving all users through the getAllUsersForNotificationReminders call failed`;

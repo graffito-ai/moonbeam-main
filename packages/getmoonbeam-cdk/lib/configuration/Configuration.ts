@@ -153,6 +153,7 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 getTransactionResolverName: 'getTransaction',
                 getTransactionByStatusResolverName: 'getTransactionByStatus',
                 getAllUsersEligibleForReimbursementsResolverName: 'getAllUsersEligibleForReimbursements',
+                getAllUsersIneligibleForReimbursementsResolverName: 'getAllUsersIneligibleForReimbursements',
                 updateTransactionResolverName: 'updateTransaction'
             },
             notificationsConfig: {
@@ -437,6 +438,7 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 getTransactionResolverName: 'getTransaction',
                 getTransactionByStatusResolverName: 'getTransactionByStatus',
                 getAllUsersEligibleForReimbursementsResolverName: 'getAllUsersEligibleForReimbursements',
+                getAllUsersIneligibleForReimbursementsResolverName: 'getAllUsersIneligibleForReimbursements',
                 updateTransactionResolverName: 'updateTransaction'
             },
             notificationsConfig: {

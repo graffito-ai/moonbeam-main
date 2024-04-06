@@ -311,6 +311,10 @@ export abstract class BaseAPIClient {
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_REIMBURSEMENTS_REMINDER_AUTH_TOKEN],
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_REIMBURSEMENTS_REMINDER_TEMPLATE_ID]];
                                     }
+                                case NotificationType.SpendingTemplate_1Reminder:
+                                    return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                        clientPairAsJson[Constants.AWSPairConstants.PUSH_SPENDING_REMINDER_TEMPLATE_1_AUTH_TOKEN],
+                                        clientPairAsJson[Constants.AWSPairConstants.PUSH_SPENDING_REMINDER_TEMPLATE_1_TEMPLATE_ID]];
                                 case NotificationType.SpouseFeatureReminder:
                                     return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
                                         clientPairAsJson[Constants.AWSPairConstants.SPOUSE_FEATURE_REMINDER_AUTH_TOKEN],

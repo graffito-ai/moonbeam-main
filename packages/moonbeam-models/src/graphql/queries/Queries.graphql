@@ -207,6 +207,18 @@ query GetAllUsersEligibleForReimbursements {
         }
     }
 }
+query GetAllUsersIneligibleForReimbursements {
+    getAllUsersIneligibleForReimbursements {
+        errorMessage
+        errorType
+        data {
+            id
+            email
+            firstName
+            lastName
+        }
+    }
+}
 query GetUsersByGeographyForNotificationReminders($getUsersByGeographicalLocationInput: GetUsersByGeographicalLocationInput!) {
     getUsersByGeographyForNotificationReminders(getUsersByGeographicalLocationInput: $getUsersByGeographicalLocationInput) {
         errorMessage

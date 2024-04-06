@@ -267,6 +267,22 @@ export const getAllUsersEligibleForReimbursements = /* GraphQL */ `
     }
 `;
 
+// Query used to retrieve all Users ineligible for Reimbursements
+export const getAllUsersIneligibleForReimbursements = /* GraphQL */ `
+    query GetAllUsersIneligibleForReimbursements {
+        getAllUsersIneligibleForReimbursements {
+            errorMessage
+            errorType
+            data {
+                id
+                email
+                firstName
+                lastName
+            }
+        }
+    }
+`;
+
 // Query used to retrieve all Users for Notification Reminders sorted by a geographical location
 export const getUsersByGeographyForNotificationReminders = /* GraphQL */ `
     query GetUsersByGeographyForNotificationReminders($getUsersByGeographicalLocationInput: GetUsersByGeographicalLocationInput!) {

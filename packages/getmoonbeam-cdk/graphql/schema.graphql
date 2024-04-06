@@ -24,6 +24,7 @@ type Query {
     getNotificationReminders: NotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
     getAllUsersForNotificationReminders: UserForNotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
     getAllUsersEligibleForReimbursements: UserForNotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
+    getAllUsersIneligibleForReimbursements: UserForNotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
     getUsersByGeographyForNotificationReminders(getUsersByGeographicalLocationInput :GetUsersByGeographicalLocationInput!): UserForNotificationReminderResponse! @aws_cognito_user_pools @aws_api_key
     getUserAuthSession(getUserAuthSessionInput: GetUserAuthSessionInput!): UserAuthSessionResponse! @aws_cognito_user_pools
     getAppUpgradeCredentials: AppUpgradeResponse! @aws_cognito_user_pools
@@ -745,6 +746,7 @@ enum NotificationType {
     LOCATION_BASED_OFFER_REMINDER
     SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER
     REIMBURSEMENTS_REMINDER
+    SPENDING_TEMPLATE_1_REMINDER
 }
 
 enum NotificationChannelType {
@@ -1230,6 +1232,7 @@ enum NotificationReminderType {
     LOCATION_BASED_OFFER_REMINDER
     SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER
     REIMBURSEMENTS_REMINDER
+    SPENDING_TEMPLATE_1_REMINDER
 }
 
 enum NotificationReminderStatus {

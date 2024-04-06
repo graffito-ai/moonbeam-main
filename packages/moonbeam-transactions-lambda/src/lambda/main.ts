@@ -14,6 +14,7 @@ import {getTransaction} from "./resolvers/GetTransactionResolver";
 import {getTransactionByStatus} from "./resolvers/GetTransactionByStatusResolver";
 import {updateTransaction} from "./resolvers/UpdateTransactionResolver";
 import { getAllUsersEligibleForReimbursements } from "./resolvers/GetAllUsersEligibleForReimbursementsResolver";
+import { getAllUsersIneligibleForReimbursements } from "./resolvers/GetAllUsersIneligibleForReimbursementsResolver";
 
 /**
  * Mapping out the App Sync event type, so we can use it as a type in the Lambda Handler
@@ -55,6 +56,8 @@ exports.handler = async (event: AppSyncEvent): Promise<MoonbeamTransactionRespon
             return await getTransactionByStatus(event.info.fieldName, event.arguments.getTransactionByStatusInput);
         case "getAllUsersEligibleForReimbursements":
             return await getAllUsersEligibleForReimbursements(event.info.fieldName);
+        case "getAllUsersIneligibleForReimbursements":
+            return await getAllUsersIneligibleForReimbursements(event.info.fieldName);
         default:
             const errorMessage = `Unexpected field name: ${event.info.fieldName}`;
             console.log(errorMessage);

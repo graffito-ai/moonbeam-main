@@ -326,6 +326,7 @@ export interface TransactionsConfiguration {
     readonly getTransactionByStatusResolverName: string;
     readonly updateTransactionResolverName: string;
     readonly getAllUsersEligibleForReimbursementsResolverName: string;
+    readonly getAllUsersIneligibleForReimbursementsResolverName: string;
     readonly transactionsTableName: string;
     readonly transactionsIdGlobalIndex: string;
     readonly transactionsStatusLocalIndex: string;
