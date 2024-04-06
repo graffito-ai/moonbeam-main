@@ -315,14 +315,14 @@ export default function App() {
 
         // only display this Prominent Disclosure for Android, since iOS does it automatically when asking for permissions
         if (!isRunningInExpoGo && Platform.OS === 'android') {
-            Alert.prompt(
+            Alert.alert(
                 "Use your location !",
                 "To see nearby offers automatically, while you're on the move, allow Moonbeam to use your location all of the time.\n\nMoonbeam will use your location in the background to display the best military discounts near you.",
                 [
                     {
                         text: "Decline",
                         onPress: () => {
-                            backgroundPermissionPossible = false;
+                            backgroundPermissionPossible = true;
                         },
                         style: "cancel"
                     },
@@ -332,8 +332,7 @@ export default function App() {
                             backgroundPermissionPossible = true;
                         }
                     }
-                ],
-                "default"
+                ]
             );
         }
 
