@@ -55,7 +55,7 @@ export default ({config}: ConfigContext): ExpoConfig => ({
         }
     },
     android: {
-        versionCode: 40,
+        versionCode: 41,
         package: process.env.ANDROID_PACKAGE,
         googleServicesFile: process.env.GOOGLE_SERVICES_JSON,
         softwareKeyboardLayoutMode: "pan",
@@ -69,7 +69,9 @@ export default ({config}: ConfigContext): ExpoConfig => ({
             "android.permission.WRITE_CONTACTS",
             "android.permission.ACCESS_COARSE_LOCATION",
             "android.permission.ACCESS_FINE_LOCATION",
-            "android.permission.FOREGROUND_SERVICE"
+            "android.permission.ACCESS_BACKGROUND_LOCATION",
+            "android.permission.FOREGROUND_SERVICE",
+            "android.permission.FOREGROUND_SERVICE_LOCATION"
         ],
         blockedPermissions: [
             "com.google.android.gms.permission.AD_ID"

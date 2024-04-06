@@ -16,7 +16,7 @@ import {Spinner} from "./src/components/common/Spinner";
 import * as Notifications from 'expo-notifications';
 import {AndroidNotificationPriority, ExpoPushToken} from 'expo-notifications';
 import Constants from "expo-constants";
-import {Platform, Text, TextInput, View} from "react-native";
+import {Alert, Platform, Text, TextInput, View} from "react-native";
 import * as Device from 'expo-device';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from 'expo-location';
@@ -310,8 +310,35 @@ export default function App() {
             }
         }
 
+        // flag to indicate whether it is possible to ask users for background permissions for Android
+        let backgroundPermissionPossible: boolean = true;
+
+        // only display this Prominent Disclosure for Android, since iOS does it automatically when asking for permissions
+        if (!isRunningInExpoGo && Platform.OS === 'android') {
+            Alert.prompt(
+                "Use your location !",
+                "To see nearby offers automatically, while you're on the move, allow Moonbeam to use your location all of the time.\n\nMoonbeam will use your location in the background to display the best military discounts near you.",
+                [
+                    {
+                        text: "Decline",
+                        onPress: () => {
+                            backgroundPermissionPossible = false;
+                        },
+                        style: "cancel"
+                    },
+                    {
+                        text: "Allow",
+                        onPress: () => {
+                            backgroundPermissionPossible = true;
+                        }
+                    }
+                ],
+                "default"
+            );
+        }
+
         // ask for the user's permission to track background location
-        if (!isRunningInExpoGo) {
+        if (!isRunningInExpoGo && backgroundPermissionPossible) {
             const backgroundPermissionStatus = await Location.requestBackgroundPermissionsAsync();
             if (backgroundPermissionStatus.status !== 'granted') {
                 const errorMessage = `Permission to access Background Location was not granted!`;
