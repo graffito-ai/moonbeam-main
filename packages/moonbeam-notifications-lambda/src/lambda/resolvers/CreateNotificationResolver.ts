@@ -124,6 +124,9 @@ export const createNotification = async (fieldName: string, createNotificationIn
                 case NotificationType.ReimbursementsReminder:
                     return standardEmailAndPushNotification(createNotificationInput, courierClient, dynamoDbClient,
                         NotificationType.ReimbursementsReminder);
+                case NotificationType.SpendingTemplate_1Reminder:
+                    return standardPushNotification(createNotificationInput, courierClient, dynamoDbClient,
+                        NotificationType.SpendingTemplate_1Reminder);
                 case NotificationType.SpouseFeatureReminder:
                     return standardEmailNotification(createNotificationInput, courierClient, dynamoDbClient,
                         NotificationType.SpouseFeatureReminder);

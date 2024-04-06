@@ -549,6 +549,16 @@ export abstract class BaseAPIClient {
     protected getAllUsersEligibleForReimbursements?(): Promise<UserForNotificationReminderResponse>;
 
     /**
+     * Function used to get all the users ineligible for a reimbursement.
+     *
+     * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
+     * user ID, first, last name and email.
+     *
+     * @protected
+     */
+    protected getAllUsersIneligibleForReimbursements?(): Promise<UserForNotificationReminderResponse>;
+
+    /**
      * Function used to get all the users used to delivered
      * notification reminders to.
      *
