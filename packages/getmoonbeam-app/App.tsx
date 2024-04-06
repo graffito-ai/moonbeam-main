@@ -310,9 +310,6 @@ export default function App() {
             }
         }
 
-        // flag to indicate whether it is possible to ask users for background permissions for Android
-        let backgroundPermissionPossible: boolean = true;
-
         // only display this Prominent Disclosure for Android, since iOS does it automatically when asking for permissions
         if (!isRunningInExpoGo && Platform.OS === 'android') {
             Alert.alert(
@@ -321,15 +318,33 @@ export default function App() {
                 [
                     {
                         text: "Decline",
-                        onPress: () => {
-                            backgroundPermissionPossible = true;
+                        onPress: async () => {
                         },
                         style: "cancel"
                     },
                     {
                         text: "Allow",
-                        onPress: () => {
-                            backgroundPermissionPossible = true;
+                        onPress: async () => {
+                            // ask for the user's permission to track background location
+                            const backgroundPermissionStatus = await Location.requestBackgroundPermissionsAsync();
+                            if (backgroundPermissionStatus.status !== 'granted') {
+                                const errorMessage = `Permission to access Background Location was not granted!`;
+                                console.log(errorMessage);
+                                logEvent(errorMessage, LoggingLevel.Warning, false).then(() => {
+                                });
+                            } else {
+                                const errorMessage = `Permission to access Background Location was granted!`;
+                                console.log(errorMessage);
+                                logEvent(errorMessage, LoggingLevel.Info, false).then(() => {
+                                });
+
+                                // startup/register the background location fetch task
+                                startupBackgroundFetchLocationTask().then(() => {
+                                    // startups/register the background location subscription task
+                                    receiveBackgroundLocationUpdates(LOCATION_BACKGROUND_UPDATES_TASK).then(() => {
+                                    });
+                                });
+                            }
                         }
                     }
                 ]
@@ -337,7 +352,7 @@ export default function App() {
         }
 
         // ask for the user's permission to track background location
-        if (!isRunningInExpoGo && backgroundPermissionPossible) {
+        if (!isRunningInExpoGo && Platform.OS === 'ios') {
             const backgroundPermissionStatus = await Location.requestBackgroundPermissionsAsync();
             if (backgroundPermissionStatus.status !== 'granted') {
                 const errorMessage = `Permission to access Background Location was not granted!`;
