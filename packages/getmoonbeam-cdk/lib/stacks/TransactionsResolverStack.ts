@@ -2,7 +2,7 @@ import {aws_appsync, aws_dynamodb, aws_lambda, aws_lambda_nodejs, Duration, Stac
 import {StageConfiguration} from "../models/StageConfiguration";
 import {Construct} from "constructs";
 import path from "path";
-import {Constants} from "@moonbeam/moonbeam-models";
+import {Constants, Stages} from "@moonbeam/moonbeam-models";
 import {Effect, PolicyStatement} from "aws-cdk-lib/aws-iam";
 import {Alias} from "aws-cdk-lib/aws-lambda";
 
@@ -29,7 +29,7 @@ export class TransactionsResolverStack extends Stack {
             handler: 'handler',
             runtime: aws_lambda.Runtime.NODEJS_18_X,
             // we add a timeout here different from the default of 3 seconds, since we expect queries and filtering calls to take longer
-            timeout: Duration.seconds(20),
+            timeout: Duration.seconds(900),
             memorySize: 512,
             bundling: {
                 minify: true, // minify code, defaults to false
@@ -122,6 +122,18 @@ export class TransactionsResolverStack extends Stack {
                 type: aws_dynamodb.AttributeType.STRING
             }
         });
+        /**
+         * creates a local secondary index for the table, so we can retrieve transactions by their status.
+         * {@link https://www.dynamodbguide.com/key-concepts/}
+         * {@link https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html}
+         */
+        transactionsTable.addGlobalSecondaryIndex({
+            indexName: `${props.transactionsConfig.transactionStatusGlobalIndex}-${props.stage}-${props.env!.region}`,
+            partitionKey: {
+                name: 'transactionStatus',
+                type: aws_dynamodb.AttributeType.STRING
+            }
+        });
 
         // enable the Lambda function to access the DynamoDB table (using IAM)
         transactionsTable.grantFullAccess(transactionsLambda);
@@ -142,16 +154,32 @@ export class TransactionsResolverStack extends Stack {
                     resources: [
                         `${transactionsTable.tableArn}`,
                         `${transactionsTable.tableArn}/index/${props.transactionsConfig.transactionsStatusLocalIndex}-${props.stage}-${props.env!.region}`,
-                        `${transactionsTable.tableArn}/index/${props.transactionsConfig.transactionsIdGlobalIndex}-${props.stage}-${props.env!.region}`
+                        `${transactionsTable.tableArn}/index/${props.transactionsConfig.transactionsIdGlobalIndex}-${props.stage}-${props.env!.region}`,
+                        `${transactionsTable.tableArn}/index/${props.transactionsConfig.transactionStatusGlobalIndex}-${props.stage}-${props.env!.region}`
                     ]
                 }
             )
+        );
+        // enable the Lambda function the retrieval of the Moonbeam internal API secrets
+        transactionsLambda.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: [
+                    "secretsmanager:GetSecretValue"
+                ],
+                resources: [
+                    // this ARN is retrieved post secret creation
+                    ...props.stage === Stages.DEV ? ["arn:aws:secretsmanager:us-west-2:963863720257:secret:moonbeam-internal-secret-pair-dev-us-west-2-vgMpp2"] : [],
+                    ...props.stage === Stages.PROD ? ["arn:aws:secretsmanager:us-west-2:251312580862:secret:moonbeam-internal-secret-pair-prod-us-west-2-9xP6tj"] : []
+                ]
+            })
         );
 
         // Create environment variables that we will use in the function code
         transactionsLambda.addEnvironment(`${Constants.MoonbeamConstants.TRANSACTIONS_TABLE}`, transactionsTable.tableName);
         transactionsLambda.addEnvironment(`${Constants.MoonbeamConstants.TRANSACTIONS_STATUS_LOCAL_INDEX}`, props.transactionsConfig.transactionsStatusLocalIndex);
         transactionsLambda.addEnvironment(`${Constants.MoonbeamConstants.TRANSACTIONS_ID_GLOBAL_INDEX}`, props.transactionsConfig.transactionsIdGlobalIndex);
+        transactionsLambda.addEnvironment(`${Constants.MoonbeamConstants.TRANSACTIONS_STATUS_GLOBAL_INDEX}`, props.transactionsConfig.transactionStatusGlobalIndex);
         transactionsLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
     }
 }

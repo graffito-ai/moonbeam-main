@@ -47,8 +47,8 @@ export const triggerNotificationReminder = async (): Promise<void> => {
          *    - SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER, call the getUsersByGeographyForNotificationReminders AppSync Query API, in order to
          *    get all the users in San Antonio to send notification reminders to.
          *
-         *    - REIMBURSEMENTS_REMINDER, call the getAllUsersEligibleForReimbursements AppSync Query API, in order to get all the PROCESSED and FUNDED transactions
-         *    for a particular user, and determine whether that user is eligible for a notification based on their balance.
+         *    - REIMBURSEMENTS_REMINDER, call the getAllUsersEligibleForReimbursements AppSync Query API, in order to get all users eligible for
+         *    reimbursements to send notification reminders to.
          *
          * 3) For each applicable user from step 2) drop a message into the appropriate SNS topic.
          *
@@ -687,6 +687,111 @@ export const triggerNotificationReminder = async (): Promise<void> => {
                                      * in the future we might need some alerts and metrics emitting here
                                      */
                                     console.log(`Users for notification reminders retrieval through GET users by geography for notification reminders call failed`);
+                                }
+                                break;
+                            case NotificationReminderType.ReimbursementsReminder:
+                                console.log(`__________________________________________________________________________________________________________________________________`);
+                                console.log(`Found new ACTIVE notification reminder ${reminder!.id} of type ${NotificationReminderType.ReimbursementsReminder}`);
+
+                                /**
+                                 * 2) For any ACTIVE reminders of type call the getAllUsersEligibleForReimbursements AppSync Query API, in order to get all users eligible for
+                                 *    reimbursements to send notification reminders to.
+                                 */
+                                const allUsersEligibleForReimbursementsReminder: UserForNotificationReminderResponse = await moonbeamClient.getAllUsersEligibleForReimbursements();
+
+                                // check if the get users eligible for reimbursements notification reminders call was successful or not.
+                                if (allUsersEligibleForReimbursementsReminder !== null && allUsersEligibleForReimbursementsReminder !== undefined && !allUsersEligibleForReimbursementsReminder.errorMessage &&
+                                    !allUsersEligibleForReimbursementsReminder.errorType && allUsersEligibleForReimbursementsReminder.data !== null && allUsersEligibleForReimbursementsReminder.data !== undefined &&
+                                    allUsersEligibleForReimbursementsReminder.data.length !== 0) {
+
+                                    // 3) For each applicable user from step 2) drop a message into the appropriate SNS topic.
+                                    let successfulUserMessagesSent = 0;
+
+                                    // initializing the SNS Client
+                                    const snsClient = new SNSClient({region: region});
+
+                                    for (const user of allUsersEligibleForReimbursementsReminder.data) {
+                                        /**
+                                         * batch out the notifications in groups of 14, so we don't exceed the maximum SNS send limits per second quota
+                                         * currently we can send 14 emails per second.
+                                         */
+                                        successfulUserMessagesSent % 14 === 0 && await sleep(1500); // sleep for 1.5 seconds for every 14 messages
+
+                                        /**
+                                         * drop the ineligible user input as a message to the notification reminder processing topic
+                                         */
+                                        const userDetailsForNotifications: UserDetailsForNotifications = {
+                                            id: user!.id,
+                                            email: user!.email,
+                                            firstName: user!.firstName,
+                                            lastName: user!.lastName,
+                                            notificationChannelType: reminder!.notificationChannelType,
+                                            notificationType: NotificationType.ReimbursementsReminder
+                                        }
+                                        const notificationReminderReceipt = await snsClient.send(new PublishCommand({
+                                            TopicArn: process.env.NOTIFICATION_REMINDER_PROCESSING_TOPIC_ARN!,
+                                            Message: JSON.stringify(userDetailsForNotifications),
+                                            /**
+                                             * the message group id, will be represented by the Moonbeam internal user id, so that we can group the notification reminder update messages for a particular
+                                             * user id, and sort them in the FIFO processing topic accordingly.
+                                             */
+                                            MessageGroupId: user!.id
+                                        }));
+
+                                        // ensure that the notification reminder message was properly sent to the appropriate processing topic
+                                        if (notificationReminderReceipt !== null && notificationReminderReceipt !== undefined && notificationReminderReceipt.MessageId &&
+                                            notificationReminderReceipt.MessageId.length !== 0 && notificationReminderReceipt.SequenceNumber && notificationReminderReceipt.SequenceNumber.length !== 0) {
+                                            // the notification reminder message has been successfully dropped into the topic, and will be picked up by the notification reminder consumer
+                                            console.log(`Notification reminder successfully sent to topic for processing with receipt information: ${notificationReminderReceipt.MessageId} ${notificationReminderReceipt.SequenceNumber}`);
+                                            // increase the number of messages sent to the topic
+                                            successfulUserMessagesSent += 1;
+                                        } else {
+                                            /**
+                                             * no need for further actions, since this error will be logged and nothing will execute further.
+                                             * in the future we might need some alerts and metrics emitting here
+                                             */
+                                            console.log(`Unexpected error while sending the notification reminder for user ${user!.id}`);
+                                        }
+                                    }
+                                    // check if all applicable users have had successful messages dropped in the notification reminder topic
+                                    if (successfulUserMessagesSent === allUsersEligibleForReimbursementsReminder.data.length) {
+                                        console.log(`__________________________________________________________________________________________________________________________________`);
+                                        console.log(`Notification reminder successfully sent for users:\n${JSON.stringify(allUsersEligibleForReimbursementsReminder.data)}`);
+                                        /**
+                                         * 4) Once all users have been notified, then update the card linking reminder accordingly,
+                                         * by calling the updateNotificationReminder AppSync Mutation API.
+                                         */
+                                        const updateNotificationReminderResponse: NotificationReminderResponse = await moonbeamClient.updateNotificationReminder({
+                                            id: reminder!.id,
+                                            notificationReminderStatus: NotificationReminderStatus.Active
+                                        });
+
+                                        // check if the update notification reminder call was successful or not.
+                                        if (updateNotificationReminderResponse !== null && updateNotificationReminderResponse !== undefined &&
+                                            !updateNotificationReminderResponse.errorMessage && !updateNotificationReminderResponse.errorType &&
+                                            updateNotificationReminderResponse.data !== undefined && updateNotificationReminderResponse.data !== null &&
+                                            updateNotificationReminderResponse.data.length !== 0) {
+                                            console.log(`Notification reminder ${reminder!.id} successfully updated`);
+                                        } else {
+                                            /**
+                                             * no need for further actions, since this error will be logged and nothing will execute further.
+                                             * in the future we might need some alerts and metrics emitting here
+                                             */
+                                            console.log(`Update notification reminder through UPDATE notification reminder call failed`);
+                                        }
+                                    } else {
+                                        /**
+                                         * no need for further actions, since this error will be logged and nothing will execute further.
+                                         * in the future we might need some alerts and metrics emitting here
+                                         */
+                                        console.log(`Not all applicable users have had notification events dropped in the appropriate topic. Re-process these failed messages accordingly.`);
+                                    }
+                                } else {
+                                    /**
+                                     * no need for further actions, since this error will be logged and nothing will execute further.
+                                     * in the future we might need some alerts and metrics emitting here
+                                     */
+                                    console.log(`Users for notification reminders retrieval through GET users eligible for reimbursements call failed`);
                                 }
                                 break;
                             case NotificationReminderType.ReferralTemplateLaunch:

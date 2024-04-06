@@ -297,6 +297,20 @@ export abstract class BaseAPIClient {
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER_AUTH_TOKEN],
                                             clientPairAsJson[Constants.AWSPairConstants.EMAIL_SAN_ANTONIO_REFERRAL_TEMPLATE_1_REMINDER_TEMPLATE_ID]];
                                     }
+                                case NotificationType.ReimbursementsReminder:
+                                    if (channelType !== undefined) {
+                                        return channelType === NotificationChannelType.Email
+                                            ? [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_REIMBURSEMENTS_REMINDER_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.EMAIL_REIMBURSEMENTS_REMINDER_TEMPLATE_ID]]
+                                            : [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_REIMBURSEMENTS_REMINDER_AUTH_TOKEN],
+                                                clientPairAsJson[Constants.AWSPairConstants.PUSH_REIMBURSEMENTS_REMINDER_TEMPLATE_ID]];
+                                    } else {
+                                        return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_REIMBURSEMENTS_REMINDER_AUTH_TOKEN],
+                                            clientPairAsJson[Constants.AWSPairConstants.EMAIL_REIMBURSEMENTS_REMINDER_TEMPLATE_ID]];
+                                    }
                                 case NotificationType.SpouseFeatureReminder:
                                     return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
                                         clientPairAsJson[Constants.AWSPairConstants.SPOUSE_FEATURE_REMINDER_AUTH_TOKEN],
@@ -521,9 +535,9 @@ export abstract class BaseAPIClient {
     protected retrieveContactInformationForUser?(contactInformationInput: MilitaryVerificationReportingInformation): Promise<MilitaryVerificationReportingInformationResponse>;
 
     /**
-     * Function used to get all the users eligible for reimbursements.
+     * Function used to get all the users eligible for a reimbursement.
      *
-     * @returns a {@link UserForNotificationReminderResponse}, representing each individual eligible users'
+     * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
      * user ID, first, last name and email.
      *
      * @protected

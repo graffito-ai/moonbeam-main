@@ -329,6 +329,7 @@ export interface TransactionsConfiguration {
     readonly transactionsTableName: string;
     readonly transactionsIdGlobalIndex: string;
     readonly transactionsStatusLocalIndex: string;
+    readonly transactionStatusGlobalIndex: string;
 }
 
 /**

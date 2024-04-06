@@ -46,7 +46,6 @@ import {
     StorageErrorType,
     StorageResponse,
     TransactionsErrorType,
-    TransactionsStatus,
     UpdateCardInput,
     UpdatedTransactionEvent,
     UpdateNotificationReminderInput,
@@ -76,7 +75,8 @@ import {
     getStorage,
     getTransaction,
     getTransactionByStatus,
-    getUsersWithNoCards
+    getUsersWithNoCards,
+    getAllUsersEligibleForReimbursements
 } from "../../graphql/queries/Queries";
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
 import {
@@ -1117,106 +1117,119 @@ export class MoonbeamClient extends BaseAPIClient {
     }
 
     /**
-     * Function used to get all the users eligible for reimbursements.
+     * Function used to get all the users eligible for a reimbursement.
      *
-     * @returns a {@link UserForNotificationReminderResponse}, representing each individual eligible users'
+     * @returns a {@link UserForNotificationReminderResponse}, representing each individual users'
      * user ID, first, last name and email.
      */
     async getAllUsersEligibleForReimbursements(): Promise<UserForNotificationReminderResponse> {
         // easily identifiable API endpoint information
-        const endpointInfo = '/getAllUsersEligibleForReimbursements call';
+        const endpointInfo = 'getAllUsersEligibleForReimbursements Query Moonbeam GraphQL API';
 
         try {
-            // first we will attempt to call the /getAllUsersForNotificationReminders, in order to capture all users.
-            const allUsersEligibleForReimbursementsResponse: UserForNotificationReminderResponse = await this.getAllUsersForNotificationReminders();
+            // retrieve the API Key and Base URL, needed in order to make the get all users eligible for reimbursements retrieval call through the client
+            const [moonbeamBaseURL, moonbeamPrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.MOONBEAM_INTERNAL_SECRET_NAME);
 
-            // check to see if the user retrieval was successful or not
-            if (allUsersEligibleForReimbursementsResponse && !allUsersEligibleForReimbursementsResponse.errorMessage && !allUsersEligibleForReimbursementsResponse.errorType &&
-                allUsersEligibleForReimbursementsResponse.data !== undefined && allUsersEligibleForReimbursementsResponse.data !== null && allUsersEligibleForReimbursementsResponse.data.length !== 0) {
-                // for each user in the list of users, call the getTransactionByStatus AppSync API in order to see if they are eligible for a reimbursement
-                const usersToNotify: RetrieveUserDetailsForNotifications[] = [];
-                for (const eligibleUser of allUsersEligibleForReimbursementsResponse.data) {
-                    if (eligibleUser !== null) {
-                        // flag to represent the user's reimbursement eligibility
-                        let eligibleForReimbursementNotification: boolean = false;
-
-                        // first retrieve the PROCESSED transactions
-                        const processedTransactionsResponse: MoonbeamTransactionsByStatusResponse = await this.getTransactionByStatus({
-                            id: eligibleUser.id,
-                            status: TransactionsStatus.Processed
-                        });
-                        // check to see if the call was successful and if we have any PROCESSED transactions
-                        if (processedTransactionsResponse && !processedTransactionsResponse.errorMessage && !processedTransactionsResponse.errorType &&
-                            processedTransactionsResponse.data !== undefined && processedTransactionsResponse.data !== null) {
-                            eligibleForReimbursementNotification = true;
-                        } else {
-                            console.log(`PROCESSED transactions call for user ${eligibleUser.id} call failed`);
-                            eligibleForReimbursementNotification = false;
-                        }
-
-                        // retrieve the FUNDED transactions
-                        const fundedTransactionsResponse: MoonbeamTransactionsByStatusResponse = await this.getTransactionByStatus({
-                            id: eligibleUser.id,
-                            status: TransactionsStatus.Funded
-                        });
-
-                        // check to see if the call was successful and if we have any FUNDED transactions
-                        if (fundedTransactionsResponse && !fundedTransactionsResponse.errorMessage && !fundedTransactionsResponse.errorType &&
-                            fundedTransactionsResponse.data !== undefined && fundedTransactionsResponse.data !== null) {
-                            eligibleForReimbursementNotification = true;
-                        } else {
-                            console.log(`FUNDED transactions call for user ${eligibleUser.id} call failed`);
-                            eligibleForReimbursementNotification = false;
-                        }
-
-                        /**
-                         * at this point if the flag above is true, then we know we must have a valid list of 0 or more PROCESSED and/or FUNDED transactions.
-                         * Loop through all these transactions and see if their total pendingCashbackAmount is $20 or more. If so add them in the list, otherwise
-                         * do not.
-                         */
-                        if (eligibleForReimbursementNotification) {
-                            let pendingCashbackAmount = 0.00;
-                            // loop through PROCESSED transactions and add up
-                            processedTransactionsResponse.data!.forEach(processedTransaction => {
-                                if (processedTransaction !== null) {
-                                    pendingCashbackAmount += processedTransaction.pendingCashbackAmount;
-                                }
-                            });
-
-                            // loop through FUNDED transactions and add up
-                            fundedTransactionsResponse.data!.forEach(fundedTransaction => {
-                                if (fundedTransaction !== null) {
-                                    pendingCashbackAmount += fundedTransaction.pendingCashbackAmount;
-                                }
-                            });
-                            if (pendingCashbackAmount >= 20.00) {
-                                usersToNotify.push(eligibleUser);
-                            }
-                        }
-                    }
-                }
-                // return all eligible users for reimbursements, needing to get notified.
-                return {
-                    data: usersToNotify
-                }
-            } else {
-                const errorMessage = `Error while retrieving all users!`;
-                console.log(`${errorMessage}`);
+            // check to see if we obtained any invalid secret values from the call above
+            if (moonbeamBaseURL === null || moonbeamBaseURL.length === 0 ||
+                moonbeamPrivateKey === null || moonbeamPrivateKey.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Moonbeam API call!";
+                console.log(errorMessage);
 
                 return {
-                    data: null,
-                    errorType: NotificationReminderErrorType.ValidationError,
-                    errorMessage: errorMessage
+                    errorMessage: errorMessage,
+                    errorType: NotificationReminderErrorType.UnexpectedError
                 };
             }
+
+            /**
+             * getAllUsersEligibleForReimbursements Query
+             *
+             * build the Moonbeam AppSync API GraphQL query, and perform a POST to it,
+             * with the appropriate information.
+             *
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.post(`${moonbeamBaseURL}`, {
+                query: getAllUsersEligibleForReimbursements,
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": moonbeamPrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Moonbeam API timed out after 15000ms!'
+            }).then(getAllUsersEligibleForReimbursementsResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(getAllUsersEligibleForReimbursementsResponse.data)}`);
+
+                // retrieve the data block from the response
+                const responseData = (getAllUsersEligibleForReimbursementsResponse && getAllUsersEligibleForReimbursementsResponse.data) ? getAllUsersEligibleForReimbursementsResponse.data.data : null;
+
+                // check if there are any errors in the returned response
+                if (responseData && responseData.getAllUsersEligibleForReimbursements.errorMessage === null) {
+                    // returned the successfully retrieved users
+                    return {
+                        data: responseData.getAllUsersEligibleForReimbursements.data as RetrieveUserDetailsForNotifications[]
+                    }
+                } else {
+                    return responseData ?
+                        // return the error message and type, from the original AppSync call
+                        {
+                            errorMessage: responseData.getAllUsersEligibleForReimbursements.errorMessage,
+                            errorType: responseData.getAllUsersEligibleForReimbursements.errorType
+                        } :
+                        // return the error response indicating an invalid structure returned
+                        {
+                            errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                            errorType: NotificationReminderErrorType.ValidationError
+                        }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Moonbeam API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: NotificationReminderErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Moonbeam API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: NotificationReminderErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Moonbeam API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: NotificationReminderErrorType.UnexpectedError
+                    };
+                }
+            });
         } catch (err) {
-            const errorMessage = `Unexpected error while retrieving all users eligible for reimbursements, through ${endpointInfo}`;
+            const errorMessage = `Unexpected error while retrieving users eligible for reimbursements by status through ${endpointInfo}`;
             console.log(`${errorMessage} ${err}`);
 
             return {
-                data: null,
-                errorType: NotificationReminderErrorType.UnexpectedError,
-                errorMessage: errorMessage
+                errorMessage: errorMessage,
+                errorType: NotificationReminderErrorType.UnexpectedError
             };
         }
     }
