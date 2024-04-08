@@ -32,6 +32,8 @@ import {MapHorizontalSection} from "./MapHorizontalSection";
 import {getDistance} from "geolib";
 import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
 import {logEvent} from "../../../../../../utils/AppSync";
+import { BlurView } from "expo-blur";
+import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
 
 /**
  * NearbySection component.
@@ -69,6 +71,7 @@ export const NearbySection = (props: {
     const [userInformation,] = useRecoilState(currentUserInformation);
     const [noNearbyOffersToLoad,] = useRecoilState(noNearbyOffersToLoadState);
     const [nearbyOffersSpinnerShown, setNearbyOffersSpinnerShown] = useRecoilState(nearbyOffersSpinnerShownState);
+    const [isCardLinked, ] = useRecoilState(cardLinkingStatusState);
 
     /**
      * Function used to populate the rows containing the nearby offer data.
@@ -150,23 +153,49 @@ export const NearbySection = (props: {
                                                 justifyContent: 'space-between',
                                                 right: wp(2)
                                             }}>
-                                                <Card.Title
-                                                    style={{alignSelf: 'flex-start', right: wp(1.5)}}
-                                                    title={
-                                                        <Text style={styles.nearbyOfferCardTitle}>
-                                                            {`${data.brandDba}\n`}
-                                                            <Text style={styles.nearbyOfferCardSubtitle}>
-                                                                {data.reward!.type! === RewardType.RewardPercent
-                                                                    ? `${data.reward!.value}% Off`
-                                                                    : `$${data.reward!.value} Off`}
+                                                {
+                                                    isCardLinked &&
+                                                    <Card.Title
+                                                        style={{alignSelf: 'flex-start', right: wp(1.5)}}
+                                                        title={
+                                                            <Text style={styles.nearbyOfferCardTitle}>
+                                                                {`${data.brandDba}\n`}
+                                                                <Text style={styles.nearbyOfferCardSubtitle}>
+                                                                    {data.reward!.type! === RewardType.RewardPercent
+                                                                        ? `${data.reward!.value}% Off`
+                                                                        : `$${data.reward!.value} Off`}
+                                                                </Text>
                                                             </Text>
-                                                        </Text>
-                                                    }
-                                                    titleStyle={styles.nearbyOfferCardTitleMain}
-                                                    titleNumberOfLines={2}/>
+                                                        }
+                                                        titleStyle={styles.nearbyOfferCardTitleMain}
+                                                        titleNumberOfLines={2}/>
+                                                }
+                                                {
+                                                    !isCardLinked &&
+                                                    <>
+                                                        <Paragraph
+                                                            style={[styles.nearbyOfferCardSubtitleUnlinked, {}]}
+                                                        >
+                                                            {data.reward!.type! === RewardType.RewardPercent
+                                                                ? `${data.reward!.value}% Off`
+                                                                : `$${data.reward!.value} Off`}
+                                                        </Paragraph>
+                                                        <BlurView intensity={35}
+                                                                  style={styles.unlinkedNearbyOfferCardSubtitle}/>
+                                                        <Card.Title
+                                                            style={{alignSelf: 'flex-start', right: wp(1.5)}}
+                                                            title={
+                                                                <Text style={styles.unlinkedNearbyOfferCardTitle}>
+                                                                    {`${data.brandDba}\n`}
+                                                                </Text>
+                                                            }
+                                                            titleStyle={styles.nearbyOfferCardTitleMain}
+                                                            titleNumberOfLines={2}/>
+                                                    </>
+                                                }
                                                 <Paragraph
                                                     numberOfLines={3}
-                                                    style={styles.nearbyOfferCardParagraph}
+                                                    style={!isCardLinked ? styles.unlinkedNearbyOfferCardParagraph : styles.nearbyOfferCardParagraph}
                                                 >
                                                     {`📌 ${physicalLocation}`}
                                                 </Paragraph>
@@ -174,7 +203,7 @@ export const NearbySection = (props: {
                                                     calculatedDistance !== 0 &&
                                                     <Paragraph
                                                         numberOfLines={1}
-                                                        style={styles.nearbyOfferCardDistanceParagraph}
+                                                        style={!isCardLinked ? styles.unlinkedNearbyOfferCardDistanceParagraph : styles.nearbyOfferCardDistanceParagraph}
                                                     >
                                                         {`${calculatedDistance} miles away`}
                                                     </Paragraph>
@@ -199,7 +228,7 @@ export const NearbySection = (props: {
                                                     />
                                                 </View>
                                                 <TouchableOpacity
-                                                    style={styles.viewOfferButton}
+                                                    style={!isCardLinked ? styles.unlinkedViewOfferButton : styles.viewOfferButton}
                                                     onPress={() => {
                                                         // set the clicked offer/partner accordingly
                                                         setStoreOfferClicked(data);

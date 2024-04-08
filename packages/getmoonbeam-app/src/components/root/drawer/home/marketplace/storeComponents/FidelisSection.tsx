@@ -20,6 +20,8 @@ import MoonbeamVeteranOwnedBadgeImage from "../../../../../../../assets/art/moon
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
 import {getDistance} from "geolib";
 import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
+import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
+import {BlurView} from "expo-blur";
 
 /**
  * FidelisSection component.
@@ -39,6 +41,7 @@ export const FidelisSection = (props: {
     const [fidelisPartnerList,] = useRecoilState(fidelisPartnerListState);
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
     const [, setStoreOfferPhysicalLocation] = useRecoilState(storeOfferPhysicalLocationState);
+    const [isCardLinked,] = useRecoilState(cardLinkingStatusState);
 
     /**
      * Function used to populate the rows containing the Fidelis partners data.
@@ -66,9 +69,9 @@ export const FidelisSection = (props: {
                         break;
                     }
                 }
-                const subtitle = offer!.reward!.type! === RewardType.RewardPercent
-                    ? `Starting at ${offer!.reward!.value}% Off`
-                    : `Starting at $${offer!.reward!.value} Off`;
+                const subtitle = (offer!.reward!.type! === RewardType.RewardPercent
+                        ? `Starting at ${offer!.reward!.value}% Off`
+                        : `Starting at $${offer!.reward!.value} Off`);
                 if (offer === null) {
                     return (<></>);
                 } else {
@@ -141,21 +144,46 @@ export const FidelisSection = (props: {
                                                         justifyContent: 'space-between',
                                                         right: wp(2)
                                                     }}>
-                                                        <Card.Title
-                                                            style={{alignSelf: 'flex-start', right: wp(1.5)}}
-                                                            title={
-                                                                <Text style={styles.featuredPartnerCardTitle}>
-                                                                    {`${data.brandName}\n`}
-                                                                    <Text style={styles.featuredPartnerCardSubtitle}>
-                                                                        {subtitle}
+                                                        {
+                                                            isCardLinked &&
+                                                            <Card.Title
+                                                                style={{alignSelf: 'flex-start', right: wp(1.5)}}
+                                                                title={
+                                                                    <Text style={styles.featuredPartnerCardTitle}>
+                                                                        {`${data.brandName}\n`}
+                                                                        <Text
+                                                                            style={styles.featuredPartnerCardSubtitle}>
+                                                                            {subtitle}
+                                                                        </Text>
                                                                     </Text>
-                                                                </Text>
-                                                            }
-                                                            titleStyle={styles.featuredPartnerCardTitleMain}
-                                                            titleNumberOfLines={10}/>
+                                                                }
+                                                                titleStyle={styles.featuredPartnerCardTitleMain}
+                                                                titleNumberOfLines={10}/>
+                                                        }
+                                                        {
+                                                            !isCardLinked &&
+                                                            <>
+                                                                <Paragraph
+                                                                    style={[styles.featuredPartnerCardSubtitleUnlinked, {}]}
+                                                                >
+                                                                    {subtitle}
+                                                                </Paragraph>
+                                                                <BlurView intensity={20}
+                                                                          style={styles.unlinkedFeaturedPartnerCardSubtitle}/>
+                                                                <Card.Title
+                                                                    style={{alignSelf: 'flex-start', right: wp(1.5)}}
+                                                                    title={
+                                                                        <Text style={styles.unlinkedFeaturedPartnerCardTitle}>
+                                                                            {`${data.brandName}\n`}
+                                                                        </Text>
+                                                                    }
+                                                                    titleStyle={styles.featuredPartnerCardTitleMain}
+                                                                    titleNumberOfLines={10}/>
+                                                            </>
+                                                        }
                                                         <Paragraph
-                                                            numberOfLines={6}
-                                                            style={styles.featuredPartnerCardParagraph}
+                                                            numberOfLines={5}
+                                                            style={ !isCardLinked ? styles.unlinkedFeaturedPartnerCardParagraph : styles.featuredPartnerCardParagraph}
                                                         >
                                                             {data.offers[0]!.brandStubCopy!}
                                                         </Paragraph>
@@ -163,7 +191,7 @@ export const FidelisSection = (props: {
                                                             calculatedDistance !== 0 &&
                                                             <Paragraph
                                                                 numberOfLines={1}
-                                                                style={styles.nearbyOfferCardDistanceParagraph}
+                                                                style={!isCardLinked ? styles.unlinkedNearbyOfferCardDistanceParagraph : styles.nearbyOfferCardDistanceParagraph}
                                                             >
                                                                 {`📌 ${calculatedDistance} miles away`}
                                                             </Paragraph>
@@ -251,20 +279,45 @@ export const FidelisSection = (props: {
                                                     justifyContent: 'space-between',
                                                     right: wp(2)
                                                 }}>
-                                                    <Card.Title
-                                                        style={{alignSelf: 'flex-start', right: wp(1.5)}}
-                                                        title={
-                                                            <Text style={styles.featuredPartnerCardTitle}>
-                                                                {`${data.brandName}\n`}
-                                                                <Text style={styles.featuredPartnerCardSubtitle}>
-                                                                    {subtitle}
+                                                    {
+                                                        isCardLinked &&
+                                                        <Card.Title
+                                                            style={{alignSelf: 'flex-start', right: wp(1.5)}}
+                                                            title={
+                                                                <Text style={styles.featuredPartnerCardTitle}>
+                                                                    {`${data.brandName}\n`}
+                                                                    <Text
+                                                                        style={styles.featuredPartnerCardSubtitle}>
+                                                                        {subtitle}
+                                                                    </Text>
                                                                 </Text>
-                                                            </Text>
-                                                        }
-                                                        titleStyle={styles.featuredPartnerCardTitleMain}
-                                                        titleNumberOfLines={10}/>
+                                                            }
+                                                            titleStyle={styles.featuredPartnerCardTitleMain}
+                                                            titleNumberOfLines={10}/>
+                                                    }
+                                                    {
+                                                        !isCardLinked &&
+                                                        <>
+                                                            <Paragraph
+                                                                style={[styles.featuredPartnerCardSubtitleUnlinked, {}]}
+                                                            >
+                                                                {subtitle}
+                                                            </Paragraph>
+                                                            <BlurView intensity={20}
+                                                                      style={styles.unlinkedFeaturedPartnerCardSubtitle}/>
+                                                            <Card.Title
+                                                                style={{alignSelf: 'flex-start', right: wp(1.5)}}
+                                                                title={
+                                                                    <Text style={styles.unlinkedFeaturedPartnerCardTitle}>
+                                                                        {`${data.brandName}\n`}
+                                                                    </Text>
+                                                                }
+                                                                titleStyle={styles.featuredPartnerCardTitleMain}
+                                                                titleNumberOfLines={10}/>
+                                                        </>
+                                                    }
                                                     <Paragraph
-                                                        style={styles.featuredPartnerCardParagraph}
+                                                        style={ !isCardLinked ? styles.unlinkedFeaturedPartnerCardParagraph : styles.featuredPartnerCardParagraph}
                                                     >
                                                         {data.offers[0]!.brandStubCopy!}
                                                     </Paragraph>
@@ -308,7 +361,7 @@ export const FidelisSection = (props: {
                                             {
                                                 data.veteranOwned &&
                                                 <Image
-                                                    style={styles.veteranOwnedBadge}
+                                                    style={!isCardLinked ? styles.unlinkedVeteranOwnedBadge : styles.veteranOwnedBadge}
                                                     source={MoonbeamVeteranOwnedBadgeImage}
                                                     placeholder={MoonbeamVeteranOwnedBadgeImage}
                                                     placeholderContentFit={'contain'}

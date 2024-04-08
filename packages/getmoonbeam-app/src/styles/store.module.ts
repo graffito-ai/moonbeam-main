@@ -104,8 +104,46 @@ export const styles = StyleSheet.create({
         width: wp(92),
         left: wp(5)
     },
-
-
+    marketplaceButtonLabel: {
+        fontFamily: 'Saira-Bold',
+        color: 'black',
+        fontSize: hp(2.5),
+        lineHeight: hp(3),
+        right: wp(4),
+        alignSelf: 'center',
+        bottom: hp(2),
+        textDecorationLine: 'underline'
+    },
+    bannerDescription: {
+        top: hp(2),
+        alignSelf: 'center',
+        right: wp(4),
+        height: hp(12),
+        width: wp(64),
+        textAlign: 'center',
+        fontFamily: 'Saira-SemiBold',
+        fontSize: hp(2),
+        color: '#F2FF5D'
+    },
+    bannerDescriptionFullScreen: {
+        top: hp(25),
+        alignSelf: 'center',
+        height: hp(12),
+        width: wp(100),
+        textAlign: 'center',
+        fontFamily: 'Saira-SemiBold',
+        fontSize: hp(3.5),
+        color: '#F2FF5D'
+    },
+    marketplaceButtonLabelFullScreen: {
+        top: hp(30),
+        fontFamily: 'Saira-Bold',
+        color: 'black',
+        fontSize: hp(4),
+        lineHeight: hp(5),
+        alignSelf: 'center',
+        textDecorationLine: 'underline'
+    },
     toolTipMain: {
         height: '100%',
         width: '100%',
@@ -136,6 +174,13 @@ export const styles = StyleSheet.create({
         height: '90%',
         width: '50%',
         alignSelf: 'center'
+    },
+    unlinkedToolTipImagePrice: {
+        height: hp(2),
+        width: wp(11.5),
+        bottom: hp(1),
+        alignSelf: 'flex-end',
+        right: wp(11)
     },
     toolTipImagePrice: {
         alignSelf: 'center',
@@ -343,6 +388,13 @@ export const styles = StyleSheet.create({
         alignSelf: 'center',
         textAlign: 'center',
         color: '#FFFFFF'
+    },
+    unlinkedClickOnlyOnlineOfferCardSubtitle: {
+        height: hp(2),
+        width: wp(10),
+        bottom: hp(1.6),
+        alignSelf: 'flex-end',
+        right: wp(11)
     },
     clickOnlyOnlineOfferCardSubtitle: {
         top: hp(0.5),
@@ -571,6 +623,12 @@ export const styles = StyleSheet.create({
         width: wp(20),
         height: hp(10),
     },
+    unlinkedVeteranOwnedBadge: {
+        alignSelf: 'flex-start',
+        width: wp(20),
+        height: hp(10),
+        bottom: hp(2)
+    },
     featuredPartnerCardCoverBackground: {
         backgroundColor: '#FFFFFF',
         width: wp(25),
@@ -589,6 +647,15 @@ export const styles = StyleSheet.create({
         width: wp(40),
         marginBottom: hp(1),
         alignSelf: 'flex-start'
+    },
+    unlinkedFeaturedPartnerCardTitle: {
+        right: wp(1),
+        fontFamily: 'Raleway-Medium',
+        fontSize: hp(2),
+        width: wp(40),
+        alignSelf: 'flex-start',
+        marginTop: -hp(2),
+        color: '#FFFFFF'
     },
     featuredPartnerCardTitle: {
         right: wp(1),
@@ -609,6 +676,23 @@ export const styles = StyleSheet.create({
         width: wp(80),
         alignSelf: 'flex-start'
     },
+    unlinkedFeaturedPartnerCardSubtitle: {
+        height: hp(2),
+        width: wp(36),
+        bottom: hp(1.6),
+        alignSelf: 'flex-start',
+        left: wp(0.5)
+    },
+    featuredPartnerCardSubtitleUnlinked: {
+        top: hp(0.5),
+        left: wp(1.5),
+        fontSize: hp(1.6),
+        fontFamily: 'Raleway-SemiBold',
+        alignSelf: 'flex-start',
+        width: wp(40),
+        lineHeight: hp(2),
+        color: '#F2FF5D',
+    },
     featuredPartnerCardSubtitle: {
         top: hp(0.5),
         right: wp(1),
@@ -618,6 +702,15 @@ export const styles = StyleSheet.create({
         width: wp(40),
         lineHeight: hp(2),
         color: '#F2FF5D',
+    },
+    unlinkedFeaturedPartnerCardParagraph: {
+        bottom: hp(1),
+        left: wp(1.5),
+        fontFamily: 'Raleway-Bold',
+        width: wp(50),
+        fontSize: hp(1.5),
+        lineHeight: hp(2),
+        color: '#FFFFFF'
     },
     featuredPartnerCardParagraph: {
         top: hp(1),
@@ -651,6 +744,15 @@ export const styles = StyleSheet.create({
         fontSize: hp(2),
         color: '#FFFFFF'
     },
+    unlinkedNearbyOfferCardParagraph: {
+        left: wp(1),
+        fontFamily: 'Raleway-Bold',
+        width: wp(40),
+        fontSize: hp(1.5),
+        lineHeight: hp(2),
+        color: '#FFFFFF',
+        bottom: hp(2.5)
+    },
     nearbyOfferCardParagraph: {
         left: wp(1),
         fontFamily: 'Raleway-Bold',
@@ -659,6 +761,15 @@ export const styles = StyleSheet.create({
         lineHeight: hp(2),
         color: '#FFFFFF',
         top: hp(3)
+    },
+    unlinkedNearbyOfferCardDistanceParagraph: {
+        left: wp(1),
+        fontFamily: 'Raleway-ExtraBold',
+        width: wp(40),
+        fontSize: hp(1.3),
+        lineHeight: hp(2),
+        color: '#F2FF5D',
+        bottom: hp(1.5)
     },
     nearbyOfferCardDistanceParagraph: {
         left: wp(1),
@@ -753,6 +864,16 @@ export const styles = StyleSheet.create({
         marginTop: hp(1),
         width: wp(50)
     },
+    unlinkedNearbyOfferCardTitle: {
+        right: wp(1),
+        bottom: hp(4),
+        fontFamily: 'Raleway-Medium',
+        fontSize: hp(2),
+        width: wp(40),
+        lineHeight: hp(2.4),
+        alignSelf: 'flex-start',
+        color: '#FFFFFF'
+    },
     nearbyOfferCardTitle: {
         right: wp(1),
         fontFamily: 'Raleway-Medium',
@@ -762,6 +883,21 @@ export const styles = StyleSheet.create({
         alignSelf: 'flex-start',
         color: '#FFFFFF'
     },
+    nearbyOfferCardSubtitleUnlinked: {
+        left: wp(1.5),
+        fontSize: hp(2),
+        fontFamily: 'Raleway-SemiBold',
+        alignSelf: 'flex-start',
+        width: wp(40),
+        color: '#F2FF5D',
+    },
+    unlinkedNearbyOfferCardSubtitle: {
+        height: hp(4),
+        width: wp(20),
+        bottom: hp(3),
+        alignSelf: 'flex-start',
+        left: wp(0.5)
+    },
     nearbyOfferCardSubtitle: {
         right: wp(1),
         fontSize: hp(2),
@@ -769,6 +905,14 @@ export const styles = StyleSheet.create({
         alignSelf: 'flex-start',
         width: wp(40),
         color: '#F2FF5D',
+    },
+    unlinkedViewOfferButton: {
+        bottom: hp(2),
+        alignSelf: 'flex-end',
+        backgroundColor: '#F2FF5D',
+        width: wp(25),
+        height: hp(4),
+        borderRadius: 5
     },
     viewOfferButton: {
         top: hp(2),

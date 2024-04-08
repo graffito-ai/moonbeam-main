@@ -57,6 +57,8 @@ import {Button as ModalButton} from "@rneui/base/dist/Button/Button";
 import {bottomTabShownState} from "../../../../../../recoil/HomeAtom";
 import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 import {logEvent} from "../../../../../../utils/AppSync";
+import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
+import { BlurView } from "expo-blur";
 
 /**
  * MapHorizontalSection component.
@@ -111,6 +113,7 @@ export const MapHorizontalKitSection = () => {
     const uniqueNearbyServicesAndSubscriptionsOffersList = useRecoilValue(uniqueNearbyServicesAndSubscriptionsOffersListState);
     const [currentUserLocation, setCurrentUserLocation] = useRecoilState(currentUserLocationState);
     const [noNearbyKitOffersAvailable, setNoNearbyKitOffersAvailable] = useRecoilState(noNearbyKitOffersAvailableState);
+    const [isCardLinked, ] = useRecoilState(cardLinkingStatusState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -316,6 +319,7 @@ export const MapHorizontalKitSection = () => {
                                             : `$${uniqueNearbyOffersListForMainHorizontalMap[i]!.reward!.value}`}
                                         {" Off "}
                                     </Text>
+                                    {!isCardLinked && <BlurView intensity={25} style={styles.unlinkedToolTipImagePrice}/>}
                                 </View>
                                 {
                                     Platform.OS === 'android' ?

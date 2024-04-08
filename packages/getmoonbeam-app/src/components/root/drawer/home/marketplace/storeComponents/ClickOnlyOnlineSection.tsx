@@ -20,6 +20,8 @@ import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-s
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
 import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 import {logEvent} from "../../../../../../utils/AppSync";
+import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
+import {BlurView} from 'expo-blur';
 
 /**
  * ClickOnlineSection component.
@@ -37,7 +39,7 @@ export const ClickOnlyOnlineSection = (props: {
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
     const [clickOnlyOnlineOffersSpinnerShown, setClickOnlyOnlineOffersSpinnerShown] = useState<boolean>(false);
     // constants used to keep track of shared states
-    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [, setToggleViewPressed] = useRecoilState(toggleViewPressedState);
     const [, setWhichVerticalSectionActive] = useRecoilState(verticalSectionActiveState);
     const deDuplicatedClickOnlyOnlineOfferList = useRecoilValue(uniqueClickOnlyOnlineOffersListState);
@@ -45,6 +47,7 @@ export const ClickOnlyOnlineSection = (props: {
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
     const [noClickOnlyOnlineOffersToLoad,] = useRecoilState(noClickOnlyOnlineOffersToLoadState);
     const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
+    const [isCardLinked,] = useRecoilState(cardLinkingStatusState);
 
     /**
      * Function used to populate the rows containing the click-only online offers data.
@@ -87,13 +90,27 @@ export const ClickOnlyOnlineSection = (props: {
                                         numberOfLines={1}
                                         style={styles.clickOnlyOnlineOfferCardTitle}>{data.brandDba}
                                     </Paragraph>
-                                    <Paragraph
-                                        numberOfLines={1}
-                                        style={styles.clickOnlyOnlineOfferCardSubtitle}>
-                                        {data.reward!.type! === RewardType.RewardPercent
-                                            ? `${data.reward!.value}% Off`
-                                            : `$${data.reward!.value} Off`}
-                                    </Paragraph>
+                                    {
+                                        isCardLinked ?
+                                            <Paragraph
+                                                numberOfLines={1}
+                                                style={styles.clickOnlyOnlineOfferCardSubtitle}>
+                                                {data.reward!.type! === RewardType.RewardPercent
+                                                    ? `${data.reward!.value}% Off`
+                                                    : `$${data.reward!.value} Off`}
+                                            </Paragraph>
+                                            :
+                                            <>
+                                                <Paragraph
+                                                    numberOfLines={1}
+                                                    style={styles.clickOnlyOnlineOfferCardSubtitle}>
+                                                    {data.reward!.type! === RewardType.RewardPercent
+                                                        ? `${data.reward!.value}% Off`
+                                                        : `$${data.reward!.value} Off`}
+                                                </Paragraph>
+                                                <BlurView intensity={15} style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}/>
+                                            </>
+                                    }
                                 </View>
                             </Card.Content>
                         </Card>
@@ -216,7 +233,7 @@ export const ClickOnlyOnlineSection = (props: {
                                 scrollViewProps={{
                                     pagingEnabled: "true",
                                     decelerationRate: "fast",
-                                    snapToInterval: Platform.OS === 'android' ?  wp(33) * 3 : wp(33),
+                                    snapToInterval: Platform.OS === 'android' ? wp(33) * 3 : wp(33),
                                     snapToAlignment: "center",
                                     persistentScrollbar: false,
                                     showsHorizontalScrollIndicator: false

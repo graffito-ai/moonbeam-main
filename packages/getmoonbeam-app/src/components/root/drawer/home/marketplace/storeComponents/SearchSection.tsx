@@ -20,6 +20,10 @@ import {
 import {searchQueryExecute} from "../../../../../../utils/AppSync";
 import {filteredOffersSpinnerShownState} from "../../../../../../recoil/AuthAtom";
 import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
+import {CustomBanner} from "../../../../../common/CustomBanner";
+import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
+// @ts-ignore
+import CardLinkingImage from "../../../../../../../assets/art/moonbeam-card-linking.png";
 
 /**
  * SearchSection component.
@@ -40,6 +44,7 @@ export const SearchSection = () => {
     const [, setFilteredOffersSpinnerShown] = useRecoilState(filteredOffersSpinnerShownState);
     const [currentUserLocation,] = useRecoilState(currentUserLocationState);
     const [bottomTabNeedsShowing, setBottomTabNeedsShowing] = useRecoilState(bottomTabNeedsShowingState);
+    const [isCardLinked,] = useRecoilState(cardLinkingStatusState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -178,71 +183,24 @@ export const SearchSection = () => {
                                     color={'#F2FF5D'}/>
                             </TouchableOpacity>
                         }
-                        <Searchbar
-                            blurOnSubmit={false}
-                            autoFocus={whichVerticalSectionActive === 'search' && !noFilteredOffersToLoad}
-                            selectionColor={'#F2FF5D'}
-                            iconColor={'#F2FF5D'}
-                            placeholderTextColor={'#FFFFFF'}
-                            cursorColor={'#F2FF5D'}
-                            inputStyle={styles.searchBarInput}
-                            style={[styles.searchBar, whichVerticalSectionActive === 'search' && {
-                                width: wp(85.3),
-                                alignSelf: 'flex-end',
-                                right: wp(0.5),
-                            }]}
-                            value={searchQuery}
-                            placeholder={whichVerticalSectionActive === 'search' ? "" : "Search for anything (e.g \"Nike\" or \"food\")"}
-                            onTouchEndCapture={() => {
-                                // reset any filtered offers
-                                setNoFilteredOffersToLoad(false);
-                                setFilteredOffersList([]);
-
-                                // set the appropriate vertical view
-                                setWhichVerticalSectionActive('search');
-                                setToggleViewPressed('vertical');
-                            }}
-                            onKeyPress={({nativeEvent}) => {
-                                if (nativeEvent.key === 'Backspace') {
-                                    // reset any filtered offers
-                                    setNoFilteredOffersToLoad(false);
-                                    setFilteredOffersList([]);
-                                }
-                            }}
-                            onClearIconPress={(_) => {
-                                // reset any filtered offers
-                                setNoFilteredOffersToLoad(false);
-                                setFilteredOffersList([]);
-
-                                // reset search query
-                                setSearchQuery("");
-                            }}
-                            onSubmitEditing={async (event) => {
-                                setSearchQuery(event.nativeEvent.text);
-
-                                // clean any previous offers
-                                setFilteredOffersList([]);
-
-                                // execute the search query
-                                setFilteredOffersSpinnerShown(true);
-                                const queriedOffers =
-                                    (currentUserLocation !== null && currentUserLocation.coords.latitude !== null && currentUserLocation.coords.latitude !== undefined &&
-                                    currentUserLocation.coords.longitude !== null && currentUserLocation.coords.longitude !== undefined)
-                                        ? await searchQueryExecute(event.nativeEvent.text, currentUserLocation.coords.latitude, currentUserLocation.coords.longitude)
-                                        : await searchQueryExecute(event.nativeEvent.text);
-                                if (queriedOffers.length == 0) {
-                                    setNoFilteredOffersToLoad(true);
-                                    setFilteredOffersSpinnerShown(false);
-                                } else {
-                                    setNoFilteredOffersToLoad(false);
-                                    setFilteredOffersList([...queriedOffers]);
-                                }
-
-                                // dismiss keyboard
-                                Keyboard.dismiss();
-                            }}
-                            onChangeText={(query) => {
-                                {
+                        {
+                            isCardLinked &&
+                            <Searchbar
+                                blurOnSubmit={false}
+                                autoFocus={whichVerticalSectionActive === 'search' && !noFilteredOffersToLoad}
+                                selectionColor={'#F2FF5D'}
+                                iconColor={'#F2FF5D'}
+                                placeholderTextColor={'#FFFFFF'}
+                                cursorColor={'#F2FF5D'}
+                                inputStyle={styles.searchBarInput}
+                                style={[styles.searchBar, whichVerticalSectionActive === 'search' && {
+                                    width: wp(85.3),
+                                    alignSelf: 'flex-end',
+                                    right: wp(0.5),
+                                }]}
+                                value={searchQuery}
+                                placeholder={whichVerticalSectionActive === 'search' ? "" : "Search for anything (e.g \"Nike\" or \"food\")"}
+                                onTouchEndCapture={() => {
                                     // reset any filtered offers
                                     setNoFilteredOffersToLoad(false);
                                     setFilteredOffersList([]);
@@ -250,14 +208,64 @@ export const SearchSection = () => {
                                     // set the appropriate vertical view
                                     setWhichVerticalSectionActive('search');
                                     setToggleViewPressed('vertical');
+                                }}
+                                onKeyPress={({nativeEvent}) => {
+                                    if (nativeEvent.key === 'Backspace') {
+                                        // reset any filtered offers
+                                        setNoFilteredOffersToLoad(false);
+                                        setFilteredOffersList([]);
+                                    }
+                                }}
+                                onClearIconPress={(_) => {
+                                    // reset any filtered offers
+                                    setNoFilteredOffersToLoad(false);
+                                    setFilteredOffersList([]);
 
-                                    setSearchQuery(query);
-                                }
-                            }}
-                        />
+                                    // reset search query
+                                    setSearchQuery("");
+                                }}
+                                onSubmitEditing={async (event) => {
+                                    setSearchQuery(event.nativeEvent.text);
+
+                                    // clean any previous offers
+                                    setFilteredOffersList([]);
+
+                                    // execute the search query
+                                    setFilteredOffersSpinnerShown(true);
+                                    const queriedOffers =
+                                        (currentUserLocation !== null && currentUserLocation.coords.latitude !== null && currentUserLocation.coords.latitude !== undefined &&
+                                            currentUserLocation.coords.longitude !== null && currentUserLocation.coords.longitude !== undefined)
+                                            ? await searchQueryExecute(event.nativeEvent.text, currentUserLocation.coords.latitude, currentUserLocation.coords.longitude)
+                                            : await searchQueryExecute(event.nativeEvent.text);
+                                    if (queriedOffers.length == 0) {
+                                        setNoFilteredOffersToLoad(true);
+                                        setFilteredOffersSpinnerShown(false);
+                                    } else {
+                                        setNoFilteredOffersToLoad(false);
+                                        setFilteredOffersList([...queriedOffers]);
+                                    }
+
+                                    // dismiss keyboard
+                                    Keyboard.dismiss();
+                                }}
+                                onChangeText={(query) => {
+                                    {
+                                        // reset any filtered offers
+                                        setNoFilteredOffersToLoad(false);
+                                        setFilteredOffersList([]);
+
+                                        // set the appropriate vertical view
+                                        setWhichVerticalSectionActive('search');
+                                        setToggleViewPressed('vertical');
+
+                                        setSearchQuery(query);
+                                    }
+                                }}
+                            />
+                        }
                     </View>
                     <View
-                        style={[styles.filterChipView]}>
+                        style={[styles.filterChipView, !isCardLinked && {marginBottom: hp(1)}]}>
                         {
                             whichVerticalSectionActive !== 'search' &&
                             <>
@@ -361,6 +369,15 @@ export const SearchSection = () => {
                             </>
                         }
                     </View>
+                    <CustomBanner bannerVisibilityState={cardLinkingStatusState}
+                                  bannerMessage={"Link a card to redeem military offers, unlock discounts, search for your favorite brands and view offers nearby on a map!"}
+                                  bannerButtonLabel={"Link Now"}
+                                  bannerButtonLabelActionSource={"home/wallet"}
+                        // @ts-ignore
+                                  bannerArtSource={CardLinkingImage}
+                                  dismissing={false}
+                                  marketplaceLocking={true}
+                    />
                 </>
             }
         </>

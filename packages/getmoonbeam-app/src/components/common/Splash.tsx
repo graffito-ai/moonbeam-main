@@ -861,12 +861,12 @@ export const SplashScreen = (props: {
                         color={'#FFFFFF'}
                         style={styles.loginButton}
                         onPress={async () => {
-                            // reset all the recoil states here
-                            await logOut();
-
                             // go to the Login page
                             setDeferToLogin(true);
                             mainRootNavigation && mainRootNavigation!.navigate('AppOverview', {});
+
+                            // reset all the recoil states here
+                            await logOut();
                         }}
                     />
                 </View>

@@ -21,7 +21,8 @@ export const CustomBanner = (props: {
     bannerButtonLabel: string,
     bannerButtonLabelActionSource: string,
     bannerArtSource: ImageSourcePropType,
-    dismissing: boolean
+    dismissing: boolean,
+    marketplaceLocking?: boolean
 }) => {
     // constants used to keep track of shared states
     const [bottomBarNavigation,] = useRecoilState(bottomBarNavigationState);
@@ -41,12 +42,14 @@ export const CustomBanner = (props: {
     // return the component for the Custom Banner page
     return (
         <Banner
-            style={!bannerVisibile && bannerShown && styles.bannerStyle}
+            style={[(!bannerVisibile && bannerShown) && ((props.marketplaceLocking !== undefined && props.marketplaceLocking) ? styles.marketplaceBannerStyle : styles.bannerStyle)]}
             visible={!bannerVisibile && bannerShown}
             actions={[
                 {
                     label: props.bannerButtonLabel,
-                    labelStyle: styles.buttonLabel,
+                    labelStyle: (props.marketplaceLocking !== undefined && props.marketplaceLocking) ? {
+                        display: 'none'
+                    } : styles.buttonLabel,
                     onPress: async () => {
                         // go to a specific URL within the application
                         if (props.bannerButtonLabelActionSource === "home/wallet") {
@@ -65,17 +68,31 @@ export const CustomBanner = (props: {
             ]}
             icon={({}) => (
                 <Image
-                    style={styles.bannerImage}
+                    style={[styles.bannerImage, (props.marketplaceLocking !== undefined && props.marketplaceLocking) && {display: 'none'}]}
                     source={props.bannerArtSource}
                     placeholderContentFit={'contain'}
                     contentFit={'contain'}
                     cachePolicy={'memory-disk'}
                 />
             )}>
-            <View style={{top: hp(5)}}>
-                <Text style={styles.bannerDescription}>
+            <View style={[(props.marketplaceLocking !== undefined && props.marketplaceLocking) ? {} : {top: hp(5)}]}>
+                <Text
+                    style={[styles.bannerDescription, (props.marketplaceLocking !== undefined && props.marketplaceLocking) && styles.marketplaceBannerDescription]}>
                     {props.bannerMessage}
                 </Text>
+                {
+                    (props.marketplaceLocking !== undefined && props.marketplaceLocking) &&
+                    <Text
+                        style={styles.marketplaceButtonLabel}
+                        onPress={async () => {
+                        // go to a specific URL within the application
+                        if (props.bannerButtonLabelActionSource === "home/wallet") {
+                            bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
+                        }
+                    }}>
+                        Link Now
+                    </Text>
+                }
             </View>
         </Banner>
     );
