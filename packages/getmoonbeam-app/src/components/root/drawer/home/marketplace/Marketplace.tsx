@@ -69,7 +69,7 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
      */
     useEffect(() => {
         // for anything else other than the marketplace, reset the search queries if active, and go to the horizontal view
-        if (navigation.getState().index !== 2) {
+        if (navigation.getState().index !== 1) {
             // reset any filtered offers
             setNoFilteredOffersToLoad(false);
             setFilteredOffersList([]);
@@ -81,7 +81,7 @@ export const Marketplace = ({navigation}: MarketplaceProps) => {
             setToggleViewPressed('horizontal');
         }
         // set the app drawer status accordingly, custom banner visibility and drawer swipe actions accordingly
-        if (navigation.getState().index === 2) {
+        if (navigation.getState().index === 1) {
             setAppDrawerHeaderShown(false);
             setBannerShown(true);
             setDrawerSwipeEnabled(false);

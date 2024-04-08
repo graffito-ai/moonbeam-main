@@ -892,8 +892,8 @@ export const styles = StyleSheet.create({
         color: '#F2FF5D',
     },
     unlinkedNearbyOfferCardSubtitle: {
-        height: hp(4),
-        width: wp(20),
+        height: hp(3),
+        width: wp(19),
         bottom: hp(3),
         alignSelf: 'flex-start',
         left: wp(0.5)

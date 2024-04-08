@@ -109,7 +109,7 @@ export const Wallet = ({navigation}: CardsProps) => {
         }
 
         // set the app drawer status accordingly, custom banner visibility and drawer swipe actions accordingly
-        if (navigation.getState().index === 3) {
+        if (navigation.getState().index === 2) {
             appDrawerHeaderShown && setAppDrawerHeaderShown(false);
             bannerShown && setBannerShown(false);
             drawerSwipeEnabled && setDrawerSwipeEnabled(false);

@@ -236,7 +236,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [, setDocumentationErrors] = useRecoilState(additionalDocumentationErrors);
     // step 7
     const [cardLinkingStatus,] = useRecoilState(cardLinkingRegistrationStatusState);
-    const [splashState, ] = useRecoilState(splashStatusState);
+    const [splashState,] = useRecoilState(splashStatusState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -1488,7 +1488,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                          * AND go straight to the Dashboard
                                                          *
                                                          * since we are skipping the card linking step, for step number 6
-                                                         * - we know that the military status is PENDING, so just go straig to the
+                                                         * - we know that the military status is PENDING, so just go straight to the
                                                          * Dashboard
                                                          *
                                                          */
@@ -1643,9 +1643,11 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                     ? `Enable`
                                                     : (militaryStatus === MilitaryVerificationStatusType.Rejected && stepNumber === 5)
                                                         ? `Verify`
-                                                        : stepNumber === 8
-                                                            ? splashState.splashButtonText
-                                                            : `Next`}</Text>
+                                                        : stepNumber === 5 && MilitaryVerificationStatusType.Verified
+                                                            ? `Finish`
+                                                            : stepNumber === 8
+                                                                ? splashState.splashButtonText
+                                                                : `Next`}</Text>
                                         </TouchableOpacity>}
                                     </View>
                                 </View>
