@@ -20,6 +20,8 @@ import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-s
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
 import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 import {logEvent} from "../../../../../../utils/AppSync";
+import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
+import {BlurView} from "expo-blur";
 
 /**
  * OnlineSection component.
@@ -40,7 +42,7 @@ export const OnlineSection = (props: {
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
     const [onlineOffersSpinnerShown, setOnlineOffersSpinnerShown] = useState<boolean>(false);
     // constants used to keep track of shared states
-    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [numberOfOnlineOffers,] = useRecoilState(numberOfOnlineOffersState);
     const [locationServicesButton,] = useRecoilState(locationServicesButtonState);
     const [nearbyOfferList,] = useRecoilState(nearbyOffersListState);
@@ -50,6 +52,7 @@ export const OnlineSection = (props: {
     const [onlineOfferList,] = useRecoilState(onlineOffersListState);
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
     const [noOnlineOffersToLoad,] = useRecoilState(noOnlineOffersToLoadState);
+    const [isCardLinked,] = useRecoilState(cardLinkingStatusState);
 
     /**
      * Function used to populate the rows containing the online offers data.
@@ -93,12 +96,28 @@ export const OnlineSection = (props: {
                                     numberOfLines={3}
                                     style={styles.onlineOfferCardTitle}>{data.brandDba}
                                 </Paragraph>
-                                <Paragraph
-                                    style={styles.onlineOfferCardSubtitle}>
-                                    {data.reward!.type! === RewardType.RewardPercent
-                                        ? `${data.reward!.value}% Off`
-                                        : `$${data.reward!.value} Off`}
-                                </Paragraph>
+                                {
+                                    isCardLinked ?
+                                        <Paragraph
+                                            numberOfLines={1}
+                                            style={styles.onlineOfferCardSubtitle}>
+                                            {data.reward!.type! === RewardType.RewardPercent
+                                                ? `${data.reward!.value}% Off`
+                                                : `$${data.reward!.value} Off`}
+                                        </Paragraph>
+                                        :
+                                        <>
+                                            <Paragraph
+                                                numberOfLines={1}
+                                                style={styles.onlineOfferCardSubtitle}>
+                                                {data.reward!.type! === RewardType.RewardPercent
+                                                    ? `${data.reward!.value}% Off`
+                                                    : `$${data.reward!.value} Off`}
+                                            </Paragraph>
+                                            <BlurView intensity={15}
+                                                      style={styles.unlinkedOnlineOfferCardSubtitle}/>
+                                        </>
+                                }
                             </View>
                         </Card.Content>
                     </Card>
@@ -231,7 +250,7 @@ export const OnlineSection = (props: {
                                 scrollViewProps={{
                                     pagingEnabled: "true",
                                     decelerationRate: "fast",
-                                    snapToInterval: Platform.OS === 'android' ?  wp(33) * 3 : wp(33),
+                                    snapToInterval: Platform.OS === 'android' ? wp(33) * 3 : wp(33),
                                     snapToAlignment: "center",
                                     persistentScrollbar: false,
                                     showsHorizontalScrollIndicator: false

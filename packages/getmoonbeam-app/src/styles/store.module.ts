@@ -404,6 +404,13 @@ export const styles = StyleSheet.create({
         textAlign: 'center',
         color: '#F2FF5D'
     },
+    unlinkedOnlineOfferCardSubtitle: {
+        height: hp(2),
+        width: wp(10),
+        bottom: hp(1.6),
+        alignSelf: 'flex-end',
+        right: wp(12.5)
+    },
     onlineOfferCardSubtitle: {
         top: hp(0.5),
         fontSize: hp(1.8),
@@ -961,6 +968,20 @@ export const styles = StyleSheet.create({
     verticalOfferBenefit: {
         fontFamily: 'Saira-Bold',
         color: '#F2FF5D'
+    },
+    unlinkedVerticalOfferBenefit: {
+        height: hp(2.5),
+        width: wp(35),
+        marginTop: -hp(2.5),
+        alignSelf: 'flex-end',
+        right: wp(17)
+    },
+    unlinkedVerticalOfferBenefitNonFidelis: {
+        height: hp(2.5),
+        width: wp(20),
+        marginTop: -hp(2.5),
+        alignSelf: 'flex-end',
+        right: wp(33.5)
     },
     verticalOfferBenefits: {
         fontFamily: 'Saira-SemiBold',

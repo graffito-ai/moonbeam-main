@@ -273,19 +273,21 @@ export const MapHorizontalSection = () => {
                                                         height: hp(100),
                                                         width: wp(100)
                                                     }}>
-                                                        <Text style={styles.bannerDescription}>Link your card to unlock map features!</Text>
-                                                        <Text style={styles.marketplaceButtonLabel}
-                                                              onPress={() => {
-                                                                  bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
-                                                              }}
-                                                        >
-                                                            Link Now
-                                                        </Text>
                                                     </BlurView>
                                                 }
                                             </>
                                         }
                                     </MapView>
+                                    <View style={{bottom: hp(15), left: wp(5)}}>
+                                        <Text style={styles.bannerDescription}>Link your card to unlock map features!</Text>
+                                        <Text style={styles.marketplaceButtonLabel}
+                                              onPress={() => {
+                                                  bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
+                                              }}
+                                        >
+                                            Link Now
+                                        </Text>
+                                    </View>
                                 </View>
                             }
                             {
@@ -325,19 +327,21 @@ export const MapHorizontalSection = () => {
                                                         height: hp(100),
                                                         width: wp(100)
                                                     }}>
-                                                        <Text style={styles.bannerDescription}>Link your card to unlock map features!</Text>
-                                                        <Text style={styles.marketplaceButtonLabel}
-                                                              onPress={() => {
-                                                                  bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
-                                                              }}
-                                                        >
-                                                            Link Now
-                                                        </Text>
                                                     </BlurView>
                                                 }
                                             </>
                                         }
                                     </MapView>
+                                    <View style={{bottom: hp(15), left: wp(5)}}>
+                                        <Text style={styles.bannerDescription}>Link your card to unlock map features!</Text>
+                                        <Text style={styles.marketplaceButtonLabel}
+                                              onPress={() => {
+                                                  bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
+                                              }}
+                                        >
+                                            Link Now
+                                        </Text>
+                                    </View>
                                 </>
                             }
                         </Portal.Host>

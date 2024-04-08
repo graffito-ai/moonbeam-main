@@ -40,6 +40,7 @@ import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
 import {logEvent, searchQueryExecute} from "../../../../../../utils/AppSync";
 import {Icon} from "@rneui/base";
 import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
+import {BlurView} from "expo-blur";
 
 /**
  * VerticalOffers component.
@@ -333,19 +334,40 @@ export const VerticalOffers = (props: {
                                             cachePolicy={'none'}
                                         />
                                     </View>
-                                    <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                        <Text numberOfLines={1}
-                                              style={styles.verticalOfferName}>{offer.brandDba}</Text>
-                                        <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
-                                            {"Starting at "}
-                                            <Text style={styles.verticalOfferBenefit}>
-                                                {`${subtitle}`}
-                                            </Text>
-                                        </Text>
-                                        <Text numberOfLines={1} style={styles.verticalOfferDistance}>
-                                            {`${calculatedDistance} miles away`}
-                                        </Text>
-                                    </View>
+                                    {
+                                        isCardLinked ?
+                                            <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                                <Text numberOfLines={1}
+                                                      style={styles.verticalOfferName}>{offer.brandDba}</Text>
+                                                <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
+                                                    {"Starting at "}
+                                                    <Text style={styles.verticalOfferBenefit}>
+                                                        {`${subtitle}`}
+                                                    </Text>
+                                                </Text>
+                                                <Text numberOfLines={1} style={styles.verticalOfferDistance}>
+                                                    {`${calculatedDistance} miles away`}
+                                                </Text>
+                                            </View>
+                                            :
+                                            <>
+                                                <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                                    <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
+                                                        {"Starting at "}
+                                                        <Text style={styles.verticalOfferBenefit}>
+                                                            {`${subtitle}`}
+                                                        </Text>
+                                                    </Text>
+                                                    <BlurView intensity={25}
+                                                              style={styles.unlinkedVerticalOfferBenefit}/>
+                                                    <Text numberOfLines={1}
+                                                          style={styles.verticalOfferName}>{offer.brandDba}</Text>
+                                                    <Text numberOfLines={1} style={styles.verticalOfferDistance}>
+                                                        {`${calculatedDistance} miles away`}
+                                                    </Text>
+                                                </View>
+                                            </>
+                                    }
                                 </View>
                             </Card.Content>
                         </Card>
@@ -389,16 +411,34 @@ export const VerticalOffers = (props: {
                                             cachePolicy={'none'}
                                         />
                                     </View>
-                                    <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                        <Text numberOfLines={2}
-                                              style={styles.verticalOfferName}>{data.brandName}</Text>
-                                        <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
-                                            {"Starting at "}
-                                            <Text style={styles.verticalOfferBenefit}>
-                                                {`${subtitle}`}
-                                            </Text>
-                                        </Text>
-                                    </View>
+                                    {
+                                        isCardLinked ?
+                                            <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                                <Text numberOfLines={2}
+                                                      style={styles.verticalOfferName}>{data.brandName}</Text>
+                                                <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
+                                                    {"Starting at "}
+                                                    <Text style={styles.verticalOfferBenefit}>
+                                                        {`${subtitle}`}
+                                                    </Text>
+                                                </Text>
+                                            </View>
+                                            :
+                                            <>
+                                                <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                                    <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
+                                                        {"Starting at "}
+                                                        <Text style={styles.verticalOfferBenefit}>
+                                                            {`${subtitle}`}
+                                                        </Text>
+                                                    </Text>
+                                                    <BlurView intensity={25}
+                                                              style={styles.unlinkedVerticalOfferBenefit}/>
+                                                    <Text numberOfLines={2}
+                                                          style={styles.verticalOfferName}>{data.brandName}</Text>
+                                                </View>
+                                            </>
+                                    }
                                 </View>
                             </Card.Content>
                         </Card>
@@ -476,18 +516,36 @@ export const VerticalOffers = (props: {
                                         cachePolicy={'none'}
                                     />
                                 </View>
-                                <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                    <Text numberOfLines={2}
-                                          style={styles.verticalOfferName}>{data.brandDba}</Text>
-                                    <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
-                                        <Text style={styles.verticalOfferBenefit}>
-                                            {data.reward!.type! === RewardType.RewardPercent
-                                                ? `${data.reward!.value}%`
-                                                : `$${data.reward!.value}`}
-                                        </Text>
-                                        {" Off "}
-                                    </Text>
-                                </View>
+                                {
+                                    isCardLinked ?
+                                        <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                            <Text numberOfLines={2}
+                                                  style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                            <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
+                                                <Text style={styles.verticalOfferBenefit}>
+                                                    {data.reward!.type! === RewardType.RewardPercent
+                                                        ? `${data.reward!.value}%`
+                                                        : `$${data.reward!.value}`}
+                                                </Text>
+                                                {" Off "}
+                                            </Text>
+                                        </View>
+                                        :
+                                        <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                            <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
+                                                <Text style={styles.verticalOfferBenefit}>
+                                                    {data.reward!.type! === RewardType.RewardPercent
+                                                        ? `${data.reward!.value}%`
+                                                        : `$${data.reward!.value}`}
+                                                </Text>
+                                                {" Off "}
+                                            </Text>
+                                            <BlurView intensity={25}
+                                                      style={styles.unlinkedVerticalOfferBenefitNonFidelis}/>
+                                            <Text numberOfLines={2}
+                                                  style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                        </View>
+                                }
                             </View>
                         </Card.Content>
                     </Card>
@@ -564,18 +622,36 @@ export const VerticalOffers = (props: {
                                         cachePolicy={'none'}
                                     />
                                 </View>
-                                <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                    <Text numberOfLines={2}
-                                          style={styles.verticalOfferName}>{data.brandDba}</Text>
-                                    <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
-                                        <Text style={styles.verticalOfferBenefit}>
-                                            {data.reward!.type! === RewardType.RewardPercent
-                                                ? `${data.reward!.value}%`
-                                                : `$${data.reward!.value}`}
-                                        </Text>
-                                        {" Off "}
-                                    </Text>
-                                </View>
+                                {
+                                    isCardLinked ?
+                                        <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                            <Text numberOfLines={2}
+                                                  style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                            <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
+                                                <Text style={styles.verticalOfferBenefit}>
+                                                    {data.reward!.type! === RewardType.RewardPercent
+                                                        ? `${data.reward!.value}%`
+                                                        : `$${data.reward!.value}`}
+                                                </Text>
+                                                {" Off "}
+                                            </Text>
+                                        </View>
+                                        :
+                                        <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                            <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
+                                                <Text style={styles.verticalOfferBenefit}>
+                                                    {data.reward!.type! === RewardType.RewardPercent
+                                                        ? `${data.reward!.value}%`
+                                                        : `$${data.reward!.value}`}
+                                                </Text>
+                                                {" Off "}
+                                            </Text>
+                                            <BlurView intensity={25}
+                                                      style={styles.unlinkedVerticalOfferBenefitNonFidelis}/>
+                                            <Text numberOfLines={2}
+                                                  style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                        </View>
+                                }
                             </View>
                         </Card.Content>
                     </Card>
@@ -1008,21 +1084,42 @@ export const VerticalOffers = (props: {
                                         cachePolicy={'none'}
                                     />
                                 </View>
-                                <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                    <Text numberOfLines={1}
-                                          style={styles.verticalOfferName}>{data.brandDba}</Text>
-                                    <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
-                                        <Text style={styles.verticalOfferBenefit}>
-                                            {data.reward!.type! === RewardType.RewardPercent
-                                                ? `${data.reward!.value}%`
-                                                : `$${data.reward!.value}`}
-                                        </Text>
-                                        {" Off "}
-                                    </Text>
-                                    <Text numberOfLines={1} style={styles.verticalOfferDistance}>
-                                        {`${calculatedDistance} miles away`}
-                                    </Text>
-                                </View>
+                                {
+                                    isCardLinked ?
+                                        <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                            <Text numberOfLines={1}
+                                                  style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                            <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
+                                                <Text style={styles.verticalOfferBenefit}>
+                                                    {data.reward!.type! === RewardType.RewardPercent
+                                                        ? `${data.reward!.value}%`
+                                                        : `$${data.reward!.value}`}
+                                                </Text>
+                                                {" Off "}
+                                            </Text>
+                                            <Text numberOfLines={1} style={styles.verticalOfferDistance}>
+                                                {`${calculatedDistance} miles away`}
+                                            </Text>
+                                        </View>
+                                        :
+                                        <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                            <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
+                                                <Text style={styles.verticalOfferBenefit}>
+                                                    {data.reward!.type! === RewardType.RewardPercent
+                                                        ? `${data.reward!.value}%`
+                                                        : `$${data.reward!.value}`}
+                                                </Text>
+                                                {" Off "}
+                                            </Text>
+                                            <BlurView intensity={25}
+                                                      style={styles.unlinkedVerticalOfferBenefitNonFidelis}/>
+                                            <Text numberOfLines={1}
+                                                  style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                            <Text numberOfLines={1} style={styles.verticalOfferDistance}>
+                                                {`${calculatedDistance} miles away`}
+                                            </Text>
+                                        </View>
+                                }
                             </View>
                         </Card.Content>
                     </Card>
