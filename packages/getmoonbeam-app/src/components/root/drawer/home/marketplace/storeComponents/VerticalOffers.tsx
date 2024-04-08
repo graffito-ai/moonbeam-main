@@ -294,27 +294,37 @@ export const VerticalOffers = (props: {
                     results.push(
                         <Card style={styles.verticalOfferCard}
                               onPress={() => {
-                                  // reset any filtered offers
-                                  setNoFilteredOffersToLoad(false);
-                                  setFilteredOffersList([]);
+                                  /**
+                                   * if the user is card linked, then go to the appropriate offer, depending on the offer
+                                   * displayed, otherwise, display the click only bottom sheet but with the appropriate
+                                   * params to essentially highlight that offers cannot be viewed without a linked card.
+                                   */
+                                  if (!isCardLinked) {
+                                      // show the click only bottom sheet
+                                      setShowClickOnlyBottomSheet(true);
+                                  } else {
+                                      // reset any filtered offers
+                                      setNoFilteredOffersToLoad(false);
+                                      setFilteredOffersList([]);
 
-                                  // reset search query
-                                  setSearchQuery("");
+                                      // reset search query
+                                      setSearchQuery("");
 
-                                  // set the clicked offer/partner accordingly
-                                  setStoreOfferClicked(data);
-                                  // set the clicked offer physical location
-                                  setStoreOfferPhysicalLocation({
-                                      latitude: storeLatitude,
-                                      longitude: storeLongitude,
-                                      latitudeDelta: 0,
-                                      longitudeDelta: 0,
-                                      addressAsString: physicalLocation
-                                  });
-                                  // @ts-ignore
-                                  props.navigation.navigate('StoreOffer', {
-                                      bottomTabNeedsShowingFlag: true
-                                  });
+                                      // set the clicked offer/partner accordingly
+                                      setStoreOfferClicked(data);
+                                      // set the clicked offer physical location
+                                      setStoreOfferPhysicalLocation({
+                                          latitude: storeLatitude,
+                                          longitude: storeLongitude,
+                                          latitudeDelta: 0,
+                                          longitudeDelta: 0,
+                                          addressAsString: physicalLocation
+                                      });
+                                      // @ts-ignore
+                                      props.navigation.navigate('StoreOffer', {
+                                          bottomTabNeedsShowingFlag: true
+                                      });
+                                  }
                               }}>
                             <Card.Content>
                                 <List.Icon color={'#F2FF5D'}
@@ -379,19 +389,29 @@ export const VerticalOffers = (props: {
                     results.push(
                         <Card style={styles.verticalOfferCard}
                               onPress={() => {
-                                  // reset any filtered offers
-                                  setNoFilteredOffersToLoad(false);
-                                  setFilteredOffersList([]);
+                                  /**
+                                   * if the user is card linked, then go to the appropriate offer, depending on the offer
+                                   * displayed, otherwise, display the click only bottom sheet but with the appropriate
+                                   * params to essentially highlight that offers cannot be viewed without a linked card.
+                                   */
+                                  if (!isCardLinked) {
+                                      // show the click only bottom sheet
+                                      setShowClickOnlyBottomSheet(true);
+                                  } else {
+                                      // reset any filtered offers
+                                      setNoFilteredOffersToLoad(false);
+                                      setFilteredOffersList([]);
 
-                                  // reset search query
-                                  setSearchQuery("");
+                                      // reset search query
+                                      setSearchQuery("");
 
-                                  // set the clicked offer/partner accordingly
-                                  setStoreOfferClicked(data);
-                                  // @ts-ignore
-                                  props.navigation.navigate('StoreOffer', {
-                                      bottomTabNeedsShowingFlag: true
-                                  });
+                                      // set the clicked offer/partner accordingly
+                                      setStoreOfferClicked(data);
+                                      // @ts-ignore
+                                      props.navigation.navigate('StoreOffer', {
+                                          bottomTabNeedsShowingFlag: true
+                                      });
+                                  }
                               }}>
                             <Card.Content>
                                 <List.Icon color={'#F2FF5D'}
@@ -486,17 +506,27 @@ export const VerticalOffers = (props: {
                 <>
                     <Card style={styles.verticalOfferCard}
                           onPress={() => {
-                              // reset any filtered offers
-                              setNoFilteredOffersToLoad(false);
-                              setFilteredOffersList([]);
+                              /**
+                               * if the user is card linked, then go to the appropriate offer, depending on the offer
+                               * displayed, otherwise, display the click only bottom sheet but with the appropriate
+                               * params to essentially highlight that offers cannot be viewed without a linked card.
+                               */
+                              if (!isCardLinked) {
+                                  // show the click only bottom sheet
+                                  setShowClickOnlyBottomSheet(true);
+                              } else {
+                                  // reset any filtered offers
+                                  setNoFilteredOffersToLoad(false);
+                                  setFilteredOffersList([]);
 
-                              // reset search query
-                              setSearchQuery("");
+                                  // reset search query
+                                  setSearchQuery("");
 
-                              // set the clicked offer/partner accordingly
-                              setStoreOfferClicked(data);
-                              // show the click only bottom sheet
-                              setShowClickOnlyBottomSheet(true);
+                                  // set the clicked offer/partner accordingly
+                                  setStoreOfferClicked(data);
+                                  // show the click only bottom sheet
+                                  setShowClickOnlyBottomSheet(true);
+                              }
                           }}>
                         <Card.Content>
                             <List.Icon color={'#F2FF5D'}
@@ -590,19 +620,29 @@ export const VerticalOffers = (props: {
                 <>
                     <Card style={styles.verticalOfferCard}
                           onPress={() => {
-                              // reset any filtered offers
-                              setNoFilteredOffersToLoad(false);
-                              setFilteredOffersList([]);
+                              /**
+                               * if the user is card linked, then go to the appropriate offer, depending on the offer
+                               * displayed, otherwise, display the click only bottom sheet but with the appropriate
+                               * params to essentially highlight that offers cannot be viewed without a linked card.
+                               */
+                              if (!isCardLinked) {
+                                  // show the click only bottom sheet
+                                  setShowClickOnlyBottomSheet(true);
+                              } else {
+                                  // reset any filtered offers
+                                  setNoFilteredOffersToLoad(false);
+                                  setFilteredOffersList([]);
 
-                              // reset search query
-                              setSearchQuery("");
+                                  // reset search query
+                                  setSearchQuery("");
 
-                              // set the clicked offer/partner accordingly
-                              setStoreOfferClicked(data);
-                              // @ts-ignore
-                              props.navigation.navigate('StoreOffer', {
-                                  bottomTabNeedsShowingFlag: true
-                              });
+                                  // set the clicked offer/partner accordingly
+                                  setStoreOfferClicked(data);
+                                  // @ts-ignore
+                                  props.navigation.navigate('StoreOffer', {
+                                      bottomTabNeedsShowingFlag: true
+                                  });
+                              }
                           }}>
                         <Card.Content>
                             <List.Icon color={'#F2FF5D'}
@@ -1044,27 +1084,37 @@ export const VerticalOffers = (props: {
                 <>
                     <Card style={styles.verticalOfferCard}
                           onPress={() => {
-                              // reset any filtered offers
-                              setNoFilteredOffersToLoad(false);
-                              setFilteredOffersList([]);
+                              /**
+                               * if the user is card linked, then go to the appropriate offer, depending on the offer
+                               * displayed, otherwise, display the click only bottom sheet but with the appropriate
+                               * params to essentially highlight that offers cannot be viewed without a linked card.
+                               */
+                              if (!isCardLinked) {
+                                  // show the click only bottom sheet
+                                  setShowClickOnlyBottomSheet(true);
+                              } else {
+                                  // reset any filtered offers
+                                  setNoFilteredOffersToLoad(false);
+                                  setFilteredOffersList([]);
 
-                              // reset search query
-                              setSearchQuery("");
+                                  // reset search query
+                                  setSearchQuery("");
 
-                              // set the clicked offer/partner accordingly
-                              setStoreOfferClicked(data);
-                              // set the clicked offer physical location
-                              setStoreOfferPhysicalLocation({
-                                  latitude: storeLatitude,
-                                  longitude: storeLongitude,
-                                  latitudeDelta: 0,
-                                  longitudeDelta: 0,
-                                  addressAsString: physicalLocation
-                              });
-                              // @ts-ignore
-                              props.navigation.navigate('StoreOffer', {
-                                  bottomTabNeedsShowingFlag: true
-                              });
+                                  // set the clicked offer/partner accordingly
+                                  setStoreOfferClicked(data);
+                                  // set the clicked offer physical location
+                                  setStoreOfferPhysicalLocation({
+                                      latitude: storeLatitude,
+                                      longitude: storeLongitude,
+                                      latitudeDelta: 0,
+                                      longitudeDelta: 0,
+                                      addressAsString: physicalLocation
+                                  });
+                                  // @ts-ignore
+                                  props.navigation.navigate('StoreOffer', {
+                                      bottomTabNeedsShowingFlag: true
+                                  });
+                              }
                           }}>
                         <Card.Content>
                             <List.Icon color={'#F2FF5D'}

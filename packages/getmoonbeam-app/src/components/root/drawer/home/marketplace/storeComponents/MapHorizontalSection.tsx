@@ -278,16 +278,19 @@ export const MapHorizontalSection = () => {
                                             </>
                                         }
                                     </MapView>
-                                    <View style={{bottom: hp(15), left: wp(5)}}>
-                                        <Text style={styles.bannerDescription}>Link your card to unlock map features!</Text>
-                                        <Text style={styles.marketplaceButtonLabel}
-                                              onPress={() => {
-                                                  bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
-                                              }}
-                                        >
-                                            Link Now
-                                        </Text>
-                                    </View>
+                                    {
+                                        !isCardLinked &&
+                                        <View style={{bottom: hp(15), left: wp(5)}}>
+                                            <Text style={styles.bannerDescription}>Link your card to unlock map features!</Text>
+                                            <Text style={styles.marketplaceButtonLabel}
+                                                  onPress={() => {
+                                                      bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
+                                                  }}
+                                            >
+                                                Link Now
+                                            </Text>
+                                        </View>
+                                    }
                                 </View>
                             }
                             {
@@ -332,16 +335,19 @@ export const MapHorizontalSection = () => {
                                             </>
                                         }
                                     </MapView>
-                                    <View style={{bottom: hp(15), left: wp(5)}}>
-                                        <Text style={styles.bannerDescription}>Link your card to unlock map features!</Text>
-                                        <Text style={styles.marketplaceButtonLabel}
-                                              onPress={() => {
-                                                  bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
-                                              }}
-                                        >
-                                            Link Now
-                                        </Text>
-                                    </View>
+                                    {
+                                        !isCardLinked &&
+                                        <View style={{bottom: hp(15), left: wp(5)}}>
+                                            <Text style={styles.bannerDescription}>Link your card to unlock map features!</Text>
+                                            <Text style={styles.marketplaceButtonLabel}
+                                                  onPress={() => {
+                                                      bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
+                                                  }}
+                                            >
+                                                Link Now
+                                            </Text>
+                                        </View>
+                                    }
                                 </>
                             }
                         </Portal.Host>

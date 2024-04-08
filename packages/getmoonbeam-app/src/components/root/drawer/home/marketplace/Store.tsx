@@ -69,10 +69,25 @@ import {KitsSection} from "./storeComponents/KitsSection";
 import {FullScreenMap} from "./storeComponents/FullScreenMap";
 import {ClickOnlyOnlineSection} from "./storeComponents/ClickOnlyOnlineSection";
 import BottomSheet from "@gorhom/bottom-sheet";
-import {bottomTabShownState, comingFromMarketplaceState} from "../../../../../recoil/HomeAtom";
+import {
+    bottomBarNavigationState,
+    bottomTabShownState,
+    comingFromMarketplaceState
+} from "../../../../../recoil/HomeAtom";
 import {ClickOnlyOffersBottomSheet} from "./storeComponents/ClickOnlyOffersBottomSheet";
 import {geocodeAsync, logEvent} from "../../../../../utils/AppSync";
 import {SafeAreaProvider} from "react-native-safe-area-context";
+import {
+    clickOnlySectionReloadState,
+    fidelisSectionReloadState,
+    kitSectionReloadState,
+    nearbySectionReloadState,
+    onlineSectionReloadState,
+    verticalClickOnlySectionReloadState,
+    verticalFidelisSectionReloadState,
+    verticalNearbySectionReloadState,
+    verticalOnlineSectionReloadState
+} from "../../../../../recoil/WalletAtom";
 
 /**
  * Store component.
@@ -116,6 +131,16 @@ export const Store = ({navigation}: StoreProps) => {
     const bottomSheetRef = useRef(null);
     const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
     const [comingFromMarketplace, setComingFromMarketplace] = useRecoilState(comingFromMarketplaceState);
+    const [clickOnlySectionReload, setClickOnlySectionReload] = useRecoilState(clickOnlySectionReloadState);
+    const [verticalClickOnlySectionReload, setVerticalClickOnlySectionReload] = useRecoilState(verticalClickOnlySectionReloadState);
+    const [kitSectionReload, setKitSectionReload] = useRecoilState(kitSectionReloadState);
+    const [fidelisSectionReload, setFidelisSectionReload] = useRecoilState(fidelisSectionReloadState);
+    const [verticalFidelisSectionReload, setVerticalFidelisSectionReload] = useRecoilState(verticalFidelisSectionReloadState);
+    const [nearbySectionReload, setNearbySectionReload] = useRecoilState(nearbySectionReloadState);
+    const [verticalNearbySectionReload, setVerticalNearbySectionReload] = useRecoilState(verticalNearbySectionReloadState);
+    const [onlineSectionReload, setOnlineSectionReload] = useRecoilState(onlineSectionReloadState);
+    const [verticalOnlineSectionReload, setVerticalOnlineSectionReload] = useRecoilState(verticalOnlineSectionReloadState);
+    const [bottomBarNavigation,] = useRecoilState(bottomBarNavigationState);
 
     /**
      * Function used to retrieve the list of preferred (Fidelis) partners
@@ -712,8 +737,36 @@ export const Store = ({navigation}: StoreProps) => {
         }
         // avoid the bounciness level in the Wallet and Dashboard
         !comingFromMarketplace && setComingFromMarketplace(true);
-    }, [fidelisPartnerList, onlineOfferList, clickOnlyOnlineOfferList, comingFromMarketplace,
-        marketplaceCache, showClickOnlyBottomSheet, bottomSheetRef, navigation.getState()]);
+
+        // simulate a loading screen just in case there's a need for a reload
+        if ((clickOnlySectionReload || verticalClickOnlySectionReload || kitSectionReload ||
+                nearbySectionReload || verticalNearbySectionReload ||
+                onlineSectionReload || verticalOnlineSectionReload ||
+                fidelisSectionReload || verticalFidelisSectionReload)) {
+            setIsReady(false);
+            (bottomBarNavigation === null || (bottomBarNavigation && bottomBarNavigation.getState() && bottomBarNavigation.getState().index === 2)) &&
+            setBottomTabShown(false);
+
+            setTimeout(() => {
+                setIsReady(true);
+                clickOnlySectionReload && setClickOnlySectionReload(false);
+                verticalClickOnlySectionReload && setVerticalClickOnlySectionReload(false);
+                kitSectionReload && setKitSectionReload(false);
+                nearbySectionReload && setNearbySectionReload(false);
+                verticalNearbySectionReload && setVerticalNearbySectionReload(false);
+                onlineSectionReload && setOnlineSectionReload(false);
+                verticalOnlineSectionReload && setVerticalOnlineSectionReload(false);
+                fidelisSectionReload && setFidelisSectionReload(false);
+                verticalFidelisSectionReload && setVerticalFidelisSectionReload(false);
+                (bottomBarNavigation === null || (bottomBarNavigation && bottomBarNavigation.getState() && bottomBarNavigation.getState().index === 2)) &&
+                setBottomTabShown(false);
+            }, 1000);
+        }
+    }, [
+        fidelisPartnerList, onlineOfferList, clickOnlyOnlineOfferList, comingFromMarketplace,
+        marketplaceCache, showClickOnlyBottomSheet, bottomSheetRef, navigation.getState(),
+        bottomBarNavigation, clickOnlySectionReload
+    ]);
 
     // return the component for the Store page
     return (

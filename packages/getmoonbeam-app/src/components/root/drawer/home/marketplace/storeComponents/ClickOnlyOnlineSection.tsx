@@ -65,10 +65,20 @@ export const ClickOnlyOnlineSection = (props: {
                 <>
                     <TouchableOpacity style={{left: '3%'}}
                                       onPress={() => {
-                                          // set the clicked offer/partner accordingly
-                                          setStoreOfferClicked(data);
-                                          // show the click only bottom sheet
-                                          setShowClickOnlyBottomSheet(true);
+                                          /**
+                                           * if the user is card linked, then display the click only bottom sheet
+                                           * otherwise, display the click only bottom sheet but with the appropriate params
+                                           * to essentially highlight that offers cannot be viewed without a linked card.
+                                           */
+                                          if (!isCardLinked) {
+                                              // show the click only bottom sheet
+                                              setShowClickOnlyBottomSheet(true);
+                                          } else {
+                                              // set the clicked offer/partner accordingly
+                                              setStoreOfferClicked(data);
+                                              // show the click only bottom sheet
+                                              setShowClickOnlyBottomSheet(true);
+                                          }
                                       }}>
                         <Card style={styles.onlineOfferCard}>
                             <Card.Content>
@@ -108,7 +118,8 @@ export const ClickOnlyOnlineSection = (props: {
                                                         ? `${data.reward!.value}% Off`
                                                         : `$${data.reward!.value} Off`}
                                                 </Paragraph>
-                                                <BlurView intensity={15} style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}/>
+                                                <BlurView intensity={15}
+                                                          style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}/>
                                             </>
                                     }
                                 </View>

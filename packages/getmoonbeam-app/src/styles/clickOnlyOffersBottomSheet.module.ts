@@ -3,6 +3,12 @@ import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-nativ
 
 // styles to be used within the ClickOnlyOffersBottomSheet component
 export const styles = StyleSheet.create({
+    unlinkedContentView: {
+        top: hp(7),
+        width: wp(100),
+        height: hp(27),
+        flexDirection: 'column'
+    },
     contentView: {
         top: hp(2),
         width: wp(100),
@@ -34,6 +40,15 @@ export const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between'
     },
+    unlinkedTopTitle: {
+        top: hp(3),
+        left: wp(5),
+        color: '#FFFFFF',
+        fontFamily: 'Saira-Bold',
+        fontSize: hp(2.5),
+        width: wp(75),
+        textAlign: 'left'
+    },
     topTitle: {
         left: wp(5),
         color: '#FFFFFF',
@@ -52,6 +67,22 @@ export const styles = StyleSheet.create({
         borderColor: 'transparent',
         borderWidth: hp(0.2),
         borderRadius: 70
+    },
+    unlinkedBrandLogoBackground: {
+        left: wp(5),
+        top: hp(1),
+        backgroundColor: 'transparent',
+        width: wp(18),
+        height: wp(18),
+        alignSelf: 'flex-start',
+        borderColor: 'transparent',
+        borderWidth: hp(0.2),
+        borderRadius: 70
+    },
+    unlinkedBrandLogo: {
+        alignSelf: 'center',
+        width: wp(30),
+        height: wp(30),
     },
     brandLogo: {
         alignSelf: 'center',
@@ -73,6 +104,14 @@ export const styles = StyleSheet.create({
         marginTop: hp(1),
         alignItems: 'center',
         alignSelf: 'center'
+    },
+    unlinkedContinueButton: {
+        marginTop: hp(3.5),
+        alignSelf: 'center',
+        backgroundColor: '#F2FF5D',
+        width: wp(30),
+        height: hp(5.5),
+        borderRadius: 0
     },
     continueButton: {
         marginTop: hp(5),

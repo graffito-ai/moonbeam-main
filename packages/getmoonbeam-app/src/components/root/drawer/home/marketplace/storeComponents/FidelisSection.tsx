@@ -8,7 +8,7 @@ import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
 import {useRecoilState} from "recoil";
 import {
-    fidelisPartnerListState,
+    fidelisPartnerListState, showClickOnlyBottomSheetState,
     storeOfferPhysicalLocationState,
     storeOfferState
 } from "../../../../../../recoil/StoreOfferAtom";
@@ -42,6 +42,7 @@ export const FidelisSection = (props: {
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
     const [, setStoreOfferPhysicalLocation] = useRecoilState(storeOfferPhysicalLocationState);
     const [isCardLinked,] = useRecoilState(cardLinkingStatusState);
+    const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
 
     /**
      * Function used to populate the rows containing the Fidelis partners data.
@@ -218,20 +219,30 @@ export const FidelisSection = (props: {
                                                         <TouchableOpacity
                                                             style={styles.viewOfferButton}
                                                             onPress={() => {
-                                                                // set the clicked offer/partner accordingly
-                                                                setStoreOfferClicked(data);
-                                                                // set the clicked offer physical location
-                                                                setStoreOfferPhysicalLocation({
-                                                                    latitude: storeLatitude,
-                                                                    longitude: storeLongitude,
-                                                                    latitudeDelta: 0,
-                                                                    longitudeDelta: 0,
-                                                                    addressAsString: physicalLocation
-                                                                });
-                                                                // @ts-ignore
-                                                                props.navigation.navigate('StoreOffer', {
-                                                                    bottomTabNeedsShowingFlag: true
-                                                                });
+                                                                /**
+                                                                 * if the user is card linked, then go to the appropriate offer, depending on the offer
+                                                                 * displayed, otherwise, display the click only bottom sheet but with the appropriate
+                                                                 * params to essentially highlight that offers cannot be viewed without a linked card.
+                                                                 */
+                                                                if (!isCardLinked) {
+                                                                    // show the click only bottom sheet
+                                                                    setShowClickOnlyBottomSheet(true);
+                                                                } else {
+                                                                    // set the clicked offer/partner accordingly
+                                                                    setStoreOfferClicked(data);
+                                                                    // set the clicked offer physical location
+                                                                    setStoreOfferPhysicalLocation({
+                                                                        latitude: storeLatitude,
+                                                                        longitude: storeLongitude,
+                                                                        latitudeDelta: 0,
+                                                                        longitudeDelta: 0,
+                                                                        addressAsString: physicalLocation
+                                                                    });
+                                                                    // @ts-ignore
+                                                                    props.navigation.navigate('StoreOffer', {
+                                                                        bottomTabNeedsShowingFlag: true
+                                                                    });
+                                                                }
                                                             }}
                                                         >
                                                             {/*@ts-ignore*/}
@@ -343,12 +354,22 @@ export const FidelisSection = (props: {
                                                     <TouchableOpacity
                                                         style={styles.viewOfferButton}
                                                         onPress={() => {
-                                                            // set the clicked offer/partner accordingly
-                                                            setStoreOfferClicked(data);
-                                                            // @ts-ignore
-                                                            props.navigation.navigate('StoreOffer', {
-                                                                bottomTabNeedsShowingFlag: true
-                                                            });
+                                                            /**
+                                                             * if the user is card linked, then go to the appropriate offer, depending on the offer
+                                                             * displayed, otherwise, display the click only bottom sheet but with the appropriate
+                                                             * params to essentially highlight that offers cannot be viewed without a linked card.
+                                                             */
+                                                            if (!isCardLinked) {
+                                                                // show the click only bottom sheet
+                                                                setShowClickOnlyBottomSheet(true);
+                                                            } else {
+                                                                // set the clicked offer/partner accordingly
+                                                                setStoreOfferClicked(data);
+                                                                // @ts-ignore
+                                                                props.navigation.navigate('StoreOffer', {
+                                                                    bottomTabNeedsShowingFlag: true
+                                                                });
+                                                            }
                                                         }}
                                                     >
                                                         {/*@ts-ignore*/}

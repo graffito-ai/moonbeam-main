@@ -20,7 +20,17 @@ import {API, graphqlOperation} from "aws-amplify";
 import {SplashScreen} from "../../../../common/Splash";
 import {splashStatusState} from "../../../../../recoil/SplashAtom";
 import {customBannerState} from "../../../../../recoil/CustomBannerAtom";
-import {cardLinkingBottomSheetState, selectedCardIndexState} from "../../../../../recoil/WalletAtom";
+import {
+    cardLinkingBottomSheetState,
+    clickOnlySectionReloadState,
+    fidelisSectionReloadState,
+    kitSectionReloadState,
+    nearbySectionReloadState, onlineSectionReloadState,
+    selectedCardIndexState,
+    verticalClickOnlySectionReloadState,
+    verticalFidelisSectionReloadState,
+    verticalNearbySectionReloadState, verticalOnlineSectionReloadState
+} from "../../../../../recoil/WalletAtom";
 // @ts-ignore
 import MoonbeamCardChip from '../../../../../../assets/art/moonbeam-card-chip.png';
 // @ts-ignore
@@ -83,6 +93,15 @@ export const Wallet = ({navigation}: CardsProps) => {
     const [cardLinkingBottomSheet, setCardLinkingBottomSheet] = useRecoilState(cardLinkingBottomSheetState);
     const [drawerSwipeEnabled, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
     const [showBottomSheet, setShowBottomSheet] = useRecoilState(showWalletBottomSheetState);
+    const [, setClickOnlySectionReload] = useRecoilState(clickOnlySectionReloadState);
+    const [, setVerticalClickOnlySectionReload] = useRecoilState(verticalClickOnlySectionReloadState);
+    const [, setKitSectionReload] = useRecoilState(kitSectionReloadState);
+    const [, setFidelisSectionReload] = useRecoilState(fidelisSectionReloadState);
+    const [, setVerticalFidelisSectionReload] = useRecoilState(verticalFidelisSectionReloadState);
+    const [, setNearbySectionReload] = useRecoilState(nearbySectionReloadState);
+    const [, setVerticalNearbySectionReload] = useRecoilState(verticalNearbySectionReloadState);
+    const [, setOnlineSectionReload] = useRecoilState(onlineSectionReloadState);
+    const [, setVerticalOnlineSectionReload] = useRecoilState(verticalOnlineSectionReloadState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -226,7 +245,22 @@ export const Wallet = ({navigation}: CardsProps) => {
                         ...userInformation["linkedCard"],
                         cards: userInformation["linkedCard"]["cards"].filter((_, index) => selectedCardIndex !== index)
                     }
-                })
+                });
+
+                // reset the card linking status only if there are no cards left
+                if(userInformation["linkedCard"]["cards"].filter((_, index) => selectedCardIndex !== index).length === 0) {
+                    setCardLinkingStatus(false);
+                    // set all the reload flags accordingly
+                    setClickOnlySectionReload(true);
+                    setVerticalClickOnlySectionReload(true);
+                    setKitSectionReload(true);
+                    setFidelisSectionReload(true);
+                    setVerticalFidelisSectionReload(true);
+                    setNearbySectionReload(true);
+                    setVerticalNearbySectionReload(true);
+                    setOnlineSectionReload(true);
+                    setVerticalOnlineSectionReload(true);
+                }
 
                 return true;
             } else {
@@ -708,6 +742,14 @@ export const Wallet = ({navigation}: CardsProps) => {
                                                 setShowBottomSheet(false);
                                                 setBottomTabShown(true);
                                                 setSplashShown(false);
+
+                                                // reset the splash state accordingly
+                                                setSplashState({
+                                                    splashTitle: "",
+                                                    splashDescription: "",
+                                                    splashButtonText: "",
+                                                    splashArtSource: ""
+                                                });
                                             }
                                         }
                                     }

@@ -18,7 +18,18 @@ import {
     Stages
 } from "@moonbeam/moonbeam-models";
 import {cardLinkingStatusState, customBannerShown} from "../../../../../recoil/AppDrawerAtom";
-import {cardLinkingBottomSheetState} from "../../../../../recoil/WalletAtom";
+import {
+    cardLinkingBottomSheetState,
+    clickOnlySectionReloadState,
+    fidelisSectionReloadState,
+    kitSectionReloadState,
+    nearbySectionReloadState,
+    onlineSectionReloadState,
+    verticalClickOnlySectionReloadState,
+    verticalFidelisSectionReloadState,
+    verticalNearbySectionReloadState,
+    verticalOnlineSectionReloadState
+} from "../../../../../recoil/WalletAtom";
 import {Button} from "@rneui/base";
 import * as envInfo from "../../../../../../local-env-info.json";
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
@@ -41,6 +52,15 @@ export const CardLinkingBottomSheet = () => {
     const [, setBannerShown] = useRecoilState(customBannerShown);
     const [userInformation, setUserInformation] = useRecoilState(currentUserInformation);
     const [, setCardLinkingBottomSheetState] = useRecoilState(cardLinkingBottomSheetState);
+    const [, setClickOnlySectionReload] = useRecoilState(clickOnlySectionReloadState);
+    const [, setVerticalClickOnlySectionReload] = useRecoilState(verticalClickOnlySectionReloadState);
+    const [, setKitSectionReload] = useRecoilState(kitSectionReloadState);
+    const [, setFidelisSectionReload] = useRecoilState(fidelisSectionReloadState);
+    const [, setVerticalFidelisSectionReload] = useRecoilState(verticalFidelisSectionReloadState);
+    const [, setNearbySectionReload] = useRecoilState(nearbySectionReloadState);
+    const [, setVerticalNearbySectionReload] = useRecoilState(verticalNearbySectionReloadState);
+    const [, setOnlineSectionReload] = useRecoilState(onlineSectionReloadState);
+    const [, setVerticalOnlineSectionReload] = useRecoilState(verticalOnlineSectionReloadState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -275,6 +295,19 @@ export const CardLinkingBottomSheet = () => {
 
             // check if there are any errors in the returned response
             if (responseData && responseData.addCard.errorMessage === null) {
+                // reset the card linking status
+                setCardLinkingStatus(true);
+                // set all the reload flags accordingly
+                setClickOnlySectionReload(true);
+                setVerticalClickOnlySectionReload(true);
+                setKitSectionReload(true);
+                setFidelisSectionReload(true);
+                setVerticalFidelisSectionReload(true);
+                setNearbySectionReload(true);
+                setVerticalNearbySectionReload(true);
+                setOnlineSectionReload(true);
+                setVerticalOnlineSectionReload(true);
+
                 return [responseData.addCard.data];
             } else {
                 const errorMessage = `Unexpected error while adding a new card through the add card API ${JSON.stringify(addCardResult)}`;
@@ -333,6 +366,19 @@ export const CardLinkingBottomSheet = () => {
 
             // check if there are any errors in the returned response
             if (responseData && responseData.createCardLink.errorMessage === null) {
+                // reset the card linking status
+                setCardLinkingStatus(true);
+                // set all the reload flags accordingly
+                setClickOnlySectionReload(true);
+                setVerticalClickOnlySectionReload(true);
+                setKitSectionReload(true);
+                setFidelisSectionReload(true);
+                setVerticalFidelisSectionReload(true);
+                setNearbySectionReload(true);
+                setVerticalNearbySectionReload(true);
+                setOnlineSectionReload(true);
+                setVerticalOnlineSectionReload(true);
+
                 return [responseData.createCardLink.data];
             } else {
                 const errorMessage = `Unexpected error while signing a new member up through the card linking API ${JSON.stringify(cardLinkingResult)}`;

@@ -11,7 +11,7 @@ import {
     locationServicesButtonState,
     nearbyOffersListState,
     noOnlineOffersToLoadState, numberOfOnlineOffersState,
-    onlineOffersListState,
+    onlineOffersListState, showClickOnlyBottomSheetState,
     storeOfferState, toggleViewPressedState, uniqueOnlineOffersListState, verticalSectionActiveState
 } from "../../../../../../recoil/StoreOfferAtom";
 import {Image} from 'expo-image';
@@ -53,6 +53,7 @@ export const OnlineSection = (props: {
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
     const [noOnlineOffersToLoad,] = useRecoilState(noOnlineOffersToLoadState);
     const [isCardLinked,] = useRecoilState(cardLinkingStatusState);
+    const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
 
     /**
      * Function used to populate the rows containing the online offers data.
@@ -69,12 +70,22 @@ export const OnlineSection = (props: {
             return (
                 <TouchableOpacity style={{left: '3%'}}
                                   onPress={() => {
-                                      // set the clicked offer/partner accordingly
-                                      setStoreOfferClicked(data);
-                                      // @ts-ignore
-                                      props.navigation.navigate('StoreOffer', {
-                                          bottomTabNeedsShowingFlag: true
-                                      });
+                                      /**
+                                       * if the user is card linked, then go to the appropriate offer, depending on the offer
+                                       * displayed, otherwise, display the click only bottom sheet but with the appropriate
+                                       * params to essentially highlight that offers cannot be viewed without a linked card.
+                                       */
+                                      if (!isCardLinked) {
+                                          // show the click only bottom sheet
+                                          setShowClickOnlyBottomSheet(true);
+                                      } else {
+                                          // set the clicked offer/partner accordingly
+                                          setStoreOfferClicked(data);
+                                          // @ts-ignore
+                                          props.navigation.navigate('StoreOffer', {
+                                              bottomTabNeedsShowingFlag: true
+                                          });
+                                      }
                                   }}>
                     <Card style={styles.onlineOfferCard}>
                         <Card.Content>

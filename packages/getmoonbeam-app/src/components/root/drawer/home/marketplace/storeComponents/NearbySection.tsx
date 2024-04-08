@@ -12,7 +12,7 @@ import {
     nearbyOffersListState,
     nearbyOffersSpinnerShownState,
     noNearbyOffersToLoadState, numberOfOffersWithin25MilesState,
-    numberOfOffersWithin5MilesState,
+    numberOfOffersWithin5MilesState, showClickOnlyBottomSheetState,
     storeOfferPhysicalLocationState,
     storeOfferState,
     toggleViewPressedState,
@@ -72,6 +72,7 @@ export const NearbySection = (props: {
     const [noNearbyOffersToLoad,] = useRecoilState(noNearbyOffersToLoadState);
     const [nearbyOffersSpinnerShown, setNearbyOffersSpinnerShown] = useRecoilState(nearbyOffersSpinnerShownState);
     const [isCardLinked, ] = useRecoilState(cardLinkingStatusState);
+    const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
 
     /**
      * Function used to populate the rows containing the nearby offer data.
@@ -230,20 +231,30 @@ export const NearbySection = (props: {
                                                 <TouchableOpacity
                                                     style={!isCardLinked ? styles.unlinkedViewOfferButton : styles.viewOfferButton}
                                                     onPress={() => {
-                                                        // set the clicked offer/partner accordingly
-                                                        setStoreOfferClicked(data);
-                                                        // set the clicked offer physical location
-                                                        setStoreOfferPhysicalLocation({
-                                                            latitude: storeLatitude,
-                                                            longitude: storeLongitude,
-                                                            latitudeDelta: 0,
-                                                            longitudeDelta: 0,
-                                                            addressAsString: physicalLocation
-                                                        });
-                                                        // @ts-ignore
-                                                        props.navigation.navigate('StoreOffer', {
-                                                            bottomTabNeedsShowingFlag: true
-                                                        });
+                                                        /**
+                                                         * if the user is card linked, then go to the appropriate offer, depending on the offer
+                                                         * displayed, otherwise, display the click only bottom sheet but with the appropriate
+                                                         * params to essentially highlight that offers cannot be viewed without a linked card.
+                                                         */
+                                                        if (!isCardLinked) {
+                                                            // show the click only bottom sheet
+                                                            setShowClickOnlyBottomSheet(true);
+                                                        } else {
+                                                            // set the clicked offer/partner accordingly
+                                                            setStoreOfferClicked(data);
+                                                            // set the clicked offer physical location
+                                                            setStoreOfferPhysicalLocation({
+                                                                latitude: storeLatitude,
+                                                                longitude: storeLongitude,
+                                                                latitudeDelta: 0,
+                                                                longitudeDelta: 0,
+                                                                addressAsString: physicalLocation
+                                                            });
+                                                            // @ts-ignore
+                                                            props.navigation.navigate('StoreOffer', {
+                                                                bottomTabNeedsShowingFlag: true
+                                                            });
+                                                        }
                                                     }}
                                                 >
                                                     {/*@ts-ignore*/}

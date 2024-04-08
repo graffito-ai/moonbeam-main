@@ -20,10 +20,21 @@ import {customBannerState} from "../../../../recoil/CustomBannerAtom";
 import {Button} from "@rneui/base";
 import {bottomBarNavigationState, drawerNavigationState} from "../../../../recoil/HomeAtom";
 import {goToProfileSettingsState} from "../../../../recoil/Settings";
-import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import * as SecureStore from "expo-secure-store";
 import * as LocalAuthentication from "expo-local-authentication";
 import {logEvent} from "../../../../utils/AppSync";
+import {
+    clickOnlySectionReloadState,
+    fidelisSectionReloadState,
+    kitSectionReloadState,
+    nearbySectionReloadState,
+    onlineSectionReloadState,
+    verticalClickOnlySectionReloadState,
+    verticalFidelisSectionReloadState,
+    verticalNearbySectionReloadState,
+    verticalOnlineSectionReloadState
+} from "../../../../recoil/WalletAtom";
+import {heightPercentageToDP as hp, widthPercentageToDP as wp} from 'react-native-responsive-screen';
 
 /**
  * SettingsList component
@@ -52,6 +63,16 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
     const [, setCardLinkingStatus] = useRecoilState(cardLinkingStatusState);
     const [, setBannerState] = useRecoilState(customBannerState);
     const [, setDrawerSwipeEnabled] = useRecoilState(drawerSwipeState);
+    const [, setClickOnlySectionReload] = useRecoilState(clickOnlySectionReloadState);
+    const [, setVerticalClickOnlySectionReload] = useRecoilState(verticalClickOnlySectionReloadState);
+    const [, setKitSectionReload] = useRecoilState(kitSectionReloadState);
+    const [, setFidelisSectionReload] = useRecoilState(fidelisSectionReloadState);
+    const [, setVerticalFidelisSectionReload] = useRecoilState(verticalFidelisSectionReloadState);
+    const [, setNearbySectionReload] = useRecoilState(nearbySectionReloadState);
+    const [, setVerticalNearbySectionReload] = useRecoilState(verticalNearbySectionReloadState);
+    const [, setOnlineSectionReload] = useRecoilState(onlineSectionReloadState);
+    const [, setVerticalOnlineSectionReload] = useRecoilState(verticalOnlineSectionReloadState);
+
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -190,6 +211,16 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
 
                 // change the card linking status
                 setCardLinkingStatus(false);
+                // set all the reload flags accordingly
+                setClickOnlySectionReload(true);
+                setVerticalClickOnlySectionReload(true);
+                setKitSectionReload(true);
+                setFidelisSectionReload(true);
+                setVerticalFidelisSectionReload(true);
+                setNearbySectionReload(true);
+                setVerticalNearbySectionReload(true);
+                setOnlineSectionReload(true);
+                setVerticalOnlineSectionReload(true);
 
                 // set the custom banner state for future screens accordingly
                 setBannerState({
@@ -229,17 +260,17 @@ export const SettingsList = ({navigation}: SettingsListProps) => {
                 :
                 <>
                     <Portal>
-                        <Dialog style={commonStyles.dialogStyle} visible={modalVisible}
+                        <Dialog style={[commonStyles.dialogStyle, {width: wp(90), height: hp(30)}]} visible={modalVisible}
                                 onDismiss={() => setModalVisible(false)}>
                             <Dialog.Icon icon="alert" color={"#F2FF5D"}
                                          size={hp(10)}/>
                             <Dialog.Title
-                                style={commonStyles.dialogTitle}>{modalButtonMessage === 'Try Again' ? 'We hit a snag!' : 'Great'}</Dialog.Title>
+                                style={[commonStyles.dialogTitle, {bottom: hp(15)}]}>{modalButtonMessage === 'Try Again' ? 'We hit a snag!' : 'Great'}</Dialog.Title>
                             <Dialog.Content>
                                 <Text
-                                    style={commonStyles.dialogParagraph}>{modalCustomMessage}</Text>
+                                    style={[commonStyles.dialogParagraph, {bottom: hp(15)}]}>{modalCustomMessage}</Text>
                             </Dialog.Content>
-                            <Dialog.Actions>
+                            <Dialog.Actions style={{bottom: hp(15)}}>
                                 <Button buttonStyle={commonStyles.dialogButton}
                                         titleStyle={commonStyles.dialogButtonText}
                                         onPress={() => {
