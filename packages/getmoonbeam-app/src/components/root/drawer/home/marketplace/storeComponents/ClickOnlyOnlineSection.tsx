@@ -17,11 +17,12 @@ import {
 import {Image} from 'expo-image';
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
+// @ts-ignore
+import MoonbeamBlurredOffSmall from "../../../../../../../assets/art/moonbeam-blurred-off-small.png";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
 import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 import {logEvent} from "../../../../../../utils/AppSync";
 import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
-import {BlurView} from 'expo-blur';
 
 /**
  * ClickOnlineSection component.
@@ -111,15 +112,21 @@ export const ClickOnlyOnlineSection = (props: {
                                             </Paragraph>
                                             :
                                             <>
-                                                <Paragraph
-                                                    numberOfLines={1}
-                                                    style={styles.clickOnlyOnlineOfferCardSubtitle}>
-                                                    {data.reward!.type! === RewardType.RewardPercent
-                                                        ? `${data.reward!.value}% Off`
-                                                        : `$${data.reward!.value} Off`}
-                                                </Paragraph>
-                                                <BlurView intensity={15}
-                                                          style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}/>
+                                                <View style={styles.unlinkedClickOnlyOnlineView}>
+                                                    <Image
+                                                        style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
+                                                        source={MoonbeamBlurredOffSmall}
+                                                        contentFit={'contain'}
+                                                        cachePolicy={'memory-disk'}
+                                                    />
+                                                    <Paragraph
+                                                        numberOfLines={1}
+                                                        style={styles.clickOnlyOnlineOfferCardSubtitleUnlinked}>
+                                                        {data.reward!.type! === RewardType.RewardPercent
+                                                            ? `Off`
+                                                            : `Off`}
+                                                    </Paragraph>
+                                                </View>
                                             </>
                                     }
                                 </View>

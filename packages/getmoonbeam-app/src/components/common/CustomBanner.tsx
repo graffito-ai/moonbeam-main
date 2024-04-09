@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {ImageSourcePropType, View} from "react-native";
+import {ImageSourcePropType, Platform, View} from "react-native";
 import {Image} from 'expo-image';
 import {Banner, Text} from 'react-native-paper';
 import {RecoilState, useRecoilState} from "recoil";
@@ -82,16 +82,18 @@ export const CustomBanner = (props: {
                 </Text>
                 {
                     (props.marketplaceLocking !== undefined && props.marketplaceLocking) &&
-                    <Text
-                        style={styles.marketplaceButtonLabel}
-                        onPress={async () => {
-                        // go to a specific URL within the application
-                        if (props.bannerButtonLabelActionSource === "home/wallet") {
-                            bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
-                        }
-                    }}>
-                        Link Now
-                    </Text>
+                    <View style={Platform.OS === 'android' && {bottom: hp(0)}}>
+                        <Text
+                            style={styles.marketplaceButtonLabel}
+                            onPress={async () => {
+                                // go to a specific URL within the application
+                                if (props.bannerButtonLabelActionSource === "home/wallet") {
+                                    bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
+                                }
+                            }}>
+                            Link Now
+                        </Text>
+                    </View>
                 }
             </View>
         </Banner>

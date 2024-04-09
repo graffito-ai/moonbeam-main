@@ -85,7 +85,7 @@ export const Home = ({navigation}: HomeProps) => {
                 :
                 <SafeAreaProvider style={{flex: 1, backgroundColor: '#313030'}}>
                     <HomeTabStack.Navigator
-                        initialRouteName={bottomBarNavigation === null ? "Marketplace" : (bottomBarNavigation.getState().index === 0 ? "DashboardController" : (bottomBarNavigation.getState().index === 1 ? "Marketplace" : (bottomBarNavigation.getState().index === 2 ? "Cards" : "Services")))}
+                        initialRouteName={bottomBarNavigation === null ? "DashboardController" : (bottomBarNavigation.getState().index === 0 ? "DashboardController" : (bottomBarNavigation.getState().index === 1 ? "Marketplace" : (bottomBarNavigation.getState().index === 2 ? "Cards" : "Services")))}
                         screenOptions={() => ({
                             tabBarShowLabel: false,
                             header: () => {

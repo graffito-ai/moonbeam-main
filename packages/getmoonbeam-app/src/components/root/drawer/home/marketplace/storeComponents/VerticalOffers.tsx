@@ -40,7 +40,8 @@ import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
 import {logEvent, searchQueryExecute} from "../../../../../../utils/AppSync";
 import {Icon} from "@rneui/base";
 import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
-import {BlurView} from "expo-blur";
+// @ts-ignore
+import MoonbeamBlurredOffSmall from "../../../../../../../assets/art/moonbeam-blurred-off-small.png";
 
 /**
  * VerticalOffers component.
@@ -362,16 +363,21 @@ export const VerticalOffers = (props: {
                                             :
                                             <>
                                                 <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                                    <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
-                                                        {"Starting at "}
-                                                        <Text style={styles.verticalOfferBenefit}>
-                                                            {`${subtitle}`}
-                                                        </Text>
-                                                    </Text>
-                                                    <BlurView intensity={25}
-                                                              style={styles.unlinkedVerticalOfferBenefit}/>
                                                     <Text numberOfLines={1}
                                                           style={styles.verticalOfferName}>{offer.brandDba}</Text>
+                                                    <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
+                                                        <View style={styles.unlinkedClickOnlyOnlineView}>
+                                                            <Image
+                                                                style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
+                                                                source={MoonbeamBlurredOffSmall}
+                                                                contentFit={'contain'}
+                                                                cachePolicy={'memory-disk'}
+                                                            />
+                                                            <Text style={styles.unlinkedVerticalOfferBenefit}>
+                                                                {" Off "}
+                                                            </Text>
+                                                        </View>
+                                                    </Text>
                                                     <Text numberOfLines={1} style={styles.verticalOfferDistance}>
                                                         {`${calculatedDistance} miles away`}
                                                     </Text>
@@ -446,16 +452,21 @@ export const VerticalOffers = (props: {
                                             :
                                             <>
                                                 <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                                    <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
-                                                        {"Starting at "}
-                                                        <Text style={styles.verticalOfferBenefit}>
-                                                            {`${subtitle}`}
-                                                        </Text>
+                                                    <Text numberOfLines={1}
+                                                          style={styles.verticalOfferName}>{offer.brandDba}</Text>
+                                                    <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
+                                                        <View style={styles.unlinkedClickOnlyOnlineView}>
+                                                            <Image
+                                                                style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
+                                                                source={MoonbeamBlurredOffSmall}
+                                                                contentFit={'contain'}
+                                                                cachePolicy={'memory-disk'}
+                                                            />
+                                                            <Text style={styles.unlinkedVerticalOfferBenefit}>
+                                                                {" Off "}
+                                                            </Text>
+                                                        </View>
                                                     </Text>
-                                                    <BlurView intensity={25}
-                                                              style={styles.unlinkedVerticalOfferBenefit}/>
-                                                    <Text numberOfLines={2}
-                                                          style={styles.verticalOfferName}>{data.brandName}</Text>
                                                 </View>
                                             </>
                                     }
@@ -562,18 +573,21 @@ export const VerticalOffers = (props: {
                                         </View>
                                         :
                                         <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                            <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
-                                                <Text style={styles.verticalOfferBenefit}>
-                                                    {data.reward!.type! === RewardType.RewardPercent
-                                                        ? `${data.reward!.value}%`
-                                                        : `$${data.reward!.value}`}
-                                                </Text>
-                                                {" Off "}
-                                            </Text>
-                                            <BlurView intensity={25}
-                                                      style={styles.unlinkedVerticalOfferBenefitNonFidelis}/>
                                             <Text numberOfLines={2}
                                                   style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                            <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
+                                                <View style={styles.unlinkedClickOnlyOnlineView}>
+                                                    <Image
+                                                        style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
+                                                        source={MoonbeamBlurredOffSmall}
+                                                        contentFit={'contain'}
+                                                        cachePolicy={'memory-disk'}
+                                                    />
+                                                    <Text style={styles.unlinkedVerticalOfferBenefit}>
+                                                        {" Off "}
+                                                    </Text>
+                                                </View>
+                                            </Text>
                                         </View>
                                 }
                             </View>
@@ -678,18 +692,21 @@ export const VerticalOffers = (props: {
                                         </View>
                                         :
                                         <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                            <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
-                                                <Text style={styles.verticalOfferBenefit}>
-                                                    {data.reward!.type! === RewardType.RewardPercent
-                                                        ? `${data.reward!.value}%`
-                                                        : `$${data.reward!.value}`}
-                                                </Text>
-                                                {" Off "}
-                                            </Text>
-                                            <BlurView intensity={25}
-                                                      style={styles.unlinkedVerticalOfferBenefitNonFidelis}/>
                                             <Text numberOfLines={2}
                                                   style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                            <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
+                                                <View style={styles.unlinkedClickOnlyOnlineView}>
+                                                    <Image
+                                                        style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
+                                                        source={MoonbeamBlurredOffSmall}
+                                                        contentFit={'contain'}
+                                                        cachePolicy={'memory-disk'}
+                                                    />
+                                                    <Text style={styles.unlinkedVerticalOfferBenefit}>
+                                                        {" Off "}
+                                                    </Text>
+                                                </View>
+                                            </Text>
                                         </View>
                                 }
                             </View>
@@ -1153,18 +1170,21 @@ export const VerticalOffers = (props: {
                                         </View>
                                         :
                                         <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                            <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
-                                                <Text style={styles.verticalOfferBenefit}>
-                                                    {data.reward!.type! === RewardType.RewardPercent
-                                                        ? `${data.reward!.value}%`
-                                                        : `$${data.reward!.value}`}
-                                                </Text>
-                                                {" Off "}
-                                            </Text>
-                                            <BlurView intensity={25}
-                                                      style={styles.unlinkedVerticalOfferBenefitNonFidelis}/>
                                             <Text numberOfLines={1}
                                                   style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                            <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
+                                                <View style={styles.unlinkedClickOnlyOnlineView}>
+                                                    <Image
+                                                        style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
+                                                        source={MoonbeamBlurredOffSmall}
+                                                        contentFit={'contain'}
+                                                        cachePolicy={'memory-disk'}
+                                                    />
+                                                    <Text style={styles.unlinkedVerticalOfferBenefit}>
+                                                        {" Off "}
+                                                    </Text>
+                                                </View>
+                                            </Text>
                                             <Text numberOfLines={1} style={styles.verticalOfferDistance}>
                                                 {`${calculatedDistance} miles away`}
                                             </Text>

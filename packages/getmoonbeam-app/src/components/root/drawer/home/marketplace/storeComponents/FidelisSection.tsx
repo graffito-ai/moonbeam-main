@@ -21,7 +21,8 @@ import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
 import {getDistance} from "geolib";
 import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
 import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
-import {BlurView} from "expo-blur";
+// @ts-ignore
+import MoonbeamBlurredOffSmall from "../../../../../../../assets/art/moonbeam-blurred-off-small.png";
 
 /**
  * FidelisSection component.
@@ -71,8 +72,8 @@ export const FidelisSection = (props: {
                     }
                 }
                 const subtitle = (offer!.reward!.type! === RewardType.RewardPercent
-                        ? `Starting at ${offer!.reward!.value}% Off`
-                        : `Starting at $${offer!.reward!.value} Off`);
+                    ? `Starting at ${offer!.reward!.value}% Off`
+                    : `Starting at $${offer!.reward!.value} Off`);
                 if (offer === null) {
                     return (<></>);
                 } else {
@@ -164,18 +165,24 @@ export const FidelisSection = (props: {
                                                         {
                                                             !isCardLinked &&
                                                             <>
-                                                                <Paragraph
-                                                                    style={[styles.featuredPartnerCardSubtitleUnlinked, {}]}
-                                                                >
-                                                                    {subtitle}
-                                                                </Paragraph>
-                                                                <BlurView intensity={20}
-                                                                          style={styles.unlinkedFeaturedPartnerCardSubtitle}/>
                                                                 <Card.Title
                                                                     style={{alignSelf: 'flex-start', right: wp(1.5)}}
                                                                     title={
-                                                                        <Text style={styles.unlinkedFeaturedPartnerCardTitle}>
+                                                                        <Text style={styles.featuredPartnerCardTitle}>
                                                                             {`${data.brandName}\n`}
+                                                                            <View
+                                                                                style={styles.unlinkedClickOnlyOnlineView}>
+                                                                                <Image
+                                                                                    style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
+                                                                                    source={MoonbeamBlurredOffSmall}
+                                                                                    contentFit={'contain'}
+                                                                                    cachePolicy={'none'}
+                                                                                />
+                                                                                <Text
+                                                                                    style={styles.featuredPartnerCardSubtitleUnlinked}>
+                                                                                    {'Off'}
+                                                                                </Text>
+                                                                            </View>
                                                                         </Text>
                                                                     }
                                                                     titleStyle={styles.featuredPartnerCardTitleMain}
@@ -184,7 +191,7 @@ export const FidelisSection = (props: {
                                                         }
                                                         <Paragraph
                                                             numberOfLines={5}
-                                                            style={ !isCardLinked ? styles.unlinkedFeaturedPartnerCardParagraph : styles.featuredPartnerCardParagraph}
+                                                            style={styles.featuredPartnerCardParagraph}
                                                         >
                                                             {data.offers[0]!.brandStubCopy!}
                                                         </Paragraph>
@@ -192,7 +199,7 @@ export const FidelisSection = (props: {
                                                             calculatedDistance !== 0 &&
                                                             <Paragraph
                                                                 numberOfLines={1}
-                                                                style={!isCardLinked ? styles.unlinkedNearbyOfferCardDistanceParagraph : styles.nearbyOfferCardDistanceParagraph}
+                                                                style={styles.nearbyOfferCardDistanceParagraph}
                                                             >
                                                                 {`📌 ${calculatedDistance} miles away`}
                                                             </Paragraph>
@@ -309,18 +316,24 @@ export const FidelisSection = (props: {
                                                     {
                                                         !isCardLinked &&
                                                         <>
-                                                            <Paragraph
-                                                                style={[styles.featuredPartnerCardSubtitleUnlinked, {}]}
-                                                            >
-                                                                {subtitle}
-                                                            </Paragraph>
-                                                            <BlurView intensity={20}
-                                                                      style={styles.unlinkedFeaturedPartnerCardSubtitle}/>
                                                             <Card.Title
                                                                 style={{alignSelf: 'flex-start', right: wp(1.5)}}
                                                                 title={
-                                                                    <Text style={styles.unlinkedFeaturedPartnerCardTitle}>
+                                                                    <Text style={styles.featuredPartnerCardTitle}>
                                                                         {`${data.brandName}\n`}
+                                                                        <View
+                                                                            style={styles.unlinkedClickOnlyOnlineView}>
+                                                                            <Image
+                                                                                style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
+                                                                                source={MoonbeamBlurredOffSmall}
+                                                                                contentFit={'contain'}
+                                                                                cachePolicy={'none'}
+                                                                            />
+                                                                            <Text
+                                                                                style={styles.featuredPartnerCardSubtitleUnlinked}>
+                                                                                {'Off'}
+                                                                            </Text>
+                                                                        </View>
                                                                     </Text>
                                                                 }
                                                                 titleStyle={styles.featuredPartnerCardTitleMain}
@@ -328,7 +341,7 @@ export const FidelisSection = (props: {
                                                         </>
                                                     }
                                                     <Paragraph
-                                                        style={ !isCardLinked ? styles.unlinkedFeaturedPartnerCardParagraph : styles.featuredPartnerCardParagraph}
+                                                        style={!isCardLinked ? styles.unlinkedFeaturedPartnerCardParagraph : styles.featuredPartnerCardParagraph}
                                                     >
                                                         {data.offers[0]!.brandStubCopy!}
                                                     </Paragraph>

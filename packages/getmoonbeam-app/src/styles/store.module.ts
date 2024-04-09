@@ -170,6 +170,18 @@ export const styles = StyleSheet.create({
         borderWidth: hp(0.6),
         alignContent: 'space-between'
     },
+    unlinkedFullScreenMapImage: {
+        height: hp(100),
+        width: wp(100),
+        bottom: hp(10),
+        alignSelf: 'center'
+    },
+    unlinkedHorizontalMapImage: {
+        height: hp(15),
+        width: wp(100),
+        alignSelf: 'center',
+        borderRadius: 30
+    },
     toolTipImageDetail: {
         height: '90%',
         width: '50%',
@@ -389,12 +401,26 @@ export const styles = StyleSheet.create({
         textAlign: 'center',
         color: '#FFFFFF'
     },
+    unlinkedClickOnlyOnlineView: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        height: hp(3),
+        width: wp(20),
+        left: wp(2),
+        alignSelf: 'center'
+    },
     unlinkedClickOnlyOnlineOfferCardSubtitle: {
-        height: hp(2),
+        height: hp(3),
         width: wp(10),
-        bottom: hp(1.6),
-        alignSelf: 'flex-end',
-        right: wp(11)
+        alignSelf: 'flex-start',
+    },
+    clickOnlyOnlineOfferCardSubtitleUnlinked: {
+        fontSize: hp(1.65),
+        fontFamily: 'Raleway-Bold',
+        alignSelf: 'center',
+        textAlign: 'center',
+        right: wp(4),
+        color: '#F2FF5D'
     },
     clickOnlyOnlineOfferCardSubtitle: {
         top: hp(0.5),
@@ -405,11 +431,12 @@ export const styles = StyleSheet.create({
         color: '#F2FF5D'
     },
     unlinkedOnlineOfferCardSubtitle: {
-        height: hp(2),
-        width: wp(10),
-        bottom: hp(1.6),
-        alignSelf: 'flex-end',
-        right: wp(12.5)
+        fontSize: hp(1.8),
+        fontFamily: 'Raleway-Bold',
+        alignSelf: 'center',
+        textAlign: 'center',
+        right: wp(4),
+        color: '#F2FF5D'
     },
     onlineOfferCardSubtitle: {
         top: hp(0.5),
@@ -691,13 +718,11 @@ export const styles = StyleSheet.create({
         left: wp(0.5)
     },
     featuredPartnerCardSubtitleUnlinked: {
-        top: hp(0.5),
-        left: wp(1.5),
+        bottom: hp(0.5),
         fontSize: hp(1.6),
+        right: wp(4.5),
         fontFamily: 'Raleway-SemiBold',
-        alignSelf: 'flex-start',
-        width: wp(40),
-        lineHeight: hp(2),
+        alignSelf: 'flex-end',
         color: '#F2FF5D',
     },
     featuredPartnerCardSubtitle: {
@@ -891,11 +916,11 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF'
     },
     nearbyOfferCardSubtitleUnlinked: {
-        left: wp(1.5),
+        bottom: hp(0.3),
         fontSize: hp(2),
+        right: wp(3.5),
         fontFamily: 'Raleway-SemiBold',
-        alignSelf: 'flex-start',
-        width: wp(40),
+        alignSelf: 'flex-end',
         color: '#F2FF5D',
     },
     unlinkedNearbyOfferCardSubtitle: {
@@ -970,11 +995,10 @@ export const styles = StyleSheet.create({
         color: '#F2FF5D'
     },
     unlinkedVerticalOfferBenefit: {
-        height: hp(2.5),
-        width: wp(35),
-        marginTop: -hp(2.5),
-        alignSelf: 'flex-end',
-        right: wp(17)
+        fontFamily: 'Saira-Bold',
+        fontSize: hp(1.75),
+        right: wp(2.5),
+        color: '#F2FF5D'
     },
     unlinkedVerticalOfferBenefitNonFidelis: {
         height: hp(2.5),

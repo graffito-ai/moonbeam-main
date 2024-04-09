@@ -32,8 +32,9 @@ import {MapHorizontalSection} from "./MapHorizontalSection";
 import {getDistance} from "geolib";
 import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
 import {logEvent} from "../../../../../../utils/AppSync";
-import { BlurView } from "expo-blur";
 import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
+// @ts-ignore
+import MoonbeamBlurredOffSmall from "../../../../../../../assets/art/moonbeam-blurred-off-small.png";
 
 /**
  * NearbySection component.
@@ -174,20 +175,24 @@ export const NearbySection = (props: {
                                                 {
                                                     !isCardLinked &&
                                                     <>
-                                                        <Paragraph
-                                                            style={[styles.nearbyOfferCardSubtitleUnlinked, {}]}
-                                                        >
-                                                            {data.reward!.type! === RewardType.RewardPercent
-                                                                ? `${data.reward!.value}% Off`
-                                                                : `$${data.reward!.value} Off`}
-                                                        </Paragraph>
-                                                        <BlurView intensity={35}
-                                                                  style={styles.unlinkedNearbyOfferCardSubtitle}/>
                                                         <Card.Title
                                                             style={{alignSelf: 'flex-start', right: wp(1.5)}}
                                                             title={
-                                                                <Text style={styles.unlinkedNearbyOfferCardTitle}>
+                                                                <Text style={styles.nearbyOfferCardTitle}>
                                                                     {`${data.brandDba}\n`}
+                                                                    <View
+                                                                        style={styles.unlinkedClickOnlyOnlineView}>
+                                                                        <ExpoImage
+                                                                            style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
+                                                                            source={MoonbeamBlurredOffSmall}
+                                                                            contentFit={'contain'}
+                                                                            cachePolicy={'none'}
+                                                                        />
+                                                                        <Text
+                                                                            style={styles.nearbyOfferCardSubtitleUnlinked}>
+                                                                            {'Off'}
+                                                                        </Text>
+                                                                    </View>
                                                                 </Text>
                                                             }
                                                             titleStyle={styles.nearbyOfferCardTitleMain}
@@ -196,7 +201,7 @@ export const NearbySection = (props: {
                                                 }
                                                 <Paragraph
                                                     numberOfLines={3}
-                                                    style={!isCardLinked ? styles.unlinkedNearbyOfferCardParagraph : styles.nearbyOfferCardParagraph}
+                                                    style={styles.nearbyOfferCardParagraph}
                                                 >
                                                     {`📌 ${physicalLocation}`}
                                                 </Paragraph>
@@ -204,7 +209,7 @@ export const NearbySection = (props: {
                                                     calculatedDistance !== 0 &&
                                                     <Paragraph
                                                         numberOfLines={1}
-                                                        style={!isCardLinked ? styles.unlinkedNearbyOfferCardDistanceParagraph : styles.nearbyOfferCardDistanceParagraph}
+                                                        style={styles.nearbyOfferCardDistanceParagraph}
                                                     >
                                                         {`${calculatedDistance} miles away`}
                                                     </Paragraph>
@@ -229,7 +234,7 @@ export const NearbySection = (props: {
                                                     />
                                                 </View>
                                                 <TouchableOpacity
-                                                    style={!isCardLinked ? styles.unlinkedViewOfferButton : styles.viewOfferButton}
+                                                    style={styles.viewOfferButton}
                                                     onPress={() => {
                                                         /**
                                                          * if the user is card linked, then go to the appropriate offer, depending on the offer

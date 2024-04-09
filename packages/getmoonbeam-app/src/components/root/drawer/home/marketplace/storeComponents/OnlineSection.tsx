@@ -21,7 +21,8 @@ import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
 import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 import {logEvent} from "../../../../../../utils/AppSync";
 import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
-import {BlurView} from "expo-blur";
+// @ts-ignore
+import MoonbeamBlurredOffSmall from "../../../../../../../assets/art/moonbeam-blurred-off-small.png";
 
 /**
  * OnlineSection component.
@@ -118,15 +119,21 @@ export const OnlineSection = (props: {
                                         </Paragraph>
                                         :
                                         <>
-                                            <Paragraph
-                                                numberOfLines={1}
-                                                style={styles.onlineOfferCardSubtitle}>
-                                                {data.reward!.type! === RewardType.RewardPercent
-                                                    ? `${data.reward!.value}% Off`
-                                                    : `$${data.reward!.value} Off`}
-                                            </Paragraph>
-                                            <BlurView intensity={15}
-                                                      style={styles.unlinkedOnlineOfferCardSubtitle}/>
+                                            <View style={styles.unlinkedClickOnlyOnlineView}>
+                                                <Image
+                                                    style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
+                                                    source={MoonbeamBlurredOffSmall}
+                                                    contentFit={'contain'}
+                                                    cachePolicy={'memory-disk'}
+                                                />
+                                                <Paragraph
+                                                    numberOfLines={1}
+                                                    style={styles.unlinkedOnlineOfferCardSubtitle}>
+                                                    {data.reward!.type! === RewardType.RewardPercent
+                                                        ? `Off`
+                                                        : `Off`}
+                                                </Paragraph>
+                                            </View>
                                         </>
                                 }
                             </View>
