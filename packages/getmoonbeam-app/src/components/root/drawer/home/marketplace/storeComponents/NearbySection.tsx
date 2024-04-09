@@ -12,7 +12,7 @@ import {
     nearbyOffersListState,
     nearbyOffersSpinnerShownState,
     noNearbyOffersToLoadState, numberOfOffersWithin25MilesState,
-    numberOfOffersWithin5MilesState,
+    numberOfOffersWithin5MilesState, showClickOnlyBottomSheetState,
     storeOfferPhysicalLocationState,
     storeOfferState,
     toggleViewPressedState,
@@ -32,6 +32,9 @@ import {MapHorizontalSection} from "./MapHorizontalSection";
 import {getDistance} from "geolib";
 import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
 import {logEvent} from "../../../../../../utils/AppSync";
+import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
+// @ts-ignore
+import MoonbeamBlurredOffSmall from "../../../../../../../assets/art/moonbeam-blurred-off-small.png";
 
 /**
  * NearbySection component.
@@ -69,6 +72,8 @@ export const NearbySection = (props: {
     const [userInformation,] = useRecoilState(currentUserInformation);
     const [noNearbyOffersToLoad,] = useRecoilState(noNearbyOffersToLoadState);
     const [nearbyOffersSpinnerShown, setNearbyOffersSpinnerShown] = useRecoilState(nearbyOffersSpinnerShownState);
+    const [isCardLinked, ] = useRecoilState(cardLinkingStatusState);
+    const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
 
     /**
      * Function used to populate the rows containing the nearby offer data.
@@ -150,20 +155,48 @@ export const NearbySection = (props: {
                                                 justifyContent: 'space-between',
                                                 right: wp(2)
                                             }}>
-                                                <Card.Title
-                                                    style={{alignSelf: 'flex-start', right: wp(1.5)}}
-                                                    title={
-                                                        <Text style={styles.nearbyOfferCardTitle}>
-                                                            {`${data.brandDba}\n`}
-                                                            <Text style={styles.nearbyOfferCardSubtitle}>
-                                                                {data.reward!.type! === RewardType.RewardPercent
-                                                                    ? `${data.reward!.value}% Off`
-                                                                    : `$${data.reward!.value} Off`}
+                                                {
+                                                    isCardLinked &&
+                                                    <Card.Title
+                                                        style={{alignSelf: 'flex-start', right: wp(1.5)}}
+                                                        title={
+                                                            <Text style={styles.nearbyOfferCardTitle}>
+                                                                {`${data.brandDba}\n`}
+                                                                <Text style={styles.nearbyOfferCardSubtitle}>
+                                                                    {data.reward!.type! === RewardType.RewardPercent
+                                                                        ? `${data.reward!.value}% Off`
+                                                                        : `$${data.reward!.value} Off`}
+                                                                </Text>
                                                             </Text>
-                                                        </Text>
-                                                    }
-                                                    titleStyle={styles.nearbyOfferCardTitleMain}
-                                                    titleNumberOfLines={2}/>
+                                                        }
+                                                        titleStyle={styles.nearbyOfferCardTitleMain}
+                                                        titleNumberOfLines={2}/>
+                                                }
+                                                {
+                                                    !isCardLinked &&
+                                                    <>
+                                                        <Card.Title
+                                                            style={{alignSelf: 'flex-start', right: wp(1.5)}}
+                                                            title={
+                                                                <Text style={styles.nearbyOfferCardTitle}>
+                                                                    {`${data.brandDba}\n`}
+                                                                    <View
+                                                                        style={styles.unlinkedClickOnlyOnlineView}>
+                                                                        <Image
+                                                                            style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
+                                                                            source={MoonbeamBlurredOffSmall}
+                                                                        />
+                                                                        <Text
+                                                                            style={styles.nearbyOfferCardSubtitleUnlinked}>
+                                                                            {'Off'}
+                                                                        </Text>
+                                                                    </View>
+                                                                </Text>
+                                                            }
+                                                            titleStyle={styles.nearbyOfferCardTitleMain}
+                                                            titleNumberOfLines={2}/>
+                                                    </>
+                                                }
                                                 <Paragraph
                                                     numberOfLines={3}
                                                     style={styles.nearbyOfferCardParagraph}
@@ -201,20 +234,30 @@ export const NearbySection = (props: {
                                                 <TouchableOpacity
                                                     style={styles.viewOfferButton}
                                                     onPress={() => {
-                                                        // set the clicked offer/partner accordingly
-                                                        setStoreOfferClicked(data);
-                                                        // set the clicked offer physical location
-                                                        setStoreOfferPhysicalLocation({
-                                                            latitude: storeLatitude,
-                                                            longitude: storeLongitude,
-                                                            latitudeDelta: 0,
-                                                            longitudeDelta: 0,
-                                                            addressAsString: physicalLocation
-                                                        });
-                                                        // @ts-ignore
-                                                        props.navigation.navigate('StoreOffer', {
-                                                            bottomTabNeedsShowingFlag: true
-                                                        });
+                                                        /**
+                                                         * if the user is card linked, then go to the appropriate offer, depending on the offer
+                                                         * displayed, otherwise, display the click only bottom sheet but with the appropriate
+                                                         * params to essentially highlight that offers cannot be viewed without a linked card.
+                                                         */
+                                                        if (!isCardLinked) {
+                                                            // show the click only bottom sheet
+                                                            setShowClickOnlyBottomSheet(true);
+                                                        } else {
+                                                            // set the clicked offer/partner accordingly
+                                                            setStoreOfferClicked(data);
+                                                            // set the clicked offer physical location
+                                                            setStoreOfferPhysicalLocation({
+                                                                latitude: storeLatitude,
+                                                                longitude: storeLongitude,
+                                                                latitudeDelta: 0,
+                                                                longitudeDelta: 0,
+                                                                addressAsString: physicalLocation
+                                                            });
+                                                            // @ts-ignore
+                                                            props.navigation.navigate('StoreOffer', {
+                                                                bottomTabNeedsShowingFlag: true
+                                                            });
+                                                        }
                                                     }}
                                                 >
                                                     {/*@ts-ignore*/}

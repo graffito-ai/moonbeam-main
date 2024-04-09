@@ -26,8 +26,9 @@ import {ImageBackground} from 'expo-image'
 import {OfferCategory} from "@moonbeam/moonbeam-models";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
-import {currentActiveKitState} from "../../../../../../recoil/StoreOfferAtom";
+import {currentActiveKitState, showClickOnlyBottomSheetState} from "../../../../../../recoil/StoreOfferAtom";
 import {useRecoilState} from "recoil";
+import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
 
 /**
  * Interface representing the Moonbeam kit object
@@ -123,6 +124,8 @@ export const KitsSection = (props: {
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
     // constants used to keep track of shared states
     const [, setCurrentActiveKit] = useRecoilState(currentActiveKitState);
+    const [isCardLinked,] = useRecoilState(cardLinkingStatusState);
+    const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -162,12 +165,22 @@ export const KitsSection = (props: {
                         <Card
                             style={styles.kitsCard}
                             onPress={() => {
-                                // navigate to the appropriate Kit, depending on the type of offer/kit displayed
-                                props.navigation.navigate('Kit', {
-                                    kitType: data.type
-                                });
-                                // set the kit appropriately
-                                setCurrentActiveKit(data.type);
+                                /**
+                                 * if the user is card linked, then go to the appropriate Kit, depending on the type of
+                                 * kit displayed, otherwise, display the click only bottom sheet but with the appropriate
+                                 * params to essentially highlight that offers cannot be viewed without a linked card.
+                                 */
+                                if (!isCardLinked) {
+                                    // show the click only bottom sheet
+                                    setShowClickOnlyBottomSheet(true);
+                                } else {
+                                    // navigate to the appropriate Kit, depending on the type of offer/kit displayed
+                                    props.navigation.navigate('Kit', {
+                                        kitType: data.type
+                                    });
+                                    // set the kit appropriately
+                                    setCurrentActiveKit(data.type);
+                                }
                             }}
                         >
                             <ImageBackground

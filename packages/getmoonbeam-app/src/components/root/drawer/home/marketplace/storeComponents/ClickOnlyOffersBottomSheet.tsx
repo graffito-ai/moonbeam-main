@@ -3,13 +3,21 @@ import {SafeAreaView, Text, TouchableOpacity, View} from "react-native";
 import {Image} from 'expo-image';
 import {styles} from "../../../../../../styles/clickOnlyOffersBottomSheet.module";
 import {useRecoilState} from "recoil";
-import {storeOfferState} from "../../../../../../recoil/StoreOfferAtom";
+import {showClickOnlyBottomSheetState, storeOfferState} from "../../../../../../recoil/StoreOfferAtom";
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {Divider} from "@rneui/base";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
 import {widthPercentageToDP as wp} from "react-native-responsive-screen";
+import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
+// @ts-ignore
+import CardLinkingImage from "../../../../../../../assets/art/moonbeam-card-linking.png";
+import {
+    bottomBarNavigationState,
+    bottomTabNeedsShowingState,
+    bottomTabShownState
+} from "../../../../../../recoil/HomeAtom";
 
 
 /**
@@ -20,13 +28,17 @@ import {widthPercentageToDP as wp} from "react-native-responsive-screen";
  */
 export const ClickOnlyOffersBottomSheet = (props: {
     navigation: NativeStackNavigationProp<MarketplaceStackParamList, 'Store'> |
-        NativeStackNavigationProp<MarketplaceStackParamList, 'Kit'>,
+        NativeStackNavigationProp<MarketplaceStackParamList, 'Kit'>
 }) => {
     // constants used to keep track of local component state
 
     // constants used to keep track of shared states
     const [storeOfferClicked,] = useRecoilState(storeOfferState);
-
+    const [isCardLinked,] = useRecoilState(cardLinkingStatusState);
+    const [bottomBarNavigation,] = useRecoilState(bottomBarNavigationState);
+    const [, setBottomTabShown] = useRecoilState(bottomTabShownState);
+    const [, setBottomTabNeedsShowing] = useRecoilState(bottomTabNeedsShowingState);
+    const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -42,7 +54,7 @@ export const ClickOnlyOffersBottomSheet = (props: {
     return (
         <>
             {
-                storeOfferClicked !== null &&
+                storeOfferClicked !== null && isCardLinked &&
                 <SafeAreaView>
                     <View style={styles.topTitleView}>
                         <View style={styles.brandLogoBackground}>
@@ -118,6 +130,89 @@ export const ClickOnlyOffersBottomSheet = (props: {
                             }}
                         >
                             <Text style={styles.continueButtonContentStyle}>Continue</Text>
+                        </TouchableOpacity>
+                    </View>
+                </SafeAreaView>
+            }
+            {
+                !isCardLinked &&
+                <SafeAreaView>
+                    <View style={styles.topTitleView}>
+                        <View style={styles.unlinkedBrandLogoBackground}>
+                            {/*@ts-ignore*/}
+                            <Image source={CardLinkingImage}
+                                   style={styles.unlinkedBrandLogo}
+                                   contentFit={'contain'}
+                                   cachePolicy={'memory-disk'}
+                            />
+                        </View>
+                        <View style={{width: wp(75), alignSelf: 'center'}}>
+                            <Text
+                                numberOfLines={2}
+                                style={styles.unlinkedTopTitle}>
+                                {/*@ts-ignore*/}
+                                {`Link your card to access offers!`}
+                            </Text>
+                        </View>
+                    </View>
+                    <View style={styles.unlinkedContentView}>
+                        <Text
+                            numberOfLines={2}
+                            style={styles.contentDisclaimerNumber}
+                        >
+                            {"➊.     "}
+                            <Text
+                                numberOfLines={2}
+                                style={styles.contentDisclaimer}
+                            >
+                                Offer details and discounts available once you link your card in the Wallet.
+                            </Text>
+                        </Text>
+                        <Divider
+                            style={[styles.divider]}/>
+                        <Text
+                            numberOfLines={2}
+                            style={styles.contentDisclaimerNumber}
+                        >
+                            {"➋.    "}
+                            <Text
+                                numberOfLines={2}
+                                style={styles.contentDisclaimer}
+                            >
+                                We do not store your card information. It is encrypted and stored in a Card Vault.
+                            </Text>
+                        </Text>
+                        <Divider
+                            style={[styles.divider]}/>
+                        <Text
+                            numberOfLines={2}
+                            style={styles.contentDisclaimerNumber}
+                        >
+                            {"➌.    "}
+                            <Text
+                                numberOfLines={2}
+                                style={styles.contentDisclaimer}
+                            >
+                                We currently accept any Visa and Mastercard, debit or credit card.
+                            </Text>
+                        </Text>
+                        <TouchableOpacity
+                            style={styles.unlinkedContinueButton}
+                            onPress={async () => {
+                                setBottomTabShown(true);
+
+                                // show the bottom bar
+                                setBottomTabNeedsShowing(true);
+
+                                // go to the Wallet component
+                                // @ts-ignore
+                                bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
+
+                                // hide the bottom sheet
+                                setShowClickOnlyBottomSheet(false);
+                            }}
+                        >
+                            <Text style={styles.continueButtonContentStyle}>Link Now</Text>
                         </TouchableOpacity>
                     </View>
                 </SafeAreaView>

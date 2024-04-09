@@ -340,7 +340,7 @@ export const AdditionalRegistrationStep = () => {
                 <View
                     style={[styles.additionalRegistrationView]}>
                     <View style={[styles.additionalRegistrationBottomInputsView,
-                        currentMemberAffiliation !== MilitaryAffiliation.ServiceMember && {bottom: hp(5.5)}
+                        currentMemberAffiliation !== MilitaryAffiliation.ServiceMember && {bottom: hp(0.5)}
                     ]}>
                         <TextInput
                             autoCapitalize={"sentences"}

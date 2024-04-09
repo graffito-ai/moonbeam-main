@@ -2,17 +2,17 @@ import React, {useEffect, useMemo, useState} from "react";
 import {FidelisPartner, Offer, RewardType} from "@moonbeam/moonbeam-models";
 import {Card, Paragraph, Text} from "react-native-paper";
 import {styles} from "../../../../../../styles/store.module";
-import {TouchableOpacity, View} from "react-native";
+import {Image, TouchableOpacity, View} from "react-native";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
 import {useRecoilState} from "recoil";
 import {
-    fidelisPartnerListState,
+    fidelisPartnerListState, showClickOnlyBottomSheetState,
     storeOfferPhysicalLocationState,
     storeOfferState
 } from "../../../../../../recoil/StoreOfferAtom";
-import {Image} from 'expo-image';
+import {Image as ExpoImage} from 'expo-image';
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 // @ts-ignore
@@ -20,6 +20,9 @@ import MoonbeamVeteranOwnedBadgeImage from "../../../../../../../assets/art/moon
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
 import {getDistance} from "geolib";
 import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
+import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
+// @ts-ignore
+import MoonbeamBlurredOffSmall from "../../../../../../../assets/art/moonbeam-blurred-off-small.png";
 
 /**
  * FidelisSection component.
@@ -39,6 +42,8 @@ export const FidelisSection = (props: {
     const [fidelisPartnerList,] = useRecoilState(fidelisPartnerListState);
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
     const [, setStoreOfferPhysicalLocation] = useRecoilState(storeOfferPhysicalLocationState);
+    const [isCardLinked,] = useRecoilState(cardLinkingStatusState);
+    const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
 
     /**
      * Function used to populate the rows containing the Fidelis partners data.
@@ -66,9 +71,9 @@ export const FidelisSection = (props: {
                         break;
                     }
                 }
-                const subtitle = offer!.reward!.type! === RewardType.RewardPercent
+                const subtitle = (offer!.reward!.type! === RewardType.RewardPercent
                     ? `Starting at ${offer!.reward!.value}% Off`
-                    : `Starting at $${offer!.reward!.value} Off`;
+                    : `Starting at $${offer!.reward!.value} Off`);
                 if (offer === null) {
                     return (<></>);
                 } else {
@@ -141,20 +146,49 @@ export const FidelisSection = (props: {
                                                         justifyContent: 'space-between',
                                                         right: wp(2)
                                                     }}>
-                                                        <Card.Title
-                                                            style={{alignSelf: 'flex-start', right: wp(1.5)}}
-                                                            title={
-                                                                <Text style={styles.featuredPartnerCardTitle}>
-                                                                    {`${data.brandName}\n`}
-                                                                    <Text style={styles.featuredPartnerCardSubtitle}>
-                                                                        {subtitle}
+                                                        {
+                                                            isCardLinked &&
+                                                            <Card.Title
+                                                                style={{alignSelf: 'flex-start', right: wp(1.5)}}
+                                                                title={
+                                                                    <Text style={styles.featuredPartnerCardTitle}>
+                                                                        {`${data.brandName}\n`}
+                                                                        <Text
+                                                                            style={styles.featuredPartnerCardSubtitle}>
+                                                                            {subtitle}
+                                                                        </Text>
                                                                     </Text>
-                                                                </Text>
-                                                            }
-                                                            titleStyle={styles.featuredPartnerCardTitleMain}
-                                                            titleNumberOfLines={10}/>
+                                                                }
+                                                                titleStyle={styles.featuredPartnerCardTitleMain}
+                                                                titleNumberOfLines={10}/>
+                                                        }
+                                                        {
+                                                            !isCardLinked &&
+                                                            <>
+                                                                <Card.Title
+                                                                    style={{alignSelf: 'flex-start', right: wp(1.5)}}
+                                                                    title={
+                                                                        <Text style={styles.featuredPartnerCardTitle}>
+                                                                            {`${data.brandName}\n`}
+                                                                            <View
+                                                                                style={styles.unlinkedClickOnlyOnlineView}>
+                                                                                <Image
+                                                                                    style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
+                                                                                    source={MoonbeamBlurredOffSmall}
+                                                                                />
+                                                                                <Text
+                                                                                    style={styles.featuredPartnerCardSubtitleUnlinked}>
+                                                                                    {'Off'}
+                                                                                </Text>
+                                                                            </View>
+                                                                        </Text>
+                                                                    }
+                                                                    titleStyle={styles.featuredPartnerCardTitleMain}
+                                                                    titleNumberOfLines={10}/>
+                                                            </>
+                                                        }
                                                         <Paragraph
-                                                            numberOfLines={6}
+                                                            numberOfLines={5}
                                                             style={styles.featuredPartnerCardParagraph}
                                                         >
                                                             {data.offers[0]!.brandStubCopy!}
@@ -175,7 +209,7 @@ export const FidelisSection = (props: {
                                                         left: wp(2)
                                                     }}>
                                                         <View style={styles.featuredPartnerCardCoverBackground}>
-                                                            <Image
+                                                            <ExpoImage
                                                                 style={styles.featuredPartnerCardCover}
                                                                 source={{
                                                                     uri: data.offers[0]!.brandLogoSm!
@@ -190,20 +224,30 @@ export const FidelisSection = (props: {
                                                         <TouchableOpacity
                                                             style={styles.viewOfferButton}
                                                             onPress={() => {
-                                                                // set the clicked offer/partner accordingly
-                                                                setStoreOfferClicked(data);
-                                                                // set the clicked offer physical location
-                                                                setStoreOfferPhysicalLocation({
-                                                                    latitude: storeLatitude,
-                                                                    longitude: storeLongitude,
-                                                                    latitudeDelta: 0,
-                                                                    longitudeDelta: 0,
-                                                                    addressAsString: physicalLocation
-                                                                });
-                                                                // @ts-ignore
-                                                                props.navigation.navigate('StoreOffer', {
-                                                                    bottomTabNeedsShowingFlag: true
-                                                                });
+                                                                /**
+                                                                 * if the user is card linked, then go to the appropriate offer, depending on the offer
+                                                                 * displayed, otherwise, display the click only bottom sheet but with the appropriate
+                                                                 * params to essentially highlight that offers cannot be viewed without a linked card.
+                                                                 */
+                                                                if (!isCardLinked) {
+                                                                    // show the click only bottom sheet
+                                                                    setShowClickOnlyBottomSheet(true);
+                                                                } else {
+                                                                    // set the clicked offer/partner accordingly
+                                                                    setStoreOfferClicked(data);
+                                                                    // set the clicked offer physical location
+                                                                    setStoreOfferPhysicalLocation({
+                                                                        latitude: storeLatitude,
+                                                                        longitude: storeLongitude,
+                                                                        latitudeDelta: 0,
+                                                                        longitudeDelta: 0,
+                                                                        addressAsString: physicalLocation
+                                                                    });
+                                                                    // @ts-ignore
+                                                                    props.navigation.navigate('StoreOffer', {
+                                                                        bottomTabNeedsShowingFlag: true
+                                                                    });
+                                                                }
                                                             }}
                                                         >
                                                             {/*@ts-ignore*/}
@@ -215,7 +259,7 @@ export const FidelisSection = (props: {
                                                 </View>
                                                 {
                                                     data.veteranOwned &&
-                                                    <Image
+                                                    <ExpoImage
                                                         style={styles.veteranOwnedBadge}
                                                         source={MoonbeamVeteranOwnedBadgeImage}
                                                         placeholder={MoonbeamVeteranOwnedBadgeImage}
@@ -251,20 +295,49 @@ export const FidelisSection = (props: {
                                                     justifyContent: 'space-between',
                                                     right: wp(2)
                                                 }}>
-                                                    <Card.Title
-                                                        style={{alignSelf: 'flex-start', right: wp(1.5)}}
-                                                        title={
-                                                            <Text style={styles.featuredPartnerCardTitle}>
-                                                                {`${data.brandName}\n`}
-                                                                <Text style={styles.featuredPartnerCardSubtitle}>
-                                                                    {subtitle}
+                                                    {
+                                                        isCardLinked &&
+                                                        <Card.Title
+                                                            style={{alignSelf: 'flex-start', right: wp(1.5)}}
+                                                            title={
+                                                                <Text style={styles.featuredPartnerCardTitle}>
+                                                                    {`${data.brandName}\n`}
+                                                                    <Text
+                                                                        style={styles.featuredPartnerCardSubtitle}>
+                                                                        {subtitle}
+                                                                    </Text>
                                                                 </Text>
-                                                            </Text>
-                                                        }
-                                                        titleStyle={styles.featuredPartnerCardTitleMain}
-                                                        titleNumberOfLines={10}/>
+                                                            }
+                                                            titleStyle={styles.featuredPartnerCardTitleMain}
+                                                            titleNumberOfLines={10}/>
+                                                    }
+                                                    {
+                                                        !isCardLinked &&
+                                                        <>
+                                                            <Card.Title
+                                                                style={{alignSelf: 'flex-start', right: wp(1.5)}}
+                                                                title={
+                                                                    <Text style={styles.featuredPartnerCardTitle}>
+                                                                        {`${data.brandName}\n`}
+                                                                        <View
+                                                                            style={styles.unlinkedClickOnlyOnlineView}>
+                                                                            <Image
+                                                                                style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
+                                                                                source={MoonbeamBlurredOffSmall}
+                                                                            />
+                                                                            <Text
+                                                                                style={styles.featuredPartnerCardSubtitleUnlinked}>
+                                                                                {'Off'}
+                                                                            </Text>
+                                                                        </View>
+                                                                    </Text>
+                                                                }
+                                                                titleStyle={styles.featuredPartnerCardTitleMain}
+                                                                titleNumberOfLines={10}/>
+                                                        </>
+                                                    }
                                                     <Paragraph
-                                                        style={styles.featuredPartnerCardParagraph}
+                                                        style={!isCardLinked ? styles.unlinkedFeaturedPartnerCardParagraph : styles.featuredPartnerCardParagraph}
                                                     >
                                                         {data.offers[0]!.brandStubCopy!}
                                                     </Paragraph>
@@ -275,7 +348,7 @@ export const FidelisSection = (props: {
                                                     left: wp(2)
                                                 }}>
                                                     <View style={styles.featuredPartnerCardCoverBackground}>
-                                                        <Image
+                                                        <ExpoImage
                                                             style={styles.featuredPartnerCardCover}
                                                             source={{
                                                                 uri: data.offers[0]!.brandLogoSm!
@@ -290,12 +363,22 @@ export const FidelisSection = (props: {
                                                     <TouchableOpacity
                                                         style={styles.viewOfferButton}
                                                         onPress={() => {
-                                                            // set the clicked offer/partner accordingly
-                                                            setStoreOfferClicked(data);
-                                                            // @ts-ignore
-                                                            props.navigation.navigate('StoreOffer', {
-                                                                bottomTabNeedsShowingFlag: true
-                                                            });
+                                                            /**
+                                                             * if the user is card linked, then go to the appropriate offer, depending on the offer
+                                                             * displayed, otherwise, display the click only bottom sheet but with the appropriate
+                                                             * params to essentially highlight that offers cannot be viewed without a linked card.
+                                                             */
+                                                            if (!isCardLinked) {
+                                                                // show the click only bottom sheet
+                                                                setShowClickOnlyBottomSheet(true);
+                                                            } else {
+                                                                // set the clicked offer/partner accordingly
+                                                                setStoreOfferClicked(data);
+                                                                // @ts-ignore
+                                                                props.navigation.navigate('StoreOffer', {
+                                                                    bottomTabNeedsShowingFlag: true
+                                                                });
+                                                            }
                                                         }}
                                                     >
                                                         {/*@ts-ignore*/}
@@ -307,8 +390,8 @@ export const FidelisSection = (props: {
                                             </View>
                                             {
                                                 data.veteranOwned &&
-                                                <Image
-                                                    style={styles.veteranOwnedBadge}
+                                                <ExpoImage
+                                                    style={!isCardLinked ? styles.unlinkedVeteranOwnedBadge : styles.veteranOwnedBadge}
                                                     source={MoonbeamVeteranOwnedBadgeImage}
                                                     placeholder={MoonbeamVeteranOwnedBadgeImage}
                                                     placeholderContentFit={'contain'}

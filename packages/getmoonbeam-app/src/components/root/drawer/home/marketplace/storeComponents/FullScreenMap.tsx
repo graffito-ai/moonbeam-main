@@ -39,9 +39,16 @@ import {LoggingLevel, RewardType} from "@moonbeam/moonbeam-models";
 import {getDistance} from "geolib";
 import {Spinner} from "../../../../../common/Spinner";
 import {logEvent, retrieveOffersNearbyForMap} from "../../../../../../utils/AppSync";
-import {bottomTabShownState} from "../../../../../../recoil/HomeAtom";
+import {
+    bottomBarNavigationState,
+    bottomTabNeedsShowingState,
+    bottomTabShownState
+} from "../../../../../../recoil/HomeAtom";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
+import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
+// @ts-ignore
+import MoonbeamBlurredOffLarge from "../../../../../../../assets/art/moonbeam-blurred-off-large.png";
 
 /**
  * FullScreenMap component.
@@ -89,6 +96,9 @@ export const FullScreenMap = (props: {
     const [locationServicesButton, setLocationServicesButton] = useRecoilState(locationServicesButtonState);
     const uniqueNearbyOffersListForFullScreenMap = useRecoilValue(uniqueNearbyOffersListForFullScreenMapState);
     const [currentUserLocation, setCurrentUserLocation] = useRecoilState(currentUserLocationState);
+    const [isCardLinked,] = useRecoilState(cardLinkingStatusState);
+    const [bottomBarNavigation,] = useRecoilState(bottomBarNavigationState);
+    const [, setBottomTabNeedsShowing] = useRecoilState(bottomTabNeedsShowingState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -121,7 +131,10 @@ export const FullScreenMap = (props: {
                 setCanSearchForAdditionalOffers(true);
             }, 500);
         }
-    }, [currentUserLocation, mapIsDisplayed, mapViewRef, bottomTabShown, canSearchForAdditionalOffers]);
+        if (!isCardLinked) {
+            setLoadingSpinnerShown(false);
+        }
+    }, [currentUserLocation, mapIsDisplayed, mapViewRef, bottomTabShown, canSearchForAdditionalOffers, isCardLinked]);
 
     /**
      * Function used to retrieve the user's location and animate/move the full screen map
@@ -261,7 +274,6 @@ export const FullScreenMap = (props: {
                         longitude: storeLongitude
                     }}
                 >
-
                     <TouchableOpacity
                         style={styles.toolTipTouchableView}
                         onPress={async () => {
@@ -327,7 +339,6 @@ export const FullScreenMap = (props: {
     // return the component for the FullScreenMap page
     return (
         <>
-
             <Portal>
                 <Dialog style={[commonStyles.permissionsDialogStyle, {bottom: hp(6)}]}
                         visible={permissionsModalVisible}
@@ -438,148 +449,193 @@ export const FullScreenMap = (props: {
                                     {
                                         Platform.OS === 'android' ?
                                             <View style={{overflow: 'hidden', borderRadius: 30}}>
-                                                <MapView
-                                                    initialRegion={currentMapRegion}
-                                                    animationEnabled={true}
-                                                    clusteringEnabled={true}
-                                                    clusterColor={'#313030'}
-                                                    clusterFontFamily={'Raleway-Medium'}
-                                                    clusterTextColor={'#F2FF5D'}
-                                                    ref={mapViewRef}
-                                                    provider={PROVIDER_GOOGLE}
-                                                    userInterfaceStyle={'light'}
-                                                    userLocationCalloutEnabled={true}
-                                                    showsUserLocation={true}
-                                                    zoomControlEnabled={true}
-                                                    pitchEnabled={true}
-                                                    zoomTapEnabled={true}
-                                                    rotateEnabled={true}
-                                                    toolbarEnabled={true}
-                                                    showsScale={true}
-                                                    showsBuildings={true}
-                                                    showsIndoors={true}
-                                                    showsMyLocationButton={!canSearchForAdditionalOffers}
-                                                    onRegionChangeComplete={(async (region, _) => {
-                                                        setCurrentMapRegion(region);
-                                                        if (!regionChangedInitially) {
-                                                            setRegionChangedInitially(true);
-                                                        } else {
-                                                            /**
-                                                             *  check to see if we already loaded offers for these coordinates. We load 1,000 offers within 20 km of a particular set of coordinates.
-                                                             *  Therefore, we calculate the distance between the current region's coordinates and the sets of coordinates for which we already loaded
-                                                             *  offers for, and if that distance exceeds that 20 km or 10 miles for all loaded coordinates, then we load new offers accordingly
-                                                             */
-                                                            let toLoad = false;
-                                                            let calculatedDistance = getDistance({
-                                                                latitude: region.latitude,
-                                                                longitude: region.longitude
-                                                            }, {
-                                                                latitude: loadedCoordinates.latitude,
-                                                                longitude: loadedCoordinates.longitude
-                                                            }, 1);
-                                                            // the accuracy above is in meters, so we are calculating it up to miles where 1 mile = 1609.34 meters
-                                                            calculatedDistance = Math.round((calculatedDistance / 1609.34) * 100) / 100;
-
-                                                            /**
-                                                             * Olive messes up the distances, so if we go more than 2.5 miles outside a known coordinate pair,
-                                                             * we need to search again (even though we did 20km/10miles before), because we only draw markers for a distance of approximately 10 miles.
-                                                             */
-                                                            if (calculatedDistance >= 2.5) {
-                                                                toLoad = true;
-                                                            }
-                                                            if (calculatedDistance < 2.5) {
-                                                                toLoad = false;
-                                                            }
-
-                                                            // only animate and load more offers based on a user's adjusted position on the map, if this is not already in progress
-                                                            if (!adjustedMapLoading && toLoad) {
-                                                                setCanSearchForAdditionalOffers(true);
-                                                            } else {
-                                                                setCanSearchForAdditionalOffers(false);
-                                                            }
-                                                        }
-                                                    })}
-                                                    style={[
-                                                        {height: '100%', width: '100%'},
-                                                        {borderRadius: 30, backgroundColor: '#313030'}]}
-                                                >
-                                                    {
-                                                        displayMapMarkersWithinMap()
-                                                    }
-                                                </MapView>
-                                            </View> :
-                                            <MapView
-                                                initialRegion={currentMapRegion}
-                                                animationEnabled={true}
-                                                clusteringEnabled={true}
-                                                clusterColor={'#313030'}
-                                                clusterFontFamily={'Raleway-Medium'}
-                                                clusterTextColor={'#F2FF5D'}
-                                                ref={mapViewRef}
-                                                provider={PROVIDER_GOOGLE}
-                                                userInterfaceStyle={'light'}
-                                                userLocationCalloutEnabled={true}
-                                                showsUserLocation={true}
-                                                zoomControlEnabled={true}
-                                                pitchEnabled={true}
-                                                zoomTapEnabled={true}
-                                                rotateEnabled={true}
-                                                toolbarEnabled={true}
-                                                showsScale={true}
-                                                showsBuildings={true}
-                                                showsIndoors={true}
-                                                showsMyLocationButton={!canSearchForAdditionalOffers}
-                                                onRegionChangeComplete={(async (region, _) => {
-                                                    setCurrentMapRegion(region);
-                                                    if (!regionChangedInitially) {
-                                                        setRegionChangedInitially(true);
-                                                    } else {
-                                                        /**
-                                                         *  check to see if we already loaded offers for these coordinates. We load 1,000 offers within 20 km of a particular set of coordinates.
-                                                         *  Therefore, we calculate the distance between the current region's coordinates and the sets of coordinates for which we already loaded
-                                                         *  offers for, and if that distance exceeds that 20 km or 10 miles for all loaded coordinates, then we load new offers accordingly
-                                                         */
-                                                        let toLoad = false;
-                                                        let calculatedDistance = getDistance({
-                                                            latitude: region.latitude,
-                                                            longitude: region.longitude
-                                                        }, {
-                                                            latitude: loadedCoordinates.latitude,
-                                                            longitude: loadedCoordinates.longitude
-                                                        }, 1);
-                                                        // the accuracy above is in meters, so we are calculating it up to miles where 1 mile = 1609.34 meters
-                                                        calculatedDistance = Math.round((calculatedDistance / 1609.34) * 100) / 100;
-
-                                                        /**
-                                                         * Olive messes up the distances, so if we go more than 2.5 miles outside a known coordinate pair,
-                                                         * we need to search again (even though we did 20km/10miles before), because we only draw markers for a distance of approximately 10 miles.
-                                                         */
-                                                        if (calculatedDistance >= 2.5) {
-                                                            toLoad = true;
-                                                        }
-                                                        if (calculatedDistance < 2.5) {
-                                                            toLoad = false;
-                                                        }
-
-                                                        // only animate and load more offers based on a user's adjusted position on the map, if this is not already in progress
-                                                        if (!adjustedMapLoading && toLoad) {
-                                                            setCanSearchForAdditionalOffers(true);
-                                                        } else {
-                                                            setCanSearchForAdditionalOffers(false);
-                                                        }
-                                                    }
-                                                })}
-                                                style={[
-                                                    StyleSheet.absoluteFillObject,
-                                                    {borderRadius: 30, backgroundColor: '#313030'}]}
-                                            >
                                                 {
-                                                    displayMapMarkersWithinMap()
+                                                    isCardLinked
+                                                        ? <MapView
+                                                            initialRegion={currentMapRegion}
+                                                            animationEnabled={true}
+                                                            clusteringEnabled={true}
+                                                            clusterColor={'#313030'}
+                                                            clusterFontFamily={'Raleway-Medium'}
+                                                            clusterTextColor={'#F2FF5D'}
+                                                            ref={mapViewRef}
+                                                            provider={PROVIDER_GOOGLE}
+                                                            userInterfaceStyle={'light'}
+                                                            userLocationCalloutEnabled={true}
+                                                            showsUserLocation={true}
+                                                            zoomControlEnabled={true}
+                                                            pitchEnabled={true}
+                                                            zoomTapEnabled={true}
+                                                            rotateEnabled={true}
+                                                            toolbarEnabled={true}
+                                                            showsScale={true}
+                                                            showsBuildings={true}
+                                                            showsIndoors={true}
+                                                            showsMyLocationButton={!canSearchForAdditionalOffers}
+                                                            onRegionChangeComplete={(async (region, _) => {
+                                                                setCurrentMapRegion(region);
+                                                                if (!regionChangedInitially) {
+                                                                    setRegionChangedInitially(true);
+                                                                } else {
+                                                                    /**
+                                                                     *  check to see if we already loaded offers for these coordinates. We load 1,000 offers within 20 km of a particular set of coordinates.
+                                                                     *  Therefore, we calculate the distance between the current region's coordinates and the sets of coordinates for which we already loaded
+                                                                     *  offers for, and if that distance exceeds that 20 km or 10 miles for all loaded coordinates, then we load new offers accordingly
+                                                                     */
+                                                                    let toLoad = false;
+                                                                    let calculatedDistance = getDistance({
+                                                                        latitude: region.latitude,
+                                                                        longitude: region.longitude
+                                                                    }, {
+                                                                        latitude: loadedCoordinates.latitude,
+                                                                        longitude: loadedCoordinates.longitude
+                                                                    }, 1);
+                                                                    // the accuracy above is in meters, so we are calculating it up to miles where 1 mile = 1609.34 meters
+                                                                    calculatedDistance = Math.round((calculatedDistance / 1609.34) * 100) / 100;
+
+                                                                    /**
+                                                                     * Olive messes up the distances, so if we go more than 2.5 miles outside a known coordinate pair,
+                                                                     * we need to search again (even though we did 20km/10miles before), because we only draw markers for a distance of approximately 10 miles.
+                                                                     */
+                                                                    if (calculatedDistance >= 2.5) {
+                                                                        toLoad = true;
+                                                                    }
+                                                                    if (calculatedDistance < 2.5) {
+                                                                        toLoad = false;
+                                                                    }
+
+                                                                    // only animate and load more offers based on a user's adjusted position on the map, if this is not already in progress
+                                                                    if (!adjustedMapLoading && toLoad) {
+                                                                        setCanSearchForAdditionalOffers(true);
+                                                                    } else {
+                                                                        setCanSearchForAdditionalOffers(false);
+                                                                    }
+                                                                }
+                                                            })}
+                                                            style={[
+                                                                {height: '100%', width: '100%'},
+                                                                {borderRadius: 30, backgroundColor: '#313030'}]}
+                                                        >
+                                                            {
+                                                                displayMapMarkersWithinMap()
+                                                            }
+                                                        </MapView>
+                                                        : <TouchableOpacity
+                                                            onPress={() => {
+                                                                setBottomTabShown(true);
+
+                                                                // show the bottom bar
+                                                                setBottomTabNeedsShowing(true);
+
+                                                                bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
+                                                            }}
+                                                        >
+                                                            <Image
+                                                                style={styles.unlinkedFullScreenMapImage}
+                                                                source={MoonbeamBlurredOffLarge}
+                                                                contentFit={'contain'}
+                                                                cachePolicy={'memory-disk'}
+                                                            />
+                                                        </TouchableOpacity>
                                                 }
-                                            </MapView>
+                                            </View> :
+                                            <>
+                                                {
+                                                    isCardLinked ?
+                                                        <MapView
+                                                            initialRegion={currentMapRegion}
+                                                            animationEnabled={true}
+                                                            clusteringEnabled={true}
+                                                            clusterColor={'#313030'}
+                                                            clusterFontFamily={'Raleway-Medium'}
+                                                            clusterTextColor={'#F2FF5D'}
+                                                            ref={mapViewRef}
+                                                            provider={PROVIDER_GOOGLE}
+                                                            userInterfaceStyle={'light'}
+                                                            userLocationCalloutEnabled={true}
+                                                            showsUserLocation={true}
+                                                            zoomControlEnabled={true}
+                                                            pitchEnabled={true}
+                                                            zoomTapEnabled={true}
+                                                            rotateEnabled={true}
+                                                            toolbarEnabled={true}
+                                                            showsScale={true}
+                                                            showsBuildings={true}
+                                                            showsIndoors={true}
+                                                            showsMyLocationButton={!canSearchForAdditionalOffers}
+                                                            onRegionChangeComplete={(async (region, _) => {
+                                                                setCurrentMapRegion(region);
+                                                                if (!regionChangedInitially) {
+                                                                    setRegionChangedInitially(true);
+                                                                } else {
+                                                                    /**
+                                                                     *  check to see if we already loaded offers for these coordinates. We load 1,000 offers within 20 km of a particular set of coordinates.
+                                                                     *  Therefore, we calculate the distance between the current region's coordinates and the sets of coordinates for which we already loaded
+                                                                     *  offers for, and if that distance exceeds that 20 km or 10 miles for all loaded coordinates, then we load new offers accordingly
+                                                                     */
+                                                                    let toLoad = false;
+                                                                    let calculatedDistance = getDistance({
+                                                                        latitude: region.latitude,
+                                                                        longitude: region.longitude
+                                                                    }, {
+                                                                        latitude: loadedCoordinates.latitude,
+                                                                        longitude: loadedCoordinates.longitude
+                                                                    }, 1);
+                                                                    // the accuracy above is in meters, so we are calculating it up to miles where 1 mile = 1609.34 meters
+                                                                    calculatedDistance = Math.round((calculatedDistance / 1609.34) * 100) / 100;
+
+                                                                    /**
+                                                                     * Olive messes up the distances, so if we go more than 2.5 miles outside a known coordinate pair,
+                                                                     * we need to search again (even though we did 20km/10miles before), because we only draw markers for a distance of approximately 10 miles.
+                                                                     */
+                                                                    if (calculatedDistance >= 2.5) {
+                                                                        toLoad = true;
+                                                                    }
+                                                                    if (calculatedDistance < 2.5) {
+                                                                        toLoad = false;
+                                                                    }
+
+                                                                    // only animate and load more offers based on a user's adjusted position on the map, if this is not already in progress
+                                                                    if (!adjustedMapLoading && toLoad) {
+                                                                        setCanSearchForAdditionalOffers(true);
+                                                                    } else {
+                                                                        setCanSearchForAdditionalOffers(false);
+                                                                    }
+                                                                }
+                                                            })}
+                                                            style={[
+                                                                StyleSheet.absoluteFillObject,
+                                                                {borderRadius: 30, backgroundColor: '#313030'}]}
+                                                        >
+                                                            {
+                                                                <>
+                                                                    {displayMapMarkersWithinMap()}
+                                                                </>
+                                                            }
+                                                        </MapView>
+                                                        :
+                                                        <TouchableOpacity
+                                                            onPress={() => {
+                                                                setBottomTabShown(true);
+
+                                                                // show the bottom bar
+                                                                setBottomTabNeedsShowing(true);
+
+                                                                bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
+                                                            }}
+                                                        >
+                                                            <Image
+                                                                style={styles.unlinkedFullScreenMapImage}
+                                                                source={MoonbeamBlurredOffLarge}
+                                                                contentFit={'contain'}
+                                                                cachePolicy={'memory-disk'}
+                                                            />
+                                                        </TouchableOpacity>
+                                                }
+                                            </>
                                     }
                                     {
-                                        canSearchForAdditionalOffers &&
+                                        canSearchForAdditionalOffers && isCardLinked &&
                                         <TouchableOpacity
                                             style={styles.searchButton}
                                             onPress={async () => {

@@ -277,7 +277,9 @@ export const EventSeriesDetails = ({navigation}: EventSeriesDetailsProps) => {
                                 <RecyclerListView
                                     // @ts-ignore
                                     ref={eventOccurrencesListView}
-                                    style={{top: hp(1), left: wp(1)}}
+                                    style={[Platform.OS === 'android'
+                                        ? [{top: hp(1)}, eventSeries.events.length > 2 ? {marginLeft: -wp(6)} : {left: wp(1)}]
+                                        : {top: hp(1), left: wp(1)}]}
                                     layoutProvider={eventOccurrencesLayoutProvider!}
                                     dataProvider={eventOccurrencesDataProvider!}
                                     rowRenderer={renderEventOccurrencesData}
@@ -291,7 +293,7 @@ export const EventSeriesDetails = ({navigation}: EventSeriesDetailsProps) => {
                                     scrollViewProps={{
                                         pagingEnabled: "true",
                                         decelerationRate: "fast",
-                                        snapToInterval: Platform.OS === 'android' ? wp(10) * 3 : wp(7.5),
+                                        snapToInterval: Platform.OS === 'android' ? wp(27) * 3 : wp(30),
                                         snapToAlignment: "center",
                                         persistentScrollbar: false,
                                         showsHorizontalScrollIndicator: false

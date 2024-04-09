@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
-import {Platform, TouchableOpacity, View} from "react-native";
+import {Image, Platform, TouchableOpacity, View} from "react-native";
 import {ActivityIndicator, Card, Paragraph, Portal, Text} from "react-native-paper";
 import {styles} from "../../../../../../styles/store.module";
 import {LoggingLevel, Offer, RewardType} from "@moonbeam/moonbeam-models";
@@ -11,15 +11,18 @@ import {
     locationServicesButtonState,
     nearbyOffersListState,
     noOnlineOffersToLoadState, numberOfOnlineOffersState,
-    onlineOffersListState,
+    onlineOffersListState, showClickOnlyBottomSheetState,
     storeOfferState, toggleViewPressedState, uniqueOnlineOffersListState, verticalSectionActiveState
 } from "../../../../../../recoil/StoreOfferAtom";
-import {Image} from 'expo-image';
+import {Image as ExpoImage} from 'expo-image';
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
 import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 import {logEvent} from "../../../../../../utils/AppSync";
+import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
+// @ts-ignore
+import MoonbeamBlurredOffSmall from "../../../../../../../assets/art/moonbeam-blurred-off-small.png";
 
 /**
  * OnlineSection component.
@@ -40,7 +43,7 @@ export const OnlineSection = (props: {
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
     const [onlineOffersSpinnerShown, setOnlineOffersSpinnerShown] = useState<boolean>(false);
     // constants used to keep track of shared states
-    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [numberOfOnlineOffers,] = useRecoilState(numberOfOnlineOffersState);
     const [locationServicesButton,] = useRecoilState(locationServicesButtonState);
     const [nearbyOfferList,] = useRecoilState(nearbyOffersListState);
@@ -50,6 +53,8 @@ export const OnlineSection = (props: {
     const [onlineOfferList,] = useRecoilState(onlineOffersListState);
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
     const [noOnlineOffersToLoad,] = useRecoilState(noOnlineOffersToLoadState);
+    const [isCardLinked,] = useRecoilState(cardLinkingStatusState);
+    const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
 
     /**
      * Function used to populate the rows containing the online offers data.
@@ -66,18 +71,28 @@ export const OnlineSection = (props: {
             return (
                 <TouchableOpacity style={{left: '3%'}}
                                   onPress={() => {
-                                      // set the clicked offer/partner accordingly
-                                      setStoreOfferClicked(data);
-                                      // @ts-ignore
-                                      props.navigation.navigate('StoreOffer', {
-                                          bottomTabNeedsShowingFlag: true
-                                      });
+                                      /**
+                                       * if the user is card linked, then go to the appropriate offer, depending on the offer
+                                       * displayed, otherwise, display the click only bottom sheet but with the appropriate
+                                       * params to essentially highlight that offers cannot be viewed without a linked card.
+                                       */
+                                      if (!isCardLinked) {
+                                          // show the click only bottom sheet
+                                          setShowClickOnlyBottomSheet(true);
+                                      } else {
+                                          // set the clicked offer/partner accordingly
+                                          setStoreOfferClicked(data);
+                                          // @ts-ignore
+                                          props.navigation.navigate('StoreOffer', {
+                                              bottomTabNeedsShowingFlag: true
+                                          });
+                                      }
                                   }}>
                     <Card style={styles.onlineOfferCard}>
                         <Card.Content>
                             <View style={{flexDirection: 'column'}}>
                                 <View style={styles.onlineOfferCardCoverBackground}>
-                                    <Image
+                                    <ExpoImage
                                         style={styles.onlineOfferCardCover}
                                         source={{
                                             uri: data.brandLogoSm!
@@ -93,12 +108,33 @@ export const OnlineSection = (props: {
                                     numberOfLines={3}
                                     style={styles.onlineOfferCardTitle}>{data.brandDba}
                                 </Paragraph>
-                                <Paragraph
-                                    style={styles.onlineOfferCardSubtitle}>
-                                    {data.reward!.type! === RewardType.RewardPercent
-                                        ? `${data.reward!.value}% Off`
-                                        : `$${data.reward!.value} Off`}
-                                </Paragraph>
+                                {
+                                    isCardLinked ?
+                                        <Paragraph
+                                            numberOfLines={1}
+                                            style={styles.onlineOfferCardSubtitle}>
+                                            {data.reward!.type! === RewardType.RewardPercent
+                                                ? `${data.reward!.value}% Off`
+                                                : `$${data.reward!.value} Off`}
+                                        </Paragraph>
+                                        :
+                                        <>
+                                            <View style={styles.unlinkedClickOnlyOnlineView}>
+                                                <Image
+                                                    style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
+                                                    source={MoonbeamBlurredOffSmall}
+                                                    // cachePolicy={'memory-disk'}
+                                                />
+                                                <Paragraph
+                                                    numberOfLines={1}
+                                                    style={styles.unlinkedOnlineOfferCardSubtitle}>
+                                                    {data.reward!.type! === RewardType.RewardPercent
+                                                        ? `Off`
+                                                        : `Off`}
+                                                </Paragraph>
+                                            </View>
+                                        </>
+                                }
                             </View>
                         </Card.Content>
                     </Card>
@@ -231,7 +267,7 @@ export const OnlineSection = (props: {
                                 scrollViewProps={{
                                     pagingEnabled: "true",
                                     decelerationRate: "fast",
-                                    snapToInterval: Platform.OS === 'android' ?  wp(33) * 3 : wp(33),
+                                    snapToInterval: Platform.OS === 'android' ? wp(33) * 3 : wp(33),
                                     snapToAlignment: "center",
                                     persistentScrollbar: false,
                                     showsHorizontalScrollIndicator: false

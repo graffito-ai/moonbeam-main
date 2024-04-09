@@ -19,9 +19,101 @@ const selectedCardIndexState = atom<number>({
 });
 
 /**
+ * Atom to be used in order to keep track of the click only section reload, tracked
+ * when users link and unlink their cards.
+ */
+const clickOnlySectionReloadState = atom<boolean>({
+    key: "clickOnlySectionReloadState",
+    default: false
+});
+
+/**
+ * Atom to be used in order to keep track of the vertical click only section reload, tracked
+ * when users link and unlink their cards.
+ */
+const verticalClickOnlySectionReloadState = atom<boolean>({
+    key: "verticalClickOnlySectionReloadState",
+    default: false
+});
+
+/**
+ * Atom to be used in order to keep track of the kits section reload, tracked
+ * when users link and unlink their cards.
+ */
+const kitSectionReloadState = atom<boolean>({
+    key: "kitSectionReloadState",
+    default: false
+});
+
+/**
+ * Atom to be used in order to keep track of the fidelis section reload, tracked
+ * when users link and unlink their cards.
+ */
+const fidelisSectionReloadState = atom<boolean>({
+    key: "fidelisSectionReloadState",
+    default: false
+});
+
+/**
+ * Atom to be used in order to keep track of the vertical fidelis section reload, tracked
+ * when users link and unlink their cards.
+ */
+const verticalFidelisSectionReloadState = atom<boolean>({
+    key: "verticalFidelisSectionReloadState",
+    default: false
+});
+
+/**
+ * Atom to be used in order to keep track of the nearby section reload, tracked
+ * when users link and unlink their cards.
+ */
+const nearbySectionReloadState = atom<boolean>({
+    key: "nearbySectionReloadState",
+    default: false
+});
+
+/**
+ * Atom to be used in order to keep track of the vertical nearby section reload, tracked
+ * when users link and unlink their cards.
+ */
+const verticalNearbySectionReloadState = atom<boolean>({
+    key: "verticalNearbySectionReloadState",
+    default: false
+});
+
+/**
+ * Atom to be used in order to keep track of the online section reload, tracked
+ * when users link and unlink their cards.
+ */
+const onlineSectionReloadState = atom<boolean>({
+    key: "onlineSectionReloadState",
+    default: false
+});
+
+/**
+ * Atom to be used in order to keep track of the vertical online section reload, tracked
+ * when users link and unlink their cards.
+ */
+const verticalOnlineSectionReloadState = atom<boolean>({
+    key: "verticalOnlineSectionReloadState",
+    default: false
+});
+
+
+/**
  * Export all atoms and/or selectors
  */
 export {
     cardLinkingBottomSheetState,
-    selectedCardIndexState
+    selectedCardIndexState,
+
+    clickOnlySectionReloadState,
+    verticalClickOnlySectionReloadState,
+    kitSectionReloadState,
+    fidelisSectionReloadState,
+    verticalFidelisSectionReloadState,
+    nearbySectionReloadState,
+    verticalNearbySectionReloadState,
+    onlineSectionReloadState,
+    verticalOnlineSectionReloadState
 };

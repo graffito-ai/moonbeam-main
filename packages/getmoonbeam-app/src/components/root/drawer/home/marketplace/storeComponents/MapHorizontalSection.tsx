@@ -24,6 +24,10 @@ import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 import {logEvent} from "../../../../../../utils/AppSync";
 import {SafeAreaView} from "react-native-safe-area-context";
+import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
+// @ts-ignore
+import MoonbeamBlurredOffMedium from "../../../../../../../assets/art/moonbeam-blurred-off-medium.png";
+import {bottomBarNavigationState} from "../../../../../../recoil/HomeAtom";
 
 /**
  * MapHorizontalSection component.
@@ -48,6 +52,8 @@ export const MapHorizontalSection = () => {
     const [currentUserLocation, setCurrentUserLocation] = useRecoilState(currentUserLocationState);
     const [showClickOnlyBottomSheet,] = useRecoilState(showClickOnlyBottomSheetState);
     const [onlineOfferList,] = useRecoilState(onlineOffersListState);
+    const [isCardLinked,] = useRecoilState(cardLinkingStatusState);
+    const [bottomBarNavigation,] = useRecoilState(bottomBarNavigationState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -232,65 +238,108 @@ export const MapHorizontalSection = () => {
                             }
                             {
                                 !showClickOnlyBottomSheet && Platform.OS === 'android' &&
-                                <View style={{overflow: 'hidden', borderRadius: 10}}>
-                                    <MapView
-                                        onPress={() => {
-                                            setToggleViewPressed('map');
-                                        }}
-                                        initialRegion={currentMapRegion}
-                                        // clusteringEnabled={true}
-                                        // clusterColor={'#313030'}
-                                        // clusterFontFamily={'Raleway-Medium'}
-                                        // clusterTextColor={'#F2FF5D'}
-                                        provider={PROVIDER_GOOGLE}
-                                        userInterfaceStyle={'light'}
-                                        ref={mapViewRef}
-                                        userLocationCalloutEnabled={true}
-                                        showsUserLocation={true}
-                                        zoomControlEnabled={false}
-                                        pitchEnabled={false}
-                                        rotateEnabled={false}
-                                        scrollEnabled={false}
-                                        zoomEnabled={false}
-                                        style={[
-                                            {height: '100%', width: '100%'},
-                                            {borderRadius: 10}]}
-                                    >
-                                        {
-                                            displayMapMarkersWithinMap()
-                                        }
-                                    </MapView>
-                                </View>
+                                <>
+                                    {isCardLinked ?
+                                        <TouchableOpacity
+                                            style={{overflow: 'hidden', borderRadius: 10}}
+                                            onPress={() => {
+                                                setToggleViewPressed('map');
+                                            }}
+                                        >
+                                            <MapView
+                                                onPress={() => {
+                                                    setToggleViewPressed('map');
+                                                }}
+                                                initialRegion={currentMapRegion}
+                                                // clusteringEnabled={true}
+                                                // clusterColor={'#313030'}
+                                                // clusterFontFamily={'Raleway-Medium'}
+                                                // clusterTextColor={'#F2FF5D'}
+                                                provider={PROVIDER_GOOGLE}
+                                                userInterfaceStyle={'light'}
+                                                ref={mapViewRef}
+                                                userLocationCalloutEnabled={true}
+                                                showsUserLocation={true}
+                                                zoomControlEnabled={false}
+                                                pitchEnabled={false}
+                                                rotateEnabled={false}
+                                                scrollEnabled={false}
+                                                zoomEnabled={false}
+                                                style={[
+                                                    {height: '100%', width: '100%'},
+                                                    {borderRadius: 10}
+
+                                                ]}
+                                            >
+                                                {
+                                                    displayMapMarkersWithinMap()
+                                                }
+                                            </MapView>
+                                        </TouchableOpacity>
+                                        :
+                                        <TouchableOpacity
+                                            onPress={() => {
+                                                bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
+                                            }}
+                                        >
+                                            <Image
+                                                style={styles.unlinkedHorizontalMapImage}
+                                                source={MoonbeamBlurredOffMedium}
+                                                contentFit={'contain'}
+                                                cachePolicy={'memory-disk'}
+                                            />
+                                        </TouchableOpacity>
+                                    }
+                                </>
                             }
                             {
                                 !showClickOnlyBottomSheet && Platform.OS !== 'android' &&
-                                <MapView
-                                    onPress={() => {
-                                        setToggleViewPressed('map');
-                                    }}
-                                    initialRegion={currentMapRegion}
-                                    // clusteringEnabled={true}
-                                    // clusterColor={'#313030'}
-                                    // clusterFontFamily={'Raleway-Medium'}
-                                    // clusterTextColor={'#F2FF5D'}
-                                    provider={PROVIDER_GOOGLE}
-                                    userInterfaceStyle={'light'}
-                                    ref={mapViewRef}
-                                    userLocationCalloutEnabled={true}
-                                    showsUserLocation={true}
-                                    zoomControlEnabled={false}
-                                    pitchEnabled={false}
-                                    rotateEnabled={false}
-                                    scrollEnabled={false}
-                                    zoomEnabled={false}
-                                    style={[
-                                        {height: '100%', width: '100%'},
-                                        {borderRadius: 10}]}
-                                >
+                                <>
                                     {
-                                        displayMapMarkersWithinMap()
+                                        isCardLinked
+                                            ? <MapView
+                                                onPress={() => {
+                                                    setToggleViewPressed('map');
+                                                }}
+                                                initialRegion={currentMapRegion}
+                                                // clusteringEnabled={true}
+                                                // clusterColor={'#313030'}
+                                                // clusterFontFamily={'Raleway-Medium'}
+                                                // clusterTextColor={'#F2FF5D'}
+                                                provider={PROVIDER_GOOGLE}
+                                                userInterfaceStyle={'light'}
+                                                ref={mapViewRef}
+                                                userLocationCalloutEnabled={true}
+                                                showsUserLocation={true}
+                                                zoomControlEnabled={false}
+                                                pitchEnabled={false}
+                                                rotateEnabled={false}
+                                                scrollEnabled={false}
+                                                zoomEnabled={false}
+                                                style={[
+                                                    {height: '100%', width: '100%'},
+                                                    {borderRadius: 10}
+                                                ]}
+                                            >
+                                                {
+                                                    displayMapMarkersWithinMap()
+                                                }
+                                            </MapView>
+                                            :
+                                            <TouchableOpacity
+                                                onPress={() => {
+                                                    bottomBarNavigation && bottomBarNavigation!.navigate('Cards', {});
+                                                }}
+                                            >
+                                                <Image
+                                                    style={styles.unlinkedHorizontalMapImage}
+                                                    source={MoonbeamBlurredOffMedium}
+                                                    contentFit={'contain'}
+                                                    cachePolicy={'memory-disk'}
+                                                />
+                                            </TouchableOpacity>
                                     }
-                                </MapView>
+                                </>
                             }
                         </Portal.Host>
                     </View>

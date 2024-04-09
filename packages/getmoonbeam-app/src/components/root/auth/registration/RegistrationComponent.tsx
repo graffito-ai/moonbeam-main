@@ -14,7 +14,8 @@ import {
     additionalDocumentationNeeded,
     addressCityErrorsState,
     addressCityState,
-    addressLineErrorsState, addressLineFocusState,
+    addressLineErrorsState,
+    addressLineFocusState,
     addressLineState,
     addressStateErrorsState,
     addressStateState,
@@ -95,13 +96,11 @@ import {
 } from "@moonbeam/moonbeam-models";
 import {v4 as uuidv4} from 'uuid';
 import {MilitaryStatusSplashStep} from "./MilitaryStatusSplashStep";
-import {CardLinkingStatusSplashStep} from "./CardLinkingStatusSplash";
 import {UserPermissionsStep} from "./UserPermissionsStep";
 import * as Contacts from "expo-contacts";
 import {fetchFile} from "../../../../utils/File";
 import {Spinner} from "../../../common/Spinner";
 import {splashStatusState} from "../../../../recoil/SplashAtom";
-import {CardLinkingStep} from "./CardLinkingStep";
 // @ts-ignore
 import MoonbeamDuplicateEmail from '../../../../../assets/art/moonbeam-duplicate-email.png';
 // @ts-ignore
@@ -201,7 +200,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [ssnValue, setSSNValue] = useRecoilState(ssnState);
     const [ssnErrors, setSSNErrors] = useRecoilState(ssnErrorsState);
     // step 2
-    const [addressLineFocus, ] = useRecoilState(addressLineFocusState);
+    const [addressLineFocus,] = useRecoilState(addressLineFocusState);
     const [addressLine, setAddressLine] = useRecoilState(addressLineState);
     const [addressLineErrors, setAddressLineErrors] = useRecoilState(addressLineErrorsState);
     const [addressCity, setAddressCity] = useRecoilState(addressCityState);
@@ -237,7 +236,7 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
     const [, setDocumentationErrors] = useRecoilState(additionalDocumentationErrors);
     // step 7
     const [cardLinkingStatus,] = useRecoilState(cardLinkingRegistrationStatusState);
-    const [splashState, setSplashState] = useRecoilState(splashStatusState);
+    const [splashState,] = useRecoilState(splashStatusState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -290,24 +289,24 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
         if (countdownValue === 10) {
             startCountdown(10);
         }
-        /**
-         * since for step number 7, the driving action is performed by the linking button in Olive's iFrame,
-         * we want to ensure that once the linking was done successfully there, then before we proceed to the next step,
-         * we set the state for the next one accordingly.
-         */
-        if (stepNumber === 7 && cardLinkingStatus) {
-            // setting the splash state for the next step
-            setSplashState({
-                splashTitle: 'Congrats!',
-                splashDescription: 'Your card was successfully linked.',
-                splashButtonText: 'Finish',
-                splashArtSource: CardLinkedSuccessImage
-            });
-
-            // increase the step number
-            let newStepValue = stepNumber + 1;
-            setStepNumber(newStepValue);
-        }
+        // /**
+        //  * since for step number 7, the driving action is performed by the linking button in Olive's iFrame,
+        //  * we want to ensure that once the linking was done successfully there, then before we proceed to the next step,
+        //  * we set the state for the next one accordingly.
+        //  */
+        // if (stepNumber === 7 && cardLinkingStatus) {
+        //     // setting the splash state for the next step
+        //     setSplashState({
+        //         splashTitle: 'Congrats!',
+        //         splashDescription: 'Your card was successfully linked.',
+        //         splashButtonText: 'Finish',
+        //         splashArtSource: CardLinkedSuccessImage
+        //     });
+        //
+        //     // increase the step number
+        //     let newStepValue = stepNumber + 1;
+        //     setStepNumber(newStepValue);
+        // }
         // remove keyboard listeners accordingly
         return () => {
             keyboardDidHideListener.remove();
@@ -1021,11 +1020,12 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                                     ? <MilitaryStatusSplashStep/>
                                                                     : stepNumber === 6
                                                                         ? <DocumentCaptureStep/>
-                                                                        : stepNumber === 7
-                                                                            ? <CardLinkingStep/>
-                                                                            : stepNumber === 8
-                                                                                ? <CardLinkingStatusSplashStep/>
-                                                                                : <></>
+                                                                        : <></>
+                                        // : stepNumber === 7
+                                        //     ? <CardLinkingStep/>
+                                        //     : stepNumber === 8
+                                        //         ? <CardLinkingStatusSplashStep/>
+                                        //         : <></>
                                     }
                                     <View style={[
                                         styles.bottomContainerButtons,
@@ -1343,19 +1343,164 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                                 setDocumentationErrors([]);
                                                             }
                                                             break;
-                                                        case 6:
-                                                            // for the 7th step, the driver of the step is the additional documentation needed flag in the Documentation component
+                                                        // case 6:
+                                                        //     // for the 7th step, the driver of the step is the additional documentation needed flag in the Documentation component
+                                                        //     break;
+                                                        // case 7:
+                                                        //     /**
+                                                        //      * for the 8th step, we need to handle that retroactively in the useEffect(), since we don't have control over the button press,
+                                                        //      * given that it's coming from Olive's iFrame.
+                                                        //      */
+                                                        //     break;
+                                                        // case 8:
+                                                        //     setIsReady(false);
+                                                        //     /**
+                                                        //      * If everything was successful, then:
+                                                        //      * - we just cache the list of:
+                                                        //      *      - Fidelis partners for initial load (for 1 week only)
+                                                        //      *      - the list of premier click-only online offers
+                                                        //      *      - the list of click-only online offers (first page only) for initial load (for 1 week only)
+                                                        //      *      - the list of premier online offers
+                                                        //      *      - the list of online offers (first page only) for initial load (for 1 week only)
+                                                        //      *      - the list of offers near user's home address (first page only) for initial load (for 1 week only)
+                                                        //      *      - the list of categorized online offers
+                                                        //      * - we just cache an empty profile photo for the user for initial load
+                                                        //      */
+                                                        //     if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-fidelisPartners`) !== null) {
+                                                        //         const message = 'old Fidelis Partners are cached, needs cleaning up';
+                                                        //         console.log(message);
+                                                        //         await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+                                                        //         await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-fidelisPartners`);
+                                                        //         await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, await retrieveFidelisPartnerList());
+                                                        //     } else {
+                                                        //         const message = 'Fidelis Partners are not cached';
+                                                        //         console.log(message);
+                                                        //         await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+                                                        //         marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-fidelisPartners`, await retrieveFidelisPartnerList());
+                                                        //     }
+                                                        //     if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-onlineOffers`) !== null) {
+                                                        //         const message = 'online offers are cached, needs cleaning up';
+                                                        //         console.log(message);
+                                                        //         await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+                                                        //         await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-onlineOffers`);
+                                                        //
+                                                        //         // retrieve the premier online, and regular online offers
+                                                        //         const onlineOffers = await retrieveOnlineOffersList(
+                                                        //             numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls,
+                                                        //             numberOfOnlineOffers, setNumberOfOnlineOffers);
+                                                        //         const premierOnlineOffers = await retrievePremierOnlineOffersList(numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls);
+                                                        //
+                                                        //         // update the number of available total online offers
+                                                        //         setNumberOfOnlineOffers(oldNumberOfOnlineOffers => {
+                                                        //             return oldNumberOfOnlineOffers + premierOnlineOffers.length
+                                                        //         });
+                                                        //
+                                                        //         await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
+                                                        //             [...premierOnlineOffers, ...onlineOffers]);
+                                                        //     } else {
+                                                        //         const message = 'online offers are not cached';
+                                                        //         console.log(message);
+                                                        //         await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+                                                        //
+                                                        //         // retrieve the premier online, and regular online offers
+                                                        //         const onlineOffers = await retrieveOnlineOffersList(
+                                                        //             numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls,
+                                                        //             numberOfOnlineOffers, setNumberOfOnlineOffers);
+                                                        //         const premierOnlineOffers = await retrievePremierOnlineOffersList(numberOfOnlineFailedCalls, setNumberOfOnlineFailedCalls);
+                                                        //
+                                                        //         // update the number of available total online offers
+                                                        //         setNumberOfOnlineOffers(oldNumberOfOnlineOffers => {
+                                                        //             return oldNumberOfOnlineOffers + premierOnlineOffers.length
+                                                        //         });
+                                                        //
+                                                        //         marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-onlineOffers`,
+                                                        //             [...premierOnlineOffers, ...onlineOffers]);
+                                                        //     }
+                                                        //     if (marketplaceCache && await marketplaceCache!.getItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`) !== null) {
+                                                        //         const message = 'click-only online offers are cached, needs cleaning up';
+                                                        //         console.log(message);
+                                                        //         await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+                                                        //
+                                                        //         await marketplaceCache!.removeItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`);
+                                                        //
+                                                        //         // retrieve the premier click-only online, and regular click-only online offers
+                                                        //         const clickOnlyOnlineOffers = await retrieveClickOnlyOnlineOffersList(
+                                                        //             numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls,
+                                                        //             numberOfClickOnlyOnlineOffers, setNumberOfClickOnlyOnlineOffers)
+                                                        //         const premierClickOnlyOnlineOffers = await retrievePremierClickOnlyOnlineOffersList(numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls);
+                                                        //
+                                                        //         // update the number of available total online offers
+                                                        //         setNumberOfClickOnlyOnlineOffers(oldNumberOfClickOnlyOnlineOffers => {
+                                                        //             return oldNumberOfClickOnlyOnlineOffers + premierClickOnlyOnlineOffers.length
+                                                        //         });
+                                                        //
+                                                        //         await marketplaceCache!.setItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`,
+                                                        //             [...premierClickOnlyOnlineOffers, ...clickOnlyOnlineOffers]);
+                                                        //     } else {
+                                                        //         const message = 'online click-only offers are not cached';
+                                                        //         console.log(message);
+                                                        //         await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+                                                        //
+                                                        //         // retrieve the premier click-only online, and regular click-only online offers
+                                                        //         const clickOnlyOnlineOffers = await retrieveClickOnlyOnlineOffersList(
+                                                        //             numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls,
+                                                        //             numberOfClickOnlyOnlineOffers, setNumberOfClickOnlyOnlineOffers);
+                                                        //         const premierClickOnlyOnlineOffers = await retrievePremierClickOnlyOnlineOffersList(numberOfClickOnlyOnlineFailedCalls, setNumberOfClickOnlyOnlineFailedCalls);
+                                                        //
+                                                        //         // update the number of available total online offers
+                                                        //         setNumberOfClickOnlyOnlineOffers(oldNumberOfClickOnlyOnlineOffers => {
+                                                        //             return oldNumberOfClickOnlyOnlineOffers + premierClickOnlyOnlineOffers.length
+                                                        //         });
+                                                        //
+                                                        //         marketplaceCache && marketplaceCache!.setItem(`${userInformation["custom:userId"]}-clickOnlyOnlineOffers`,
+                                                        //             [...premierClickOnlyOnlineOffers, ...clickOnlyOnlineOffers]);
+                                                        //     }
+                                                        //     if (globalCache && await globalCache!.getItem(`${userInformation["custom:userId"]}-profilePictureURI`) !== null) {
+                                                        //         const message = 'old profile picture is cached, needs cleaning up';
+                                                        //         console.log(message);
+                                                        //         await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+                                                        //
+                                                        //         await globalCache!.removeItem(`${userInformation["custom:userId"]}-profilePictureURI`);
+                                                        //         await globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, "");
+                                                        //     } else {
+                                                        //         const message = 'profile picture is not cached';
+                                                        //         console.log(message);
+                                                        //         await logEvent(message, LoggingLevel.Info, userIsAuthenticated);
+                                                        //
+                                                        //         globalCache && globalCache!.setItem(`${userInformation["custom:userId"]}-profilePictureURI`, "");
+                                                        //     }
+                                                        //     setIsReady(true);
+                                                        //
+                                                        //     /**
+                                                        //      * if we got to this point, then all checks passed, everything worked as expected, so we can just redirect the
+                                                        //      * already logged-in user to the App Drawer.
+                                                        //      */
+                                                        //     navigation.navigate("AppDrawer", {});
+                                                        //     break;
+                                                        default:
                                                             break;
-                                                        case 7:
-                                                            /**
-                                                             * for the 8th step, we need to handle that retroactively in the useEffect(), since we don't have control over the button press,
-                                                             * given that it's coming from Olive's iFrame.
-                                                             */
-                                                            break;
-                                                        case 8:
+                                                    }
+                                                    // increase the step number
+                                                    if (stepNumber < 7 && checksPassed) {
+                                                        /**
+                                                         * since we are skipping the card linking step, for step number 5
+                                                         * - in case the military status was VERIFIED, skip the documentation step
+                                                         * AND go straight to the Dashboard
+                                                         *
+                                                         * since we are skipping the card linking step, for step number 6
+                                                         * - we know that the military status is PENDING, so just go straight to the
+                                                         * Dashboard
+                                                         *
+                                                         */
+                                                        if ((stepNumber === 5 && militaryStatus === MilitaryVerificationStatusType.Verified) ||
+                                                            (stepNumber === 6 && militaryStatus === MilitaryVerificationStatusType.Pending)) {
+                                                            let newStepValue = stepNumber + 1;
+                                                            setStepNumber(newStepValue);
+
                                                             setIsReady(false);
                                                             /**
                                                              * If everything was successful, then:
+                                                             *
                                                              * - we just cache the list of:
                                                              *      - Fidelis partners for initial load (for 1 week only)
                                                              *      - the list of premier click-only online offers
@@ -1476,20 +1621,18 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                              * already logged-in user to the App Drawer.
                                                              */
                                                             navigation.navigate("AppDrawer", {});
-                                                            break;
-                                                        default:
-                                                            break;
-                                                    }
-                                                    // increase the step number
-                                                    if (stepNumber < 8 && checksPassed) {
-                                                        // in case the military status was verified, skip the documentation step
-                                                        if (stepNumber === 5 && militaryStatus === MilitaryVerificationStatusType.Verified) {
-                                                            let newStepValue = stepNumber + 2;
-                                                            setStepNumber(newStepValue);
                                                         } else {
                                                             let newStepValue = stepNumber + 1;
                                                             setStepNumber(newStepValue);
                                                         }
+                                                        // in case the military status was verified, skip the documentation step
+                                                        // if (stepNumber === 5 && militaryStatus === MilitaryVerificationStatusType.Verified) {
+                                                        //     let newStepValue = stepNumber + 2;
+                                                        //     setStepNumber(newStepValue);
+                                                        // } else {
+                                                        //     let newStepValue = stepNumber + 1;
+                                                        //     setStepNumber(newStepValue);
+                                                        // }
                                                     }
                                                 }
                                             }
@@ -1500,9 +1643,11 @@ export const RegistrationComponent = ({navigation}: RegistrationProps) => {
                                                     ? `Enable`
                                                     : (militaryStatus === MilitaryVerificationStatusType.Rejected && stepNumber === 5)
                                                         ? `Verify`
-                                                        : stepNumber === 8
-                                                            ? splashState.splashButtonText
-                                                            : `Next`}</Text>
+                                                        : stepNumber === 5 && MilitaryVerificationStatusType.Verified
+                                                            ? `Finish`
+                                                            : stepNumber === 8
+                                                                ? splashState.splashButtonText
+                                                                : `Next`}</Text>
                                         </TouchableOpacity>}
                                     </View>
                                 </View>

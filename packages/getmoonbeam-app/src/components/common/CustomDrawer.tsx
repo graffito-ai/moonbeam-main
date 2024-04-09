@@ -252,7 +252,13 @@ import {
     toggleViewPressedState,
     verticalSectionActiveState
 } from "../../recoil/StoreOfferAtom";
-import {cardLinkingBottomSheetState, selectedCardIndexState} from "../../recoil/WalletAtom";
+import {cardLinkingBottomSheetState,
+    clickOnlySectionReloadState,
+    fidelisSectionReloadState,
+    kitSectionReloadState, nearbySectionReloadState, onlineSectionReloadState, selectedCardIndexState,
+    verticalClickOnlySectionReloadState,
+    verticalFidelisSectionReloadState,
+    verticalNearbySectionReloadState, verticalOnlineSectionReloadState} from "../../recoil/WalletAtom";
 import * as SecureStore from 'expo-secure-store';
 // @ts-ignore
 import MoonbeamProfilePlaceholder from "../../../assets/art/moonbeam-profile-placeholder.png";
@@ -559,6 +565,15 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
     const servicePartnerStateReset = useResetRecoilState(servicePartnerState);
     const calendarEventStateReset = useResetRecoilState(calendarEventState);
     const eventToRegisterStateReset = useResetRecoilState(eventToRegisterState);
+    const clickOnlySectionReloadStateReset = useResetRecoilState(clickOnlySectionReloadState);
+    const verticalClickOnlySectionReloadStateReset = useResetRecoilState(verticalClickOnlySectionReloadState);
+    const kitSectionReloadStateReset = useResetRecoilState(kitSectionReloadState);
+    const fidelisSectionReloadStateReset = useResetRecoilState(fidelisSectionReloadState);
+    const verticalFidelisSectionReloadStateReset = useResetRecoilState(verticalFidelisSectionReloadState);
+    const nearbySectionReloadStateReset = useResetRecoilState(nearbySectionReloadState);
+    const verticalNearbySectionReloadStateReset = useResetRecoilState(verticalNearbySectionReloadState);
+    const onlineSectionReloadStateReset = useResetRecoilState(onlineSectionReloadState);
+    const verticalOnlineSectionReloadStateReset = useResetRecoilState(verticalOnlineSectionReloadState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -840,6 +855,15 @@ export const CustomDrawer = (props: DrawerContentComponentProps) => {
             servicePartnerStateReset();
             calendarEventStateReset();
             eventToRegisterStateReset();
+            clickOnlySectionReloadStateReset();
+            verticalClickOnlySectionReloadStateReset();
+            kitSectionReloadStateReset();
+            fidelisSectionReloadStateReset();
+            verticalFidelisSectionReloadStateReset();
+            nearbySectionReloadStateReset();
+            verticalNearbySectionReloadStateReset();
+            onlineSectionReloadStateReset();
+            verticalOnlineSectionReloadStateReset();
 
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {

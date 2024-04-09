@@ -245,7 +245,17 @@ import {
 } from "../../recoil/RootAtom";
 import {goToProfileSettingsState} from "../../recoil/Settings";
 import {splashStatusState} from "../../recoil/SplashAtom";
-import {cardLinkingBottomSheetState, selectedCardIndexState} from "../../recoil/WalletAtom";
+import {
+    cardLinkingBottomSheetState,
+    clickOnlySectionReloadState,
+    fidelisSectionReloadState,
+    kitSectionReloadState,
+    nearbySectionReloadState, onlineSectionReloadState,
+    selectedCardIndexState,
+    verticalClickOnlySectionReloadState,
+    verticalFidelisSectionReloadState,
+    verticalNearbySectionReloadState, verticalOnlineSectionReloadState
+} from "../../recoil/WalletAtom";
 import {
     branchRootUniversalObjectState,
     referralCodeMarketingCampaignState,
@@ -544,6 +554,15 @@ export const SplashScreen = (props: {
     const servicePartnerStateReset = useResetRecoilState(servicePartnerState);
     const calendarEventStateReset = useResetRecoilState(calendarEventState);
     const eventToRegisterStateReset = useResetRecoilState(eventToRegisterState);
+    const clickOnlySectionReloadStateReset = useResetRecoilState(clickOnlySectionReloadState);
+    const verticalClickOnlySectionReloadStateReset = useResetRecoilState(verticalClickOnlySectionReloadState);
+    const kitSectionReloadStateReset = useResetRecoilState(kitSectionReloadState);
+    const fidelisSectionReloadStateReset = useResetRecoilState(fidelisSectionReloadState);
+    const verticalFidelisSectionReloadStateReset = useResetRecoilState(verticalFidelisSectionReloadState);
+    const nearbySectionReloadStateReset = useResetRecoilState(nearbySectionReloadState);
+    const verticalNearbySectionReloadStateReset = useResetRecoilState(verticalNearbySectionReloadState);
+    const onlineSectionReloadStateReset = useResetRecoilState(onlineSectionReloadState);
+    const verticalOnlineSectionReloadStateReset = useResetRecoilState(verticalOnlineSectionReloadState);
 
     /**
      * Entrypoint UseEffect will be used as a block of code where we perform specific tasks (such as
@@ -808,6 +827,15 @@ export const SplashScreen = (props: {
             servicePartnerStateReset();
             calendarEventStateReset();
             eventToRegisterStateReset();
+            clickOnlySectionReloadStateReset();
+            verticalClickOnlySectionReloadStateReset();
+            kitSectionReloadStateReset();
+            fidelisSectionReloadStateReset();
+            verticalFidelisSectionReloadStateReset();
+            nearbySectionReloadStateReset();
+            verticalNearbySectionReloadStateReset();
+            onlineSectionReloadStateReset();
+            verticalOnlineSectionReloadStateReset();
             // if this is not running in Expo Go
             if (!isRunningInExpoGo) {
                 // import branch
@@ -861,12 +889,12 @@ export const SplashScreen = (props: {
                         color={'#FFFFFF'}
                         style={styles.loginButton}
                         onPress={async () => {
-                            // reset all the recoil states here
-                            await logOut();
-
                             // go to the Login page
                             setDeferToLogin(true);
                             mainRootNavigation && mainRootNavigation!.navigate('AppOverview', {});
+
+                            // reset all the recoil states here
+                            await logOut();
                         }}
                     />
                 </View>

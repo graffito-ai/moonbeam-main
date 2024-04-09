@@ -30,15 +30,18 @@ import {
     filteredOffersSpinnerShownState,
     userIsAuthenticatedState
 } from "../../../../../../recoil/AuthAtom";
-import {Image} from 'expo-image';
+import {Image as ExpoImage} from 'expo-image';
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
-import {Keyboard, Platform, TouchableOpacity, View} from "react-native";
+import {Image, Keyboard, Platform, TouchableOpacity, View} from "react-native";
 import {getDistance} from "geolib";
 import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
 import {logEvent, searchQueryExecute} from "../../../../../../utils/AppSync";
 import {Icon} from "@rneui/base";
+import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
+// @ts-ignore
+import MoonbeamBlurredOffSmall from "../../../../../../../assets/art/moonbeam-blurred-off-small.png";
 
 /**
  * VerticalOffers component.
@@ -74,6 +77,7 @@ export const VerticalOffers = (props: {
     const [filteredOffersDataProvider, setFilteredOffersDataProvider] = useState<DataProvider | null>(null);
     const [filteredOffersLayoutProvider, setFilteredOffersLayoutProvider] = useState<LayoutProvider | null>(null);
     // constants used to keep track of shared states
+    const [isCardLinked,] = useRecoilState(cardLinkingStatusState);
     const [, setFilteredOffersList] = useRecoilState(filteredOffersListState);
     const [filteredOffersSpinnerShown, setFilteredOffersSpinnerShown] = useRecoilState(filteredOffersSpinnerShownState);
     const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
@@ -291,27 +295,37 @@ export const VerticalOffers = (props: {
                     results.push(
                         <Card style={styles.verticalOfferCard}
                               onPress={() => {
-                                  // reset any filtered offers
-                                  setNoFilteredOffersToLoad(false);
-                                  setFilteredOffersList([]);
+                                  /**
+                                   * if the user is card linked, then go to the appropriate offer, depending on the offer
+                                   * displayed, otherwise, display the click only bottom sheet but with the appropriate
+                                   * params to essentially highlight that offers cannot be viewed without a linked card.
+                                   */
+                                  if (!isCardLinked) {
+                                      // show the click only bottom sheet
+                                      setShowClickOnlyBottomSheet(true);
+                                  } else {
+                                      // reset any filtered offers
+                                      setNoFilteredOffersToLoad(false);
+                                      setFilteredOffersList([]);
 
-                                  // reset search query
-                                  setSearchQuery("");
+                                      // reset search query
+                                      setSearchQuery("");
 
-                                  // set the clicked offer/partner accordingly
-                                  setStoreOfferClicked(data);
-                                  // set the clicked offer physical location
-                                  setStoreOfferPhysicalLocation({
-                                      latitude: storeLatitude,
-                                      longitude: storeLongitude,
-                                      latitudeDelta: 0,
-                                      longitudeDelta: 0,
-                                      addressAsString: physicalLocation
-                                  });
-                                  // @ts-ignore
-                                  props.navigation.navigate('StoreOffer', {
-                                      bottomTabNeedsShowingFlag: true
-                                  });
+                                      // set the clicked offer/partner accordingly
+                                      setStoreOfferClicked(data);
+                                      // set the clicked offer physical location
+                                      setStoreOfferPhysicalLocation({
+                                          latitude: storeLatitude,
+                                          longitude: storeLongitude,
+                                          latitudeDelta: 0,
+                                          longitudeDelta: 0,
+                                          addressAsString: physicalLocation
+                                      });
+                                      // @ts-ignore
+                                      props.navigation.navigate('StoreOffer', {
+                                          bottomTabNeedsShowingFlag: true
+                                      });
+                                  }
                               }}>
                             <Card.Content>
                                 <List.Icon color={'#F2FF5D'}
@@ -319,7 +333,7 @@ export const VerticalOffers = (props: {
                                            style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
                                 <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
                                     <View style={styles.verticalOfferLogoBackground}>
-                                        <Image
+                                        <ExpoImage
                                             style={styles.verticalOfferLogo}
                                             source={{
                                                 uri: offer.brandLogoSm!,
@@ -331,19 +345,43 @@ export const VerticalOffers = (props: {
                                             cachePolicy={'none'}
                                         />
                                     </View>
-                                    <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                        <Text numberOfLines={1}
-                                              style={styles.verticalOfferName}>{offer.brandDba}</Text>
-                                        <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
-                                            {"Starting at "}
-                                            <Text style={styles.verticalOfferBenefit}>
-                                                {`${subtitle}`}
-                                            </Text>
-                                        </Text>
-                                        <Text numberOfLines={1} style={styles.verticalOfferDistance}>
-                                            {`${calculatedDistance} miles away`}
-                                        </Text>
-                                    </View>
+                                    {
+                                        isCardLinked ?
+                                            <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                                <Text numberOfLines={1}
+                                                      style={styles.verticalOfferName}>{offer.brandDba}</Text>
+                                                <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
+                                                    {"Starting at "}
+                                                    <Text style={styles.verticalOfferBenefit}>
+                                                        {`${subtitle}`}
+                                                    </Text>
+                                                </Text>
+                                                <Text numberOfLines={1} style={styles.verticalOfferDistance}>
+                                                    {`${calculatedDistance} miles away`}
+                                                </Text>
+                                            </View>
+                                            :
+                                            <>
+                                                <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                                    <Text numberOfLines={1}
+                                                          style={styles.verticalOfferName}>{offer.brandDba}</Text>
+                                                    <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
+                                                        <View style={styles.unlinkedClickOnlyOnlineView}>
+                                                            <Image
+                                                                style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
+                                                                source={MoonbeamBlurredOffSmall}
+                                                            />
+                                                            <Text style={styles.unlinkedVerticalOfferBenefit}>
+                                                                {" Off "}
+                                                            </Text>
+                                                        </View>
+                                                    </Text>
+                                                    <Text numberOfLines={1} style={styles.verticalOfferDistance}>
+                                                        {`${calculatedDistance} miles away`}
+                                                    </Text>
+                                                </View>
+                                            </>
+                                    }
                                 </View>
                             </Card.Content>
                         </Card>
@@ -355,19 +393,29 @@ export const VerticalOffers = (props: {
                     results.push(
                         <Card style={styles.verticalOfferCard}
                               onPress={() => {
-                                  // reset any filtered offers
-                                  setNoFilteredOffersToLoad(false);
-                                  setFilteredOffersList([]);
+                                  /**
+                                   * if the user is card linked, then go to the appropriate offer, depending on the offer
+                                   * displayed, otherwise, display the click only bottom sheet but with the appropriate
+                                   * params to essentially highlight that offers cannot be viewed without a linked card.
+                                   */
+                                  if (!isCardLinked) {
+                                      // show the click only bottom sheet
+                                      setShowClickOnlyBottomSheet(true);
+                                  } else {
+                                      // reset any filtered offers
+                                      setNoFilteredOffersToLoad(false);
+                                      setFilteredOffersList([]);
 
-                                  // reset search query
-                                  setSearchQuery("");
+                                      // reset search query
+                                      setSearchQuery("");
 
-                                  // set the clicked offer/partner accordingly
-                                  setStoreOfferClicked(data);
-                                  // @ts-ignore
-                                  props.navigation.navigate('StoreOffer', {
-                                      bottomTabNeedsShowingFlag: true
-                                  });
+                                      // set the clicked offer/partner accordingly
+                                      setStoreOfferClicked(data);
+                                      // @ts-ignore
+                                      props.navigation.navigate('StoreOffer', {
+                                          bottomTabNeedsShowingFlag: true
+                                      });
+                                  }
                               }}>
                             <Card.Content>
                                 <List.Icon color={'#F2FF5D'}
@@ -375,7 +423,7 @@ export const VerticalOffers = (props: {
                                            style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
                                 <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
                                     <View style={styles.verticalOfferLogoBackground}>
-                                        <Image
+                                        <ExpoImage
                                             style={styles.verticalOfferLogo}
                                             source={{
                                                 uri: offer!.brandLogoSm!,
@@ -387,16 +435,37 @@ export const VerticalOffers = (props: {
                                             cachePolicy={'none'}
                                         />
                                     </View>
-                                    <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                        <Text numberOfLines={2}
-                                              style={styles.verticalOfferName}>{data.brandName}</Text>
-                                        <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
-                                            {"Starting at "}
-                                            <Text style={styles.verticalOfferBenefit}>
-                                                {`${subtitle}`}
-                                            </Text>
-                                        </Text>
-                                    </View>
+                                    {
+                                        isCardLinked ?
+                                            <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                                <Text numberOfLines={2}
+                                                      style={styles.verticalOfferName}>{data.brandName}</Text>
+                                                <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
+                                                    {"Starting at "}
+                                                    <Text style={styles.verticalOfferBenefit}>
+                                                        {`${subtitle}`}
+                                                    </Text>
+                                                </Text>
+                                            </View>
+                                            :
+                                            <>
+                                                <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                                    <Text numberOfLines={1}
+                                                          style={styles.verticalOfferName}>{offer.brandDba}</Text>
+                                                    <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
+                                                        <View style={styles.unlinkedClickOnlyOnlineView}>
+                                                            <Image
+                                                                style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
+                                                                source={MoonbeamBlurredOffSmall}
+                                                            />
+                                                            <Text style={styles.unlinkedVerticalOfferBenefit}>
+                                                                {" Off "}
+                                                            </Text>
+                                                        </View>
+                                                    </Text>
+                                                </View>
+                                            </>
+                                    }
                                 </View>
                             </Card.Content>
                         </Card>
@@ -444,17 +513,27 @@ export const VerticalOffers = (props: {
                 <>
                     <Card style={styles.verticalOfferCard}
                           onPress={() => {
-                              // reset any filtered offers
-                              setNoFilteredOffersToLoad(false);
-                              setFilteredOffersList([]);
+                              /**
+                               * if the user is card linked, then go to the appropriate offer, depending on the offer
+                               * displayed, otherwise, display the click only bottom sheet but with the appropriate
+                               * params to essentially highlight that offers cannot be viewed without a linked card.
+                               */
+                              if (!isCardLinked) {
+                                  // show the click only bottom sheet
+                                  setShowClickOnlyBottomSheet(true);
+                              } else {
+                                  // reset any filtered offers
+                                  setNoFilteredOffersToLoad(false);
+                                  setFilteredOffersList([]);
 
-                              // reset search query
-                              setSearchQuery("");
+                                  // reset search query
+                                  setSearchQuery("");
 
-                              // set the clicked offer/partner accordingly
-                              setStoreOfferClicked(data);
-                              // show the click only bottom sheet
-                              setShowClickOnlyBottomSheet(true);
+                                  // set the clicked offer/partner accordingly
+                                  setStoreOfferClicked(data);
+                                  // show the click only bottom sheet
+                                  setShowClickOnlyBottomSheet(true);
+                              }
                           }}>
                         <Card.Content>
                             <List.Icon color={'#F2FF5D'}
@@ -462,7 +541,7 @@ export const VerticalOffers = (props: {
                                        style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
                             <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
                                 <View style={styles.verticalOfferLogoBackground}>
-                                    <Image
+                                    <ExpoImage
                                         style={styles.verticalOfferLogo}
                                         source={{
                                             uri: data.brandLogoSm!,
@@ -474,18 +553,37 @@ export const VerticalOffers = (props: {
                                         cachePolicy={'none'}
                                     />
                                 </View>
-                                <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                    <Text numberOfLines={2}
-                                          style={styles.verticalOfferName}>{data.brandDba}</Text>
-                                    <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
-                                        <Text style={styles.verticalOfferBenefit}>
-                                            {data.reward!.type! === RewardType.RewardPercent
-                                                ? `${data.reward!.value}%`
-                                                : `$${data.reward!.value}`}
-                                        </Text>
-                                        {" Off "}
-                                    </Text>
-                                </View>
+                                {
+                                    isCardLinked ?
+                                        <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                            <Text numberOfLines={2}
+                                                  style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                            <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
+                                                <Text style={styles.verticalOfferBenefit}>
+                                                    {data.reward!.type! === RewardType.RewardPercent
+                                                        ? `${data.reward!.value}%`
+                                                        : `$${data.reward!.value}`}
+                                                </Text>
+                                                {" Off "}
+                                            </Text>
+                                        </View>
+                                        :
+                                        <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                            <Text numberOfLines={2}
+                                                  style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                            <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
+                                                <View style={styles.unlinkedClickOnlyOnlineView}>
+                                                    <Image
+                                                        style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
+                                                        source={MoonbeamBlurredOffSmall}
+                                                    />
+                                                    <Text style={styles.unlinkedVerticalOfferBenefit}>
+                                                        {" Off "}
+                                                    </Text>
+                                                </View>
+                                            </Text>
+                                        </View>
+                                }
                             </View>
                         </Card.Content>
                     </Card>
@@ -530,19 +628,29 @@ export const VerticalOffers = (props: {
                 <>
                     <Card style={styles.verticalOfferCard}
                           onPress={() => {
-                              // reset any filtered offers
-                              setNoFilteredOffersToLoad(false);
-                              setFilteredOffersList([]);
+                              /**
+                               * if the user is card linked, then go to the appropriate offer, depending on the offer
+                               * displayed, otherwise, display the click only bottom sheet but with the appropriate
+                               * params to essentially highlight that offers cannot be viewed without a linked card.
+                               */
+                              if (!isCardLinked) {
+                                  // show the click only bottom sheet
+                                  setShowClickOnlyBottomSheet(true);
+                              } else {
+                                  // reset any filtered offers
+                                  setNoFilteredOffersToLoad(false);
+                                  setFilteredOffersList([]);
 
-                              // reset search query
-                              setSearchQuery("");
+                                  // reset search query
+                                  setSearchQuery("");
 
-                              // set the clicked offer/partner accordingly
-                              setStoreOfferClicked(data);
-                              // @ts-ignore
-                              props.navigation.navigate('StoreOffer', {
-                                  bottomTabNeedsShowingFlag: true
-                              });
+                                  // set the clicked offer/partner accordingly
+                                  setStoreOfferClicked(data);
+                                  // @ts-ignore
+                                  props.navigation.navigate('StoreOffer', {
+                                      bottomTabNeedsShowingFlag: true
+                                  });
+                              }
                           }}>
                         <Card.Content>
                             <List.Icon color={'#F2FF5D'}
@@ -550,7 +658,7 @@ export const VerticalOffers = (props: {
                                        style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
                             <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
                                 <View style={styles.verticalOfferLogoBackground}>
-                                    <Image
+                                    <ExpoImage
                                         style={styles.verticalOfferLogo}
                                         source={{
                                             uri: data.brandLogoSm!,
@@ -562,18 +670,37 @@ export const VerticalOffers = (props: {
                                         cachePolicy={'none'}
                                     />
                                 </View>
-                                <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                    <Text numberOfLines={2}
-                                          style={styles.verticalOfferName}>{data.brandDba}</Text>
-                                    <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
-                                        <Text style={styles.verticalOfferBenefit}>
-                                            {data.reward!.type! === RewardType.RewardPercent
-                                                ? `${data.reward!.value}%`
-                                                : `$${data.reward!.value}`}
-                                        </Text>
-                                        {" Off "}
-                                    </Text>
-                                </View>
+                                {
+                                    isCardLinked ?
+                                        <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                            <Text numberOfLines={2}
+                                                  style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                            <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
+                                                <Text style={styles.verticalOfferBenefit}>
+                                                    {data.reward!.type! === RewardType.RewardPercent
+                                                        ? `${data.reward!.value}%`
+                                                        : `$${data.reward!.value}`}
+                                                </Text>
+                                                {" Off "}
+                                            </Text>
+                                        </View>
+                                        :
+                                        <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                            <Text numberOfLines={2}
+                                                  style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                            <Text numberOfLines={2} style={styles.verticalOfferBenefits}>
+                                                <View style={styles.unlinkedClickOnlyOnlineView}>
+                                                    <Image
+                                                        style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
+                                                        source={MoonbeamBlurredOffSmall}
+                                                    />
+                                                    <Text style={styles.unlinkedVerticalOfferBenefit}>
+                                                        {" Off "}
+                                                    </Text>
+                                                </View>
+                                            </Text>
+                                        </View>
+                                }
                             </View>
                         </Card.Content>
                     </Card>
@@ -742,7 +869,7 @@ export const VerticalOffers = (props: {
                                                        style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
                                             <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
                                                 <View style={styles.verticalOfferLogoBackground}>
-                                                    <Image
+                                                    <ExpoImage
                                                         style={styles.verticalOfferLogo}
                                                         source={{
                                                             uri: data.brandLogoSm!,
@@ -845,7 +972,7 @@ export const VerticalOffers = (props: {
                                                    style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
                                         <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
                                             <View style={styles.verticalOfferLogoBackground}>
-                                                <Image
+                                                <ExpoImage
                                                     style={styles.verticalOfferLogo}
                                                     source={{
                                                         uri: data.brandLogoSm!,
@@ -966,27 +1093,37 @@ export const VerticalOffers = (props: {
                 <>
                     <Card style={styles.verticalOfferCard}
                           onPress={() => {
-                              // reset any filtered offers
-                              setNoFilteredOffersToLoad(false);
-                              setFilteredOffersList([]);
+                              /**
+                               * if the user is card linked, then go to the appropriate offer, depending on the offer
+                               * displayed, otherwise, display the click only bottom sheet but with the appropriate
+                               * params to essentially highlight that offers cannot be viewed without a linked card.
+                               */
+                              if (!isCardLinked) {
+                                  // show the click only bottom sheet
+                                  setShowClickOnlyBottomSheet(true);
+                              } else {
+                                  // reset any filtered offers
+                                  setNoFilteredOffersToLoad(false);
+                                  setFilteredOffersList([]);
 
-                              // reset search query
-                              setSearchQuery("");
+                                  // reset search query
+                                  setSearchQuery("");
 
-                              // set the clicked offer/partner accordingly
-                              setStoreOfferClicked(data);
-                              // set the clicked offer physical location
-                              setStoreOfferPhysicalLocation({
-                                  latitude: storeLatitude,
-                                  longitude: storeLongitude,
-                                  latitudeDelta: 0,
-                                  longitudeDelta: 0,
-                                  addressAsString: physicalLocation
-                              });
-                              // @ts-ignore
-                              props.navigation.navigate('StoreOffer', {
-                                  bottomTabNeedsShowingFlag: true
-                              });
+                                  // set the clicked offer/partner accordingly
+                                  setStoreOfferClicked(data);
+                                  // set the clicked offer physical location
+                                  setStoreOfferPhysicalLocation({
+                                      latitude: storeLatitude,
+                                      longitude: storeLongitude,
+                                      latitudeDelta: 0,
+                                      longitudeDelta: 0,
+                                      addressAsString: physicalLocation
+                                  });
+                                  // @ts-ignore
+                                  props.navigation.navigate('StoreOffer', {
+                                      bottomTabNeedsShowingFlag: true
+                                  });
+                              }
                           }}>
                         <Card.Content>
                             <List.Icon color={'#F2FF5D'}
@@ -994,7 +1131,7 @@ export const VerticalOffers = (props: {
                                        style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
                             <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
                                 <View style={styles.verticalOfferLogoBackground}>
-                                    <Image
+                                    <ExpoImage
                                         style={styles.verticalOfferLogo}
                                         source={{
                                             uri: data.brandLogoSm!,
@@ -1006,21 +1143,43 @@ export const VerticalOffers = (props: {
                                         cachePolicy={'none'}
                                     />
                                 </View>
-                                <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
-                                    <Text numberOfLines={1}
-                                          style={styles.verticalOfferName}>{data.brandDba}</Text>
-                                    <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
-                                        <Text style={styles.verticalOfferBenefit}>
-                                            {data.reward!.type! === RewardType.RewardPercent
-                                                ? `${data.reward!.value}%`
-                                                : `$${data.reward!.value}`}
-                                        </Text>
-                                        {" Off "}
-                                    </Text>
-                                    <Text numberOfLines={1} style={styles.verticalOfferDistance}>
-                                        {`${calculatedDistance} miles away`}
-                                    </Text>
-                                </View>
+                                {
+                                    isCardLinked ?
+                                        <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                            <Text numberOfLines={1}
+                                                  style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                            <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
+                                                <Text style={styles.verticalOfferBenefit}>
+                                                    {data.reward!.type! === RewardType.RewardPercent
+                                                        ? `${data.reward!.value}%`
+                                                        : `$${data.reward!.value}`}
+                                                </Text>
+                                                {" Off "}
+                                            </Text>
+                                            <Text numberOfLines={1} style={styles.verticalOfferDistance}>
+                                                {`${calculatedDistance} miles away`}
+                                            </Text>
+                                        </View>
+                                        :
+                                        <View style={{flexDirection: 'column', bottom: hp(1.5)}}>
+                                            <Text numberOfLines={1}
+                                                  style={styles.verticalOfferName}>{data.brandDba}</Text>
+                                            <Text numberOfLines={1} style={styles.verticalOfferBenefits}>
+                                                <View style={styles.unlinkedClickOnlyOnlineView}>
+                                                    <Image
+                                                        style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
+                                                        source={MoonbeamBlurredOffSmall}
+                                                    />
+                                                    <Text style={styles.unlinkedVerticalOfferBenefit}>
+                                                        {" Off "}
+                                                    </Text>
+                                                </View>
+                                            </Text>
+                                            <Text numberOfLines={1} style={styles.verticalOfferDistance}>
+                                                {`${calculatedDistance} miles away`}
+                                            </Text>
+                                        </View>
+                                }
                             </View>
                         </Card.Content>
                     </Card>
@@ -1251,16 +1410,19 @@ export const VerticalOffers = (props: {
                                             deDuplicatedClickOnlyOnlineOfferList.length !== 0 && whichVerticalSectionActive === 'click-only-online' &&
                                             clickOnlyOnlineDataProvider !== null && clickOnlyOnlineLayoutProvider !== null &&
                                             <>
-                                                <Card style={styles.verticalOffersBannerCard}>
-                                                    <Card.Content>
-                                                        <View style={{flexDirection: 'column', bottom: hp(1)}}>
-                                                            <Text
-                                                                style={styles.verticalOfferBannerName}>{'Premier Offers'}</Text>
-                                                            <Text
-                                                                style={styles.verticalOfferBannerSubtitleName}>{'Only available in the app'}</Text>
-                                                        </View>
-                                                    </Card.Content>
-                                                </Card>
+                                                {
+                                                    isCardLinked &&
+                                                    <Card style={styles.verticalOffersBannerCard}>
+                                                        <Card.Content>
+                                                            <View style={{flexDirection: 'column', bottom: hp(1)}}>
+                                                                <Text
+                                                                    style={styles.verticalOfferBannerName}>{'Premier Offers'}</Text>
+                                                                <Text
+                                                                    style={styles.verticalOfferBannerSubtitleName}>{'Only available in the app'}</Text>
+                                                            </View>
+                                                        </Card.Content>
+                                                    </Card>
+                                                }
                                                 <RecyclerListView
                                                     // @ts-ignore
                                                     ref={onlineListView}
@@ -1349,16 +1511,19 @@ export const VerticalOffers = (props: {
                                             deDuplicatedOnlineOfferList.length !== 0 && whichVerticalSectionActive === 'online' &&
                                             onlineDataProvider !== null && onlineLayoutProvider !== null &&
                                             <>
-                                                <Card style={styles.verticalOffersBannerCard}>
-                                                    <Card.Content>
-                                                        <View style={{flexDirection: 'column', bottom: hp(1)}}>
-                                                            <Text
-                                                                style={styles.verticalOfferBannerName}>{'Online Offers'}</Text>
-                                                            <Text
-                                                                style={styles.verticalOfferBannerSubtitleName}>{'Shop online or through the app'}</Text>
-                                                        </View>
-                                                    </Card.Content>
-                                                </Card>
+                                                {
+                                                    isCardLinked &&
+                                                    <Card style={styles.verticalOffersBannerCard}>
+                                                        <Card.Content>
+                                                            <View style={{flexDirection: 'column', bottom: hp(1)}}>
+                                                                <Text
+                                                                    style={styles.verticalOfferBannerName}>{'Online Offers'}</Text>
+                                                                <Text
+                                                                    style={styles.verticalOfferBannerSubtitleName}>{'Shop online or through the app'}</Text>
+                                                            </View>
+                                                        </Card.Content>
+                                                    </Card>
+                                                }
                                                 <RecyclerListView
                                                     // @ts-ignore
                                                     ref={onlineListView}
@@ -1447,16 +1612,19 @@ export const VerticalOffers = (props: {
                                             deDuplicatedNearbyOfferList.length !== 0 && whichVerticalSectionActive === 'nearby' &&
                                             nearbyDataProvider !== null && nearbyLayoutProvider !== null &&
                                             <>
-                                                <Card style={styles.verticalOffersBannerCard}>
-                                                    <Card.Content>
-                                                        <View style={{flexDirection: 'column', bottom: hp(1)}}>
-                                                            <Text
-                                                                style={styles.verticalOfferBannerName}>{'Nearby Offers'}</Text>
-                                                            <Text
-                                                                style={styles.verticalOfferBannerSubtitleName}>{'Shop & Dine Nearby'}</Text>
-                                                        </View>
-                                                    </Card.Content>
-                                                </Card>
+                                                {
+                                                    isCardLinked &&
+                                                    <Card style={styles.verticalOffersBannerCard}>
+                                                        <Card.Content>
+                                                            <View style={{flexDirection: 'column', bottom: hp(1)}}>
+                                                                <Text
+                                                                    style={styles.verticalOfferBannerName}>{'Nearby Offers'}</Text>
+                                                                <Text
+                                                                    style={styles.verticalOfferBannerSubtitleName}>{'Shop & Dine Nearby'}</Text>
+                                                            </View>
+                                                        </Card.Content>
+                                                    </Card>
+                                                }
                                                 <RecyclerListView
                                                     // @ts-ignore
                                                     ref={nearbyListView}
@@ -1545,17 +1713,20 @@ export const VerticalOffers = (props: {
                                             props.fidelisPartnerList.length !== 0 && whichVerticalSectionActive === 'fidelis' &&
                                             fidelisDataProvider !== null && fidelisLayoutProvider !== null &&
                                             <>
-                                                <Card style={styles.verticalOffersBannerCard}>
-                                                    <Card.Content>
-                                                        <View style={{flexDirection: 'column', bottom: hp(1)}}>
-                                                            <Text
-                                                                style={styles.verticalOfferBannerName}>{'Fidelis Offers'}</Text>
-                                                            <Text
-                                                                style={styles.verticalOfferBannerSubtitleName}>{'Preferred partners with better discounts'}
-                                                            </Text>
-                                                        </View>
-                                                    </Card.Content>
-                                                </Card>
+                                                {
+                                                    isCardLinked &&
+                                                    <Card style={styles.verticalOffersBannerCard}>
+                                                        <Card.Content>
+                                                            <View style={{flexDirection: 'column', bottom: hp(1)}}>
+                                                                <Text
+                                                                    style={styles.verticalOfferBannerName}>{'Fidelis Offers'}</Text>
+                                                                <Text
+                                                                    style={styles.verticalOfferBannerSubtitleName}>{'Preferred partners with better discounts'}
+                                                                </Text>
+                                                            </View>
+                                                        </Card.Content>
+                                                    </Card>
+                                                }
                                                 <RecyclerListView
                                                     style={{flex: 1, height: hp(50)}}
                                                     layoutProvider={fidelisLayoutProvider!}

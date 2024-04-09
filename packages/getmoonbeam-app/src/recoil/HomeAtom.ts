@@ -29,7 +29,6 @@ const drawerNavigationState = atom<NativeStackNavigationProp<any> | null>({
 
 /**
  * Atom used to keep track of whether the bottom tab needs showing.
- * Especially used
  */
 const bottomTabNeedsShowingState = atom<boolean>({
     key: "bottomTabNeedsShowingState",

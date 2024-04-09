@@ -174,6 +174,13 @@ export const styles = StyleSheet.create({
         width: '50%',
         alignSelf: 'center'
     },
+    unlinkedToolTipImagePrice: {
+        height: hp(2),
+        width: wp(10),
+        bottom: hp(1),
+        alignSelf: 'flex-end',
+        right: wp(11)
+    },
     toolTipImagePrice: {
         alignSelf: 'center',
         fontFamily: 'Raleway-ExtraBold',

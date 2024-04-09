@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
-import {Platform, Text, TouchableOpacity, View} from "react-native";
+import {Image, Platform, Text, TouchableOpacity, View} from "react-native";
 import {ActivityIndicator, Card, Paragraph, Portal} from "react-native-paper";
 import {styles} from "../../../../../../styles/store.module";
 import {LoggingLevel, Offer, RewardType} from "@moonbeam/moonbeam-models";
@@ -14,12 +14,15 @@ import {
     uniqueClickOnlyOnlineOffersListState,
     verticalSectionActiveState
 } from "../../../../../../recoil/StoreOfferAtom";
-import {Image} from 'expo-image';
+import {Image as ExpoImage} from 'expo-image';
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
+// @ts-ignore
+import MoonbeamBlurredOffSmall from "../../../../../../../assets/art/moonbeam-blurred-off-small.png";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
 import {userIsAuthenticatedState} from "../../../../../../recoil/AuthAtom";
 import {logEvent} from "../../../../../../utils/AppSync";
+import {cardLinkingStatusState} from "../../../../../../recoil/AppDrawerAtom";
 
 /**
  * ClickOnlineSection component.
@@ -37,7 +40,7 @@ export const ClickOnlyOnlineSection = (props: {
     const [layoutProvider, setLayoutProvider] = useState<LayoutProvider | null>(null);
     const [clickOnlyOnlineOffersSpinnerShown, setClickOnlyOnlineOffersSpinnerShown] = useState<boolean>(false);
     // constants used to keep track of shared states
-    const [userIsAuthenticated, ] = useRecoilState(userIsAuthenticatedState);
+    const [userIsAuthenticated,] = useRecoilState(userIsAuthenticatedState);
     const [, setToggleViewPressed] = useRecoilState(toggleViewPressedState);
     const [, setWhichVerticalSectionActive] = useRecoilState(verticalSectionActiveState);
     const deDuplicatedClickOnlyOnlineOfferList = useRecoilValue(uniqueClickOnlyOnlineOffersListState);
@@ -45,6 +48,7 @@ export const ClickOnlyOnlineSection = (props: {
     const [, setStoreOfferClicked] = useRecoilState(storeOfferState);
     const [noClickOnlyOnlineOffersToLoad,] = useRecoilState(noClickOnlyOnlineOffersToLoadState);
     const [, setShowClickOnlyBottomSheet] = useRecoilState(showClickOnlyBottomSheetState);
+    const [isCardLinked,] = useRecoilState(cardLinkingStatusState);
 
     /**
      * Function used to populate the rows containing the click-only online offers data.
@@ -62,16 +66,26 @@ export const ClickOnlyOnlineSection = (props: {
                 <>
                     <TouchableOpacity style={{left: '3%'}}
                                       onPress={() => {
-                                          // set the clicked offer/partner accordingly
-                                          setStoreOfferClicked(data);
-                                          // show the click only bottom sheet
-                                          setShowClickOnlyBottomSheet(true);
+                                          /**
+                                           * if the user is card linked, then display the click only bottom sheet
+                                           * otherwise, display the click only bottom sheet but with the appropriate params
+                                           * to essentially highlight that offers cannot be viewed without a linked card.
+                                           */
+                                          if (!isCardLinked) {
+                                              // show the click only bottom sheet
+                                              setShowClickOnlyBottomSheet(true);
+                                          } else {
+                                              // set the clicked offer/partner accordingly
+                                              setStoreOfferClicked(data);
+                                              // show the click only bottom sheet
+                                              setShowClickOnlyBottomSheet(true);
+                                          }
                                       }}>
                         <Card style={styles.onlineOfferCard}>
                             <Card.Content>
                                 <View style={{flexDirection: 'column'}}>
                                     <View style={styles.clickOnlyOnlineOfferCardCoverBackground}>
-                                        <Image
+                                        <ExpoImage
                                             style={styles.clickOnlyOnlineOfferCardCover}
                                             source={{
                                                 uri: data.brandLogoSm!
@@ -87,13 +101,32 @@ export const ClickOnlyOnlineSection = (props: {
                                         numberOfLines={1}
                                         style={styles.clickOnlyOnlineOfferCardTitle}>{data.brandDba}
                                     </Paragraph>
-                                    <Paragraph
-                                        numberOfLines={1}
-                                        style={styles.clickOnlyOnlineOfferCardSubtitle}>
-                                        {data.reward!.type! === RewardType.RewardPercent
-                                            ? `${data.reward!.value}% Off`
-                                            : `$${data.reward!.value} Off`}
-                                    </Paragraph>
+                                    {
+                                        isCardLinked ?
+                                            <Paragraph
+                                                numberOfLines={1}
+                                                style={styles.clickOnlyOnlineOfferCardSubtitle}>
+                                                {data.reward!.type! === RewardType.RewardPercent
+                                                    ? `${data.reward!.value}% Off`
+                                                    : `$${data.reward!.value} Off`}
+                                            </Paragraph>
+                                            :
+                                            <>
+                                                <View style={styles.unlinkedClickOnlyOnlineView}>
+                                                    <Image
+                                                        style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
+                                                        source={MoonbeamBlurredOffSmall}
+                                                    />
+                                                    <Paragraph
+                                                        numberOfLines={1}
+                                                        style={styles.clickOnlyOnlineOfferCardSubtitleUnlinked}>
+                                                        {data.reward!.type! === RewardType.RewardPercent
+                                                            ? `Off`
+                                                            : `Off`}
+                                                    </Paragraph>
+                                                </View>
+                                            </>
+                                    }
                                 </View>
                             </Card.Content>
                         </Card>
@@ -216,7 +249,7 @@ export const ClickOnlyOnlineSection = (props: {
                                 scrollViewProps={{
                                     pagingEnabled: "true",
                                     decelerationRate: "fast",
-                                    snapToInterval: Platform.OS === 'android' ?  wp(33) * 3 : wp(33),
+                                    snapToInterval: Platform.OS === 'android' ? wp(33) * 3 : wp(33),
                                     snapToAlignment: "center",
                                     persistentScrollbar: false,
                                     showsHorizontalScrollIndicator: false
