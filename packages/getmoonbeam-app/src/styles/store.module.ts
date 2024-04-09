@@ -410,7 +410,8 @@ export const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     unlinkedClickOnlyOnlineOfferCardSubtitle: {
-        height: hp(3),
+        top: hp(0.5),
+        height: hp(2.5),
         width: wp(10),
         alignSelf: 'flex-start',
     },
@@ -718,8 +719,7 @@ export const styles = StyleSheet.create({
         left: wp(0.5)
     },
     featuredPartnerCardSubtitleUnlinked: {
-        bottom: hp(0.5),
-        fontSize: hp(1.6),
+        fontSize: hp(2),
         right: wp(4.5),
         fontFamily: 'Raleway-SemiBold',
         alignSelf: 'flex-end',
@@ -916,7 +916,6 @@ export const styles = StyleSheet.create({
         color: '#FFFFFF'
     },
     nearbyOfferCardSubtitleUnlinked: {
-        bottom: hp(0.3),
         fontSize: hp(2),
         right: wp(3.5),
         fontFamily: 'Raleway-SemiBold',
@@ -995,9 +994,10 @@ export const styles = StyleSheet.create({
         color: '#F2FF5D'
     },
     unlinkedVerticalOfferBenefit: {
+        top: hp(0.3),
         fontFamily: 'Saira-Bold',
         fontSize: hp(1.75),
-        right: wp(2.5),
+        right: wp(3),
         color: '#F2FF5D'
     },
     unlinkedVerticalOfferBenefitNonFidelis: {

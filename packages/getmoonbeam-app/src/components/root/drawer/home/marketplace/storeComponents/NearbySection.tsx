@@ -182,11 +182,9 @@ export const NearbySection = (props: {
                                                                     {`${data.brandDba}\n`}
                                                                     <View
                                                                         style={styles.unlinkedClickOnlyOnlineView}>
-                                                                        <ExpoImage
+                                                                        <Image
                                                                             style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
                                                                             source={MoonbeamBlurredOffSmall}
-                                                                            contentFit={'contain'}
-                                                                            cachePolicy={'none'}
                                                                         />
                                                                         <Text
                                                                             style={styles.nearbyOfferCardSubtitleUnlinked}>

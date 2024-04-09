@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
-import {Platform, Text, TouchableOpacity, View} from "react-native";
+import {Image, Platform, Text, TouchableOpacity, View} from "react-native";
 import {ActivityIndicator, Card, Paragraph, Portal} from "react-native-paper";
 import {styles} from "../../../../../../styles/store.module";
 import {LoggingLevel, Offer, RewardType} from "@moonbeam/moonbeam-models";
@@ -14,7 +14,7 @@ import {
     uniqueClickOnlyOnlineOffersListState,
     verticalSectionActiveState
 } from "../../../../../../recoil/StoreOfferAtom";
-import {Image} from 'expo-image';
+import {Image as ExpoImage} from 'expo-image';
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 // @ts-ignore
@@ -85,7 +85,7 @@ export const ClickOnlyOnlineSection = (props: {
                             <Card.Content>
                                 <View style={{flexDirection: 'column'}}>
                                     <View style={styles.clickOnlyOnlineOfferCardCoverBackground}>
-                                        <Image
+                                        <ExpoImage
                                             style={styles.clickOnlyOnlineOfferCardCover}
                                             source={{
                                                 uri: data.brandLogoSm!
@@ -116,8 +116,6 @@ export const ClickOnlyOnlineSection = (props: {
                                                     <Image
                                                         style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
                                                         source={MoonbeamBlurredOffSmall}
-                                                        contentFit={'contain'}
-                                                        cachePolicy={'memory-disk'}
                                                     />
                                                     <Paragraph
                                                         numberOfLines={1}

@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
-import {Platform, TouchableOpacity, View} from "react-native";
+import {Image, Platform, TouchableOpacity, View} from "react-native";
 import {ActivityIndicator, Card, Paragraph, Portal, Text} from "react-native-paper";
 import {styles} from "../../../../../../styles/store.module";
 import {LoggingLevel, Offer, RewardType} from "@moonbeam/moonbeam-models";
@@ -14,7 +14,7 @@ import {
     onlineOffersListState, showClickOnlyBottomSheetState,
     storeOfferState, toggleViewPressedState, uniqueOnlineOffersListState, verticalSectionActiveState
 } from "../../../../../../recoil/StoreOfferAtom";
-import {Image} from 'expo-image';
+import {Image as ExpoImage} from 'expo-image';
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
@@ -92,7 +92,7 @@ export const OnlineSection = (props: {
                         <Card.Content>
                             <View style={{flexDirection: 'column'}}>
                                 <View style={styles.onlineOfferCardCoverBackground}>
-                                    <Image
+                                    <ExpoImage
                                         style={styles.onlineOfferCardCover}
                                         source={{
                                             uri: data.brandLogoSm!
@@ -123,8 +123,7 @@ export const OnlineSection = (props: {
                                                 <Image
                                                     style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
                                                     source={MoonbeamBlurredOffSmall}
-                                                    contentFit={'contain'}
-                                                    cachePolicy={'memory-disk'}
+                                                    // cachePolicy={'memory-disk'}
                                                 />
                                                 <Paragraph
                                                     numberOfLines={1}

@@ -339,7 +339,6 @@ export const FullScreenMap = (props: {
     // return the component for the FullScreenMap page
     return (
         <>
-
             <Portal>
                 <Dialog style={[commonStyles.permissionsDialogStyle, {bottom: hp(6)}]}
                         visible={permissionsModalVisible}

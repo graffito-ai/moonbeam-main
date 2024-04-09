@@ -30,11 +30,11 @@ import {
     filteredOffersSpinnerShownState,
     userIsAuthenticatedState
 } from "../../../../../../recoil/AuthAtom";
-import {Image} from 'expo-image';
+import {Image as ExpoImage} from 'expo-image';
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 import {DataProvider, LayoutProvider, RecyclerListView} from "recyclerlistview";
-import {Keyboard, Platform, TouchableOpacity, View} from "react-native";
+import {Image, Keyboard, Platform, TouchableOpacity, View} from "react-native";
 import {getDistance} from "geolib";
 import {currentUserLocationState} from "../../../../../../recoil/RootAtom";
 import {logEvent, searchQueryExecute} from "../../../../../../utils/AppSync";
@@ -333,7 +333,7 @@ export const VerticalOffers = (props: {
                                            style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
                                 <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
                                     <View style={styles.verticalOfferLogoBackground}>
-                                        <Image
+                                        <ExpoImage
                                             style={styles.verticalOfferLogo}
                                             source={{
                                                 uri: offer.brandLogoSm!,
@@ -370,8 +370,6 @@ export const VerticalOffers = (props: {
                                                             <Image
                                                                 style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
                                                                 source={MoonbeamBlurredOffSmall}
-                                                                contentFit={'contain'}
-                                                                cachePolicy={'memory-disk'}
                                                             />
                                                             <Text style={styles.unlinkedVerticalOfferBenefit}>
                                                                 {" Off "}
@@ -425,7 +423,7 @@ export const VerticalOffers = (props: {
                                            style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
                                 <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
                                     <View style={styles.verticalOfferLogoBackground}>
-                                        <Image
+                                        <ExpoImage
                                             style={styles.verticalOfferLogo}
                                             source={{
                                                 uri: offer!.brandLogoSm!,
@@ -459,8 +457,6 @@ export const VerticalOffers = (props: {
                                                             <Image
                                                                 style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
                                                                 source={MoonbeamBlurredOffSmall}
-                                                                contentFit={'contain'}
-                                                                cachePolicy={'memory-disk'}
                                                             />
                                                             <Text style={styles.unlinkedVerticalOfferBenefit}>
                                                                 {" Off "}
@@ -545,7 +541,7 @@ export const VerticalOffers = (props: {
                                        style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
                             <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
                                 <View style={styles.verticalOfferLogoBackground}>
-                                    <Image
+                                    <ExpoImage
                                         style={styles.verticalOfferLogo}
                                         source={{
                                             uri: data.brandLogoSm!,
@@ -580,8 +576,6 @@ export const VerticalOffers = (props: {
                                                     <Image
                                                         style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
                                                         source={MoonbeamBlurredOffSmall}
-                                                        contentFit={'contain'}
-                                                        cachePolicy={'memory-disk'}
                                                     />
                                                     <Text style={styles.unlinkedVerticalOfferBenefit}>
                                                         {" Off "}
@@ -664,7 +658,7 @@ export const VerticalOffers = (props: {
                                        style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
                             <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
                                 <View style={styles.verticalOfferLogoBackground}>
-                                    <Image
+                                    <ExpoImage
                                         style={styles.verticalOfferLogo}
                                         source={{
                                             uri: data.brandLogoSm!,
@@ -699,8 +693,6 @@ export const VerticalOffers = (props: {
                                                     <Image
                                                         style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
                                                         source={MoonbeamBlurredOffSmall}
-                                                        contentFit={'contain'}
-                                                        cachePolicy={'memory-disk'}
                                                     />
                                                     <Text style={styles.unlinkedVerticalOfferBenefit}>
                                                         {" Off "}
@@ -877,7 +869,7 @@ export const VerticalOffers = (props: {
                                                        style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
                                             <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
                                                 <View style={styles.verticalOfferLogoBackground}>
-                                                    <Image
+                                                    <ExpoImage
                                                         style={styles.verticalOfferLogo}
                                                         source={{
                                                             uri: data.brandLogoSm!,
@@ -980,7 +972,7 @@ export const VerticalOffers = (props: {
                                                    style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
                                         <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
                                             <View style={styles.verticalOfferLogoBackground}>
-                                                <Image
+                                                <ExpoImage
                                                     style={styles.verticalOfferLogo}
                                                     source={{
                                                         uri: data.brandLogoSm!,
@@ -1139,7 +1131,7 @@ export const VerticalOffers = (props: {
                                        style={{alignSelf: 'flex-end', top: hp(1.5)}}/>
                             <View style={{flexDirection: 'row', bottom: hp(1.5)}}>
                                 <View style={styles.verticalOfferLogoBackground}>
-                                    <Image
+                                    <ExpoImage
                                         style={styles.verticalOfferLogo}
                                         source={{
                                             uri: data.brandLogoSm!,
@@ -1177,8 +1169,6 @@ export const VerticalOffers = (props: {
                                                     <Image
                                                         style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
                                                         source={MoonbeamBlurredOffSmall}
-                                                        contentFit={'contain'}
-                                                        cachePolicy={'memory-disk'}
                                                     />
                                                     <Text style={styles.unlinkedVerticalOfferBenefit}>
                                                         {" Off "}

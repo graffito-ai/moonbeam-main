@@ -2,7 +2,7 @@ import React, {useEffect, useMemo, useState} from "react";
 import {FidelisPartner, Offer, RewardType} from "@moonbeam/moonbeam-models";
 import {Card, Paragraph, Text} from "react-native-paper";
 import {styles} from "../../../../../../styles/store.module";
-import {TouchableOpacity, View} from "react-native";
+import {Image, TouchableOpacity, View} from "react-native";
 import {heightPercentageToDP as hp, widthPercentageToDP as wp} from "react-native-responsive-screen";
 import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {MarketplaceStackParamList} from "../../../../../../models/props/MarketplaceProps";
@@ -12,7 +12,7 @@ import {
     storeOfferPhysicalLocationState,
     storeOfferState
 } from "../../../../../../recoil/StoreOfferAtom";
-import {Image} from 'expo-image';
+import {Image as ExpoImage} from 'expo-image';
 // @ts-ignore
 import MoonbeamPlaceholderImage from "../../../../../../../assets/art/moonbeam-store-placeholder.png";
 // @ts-ignore
@@ -175,8 +175,6 @@ export const FidelisSection = (props: {
                                                                                 <Image
                                                                                     style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
                                                                                     source={MoonbeamBlurredOffSmall}
-                                                                                    contentFit={'contain'}
-                                                                                    cachePolicy={'none'}
                                                                                 />
                                                                                 <Text
                                                                                     style={styles.featuredPartnerCardSubtitleUnlinked}>
@@ -211,7 +209,7 @@ export const FidelisSection = (props: {
                                                         left: wp(2)
                                                     }}>
                                                         <View style={styles.featuredPartnerCardCoverBackground}>
-                                                            <Image
+                                                            <ExpoImage
                                                                 style={styles.featuredPartnerCardCover}
                                                                 source={{
                                                                     uri: data.offers[0]!.brandLogoSm!
@@ -261,7 +259,7 @@ export const FidelisSection = (props: {
                                                 </View>
                                                 {
                                                     data.veteranOwned &&
-                                                    <Image
+                                                    <ExpoImage
                                                         style={styles.veteranOwnedBadge}
                                                         source={MoonbeamVeteranOwnedBadgeImage}
                                                         placeholder={MoonbeamVeteranOwnedBadgeImage}
@@ -326,8 +324,6 @@ export const FidelisSection = (props: {
                                                                             <Image
                                                                                 style={styles.unlinkedClickOnlyOnlineOfferCardSubtitle}
                                                                                 source={MoonbeamBlurredOffSmall}
-                                                                                contentFit={'contain'}
-                                                                                cachePolicy={'none'}
                                                                             />
                                                                             <Text
                                                                                 style={styles.featuredPartnerCardSubtitleUnlinked}>
@@ -352,7 +348,7 @@ export const FidelisSection = (props: {
                                                     left: wp(2)
                                                 }}>
                                                     <View style={styles.featuredPartnerCardCoverBackground}>
-                                                        <Image
+                                                        <ExpoImage
                                                             style={styles.featuredPartnerCardCover}
                                                             source={{
                                                                 uri: data.offers[0]!.brandLogoSm!
@@ -394,7 +390,7 @@ export const FidelisSection = (props: {
                                             </View>
                                             {
                                                 data.veteranOwned &&
-                                                <Image
+                                                <ExpoImage
                                                     style={!isCardLinked ? styles.unlinkedVeteranOwnedBadge : styles.veteranOwnedBadge}
                                                     source={MoonbeamVeteranOwnedBadgeImage}
                                                     placeholder={MoonbeamVeteranOwnedBadgeImage}
