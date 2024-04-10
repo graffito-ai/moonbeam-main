@@ -134,10 +134,18 @@ export const processLocationUpdates = async (event: SQSEvent): Promise<SQSBatchR
                          * 3) call the createNotification Moonbeam AppSync API endpoint to send a push notification.
                          */
                         if (notificationNeeded) {
+                            /**
+                             * we would like to randomly pick an offer that we get from the getOffers API,
+                             * so we don't send users notifications with the same spot all the time.
+                             */
+                            const min = 0;
+                            const max = availableNearbyOffersResponse.data.offers.length - 1;
+                            const randomOfferIndex = Math.floor(Math.random() * ((max-min)+1) + min);
+
                             const brandName: string = (availableNearbyOffersResponse.data.offers !== undefined && availableNearbyOffersResponse.data.offers !== null &&
-                                availableNearbyOffersResponse.data.offers.length !== 0 && availableNearbyOffersResponse.data.offers[0] !== undefined && availableNearbyOffersResponse.data.offers[0] !== null &&
-                                availableNearbyOffersResponse.data.offers[0].brandDba !== undefined && availableNearbyOffersResponse.data.offers[0].brandDba !== null)
-                                ? availableNearbyOffersResponse.data.offers[0].brandDba
+                                availableNearbyOffersResponse.data.offers.length !== 0 && availableNearbyOffersResponse.data.offers[randomOfferIndex] !== undefined && availableNearbyOffersResponse.data.offers[randomOfferIndex] !== null &&
+                                availableNearbyOffersResponse.data.offers[randomOfferIndex]!.brandDba !== undefined && availableNearbyOffersResponse.data.offers[randomOfferIndex]!.brandDba !== null)
+                                ? availableNearbyOffersResponse.data.offers[randomOfferIndex]!.brandDba!
                                 : "Moonbeam Merchant";
 
                             const createNotificationResponse: CreateNotificationResponse = await moonbeamClient.createNotification({
