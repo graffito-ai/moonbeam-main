@@ -24,6 +24,13 @@ export const acknowledgeLocationUpdate = async (fieldName: string, createLocatio
         const snsClient = new SNSClient({region: region});
 
         /**
+         * we would like to split up these location updates, so we make sure that we have enough
+         * time to process them through the consumer, so we don't end up sending duplicate notifications
+         * to users.
+         */
+        await sleep(5000); // sleep for 5 seconds
+
+        /**
          * drop the location-based update input as a message to the location-based updates/notifications processing topic
          */
         const locationUpdateReceipt = await snsClient.send(new PublishCommand({
@@ -68,3 +75,10 @@ export const acknowledgeLocationUpdate = async (fieldName: string, createLocatio
         }
     }
 }
+
+/**
+ * Function used to timeout/sleep for a particular number of milliseconds
+ *
+ * @param ms number of milliseconds to timeout for.
+ */
+export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
