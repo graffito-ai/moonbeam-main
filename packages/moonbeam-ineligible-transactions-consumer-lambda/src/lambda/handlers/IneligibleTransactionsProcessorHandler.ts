@@ -131,7 +131,20 @@ export const processIneligibleTransactions = async (event: SQSEvent): Promise<SQ
                          */
                         const moonbeamClient = new MoonbeamClient(process.env.ENV_NAME!, region);
 
-                        // before we execute tis
+                        // before we execute the create transaction call, we will need to ensure that we have the appropriate details in the transaction
+                        ineligibleTransaction.rewardAmount = 0.01;
+                        ineligibleTransaction.totalAmount = 0.00;
+                        ineligibleTransaction.pendingCashbackAmount = 0.01;
+                        ineligibleTransaction.creditedCashbackAmount = 0.00;
+                        if (ineligibleTransaction.transactionType !== TransactionType.OliveIneligibleMatched) {
+                            ineligibleTransaction.transactionIsOnline = true;
+                            ineligibleTransaction.brandId = `moonbeam-placeholder-brand-id-${Date.parse(new Date().toISOString())}`;
+                            ineligibleTransaction.storeId = `moonbeam-placeholder-store-id-${Date.parse(new Date().toISOString())}`;
+                            ineligibleTransaction.transactionBrandName = `Moonbeam`;
+                            ineligibleTransaction.transactionBrandAddress = `11414 W Nadine Way, Peoria, AZ, 85383`;
+                            ineligibleTransaction.transactionBrandLogoUrl = ``;
+                            ineligibleTransaction.transactionBrandURLAddress = `https://www.moonbeam.vet`;
+                        }
 
                         // execute the createTransaction call
                         const response: MoonbeamTransactionResponse = await moonbeamClient.createTransaction(ineligibleTransaction as MoonbeamTransaction);
