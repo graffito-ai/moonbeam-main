@@ -712,7 +712,7 @@ export type IneligibleTransaction = {
   transactionBrandURLAddress?: Maybe<Scalars['String']>;
   transactionId: Scalars['ID'];
   transactionIsOnline?: Maybe<Scalars['Boolean']>;
-  transactionStatus: IneligibleTransactionsStatus;
+  transactionStatus: TransactionsStatus;
   transactionType: TransactionType;
   updatedAt?: Maybe<Scalars['AWSDateTime']>;
 };
@@ -723,10 +723,6 @@ export type IneligibleTransactionResponse = {
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<TransactionsErrorType>;
 };
-
-export enum IneligibleTransactionsStatus {
-  Ineligible = 'INELIGIBLE'
-}
 
 export type Location = {
   __typename?: 'Location';
@@ -1823,6 +1819,7 @@ export type SendEmailNotificationInput = {
 
 export type SendMobilePushNotificationInput = {
   expoPushTokens: Array<InputMaybe<Scalars['String']>>;
+  ineligibleTransactionAmount?: InputMaybe<Scalars['Float']>;
   merchantName?: InputMaybe<Scalars['String']>;
   pendingCashback?: InputMaybe<Scalars['Float']>;
 };

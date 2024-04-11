@@ -102,7 +102,7 @@ export const processIneligibleTransactionsNotifications = async (event: SQSEvent
                     }
                 }
 
-                // ensure we can proceed with Steps 4, 5 and 6 in case there are no errors
+                // ensure we can proceed with Steps 4, 5 and 6 in case there are no errors or there's no need for previous step/s
                 if (canProceed) {
                     // initialize the Moonbeam Client API here, in order to call the appropriate endpoints for this handler
                     const moonbeamClient = new MoonbeamClient(process.env.ENV_NAME!, region);
@@ -136,7 +136,9 @@ export const processIneligibleTransactionsNotifications = async (event: SQSEvent
                                 type: NotificationType.IneligibleTransaction,
                                 channelType: NotificationChannelType.Push,
                                 expoPushTokens: deviceTokenIds,
-                                merchantName: ineligibleTransaction.transactionBrandName, // need to retrieve this through a call
+                                merchantName: ineligibleTransaction.transactionType === TransactionType.OliveIneligibleMatched
+                                    ? ineligibleTransaction.transactionBrandName
+                                    : 'Merchant',
                                 ineligibleTransactionAmount: 0.01, // this is a set amount that we give for ineligible transactions
                                 status: NotificationStatus.Sent
                             });
@@ -247,7 +249,7 @@ const getMemberDetails = async (oliveClient: OliveClient, memberId: string): Pro
  */
 const getBrandDetails = async (oliveClient: OliveClient, ineligibleTransaction: IneligibleTransaction): Promise<IneligibleTransactionResponse> => {
     // execute the brand details retrieval call, in order to get the brand details for the incoming ineligible transaction
-    const response: IneligibleTransactionResponse = await oliveClient.getIneligibleBrandDetails(ineligibleTransaction);
+    const response: IneligibleTransactionResponse = await oliveClient.getBrandDetailsForIneligible(ineligibleTransaction);
 
     // check to see if the brand details call was executed successfully
     if (response && !response.errorMessage && !response.errorType && response.data &&

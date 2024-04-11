@@ -458,12 +458,6 @@ enum TransactionsErrorType {
     UNPROCESSABLE
 }
 
-## Defines the types of the statuses for an ineligible transaction, used mainly for
-## internal purposes in order to categorized the types of ineligible transactions
-enum IneligibleTransactionsStatus {
-    INELIGIBLE ### ineligible = transaction is not a qualifying offer due to it not being matched or due to it having missing information
-}
-
 ## Defines the types of the statuses for a transaction, during its lifecycle. Although these
 ## statuses might not match Olive's statuses 1:1, they represent what our customers see in their
 ## dashboard, and how we translate incoming Olive information, and communicate it to our end
@@ -499,7 +493,7 @@ type IneligibleTransaction @aws_cognito_user_pools @aws_api_key {
     id: ID ## this represents the userID which the transaction belongs to/was made by
     timestamp: AWSTimestamp! ## this represents the timestamp, in a Number epoch based format (for sorting purposes)
     transactionId: ID!
-    transactionStatus: IneligibleTransactionsStatus!
+    transactionStatus: TransactionsStatus!
     transactionType: TransactionType!
     createdAt: AWSDateTime! ## this will be the same as the "timestamp" value above, only represented in a date time format
     updatedAt: AWSDateTime
@@ -850,6 +844,7 @@ input SendMobilePushNotificationInput {
     expoPushTokens: [String]!
     pendingCashback: Float
     merchantName: String
+    ineligibleTransactionAmount: Float
 }
 
 # this type is a specific response for sending notifications and will be used solely as an input object, outside of any AppSync related queries and/or mutations

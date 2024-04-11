@@ -885,19 +885,18 @@ export abstract class BaseAPIClient {
     protected getBrandDetails?(transaction: Transaction): Promise<TransactionResponse>;
 
     /**
-     * Function used to retrieve the brand details, given a brand ID for an ineligible brand
-     * resulted from an ineligible transaction.
+     * Function used to retrieve the brand details, given a brand ID.
      *
-     * @param ineligibleTransaction the ineligible transaction object, populated by the initial details
+     * @param transaction the transaction object, populated by the initial details
      * passed in by Olive. This object will be used to set even more information for
      * it, obtained from this brand call.
      *
-     * @return a {@link Promise} of {@link IneligibleTransactionResponse} representing the
-     * ineligible transaction with the brand details obtained, included in it.
+     * @return a {@link Promise} of {@link IneligibleTransactionResponse} representing the transaction
+     * with the brand details obtained, included in it.
      *
      * @protected
      */
-    protected getIneligibleBrandDetails?(ineligibleTransaction: IneligibleTransaction): Promise<IneligibleTransactionResponse>;
+    protected getBrandDetailsForIneligible?(transaction: IneligibleTransaction): Promise<IneligibleTransactionResponse>;
 
     /**
      * Function used to retrieve the store details, given a store ID.
@@ -906,12 +905,26 @@ export abstract class BaseAPIClient {
      * passed in by Olive. This object will be used to set even more information for
      * it, obtained from this brand call.
      *
-     * @return a {@link Promise} of {@link TransactionResponse} representing the transaction
+     * @return a {@link Promise} of {@link IneligibleTransactionResponse} representing the transaction
      * with the store details obtained, included in it.
      *
      * @protected
      */
-    protected getStoreDetails?(transaction: Transaction): Promise<TransactionResponse>;
+    protected getStoreDetailsForIneligible?(transaction: IneligibleTransaction): Promise<IneligibleTransactionResponse>;
+
+    /**
+     * Function used to retrieve the store details, given a store ID.
+     *
+     * @param transaction the transaction object, populated by the initial details
+     * passed in by Olive. This object will be used to set even more information for
+     * it, obtained from this brand call.
+     *
+     * @return a {@link Promise} of {@link TransactionResponse} or {@link IneligibleTransactionResponse} representing the transaction
+     * with the store details obtained, included in it.
+     *
+     * @protected
+     */
+    protected getStoreDetails?(transaction: Transaction ): Promise<TransactionResponse>;
 
     /**
      * Function used to retrieve the member details, specifically the extMemberId, which is Moonbeam's unique user ID
@@ -934,9 +947,23 @@ export abstract class BaseAPIClient {
      * passed in by Olive. This object will be used to set even more information for
      * it, obtained from this transaction details call.
      *
+     * @return a {@link Promise} of {@link IneligibleTransactionResponse} representing the
+     * transaction object, populated with the additional transaction details that we retrieved.
+     *
+     * @protected
+     */
+    protected getTransactionDetailsForIneligible?(transaction: IneligibleTransaction): Promise<IneligibleTransactionResponse>;
+
+    /**
+     * Function used to retrieve the transaction details, given a transaction ID
+     * (used for transactional purposes).
+     *
+     * @param transaction the transaction object, populated by the initial details
+     * passed in by Olive. This object will be used to set even more information for
+     * it, obtained from this transaction details call.
+     *
      * @return a {@link Promise} of {@link TransactionResponse} representing the
-     * transaction object, populated with the additional transaction details that
-     * we retrieved.
+     * transaction object, populated with the additional transaction details that we retrieved.
      *
      * @protected
      */

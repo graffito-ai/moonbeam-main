@@ -93,6 +93,7 @@ input SendMobilePushNotificationInput {
     expoPushTokens: [String]!
     pendingCashback: Float
     merchantName: String
+    ineligibleTransactionAmount: Float
 }
 
 # this type is a specific response for sending notifications and will be used solely as an input object, outside of any AppSync related queries and/or mutations
