@@ -5,8 +5,11 @@ import {
     AppReviewConfiguration,
     AppSyncConfiguration,
     AppUpgradeConfiguration,
-    CardLinkingConfiguration, EventsConfiguration,
-    FAQConfiguration, LocationBasedReminderProducerConsumerConfiguration,
+    CardLinkingConfiguration,
+    EventsConfiguration,
+    FAQConfiguration,
+    IneligibleTransactionsProducerConsumerConfiguration,
+    LocationBasedReminderProducerConsumerConfiguration,
     LoggingConfiguration,
     MilitaryVerificationConfiguration,
     MilitaryVerificationProducerConsumerConfiguration,
@@ -18,7 +21,9 @@ import {
     PhysicalDevicesConfiguration,
     ReferralConfiguration,
     ReferralProducerConsumerConfiguration,
-    ReimbursementsConfiguration, ScriptsConfiguration, ServicePartnersConfiguration,
+    ReimbursementsConfiguration,
+    ScriptsConfiguration,
+    ServicePartnersConfiguration,
     SESConfiguration,
     StorageConfiguration,
     TransactionsConfiguration,
@@ -44,6 +49,7 @@ export interface StageConfiguration {
     readonly notificationReminderProducerConsumerConfig: NotificationReminderProducerConsumerConfiguration;
     readonly referralProducerConsumerConfig: ReferralProducerConsumerConfiguration;
     readonly transactionsProducerConsumerConfig: TransactionsProducerConsumerConfiguration;
+    readonly ineligibleTransactionsProducerConsumerConfig: IneligibleTransactionsProducerConsumerConfiguration;
     readonly militaryVerificationProducerConsumerConfig: MilitaryVerificationProducerConsumerConfiguration;
     readonly locationBasedReminderProducerConsumerConfig: LocationBasedReminderProducerConsumerConfiguration;
     readonly militaryVerificationReportingProducerConsumerConfig: MilitaryVerificationReportingProducerConsumerConfiguration;

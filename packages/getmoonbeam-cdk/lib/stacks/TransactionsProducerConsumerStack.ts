@@ -46,7 +46,7 @@ export class TransactionsProducerConsumerStack extends Stack {
     constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'transactionsProducerConsumerConfig'>) {
         super(scope, id, props);
 
-        // create a new Lambda function to be used with the Card Linking Webhook service for transaction purposes, acting as the acknowledgment service or producer
+        // create a new Lambda function to be used with the Transaction Webhook service for transaction purposes, acting as the acknowledgment service or producer
         this.transactionsProducerLambda = new aws_lambda_nodejs.NodejsFunction(this, `${props.transactionsProducerConsumerConfig.transactionsProducerFunctionName}-${props.stage}-${props.env!.region}`, {
             functionName: `${props.transactionsProducerConsumerConfig.transactionsProducerFunctionName}-${props.stage}-${props.env!.region}`,
             entry: path.resolve(path.join(__dirname, '../../../moonbeam-transactions-producer-lambda/src/lambda/main.ts')),

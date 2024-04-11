@@ -20,6 +20,8 @@ import {
     GetUserCardLinkingIdInput,
     GetUserCardLinkingIdResponse, GetUsersByGeographicalLocationInput,
     IneligibleLinkedUsersResponse,
+    IneligibleTransaction,
+    IneligibleTransactionResponse,
     MemberDetailsResponse,
     MemberResponse,
     MilitaryVerificationNotificationUpdate,
@@ -881,6 +883,21 @@ export abstract class BaseAPIClient {
      * @protected
      */
     protected getBrandDetails?(transaction: Transaction): Promise<TransactionResponse>;
+
+    /**
+     * Function used to retrieve the brand details, given a brand ID for an ineligible brand
+     * resulted from an ineligible transaction.
+     *
+     * @param ineligibleTransaction the ineligible transaction object, populated by the initial details
+     * passed in by Olive. This object will be used to set even more information for
+     * it, obtained from this brand call.
+     *
+     * @return a {@link Promise} of {@link IneligibleTransactionResponse} representing the
+     * ineligible transaction with the brand details obtained, included in it.
+     *
+     * @protected
+     */
+    protected getIneligibleBrandDetails?(ineligibleTransaction: IneligibleTransaction): Promise<IneligibleTransactionResponse>;
 
     /**
      * Function used to retrieve the store details, given a store ID.

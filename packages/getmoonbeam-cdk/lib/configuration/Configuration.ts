@@ -108,6 +108,21 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     notificationsTransactionalOffersProcessingEventSourceMapping: 'notificationsTransactionalOffersProcessingEventSourceMapping'
                 }
             },
+            ineligibleTransactionsProducerConsumerConfig: {
+                ineligibleTransactionsConsumerFunctionName: "ineligibleTransactionsConsumerFunction",
+                ineligibleTransactionsNotificationsConsumerFunctionName: "ineligibleTransactionsNotificationsConsumerFunction",
+                ineligibleTransactionsFanOutConfig: {
+                    ineligibleTransactionsProcessingTopicName: "ineligibleTransactionsProcessingTopic",
+                    ineligibleTransactionsNotificationsProcessingQueueName: "ineligibleTransactionsNotificationsProcessingQueue",
+                    ineligibleTransactionsNotificationsProcessingDLQName: "ineligibleTransactionsNotificationsProcessingDLQ",
+                    ineligibleTransactionsProcessingQueueName: "ineligibleTransactionsProcessingQueue",
+                    ineligibleTransactionsProcessingDLQName: "ineligibleTransactionsProcessingDLQ",
+                    ineligibleTransactionsNotificationsTopicDLQName: "ineligibleTransactionsNotificationsTopicDLQ",
+                    ineligibleTransactionsProcessingTopicDLQName: "ineligibleTransactionsProcessingTopicDLQ",
+                    ineligibleTransactionsNotificationsProcessingEventSourceMapping: "ineligibleTransactionsNotificationsProcessingEventSourceMapping",
+                    ineligibleTransactionsProcessingEventSourceMapping: "ineligibleTransactionsProcessingEventSourceMapping"
+                },
+            },
             notificationReminderProducerConsumerConfig: {
                 notificationReminderProducerFunctionName: 'notificationReminderProducerLambdaFunction',
                 notificationReminderConsumerFunctionName: 'notificationReminderConsumerLambdaFunction',
@@ -392,6 +407,21 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                     transactionalOffersProcessingEventSourceMapping: 'transactionalOffersProcessingEventSourceMapping',
                     notificationsTransactionalOffersProcessingEventSourceMapping: 'notificationsTransactionalOffersProcessingEventSourceMapping'
                 }
+            },
+            ineligibleTransactionsProducerConsumerConfig: {
+                ineligibleTransactionsConsumerFunctionName: "ineligibleTransactionsConsumerFunction",
+                ineligibleTransactionsNotificationsConsumerFunctionName: "ineligibleTransactionsNotificationsConsumerFunction",
+                ineligibleTransactionsFanOutConfig: {
+                    ineligibleTransactionsProcessingTopicName: "ineligibleTransactionsProcessingTopic",
+                    ineligibleTransactionsNotificationsProcessingQueueName: "ineligibleTransactionsNotificationsProcessingQueue",
+                    ineligibleTransactionsNotificationsProcessingDLQName: "ineligibleTransactionsNotificationsProcessingDLQ",
+                    ineligibleTransactionsProcessingQueueName: "ineligibleTransactionsProcessingQueue",
+                    ineligibleTransactionsProcessingDLQName: "ineligibleTransactionsProcessingDLQ",
+                    ineligibleTransactionsNotificationsTopicDLQName: "ineligibleTransactionsNotificationsTopicDLQ",
+                    ineligibleTransactionsProcessingTopicDLQName: "ineligibleTransactionsProcessingTopicDLQ",
+                    ineligibleTransactionsNotificationsProcessingEventSourceMapping: "ineligibleTransactionsNotificationsProcessingEventSourceMapping",
+                    ineligibleTransactionsProcessingEventSourceMapping: "ineligibleTransactionsProcessingEventSourceMapping"
+                },
             },
             updatedTransactionsProducerConsumerConfig: {
                 updatedTransactionsProducerFunctionName: 'updatedTransactionsProducerLambdaFunction',

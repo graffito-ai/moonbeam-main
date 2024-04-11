@@ -57,6 +57,8 @@ packages/moonbeam-service-partners-lambda/lib
 packages/moonbeam-events-lambda/lib
 packages/moonbeam-location-reminders-consumer-lambda/lib
 packages/moonbeam-location-reminders-producer-lambda/lib
+packages/moonbeam-ineligible-transactions-consumer-lambda/lib
+packages/moonbeam-ineligible-transactions-notifications-consumer-lambda/lib
 packages/getmoonbeam-cdk/*.jsg
 packages/getmoonbeam-cdk/*.d.ts
 packages/getmoonbeam-app/amplify/**/*
