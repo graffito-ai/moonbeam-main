@@ -33,13 +33,19 @@ export class IneligibleTransactionsProducerConsumerStack extends Stack {
     readonly ineligibleTransactionsNotificationsConsumerLambda: aws_lambda_nodejs.NodejsFunction;
 
     /**
+     * the ineligible transactions processing topic, to be used when granting the transactions
+     * producer lambda permissions.
+     */
+    readonly ineligibleTransactionsProcessingTopic: aws_sns.Topic;
+
+    /**
      * Constructor for the IneligibleTransactionsProducerConsumerStack stack.
      *
      * @param scope scope to be passed in (usually a CDK App Construct)
      * @param id stack id to be passed in
      * @param props stack properties to be passed in
      */
-    constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'ineligibleTransactionsProducerConsumerConfig'> & { transactionsProducerLambda: aws_lambda_nodejs.NodejsFunction }) {
+    constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'ineligibleTransactionsProducerConsumerConfig'>) {
         super(scope, id, props);
 
         // create a new Lambda function to be used as a consumer for ineligible transactional data, acting as the ineligible transaction processor.
@@ -191,19 +197,13 @@ export class IneligibleTransactionsProducerConsumerStack extends Stack {
         this.ineligibleTransactionsNotificationsConsumerLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
 
         // create a new FIFO SNS topic, with deduplication enabled based on the message contents, used for ineligible transaction message processing
-        const ineligibleTransactionsProcessingTopic = new aws_sns.Topic(this, `${props.ineligibleTransactionsProducerConsumerConfig.ineligibleTransactionsFanOutConfig.ineligibleTransactionsProcessingTopicName}-${props.stage}-${props.env!.region}`, {
+        this.ineligibleTransactionsProcessingTopic = new aws_sns.Topic(this, `${props.ineligibleTransactionsProducerConsumerConfig.ineligibleTransactionsFanOutConfig.ineligibleTransactionsProcessingTopicName}-${props.stage}-${props.env!.region}`, {
             displayName: `${props.ineligibleTransactionsProducerConsumerConfig.ineligibleTransactionsFanOutConfig.ineligibleTransactionsProcessingTopicName}`,
             topicName: `${props.ineligibleTransactionsProducerConsumerConfig.ineligibleTransactionsFanOutConfig.ineligibleTransactionsProcessingTopicName}-${props.stage}-${props.env!.region}`,
             fifo: true,
             // we are guaranteed that for messages with a same content, to be dropped in the topic, that the deduplication id will be based on the content
             contentBasedDeduplication: true
         });
-
-        // give the webhook transactions Lambda, acting as the acknowledgment service or producer, permissions to publish messages in the ineligible transactions SNS topic
-        ineligibleTransactionsProcessingTopic.grantPublish(props.transactionsProducerLambda);
-
-        // Create environment variables that we will use in the producer function code
-        props.transactionsProducerLambda.addEnvironment(`${Constants.MoonbeamConstants.INELIGIBLE_TRANSACTIONS_PROCESSING_TOPIC_ARN}`, ineligibleTransactionsProcessingTopic.topicArn);
 
         /**
          * create a new FIFO SQS queue, with deduplication enabled based on the message contents,
@@ -242,7 +242,7 @@ export class IneligibleTransactionsProducerConsumerStack extends Stack {
         });
 
         // create a subscription for the ineligible transactions processing SQS queue, to the SNS ineligible transactions topic
-        ineligibleTransactionsProcessingTopic.addSubscription(new SqsSubscription(ineligibleTransactionalOffersProcessingQueue, {
+        this.ineligibleTransactionsProcessingTopic.addSubscription(new SqsSubscription(ineligibleTransactionalOffersProcessingQueue, {
             // the message to the queue is the same as it was sent to the topic
             rawMessageDelivery: true,
             // creates a dead-letter-queue (DLQ) here, in order to handle any failed messages, that cannot be sent from SNS to SQS
@@ -318,7 +318,7 @@ export class IneligibleTransactionsProducerConsumerStack extends Stack {
         });
 
         // create a subscription for the ineligible transactions notifications processing SQS queue, to the SNS ineligible transactions topic
-        ineligibleTransactionsProcessingTopic.addSubscription(new SqsSubscription(ineligibleTransactionsNotificationsProcessingQueue, {
+        this.ineligibleTransactionsProcessingTopic.addSubscription(new SqsSubscription(ineligibleTransactionsNotificationsProcessingQueue, {
             // the message to the queue is the same as it was sent to the topic
             rawMessageDelivery: true,
             // creates a dead-letter-queue (DLQ) here, in order to handle any failed messages, that cannot be sent from SNS to SQS

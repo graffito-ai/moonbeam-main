@@ -132,17 +132,13 @@ export const processIneligibleTransactions = async (event: SQSEvent): Promise<SQ
                         const moonbeamClient = new MoonbeamClient(process.env.ENV_NAME!, region);
 
                         // before we execute the create transaction call, we will need to ensure that we have the appropriate details in the transaction
-                        ineligibleTransaction.rewardAmount = 0.01;
-                        ineligibleTransaction.totalAmount = 0.00;
-                        ineligibleTransaction.pendingCashbackAmount = 0.01;
-                        ineligibleTransaction.creditedCashbackAmount = 0.00;
                         if (ineligibleTransaction.transactionType !== TransactionType.OliveIneligibleMatched) {
                             ineligibleTransaction.transactionIsOnline = true;
                             ineligibleTransaction.brandId = `moonbeam-placeholder-brand-id-${Date.parse(new Date().toISOString())}`;
                             ineligibleTransaction.storeId = `moonbeam-placeholder-store-id-${Date.parse(new Date().toISOString())}`;
                             ineligibleTransaction.transactionBrandName = `Moonbeam`;
                             ineligibleTransaction.transactionBrandAddress = `11414 W Nadine Way, Peoria, AZ, 85383`;
-                            ineligibleTransaction.transactionBrandLogoUrl = ``;
+                            ineligibleTransaction.transactionBrandLogoUrl = `https://d25u6t39bsu3qy.cloudfront.net/public/moonbeam.png?Expires=3289740276&Key-Pair-Id=K2AABBFP9HSZL5&Signature=Su7oeEQLewBmM~QY-Dwa4-DYriRE53tTy0Qd1m4xkCJFw-sPtiAd5El063V9dcBrvVLhU26n9v7LFJIqg68zUb-Mx6yR0oAtHN~DYEyjK4D6QF52rt4tEuLzPEKPCm55fzAjufsSryzwTZdE6Hj4siUiJmktM~VrPdhlv6vfv3-C-Uc37GxtUkgQXSzGhOdIWyS7o5ReYDlle4AevbeoKQBols6Q6Y9ENHvgCKQP9y0QNIZv9cjdVJohopsKl4OPKKB5xnnh~egZJmzBPsbHQA-eswQW0y5RJnuJtTcmQ70jpm2kpN2jtXidAdWdNbOALzlQdBlQ8iAeP-Pqz50uYQ__`;
                             ineligibleTransaction.transactionBrandURLAddress = `https://www.moonbeam.vet`;
                         }
 

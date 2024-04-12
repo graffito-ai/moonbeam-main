@@ -43,7 +43,7 @@ export class TransactionsProducerConsumerStack extends Stack {
      * @param id stack id to be passed in
      * @param props stack properties to be passed in
      */
-    constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'transactionsProducerConsumerConfig'>) {
+    constructor(scope: Construct, id: string, props: StackProps & Pick<StageConfiguration, 'environmentVariables' | 'stage' | 'transactionsProducerConsumerConfig'> & { ineligibleTransactionsProcessingTopic: aws_sns.Topic }) {
         super(scope, id, props);
 
         // create a new Lambda function to be used with the Transaction Webhook service for transaction purposes, acting as the acknowledgment service or producer
@@ -227,6 +227,12 @@ export class TransactionsProducerConsumerStack extends Stack {
         // Create environment variables that we will use in the producer function code
         this.transactionsProducerLambda.addEnvironment(`${Constants.MoonbeamConstants.TRANSACTIONS_PROCESSING_TOPIC_ARN}`, transactionsProcessingTopic.topicArn);
         this.transactionsProducerLambda.addEnvironment(`${Constants.MoonbeamConstants.ENV_NAME}`, props.stage);
+        this.transactionsProducerLambda.addEnvironment(`${Constants.MoonbeamConstants.INELIGIBLE_TRANSACTIONS_PROCESSING_TOPIC_ARN}`, props.ineligibleTransactionsProcessingTopic.topicArn);
+
+        // give the webhook transactions Lambda, acting as the acknowledgment service or producer, permissions to publish messages in the ineligible transactions SNS topic
+        props.ineligibleTransactionsProcessingTopic.grantPublish(this.transactionsProducerLambda);
+
+        // Create environment variables that we will use in the producer function code
 
         /**
          * create a new FIFO SQS queue, with deduplication enabled based on the message contents,
