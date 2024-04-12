@@ -161,6 +161,10 @@ export abstract class BaseAPIClient {
                                     return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
                                         clientPairAsJson[Constants.AWSPairConstants.NEW_QUALIFYING_OFFER_NOTIFICATION_AUTH_TOKEN],
                                         clientPairAsJson[Constants.AWSPairConstants.NEW_QUALIFYING_OFFER_NOTIFICATION_TEMPLATE_ID]];
+                                case NotificationType.IneligibleTransaction:
+                                    return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                        clientPairAsJson[Constants.AWSPairConstants.PUSH_NEW_INELIGIBLE_TRANSACTION_AUTH_TOKEN],
+                                        clientPairAsJson[Constants.AWSPairConstants.PUSH_NEW_INELIGIBLE_TRANSACTION_TEMPLATE_ID]];
                                 case NotificationType.LocationBasedOfferReminder:
                                     return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
                                         clientPairAsJson[Constants.AWSPairConstants.PUSH_LOCATION_BASED_UPDATE_NOTIFICATION_AUTH_TOKEN],
