@@ -143,7 +143,7 @@ export const acknowledgeTransaction = async (route: string, requestBody: string 
                     }
                 } else {
                     // ToDo: Remove this once tested
-                    if (requestData["memberId"] === 'e1a6afb2-ff4c-40d0-9f4b-b83396b0a966') {
+                    if (requestData["memberId"] === '783f39f7-ec67-4240-e273-08dba8c04caa') {
                         /**
                          * if this is not a redeemable offer, AKA an ineligible transaction, determine whether it is
                          * an OLIVE_INELIGIBLE_UNMATCHED or OLIVE_INELIGIBLE_MATCHED type.
@@ -169,8 +169,8 @@ export const acknowledgeTransaction = async (route: string, requestBody: string 
                             category: requestData["transaction"]["merchantCategoryCode"],
                             currencyCode: requestData["transaction"]["currencyCode"],
                             transactionId: requestData["transaction"]["id"],
-                            // set the status of ineligible transactions as PENDING
-                            transactionStatus: TransactionsStatus.Pending,
+                            // set the status of ineligible transactions as PROCESSED
+                            transactionStatus: TransactionsStatus.Processed,
                             // the type of this ineligible transaction was determined above
                             transactionType: ineligibleTransactionType,
                             /**

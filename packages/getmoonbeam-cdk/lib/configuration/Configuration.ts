@@ -409,8 +409,8 @@ export const INFRA_CONFIG: InfrastructureConfiguration = {
                 }
             },
             ineligibleTransactionsProducerConsumerConfig: {
-                ineligibleTransactionsConsumerFunctionName: "ineligibleTransactionsConsumerFunction",
-                ineligibleTransactionsNotificationsConsumerFunctionName: "ineligibleTransactionsNotificationsConsumerFunction",
+                ineligibleTransactionsConsumerFunctionName: "ineligibleTransactionConsFunction",
+                ineligibleTransactionsNotificationsConsumerFunctionName: "ineligibleTransactionNotificationConsFunction",
                 ineligibleTransactionsFanOutConfig: {
                     ineligibleTransactionsProcessingTopicName: "ineligibleTransactionsProcessingTopic",
                     ineligibleTransactionsNotificationsProcessingQueueName: "ineligibleTransactionsNotificationsProcessingQueue",

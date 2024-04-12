@@ -1700,6 +1700,10 @@ export class OliveClient extends BaseAPIClient {
                 if (transactionDetailsResponse.data !== undefined && transactionDetailsResponse.data["purchaseDateTime"] !== undefined) {
                     // set the transaction details for the transaction object, from the response, and convert any information accordingly
                     transaction.timestamp = Date.parse(new Date(transactionDetailsResponse.data["purchaseDateTime"]).toISOString());
+                    // if we have a transaction amount in the transaction details, then override the placeholder amount
+                    if (transactionDetailsResponse.data["amount"] !== undefined) {
+                        transaction.totalAmount =  Number(Number(transactionDetailsResponse.data["amount"]).toFixed(2));
+                    }
                     return {
                         data: transaction
                     }

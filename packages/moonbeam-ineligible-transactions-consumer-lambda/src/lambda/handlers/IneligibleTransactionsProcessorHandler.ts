@@ -131,14 +131,31 @@ export const processIneligibleTransactions = async (event: SQSEvent): Promise<SQ
                          */
                         const moonbeamClient = new MoonbeamClient(process.env.ENV_NAME!, region);
 
-                        // before we execute the create transaction call, we will need to ensure that we have the appropriate details in the transaction
+                        /**
+                         * Before we execute the create transaction call, we will need to ensure that we have the appropriate details in the transaction
+                         *
+                         * We would like to display Moonbeam Cashback for both types of ineligible transactions. Internally we will track where they shopped
+                         * through the brand and store ids.
+                         */
                         if (ineligibleTransaction.transactionType !== TransactionType.OliveIneligibleMatched) {
                             ineligibleTransaction.transactionIsOnline = true;
                             ineligibleTransaction.brandId = `moonbeam-placeholder-brand-id-${Date.parse(new Date().toISOString())}`;
                             ineligibleTransaction.storeId = `moonbeam-placeholder-store-id-${Date.parse(new Date().toISOString())}`;
-                            ineligibleTransaction.transactionBrandName = `Moonbeam`;
+                            ineligibleTransaction.transactionBrandName = `Moonbeam Cashback`;
                             ineligibleTransaction.transactionBrandAddress = `11414 W Nadine Way, Peoria, AZ, 85383`;
-                            ineligibleTransaction.transactionBrandLogoUrl = `https://d25u6t39bsu3qy.cloudfront.net/public/moonbeam.png?Expires=3289740276&Key-Pair-Id=K2AABBFP9HSZL5&Signature=Su7oeEQLewBmM~QY-Dwa4-DYriRE53tTy0Qd1m4xkCJFw-sPtiAd5El063V9dcBrvVLhU26n9v7LFJIqg68zUb-Mx6yR0oAtHN~DYEyjK4D6QF52rt4tEuLzPEKPCm55fzAjufsSryzwTZdE6Hj4siUiJmktM~VrPdhlv6vfv3-C-Uc37GxtUkgQXSzGhOdIWyS7o5ReYDlle4AevbeoKQBols6Q6Y9ENHvgCKQP9y0QNIZv9cjdVJohopsKl4OPKKB5xnnh~egZJmzBPsbHQA-eswQW0y5RJnuJtTcmQ70jpm2kpN2jtXidAdWdNbOALzlQdBlQ8iAeP-Pqz50uYQ__`;
+                            ineligibleTransaction.transactionBrandLogoUrl =
+                                process.env.ENV_NAME! == 'dev'
+                                    ? `https://d25u6t39bsu3qy.cloudfront.net/public/moonbeam.png?Expires=3289746331&Key-Pair-Id=K2AABBFP9HSZL5&Signature=EzqOMQEJYI9jFl~fFsfY8yn13FRH-q5icbbr1Zso5ULMdUng1e9ihNWl0vG~oBJoflostfYUJfKCICUoxXhGmwuB6H3Jj5LHNjlnwYtN-UGLr0ZwestVAjnOWBLY0fYIjMcIGV5RJ32TMgye0Ahod3UCfpyJSfhjf3ZgB93ZeHGDEs8Q-lI~o6G5w3C23QIvgEezS9INfVnA5O-NUuL-LBzYsKn12njuJZsQ4chp~BRfT2wjC73d7ByXNFL0EYzKxl1qp~~wjtq~Wox68RyWrB6SYjpHEXvgjPFrcwjSIJyaNZF7DqTnNKAqv2OqoKly65EVZDUsYF5-AwWT7LDMQQ__`
+                                    : `https://d26m7717crhz6p.cloudfront.net/public/moonbeam.png?Expires=3289749120&Key-Pair-Id=K30PDKYEVQBKQV&Signature=OkWjJo2sfwjQuhMEMj-Y8~~0cMgBUEL9ddXzGlnhXE1r3nYM8b6RckWXTJB9mqPXBinvEINatbhfl~xJdKv8O68nHn3vCnSt~yxggE8Gu01L7Xo~64es8NchzFeurcapecpvBBUIy5HjL66Rnub8XWKO6n3Dw8LToax3KOhnE2ZHupGRmc2adUWM-Hda~9pqOWs4mC7FDcZQJPiZM9EsDg1lRow1WuwWZNJGrFx~SbGNjPV15c9otioUGg9iGioEVA-CkYh0EUH87eMdQ4Yd1ekyG0tJNYZCTaSlNIhkexg1mTWbMtJmAcowr58hcLJGcCeH96BwW-jvFU0MQZ06UQ__`;
+                            ineligibleTransaction.transactionBrandURLAddress = `https://www.moonbeam.vet`;
+                        } else {
+                            ineligibleTransaction.transactionIsOnline = true;
+                            ineligibleTransaction.transactionBrandName = `Moonbeam Cashback`;
+                            ineligibleTransaction.transactionBrandAddress = `11414 W Nadine Way, Peoria, AZ, 85383`;
+                            ineligibleTransaction.transactionBrandLogoUrl =
+                                process.env.ENV_NAME! == 'dev'
+                                    ? `https://d25u6t39bsu3qy.cloudfront.net/public/moonbeam.png?Expires=3289746331&Key-Pair-Id=K2AABBFP9HSZL5&Signature=EzqOMQEJYI9jFl~fFsfY8yn13FRH-q5icbbr1Zso5ULMdUng1e9ihNWl0vG~oBJoflostfYUJfKCICUoxXhGmwuB6H3Jj5LHNjlnwYtN-UGLr0ZwestVAjnOWBLY0fYIjMcIGV5RJ32TMgye0Ahod3UCfpyJSfhjf3ZgB93ZeHGDEs8Q-lI~o6G5w3C23QIvgEezS9INfVnA5O-NUuL-LBzYsKn12njuJZsQ4chp~BRfT2wjC73d7ByXNFL0EYzKxl1qp~~wjtq~Wox68RyWrB6SYjpHEXvgjPFrcwjSIJyaNZF7DqTnNKAqv2OqoKly65EVZDUsYF5-AwWT7LDMQQ__`
+                                    : `https://d26m7717crhz6p.cloudfront.net/public/moonbeam.png?Expires=3289749120&Key-Pair-Id=K30PDKYEVQBKQV&Signature=OkWjJo2sfwjQuhMEMj-Y8~~0cMgBUEL9ddXzGlnhXE1r3nYM8b6RckWXTJB9mqPXBinvEINatbhfl~xJdKv8O68nHn3vCnSt~yxggE8Gu01L7Xo~64es8NchzFeurcapecpvBBUIy5HjL66Rnub8XWKO6n3Dw8LToax3KOhnE2ZHupGRmc2adUWM-Hda~9pqOWs4mC7FDcZQJPiZM9EsDg1lRow1WuwWZNJGrFx~SbGNjPV15c9otioUGg9iGioEVA-CkYh0EUH87eMdQ4Yd1ekyG0tJNYZCTaSlNIhkexg1mTWbMtJmAcowr58hcLJGcCeH96BwW-jvFU0MQZ06UQ__`;
                             ineligibleTransaction.transactionBrandURLAddress = `https://www.moonbeam.vet`;
                         }
 
