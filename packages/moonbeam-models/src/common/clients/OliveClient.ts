@@ -7,6 +7,8 @@ import {
     GetOffersInput,
     GetUserCardLinkingIdInput,
     GetUserCardLinkingIdResponse,
+    IneligibleTransaction,
+    IneligibleTransactionResponse,
     MemberDetailsResponse,
     MemberResponse,
     Offer,
@@ -709,10 +711,10 @@ export class OliveClient extends BaseAPIClient {
      * passed in by Olive. This object will be used to set even more information for
      * it, obtained from this brand call.
      *
-     * @return a {@link Promise} of {@link TransactionResponse} representing the
-     * transaction object, populated with the brand details
+     * @return a {@link Promise} of {@link IneligibleTransactionResponse} representing the transaction
+     * with the brand details obtained, included in it.
      */
-    async getBrandDetails(transaction: Transaction): Promise<TransactionResponse> {
+    async getBrandDetailsForIneligible(transaction: IneligibleTransaction): Promise<IneligibleTransactionResponse> {
         // easily identifiable API endpoint information
         const endpointInfo = 'GET /brands/{id} Olive API';
 
@@ -809,6 +811,240 @@ export class OliveClient extends BaseAPIClient {
             });
         } catch (err) {
             const errorMessage = `Unexpected error while initiating the brand details retrieval through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: TransactionsErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
+     * Function used to retrieve the brand details, given a brand ID.
+     *
+     * @param transaction the transaction object, populated by the initial details
+     * passed in by Olive. This object will be used to set even more information for
+     * it, obtained from this brand call.
+     *
+     * @return a {@link Promise} of {@link TransactionResponse} representing the transaction
+     * with the brand details obtained, included in it.
+     */
+    async getBrandDetails(transaction: Transaction ): Promise<TransactionResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'GET /brands/{id} Olive API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the GET brand details call through the client
+            const [oliveBaseURL, olivePublicKey, olivePrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.OLIVE_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (oliveBaseURL === null || oliveBaseURL.length === 0 ||
+                olivePublicKey === null || olivePublicKey.length === 0 ||
+                olivePrivateKey === null || olivePrivateKey!.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Olive API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: TransactionsErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * GET /brands/{id}
+             * @link https://developer.oliveltd.com/reference/get-brand
+             *
+             * build the Olive API request body to be passed in, and perform a GET to it with the appropriate information
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.get(`${oliveBaseURL}/brands/${transaction.brandId}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Olive-Key": olivePrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Olive API timed out after 15000ms!'
+            }).then(brandDetailsResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(brandDetailsResponse.data)}`);
+
+                /**
+                 * if we reached this, then we assume that a 2xx response code was returned.
+                 * check the contents of the response, and act appropriately.
+                 */
+                if (brandDetailsResponse.data !== undefined && brandDetailsResponse.data["dba"] !== undefined && brandDetailsResponse.data["logoUrl"] !== undefined) {
+                    // set the brand details for the transaction object, from the response
+                    transaction.transactionBrandName = brandDetailsResponse.data["dba"];
+                    transaction.transactionBrandLogoUrl = brandDetailsResponse.data["logoUrl"];
+                    transaction.transactionBrandURLAddress = brandDetailsResponse.data["website"] !== undefined ? brandDetailsResponse.data["website"] : 'Not Available';
+                    return {
+                        data: transaction
+                    }
+                } else {
+                    return {
+                        errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                        errorType: TransactionsErrorType.ValidationError
+                    }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Olive API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Olive API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while initiating the brand details retrieval through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: TransactionsErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
+     * Function used to retrieve the store details, given a store ID.
+     *
+     * @param transaction the transaction object, populated by the initial details
+     * passed in by Olive. This object will be used to set even more information for
+     * it, obtained from this brand call.
+     *
+     * @return a {@link Promise} of {@link IneligibleTransactionResponse} representing the transaction
+     * with the store details obtained, included in it.
+     */
+    async getStoreDetailsForIneligible(transaction: IneligibleTransaction): Promise<IneligibleTransactionResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'GET /stores/{id} Olive API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the GET store details call through the client
+            const [oliveBaseURL, olivePublicKey, olivePrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.OLIVE_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (oliveBaseURL === null || oliveBaseURL.length === 0 ||
+                olivePublicKey === null || olivePublicKey.length === 0 ||
+                olivePrivateKey === null || olivePrivateKey!.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Olive API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: TransactionsErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * GET /stores/{id}
+             * @link https://developer.oliveltd.com/reference/get-store
+             *
+             * build the Olive API request body to be passed in, and perform a GET to it with the appropriate information
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.get(`${oliveBaseURL}/stores/${transaction.storeId}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Olive-Key": olivePrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Olive API timed out after 15000ms!'
+            }).then(storeDetailsResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(storeDetailsResponse.data)}`);
+
+                /**
+                 * if we reached this, then we assume that a 2xx response code was returned.
+                 * check the contents of the response, and act appropriately.
+                 */
+                if (storeDetailsResponse.data !== undefined && storeDetailsResponse.data["address1"] !== undefined && storeDetailsResponse.data["city"] !== undefined &&
+                    storeDetailsResponse.data["postcode"] !== undefined && storeDetailsResponse.data["state"] !== undefined && storeDetailsResponse.data["countryCode"] !== undefined &&
+                    storeDetailsResponse.data["isOnline"] !== undefined) {
+                    // set the store details for the transaction object, from the response
+                    transaction.transactionIsOnline = storeDetailsResponse.data["isOnline"];
+                    transaction.transactionBrandAddress = `${storeDetailsResponse.data["address1"]}, ${storeDetailsResponse.data["city"]}, ${storeDetailsResponse.data["state"]}, ${storeDetailsResponse.data["postcode"]}, ${storeDetailsResponse.data["countryCode"]}`;
+
+                    return {
+                        data: transaction
+                    }
+                } else {
+                    return {
+                        errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                        errorType: TransactionsErrorType.ValidationError
+                    }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Olive API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Olive API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while initiating the store details retrieval through ${endpointInfo}`;
             console.log(`${errorMessage} ${err}`);
 
             return {
@@ -1415,9 +1651,126 @@ export class OliveClient extends BaseAPIClient {
      * passed in by Olive. This object will be used to set even more information for
      * it, obtained from this transaction details call.
      *
+     * @return a {@link Promise} of {@link IneligibleTransactionResponse} representing the
+     * transaction object, populated with the additional transaction details that we retrieved.
+     */
+    async getTransactionDetailsForIneligible(transaction: IneligibleTransaction): Promise<IneligibleTransactionResponse> {
+        // easily identifiable API endpoint information
+        const endpointInfo = 'GET /transactions/{id} Olive API';
+
+        try {
+            // retrieve the API Key and Base URL, needed in order to make the GET transaction details call through the client
+            const [oliveBaseURL, olivePublicKey, olivePrivateKey] = await super.retrieveServiceCredentials(Constants.AWSPairConstants.OLIVE_SECRET_NAME);
+
+            // check to see if we obtained any invalid secret values from the call above
+            if (oliveBaseURL === null || oliveBaseURL.length === 0 ||
+                olivePublicKey === null || olivePublicKey.length === 0 ||
+                olivePrivateKey === null || olivePrivateKey!.length === 0) {
+                const errorMessage = "Invalid Secrets obtained for Olive API call!";
+                console.log(errorMessage);
+
+                return {
+                    errorMessage: errorMessage,
+                    errorType: TransactionsErrorType.UnexpectedError
+                };
+            }
+
+            /**
+             * GET /transactions/{id}
+             * @link https://developer.oliveltd.com/reference/show-transaction-details
+             *
+             * build the Olive API request body to be passed in, and perform a GET to it with the appropriate information
+             * we imply that if the API does not respond in 15 seconds, then we automatically catch that, and return an
+             * error for a better customer experience.
+             */
+            return axios.get(`${oliveBaseURL}/transactions/${transaction.transactionId}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Olive-Key": olivePrivateKey
+                },
+                timeout: 15000, // in milliseconds here
+                timeoutErrorMessage: 'Olive API timed out after 15000ms!'
+            }).then(transactionDetailsResponse => {
+                console.log(`${endpointInfo} response ${JSON.stringify(transactionDetailsResponse.data)}`);
+
+                /**
+                 * if we reached this, then we assume that a 2xx response code was returned.
+                 * check the contents of the response, and act appropriately.
+                 */
+                if (transactionDetailsResponse.data !== undefined && transactionDetailsResponse.data["purchaseDateTime"] !== undefined) {
+                    // set the transaction details for the transaction object, from the response, and convert any information accordingly
+                    transaction.timestamp = Date.parse(new Date(transactionDetailsResponse.data["purchaseDateTime"]).toISOString());
+                    // if we have a transaction amount in the transaction details, then override the placeholder amount
+                    if (transactionDetailsResponse.data["amount"] !== undefined) {
+                        transaction.totalAmount =  Number(Number(transactionDetailsResponse.data["amount"]).toFixed(2));
+                    }
+                    return {
+                        data: transaction
+                    }
+                } else {
+                    return {
+                        errorMessage: `Invalid response structure returned from ${endpointInfo} response!`,
+                        errorType: TransactionsErrorType.ValidationError
+                    }
+                }
+            }).catch(error => {
+                if (error.response) {
+                    /**
+                     * The request was made and the server responded with a status code
+                     * that falls out of the range of 2xx.
+                     */
+                    const errorMessage = `Non 2xxx response while calling the ${endpointInfo} Olive API, with status ${error.response.status}, and response ${JSON.stringify(error.response.data)}`;
+                    console.log(errorMessage);
+
+                    // any other specific errors to be filtered below
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                } else if (error.request) {
+                    /**
+                     * The request was made but no response was received
+                     * `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                     *  http.ClientRequest in node.js.
+                     */
+                    const errorMessage = `No response received while calling the ${endpointInfo} Olive API, for request ${error.request}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    const errorMessage = `Unexpected error while setting up the request for the ${endpointInfo} Olive API, ${(error && error.message) && error.message}`;
+                    console.log(errorMessage);
+
+                    return {
+                        errorMessage: errorMessage,
+                        errorType: TransactionsErrorType.UnexpectedError
+                    };
+                }
+            });
+        } catch (err) {
+            const errorMessage = `Unexpected error while initiating the transaction details retrieval through ${endpointInfo}`;
+            console.log(`${errorMessage} ${err}`);
+
+            return {
+                errorMessage: errorMessage,
+                errorType: TransactionsErrorType.UnexpectedError
+            };
+        }
+    }
+
+    /**
+     * Function used to retrieve the transaction details, given a transaction ID.
+     *
+     * @param transaction the transaction object, populated by the initial details
+     * passed in by Olive. This object will be used to set even more information for
+     * it, obtained from this transaction details call.
+     *
      * @return a {@link Promise} of {@link TransactionResponse} representing the
-     * transaction object, populated with the additional transaction details that
-     * we retrieved.
+     * transaction object, populated with the additional transaction details that we retrieved.
      */
     async getTransactionDetails(transaction: Transaction): Promise<TransactionResponse> {
         // easily identifiable API endpoint information

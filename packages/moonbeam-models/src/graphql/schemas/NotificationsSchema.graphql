@@ -15,6 +15,7 @@ enum NotificationType {
     VETERANS_DAY_TEMPLATE_3_REMINDER
     NEW_USER_SIGNUP
     QUALIFYING_OFFER
+    INELIGIBLE_TRANSACTION
     MILITARY_STATUS_CHANGED_PENDING_TO_VERIFIED
     MILITARY_STATUS_CHANGED_PENDING_TO_REJECTED
     EXPIRATION_LINKED_CARD_NOTICE
@@ -73,6 +74,7 @@ input CreateNotificationInput {
     channelType: NotificationChannelType!
     status: NotificationStatus!
     expoPushTokens: [String] # the push tokens for the user devices that we should send the notification to (applicable only to push notifications)
+    ineligibleTransactionAmount: Float, # mostly applicable to push based notifications, representing the cashback given for ineligible notifications
     pendingCashback: Float, # mostly applicable to push based notifications, representing the pending cashback for a qualifying transactional offer
     merchantName: String # mostly applicable to push based notifications, representing the name of the merchant for a qualifying transactional offer
     actionUrl: String # mostly applicable to push based notifications (to indicate what happens when a user taps on the notification)
@@ -91,6 +93,7 @@ input SendMobilePushNotificationInput {
     expoPushTokens: [String]!
     pendingCashback: Float
     merchantName: String
+    ineligibleTransactionAmount: Float
 }
 
 # this type is a specific response for sending notifications and will be used solely as an input object, outside of any AppSync related queries and/or mutations

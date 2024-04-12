@@ -478,11 +478,40 @@ enum TransactionType {
     OFFER_REDEEMED
     ROUNDUP
     CONTRIBUTION
+    OLIVE_INELIGIBLE_UNMATCHED ## oliveIneligibleUnmatched = transaction coming from the Olive platform that did not match to an offer.
+    OLIVE_INELIGIBLE_MATCHED ### oliveIneligibleMatched = transaction coming from the Olive platform that did match to an offer, but for some reason it did not qualify and has brand/store details associated (think click offers).
 }
 
 ## For now we only support USD as the currency code type for transactions
 enum CurrencyCodeType {
     USD
+}
+
+## this type is mainly used to define and/or work with the ineligible Transaction object before it is stored
+## in the DB, as obtained from Olive.
+type IneligibleTransaction @aws_cognito_user_pools @aws_api_key {
+    id: ID ## this represents the userID which the transaction belongs to/was made by
+    timestamp: AWSTimestamp! ## this represents the timestamp, in a Number epoch based format (for sorting purposes)
+    transactionId: ID!
+    transactionStatus: TransactionsStatus!
+    transactionType: TransactionType!
+    createdAt: AWSDateTime! ## this will be the same as the "timestamp" value above, only represented in a date time format
+    updatedAt: AWSDateTime
+    memberId: ID! ## this will be obtained from Olive (and it is the Olive member id)
+    cardId: ID!
+    brandId: ID
+    storeId: ID
+    category: String!
+    currencyCode: CurrencyCodeType!,
+    rewardAmount: Float,
+    totalAmount: Float,
+    pendingCashbackAmount: Float ## this amount should be the total reward amount that's pending reimbursement to the customer
+    creditedCashbackAmount: Float ## this amount should be the total reward amount that's reimbursed/credited to the customer
+    transactionBrandName: String,
+    transactionBrandAddress: String,
+    transactionBrandLogoUrl: String,
+    transactionBrandURLAddress: String,
+    transactionIsOnline: Boolean
 }
 
 ## this type is mainly used to define and/or work with the Transaction object before it is stored
@@ -569,6 +598,14 @@ type TransactionStatusDetails @aws_cognito_user_pools @aws_api_key {
 ## in the DB, as obtained from Olive's get transaction details call - used for transactional purposes.
 type TransactionResponse @aws_cognito_user_pools @aws_api_key {
     data: Transaction
+    errorType: TransactionsErrorType
+    errorMessage: String
+}
+
+## this type is mainly used to define and/or work with the IneligibleTransactionResponse object before it is stored
+## in the DB, as obtained from Olive's get transaction details call - used for ineligible transactional purposes.
+type IneligibleTransactionResponse @aws_cognito_user_pools @aws_api_key {
+    data: IneligibleTransaction
     errorType: TransactionsErrorType
     errorMessage: String
 }
@@ -729,6 +766,7 @@ enum NotificationType {
     VETERANS_DAY_TEMPLATE_3_REMINDER
     NEW_USER_SIGNUP
     QUALIFYING_OFFER
+    INELIGIBLE_TRANSACTION
     MILITARY_STATUS_CHANGED_PENDING_TO_VERIFIED
     MILITARY_STATUS_CHANGED_PENDING_TO_REJECTED
     EXPIRATION_LINKED_CARD_NOTICE
@@ -787,6 +825,7 @@ input CreateNotificationInput {
     channelType: NotificationChannelType!
     status: NotificationStatus!
     expoPushTokens: [String] # the push tokens for the user devices that we should send the notification to (applicable only to push notifications)
+    ineligibleTransactionAmount: Float, # mostly applicable to push based notifications, representing the cashback given for ineligible notifications
     pendingCashback: Float, # mostly applicable to push based notifications, representing the pending cashback for a qualifying transactional offer
     merchantName: String # mostly applicable to push based notifications, representing the name of the merchant for a qualifying transactional offer
     actionUrl: String # mostly applicable to push based notifications (to indicate what happens when a user taps on the notification)
@@ -805,6 +844,7 @@ input SendMobilePushNotificationInput {
     expoPushTokens: [String]!
     pendingCashback: Float
     merchantName: String
+    ineligibleTransactionAmount: Float
 }
 
 # this type is a specific response for sending notifications and will be used solely as an input object, outside of any AppSync related queries and/or mutations

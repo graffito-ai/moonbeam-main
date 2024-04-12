@@ -83,6 +83,12 @@ export class CourierClient extends BaseAPIClient {
                             }
                         }
                     },
+                    ...(sendMobilePushNotificationInput.ineligibleTransactionAmount !== undefined &&
+                        sendMobilePushNotificationInput.ineligibleTransactionAmount !== null && {
+                            data: {
+                                ineligibleTransactionAmount: sendMobilePushNotificationInput.ineligibleTransactionAmount!
+                            }
+                        }),
                     ...((sendMobilePushNotificationInput.pendingCashback === undefined || sendMobilePushNotificationInput.pendingCashback === null)
                         && sendMobilePushNotificationInput.merchantName !== undefined && sendMobilePushNotificationInput.merchantName !== null
                         && sendMobilePushNotificationInput.merchantName.length !== 0 && {

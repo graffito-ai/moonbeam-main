@@ -226,6 +226,32 @@ export interface TransactionsProducerConsumerConfiguration {
 }
 
 /**
+ * Interface used to define the configuration for the ineligible transactions-related fan-out pattern,
+ * composed of an event-based process, driven by SNS and SQS.
+ */
+export interface IneligibleTransactionsFanOutConfiguration {
+    readonly ineligibleTransactionsProcessingTopicName: string;
+    readonly ineligibleTransactionsNotificationsProcessingQueueName: string;
+    readonly ineligibleTransactionsNotificationsProcessingDLQName: string;
+    readonly ineligibleTransactionsProcessingQueueName: string;
+    readonly ineligibleTransactionsProcessingDLQName: string;
+    readonly ineligibleTransactionsNotificationsTopicDLQName: string;
+    readonly ineligibleTransactionsProcessingTopicDLQName: string;
+    readonly ineligibleTransactionsNotificationsProcessingEventSourceMapping: string;
+    readonly ineligibleTransactionsProcessingEventSourceMapping: string;
+}
+
+/**
+ * Interface used to define all the resources for the producer and consumers, taking advantage
+ * of the async ineligible transactional data.
+ */
+export interface IneligibleTransactionsProducerConsumerConfiguration {
+    readonly ineligibleTransactionsConsumerFunctionName: string;
+    readonly ineligibleTransactionsNotificationsConsumerFunctionName: string;
+    readonly ineligibleTransactionsFanOutConfig: IneligibleTransactionsFanOutConfiguration;
+}
+
+/**
  * Interface used to define the configuration for the update transaction-related fan-out pattern, composed
  * of an event-based process, driven by SNS and SQS.
  */

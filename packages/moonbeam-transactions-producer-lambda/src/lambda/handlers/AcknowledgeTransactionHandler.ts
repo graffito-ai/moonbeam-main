@@ -1,5 +1,11 @@
 import {APIGatewayProxyResult} from "aws-lambda/trigger/api-gateway-proxy";
-import {Transaction, TransactionsErrorType, TransactionsStatus, TransactionType} from "@moonbeam/moonbeam-models";
+import {
+    IneligibleTransaction,
+    Transaction,
+    TransactionsErrorType,
+    TransactionsStatus,
+    TransactionType
+} from "@moonbeam/moonbeam-models";
 import {PublishCommand, SNSClient} from "@aws-sdk/client-sns";
 
 /**
@@ -136,20 +142,124 @@ export const acknowledgeTransaction = async (route: string, requestBody: string 
                         }
                     }
                 } else {
-                    const errorMessage = `Transaction is not a redeemable offer. Not processing.`;
-                    console.log(`${errorMessage} ${requestBody}`);
+                    // ToDo: Remove this once tested
+                    if (requestData["memberId"] === '783f39f7-ec67-4240-e273-08dba8c04caa') {
+                        /**
+                         * if this is not a redeemable offer, AKA an ineligible transaction, determine whether it is
+                         * an OLIVE_INELIGIBLE_UNMATCHED or OLIVE_INELIGIBLE_MATCHED type.
+                         */
+                        let ineligibleTransactionType: TransactionType = TransactionType.OliveIneligibleUnmatched;
+                        if (requestData["transaction"]["brandId"] !== undefined && requestData["transaction"]["brandId"] !== null &&
+                            requestData["transaction"]["storeId"] !== undefined && requestData["transaction"]["storeId"] !== null) {
+                            ineligibleTransactionType = TransactionType.OliveIneligibleMatched;
+                        }
 
-                    /**
-                     * return a 2xx response here, since this is not a true error worth retrying the processing, but rather an indication of filtering
-                     * there's no need to indicate that Olive should retry sending this message, since we don't want to process it for now, for redeemed offers purposes
-                     */
-                    return {
-                        statusCode: 202,
-                        body: JSON.stringify({
-                            data: null,
-                            errorType: TransactionsErrorType.Unprocessable,
-                            errorMessage: errorMessage
-                        })
+                        // build the ineligible transaction object from the incoming request body
+                        const ineligibleTransaction: IneligibleTransaction = {
+                            /**
+                             * the ineligible transaction id, is represented by the userId of the associated Moonbeam user, to be obtained during processing
+                             * through the GET member details call
+                             */
+                            memberId: requestData["memberId"],
+                            ...(ineligibleTransactionType === TransactionType.OliveIneligibleMatched && {
+                                storeId: requestData["transaction"]["storeId"],
+                                brandId: requestData["transaction"]["brandId"]
+                            }),
+                            cardId: requestData["transaction"]["cardId"],
+                            category: requestData["transaction"]["merchantCategoryCode"],
+                            currencyCode: requestData["transaction"]["currencyCode"],
+                            transactionId: requestData["transaction"]["id"],
+                            // set the status of ineligible transactions as PROCESSED
+                            transactionStatus: TransactionsStatus.Processed,
+                            // the type of this ineligible transaction was determined above
+                            transactionType: ineligibleTransactionType,
+                            /**
+                             * at creation time, these timestamps won't be converted appropriately, to what we expect them to look like. That conversion will be done all at
+                             * processing time, but it will all depend on the creation time of the transaction, which is why we only passed in the creation time of the transaction
+                             * below.
+                             */
+                            timestamp: 0,
+                            createdAt: requestData["transaction"]["created"],
+                            rewardAmount: 0.01, // 1 cent per transaction
+                            totalAmount: 0.00,
+                            // we start with 0 dollars credited to the customer, since the whole reward amount is pending credit at transaction creation time
+                            creditedCashbackAmount: 0,
+                            pendingCashbackAmount: 0.01 // 1 cent per transaction
+                        }
+
+                        // initializing the SNS Client
+                        const snsClient = new SNSClient({region: region});
+
+                        /**
+                         * drop the ineligible transaction as a message to the ineligible transactions processing topic
+                         */
+                        const ineligibleTransactionReceipt = await snsClient.send(new PublishCommand({
+                            TopicArn: process.env.INELIGIBLE_TRANSACTIONS_PROCESSING_TOPIC_ARN!,
+                            Message: JSON.stringify(ineligibleTransaction),
+                            /**
+                             * the message group id, will be represented by the Olive member id, so that we can group transaction messages for a particular member id,
+                             * associated to a Moonbeam user id, and sort them in the FIFO processing topic accordingly.
+                             */
+                            MessageGroupId: ineligibleTransaction.memberId
+                        }));
+
+                        // ensure that the ineligible transaction message was properly sent to the appropriate processing topic
+                        if (ineligibleTransactionReceipt && ineligibleTransactionReceipt.MessageId && ineligibleTransactionReceipt.MessageId.length !== 0 &&
+                            ineligibleTransactionReceipt.SequenceNumber && ineligibleTransactionReceipt.SequenceNumber.length !== 0) {
+                            /**
+                             * the ineligible transaction has been successfully dropped into the topic, and will be picked up by the ineligible transactions consumer and other
+                             * services, like the ineligible transactions notifications service consumer.
+                             */
+                            console.log(`Ineligible transaction successfully sent to topic for processing with receipt information: ${ineligibleTransactionReceipt.MessageId} ${ineligibleTransactionReceipt.SequenceNumber}`);
+
+                            const errorMessage = `Transaction is not a redeemable offer. Not processing.`;
+                            console.log(`${errorMessage} ${requestBody}`);
+
+                            /**
+                             * return a 2xx response here, since this is not a true error worth retrying the processing, but rather an indication of filtering
+                             * there's no need to indicate that Olive should retry sending this message, since we don't want to process it for now, for redeemed offers purposes
+                             */
+                            return {
+                                statusCode: 202,
+                                body: JSON.stringify({
+                                    data: null,
+                                    errorType: TransactionsErrorType.Unprocessable,
+                                    errorMessage: errorMessage
+                                })
+                            }
+                        } else {
+                            const errorMessage = `Unexpected error while sending the ineligible transaction message further!`;
+                            console.log(errorMessage);
+
+                            /**
+                             * if there are errors associated with sending the message to the topic.
+                             * Olive will retry sending this message upon receiving of a non 2XX code
+                             */
+                            return {
+                                statusCode: 424,
+                                body: JSON.stringify({
+                                    data: null,
+                                    errorType: TransactionsErrorType.Unprocessable,
+                                    errorMessage: errorMessage
+                                })
+                            }
+                        }
+                    } else {
+                        const errorMessage = `Transaction is not a redeemable offer. Not processing.`;
+                        console.log(`${errorMessage} ${requestBody}`);
+
+                        /**
+                         * return a 2xx response here, since this is not a true error worth retrying the processing, but rather an indication of filtering
+                         * there's no need to indicate that Olive should retry sending this message, since we don't want to process it for now, for redeemed offers purposes
+                         */
+                        return {
+                            statusCode: 202,
+                            body: JSON.stringify({
+                                data: null,
+                                errorType: TransactionsErrorType.Unprocessable,
+                                errorMessage: errorMessage
+                            })
+                        }
                     }
                 }
             } else {

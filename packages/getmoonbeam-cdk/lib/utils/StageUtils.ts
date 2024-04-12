@@ -32,6 +32,7 @@ import {ScriptsResolverStack} from "../stacks/ScriptsResolverStack";
 import {ServicesResolverStack} from "../stacks/ServicesResolverStack";
 import {EventsResolverStack} from "../stacks/EventsResolverStack";
 import {LocationBasedReminderProducerConsumerStack} from "../stacks/LocationBasedReminderProducerConsumerStack";
+import {IneligibleTransactionsProducerConsumerStack} from "../stacks/IneligibleTransactionsProducerConsumerStack";
 
 /**
  * File used as a utility class, for defining and setting up all infrastructure-based stages
@@ -190,6 +191,17 @@ export class StageUtils {
                 });
                 transactionsStack.addDependency(appSyncStack);
 
+                // create the Ineligible Transaction Producer Consumer stack && add it to the CDK app
+                const ineligibleTransactionsProducerConsumerStack = new IneligibleTransactionsProducerConsumerStack(this.app, `moonbeam-ineligible-transactions-producer-consumer-${stageKey}`, {
+                    stackName: `moonbeam-ineligible-transactions-producer-consumer-${stageKey}`,
+                    description: 'This stack will contain all the resources needed for the async ineligible transactional consumers, as well as producers',
+                    env: stageEnv,
+                    stage: stageConfiguration.stage,
+                    ineligibleTransactionsProducerConsumerConfig: stageConfiguration.ineligibleTransactionsProducerConsumerConfig,
+                    environmentVariables: stageConfiguration.environmentVariables
+                });
+                ineligibleTransactionsProducerConsumerStack.addDependency(appSyncStack);
+
                 // create the Transaction Producer Consumer stack && add it to the CDK app
                 const transactionsProducerConsumerStack = new TransactionsProducerConsumerStack(this.app, `moonbeam-transactions-producer-consumer-${stageKey}`, {
                     stackName: `moonbeam-transactions-producer-consumer-${stageKey}`,
@@ -197,9 +209,11 @@ export class StageUtils {
                     env: stageEnv,
                     stage: stageConfiguration.stage,
                     transactionsProducerConsumerConfig: stageConfiguration.transactionsProducerConsumerConfig,
+                    ineligibleTransactionsProcessingTopic: ineligibleTransactionsProducerConsumerStack.ineligibleTransactionsProcessingTopic,
                     environmentVariables: stageConfiguration.environmentVariables
                 });
                 transactionsProducerConsumerStack.addDependency(appSyncStack);
+                transactionsProducerConsumerStack.addDependency(ineligibleTransactionsProducerConsumerStack);
 
                 // create the Updated Transaction Producer Consumer stack && add it to the CDK app
                 const updatedTransactionsProducerConsumerStack = new UpdateTransactionsProducerConsumerStack(this.app, `moonbeam-updated-transactions-producer-consumer-${stageKey}`, {

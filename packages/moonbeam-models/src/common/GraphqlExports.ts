@@ -252,6 +252,7 @@ export type CreateNotificationInput = {
   emailDestination?: InputMaybe<Scalars['String']>;
   expoPushTokens?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   id: Scalars['ID'];
+  ineligibleTransactionAmount?: InputMaybe<Scalars['Float']>;
   merchantName?: InputMaybe<Scalars['String']>;
   notificationId?: InputMaybe<Scalars['ID']>;
   pendingCashback?: InputMaybe<Scalars['Float']>;
@@ -688,6 +689,39 @@ export type IneligibleLinkedUsersResponse = {
   data?: Maybe<Array<Maybe<RetrieveUserDetailsForNotifications>>>;
   errorMessage?: Maybe<Scalars['String']>;
   errorType?: Maybe<CardLinkErrorType>;
+};
+
+export type IneligibleTransaction = {
+  __typename?: 'IneligibleTransaction';
+  brandId?: Maybe<Scalars['ID']>;
+  cardId: Scalars['ID'];
+  category: Scalars['String'];
+  createdAt: Scalars['AWSDateTime'];
+  creditedCashbackAmount?: Maybe<Scalars['Float']>;
+  currencyCode: CurrencyCodeType;
+  id?: Maybe<Scalars['ID']>;
+  memberId: Scalars['ID'];
+  pendingCashbackAmount?: Maybe<Scalars['Float']>;
+  rewardAmount?: Maybe<Scalars['Float']>;
+  storeId?: Maybe<Scalars['ID']>;
+  timestamp: Scalars['AWSTimestamp'];
+  totalAmount?: Maybe<Scalars['Float']>;
+  transactionBrandAddress?: Maybe<Scalars['String']>;
+  transactionBrandLogoUrl?: Maybe<Scalars['String']>;
+  transactionBrandName?: Maybe<Scalars['String']>;
+  transactionBrandURLAddress?: Maybe<Scalars['String']>;
+  transactionId: Scalars['ID'];
+  transactionIsOnline?: Maybe<Scalars['Boolean']>;
+  transactionStatus: TransactionsStatus;
+  transactionType: TransactionType;
+  updatedAt?: Maybe<Scalars['AWSDateTime']>;
+};
+
+export type IneligibleTransactionResponse = {
+  __typename?: 'IneligibleTransactionResponse';
+  data?: Maybe<IneligibleTransaction>;
+  errorMessage?: Maybe<Scalars['String']>;
+  errorType?: Maybe<TransactionsErrorType>;
 };
 
 export type Location = {
@@ -1248,6 +1282,7 @@ export enum NotificationType {
   ExpirationLinkedCardNotice = 'EXPIRATION_LINKED_CARD_NOTICE',
   ExpiredLinkedCard = 'EXPIRED_LINKED_CARD',
   FeedbackTemplate_1Reminder = 'FEEDBACK_TEMPLATE_1_REMINDER',
+  IneligibleTransaction = 'INELIGIBLE_TRANSACTION',
   LocationBasedOfferReminder = 'LOCATION_BASED_OFFER_REMINDER',
   MarketingRelated = 'MARKETING_RELATED',
   MilitaryStatusChangedPendingToRejected = 'MILITARY_STATUS_CHANGED_PENDING_TO_REJECTED',
@@ -1784,6 +1819,7 @@ export type SendEmailNotificationInput = {
 
 export type SendMobilePushNotificationInput = {
   expoPushTokens: Array<InputMaybe<Scalars['String']>>;
+  ineligibleTransactionAmount?: InputMaybe<Scalars['Float']>;
   merchantName?: InputMaybe<Scalars['String']>;
   pendingCashback?: InputMaybe<Scalars['Float']>;
 };
@@ -1900,6 +1936,8 @@ export type TransactionStatusDetailsResponse = {
 export enum TransactionType {
   Contribution = 'CONTRIBUTION',
   OfferRedeemed = 'OFFER_REDEEMED',
+  OliveIneligibleMatched = 'OLIVE_INELIGIBLE_MATCHED',
+  OliveIneligibleUnmatched = 'OLIVE_INELIGIBLE_UNMATCHED',
   Roundup = 'ROUNDUP'
 }
 

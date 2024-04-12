@@ -20,6 +20,8 @@ import {
     GetUserCardLinkingIdInput,
     GetUserCardLinkingIdResponse, GetUsersByGeographicalLocationInput,
     IneligibleLinkedUsersResponse,
+    IneligibleTransaction,
+    IneligibleTransactionResponse,
     MemberDetailsResponse,
     MemberResponse,
     MilitaryVerificationNotificationUpdate,
@@ -159,6 +161,10 @@ export abstract class BaseAPIClient {
                                     return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
                                         clientPairAsJson[Constants.AWSPairConstants.NEW_QUALIFYING_OFFER_NOTIFICATION_AUTH_TOKEN],
                                         clientPairAsJson[Constants.AWSPairConstants.NEW_QUALIFYING_OFFER_NOTIFICATION_TEMPLATE_ID]];
+                                case NotificationType.IneligibleTransaction:
+                                    return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
+                                        clientPairAsJson[Constants.AWSPairConstants.PUSH_NEW_INELIGIBLE_TRANSACTION_AUTH_TOKEN],
+                                        clientPairAsJson[Constants.AWSPairConstants.PUSH_NEW_INELIGIBLE_TRANSACTION_TEMPLATE_ID]];
                                 case NotificationType.LocationBasedOfferReminder:
                                     return [clientPairAsJson[Constants.AWSPairConstants.COURIER_BASE_URL],
                                         clientPairAsJson[Constants.AWSPairConstants.PUSH_LOCATION_BASED_UPDATE_NOTIFICATION_AUTH_TOKEN],
@@ -883,18 +889,46 @@ export abstract class BaseAPIClient {
     protected getBrandDetails?(transaction: Transaction): Promise<TransactionResponse>;
 
     /**
+     * Function used to retrieve the brand details, given a brand ID.
+     *
+     * @param transaction the transaction object, populated by the initial details
+     * passed in by Olive. This object will be used to set even more information for
+     * it, obtained from this brand call.
+     *
+     * @return a {@link Promise} of {@link IneligibleTransactionResponse} representing the transaction
+     * with the brand details obtained, included in it.
+     *
+     * @protected
+     */
+    protected getBrandDetailsForIneligible?(transaction: IneligibleTransaction): Promise<IneligibleTransactionResponse>;
+
+    /**
      * Function used to retrieve the store details, given a store ID.
      *
      * @param transaction the transaction object, populated by the initial details
      * passed in by Olive. This object will be used to set even more information for
      * it, obtained from this brand call.
      *
-     * @return a {@link Promise} of {@link TransactionResponse} representing the transaction
+     * @return a {@link Promise} of {@link IneligibleTransactionResponse} representing the transaction
      * with the store details obtained, included in it.
      *
      * @protected
      */
-    protected getStoreDetails?(transaction: Transaction): Promise<TransactionResponse>;
+    protected getStoreDetailsForIneligible?(transaction: IneligibleTransaction): Promise<IneligibleTransactionResponse>;
+
+    /**
+     * Function used to retrieve the store details, given a store ID.
+     *
+     * @param transaction the transaction object, populated by the initial details
+     * passed in by Olive. This object will be used to set even more information for
+     * it, obtained from this brand call.
+     *
+     * @return a {@link Promise} of {@link TransactionResponse} or {@link IneligibleTransactionResponse} representing the transaction
+     * with the store details obtained, included in it.
+     *
+     * @protected
+     */
+    protected getStoreDetails?(transaction: Transaction ): Promise<TransactionResponse>;
 
     /**
      * Function used to retrieve the member details, specifically the extMemberId, which is Moonbeam's unique user ID
@@ -917,9 +951,23 @@ export abstract class BaseAPIClient {
      * passed in by Olive. This object will be used to set even more information for
      * it, obtained from this transaction details call.
      *
+     * @return a {@link Promise} of {@link IneligibleTransactionResponse} representing the
+     * transaction object, populated with the additional transaction details that we retrieved.
+     *
+     * @protected
+     */
+    protected getTransactionDetailsForIneligible?(transaction: IneligibleTransaction): Promise<IneligibleTransactionResponse>;
+
+    /**
+     * Function used to retrieve the transaction details, given a transaction ID
+     * (used for transactional purposes).
+     *
+     * @param transaction the transaction object, populated by the initial details
+     * passed in by Olive. This object will be used to set even more information for
+     * it, obtained from this transaction details call.
+     *
      * @return a {@link Promise} of {@link TransactionResponse} representing the
-     * transaction object, populated with the additional transaction details that
-     * we retrieved.
+     * transaction object, populated with the additional transaction details that we retrieved.
      *
      * @protected
      */
